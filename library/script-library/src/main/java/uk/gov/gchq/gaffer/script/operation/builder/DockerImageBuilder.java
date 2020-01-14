@@ -95,6 +95,7 @@ public class DockerImageBuilder implements ImageBuilder {
      * Builds the arguments string to build the Docker Client.
      *
      * @param scriptName - String name of the script to run.
+     * @param scriptPort - Port to send a ready signal to.
      * @param params - String parameters to be passed to the script to be run.
      *
      * @return String the build arguments string.

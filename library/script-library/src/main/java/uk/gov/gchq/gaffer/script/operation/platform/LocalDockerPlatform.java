@@ -73,8 +73,7 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @throws DockerCertificateException       if image build fails
      */
     @Override
-    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException
-{
+    public DockerImage buildImage(final String scriptName, final Map<String, Object> scriptParameters, final String pathToBuildFiles) throws IOException, DockerCertificateException, DockerException, InterruptedException {
         final DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
         listenerPort = RandomPortGenerator.getInstance().generatePort();
         // Get the user defined dockerfile or use the default
@@ -171,8 +170,9 @@ public class LocalDockerPlatform implements ImagePlatform {
      * @param container             the container
      * @throws DockerException      exception if the container fails to start
      * @throws InterruptedException exception if the container fails to start
+     * @throws IOException          exception if the container fails to start
      */
-    public void startContainer(final Container container) throws InterruptedException, DockerException {
+    public void startContainer(final Container container) throws InterruptedException, DockerException, IOException {
         // Keep trying to start the container
         this.startContainerListener();
         Exception error = null;
@@ -183,7 +183,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                     Thread.sleep(100);
                 }
                 docker.startContainer(container.getContainerId());
-                while(!containerActive) {
+                while (!containerActive) {
                     Thread.sleep(100);
                 }
                 server.stop(0);
@@ -208,24 +208,20 @@ public class LocalDockerPlatform implements ImagePlatform {
     boolean listenerActive = false;
     boolean containerActive = false;
 
-    private void startContainerListener() {
+    private void startContainerListener() throws IOException {
         // Run a HTTP server listener here with a response handler that will then begin the next
         // method.
-        try {
-            server = HttpServer.create(new InetSocketAddress(listenerPort), 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        server = HttpServer.create(new InetSocketAddress(listenerPort), 0);
         HttpContext context = Objects.requireNonNull(server).createContext("/");
         context.setHandler(this::containerHTTPHandler);
         server.start();
         listenerActive = true;
     }
 
-    private void containerHTTPHandler(HttpExchange exchange) throws IOException {
-        String response = "Connection Received\n";
-        exchange.sendResponseHeaders(200, response.getBytes().length);//response code and length
-        OutputStream os = exchange.getResponseBody();
+    private void containerHTTPHandler(final HttpExchange exchange) throws IOException {
+        final String response = "Connection Received\n";
+        exchange.sendResponseHeaders(200, response.getBytes().length); //response code and length
+        final OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
         os.close();
         containerActive = true;

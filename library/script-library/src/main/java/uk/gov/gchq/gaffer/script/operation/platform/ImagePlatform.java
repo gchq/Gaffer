@@ -24,6 +24,7 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import uk.gov.gchq.gaffer.script.operation.container.Container;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
 
+import java.io.IOException;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -65,5 +66,5 @@ public interface ImagePlatform {
 
     void closeContainer(Container container);
 
-    void startContainer(Container container) throws DockerException, InterruptedException;
+    void startContainer(Container container) throws DockerException, InterruptedException, IOException;
 }

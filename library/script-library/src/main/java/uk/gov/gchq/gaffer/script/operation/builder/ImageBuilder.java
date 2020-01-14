@@ -25,6 +25,7 @@ public interface ImageBuilder {
      * Builds an image which runs a script
      *
      * @param scriptName             the name of the script being run
+     * @param scriptPort             the port to send a ready signal to
      * @param scriptParameters       the parameters of the script being run
      * @param pathToBuildFiles       the path to the directory containing any build files
      * @return the image
