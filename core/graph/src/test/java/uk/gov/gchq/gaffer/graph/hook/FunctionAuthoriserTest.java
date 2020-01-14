@@ -28,9 +28,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.function.ToEntityId;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.function.DivideBy;
 import uk.gov.gchq.koryphe.impl.function.Identity;
@@ -39,10 +42,12 @@ import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.spy;
 
 public class FunctionAuthoriserTest {
 
@@ -198,6 +203,52 @@ public class FunctionAuthoriserTest {
         final FunctionAuthoriser authoriser = new FunctionAuthoriser();
 
         JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+    }
+
+    @Test
+    public void shouldMaintainOperationChainIfItFailsToSerialise() {
+        // Given
+        FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
+
+        List fakeInput = Lists.newArrayList(new EntitySeed(1), new EntitySeed(2), new EntitySeed(3));
+        GetElements getElements = new GetElements();
+        getElements.setInput(fakeInput);
+
+        getElements = spy(getElements); // will fail serialisation
+
+        final OperationChain chain = new OperationChain.Builder()
+                .first(getElements)
+                .then(generateOperation(ToEntityId.class))
+                .build();
+
+        // When
+        authoriser.preExecute(chain, new Context());
+
+
+        // Then
+        assertEquals(fakeInput, ((Input) chain.getOperations().get(0)).getInput());
+    }
+
+    @Test
+    public void shouldMaintainOperationChainInputIfItSerialises() {
+        // Given
+        FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
+
+        List fakeInput = Lists.newArrayList(new EntitySeed(1), new EntitySeed(2), new EntitySeed(3));
+        GetElements getElements = new GetElements();
+        getElements.setInput(fakeInput);
+
+        final OperationChain chain = new OperationChain.Builder()
+                .first(getElements)
+                .then(generateOperation(ToEntityId.class))
+                .build();
+
+        // When
+        authoriser.preExecute(chain, new Context());
+
+
+        // Then
+        assertEquals(fakeInput, ((Input) chain.getOperations().get(0)).getInput());
     }
 
     private OperationChain generateOperation(final Class<? extends Function>... functionClasses) {

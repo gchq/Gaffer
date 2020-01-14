@@ -72,15 +72,15 @@ public class FunctionAuthoriser implements GraphHook {
             LOGGER.warn("Failed to serialise operation chain: " + opChain);
             LOGGER.warn("caused by", e);
             return;
+        } finally {
+            if (input != null) {
+                // The only way input could have been set to non null value would
+                // be if the first operation was an Input operation.
+                ((Input) opChain.getOperations().get(0)).setInput(input);
+            }
         }
 
         checkNoUnauthorisedFunctionsArePresent(chainString);
-
-        if (input != null) {
-            // The only way input could have been set to non null value would
-            // be if the first operation was an Input operation.
-            ((Input) opChain.getOperations().get(0)).setInput(input);
-        }
     }
 
     private void checkNoUnauthorisedFunctionsArePresent(final String chainString) {
