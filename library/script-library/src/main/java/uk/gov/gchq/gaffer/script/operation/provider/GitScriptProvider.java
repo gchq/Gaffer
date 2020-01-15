@@ -47,7 +47,7 @@ public class GitScriptProvider implements ScriptProvider {
             cloneRepo(absoluteRepoPath, repoURI);
         } else {
             try {
-                Git git = Git.open(new File(absoluteRepoPath + "/" + repoURI.substring(repoURI.lastIndexOf("/") + 1)));
+                Git git = Git.open(new File(absoluteRepoPath));
                 pullRepo(git);
             } catch (final IOException e) {
                 LOGGER.error("absoluteRepoPath: {}", absoluteRepoPath);

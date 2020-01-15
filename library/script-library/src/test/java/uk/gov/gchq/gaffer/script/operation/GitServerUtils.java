@@ -175,7 +175,7 @@ public class GitServerUtils extends Thread {
 
             // create the directory
             repository = new FileRepositoryBuilder()
-                                    .setGitDir(new File(dirPath.toString() + "/" + ScriptTestConstants.REPO_NAME))
+                                    .setGitDir(oldRepo)
                                     .readEnvironment()
                                     .findGitDir()
                                     .build();
