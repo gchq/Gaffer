@@ -131,3 +131,23 @@ chain authorisation. To implement your own hook, just implement the `GraphHook`
 interface and register it with the graph when you build a `Graph` instance.
 GraphHooks should be json serialisable and each hook should have a unit test
 that extends GraphHookTest.
+
+There are some graph hooks which are added by default. The NamedViewResolver is
+always added, as is the NamedOperationResolver (providing that NamedOperations
+are supported by the store). These hooks are added at the start of the list
+of hooks. The third hook added is the FunctionAuthoriser, which is added at the
+end of the list. This hook stops users from using potentially dangerous
+functions their operation chain. If you want to disable this hook, you should
+overwrite it by adding an empty FunctionAuthoriser to your list of hooks. For
+example:
+
+```json
+{
+    "graphId": "example",
+    "hooks": [
+        {
+            "class": "uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser"
+        }
+    ]
+}
+```
