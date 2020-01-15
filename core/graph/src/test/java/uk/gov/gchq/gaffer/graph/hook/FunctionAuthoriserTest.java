@@ -49,7 +49,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 
-public class FunctionAuthoriserTest {
+public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
+
+    private static final String JSON_PATH = "/functionAuthoriser.json";
+
+    public FunctionAuthoriserTest() {
+        super(FunctionAuthoriser.class);
+    }
 
     @Test
     public void shouldNotAllowOperationWhichContainsUnauthorisedFunction() {
@@ -270,5 +276,10 @@ public class FunctionAuthoriserTest {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    protected FunctionAuthoriser getTestObject() {
+        return fromJson(JSON_PATH);
     }
 }

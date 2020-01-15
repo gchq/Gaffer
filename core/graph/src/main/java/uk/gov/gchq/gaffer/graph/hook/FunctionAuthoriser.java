@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ import java.util.function.Function;
  * Functions which have been banned. The Authoriser can be configured with
  * unauthorised function classes.
  */
+@JsonPropertyOrder(alphabetic = true)
 public class FunctionAuthoriser implements GraphHook {
 
     private static final String ERROR_MESSAGE_PREFIX = "Operation chain contained an unauthorised function: ";
