@@ -21,8 +21,7 @@ public final class ScriptTestConstants {
         // Private constructor to hide default public one
     }
 
-    public static final String LOCALHOST = "127.0.0.1";
-    public static final String REPO_URI = "http://localhost:8080/test";
+    public static final String REPO_URI = "http://localhost:9090/test";
     public static final String REPO_NAME = "test";
     public static final String REPO_DIR = "testRepo";
     public static final String SCRIPT_NAME = "script1";

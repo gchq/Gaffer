@@ -41,7 +41,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 public class GitServerUtils extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitServerUtils.class);
-    private static Server server = new Server(8080);
+    private static Server server = new Server(9090);
     private static boolean setupAndStart;
     private static Path pathAbsoluteScriptRepo;
 
