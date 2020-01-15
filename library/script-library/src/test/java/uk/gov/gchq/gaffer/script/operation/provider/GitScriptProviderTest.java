@@ -79,37 +79,6 @@ public class GitScriptProviderTest {
         }
     }
 
-    @Test(expected = Test.None.class /* no exception expected */)
-    @Order(2)
-    public void shouldPullIfAlreadyCloned() {
-        //Given
-        try {
-            gitServerUtils = new GitServerUtils(Paths.get(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2/test"));
-            gitServerUtils.start();
-            sleep(4000);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        //When
-        String[] files = new String[0];
-        try {
-            gsp.retrieveScripts(PATH_ABSOLUTE_SCRIPT_REPO.toString() + "2", ScriptTestConstants.REPO_URI);
-            files = PATH_ABSOLUTE_CLONED_SCRIPT_REPO.toFile().list();
-        } catch (GitAPIException | IOException e) {
-            Assert.fail();
-        }
-
-        // Then
-        Assert.assertNotNull(files);
-
-        try {
-            gitServerUtils.stopServer();
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
     @AfterClass
     public static void tearDown() {
         try {
