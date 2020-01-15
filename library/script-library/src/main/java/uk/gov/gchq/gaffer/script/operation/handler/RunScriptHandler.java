@@ -47,8 +47,6 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunScriptHandler.class);
     private static final int TIMEOUT_100 = 100;
-    private static final int TIMEOUT_200 = 200;
-    private static final int MAX_BYTES = 65000;
     private ImagePlatform imagePlatform = LocalDockerPlatform.localDockerPlatform();
     private ScriptProvider scriptProvider = GitScriptProvider.gitScriptProvider();
     private String repoName;

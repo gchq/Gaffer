@@ -56,8 +56,8 @@ public class RunScriptHandlerTest {
         // When
         StringBuilder results = null;
         try {
-            rPSH.setRepoName("test");
-            rPSH.setRepoURI("https://github.com/g609bmsma/test");
+            rPSH.setRepoName(ScriptTestConstants.REPO_NAME);
+            rPSH.setRepoURI(ScriptTestConstants.REPO_URI);
             results = (StringBuilder) rPSH.doOperation(runScript, null, null);
         } catch (OperationException e) {
             e.printStackTrace();
