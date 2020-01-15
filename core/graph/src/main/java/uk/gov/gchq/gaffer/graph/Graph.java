@@ -979,30 +979,25 @@ public final class Graph {
         }
 
         private void updateGraphHooks(final GraphConfig config) {
-            boolean hasNamedOpHook = false;
-            boolean hasNamedViewHook = false;
-            boolean hasFunctionAuthoriserHook = false;
-            for (final GraphHook graphHook : config.getHooks()) {
-                Class hookClass = graphHook.getClass();
-                if (NamedOperationResolver.class.isAssignableFrom(hookClass)) {
-                    hasNamedOpHook = true;
-                } else if (NamedViewResolver.class.isAssignableFrom(hookClass)) {
-                    hasNamedViewHook = true;
-                } else if (FunctionAuthoriser.class.isAssignableFrom(hookClass)) {
-                    hasFunctionAuthoriserHook = true;
-                }
+            List<GraphHook> hooks = config.getHooks();
+            if (!hasHook(hooks, NamedViewResolver.class)) {
+                hooks.add(0, new NamedViewResolver());
             }
-            if (!hasNamedViewHook) {
-                config.getHooks().add(0, new NamedViewResolver());
+            if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
+                config.getHooks().add(0, new NamedOperationResolver());
             }
-            if (!hasNamedOpHook) {
-                if (store.isSupported(NamedOperation.class)) {
-                    config.getHooks().add(0, new NamedOperationResolver());
-                }
-            }
-            if (!hasFunctionAuthoriserHook) {
+            if (!hasHook(hooks, FunctionAuthoriser.class)) {
                 config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
+        }
+
+        private boolean hasHook(final List<GraphHook> hooks, final Class<? extends GraphHook> hookClass) {
+            for (final GraphHook hook : hooks) {
+                if (hookClass.isAssignableFrom(hook.getClass())) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void updateSchema(final GraphConfig config) {
@@ -1109,8 +1104,5 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
-
-
-
     }
 }
