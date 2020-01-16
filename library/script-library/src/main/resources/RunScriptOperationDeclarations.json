@@ -11,8 +11,8 @@
         "scriptProvider": {
           "class": "uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider"
         },
-        "repoName": "",
-        "repoURI": "",
+        "repoName": "test",
+        "repoURI": "http://localhost:9090/test",
         "ip": ""
       }
     }
