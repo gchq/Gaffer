@@ -69,7 +69,7 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
 
         try {
             // Pull or Clone the repo with the files
-            scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
+            retrieveScripts(absoluteRepoPath, operation.getScriptName());
             // Build the image
             final Image image = imagePlatform.buildImage(scriptName, scriptParameters, pathToBuildFiles);
             // Create the container
@@ -90,6 +90,25 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
                 RandomPortGenerator.getInstance().releasePort(container.getPort());
             }
             throw new OperationException(e);
+        }
+    }
+
+    public void retrieveScripts(final Path absoluteRepoPath, final String scriptName) throws Exception {
+        if (repoURI != null) {
+            scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
+        }
+        else {
+            LOGGER.info("No RepoURI specified");
+            String[] files = absoluteRepoPath.toFile().list();
+            if (files != null) {
+                for (String fileName : files) {
+                    if (fileName.startsWith(scriptName) && !fileName.endsWith(".txt")) {
+                        LOGGER.info("Found matching local file in directory");
+                        return;
+                    }
+                }
+            }
+            throw new Exception("No RepoURI specified and no local matching files found");
         }
     }
 

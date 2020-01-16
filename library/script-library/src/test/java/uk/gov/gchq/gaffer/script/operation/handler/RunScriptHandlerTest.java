@@ -57,7 +57,7 @@ public class RunScriptHandlerTest {
         StringBuilder results = null;
         try {
             rPSH.setRepoName(ScriptTestConstants.REPO_NAME);
-            rPSH.setRepoURI(ScriptTestConstants.REPO_URI);
+            rPSH.setRepoURI(null);
             results = (StringBuilder) rPSH.doOperation(runScript, null, null);
         } catch (OperationException e) {
             e.printStackTrace();
