@@ -53,6 +53,8 @@ public class LocalDockerPlatform implements ImagePlatform {
     private String dockerfilePath = "";
     private int port;
     private int listenerPort;
+    private volatile boolean listenerActive = false;
+    private volatile boolean containerActive = false;
     private HttpServer server;
     private static final String LOCAL_HOST = "127.0.0.1";
 
@@ -81,9 +83,9 @@ public class LocalDockerPlatform implements ImagePlatform {
 
         // Connect to the Docker client. To ensure only one reference to the Docker client and to avoid
         // memory leaks, synchronize this code amongst multiple threads.
-        LOGGER.info("Connecting to the Docker client...");
+        System.out.println("Connecting to the Docker client...");
         docker = DockerClientSingleton.getInstance();
-        LOGGER.info("Docker is now: {}", docker);
+        System.out.println("Docker is now: {}" + docker);
         final DockerImage dockerImage = (DockerImage) dockerImageBuilder.buildImage(scriptName,
          listenerPort, scriptParameters, pathToBuildFiles);
 
@@ -92,8 +94,8 @@ public class LocalDockerPlatform implements ImagePlatform {
         try {
             images = docker.listImages();
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.info(e.toString());
-            LOGGER.info("Failed to get a list of docker images");
+            System.out.println(e.toString());
+            System.out.println("Failed to get a list of docker images");
         }
         try {
             if (images != null) {
@@ -105,8 +107,8 @@ public class LocalDockerPlatform implements ImagePlatform {
                 }
             }
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.info(e.toString());
-            LOGGER.info("Could not remove the old images, images still in use.");
+            System.out.println(e.toString());
+            System.out.println("Could not remove the old images, images still in use.");
         }
 
         return dockerImage;
@@ -178,13 +180,18 @@ public class LocalDockerPlatform implements ImagePlatform {
         Exception error = null;
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
-                LOGGER.info("Starting the Docker container...");
-                while (!listenerActive) {
+                System.out.println("Starting the Docker container...");
+                for (int tries = 0; tries < 10; tries++) { // Temporary Time-out code
                     Thread.sleep(100);
+                    if (listenerActive) break;
                 }
                 docker.startContainer(container.getContainerId());
-                while (!containerActive) {
+                for (int tries = 0; tries < 100; tries++) { // Temporary Time-out code
                     Thread.sleep(100);
+                    if (containerActive) {
+                        System.out.println("Received connection from container");
+                        break;
+                    }
                 }
                 server.stop(0);
                 error = null;
@@ -205,12 +212,10 @@ public class LocalDockerPlatform implements ImagePlatform {
         }
     }
 
-    boolean listenerActive = false;
-    boolean containerActive = false;
-
     private void startContainerListener() throws IOException {
         // Run a HTTP server listener here with a response handler that will then begin the next
         // method.
+        System.out.println(listenerPort);
         server = HttpServer.create(new InetSocketAddress(listenerPort), 0);
         HttpContext context = Objects.requireNonNull(server).createContext("/");
         context.setHandler(this::containerHTTPHandler);
@@ -234,15 +239,15 @@ public class LocalDockerPlatform implements ImagePlatform {
      */
     public void closeContainer(final Container container) {
         try {
-            LOGGER.info("Closing the Docker container...");
+            System.out.println("Closing the Docker container...");
             docker.waitContainer(container.getContainerId());
             docker.removeContainer(container.getContainerId());
             // Free the port
             DockerClientSingleton.close();
             RandomPortGenerator.getInstance().releasePort(port);
         } catch (final DockerException | InterruptedException e) {
-            LOGGER.info(e.toString());
-            LOGGER.info("Failed to stop the container");
+            System.out.println(e.toString());
+            System.out.println("Failed to stop the container");
         }
     }
 

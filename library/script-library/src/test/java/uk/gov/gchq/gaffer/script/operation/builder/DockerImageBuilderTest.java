@@ -15,21 +15,16 @@
  */
 package uk.gov.gchq.gaffer.script.operation.builder;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.script.operation.DockerFileUtils;
 import uk.gov.gchq.gaffer.script.operation.ScriptTestConstants;
 import uk.gov.gchq.gaffer.script.operation.image.Image;
-import uk.gov.gchq.gaffer.script.operation.provider.GitScriptProvider;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,16 +37,8 @@ public class DockerImageBuilderTest {
         // Given
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
-        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
         DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        final GitScriptProvider gitScriptProvider = new GitScriptProvider();
-
-        try {
-            gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-        } catch (final GitAPIException | IOException e) {
-            Assert.fail("Failed to get the scripts");
-        }
         try {
             dockerImageBuilder.getFiles(directoryPath, "/.ScriptBin/default/Dockerfile");
         } catch (final IOException e) {
@@ -79,15 +66,8 @@ public class DockerImageBuilderTest {
         // Given
         final String currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath().toString();
         final String directoryPath = currentWorkingDirectory.concat(ScriptTestConstants.CURRENT_WORKING_DIRECTORY);
-        Path pathAbsoluteScriptRepo = DockerFileUtils.getPathAbsoluteScriptRepo(directoryPath, ScriptTestConstants.REPO_NAME);
         DockerImageBuilder dockerImageBuilder = new DockerImageBuilder();
 
-        final GitScriptProvider gitScriptProvider = new GitScriptProvider();
-        try {
-            gitScriptProvider.retrieveScripts(pathAbsoluteScriptRepo.toString(), ScriptTestConstants.REPO_URI);
-        } catch (GitAPIException | IOException e) {
-            Assert.fail("Failed to retrieve the scripts");
-        }
         // When
         try {
             dockerImageBuilder.getFiles(directoryPath, "");
