@@ -96,12 +96,11 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
     public void retrieveScripts(final Path absoluteRepoPath, final String scriptName) throws Exception {
         if (repoURI != null) {
             scriptProvider.retrieveScripts(absoluteRepoPath.toString(), repoURI);
-        }
-        else {
+        } else {
             LOGGER.info("No RepoURI specified");
             String[] files = absoluteRepoPath.toFile().list();
             if (files != null) {
-                for (String fileName : files) {
+                for (final String fileName : files) {
                     if (fileName.startsWith(scriptName) && !fileName.endsWith(".txt")) {
                         LOGGER.info("Found matching local file in directory");
                         return;
