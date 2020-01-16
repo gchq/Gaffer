@@ -490,4 +490,16 @@ public class FederatedGraphStorage {
             }
         }
     }
+
+    public HashMap<String, Object> getAllGraphsAndAuths() {
+        final HashMap<String, Object> reversed = new HashMap<>();
+        for (Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
+            FederatedAccess federatedAccess = entry.getKey();
+            Set<Graph> graphs = entry.getValue();
+            for (Graph g : graphs) {
+                reversed.put(g.getGraphId(), federatedAccess.toString());
+            }
+        }
+        return reversed;
+    }
 }
