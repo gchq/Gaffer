@@ -47,7 +47,9 @@ import java.util.stream.Collectors;
 
 public class DockerImageBuilder implements ImageBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerImageBuilder.class);
-    private static List<String> dockerFiles = Collections.unmodifiableList(new ArrayList<>(Arrays.asList("DataInputStream.py", "entrypoint.py", "modules.txt")));
+    private static List<String> dockerFiles =
+            Collections.unmodifiableList(new ArrayList<>(Arrays.asList("DataInputStream.py",
+                    "entrypoint.py", "modules.txt", "setupHost.sh")));
 
     /**
      * Builds a docker image, which runs a script, from a Dockerfile

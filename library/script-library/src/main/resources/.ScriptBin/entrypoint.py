@@ -4,6 +4,7 @@ import struct
 import re
 import sys
 import http.client
+import subprocess
 from ast import literal_eval
 
 from DataInputStream import DataInputStream
@@ -13,6 +14,10 @@ scriptNameParam = sys.argv[1]
 scriptName = importlib.import_module(scriptNameParam)
 print('scriptName is ', scriptName)
 print('scriptPort is', sys.argv[2])
+
+# Setup Host redirect if machine is running on Linux
+process = subprocess.Popen(['./setupHost.sh'], shell=True)
+process.wait() # Wait for process to complete.
 
 # Get the script parameters
 scriptParameters = sys.argv[3]

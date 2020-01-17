@@ -2,6 +2,7 @@ FROM python:3.7.0
 
 COPY entrypoint.py /
 COPY DataInputStream.py /
+COPY setupHost.sh /
 
 RUN pip install sh
 
