@@ -25,7 +25,6 @@ public final class FederatedStoreConstants {
     public static final String DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = String.valueOf(false);
     public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);
     public static final String KEY_FEDERATION_ADMIN = "gaffer.federatedstore.operation.admin";
-    public static final String KEY_FEDERATION_ADMIN_OP_AUTHS = "gaffer.federatedstore.operation.admin.op.auths";
 
     private FederatedStoreConstants() {
         // private constructor to prevent users instantiating this class as it
