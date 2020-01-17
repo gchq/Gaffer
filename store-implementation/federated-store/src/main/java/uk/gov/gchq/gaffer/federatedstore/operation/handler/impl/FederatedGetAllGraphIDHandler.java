@@ -33,7 +33,7 @@ public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<Get
             return isUserRequestingAdminUsage(operation)
                     ? ((FederatedStore) store).getAllGraphIdsAsAdmin(context.getUser())
                     : ((FederatedStore) store).getAllGraphIds(context.getUser());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new OperationException("Error getting all graphIds", e);
         }
     }
