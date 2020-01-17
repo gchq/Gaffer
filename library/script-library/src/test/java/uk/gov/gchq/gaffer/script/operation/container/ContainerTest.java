@@ -59,8 +59,8 @@ public class ContainerTest {
     private void setupTestServer() {
         Runnable serverTask = () -> {
             try (ServerSocket serverSocket = new ServerSocket(ScriptTestConstants.TEST_SERVER_PORT_3)) {
-                System.out.println("Waiting for clients to connect...");
-                System.out.println("Client connected.");
+                LOGGER.debug("Waiting for clients to connect...");
+                LOGGER.debug("Client connected.");
                 try (Socket clientSocket = serverSocket.accept();
                      DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                      DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream())) {
@@ -70,11 +70,10 @@ public class ContainerTest {
                     dis.readUTF();
                     dos.writeInt(0);
                     dos.writeUTF("Test Complete");
-                    System.out.println("Closing Socket.");
+                    LOGGER.debug("Closing Socket.");
                     dos.flush();
                 } catch (IOException e) {
-                    System.err.println("Unable to process client request");
-                    System.out.println("Unable to process client request");
+                    LOGGER.error("Unable to process client request");
                     e.printStackTrace();
                 }
             } catch (IOException e) {
