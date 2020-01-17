@@ -193,7 +193,6 @@ public class LocalDockerPlatform implements ImagePlatform {
                 System.out.println(container.getContainerId() + " CONTAINER_ID");
                 for (int tries = 0; tries < 100; tries++) { // Temporary Time-out code
                     Thread.sleep(100);
-                    Runtime.getRuntime().exec("curl localhost:" + listenerPort);
                     if (containerActive) {
                         System.out.println("Connection Received!");
                         LOGGER.info("Received connection from container");

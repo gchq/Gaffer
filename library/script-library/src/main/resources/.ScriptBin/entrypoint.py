@@ -27,7 +27,7 @@ PORT = 80
 # Use a HTTPCLIENT here to connect to the http server on the java.
 clientHTTP = http.client.HTTPConnection("host.docker.internal",
                                         port=int(sys.argv[2]))
-clientHTTP.request(method='GET', url="/")
+# clientHTTP.request(method='GET', url="/")
 print('Listening for connections from host: ', socket.gethostbyname(
     socket.gethostname()))  # 172.17.0.2
 
