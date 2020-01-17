@@ -194,6 +194,7 @@ public class LocalDockerPlatform implements ImagePlatform {
                 for (int tries = 0; tries < 100; tries++) { // Temporary Time-out code
                     Thread.sleep(100);
                     if (containerActive) {
+                        System.out.println("Connection Received!");
                         LOGGER.info("Received connection from container");
                         break;
                     }
