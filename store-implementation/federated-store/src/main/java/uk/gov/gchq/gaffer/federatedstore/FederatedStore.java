@@ -249,7 +249,7 @@ public class FederatedStore extends Store {
     private boolean isValidatedAsAdmin(final Set<String> userOpAuths) {
         boolean rtn = false;
         final String adminAuths = this.getProperties().getAdminAuth();
-        for (String admin : adminAuths.split(Pattern.quote(","))) {
+        for (final String admin : adminAuths.split(Pattern.quote(","))) {
             //If match one
             if (userOpAuths.contains(admin)) {
                 rtn = true;

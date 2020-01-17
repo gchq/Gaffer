@@ -491,14 +491,14 @@ public class FederatedGraphStorage {
         }
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths(User user) {
+    public HashMap<String, Object> getAllGraphsAndAuths(final User user) {
         final HashMap<String, Object> reversed = new HashMap<>();
         storage.entrySet()
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .forEach(entry -> {
                     FederatedAccess federatedAccess = entry.getKey();
-                    for (Graph g : entry.getValue()) {
+                    for (final Graph g : entry.getValue()) {
                         reversed.put(g.getGraphId(), federatedAccess.toString());
                     }
                 });
@@ -509,7 +509,7 @@ public class FederatedGraphStorage {
     public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin() {
         final HashMap<String, Object> reversed = new HashMap<>();
         storage.forEach((federatedAccess, value) -> {
-            for (Graph g : value) {
+            for (final Graph g : value) {
                 reversed.put(g.getGraphId(), federatedAccess.toString());
             }
         });
