@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -61,7 +62,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final String expectedFedAccess = "FederatedAccess[addingUserId=UNKNOWN,graphAuths=[authsValue1],isPublic=false,disabledByDefault=false]";
 
         //when
-        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().build(), ADMIN_USER);
+        final Map<String, Object> allGraphsAndAuths = graph.execute
+                (new GetAllGraphInfo.Builder()
+                        .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                        .build(), ADMIN_USER);
 
         //then
         assertNotNull(allGraphsAndAuths);
@@ -84,6 +88,45 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().build(), NOT_ADMIN_USER);
+
+        assertNotNull(allGraphsAndAuths);
+        assertTrue(allGraphsAndAuths.isEmpty());
+    }
+
+    @Test
+    public void shouldNotGetAllGraphInfoForNonAdminWithAdminDeclarationsInOption() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Map<String, Object> allGraphsAndAuths = graph.execute
+                (new GetAllGraphInfo.Builder()
+                        .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                        .build(), NOT_ADMIN_USER);
+
+        assertNotNull(allGraphsAndAuths);
+        assertTrue(allGraphsAndAuths.isEmpty());
+    }
+
+    @Test
+    public void shouldNotGetAllGraphInfoForAdminWithoutAdminDeclartionInOptions() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().build(), ADMIN_USER);
 
         assertNotNull(allGraphsAndAuths);
         assertTrue(allGraphsAndAuths.isEmpty());

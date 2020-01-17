@@ -25,14 +25,18 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRequestingAdminUsage;
+
 public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<GetAllGraphInfo, Map<String, Object>> {
 
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
-            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser());
-        } catch (Exception e){
-            throw new OperationException("Error getting graph information",e);
+            return isUserRequestingAdminUsage(operation)
+                    ? ((FederatedStore) store).getAllGraphsAndAuthsAsAdmin(context.getUser())
+                    : ((FederatedStore) store).getAllGraphsAndAuths(context.getUser());
+        } catch (final Exception e) {
+            throw new OperationException("Error getting graph information.", e);
         }
     }
 }

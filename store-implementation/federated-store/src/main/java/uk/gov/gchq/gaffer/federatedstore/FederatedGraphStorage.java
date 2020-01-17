@@ -153,7 +153,7 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return visible graphs
      */
-    public Collection<Graph> getAll(final User user) {
+    protected Collection<Graph> getAll(final User user) {
         final Set<Graph> rtn = getAllStream(user)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
@@ -491,15 +491,28 @@ public class FederatedGraphStorage {
         }
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths() {
+    public HashMap<String, Object> getAllGraphsAndAuths(User user) {
         final HashMap<String, Object> reversed = new HashMap<>();
-        for (Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-            FederatedAccess federatedAccess = entry.getKey();
-            Set<Graph> graphs = entry.getValue();
-            for (Graph g : graphs) {
+        storage.entrySet()
+                .stream()
+                .filter(entry -> isValidToView(user, entry.getKey()))
+                .forEach(entry -> {
+                    FederatedAccess federatedAccess = entry.getKey();
+                    for (Graph g : entry.getValue()) {
+                        reversed.put(g.getGraphId(), federatedAccess.toString());
+                    }
+                });
+
+        return reversed;
+    }
+
+    public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin() {
+        final HashMap<String, Object> reversed = new HashMap<>();
+        storage.forEach((federatedAccess, value) -> {
+            for (Graph g : value) {
                 reversed.put(g.getGraphId(), federatedAccess.toString());
             }
-        }
+        });
         return reversed;
     }
 }

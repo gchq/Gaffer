@@ -39,7 +39,7 @@ public class AdminGetAllGraphInfoTest {
     }
 
     @Test
-    public void shouldGetGraphForAdmin() throws Exception {
+    public void shouldGetAllGraphsAndAuthsAsAdmin() throws Exception {
         final String graph1 = "graph1";
 
         store.addGraphs(access, new GraphSerialisable.Builder()
@@ -50,7 +50,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(properties)
                 .build());
 
-        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(adminUser);
+        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuthsAsAdmin(adminUser);
 
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
@@ -58,7 +58,7 @@ public class AdminGetAllGraphInfoTest {
     }
 
     @Test
-    public void shouldNotGetGraphForNonAdmin() throws Exception {
+    public void shouldNotGetAllGraphsAndAuthsAsAdmin() throws Exception {
         final String graph1 = "graph1";
 
         store.addGraphs(access, new GraphSerialisable.Builder()
@@ -69,7 +69,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(properties)
                 .build());
 
-        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User());
+        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuthsAsAdmin(new User());
 
         assertNotNull(allGraphsAndAuths);
         assertTrue(allGraphsAndAuths.isEmpty());
