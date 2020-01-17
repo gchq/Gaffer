@@ -15,6 +15,10 @@
  */
 package uk.gov.gchq.gaffer.script.operation.handler;
 
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.LogStream;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +92,13 @@ public class RunScriptHandler implements OperationHandler<RunScript> {
             LOGGER.error("Failed to run the script");
             if (container != null) {
                 RandomPortGenerator.getInstance().releasePort(container.getPort());
+            }
+            try (final LogStream stream = DockerClientSingleton.getInstance().logs(container.getContainerId(),
+                    DockerClient.LogsParam.stdout(),
+                    DockerClient.LogsParam.stderr())) {
+                System.out.println(stream.readFully());
+            } catch (final InterruptedException | DockerCertificateException | DockerException ex) {
+                ex.printStackTrace();
             }
             throw new OperationException(e);
         }
