@@ -112,8 +112,7 @@ public class DockerImageBuilder implements ImageBuilder {
         buildargs.append("\"scriptPort\":\"").append(scriptPort).append("\",");
         buildargs.append("\"scriptParameters\":\"").append(params).append("\",");
         buildargs.append("\"modulesName\":\"").append(scriptName).append("Modules").append("\"}");
-        // LOGGER.debug("Build arguments are: " + buildargs);
-        System.out.println("Build arguments are: " + buildargs);
+        LOGGER.debug("Build arguments are: " + buildargs);
 
         try {
             retVal = URLEncoder.encode(String.valueOf(buildargs), "UTF-8");
@@ -141,7 +140,6 @@ public class DockerImageBuilder implements ImageBuilder {
             } else if (isPathBlank(dockerfilePath)) {
                 LOGGER.info("DockerfilePath unspecified, using default Dockerfile");
                 createFile("Dockerfile", pathToBuildFiles, "/.ScriptBin/default");
-                System.out.println("Using default Dockerfile!");
             } else if (!isPathBlank(dockerfilePath)) {
                 LOGGER.info("DockerfilePath specified, using non-default dockerfile");
                 final String[] pathSplit = dockerfilePath.split("/");

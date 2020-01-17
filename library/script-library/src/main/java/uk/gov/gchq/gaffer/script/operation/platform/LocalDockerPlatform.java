@@ -181,23 +181,19 @@ public class LocalDockerPlatform implements ImagePlatform {
         for (int i = 0; i < MAX_TRIES; i++) {
             try {
                 LOGGER.info("Starting the Docker container...");
-                for (int tries = 0; tries < 10; tries++) { // Temporary Time-out code
-                    Thread.sleep(100);
+                for (int tries = 0; tries < MAX_TRIES; tries++) {
                     if (listenerActive) {
                         break;
                     }
+                    Thread.sleep(100);
                 }
                 docker.startContainer(container.getContainerId());
-                System.out.println(listenerPort + " LISTENER");
-                System.out.println(port + " CONTAINER");
-                System.out.println(container.getContainerId() + " CONTAINER_ID");
-                for (int tries = 0; tries < 100; tries++) { // Temporary Time-out code
-                    Thread.sleep(100);
+                for (int tries = 0; tries < MAX_TRIES; tries++) {
                     if (containerActive) {
-                        System.out.println("Connection Received!");
                         LOGGER.info("Received connection from container");
                         break;
                     }
+                    Thread.sleep(100);
                 }
                 server.stop(0);
                 error = null;
