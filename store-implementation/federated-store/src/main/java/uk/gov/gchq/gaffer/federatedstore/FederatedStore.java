@@ -230,9 +230,9 @@ public class FederatedStore extends Store {
         graphStorage.remove(graphId, user);
     }
 
-    public void removeRemoveWithoutUserChecks(final String graphId, final User user) {
+    public void removeAsAdmin(final String graphId, final User user) {
         if (isValidatedAsAdmin(user.getOpAuths())) {
-            graphStorage.removeWithoutUserChecks(graphId);
+            graphStorage.removeAsAdmin(graphId);
         } else {
             remove(graphId, user);
         }
@@ -247,10 +247,10 @@ public class FederatedStore extends Store {
         return graphStorage.getAllIds(user);
     }
 
-    public Collection<String> getAllGraphIdsWithoutUserChecks(final User user) {
+    public Collection<String> getAllGraphIdsAsAdmin(final User user) {
         final Collection<String> rtn;
         if (isValidatedAsAdmin(user.getOpAuths())) {
-            rtn = graphStorage.getAllIdsWithoutUserChecks();
+            rtn = graphStorage.getAllGraphIdsAsAdmin();
         } else {
             rtn = graphStorage.getAllIds(user);
         }
@@ -263,7 +263,7 @@ public class FederatedStore extends Store {
      */
     private boolean isValidatedAsAdmin(final Set<String> userOpAuths) {
         boolean rtn = false;
-        final String adminAuths = this.getProperties().get(FederatedStoreConstants.KEY_FEDERATION_ADMIN_OP_AUTHS, "");
+        final String adminAuths = this.getProperties().getAdminAuth();
         for (String admin : adminAuths.split(Pattern.quote(","))) {
             //If match one
             if (userOpAuths.contains(admin)) {

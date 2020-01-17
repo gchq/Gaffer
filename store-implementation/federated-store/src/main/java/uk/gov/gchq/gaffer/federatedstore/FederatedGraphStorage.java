@@ -145,7 +145,7 @@ public class FederatedGraphStorage {
         return getIdsFrom(getUserGraphStream(user));
     }
 
-    public Collection<String> getAllIdsWithoutUserChecks() {
+    public Collection<String> getAllGraphIdsAsAdmin() {
         final Stream<Graph> allGraphsAsStream = storage.entrySet().stream()
                 .flatMap(entry -> entry.getValue().stream());
 
@@ -186,7 +186,7 @@ public class FederatedGraphStorage {
         return remove(graphId, entry -> nonNull(user) && isValidToView(user, entry.getKey()));
     }
 
-    public boolean removeWithoutUserChecks(final String graphId) {
+    protected boolean removeAsAdmin(final String graphId) {
         return remove(graphId, entry -> true);
     }
 

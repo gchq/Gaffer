@@ -39,7 +39,7 @@ public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph
     public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {
             if (isUserRequestingAdminUsage(operation)) {
-                ((FederatedStore) store).removeRemoveWithoutUserChecks(operation.getGraphId(), context.getUser());
+                ((FederatedStore) store).removeAsAdmin(operation.getGraphId(), context.getUser());
             } else {
                 ((FederatedStore) store).remove(operation.getGraphId(), context.getUser());
             }
