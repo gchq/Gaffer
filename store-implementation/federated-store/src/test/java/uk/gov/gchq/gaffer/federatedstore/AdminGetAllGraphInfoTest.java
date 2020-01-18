@@ -65,7 +65,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(properties)
                 .build());
 
-        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuthsAsAdmin(adminUser);
+        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuthsAsAdmin(adminUser, null);
 
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
@@ -84,7 +84,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(properties)
                 .build());
 
-        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuthsAsAdmin(new User());
+        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuthsAsAdmin(new User(), null);
 
         assertNotNull(allGraphsAndAuths);
         assertTrue(allGraphsAndAuths.isEmpty());

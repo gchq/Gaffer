@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedAdminIT extends AbstractStoreIT {
 
@@ -143,5 +144,37 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         assertNotNull(allGraphsAndAuths);
         assertTrue(allGraphsAndAuths.isEmpty());
+    }
+
+    @Test
+    public void shouldGetGraphInfoForSelectedGraphsOnly() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("authsValueA")
+                .build(), user);
+        final String graphB = "graphB";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphB)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("authsValueB")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        final String expectedFedAccess = "FederatedAccess[addingUserId=UNKNOWN,graphAuths=[authsValueB],isPublic=false,disabledByDefault=false]";
+
+        //when
+        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().option(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphB).build(), user);
+
+        //then
+        assertNotNull(allGraphsAndAuths);
+        assertFalse(allGraphsAndAuths.isEmpty());
+        assertEquals(1, allGraphsAndAuths.size());
+        assertEquals(graphB, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
+        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new String[]{})[0]);
     }
 }

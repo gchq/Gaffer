@@ -326,14 +326,14 @@ public class FederatedStore extends Store {
         return graphStorage.get(user, getCleanStrings(graphIdsCsv));
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths(final User user) {
-        return graphStorage.getAllGraphsAndAuths(user);
+    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
+        return graphStorage.getAllGraphsAndAuths(user, getCleanStrings(graphIdsCsv));
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final User user) {
+    public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final User user, final String graphIdsCsv) {
         return isValidatedAsAdmin(user.getOpAuths())
-                ? graphStorage.getAllGraphsAndAuthsAsAdmin()
-                : getAllGraphsAndAuths(user);
+                ? graphStorage.getAllGraphsAndAuthsAsAdmin(getCleanStrings(graphIdsCsv))
+                : getAllGraphsAndAuths(user, graphIdsCsv);
     }
 
     /**

@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
@@ -491,28 +492,36 @@ public class FederatedGraphStorage {
         }
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths(final User user) {
-        final HashMap<String, Object> reversed = new HashMap<>();
+    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds) {
+        final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
         storage.entrySet()
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .forEach(entry -> {
                     FederatedAccess federatedAccess = entry.getKey();
-                    for (final Graph g : entry.getValue()) {
-                        reversed.put(g.getGraphId(), federatedAccess.toString());
-                    }
+                    populateGraphIdFedAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, entry.getValue());
                 });
 
-        return reversed;
+        return graphIdFedAccessMap;
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin() {
-        final HashMap<String, Object> reversed = new HashMap<>();
-        storage.forEach((federatedAccess, value) -> {
-            for (final Graph g : value) {
-                reversed.put(g.getGraphId(), federatedAccess.toString());
+    protected void populateGraphIdFedAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> graphIds, final FederatedAccess federatedAccess, final Set<Graph> graphs) {
+        for (final Graph g : graphs) {
+            if (nonNull(graphIds) && !graphIds.isEmpty()) {
+                if (graphIds.contains(g.getGraphId())) {
+                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
+                }
+            } else {
+                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
             }
+        }
+    }
+
+    public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final List<String> graphIds) {
+        final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
+        storage.forEach((federatedAccess, graphs) -> {
+            populateGraphIdFedAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, graphs);
         });
-        return reversed;
+        return graphIdFedAccessMap;
     }
 }
