@@ -33,9 +33,9 @@ public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<G
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
-            return isUserRequestingAdminUsage(operation)
-                    ? ((FederatedStore) store).getAllGraphsAndAuthsAsAdmin(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS))
-                    : ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+            final boolean userRequestingAdminUsage = isUserRequestingAdminUsage(operation);
+            final String graphIdsCsv = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
+            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), graphIdsCsv, userRequestingAdminUsage);
         } catch (final Exception e) {
             throw new OperationException("Error getting graph information.", e);
         }
