@@ -227,14 +227,14 @@ public class FederatedStore extends Store {
      * @param user    to match visibility against
      */
     public void remove(final String graphId, final User user) {
-        graphStorage.remove(graphId, user);
+        remove(graphId, user, false);
     }
 
-    public void removeAsAdmin(final String graphId, final User user) {
-        if (isValidatedAsAdmin(user.getOpAuths())) {
+    public void remove(final String graphId, final User user, final boolean isAdmin) {
+        if (isAdmin && isValidatedAsAdmin(user.getOpAuths())) {
             graphStorage.removeAsAdmin(graphId);
         } else {
-            remove(graphId, user);
+            graphStorage.remove(graphId, user);
         }
     }
 

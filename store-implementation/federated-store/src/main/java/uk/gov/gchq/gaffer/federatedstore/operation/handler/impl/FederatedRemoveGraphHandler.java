@@ -38,11 +38,8 @@ public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph
     @Override
     public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {
-            if (isUserRequestingAdminUsage(operation)) {
-                ((FederatedStore) store).removeAsAdmin(operation.getGraphId(), context.getUser());
-            } else {
-                ((FederatedStore) store).remove(operation.getGraphId(), context.getUser());
-            }
+            final boolean userRequestingAdminUsage = isUserRequestingAdminUsage(operation);
+            ((FederatedStore) store).remove(operation.getGraphId(), context.getUser(), userRequestingAdminUsage);
         } catch (final Exception e) {
             throw new OperationException("Error removing graph: " + operation.getGraphId(), e);
         }
