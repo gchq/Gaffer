@@ -40,9 +40,13 @@ import java.util.function.BinaryOperator;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
-// TODO: add javadoc
-@Since("1.10.4")
+/**
+ * A {@code ReduceRelatedElements} is a {@link KorypheFunction} which takes an {@link Iterable} or {@link Element}s and
+ * combines all related elements using the provided aggregator functions.
+ */
+@Since("9.9.9")
 @Summary("Reduces related elements")
 public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, Iterable<Element>> {
     private BinaryOperator<Object> vertexAggregator = new First();
@@ -59,7 +63,7 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
         }
 
         // If no related vertex groups are provided then there is nothing to reduce
-        if (isNull(relatedVertexGroups) || relatedVertexGroups.isEmpty()) {
+        if (isEmpty(relatedVertexGroups)) {
             return elements;
         }
 
@@ -136,7 +140,7 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
     }
 
     private Object getCombinedVertex(final Object source, final RelatedVertices relatedVertices) {
-        if (isNull(relatedVertices) || relatedVertices.isEmpty()) {
+        if (isEmpty(relatedVertices)) {
             return source;
         }
 
@@ -154,7 +158,7 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
         final Object visibility = edge.getProperty(visibilityProperty);
 
         RelatedVertices srcVertices = relatedVertices.get(source);
-        RelatedVertices destVertices = relatedVertices.get(source);
+        RelatedVertices destVertices = relatedVertices.get(dest);
         if (nonNull(srcVertices) && nonNull(destVertices)) {
             if (srcVertices != destVertices) {  // check if the objects are the same (has the same address)
                 srcVertices.add(dest);
