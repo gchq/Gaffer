@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
+import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHan
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
@@ -79,6 +81,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
@@ -238,6 +241,23 @@ public class FederatedStore extends Store {
         return graphStorage.getAllIds(user);
     }
 
+    /**
+     * @param userOpAuths the users operation authorisation
+     * @return true if the requesting user has Admin OpAuths.
+     */
+    private boolean isValidatedAsAdmin(final Set<String> userOpAuths) {
+        boolean rtn = false;
+        final String adminAuths = this.getProperties().getAdminAuth();
+        for (final String admin : adminAuths.split(Pattern.quote(","))) {
+            //If match one
+            if (userOpAuths.contains(admin)) {
+                rtn = true;
+                break;
+            }
+        }
+        return rtn;
+    }
+
     @Override
     public Schema getSchema() {
         return getSchema((Map<String, String>) null, (User) null);
@@ -348,6 +368,7 @@ public class FederatedStore extends Store {
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
+        addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
     }
 
     @Override
@@ -397,5 +418,15 @@ public class FederatedStore extends Store {
 
     private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {
         graphStorage.put(newGraph, access);
+    }
+
+    public boolean changeGraphAccess(final User requestingUser, final String graphId, final Set<String> requestingUserOpAuths, final FederatedAccess federatedAccess, final boolean isAdmin) throws StorageException {
+        final boolean rtn;
+        if (isAdmin && isValidatedAsAdmin(requestingUserOpAuths)) {
+             rtn = graphStorage.changeGraphAccessAsAdmin(graphId, federatedAccess);
+        } else {
+            rtn = graphStorage.changeGraphAccess(requestingUser, graphId, federatedAccess);
+        }
+        return rtn;
     }
 }
