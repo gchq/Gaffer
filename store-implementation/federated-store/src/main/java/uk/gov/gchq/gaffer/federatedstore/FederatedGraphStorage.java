@@ -183,7 +183,7 @@ public class FederatedGraphStorage {
      * @see #isValidToView(User, FederatedAccess)
      */
     public boolean remove(final String graphId, final User user) {
-        return remove(graphId, entry -> nonNull(user) && isValidToView(user, entry.getKey()));
+        return remove(graphId, entry -> nonNull(user) && entry.getKey().isAddingUser(user));
     }
 
     protected boolean removeAsAdmin(final String graphId) {

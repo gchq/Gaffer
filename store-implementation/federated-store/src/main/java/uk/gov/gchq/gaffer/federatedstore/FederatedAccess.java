@@ -122,7 +122,7 @@ public class FederatedAccess implements Serializable {
         return !Collections.disjoint(user.getOpAuths(), this.graphAuths);
     }
 
-    private boolean isAddingUser(final User user) {
+    public boolean isAddingUser(final User user) {
         return null != user.getUserId() && user.getUserId().equals(addingUserId);
     }
 
