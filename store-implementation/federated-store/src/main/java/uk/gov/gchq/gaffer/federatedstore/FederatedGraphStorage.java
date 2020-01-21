@@ -492,20 +492,20 @@ public class FederatedGraphStorage {
         }
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds) {
+    HashMap<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds) {
         final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
         storage.entrySet()
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .forEach(entry -> {
                     FederatedAccess federatedAccess = entry.getKey();
-                    populateGraphIdFedAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, entry.getValue());
+                    populateGraphIdAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, entry.getValue());
                 });
 
         return graphIdFedAccessMap;
     }
 
-    protected void populateGraphIdFedAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> graphIds, final FederatedAccess federatedAccess, final Set<Graph> graphs) {
+    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> graphIds, final FederatedAccess federatedAccess, final Set<Graph> graphs) {
         for (final Graph g : graphs) {
             if (nonNull(graphIds) && !graphIds.isEmpty()) {
                 if (graphIds.contains(g.getGraphId())) {
@@ -517,11 +517,10 @@ public class FederatedGraphStorage {
         }
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final List<String> graphIds) {
-        final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
-        storage.forEach((federatedAccess, graphs) -> {
-            populateGraphIdFedAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, graphs);
-        });
-        return graphIdFedAccessMap;
+    HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final List<String> graphIds) {
+        final HashMap<String, Object> graphIdAccessMap = new HashMap<>();
+        storage.forEach((federatedAccess, graphs) ->
+                populateGraphIdAccessMap(graphIdAccessMap, graphIds, federatedAccess, graphs));
+        return graphIdAccessMap;
     }
 }
