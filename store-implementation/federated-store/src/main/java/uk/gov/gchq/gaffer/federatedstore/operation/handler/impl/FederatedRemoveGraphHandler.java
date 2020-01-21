@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRequestingAdminUsage;
@@ -31,7 +30,6 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRe
  * <p>
  * Does not delete the graph, just removes it from the scope of the FederatedStore.
  *
- * @see OperationHandler
  * @see FederatedStore
  * @see RemoveGraph
  */
