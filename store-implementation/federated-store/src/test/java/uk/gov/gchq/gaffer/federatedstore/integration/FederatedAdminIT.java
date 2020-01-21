@@ -72,12 +72,13 @@ public class FederatedAdminIT extends AbstractStoreIT {
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
         //when
-        graph.execute(new RemoveGraph.Builder()
+        final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
                 .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
                 .build(), ADMIN_USER);
 
         //then
+        assertTrue(removed);
         assertEquals(0, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
 
     }
@@ -94,12 +95,13 @@ public class FederatedAdminIT extends AbstractStoreIT {
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
         //when
-        graph.execute(new RemoveGraph.Builder()
+        final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
                 .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
                 .build(), NOT_ADMIN_USER);
 
         //then
+        assertFalse(removed);
         assertEquals(1, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
 
     }
