@@ -30,9 +30,7 @@ public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<Get
     @Override
     public Iterable<? extends String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {
         try {
-            return isUserRequestingAdminUsage(operation)
-                    ? ((FederatedStore) store).getAllGraphIdsAsAdmin(context.getUser())
-                    : ((FederatedStore) store).getAllGraphIds(context.getUser());
+            return ((FederatedStore) store).getAllGraphIds(context.getUser(), isUserRequestingAdminUsage(operation));
         } catch (final Exception e) {
             throw new OperationException("Error getting all graphIds", e);
         }

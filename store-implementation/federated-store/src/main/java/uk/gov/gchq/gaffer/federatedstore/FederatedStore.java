@@ -225,17 +225,16 @@ public class FederatedStore extends Store {
      *
      * @param graphId to be removed from scope
      * @param user    to match visibility against
+     * @return success of removal
      */
-    public void remove(final String graphId, final User user) {
-        remove(graphId, user, false);
+    public boolean remove(final String graphId, final User user) {
+        return remove(graphId, user, false);
     }
 
-    public void remove(final String graphId, final User user, final boolean isAdmin) {
-        if (isAdmin && isValidatedAsAdmin(user.getOpAuths())) {
-            graphStorage.removeAsAdmin(graphId);
-        } else {
-            graphStorage.remove(graphId, user);
-        }
+    public boolean remove(final String graphId, final User user, final boolean asAdmin) {
+        return (asAdmin && isValidatedAsAdmin(user.getOpAuths()))
+                ? graphStorage.removeAsAdmin(graphId)
+                : graphStorage.remove(graphId, user);
     }
 
     /**
@@ -244,17 +243,13 @@ public class FederatedStore extends Store {
      * visibility for the given user.
      */
     public Collection<String> getAllGraphIds(final User user) {
-        return graphStorage.getAllIds(user);
+        return getAllGraphIds(user, false);
     }
 
-    public Collection<String> getAllGraphIdsAsAdmin(final User user) {
-        final Collection<String> rtn;
-        if (isValidatedAsAdmin(user.getOpAuths())) {
-            rtn = graphStorage.getAllGraphIdsAsAdmin();
-        } else {
-            rtn = graphStorage.getAllIds(user);
-        }
-        return rtn;
+    public Collection<String> getAllGraphIds(final User user, final boolean asAdmin) {
+        return asAdmin && isValidatedAsAdmin(user.getOpAuths())
+                ? graphStorage.getAllIdsAsAdmin()
+                : graphStorage.getAllIds(user);
     }
 
     /**
