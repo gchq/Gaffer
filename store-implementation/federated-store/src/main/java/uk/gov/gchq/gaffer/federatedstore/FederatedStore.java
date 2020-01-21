@@ -421,12 +421,8 @@ public class FederatedStore extends Store {
     }
 
     public boolean changeGraphAccess(final User requestingUser, final String graphId, final Set<String> requestingUserOpAuths, final FederatedAccess federatedAccess, final boolean isAdmin) throws StorageException {
-        final boolean rtn;
-        if (isAdmin && isValidatedAsAdmin(requestingUserOpAuths)) {
-             rtn = graphStorage.changeGraphAccessAsAdmin(graphId, federatedAccess);
-        } else {
-            rtn = graphStorage.changeGraphAccess(requestingUser, graphId, federatedAccess);
-        }
-        return rtn;
+        return isAdmin && isValidatedAsAdmin(requestingUserOpAuths)
+                ? graphStorage.changeGraphAccessAsAdmin(graphId, federatedAccess)
+                : graphStorage.changeGraphAccess(graphId, federatedAccess, requestingUser);
     }
 }

@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.user.User;
 
 /**
  * A handler for {@link ChangeGraphAccess} operation for the FederatedStore.
@@ -35,7 +36,8 @@ public class FederatedChangeGraphAccessHandler implements OutputOperationHandler
         try {
             final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
             final FederatedAccess federatedAccess = new FederatedAccess(operation.getGraphAuths(), operation.getOwnerUserId(), operation.getIsPublic(), operation.isDisabledByDefault());
-            return ((FederatedStore) store).changeGraphAccess(context.getUser(), operation.getGraphId(), context.getUser().getOpAuths(), federatedAccess, userRequestingAdminUsage);
+            final User user = context.getUser();
+            return ((FederatedStore) store).changeGraphAccess(user, operation.getGraphId(), user.getOpAuths(), federatedAccess, userRequestingAdminUsage);
         } catch (final Exception e) {
             throw new OperationException("Error changing graph access", e);
         }

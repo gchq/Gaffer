@@ -495,7 +495,7 @@ public class FederatedGraphStorage {
     }
 
 
-    public boolean changeGraphAccess(final User requestingUser, final String graphId, final FederatedAccess federatedAccess) throws StorageException {
+    public boolean changeGraphAccess(final String graphId, final FederatedAccess federatedAccess, final User requestingUser) throws StorageException {
         return changeGraphAccess(federatedAccess, graphId, access -> access.isAddingUser(requestingUser));
     }
 
