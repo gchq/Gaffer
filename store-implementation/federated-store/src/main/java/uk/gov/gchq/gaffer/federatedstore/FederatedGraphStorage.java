@@ -48,9 +48,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
@@ -66,7 +68,7 @@ public class FederatedGraphStorage {
     private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
 
-    protected void startCacheServiceLoader() throws StorageException {
+    void startCacheServiceLoader() throws StorageException {
         if (CacheServiceLoader.isEnabled()) {
             isCacheEnabled = true;
             makeAllGraphsFromCache();
@@ -82,7 +84,7 @@ public class FederatedGraphStorage {
      * @throws StorageException if unable to put arguments into storage
      * @see #put(GraphSerialisable, FederatedAccess)
      */
-    public void put(final Collection<GraphSerialisable> graphs, final FederatedAccess access) throws StorageException {
+    void put(final Collection<GraphSerialisable> graphs, final FederatedAccess access) throws StorageException {
         for (final GraphSerialisable graph : graphs) {
             put(graph, access);
         }
@@ -99,7 +101,7 @@ public class FederatedGraphStorage {
      * @param access access required to for the graph.
      * @throws StorageException if unable to put arguments into storage
      */
-    public void put(final GraphSerialisable graph, final FederatedAccess access) throws StorageException {
+    void put(final GraphSerialisable graph, final FederatedAccess access) throws StorageException {
         if (graph != null) {
             String graphId = graph.getDeserialisedConfig().getGraphId();
             try {
@@ -139,8 +141,19 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return visible graphIds.
      */
-    public Collection<String> getAllIds(final User user) {
-        final Set<String> rtn = getAllStream(user)
+    Collection<String> getAllIds(final User user) {
+        return getIdsFrom(getUserGraphStream(user));
+    }
+
+    Collection<String> getAllIdsAsAdmin() {
+        final Stream<Graph> allGraphsAsStream = storage.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream());
+
+        return getIdsFrom(allGraphsAsStream);
+    }
+
+    private Collection<String> getIdsFrom(final Stream<Graph> allStream) {
+        final Set<String> rtn = allStream
                 .map(Graph::getGraphId)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -154,7 +167,7 @@ public class FederatedGraphStorage {
      * @return visible graphs
      */
     public Collection<Graph> getAll(final User user) {
-        final Set<Graph> rtn = getAllStream(user)
+        final Set<Graph> rtn = getUserGraphStream(user)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
     }
@@ -169,25 +182,35 @@ public class FederatedGraphStorage {
      * @return if a graph was removed.
      * @see #isValidToView(User, FederatedAccess)
      */
-    public boolean remove(final String graphId, final User user) {
-        boolean isRemoved = false;
-        for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-            if (isValidToView(user, entry.getKey())) {
-                final Set<Graph> graphs = entry.getValue();
-                if (null != graphs) {
-                    HashSet<Graph> remove = Sets.newHashSet();
-                    for (final Graph graph : graphs) {
-                        if (graph.getGraphId().equals(graphId)) {
-                            remove.add(graph);
-                            deleteFromCache(graphId);
-                            isRemoved = true;
+    boolean remove(final String graphId, final User user) {
+        return remove(graphId, entry -> nonNull(user) && isValidToView(user, entry.getKey()));
+    }
+
+    boolean removeAsAdmin(final String graphId) {
+        return remove(graphId, entry -> true);
+    }
+
+    private boolean remove(final String graphId, final Predicate<Entry<FederatedAccess, Set<Graph>>> entryPredicateForGraphRemoval) {
+        return storage.entrySet().stream()
+                .filter(entryPredicateForGraphRemoval)
+                .map(entry -> {
+                    boolean isRemoved = false;
+                    final Set<Graph> graphs = entry.getValue();
+                    if (null != graphs) {
+                        HashSet<Graph> remove = Sets.newHashSet();
+                        for (final Graph graph : graphs) {
+                            if (graph.getGraphId().equals(graphId)) {
+                                remove.add(graph);
+                                deleteFromCache(graphId);
+                                isRemoved = true;
+                            }
                         }
+                        graphs.removeAll(remove);
                     }
-                    graphs.removeAll(remove);
-                }
-            }
-        }
-        return isRemoved;
+                    return isRemoved;
+                })
+                .collect(Collectors.toSet())
+                .contains(true);
     }
 
     private void deleteFromCache(final String graphId) {
@@ -296,7 +319,7 @@ public class FederatedGraphStorage {
      * @param context the user context
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      */
-    public Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
+    Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
         final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
         if (null != op && op.isCurrentTraits()) {
             final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
@@ -325,7 +348,7 @@ public class FederatedGraphStorage {
      * @param user   to match visibility against.
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      */
-    public Set<StoreTrait> getTraits(final Map<String, String> config, final User user) {
+    Set<StoreTrait> getTraits(final Map<String, String> config, final User user) {
         final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
         Collection<Graph> graphs = get(user, graphIds);
 
@@ -403,7 +426,7 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return a stream of graphs the user has visibility for.
      */
-    private Stream<Graph> getAllStream(final User user) {
+    private Stream<Graph> getUserGraphStream(final User user) {
         return storage.entrySet()
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
@@ -447,7 +470,7 @@ public class FederatedGraphStorage {
     /**
      * Enum for the Graph Properties or Schema
      */
-    public enum GraphConfigEnum {
+    private enum GraphConfigEnum {
         SCHEMA("schema"), PROPERTIES("properties");
 
         private final String value;

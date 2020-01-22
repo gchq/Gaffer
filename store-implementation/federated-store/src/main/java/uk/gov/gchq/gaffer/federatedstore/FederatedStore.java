@@ -79,6 +79,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
@@ -224,9 +225,16 @@ public class FederatedStore extends Store {
      *
      * @param graphId to be removed from scope
      * @param user    to match visibility against
+     * @return success of removal
      */
-    public void remove(final String graphId, final User user) {
-        graphStorage.remove(graphId, user);
+    public boolean remove(final String graphId, final User user) {
+        return remove(graphId, user, false);
+    }
+
+    public boolean remove(final String graphId, final User user, final boolean asAdmin) {
+        return (asAdmin && isValidatedAsAdmin(user.getOpAuths()))
+                ? graphStorage.removeAsAdmin(graphId)
+                : graphStorage.remove(graphId, user);
     }
 
     /**
@@ -235,7 +243,30 @@ public class FederatedStore extends Store {
      * visibility for the given user.
      */
     public Collection<String> getAllGraphIds(final User user) {
-        return graphStorage.getAllIds(user);
+        return getAllGraphIds(user, false);
+    }
+
+    public Collection<String> getAllGraphIds(final User user, final boolean asAdmin) {
+        return asAdmin && isValidatedAsAdmin(user.getOpAuths())
+                ? graphStorage.getAllIdsAsAdmin()
+                : graphStorage.getAllIds(user);
+    }
+
+    /**
+     * @param userOpAuths the users operation authorisation
+     * @return true if the requesting user has Admin OpAuths and isUserRequestingAdminUsage is true.
+     */
+    private boolean isValidatedAsAdmin(final Set<String> userOpAuths) {
+        boolean rtn = false;
+        final String adminAuths = this.getProperties().getAdminAuth();
+        for (final String admin : adminAuths.split(Pattern.quote(","))) {
+            //If match one
+            if (userOpAuths.contains(admin)) {
+                rtn = true;
+                break;
+            }
+        }
+        return rtn;
     }
 
     @Override
