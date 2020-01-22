@@ -65,6 +65,92 @@ public class FederatedAdminIT extends AbstractStoreIT {
     }
 
     @Test
+    public void shouldRemoveGraphForAdmin() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Boolean removed = graph.execute(new RemoveGraph.Builder()
+                .graphId(graphA)
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), ADMIN_USER);
+
+        //then
+        assertTrue(removed);
+        assertEquals(0, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
+
+    }
+
+    @Test
+    public void shouldNotRemoveGraphForNonAdmin() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Boolean removed = graph.execute(new RemoveGraph.Builder()
+                .graphId(graphA)
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), NOT_ADMIN_USER);
+
+        //then
+        assertFalse(removed);
+        assertEquals(1, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
+
+    }
+
+    @Test
+    public void shouldGetAllGraphIdsForAdmin() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), ADMIN_USER);
+
+        //then
+        assertTrue(Lists.newArrayList(adminGraphIds).contains(graphA));
+    }
+
+    @Test
+    public void shouldNotGetAllGraphIdsForNonAdmin() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), NOT_ADMIN_USER);
+
+        //then
+        assertFalse(Lists.newArrayList(adminGraphIds).contains(graphA));
+    }
+
+    @Test
     public void shouldGetAllGraphInfoForAdmin() throws Exception {
         //given
         final String graphA = "graphA";
