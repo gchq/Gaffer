@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -162,6 +163,16 @@ public class FederatedAccess implements Serializable {
                 .append(addingUserId)
                 .append(disabledByDefault)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("addingUserId", addingUserId)
+                .append("graphAuths", graphAuths)
+                .append("isPublic", isPublic)
+                .append("disabledByDefault", disabledByDefault)
+                .toString();
     }
 
     public static class Builder {

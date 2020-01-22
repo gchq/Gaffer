@@ -53,12 +53,12 @@ public class FederatedGetAllGraphsIDHandlerTest {
         FederatedStore store = Mockito.mock(FederatedStore.class);
         Set<String> expected = Sets.newHashSet();
         expected.add("value1");
-        BDDMockito.given(store.getAllGraphIds(testUser)).willReturn(expected);
+        BDDMockito.given(store.getAllGraphIds(testUser, false)).willReturn(expected);
 
         Iterable<? extends String> actual = federatedGetAllGraphIDHandler.doOperation(op, context, store);
 
         Assert.assertEquals(expected, actual);
 
-        Mockito.verify(store).getAllGraphIds(testUser);
+        Mockito.verify(store).getAllGraphIds(testUser, false);
     }
 }

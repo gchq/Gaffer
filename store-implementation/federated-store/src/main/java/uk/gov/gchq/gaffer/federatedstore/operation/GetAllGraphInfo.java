@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
@@ -31,41 +30,28 @@ import java.util.Map;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 /**
- * An Operation used for removing graphs from a FederatedStore.
- * <p>Requires:
- * <ul>
- * <li>graphId
- * </ul>
- * Does not delete the graph, just removes it from the scope of the FederatedStore.
- *
- * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.graph.Graph
+ * An Operation to get all the graphIds within scope of the FederatedStore.
  */
-@JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
-@Since("1.0.0")
-@Summary("Removes a Graph from the federated store")
-public class RemoveGraph implements FederatedOperation, Output<Boolean> {
-
-    @Required
-    private String graphId;
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
+@Since("1.10.4")
+@Summary("Gets the ids of all available Graphs from a federated store")
+public class GetAllGraphInfo implements
+        FederatedOperation,
+        Output<Map<String, Object>> {
     private Map<String, String> options;
 
-    public RemoveGraph() {
+    public GetAllGraphInfo() {
         addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
     }
 
-    public String getGraphId() {
-        return graphId;
-    }
-
-    public void setGraphId(final String graphId) {
-        this.graphId = graphId;
+    @Override
+    public TypeReference<Map<String, Object>> getOutputTypeReference() {
+        return new TypeReferenceImpl.MapStringObject();
     }
 
     @Override
-    public RemoveGraph shallowClone() throws CloneFailedException {
-        return new RemoveGraph.Builder()
-                .graphId(graphId)
+    public GetAllGraphInfo shallowClone() throws CloneFailedException {
+        return new Builder()
                 .options(options)
                 .build();
     }
@@ -80,31 +66,10 @@ public class RemoveGraph implements FederatedOperation, Output<Boolean> {
         this.options = options;
     }
 
-    @Override
-    public TypeReference<Boolean> getOutputTypeReference() {
-        return new TypeReferenceImpl.Boolean();
-    }
-
-    public static class Builder extends BaseBuilder<RemoveGraph, Builder> {
+    public static class Builder extends BaseBuilder<GetAllGraphInfo, Builder> {
 
         public Builder() {
-            super(new RemoveGraph());
-        }
-
-        /**
-         * Use {@link Builder#graphId} instead.
-         *
-         * @param graphId the graphId to set.
-         * @return the builder
-         */
-        @Deprecated
-        public Builder setGraphId(final String graphId) {
-            return graphId(graphId);
-        }
-
-        public Builder graphId(final String graphId) {
-            _getOp().setGraphId(graphId);
-            return _self();
+            super(new GetAllGraphInfo());
         }
     }
 }

@@ -17,22 +17,27 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.util.Map;
+
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRequestingAdminUsage;
 
-public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<GetAllGraphIds, Iterable<? extends String>> {
+public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<GetAllGraphInfo, Map<String, Object>> {
 
     @Override
-    public Iterable<? extends String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {
+    public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
-            return ((FederatedStore) store).getAllGraphIds(context.getUser(), isUserRequestingAdminUsage(operation));
+            final boolean userRequestingAdminUsage = isUserRequestingAdminUsage(operation);
+            final String graphIdsCsv = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
+            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), graphIdsCsv, userRequestingAdminUsage);
         } catch (final Exception e) {
-            throw new OperationException("Error getting all graphIds", e);
+            throw new OperationException("Error getting graph information.", e);
         }
     }
 }
