@@ -52,6 +52,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
@@ -166,7 +167,7 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return visible graphs
      */
-    public Collection<Graph> getAll(final User user) {
+    Collection<Graph> getAll(final User user) {
         final Set<Graph> rtn = getUserGraphStream(user)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
@@ -512,5 +513,78 @@ public class FederatedGraphStorage {
                 LOGGER.error(String.format("Skipping graphId: %s due to: %s", graphId, e.getMessage()), e);
             }
         }
+    }
+
+    HashMap<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds) {
+        final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
+        storage.entrySet()
+                .stream()
+                .filter(entry -> isValidToView(user, entry.getKey()))
+                .forEach(entry -> {
+                    FederatedAccess federatedAccess = entry.getKey();
+                    populateGraphIdAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, entry.getValue());
+                });
+
+        return graphIdFedAccessMap;
+    }
+
+    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> graphIds, final FederatedAccess federatedAccess, final Set<Graph> graphs) {
+        for (final Graph g : graphs) {
+            if (nonNull(graphIds) && !graphIds.isEmpty()) {
+                if (graphIds.contains(g.getGraphId())) {
+                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
+                }
+            } else {
+                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
+            }
+        }
+    }
+
+    HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final List<String> graphIds) {
+        final HashMap<String, Object> graphIdAccessMap = new HashMap<>();
+        storage.forEach((federatedAccess, graphs) ->
+                populateGraphIdAccessMap(graphIdAccessMap, graphIds, federatedAccess, graphs));
+        return graphIdAccessMap;
+    }
+
+    public boolean changeGraphAccess(final String graphId, final FederatedAccess federatedAccess, final User requestingUser) throws StorageException {
+        return changeGraphAccess(federatedAccess, graphId, access -> access.isAddingUser(requestingUser));
+    }
+
+    public boolean changeGraphAccessAsAdmin(final String graphId, final FederatedAccess federatedAccess) throws StorageException {
+        return changeGraphAccess(federatedAccess, graphId, access -> true);
+    }
+
+    private boolean changeGraphAccess(final FederatedAccess federatedAccess, final String graphId, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
+        boolean rtn;
+        Graph graphToMove = null;
+        for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
+            if (accessPredicate.test(entry.getKey())) {
+                //select graph to be moved
+                for (final Graph graph : entry.getValue()) {
+                    if (graph.getGraphId().equals(graphId)) {
+                        if (isNull(graphToMove)) {
+                            graphToMove = graph;
+                        } else {
+                            throw new IllegalStateException("graphIds are unique, but more than one graph was found with the same graphId: " + graphId);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (nonNull(graphToMove)) {
+            //remove graph to be moved
+            for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
+                entry.getValue().removeIf(graph -> graph.getGraphId().equals(graphId));
+            }
+
+            //add the graph being moved.
+            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), federatedAccess);
+            rtn = true;
+        } else {
+            rtn = false;
+        }
+        return rtn;
     }
 }

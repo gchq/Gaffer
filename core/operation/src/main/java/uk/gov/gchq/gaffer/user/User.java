@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.nonNull;
+
 /**
  * Simple representation of a user in Gaffer. Users execute operations on the
  * graph, which passes this User object to the underlying store. The store then
@@ -53,8 +55,12 @@ public class User {
 
     public User(final String userId, final Set<String> dataAuths, final Set<String> opAuths) {
         this(userId);
-        this.dataAuths.addAll(dataAuths);
-        this.opAuths.addAll(opAuths);
+        if (nonNull(dataAuths)) {
+            this.dataAuths.addAll(dataAuths);
+        }
+        if (nonNull(opAuths)) {
+            this.opAuths.addAll(opAuths);
+        }
     }
 
     public String getUserId() {
