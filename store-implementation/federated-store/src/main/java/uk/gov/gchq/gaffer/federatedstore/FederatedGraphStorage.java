@@ -527,14 +527,17 @@ public class FederatedGraphStorage {
         return graphIdFedAccessMap;
     }
 
-    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> graphIds, final FederatedAccess federatedAccess, final Set<Graph> graphs) {
-        for (final Graph g : graphs) {
-            if (nonNull(graphIds) && !graphIds.isEmpty()) {
-                if (graphIds.contains(g.getGraphId())) {
-                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
-                }
+    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> requestedGraphIds, final FederatedAccess federatedAccess, final Set<Graph> allGraphs) {
+        for (final Graph g : allGraphs) {
+            final boolean getInfoForAllGraphs = !nonNull(requestedGraphIds) || requestedGraphIds.isEmpty();
+            if (getInfoForAllGraphs) {
+                //all graphs
+                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
             } else {
-                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
+                //filter by requested graphs
+                if (requestedGraphIds.contains(g.getGraphId())) {
+                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
+                }
             }
         }
     }
