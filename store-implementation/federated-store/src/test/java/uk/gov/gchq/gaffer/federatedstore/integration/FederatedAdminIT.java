@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -41,6 +42,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+
 
 public class FederatedAdminIT extends AbstractStoreIT {
 
@@ -159,10 +161,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .graphId(graphA)
                 .schema(new Schema())
                 .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
-                .graphAuths("authsValue1")
+                .graphAuths("authsValueA")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        final String expectedFedAccess = "FederatedAccess[addingUserId=UNKNOWN,graphAuths=[authsValue1],isPublic=false,disabledByDefault=false]";
+        final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueA").makePrivate().build();
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
@@ -172,8 +174,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //then
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
+        assertEquals(1, allGraphsAndAuths.size());
         assertEquals(graphA, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
-        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new String[]{})[0]);
+        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new Object[]{})[0]);
 
     }
 
@@ -252,7 +255,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
-        final String expectedFedAccess = "FederatedAccess[addingUserId=UNKNOWN,graphAuths=[authsValueB],isPublic=false,disabledByDefault=false]";
+        final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueB").makePrivate().build();
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().option(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphB).build(), user);
@@ -261,8 +264,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
         assertEquals(1, allGraphsAndAuths.size());
+        assertEquals(1, allGraphsAndAuths.size());
         assertEquals(graphB, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
-        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new String[]{})[0]);
+        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new Object[]{})[0]);
     }
 
     @Test
