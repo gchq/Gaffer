@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
@@ -40,6 +41,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGrap
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
@@ -77,6 +79,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -336,6 +339,16 @@ public class FederatedStore extends Store {
         return graphStorage.get(user, getCleanStrings(graphIdsCsv));
     }
 
+    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
+        return this.getAllGraphsAndAuths(user, graphIdsCsv, false);
+    }
+
+    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean isAdmin) {
+        return isAdmin && isValidatedAsAdmin(user.getOpAuths())
+                ? graphStorage.getAllGraphsAndAuthsAsAdmin(getCleanStrings(graphIdsCsv))
+                : graphStorage.getAllGraphsAndAuths(user, getCleanStrings(graphIdsCsv));
+    }
+
     /**
      * The FederatedStore at time of initialisation, can set the auths required
      * to allow users to use custom {@link StoreProperties} outside the
@@ -379,6 +392,7 @@ public class FederatedStore extends Store {
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
+        addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
     }
 
     @Override

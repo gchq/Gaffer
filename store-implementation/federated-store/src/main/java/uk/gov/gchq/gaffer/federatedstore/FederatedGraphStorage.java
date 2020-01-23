@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public class FederatedGraphStorage {
      * @param user to match visibility against.
      * @return visible graphs
      */
-    public Collection<Graph> getAll(final User user) {
+    Collection<Graph> getAll(final User user) {
         final Set<Graph> rtn = getUserGraphStream(user)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
@@ -512,5 +512,40 @@ public class FederatedGraphStorage {
                 LOGGER.error(String.format("Skipping graphId: %s due to: %s", graphId, e.getMessage()), e);
             }
         }
+    }
+
+    HashMap<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds) {
+        final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
+        storage.entrySet()
+                .stream()
+                .filter(entry -> isValidToView(user, entry.getKey()))
+                .forEach(entry -> {
+                    FederatedAccess federatedAccess = entry.getKey();
+                    populateGraphIdAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, entry.getValue());
+                });
+
+        return graphIdFedAccessMap;
+    }
+
+    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> requestedGraphIds, final FederatedAccess federatedAccess, final Set<Graph> allGraphs) {
+        for (final Graph g : allGraphs) {
+            final boolean getInfoForAllGraphs = !nonNull(requestedGraphIds) || requestedGraphIds.isEmpty();
+            if (getInfoForAllGraphs) {
+                //all graphs
+                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
+            } else {
+                //filter by requested graphs
+                if (requestedGraphIds.contains(g.getGraphId())) {
+                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
+                }
+            }
+        }
+    }
+
+    HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final List<String> graphIds) {
+        final HashMap<String, Object> graphIdAccessMap = new HashMap<>();
+        storage.forEach((federatedAccess, graphs) ->
+                populateGraphIdAccessMap(graphIdAccessMap, graphIds, federatedAccess, graphs));
+        return graphIdAccessMap;
     }
 }
