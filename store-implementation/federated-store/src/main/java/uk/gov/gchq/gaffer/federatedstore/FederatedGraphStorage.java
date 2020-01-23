@@ -567,8 +567,10 @@ public class FederatedGraphStorage {
                 for (final Graph graph : entry.getValue()) {
                     if (graph.getGraphId().equals(graphId)) {
                         if (isNull(graphToMove)) {
+                            //1st match, store graph and continue.
                             graphToMove = graph;
                         } else {
+                            //2nd match.
                             throw new IllegalStateException("graphIds are unique, but more than one graph was found with the same graphId: " + graphId);
                         }
                     }
