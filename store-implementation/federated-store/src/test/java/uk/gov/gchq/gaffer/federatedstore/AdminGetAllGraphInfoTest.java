@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -65,7 +65,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(properties)
                 .build());
 
-        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(adminUser, null, true);
+        final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(adminUser, null, true);
 
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
@@ -84,7 +84,7 @@ public class AdminGetAllGraphInfoTest {
                 .properties(properties)
                 .build());
 
-        final HashMap<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, true);
+        final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, true);
 
         assertNotNull(allGraphsAndAuths);
         assertTrue(allGraphsAndAuths.isEmpty());

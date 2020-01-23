@@ -515,50 +515,40 @@ public class FederatedGraphStorage {
         }
     }
 
-    protected HashMap<String, Object> getAllGraphsAndAuths(final User user, final List<String> graphIds) {
-        final HashMap<String, Object> graphIdFedAccessMap = new HashMap<>();
-        storage.entrySet()
+    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds) {
+        return getAllGraphsAndAccess(graphIds, access -> isValidToView(user, access));
+    }
+
+    protected Map<String, Object> getAllGraphAndAccessAsAdmin(final List<String> graphIds) {
+        return getAllGraphsAndAccess(graphIds, entry -> true);
+    }
+
+    private Map<String, Object> getAllGraphsAndAccess(final List<String> graphIds, final Predicate<FederatedAccess> accessPredicate) {
+        return storage.entrySet()
                 .stream()
-                .filter(entry -> isValidToView(user, entry.getKey()))
-                .forEach(entry -> {
-                    FederatedAccess federatedAccess = entry.getKey();
-                    populateGraphIdAccessMap(graphIdFedAccessMap, graphIds, federatedAccess, entry.getValue());
-                });
-
-        return graphIdFedAccessMap;
+                //filter on FederatedAccess
+                .filter(e -> accessPredicate.test(e.getKey()))
+                //convert to Map<graphID,FederatedAccess>
+                .flatMap(entry -> entry.getValue().stream().collect(Collectors.toMap(Graph::getGraphId, g -> entry.getKey())).entrySet().stream())
+                //filter on if graph required?
+                .filter(entry -> {
+                    final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(entry.getKey());
+                    final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
+                    return isGraphIdRequested || isAllGraphIdsRequired;
+                })
+                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
-    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> requestedGraphIds, final FederatedAccess federatedAccess, final Set<Graph> allGraphs) {
-        for (final Graph g : allGraphs) {
-            final boolean getInfoForAllGraphs = !nonNull(requestedGraphIds) || requestedGraphIds.isEmpty();
-            if (getInfoForAllGraphs) {
-                //all graphs
-                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
-            } else {
-                //filter by requested graphs
-                if (requestedGraphIds.contains(g.getGraphId())) {
-                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
-                }
-            }
-        }
+
+    public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser) throws StorageException {
+        return changeGraphAccess(graphId, newFederatedAccess, access -> access.isAddingUser(requestingUser));
     }
 
-    protected HashMap<String, Object> getAllGraphsAndAuthsAsAdmin(final List<String> graphIds) {
-        final HashMap<String, Object> graphIdAccessMap = new HashMap<>();
-        storage.forEach((federatedAccess, graphs) ->
-                populateGraphIdAccessMap(graphIdAccessMap, graphIds, federatedAccess, graphs));
-        return graphIdAccessMap;
+    public boolean changeGraphAccessAsAdmin(final String graphId, final FederatedAccess newFederatedAccess) throws StorageException {
+        return changeGraphAccess(graphId, newFederatedAccess, access -> true);
     }
 
-    public boolean changeGraphAccess(final String graphId, final FederatedAccess federatedAccess, final User requestingUser) throws StorageException {
-        return changeGraphAccess(federatedAccess, graphId, access -> access.isAddingUser(requestingUser));
-    }
-
-    public boolean changeGraphAccessAsAdmin(final String graphId, final FederatedAccess federatedAccess) throws StorageException {
-        return changeGraphAccess(federatedAccess, graphId, access -> true);
-    }
-
-    private boolean changeGraphAccess(final FederatedAccess federatedAccess, final String graphId, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
+    private boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
         boolean rtn;
         Graph graphToMove = null;
         for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
@@ -585,7 +575,7 @@ public class FederatedGraphStorage {
             }
 
             //add the graph being moved.
-            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), federatedAccess);
+            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), newFederatedAccess);
             rtn = true;
         } else {
             rtn = false;
