@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since("1.10.4")
+@Since("1.10.6")
 @Summary("Gets the ids of all available Graphs from a federated store")
 public class GetAllGraphInfo implements
         FederatedOperation,

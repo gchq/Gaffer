@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -528,14 +528,17 @@ public class FederatedGraphStorage {
         return graphIdFedAccessMap;
     }
 
-    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> graphIds, final FederatedAccess federatedAccess, final Set<Graph> graphs) {
-        for (final Graph g : graphs) {
-            if (nonNull(graphIds) && !graphIds.isEmpty()) {
-                if (graphIds.contains(g.getGraphId())) {
-                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
-                }
+    private void populateGraphIdAccessMap(final HashMap<String, Object> graphIdFedAccessMap, final List<String> requestedGraphIds, final FederatedAccess federatedAccess, final Set<Graph> allGraphs) {
+        for (final Graph g : allGraphs) {
+            final boolean getInfoForAllGraphs = !nonNull(requestedGraphIds) || requestedGraphIds.isEmpty();
+            if (getInfoForAllGraphs) {
+                //all graphs
+                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
             } else {
-                graphIdFedAccessMap.put(g.getGraphId(), federatedAccess.toString());
+                //filter by requested graphs
+                if (requestedGraphIds.contains(g.getGraphId())) {
+                    graphIdFedAccessMap.put(g.getGraphId(), federatedAccess);
+                }
             }
         }
     }
@@ -564,8 +567,10 @@ public class FederatedGraphStorage {
                 for (final Graph graph : entry.getValue()) {
                     if (graph.getGraphId().equals(graphId)) {
                         if (isNull(graphToMove)) {
+                            //1st match, store graph and continue.
                             graphToMove = graph;
                         } else {
+                            //2nd match.
                             throw new IllegalStateException("graphIds are unique, but more than one graph was found with the same graphId: " + graphId);
                         }
                     }
