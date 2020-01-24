@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
+import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHan
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
@@ -257,7 +259,7 @@ public class FederatedStore extends Store {
 
     /**
      * @param userOpAuths the users operation authorisation
-     * @return true if the requesting user has Admin OpAuths and isUserRequestingAdminUsage is true.
+     * @return true if the requesting user has Admin OpAuths
      */
     private boolean isValidatedAsAdmin(final Set<String> userOpAuths) {
         boolean rtn = false;
@@ -393,6 +395,7 @@ public class FederatedStore extends Store {
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
+        addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
     }
 
     @Override
@@ -442,5 +445,11 @@ public class FederatedStore extends Store {
 
     private void _add(final GraphSerialisable newGraph, final FederatedAccess access) throws StorageException {
         graphStorage.put(newGraph, access);
+    }
+
+    public boolean changeGraphAccess(final User requestingUser, final String graphId, final Set<String> requestingUserOpAuths, final FederatedAccess federatedAccess, final boolean isAdmin) throws StorageException {
+        return isAdmin && isValidatedAsAdmin(requestingUserOpAuths)
+                ? graphStorage.changeGraphAccessAsAdmin(graphId, federatedAccess)
+                : graphStorage.changeGraphAccess(graphId, federatedAccess, requestingUser);
     }
 }

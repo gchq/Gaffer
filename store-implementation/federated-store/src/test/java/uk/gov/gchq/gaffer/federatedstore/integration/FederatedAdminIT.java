@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -266,5 +267,114 @@ public class FederatedAdminIT extends AbstractStoreIT {
         assertEquals(1, allGraphsAndAuths.size());
         assertEquals(graphB, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
         assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new Object[]{})[0]);
+    }
+
+    @Test
+    public void shouldChangeGraphUserFromOwnGraphToReplacementUser() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final User replacementUser = new User("replacement");
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
+                .graphId(graphA)
+                .ownerUserId(replacementUser.getUserId())
+                .build(), user);
+
+        //then
+        assertTrue(changed);
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+    }
+
+    @Test
+    public void shouldChangeGraphUserFromSomeoneElseToReplacementUserAsAdminWhenRequestingAdminAccess() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final User replacementUser = new User("replacement");
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
+                .graphId(graphA)
+                .ownerUserId(replacementUser.getUserId())
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), ADMIN_USER);
+
+        //then
+        assertTrue(changed);
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+    }
+
+    @Test
+    public void shouldNotChangeGraphUserFromSomeoneElseToReplacementUserAsAdminWhenNotRequestingAdminAccess() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final User replacementUser = new User("replacement");
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
+                .graphId(graphA)
+                .ownerUserId(replacementUser.getUserId())
+                .build(), ADMIN_USER);
+
+        //then
+        assertFalse(changed);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+    }
+
+    @Test
+    public void shouldNotChangeGraphUserFromSomeoneElseToReplacementUserAsNonAdminWhenRequestingAdminAccess() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final User replacementUser = new User("replacement");
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
+                .graphId(graphA)
+                .ownerUserId(replacementUser.getUserId())
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), replacementUser);
+
+        //then
+        assertFalse(changed);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
     }
 }
