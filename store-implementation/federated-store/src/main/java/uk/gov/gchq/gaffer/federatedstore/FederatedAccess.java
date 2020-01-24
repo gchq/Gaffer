@@ -87,7 +87,7 @@ public class FederatedAccess implements Serializable {
         return addingUserId;
     }
 
-    void setAddingUserId(final String creatorUserId) {
+    public void setAddingUserId(final String creatorUserId) {
         this.addingUserId = creatorUserId;
     }
 
@@ -114,7 +114,7 @@ public class FederatedAccess implements Serializable {
      * @param user User request permission.
      * @return boolean permission for user.
      */
-    boolean isValidToExecute(final User user) {
+    protected boolean isValidToExecute(final User user) {
         return isPublic || (null != user && (isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user))));
     }
 
@@ -122,7 +122,7 @@ public class FederatedAccess implements Serializable {
         return !Collections.disjoint(user.getOpAuths(), this.graphAuths);
     }
 
-    boolean isAddingUser(final User user) {
+    protected boolean isAddingUser(final User user) {
         return null != user.getUserId() && user.getUserId().equals(addingUserId);
     }
 
