@@ -81,7 +81,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -341,14 +340,14 @@ public class FederatedStore extends Store {
         return graphStorage.get(user, getCleanStrings(graphIdsCsv));
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
         return this.getAllGraphsAndAuths(user, graphIdsCsv, false);
     }
 
-    public HashMap<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean isAdmin) {
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean isAdmin) {
         return isAdmin && isValidatedAsAdmin(user.getOpAuths())
-                ? graphStorage.getAllGraphsAndAuthsAsAdmin(getCleanStrings(graphIdsCsv))
-                : graphStorage.getAllGraphsAndAuths(user, getCleanStrings(graphIdsCsv));
+                ? graphStorage.getAllGraphAndAccessAsAdmin(getCleanStrings(graphIdsCsv))
+                : graphStorage.getAllGraphsAndAccess(user, getCleanStrings(graphIdsCsv));
     }
 
     /**
