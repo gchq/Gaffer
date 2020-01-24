@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 
 
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
-@Since("1.10.5")
+@Since("1.10.6")
 @Summary("Changes the protection used for accessing graphs")
 @JsonInclude(Include.NON_DEFAULT)
 public class ChangeGraphAccess implements Output<Boolean> {
@@ -127,23 +127,27 @@ public class ChangeGraphAccess implements Output<Boolean> {
         return new TypeReferenceImpl.Boolean();
     }
 
-    public abstract static class GraphBuilder<OP extends ChangeGraphAccess, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
+    public static class Builder extends BaseBuilder<ChangeGraphAccess, ChangeGraphAccess.Builder> {
 
-        protected GraphBuilder(final OP addGraph) {
+        public Builder() {
+            super(new ChangeGraphAccess());
+        }
+
+        protected Builder(final ChangeGraphAccess addGraph) {
             super(addGraph);
         }
 
-        public B graphId(final String graphId) {
+        public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return _self();
         }
 
-        public B isPublic(final boolean isPublic) {
+        public Builder isPublic(final boolean isPublic) {
             _getOp().setIsPublic(isPublic);
             return _self();
         }
 
-        public B graphAuths(final String... graphAuths) {
+        public Builder graphAuths(final String... graphAuths) {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
@@ -152,21 +156,14 @@ public class ChangeGraphAccess implements Output<Boolean> {
             return _self();
         }
 
-        public B disabledByDefault(final boolean disabledByDefault) {
+        public Builder disabledByDefault(final boolean disabledByDefault) {
             _getOp().setDisabledByDefault(disabledByDefault);
             return _self();
         }
 
-        public B ownerUserId(final String ownerUserId) {
+        public Builder ownerUserId(final String ownerUserId) {
             _getOp().setOwnerUserId(ownerUserId);
             return _self();
-        }
-    }
-
-    public static class Builder extends GraphBuilder<ChangeGraphAccess, Builder> {
-
-        public Builder() {
-            super(new ChangeGraphAccess());
         }
     }
 }
