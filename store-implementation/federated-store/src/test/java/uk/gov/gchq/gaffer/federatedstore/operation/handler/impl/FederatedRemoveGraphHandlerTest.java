@@ -50,7 +50,7 @@ public class FederatedRemoveGraphHandlerTest {
     }
 
     @Test
-    public void shouldRemoveGraph() throws Exception {
+    public void shouldRemoveGraphForAddingUser() throws Exception {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
@@ -59,7 +59,7 @@ public class FederatedRemoveGraphHandlerTest {
         AccumuloProperties storeProperties = new AccumuloProperties();
         storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
-        store.addGraphs(testUser.getOpAuths(), null, false, new GraphSerialisable.Builder()
+        store.addGraphs(testUser.getOpAuths(), testUser.getUserId(), false, new GraphSerialisable.Builder()
                 .config(new GraphConfig(EXPECTED_GRAPH_ID))
                 .schema(new Schema.Builder().build())
                 .properties(storeProperties)
@@ -77,6 +77,37 @@ public class FederatedRemoveGraphHandlerTest {
         Collection<Graph> graphs = store.getGraphs(testUser, null);
 
         assertEquals(0, graphs.size());
+
+    }
+
+    @Test
+    public void shouldNotRemoveGraphForNonAddingUser() throws Exception {
+        FederatedStore store = new FederatedStore();
+        final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+        AccumuloProperties storeProperties = new AccumuloProperties();
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+
+        store.addGraphs(testUser.getOpAuths(), "other", false, new GraphSerialisable.Builder()
+                .config(new GraphConfig(EXPECTED_GRAPH_ID))
+                .schema(new Schema.Builder().build())
+                .properties(storeProperties)
+                .build());
+
+        assertEquals(1, store.getGraphs(testUser, null).size());
+
+        new FederatedRemoveGraphHandler().doOperation(
+                new RemoveGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<Graph> graphs = store.getGraphs(testUser, null);
+
+        assertEquals(1, graphs.size());
 
     }
 }

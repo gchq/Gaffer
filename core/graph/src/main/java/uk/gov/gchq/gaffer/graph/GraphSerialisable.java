@@ -35,6 +35,8 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Properties;
 
+import static java.util.Objects.isNull;
+
 /**
  * A Serialisable object which holds the contents for creating Graphs.
  * Does not store all the graph data, this only is used to recreate the graph
@@ -240,6 +242,9 @@ public final class GraphSerialisable implements Serializable {
         }
 
         public GraphSerialisable build() {
+            if (isNull(config) || isNull(config.getGraphId())) {
+                throw new IllegalArgumentException("GraphSerialisable Builder requires a graph name");
+            }
             return new GraphSerialisable(config, schema, properties);
         }
     }

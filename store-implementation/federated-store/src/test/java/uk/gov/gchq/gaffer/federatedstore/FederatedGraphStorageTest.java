@@ -359,10 +359,10 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldRemoveForAuthUser() throws Exception {
+    public void shouldNotRemoveForAuthUser() throws Exception {
         graphStorage.put(a, access);
         final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser);
-        assertTrue(remove);
+        assertFalse(remove);
     }
 
     @Test
