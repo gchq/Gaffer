@@ -38,7 +38,7 @@ import java.util.Set;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 
-@JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "graphId", "graphAuths", "isPublic"}, alphabetic = true)
 @Since("1.10.6")
 @Summary("Changes the protection used for accessing graphs")
 @JsonInclude(Include.NON_DEFAULT)
