@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinitio
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
@@ -84,6 +85,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.CreateObject;
+import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.io.File;
 import java.io.IOException;
@@ -394,6 +397,7 @@ public class GraphTest {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
+                        .addHook(new FunctionAuthoriser()) // skips json serialisation in default hook
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
@@ -423,6 +427,7 @@ public class GraphTest {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
+                        .addHook(new FunctionAuthoriser()) // skips json serialisation in default hook
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
@@ -1396,7 +1401,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1421,7 +1426,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1446,7 +1451,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, graphHook1.getClass(), graphHook2.getClass(), FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1470,7 +1475,7 @@ public class GraphTest {
 
         // Then
         assertEquals(
-                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class),
+                Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class, FunctionAuthoriser.class),
                 graph.getGraphHooks()
         );
     }
@@ -1499,7 +1504,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, OperationAuthoriser.class, FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1523,7 +1528,7 @@ public class GraphTest {
                         .build())
                 .build(), graph.getView());
         assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class),
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, FunctionAuthoriser.class),
                 graph.getGraphHooks());
     }
 
@@ -1569,7 +1574,7 @@ public class GraphTest {
         assertEquals(graphId2, graph.getGraphId());
         assertEquals(view2, graph.getView());
         assertEquals(library2, graph.getGraphLibrary());
-        assertEquals(Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass()),
+        assertEquals(Arrays.asList(NamedViewResolver.class, hook1.getClass(), hook2.getClass(), hook3.getClass(), FunctionAuthoriser.class),
                 graph.getGraphHooks());
     }
 
@@ -1615,7 +1620,7 @@ public class GraphTest {
         assertEquals(graphId1, graph.getGraphId());
         assertEquals(view1, graph.getView());
         assertEquals(library1, graph.getGraphLibrary());
-        assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass()),
+        assertEquals(Arrays.asList(NamedViewResolver.class, hook2.getClass(), hook1.getClass(), hook3.getClass(), FunctionAuthoriser.class),
                 graph.getGraphHooks());
     }
 
@@ -2381,6 +2386,53 @@ public class GraphTest {
         assertEquals(new View.Builder().entity(TestGroups.ENTITY, new ViewElementDefinition())
                 .edge(TestGroups.EDGE, new ViewElementDefinition())
                 .edge(TestGroups.EDGE_2, new ViewElementDefinition()).build(), operation.getView());
+    }
+
+    @Test
+    public void shouldAddDefaultSecurityHooksIfNotAddedToHooks() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("test")
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(storeProperties)
+                .config(config)
+                .build();
+
+        // Then
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
+        assertEquals(CreateObject.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+    }
+
+    @Test
+    public void shouldNotAddDefaultSecurityHooksIfAlreadyAdded() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("test")
+                .addHook(new FunctionAuthoriser(Lists.newArrayList(Identity.class)))
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(storeProperties)
+                .config(config)
+                .build();
+
+        // Then
+        assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
+        assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
     }
 
     public static class TestStoreImpl extends Store {

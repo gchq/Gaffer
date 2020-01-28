@@ -1,4 +1,4 @@
-Copyright 2016-2019 Crown Copyright
+Copyright 2016-2020 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains use
 
 - `jar-shader` - Used to shade the version of Jackson to avoid incompatibility problems on CDH clusters;
 - `mini-accumulo-cluster` - Allows a mini Accumulo cluster to be spun up for testing purposes;
-- `performance-testing` - Methods of testing the peformance of ingest and query operations against a graph;
+- `performance-testing` - Methods of testing the performance of ingest and query operations against a graph;
 - `python-shell` - Allows operations against a graph to be executed from a Python shell;
 - `random-element-generation` - Code to generate large volumes of random graph data;
 - `schema-builder` - A (beta) visual tool for writing schemas for a graph;

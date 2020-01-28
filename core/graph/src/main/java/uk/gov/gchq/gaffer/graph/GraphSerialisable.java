@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Properties;
+
+import static java.util.Objects.isNull;
 
 /**
  * A Serialisable object which holds the contents for creating Graphs.
@@ -240,6 +242,9 @@ public final class GraphSerialisable implements Serializable {
         }
 
         public GraphSerialisable build() {
+            if (isNull(config) || isNull(config.getGraphId())) {
+                throw new IllegalArgumentException("GraphSerialisable Builder requires a graph name");
+            }
             return new GraphSerialisable(config, schema, properties);
         }
     }

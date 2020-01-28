@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
-import uk.gov.gchq.gaffer.federatedstore.PredefinedFederatedStore;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -35,6 +34,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
+import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES;
 
 /**
  * In all of theses tests the Federated graph contains two graphs, one containing
@@ -112,7 +113,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_EDGES)
                 .build(), user);
 
         assertTrue(rtn.iterator().hasNext());
@@ -133,7 +134,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                 .view(new View.Builder()
                         .entity(BASIC_ENTITY)
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_ENTITIES)
                 .build(), user);
 
         assertTrue(rtn.iterator().hasNext());
@@ -155,7 +156,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                     .view(new View.Builder()
                             .edge(BASIC_EDGE)
                             .build())
-                    .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
+                    .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_ENTITIES)
                     .build(), user);
 
             fail("exception expected");
@@ -182,7 +183,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                     .view(new View.Builder()
                             .entity(BASIC_ENTITY)
                             .build())
-                    .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
+                    .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_EDGES)
                     .build(), user);
             fail("exception expected");
         } catch (Exception e) {

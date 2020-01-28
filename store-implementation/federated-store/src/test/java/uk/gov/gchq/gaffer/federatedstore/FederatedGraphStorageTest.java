@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -359,10 +359,10 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldRemoveForAuthUser() throws Exception {
+    public void shouldNotRemoveForAuthUser() throws Exception {
         graphStorage.put(a, access);
         final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser);
-        assertTrue(remove);
+        assertFalse(remove);
     }
 
     @Test

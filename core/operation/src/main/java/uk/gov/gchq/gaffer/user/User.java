@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Simple representation of a user in Gaffer. Users execute operations on the
@@ -53,8 +55,12 @@ public class User {
 
     public User(final String userId, final Set<String> dataAuths, final Set<String> opAuths) {
         this(userId);
-        this.dataAuths.addAll(dataAuths);
-        this.opAuths.addAll(opAuths);
+        if (nonNull(dataAuths)) {
+            this.dataAuths.addAll(dataAuths);
+        }
+        if (nonNull(opAuths)) {
+            this.opAuths.addAll(opAuths);
+        }
     }
 
     public String getUserId() {

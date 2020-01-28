@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,21 +29,28 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TransformationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertexWithTransientProperty";
@@ -213,5 +220,60 @@ public class TransformationIT extends AbstractStoreIT {
         graph.execute(new AddElements.Builder()
                 .input(elements)
                 .build(), getUser());
+    }
+
+    @Test
+    public void shouldNotErrorWhenEdgeTransformReceivesEntities() throws OperationException {
+        final Iterable<? extends Element> result = graph.execute(new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .then(new Transform.Builder()
+                        .edge(TestGroups.EDGE, new ElementTransformer.Builder()
+                                .select(TestPropertyNames.COUNT)
+                                .execute(new ToString())
+                                .project("propAlt")
+                                .build())
+                        .build())
+                .build(), getUser());
+
+        //Resolve the lazy iterator, by adding the contents to a list, No exception should have been thrown here.
+        final ArrayList<Element> edges = Lists.newArrayList(result);
+        final ArrayList<Element> entities = Lists.newArrayList(edges);
+
+        edges.removeIf(e -> e instanceof Entity);
+        assertEquals(111, edges.size());
+        assertTrue(edges.get(0).getProperties().containsKey("propAlt"));
+
+
+        entities.removeIf(e -> e instanceof Edge);
+        assertEquals(89, entities.size());
+        assertFalse(entities.get(0).getProperties().containsKey("propAlt"));
+    }
+
+    @Test
+    public void shouldNotErrorWhenEntityTransformReceivesEdges() throws OperationException {
+        final Iterable<? extends Element> result = graph.execute(new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .then(new Transform.Builder()
+                        .entity(TestGroups.ENTITY, new ElementTransformer.Builder()
+                                .select(TestPropertyNames.COUNT)
+                                .execute(new ToString())
+                                .project("propAlt")
+                                .build())
+                        .build())
+                .build(), getUser());
+
+        //Resolve the lazy iterator, by adding the contents to a list, No exception should have been thrown here.
+        final ArrayList<Element> edges = Lists.newArrayList(result);
+        final ArrayList<Element> entities = Lists.newArrayList(edges);
+
+        edges.removeIf(e -> e instanceof Entity);
+        assertEquals(111, edges.size());
+        assertFalse(edges.get(0).getProperties().containsKey("propAlt"));
+
+        entities.removeIf(e -> e instanceof Edge);
+        assertEquals(89, entities.size());
+        assertTrue(entities.get(0).getProperties().containsKey("propAlt"));
     }
 }
