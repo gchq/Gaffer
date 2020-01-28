@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * for a range and creates a value to use as the end point. Note that the both of the vertex values must first be converted
  * to {@link String}s. These values are then wrapped up as {@link EntitySeed}s.
  */
-@Since("9.9.9")
+@Since("1.10.6")
 @Summary("Converts an input value into a pair of EntityIds representing a range.")
 public class ToTrailingWildcardPair extends KorypheFunction<String, Pair<EntityId, EntityId>> {
 
