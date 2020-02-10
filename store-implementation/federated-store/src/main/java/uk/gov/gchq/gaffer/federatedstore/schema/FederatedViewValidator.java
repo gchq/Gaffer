@@ -17,12 +17,17 @@
 package uk.gov.gchq.gaffer.federatedstore.schema;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -56,14 +61,46 @@ public class FederatedViewValidator extends ViewValidator {
     }
 
     protected ValidationResult getEdgeResult(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered) {
-        final ValidationResult edgeResult = new ValidationResult();
-        validateEdge(view, schema, storeTraits, isStoreOrdered, edgeResult);
-        return edgeResult;
+        final Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> validationResultFunction = e -> {
+            final ValidationResult singleResult = new ValidationResult();
+            validateEdge(new View.Builder().edge(e.getKey(), e.getValue()).build(), schema, storeTraits, isStoreOrdered, singleResult);
+            return singleResult;
+        };
+
+        return getElementResult(validationResultFunction, view.getEdges());
     }
 
     protected ValidationResult getEntityResult(final View view, final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered) {
-        final ValidationResult entitiesResult = new ValidationResult();
-        validateEntities(view, schema, storeTraits, isStoreOrdered, entitiesResult);
-        return entitiesResult;
+
+        final Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> validationResultFunction = e -> {
+            final ValidationResult singleResult = new ValidationResult();
+            validateEntities(new View.Builder().entity(e.getKey(), e.getValue()).build(), schema, storeTraits, isStoreOrdered, singleResult);
+            return singleResult;
+        };
+        return getElementResult(validationResultFunction, view.getEntities());
+    }
+
+    private ValidationResult getElementResult(final Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> validationResultFunction, final Map<String, ViewElementDefinition> entities) {
+        final ValidationResult rtn = new ValidationResult();
+
+        final List<ValidationResult> viewResults = entities.entrySet().stream()
+                .map(validationResultFunction)
+                .collect(Collectors.toList());
+
+        final boolean isAnyViewsValid = viewResults.stream().anyMatch(ValidationResult::isValid);
+
+        if (!isAnyViewsValid) {
+            viewResults.forEach(rtn::add);
+        }
+
+        return rtn;
+    }
+
+    private Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> getEntryValidationResultFunction(final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered) {
+        return e -> {
+            final ValidationResult singleResult = new ValidationResult();
+            validateEntities(new View.Builder().entity(e.getKey(), e.getValue()).build(), schema, storeTraits, isStoreOrdered, singleResult);
+            return singleResult;
+        };
     }
 }
