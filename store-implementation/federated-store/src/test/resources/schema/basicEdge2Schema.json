@@ -3,14 +3,7 @@
     "BasicEdge2": {
       "source": "vertex.string",
       "destination": "vertex.string",
-      "directed": "directed.either",
-      "properties": {
-        "columnQualifier": "colQualProperty",
-        "property1": "simpleProperty"
-      },
-      "groupBy": [
-        "columnQualifier"
-      ]
+      "directed": "directed.either"
     }
   },
   "types": {
@@ -19,24 +12,6 @@
     },
     "directed.either": {
       "class": "java.lang.Boolean"
-    },
-    "simpleProperty": {
-      "class": "java.lang.Integer",
-      "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-      },
-      "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
-      }
-    },
-    "colQualProperty": {
-      "class": "java.lang.Integer",
-      "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-      },
-      "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
-      }
     }
   }
 }

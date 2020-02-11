@@ -1,24 +1,12 @@
 {
   "entities": {
     "BasicEntity2": {
-      "vertex": "vertex.string",
-      "properties": {
-        "property1": "simpleProperty"
-      }
+      "vertex": "vertex.string"
     }
   },
   "types": {
     "vertex.string": {
       "class": "java.lang.String"
-    },
-    "simpleProperty": {
-      "class": "java.lang.Integer",
-      "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-      },
-      "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
-      }
     }
   }
 }

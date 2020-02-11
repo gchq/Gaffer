@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
+import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -53,16 +55,46 @@ public class FederatedViewsIT extends AbstractStoreIT {
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";
 
+    @Before
+    public void setUp() throws Exception {
+        graph.execute(new RemoveGraph.Builder()
+                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
+                .build(), user);
+        graph.execute(new RemoveGraph.Builder()
+                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
+                .build(), user);
+
+        graph.execute(new AddGraph.Builder()
+                .graphId(ACCUMULO_GRAPH_WITH_EDGES)
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .schema(Schema.fromJson(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEdgeSchema.json")))
+                .build(), user);
+
+        graph.execute(new AddGraph.Builder()
+                .graphId(ACCUMULO_GRAPH_WITH_ENTITIES)
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .schema(Schema.fromJson(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEntitySchema.json")))
+                .build(), user);
+    }
+
     @Test
     public void shouldBeEmptyAtStart() throws OperationException {
 
-        final CloseableIterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
+        final CloseableIterable<? extends Element> edges = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .build())
                 .build(), user);
 
-        assertFalse(rtn.iterator().hasNext());
+        assertFalse(edges.iterator().hasNext());
+
+        final CloseableIterable<? extends Element> entities = graph.execute(new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity(BASIC_ENTITY)
+                        .build())
+                .build(), user);
+
+        assertFalse(entities.iterator().hasNext());
 
     }
 
