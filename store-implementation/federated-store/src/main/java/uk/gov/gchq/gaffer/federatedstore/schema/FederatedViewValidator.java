@@ -95,12 +95,4 @@ public class FederatedViewValidator extends ViewValidator {
 
         return rtn;
     }
-
-    private Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> getEntryValidationResultFunction(final Schema schema, final Set<StoreTrait> storeTraits, final boolean isStoreOrdered) {
-        return e -> {
-            final ValidationResult singleResult = new ValidationResult();
-            validateEntities(new View.Builder().entity(e.getKey(), e.getValue()).build(), schema, storeTraits, isStoreOrdered, singleResult);
-            return singleResult;
-        };
-    }
 }
