@@ -80,10 +80,10 @@ public class FederatedViewValidator extends ViewValidator {
         return getElementResult(validationResultFunction, view.getEntities());
     }
 
-    private ValidationResult getElementResult(final Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> validationResultFunction, final Map<String, ViewElementDefinition> elements) {
+    private ValidationResult getElementResult(final Function<Map.Entry<String, ViewElementDefinition>, ValidationResult> validationResultFunction, final Map<String, ViewElementDefinition> elementDefinitionMap) {
         final ValidationResult rtn = new ValidationResult();
 
-        final List<ValidationResult> viewResults = elements.entrySet().stream()
+        final List<ValidationResult> viewResults = elementDefinitionMap.entrySet().stream()
                 .map(validationResultFunction)
                 .collect(Collectors.toList());
 
