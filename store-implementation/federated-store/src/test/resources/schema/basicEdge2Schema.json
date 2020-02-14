@@ -1,0 +1,17 @@
+{
+  "edges": {
+    "BasicEdge2": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either"
+    }
+  },
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    }
+  }
+}
