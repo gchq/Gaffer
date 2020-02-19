@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
+import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -27,19 +26,18 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
- * A handler for {@link ChangeGraphAccess} operation for the FederatedStore.
+ * A handler for {@link ChangeGraphId} operation for the FederatedStore.
  */
-public class FederatedChangeGraphAccessHandler implements OutputOperationHandler<ChangeGraphAccess, Boolean> {
+public class FederatedChangeGraphIdHandler implements OutputOperationHandler<ChangeGraphId, Boolean> {
 
     @Override
-    public Boolean doOperation(final ChangeGraphAccess operation, final Context context, final Store store) throws OperationException {
+    public Boolean doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
             final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
-            final FederatedAccess federatedAccess = new FederatedAccess(operation.getGraphAuths(), operation.getOwnerUserId(), operation.getIsPublic(), operation.isDisabledByDefault());
             final User user = context.getUser();
-            return ((FederatedStore) store).changeGraphAccess(user, operation.getGraphId(), federatedAccess, userRequestingAdminUsage);
+            return ((FederatedStore) store).changeGraphId(user, operation.getGraphId(), operation.getNewGraphId(), userRequestingAdminUsage);
         } catch (final Exception e) {
-            throw new OperationException("Error changing graph access", e);
+            throw new OperationException("Error changing graphId", e);
         }
     }
 }
