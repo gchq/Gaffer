@@ -189,8 +189,8 @@ public class FederatedViewsIT extends AbstractStoreIT {
         } catch (Exception e) {
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n" +
-                    "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "Edge group BasicEdge does not exist in the schema", e.getMessage());
+                    "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema", e.getMessage());
         }
     }
 
@@ -215,8 +215,8 @@ public class FederatedViewsIT extends AbstractStoreIT {
         } catch (Exception e) {
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n" +
-                    "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "Entity group BasicEntity does not exist in the schema", e.getMessage());
+                    "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema", e.getMessage());
         }
 
     }
