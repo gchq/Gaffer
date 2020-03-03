@@ -91,7 +91,7 @@
         <servlet-api.version>3.1.0</servlet-api.version>
         <snappy.version>1.1.2.4</snappy.version>
         <swagger.version>1.5.15</swagger.version>
-        <zookeeper.version>3.4.6</zookeeper.version>
+        <zookeeper.version>3.4.14</zookeeper.version>
         <mockserver.version>3.9.16</mockserver.version>
 
         <!-- Maven plugins -->
