@@ -100,7 +100,7 @@ public class ProxyStore extends Store {
     protected void checkDelegateStoreStatus() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/status");
         final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
-        LOGGER.info("Delegate REST API status: {}", status.get("description"));
+        LOGGER.info("Delegate REST API status: {}", status.get("status"));
     }
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
