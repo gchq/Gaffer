@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -28,13 +28,17 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Paths;
+import java.security.Permission;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AddUpdateTableIteratorTest {
 
@@ -43,11 +47,12 @@ public class AddUpdateTableIteratorTest {
     private static final String SCHEMA_2_DIR = "src/test/resources/schema2";
     private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
     private static final String STORE_PROPS_2_PATH = "src/test/resources/store2.properties";
+    private static final String EMPTY_STORE_PROPS_PATH = "src/test/resources/empty-store.properties";
     private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "target/graphLibrary";
 
-    @Before
-    @After
-    public void cleanUp() throws IOException {
+    @BeforeEach
+    @AfterEach
+    public void setUpAndTearDown() throws IOException {
         if (new File(FILE_GRAPH_LIBRARY_TEST_PATH).exists()) {
             FileUtils.forceDelete(new File(FILE_GRAPH_LIBRARY_TEST_PATH));
         }
@@ -61,12 +66,11 @@ public class AddUpdateTableIteratorTest {
         // When
         AddUpdateTableIterator.main(args);
 
-
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
     }
@@ -82,9 +86,9 @@ public class AddUpdateTableIteratorTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
     }
@@ -99,6 +103,77 @@ public class AddUpdateTableIteratorTest {
 
         // Then - no exceptions
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNull("Graph should not have been stored", pair);
+        assertNull(pair, "Graph should not have been stored");
+    }
+
+    @Test
+    public void shouldThrowKeyErrorWhenInvalidModifyKeyGiven() {
+        // Given
+        final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "invalid key", FILE_GRAPH_LIBRARY_TEST_PATH};
+
+        // When
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> AddUpdateTableIterator.main(args));
+
+        // Then
+        final String expected = "Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.";
+        assertEquals(expected, exception.getMessage());
+    }
+
+    @Test
+    public void shouldReturnStoreClassNameNotFoundWhenStorePropsIsEmpty() {
+        // Given
+        final String[] args = {GRAPH_ID, SCHEMA_DIR, EMPTY_STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
+
+        // When
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> AddUpdateTableIterator.main(args));
+
+        // Then
+        final String expected = "The Store class name was not found in the store properties for key: gaffer.store.class";
+        assertEquals(expected, exception.getMessage());
+    }
+
+    @Test
+    public void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() {
+        // Given
+        final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
+
+        // When
+        final Exception exception = assertThrows(RuntimeException.class, () -> AddUpdateTableIterator.main(args));
+
+        // Then
+        final String expected = "Failed to load store properties file : invalid/file/path";
+        assertEquals(expected, exception.getMessage());
+    }
+
+    @Test
+    public void whenExecutedWithLessThan3ArgsPrintlnWrongNoOfArgsError() {
+        // Given
+        // Override System.exit when not enough args given
+        System.setSecurityManager(new OverrideSysExitSecurityManager());
+        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(errContent));
+
+        final String[] threeArgs = {"1", "2", "3"};
+
+        // When
+        assertThrows(SecurityException.class, () -> AddUpdateTableIterator.main(threeArgs));
+
+        // Then
+        final String expected = "Wrong number of arguments. \n" +
+                "Usage: <graphId> <comma separated schema paths> " +
+                "<store properties path> <add,remove or update> <file graph library path>\n";
+        assertEquals(expected, errContent.toString());
+    }
+
+    private class OverrideSysExitSecurityManager extends SecurityManager {
+        @Override
+        public void checkExit(int status) {
+            throw new SecurityException();
+        }
+
+        @Override
+        public void checkPermission(Permission perm) {
+            // Allow
+        }
     }
 }

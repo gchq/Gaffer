@@ -32,7 +32,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -69,6 +72,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,7 +81,9 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+@EnableRuleMigrationSupport
 public class GetRDDOfAllElementsHandlerIT {
+
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -91,102 +97,70 @@ public class GetRDDOfAllElementsHandlerIT {
     private static final String GRAPH_ID = "graphId";
     private Entity entityRetainedAfterValidation;
 
-    @Test
-    public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
+    @ParameterizedTest
+    @EnumSource(value = KeyPackage.class, names = {"BYTE_ENTITY", "CLASSIC"})
+    public void testGetAllElementsInRDD(KeyPackage keyPackage) throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperation());
-        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperation());
-        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperationWithBatchScannerEnabled());
-        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(keyPackage), getOperation());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDD(
-                getGraphForDirectRDD(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDD1"),
-                getOperationWithDirectRDDOption());
-        testGetAllElementsInRDD(
-                getGraphForDirectRDD(KeyPackage.CLASSIC, "testGetAllElementsInRDD2"),
+                getGraphForDirectRDD(keyPackage, "testGetAllElementsInRDD_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
     }
 
-    @Test
-    public void testGetAllElementsInRDDWithView() throws OperationException, IOException, InterruptedException,
+    @ParameterizedTest
+    @EnumSource(value = KeyPackage.class, names = {"BYTE_ENTITY", "CLASSIC"})
+    public void testGetAllElementsInRDDWithView(KeyPackage keyPackage) throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperation());
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperation());
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperationWithBatchScannerEnabled());
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperationWithBatchScannerEnabled());
+        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(keyPackage), getOperation());
+        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithView(
-                getGraphForDirectRDD(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithView1"),
-                getOperationWithDirectRDDOption());
-        testGetAllElementsInRDDWithView(
-                getGraphForDirectRDD(KeyPackage.CLASSIC, "testGetAllElementsInRDDWithView2"),
+                getGraphForDirectRDD(keyPackage, "testGetAllElementsInRDDWithView_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
     }
 
-    @Test
-    public void testGetAllElementsInRDDWithVisibilityFilteringApplied() throws OperationException, IOException,
+    @ParameterizedTest
+    @EnumSource(value = KeyPackage.class, names = {"BYTE_ENTITY", "CLASSIC"})
+    public void testGetAllElementsInRDDWithVisibilityFilteringApplied(KeyPackage keyPackage) throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForMockAccumuloWithVisibility(KeyPackage.BYTE_ENTITY),
+                getGraphForMockAccumuloWithVisibility(keyPackage),
                 getOperation());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForMockAccumuloWithVisibility(KeyPackage.CLASSIC),
-                getOperation());
-        testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForMockAccumuloWithVisibility(KeyPackage.BYTE_ENTITY),
+                getGraphForMockAccumuloWithVisibility(keyPackage),
                 getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForMockAccumuloWithVisibility(KeyPackage.CLASSIC),
-                getOperationWithBatchScannerEnabled());
-        testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForDirectRDDWithVisibility(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithVisibilityFilteringApplied1"),
-                getOperationWithDirectRDDOption());
-        testGetAllElementsInRDDWithVisibilityFilteringApplied(
-                getGraphForDirectRDDWithVisibility(KeyPackage.CLASSIC, "testGetAllElementsInRDDWithVisibilityFilteringApplied2"),
+                getGraphForDirectRDDWithVisibility(keyPackage, "testGetAllElementsInRDDWithVisibilityFilteringApplied_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
     }
 
-    @Test
-    public void testGetAllElementsInRDDWithValidationApplied() throws InterruptedException, IOException,
+    @ParameterizedTest
+    @EnumSource(value = KeyPackage.class, names = {"BYTE_ENTITY", "CLASSIC"})
+    public void testGetAllElementsInRDDWithValidationApplied(KeyPackage keyPackage) throws InterruptedException, IOException,
             OperationException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
         testGetAllElementsInRDDWithValidationApplied(
-                getGraphForMockAccumuloForValidationChecking(KeyPackage.BYTE_ENTITY),
+                getGraphForMockAccumuloForValidationChecking(keyPackage),
                 getOperation());
         testGetAllElementsInRDDWithValidationApplied(
-                getGraphForMockAccumuloForValidationChecking(KeyPackage.CLASSIC),
-                getOperation());
-        testGetAllElementsInRDDWithValidationApplied(
-                getGraphForMockAccumuloForValidationChecking(KeyPackage.BYTE_ENTITY),
+                getGraphForMockAccumuloForValidationChecking(keyPackage),
                 getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithValidationApplied(
-                getGraphForMockAccumuloForValidationChecking(KeyPackage.CLASSIC),
-                getOperationWithBatchScannerEnabled());
-        testGetAllElementsInRDDWithValidationApplied(
-                getGraphForDirectRDDForValidationChecking(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithValidationApplied1"),
-                getOperationWithDirectRDDOption());
-        testGetAllElementsInRDDWithValidationApplied(
-                getGraphForDirectRDDForValidationChecking(KeyPackage.CLASSIC, "testGetAllElementsInRDDWithValidationApplied2"),
+                getGraphForDirectRDDForValidationChecking(keyPackage, "testGetAllElementsInRDDWithValidationApplied_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
     }
 
-    @Test
-    public void testGetAllElementsInRDDWithIngestAggregationApplied() throws OperationException, IOException,
+    @ParameterizedTest
+    @EnumSource(value = KeyPackage.class, names = {"BYTE_ENTITY", "CLASSIC"})
+    public void testGetAllElementsInRDDWithIngestAggregationApplied(KeyPackage keyPackage) throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
         testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForMockAccumuloForIngestAggregation(KeyPackage.BYTE_ENTITY),
+                getGraphForMockAccumuloForIngestAggregation(keyPackage),
                 getOperation());
         testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForMockAccumuloForIngestAggregation(KeyPackage.CLASSIC),
-                getOperation());
-        testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForMockAccumuloForIngestAggregation(KeyPackage.BYTE_ENTITY),
+                getGraphForMockAccumuloForIngestAggregation(keyPackage),
                 getOperationWithBatchScannerEnabled());
         testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForMockAccumuloForIngestAggregation(KeyPackage.CLASSIC),
-                getOperationWithBatchScannerEnabled());
-        testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForDirectRDDForIngestAggregation(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDDWithIngestAggregationApplied1"),
-                getOperationWithDirectRDDOption());
-        testGetAllElementsInRDDWithIngestAggregationApplied(
-                getGraphForDirectRDDForIngestAggregation(KeyPackage.CLASSIC, "testGetAllElementsInRDDWithIngestAggregationApplied2"),
+                getGraphForDirectRDDForIngestAggregation(keyPackage, "testGetAllElementsInRDDWithIngestAggregationApplied_" + keyPackage.name()),
                 getOperationWithDirectRDDOption());
     }
 
@@ -201,39 +175,34 @@ public class GetRDDOfAllElementsHandlerIT {
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
-        final User user = new User();
         final Configuration conf = new Configuration();
         conf.set("AN_OPTION", "A_VALUE");
         final String encodedConf = AbstractGetRDDHandler.convertConfigurationToString(conf);
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, encodedConf)
                 .build();
-        final RDD<Element> rdd = graph1.execute(rddQuery, user);
+
+        final RDD<Element> rdd = graph1.execute(rddQuery, new User());
 
         assertEquals(encodedConf, rddQuery.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY));
         assertEquals("A_VALUE", rdd.sparkContext().hadoopConfiguration().get("AN_OPTION"));
     }
 
-    private void testGetAllElementsInRDD(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
-            IOException, InterruptedException, AccumuloSecurityException, AccumuloException {
+    private void testGetAllElementsInRDD(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException {
         final Set<Element> expectedElements = new HashSet<>(getElements());
         final RDD<Element> rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
             fail("No RDD returned");
         }
-        final Set<Element> results = new HashSet<>();
         final Element[] returnedElements = (Element[]) rdd.collect();
         // Check the number of elements returned is correct to ensure edges
         // aren't returned twice
         assertEquals(30, returnedElements.length);
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
+        final Set<Element> results = new HashSet<>(Arrays.asList(returnedElements));
         assertEquals(expectedElements, results);
     }
 
-    private void testGetAllElementsInRDDWithView(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
-            IOException, InterruptedException, AccumuloSecurityException, AccumuloException {
+    private void testGetAllElementsInRDDWithView(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException {
         final Set<Element> expectedElements = new HashSet<>();
         getElements().stream()
                 .filter(e -> e.getGroup().equals(TestGroups.EDGE))
@@ -263,17 +232,13 @@ public class GetRDDOfAllElementsHandlerIT {
             fail("No RDD returned");
         }
 
-        final Set<Element> results = new HashSet<>();
         final Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
+        final Set<Element> results = new HashSet<>(Arrays.asList(returnedElements));
         assertEquals(expectedElements, results);
     }
 
-    private void testGetAllElementsInRDDWithVisibilityFilteringApplied(final Graph graph,
-                                                                       final GetRDDOfAllElements getRDD)
-            throws OperationException, IOException, InterruptedException, AccumuloSecurityException, AccumuloException {
+    private void testGetAllElementsInRDDWithVisibilityFilteringApplied(final Graph graph, final GetRDDOfAllElements getRDD)
+            throws OperationException {
         final Set<Element> expectedElements = new HashSet<>();
 
         // Test with user with public visibility
@@ -316,7 +281,7 @@ public class GetRDDOfAllElementsHandlerIT {
     }
 
     private void testGetAllElementsInRDDWithValidationApplied(final Graph graph, final GetRDDOfAllElements getRDD)
-            throws InterruptedException, IOException, OperationException {
+            throws InterruptedException, OperationException {
         // Sleep for 1 second to give chance for Entity A to age off
         Thread.sleep(1000L);
 
@@ -434,7 +399,7 @@ public class GetRDDOfAllElementsHandlerIT {
         return graph;
     }
 
-    private AccumuloProperties updateAccumuloPropertiesWithKeyPackage(final KeyPackage keyPackage)
+    private void updateAccumuloPropertiesWithKeyPackage(final KeyPackage keyPackage)
             throws InterruptedException, AccumuloSecurityException, AccumuloException, IOException {
         final AccumuloProperties storeProperties = MiniAccumuloClusterProvider.getAccumuloProperties();
         switch (keyPackage) {
@@ -444,7 +409,6 @@ public class GetRDDOfAllElementsHandlerIT {
             case CLASSIC:
                 storeProperties.setKeyPackageClass(ClassicKeyPackage.class.getName());
         }
-        return storeProperties;
     }
 
     private Graph getGraphForDirectRDD(final KeyPackage keyPackage,
@@ -531,39 +495,35 @@ public class GetRDDOfAllElementsHandlerIT {
     }
 
     private Schema getSchema() {
-        final Schema schema = new Schema.Builder()
+        return new Schema.Builder()
                 .json(getClass().getResourceAsStream("/schema/elements.json"),
                         getClass().getResourceAsStream("/schema/types.json"),
                         getClass().getResourceAsStream("/schema/serialisation.json"))
                 .build();
-        return schema;
     }
 
     private Schema getSchemaForVisibility() {
-        final Schema schema = new Schema.Builder()
+        return new Schema.Builder()
                 .json(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"),
                         getClass().getResourceAsStream("/schema/types.json"),
                         getClass().getResourceAsStream("/schema/serialisation.json"))
                 .build();
-        return schema;
     }
 
     private Schema getSchemaForValidationChecking() {
-        final Schema schema = new Schema.Builder()
+        return new Schema.Builder()
                 .json(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"),
                         getClass().getResourceAsStream("/schema/typesForValidationChecking.json"),
                         getClass().getResourceAsStream("/schema/serialisation.json"))
                 .build();
-        return schema;
     }
 
     private Schema getSchemaForIngestAggregationChecking() {
-        final Schema schema = new Schema.Builder()
+        return new Schema.Builder()
                 .json(getClass().getResourceAsStream("/schema/elementsForAggregationChecking.json"),
                         getClass().getResourceAsStream("/schema/types.json"),
                         getClass().getResourceAsStream("/schema/serialisation.json"))
                 .build();
-        return schema;
     }
 
     private List<Element> getElements() {
