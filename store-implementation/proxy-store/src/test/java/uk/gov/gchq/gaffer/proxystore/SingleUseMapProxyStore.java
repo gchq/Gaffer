@@ -16,18 +16,6 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import org.junit.rules.TemporaryFolder;
-
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.rest.RestApiTestClient;
-import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
-import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-
-import java.io.IOException;
-
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
  * {@link SingleUseMapProxyStore} with the provided schema. This store
@@ -39,35 +27,9 @@ import java.io.IOException;
  * After using this store you must remember to call
  * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
-public class SingleUseMapProxyStore extends ProxyStore {
-    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
-
+public class SingleUseMapProxyStore extends SingleUseProxyStore {
     @Override
-    public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
-        startMapStoreRestApi(schema);
-        super.initialise(graphId, new Schema(), proxyProps);
-    }
-
-    protected void startMapStoreRestApi(final Schema schema) throws StoreException {
-        try {
-            TEST_FOLDER.delete();
-            TEST_FOLDER.create();
-        } catch (final IOException e) {
-            throw new StoreException("Unable to create temporary folder", e);
-        }
-
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
-                StreamUtil.openStream(getClass(), "map-store.properties"));
-        try {
-            CLIENT.reinitialiseGraph(TEST_FOLDER, schema, storeProperties);
-        } catch (final IOException e) {
-            throw new StoreException("Unable to reinitialise delegate graph", e);
-        }
-    }
-
-    public static void cleanUp() {
-        TEST_FOLDER.delete();
-        CLIENT.stopServer();
+    protected String getPathToDelegateProperties() {
+        return "map-store.properties";
     }
 }
