@@ -87,7 +87,7 @@ public class FederatedOperationHandlerTest {
         linkedGraphs.add(graph2);
         linkedGraphs.add(graph3);
         linkedGraphs.add(graph4);
-        when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
+        when(mockStore.getGraphs(user, null, null)).thenReturn(linkedGraphs);
 
         // When
         new FederatedOperationHandler().doOperation(op, context, mockStore);
@@ -122,7 +122,7 @@ public class FederatedOperationHandlerTest {
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(graph1);
         filteredGraphs.add(graph3);
-        when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, "1,3", null)).thenReturn(filteredGraphs);
 
         // When
         new FederatedOperationHandler().doOperation(op, context, mockStore);
@@ -163,7 +163,7 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore mockStore = mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, graphID, null)).thenReturn(filteredGraphs);
         try {
             new FederatedOperationHandler().doOperation(op, context, mockStore);
             fail("Exception Not thrown");
@@ -194,7 +194,7 @@ public class FederatedOperationHandlerTest {
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore2));
-        when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, graphID, null)).thenReturn(filteredGraphs);
 
         // When
         try {

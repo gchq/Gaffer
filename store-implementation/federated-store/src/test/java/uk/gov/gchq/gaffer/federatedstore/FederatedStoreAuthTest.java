@@ -88,14 +88,14 @@ public class FederatedStoreAuthTest {
                 new Context(testUser),
                 federatedStore);
 
-        Collection<Graph> graphs = federatedStore.getGraphs(authUser, null);
+        Collection<Graph> graphs = federatedStore.getGraphs(authUser, null, null);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(schema, next.getSchema());
 
-        graphs = federatedStore.getGraphs(blankUser(), null);
+        graphs = federatedStore.getGraphs(blankUser(), null, null);
 
         assertNotNull(graphs);
         assertTrue(graphs.isEmpty());
@@ -131,7 +131,7 @@ public class FederatedStoreAuthTest {
                 new Context(authUser),
                 federatedStore);
 
-        assertEquals(1, federatedStore.getGraphs(authUser, null).size());
+        assertEquals(1, federatedStore.getGraphs(authUser, null, null).size());
 
         try {
             federatedAddGraphHandler.doOperation(
@@ -152,6 +152,6 @@ public class FederatedStoreAuthTest {
             assertFalse(message, e.getMessage().contains(groupEnt));
         }
 
-        assertTrue(federatedStore.getGraphs(testUser(), null).isEmpty());
+        assertTrue(federatedStore.getGraphs(testUser(), null, null).isEmpty());
     }
 }
