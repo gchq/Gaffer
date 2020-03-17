@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -88,6 +90,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -108,6 +111,8 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * @see Graph
  */
 public class FederatedStore extends Store {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
@@ -344,25 +349,41 @@ public class FederatedStore extends Store {
      * given csv of graphIds, with visibility of the given user.
      * </p>
      * <p>
+     * Graphs are returned once per operation, this does not allow an infinite loop of FederatedStores to occur.
+     * </p>
+     * <p>
      * if graphIdsCsv is null then all graph objects within FederatedStore
      * scope are returned.
      * </p>
      *
      * @param user        the users scope to get graphs for.
      * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
-     * @param operation   the requesting operation.
+     * @param operation   the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
     public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final Operation operation) {
         Collection<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            Boolean isIdFound = Boolean.valueOf(operation.getOption(String.valueOf(id), String.valueOf(false)));
+            String optionKey = FEDERATED_STORE_PROCESSED + id;
+            boolean isIdFound = !operation.getOption(optionKey, "").isEmpty();
             if (!isIdFound) {
                 HashMap<String, String> updatedOptions = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
-                updatedOptions.put(String.valueOf(id), String.valueOf(true));
+                updatedOptions.put(optionKey, getGraphId());
                 operation.setOptions(updatedOptions);
-
                 rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
+            } else {
+                List<String> federatedStoreGraphIds = operation.getOptions()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getKey().startsWith(FEDERATED_STORE_PROCESSED))
+                        .map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
+
+                String ln = System.lineSeparator();
+                LOGGER.error("This operation has already been processed by this FederatedStore. " +
+                        "This is a symptom of an infinite loop of FederatedStores and Proxies.{}" +
+                        "This FederatedStore: {}{}" +
+                        "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreGraphIds.toString());
             }
         }
 
