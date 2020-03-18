@@ -293,6 +293,13 @@ Try using a batch scanner to read the data from the tablet server. To enable thi
 
 If you still don't see a significant improvement, try increasing the value of the `table.scan.max.memory` setting in Accumulo for your table.
 
+**Running accumulo-store Integration Tests and getting error: Error BAD_AUTHORIZATIONS for user root on table integrationTestGraph(ID:1l)**
+
+This means you have correctly set your user (in this case user 'root') in store.properties as ```accumulo.user=root``` however you have not set the correct scan authorisations for the user 'root' required by the integration tests.
+If you have the accumulo cluster shell running, you can set the directly here by entering the following command:
+
+```root@instance> setauths -u root -s vis1,vis2,publicVisibility,privateVisibility,public,private```
+
 Implementation details
 -----------------------------------------------
 
@@ -516,6 +523,13 @@ Ensure that the Accumulo user specified by the `accumulo.user` property has the 
 | private           | [ParameterizedLoaderIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/loader/ParameterizedLoaderIT.java#L63)
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
+
+You can set these scan authorisations via the Accumulo shell:
+e.g. if your store.properties have: accumulo.user=root, accumulo.instance=instance
+
+```
+root@instance> setauths -u root -s vis1,vis2,publicVisibility,privateVisibility,public,private
+```
 
 Run the integration tests:
 
