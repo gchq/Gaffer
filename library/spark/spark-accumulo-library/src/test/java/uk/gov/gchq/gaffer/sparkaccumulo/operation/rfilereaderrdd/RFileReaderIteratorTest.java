@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 public class RFileReaderIteratorTest {
 
     @Test
-    @DisplayName("Init RFileReaderIterator with invalid AccumuloTablet file throws RunTimeException")
+    @DisplayName("Init RFileReaderIterator with invalid config setting should not have next iterator")
     void init_withAnyConfig() {
         final AccumuloTablet partition = new AccumuloTablet(0, 0, "a", "b");
         final TaskContext taskContext = mock(TaskContext.class);
