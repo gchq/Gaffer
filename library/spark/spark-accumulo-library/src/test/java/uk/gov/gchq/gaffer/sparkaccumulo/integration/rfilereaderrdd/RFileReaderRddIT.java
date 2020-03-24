@@ -35,12 +35,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.sql.SparkSession;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -53,11 +51,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class RFileReaderRddIT {
 
@@ -66,18 +61,21 @@ public class RFileReaderRddIT {
     private static int nextTableId;
     private static String tableName;
 
-    @BeforeEach
-    void setUp() {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Before
+    public void setUp() {
         nextTableId++;
         tableName = "table" + nextTableId;
     }
 
-    @ParameterizedTest
-    @MethodSource("tableParameters")
-    public void testRFileReaderRDDCanBeCreatedAndIsNonEmpty(final List<String> dataInput) throws IOException,
+    @Test
+    public void testRFileReaderRDDCanBeCreatedWith2TableInputs() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
         // Given
+        final List<String> dataInput = Arrays.asList("apples", "bananas");
         final MiniAccumuloCluster cluster = createAccumuloCluster(tableName, config, dataInput);
 
         // When
@@ -91,18 +89,29 @@ public class RFileReaderRddIT {
         assertEquals(1, rdd.getPartitions().length);
     }
 
-    private static Stream<Arguments> tableParameters() {
-        return Stream.of(
-                arguments(Arrays.asList("apples", "bananas")),
-                arguments(Arrays.asList("train", "plane", "automobile", "bike", "boat"))
-        );
+    @Test
+    public void testRFileReaderRDDCanBeCreatedWith5TableInputs() throws IOException,
+            InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
+            TableExistsException {
+        // Given
+        final List<String> dataInput = Arrays.asList("train", "plane", "automobile", "bike", "boat");
+        final MiniAccumuloCluster cluster = createAccumuloCluster(tableName, config, dataInput);
+
+        // When
+        final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
+                cluster.getInstanceName(), cluster.getZooKeepers(), MiniAccumuloClusterProvider.USER,
+                MiniAccumuloClusterProvider.PASSWORD, tableName, new HashSet<>(),
+                serialiseConfiguration(config));
+
+        // Then
+        assertEquals(dataInput.size(), rdd.count());
+        assertEquals(1, rdd.getPartitions().length);
     }
 
     @Test
     public void testRFileReaderRDDAppliesIteratorCorrectly() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
-
         // Given
         final List<String> data = Arrays.asList("no", "not", "value");
         final Job job = Job.getInstance(config);
@@ -123,11 +132,10 @@ public class RFileReaderRddIT {
         assertEquals(1L, rdd.count());
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void throwRTX_whenGetPartitionsForFileReaderWithInvalidTableName() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
-
         // Given
         final MiniAccumuloCluster cluster = createAccumuloCluster(tableName, config, Arrays.asList("Bananas"));
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
@@ -136,19 +144,16 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // When
-        final RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                rdd.getPartitions()
-        );
+        rdd.getPartitions();
 
         // Then
-        assertEquals("User user does not have access to table Invalid Table Name", exception.getMessage());
+        thrown.expectMessage("User user does not have access to table Invalid Table Name");
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void throwRTX_whenRDDHasUserWithoutPermission() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
-
         // Given
         final MiniAccumuloCluster cluster = createAccumuloCluster(tableName, config, Arrays.asList("Bananas"));
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
@@ -157,17 +162,16 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // When
-        final RuntimeException exception = assertThrows(RuntimeException.class, () -> rdd.getPartitions());
+        rdd.getPartitions();
 
         // Then
-        assertEquals("User user2 does not have access to table " + tableName, exception.getMessage());
+        thrown.expectMessage("User user2 does not have access to table " + tableName);
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void throwRTX_whenRDDHasIncorrectUser() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
-
         // Given
         final MiniAccumuloCluster cluster = createAccumuloCluster(tableName, config, Arrays.asList("Bananas"));
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
@@ -175,10 +179,10 @@ public class RFileReaderRddIT {
                 new HashSet<>(), serialiseConfiguration(config));
 
         // When
-        final RuntimeException exception = assertThrows(RuntimeException.class, () -> rdd.getPartitions());
+        rdd.getPartitions();
 
         // Then
-        assertEquals("Exception connecting to Accumulo", exception.getMessage());
+        thrown.expectMessage("Exception connecting to Accumulo");
     }
 
     private MiniAccumuloCluster createAccumuloCluster(final String clusterName, final Configuration configuration, final List<String> data)

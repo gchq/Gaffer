@@ -19,22 +19,23 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 public class RFileReaderIteratorTest {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
-    @DisplayName("Init RFileReaderIterator with invalid config setting should not have next iterator")
-    void init_withAnyConfig() {
+    public void initWithAnyConfigShouldNotHaveNextIterator() {
         final AccumuloTablet partition = new AccumuloTablet(0, 0, "a", "b");
         final TaskContext taskContext = mock(TaskContext.class);
         final Set<String> auths = new HashSet<>();
@@ -48,8 +49,7 @@ public class RFileReaderIteratorTest {
     }
 
     @Test
-    @DisplayName("Empty Partition/AccumuloTablet does not have a next iterator")
-    void init_withEmptyAccumuloTablet() {
+    public void initWithEmptyAccumuloTabletDoesNotHaveNextIterator() {
         final Partition partition = new AccumuloTablet(0, 0, "a", "b");
         final TaskContext taskContext = mock(TaskContext.class);
         final Set<String> auths = new HashSet<>();
@@ -60,8 +60,7 @@ public class RFileReaderIteratorTest {
     }
 
     @Test
-    @DisplayName("Null auths does not have a next iterator")
-    void init_withNullAuths() {
+    public void initWithNullAuthsDoesNotHaveNextIterator() {
         final Partition partition = new AccumuloTablet(0, 0, "a", "b");
         final TaskContext taskContext = mock(TaskContext.class);
 
@@ -70,40 +69,31 @@ public class RFileReaderIteratorTest {
         assertFalse(iterator.hasNext());
     }
 
-    @Test
-    @DisplayName("Invalid Partition Type (Accumulo Tablet) throws RunTimeException for thrown IOException on init")
-    void init_withInvalidFileAddedToAccumulo() {
+    @Test(expected = RuntimeException.class)
+    public void initWithInvalidFileAddedToAccumuloShouldThrowRuntimeException() {
         final AccumuloTablet partition = new AccumuloTablet(0, 0, "a", "b");
         final TaskContext taskContext = mock(TaskContext.class);
         final Set<String> auths = new HashSet<>();
 
         partition.addRFile("invalid file");
 
-        final RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            new RFileReaderIterator(partition, taskContext, new Configuration(), auths);
-        });
+        new RFileReaderIterator(partition, taskContext, new Configuration(), auths);
 
-        assertEquals("IOException initialising RFileReaderIterator", exception.getMessage());
+        thrown.expectMessage("IOException initialising RFileReaderIterator");
     }
 
-    @Test
-    @DisplayName("Init RFileReaderIterator with null TaskContext should throw NPE")
-    void init_nullTaskContent() {
+    @Test(expected = NullPointerException.class)
+    public void initWithNullTaskContentShouldThrowNPE() {
         final Partition partition = new AccumuloTablet(0, 0, "a", "b");
         final Set<String> auths = new HashSet<>();
 
-        assertThrows(NullPointerException.class, () -> {
-            new RFileReaderIterator(partition, null, new Configuration(), auths);
-        });
+        new RFileReaderIterator(partition, null, new Configuration(), auths);
     }
 
-    @Test
-    @DisplayName("Init RFileReaderIterator with null Partition should throw NPE")
-    void init_nullPartition() {
+    @Test(expected = NullPointerException.class)
+    public void initWithNullPartitionShouldThrowNPE() {
         final Set<String> auths = new HashSet<>();
 
-        assertThrows(NullPointerException.class, () -> {
-            new RFileReaderIterator(null, null, new Configuration(), auths);
-        });
+        new RFileReaderIterator(null, null, new Configuration(), auths);
     }
 }

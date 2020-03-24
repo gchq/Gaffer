@@ -16,16 +16,15 @@
 
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class AccumuloTabletTest {
 
-    @DisplayName("Equals and hashcode test coverage")
     @Test
-    public void testAccumuloTabletEquals() {
+    public void testAccumuloTabletHashCodeAndEquals() {
         final AccumuloTablet accumuloTablet = new AccumuloTablet(0, 0, "a", "b");
 
         final AccumuloTablet expected = new AccumuloTablet(0, 0, "a", "b");
