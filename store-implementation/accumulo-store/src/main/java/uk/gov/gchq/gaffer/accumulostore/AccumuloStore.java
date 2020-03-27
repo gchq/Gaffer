@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.SampleElementsForSplitPointsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.SampleToSplitPointsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.SummariseGroupOverRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
@@ -78,6 +79,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
@@ -208,7 +210,7 @@ public class AccumuloStore extends Store {
 
     public String getTableName() {
         if (StringUtils.isNotBlank(getProperties().getNamespace())) {
-            return String.format("%s.%s", getProperties().getNamespace(),  getGraphId());
+            return String.format("%s.%s", getProperties().getNamespace(), getGraphId());
         }
         return getGraphId();
     }
@@ -374,6 +376,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
         addOperationHandler(SplitStore.class, new SplitStoreHandler());
         addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
+        addOperationHandler(SampleToSplitPoints.class, new SampleToSplitPointsHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
