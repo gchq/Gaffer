@@ -35,7 +35,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 
 
 @JsonPropertyOrder(value = {"class", "graphId", "newGraphId"}, alphabetic = true)
-@Since("1.10.6")
+@Since("1.12.0")
 @Summary("Changes the protection used for accessing graphs")
 @JsonInclude(Include.NON_DEFAULT)
 public class ChangeGraphId implements Output<Boolean> {
