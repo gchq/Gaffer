@@ -47,6 +47,7 @@ import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -451,23 +452,62 @@ public class SchemaTest {
         final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
         assertNotNull(deserialisedSchema);
 
-        final Map<String, SchemaEdgeDefinition> edges = deserialisedSchema.getEdges();
+        assertExpectedSchemaElementsContent(deserialisedSchema);
+    }
+
+    @Test
+    public void testSchemaConstructedFromPath() throws Exception {
+
+        final Schema schema = Schema.fromJson(Paths.get(SchemaTest.class.getResource("/schema").toURI()));
+
+        assertExpectedSchemaElementsContent(schema);
+        assertExpectedSchemaSerialisationContent(schema);
+        assertExpectedSchemaTypesContent(schema);
+    }
+
+    @Test
+    public void testSchemaConstructedByRecursiveDirectoryProcessingOfPath() throws Exception {
+
+        final Schema schemaNested = Schema.fromJson(Paths.get(SchemaTest.class.getResource("/schema-nested").toURI()));
+
+        assertExpectedSchemaElementsContent(schemaNested);
+        assertExpectedSchemaSerialisationContent(schemaNested);
+        assertExpectedSchemaTypesContent(schemaNested);
+
+        final Schema schema = Schema.fromJson(Paths.get(SchemaTest.class.getResource("/schema").toURI()));
+
+        JsonAssert.assertEquals(schema.toCompactJson(), schemaNested.toCompactJson());
+    }
+
+    private void assertExpectedSchemaElementsContent(final Schema schema) {
+
+        final Map<String, SchemaEdgeDefinition> edges = schema.getEdges();
 
         assertEquals(1, edges.size());
         final SchemaElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
         assertEquals(3, edgeGroup.getProperties().size());
 
-        final Map<String, SchemaEntityDefinition> entities = deserialisedSchema.getEntities();
+        final Map<String, SchemaEntityDefinition> entities = schema.getEntities();
 
         assertEquals(1, entities.size());
         final SchemaElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
         assertEquals(3, entityGroup.getProperties().size());
 
-        assertEquals(TestPropertyNames.VISIBILITY, deserialisedSchema.getVisibilityProperty());
-        assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getTimestampProperty());
-        assertEquals(2, deserialisedSchema.getConfig().size());
-        assertEquals("value", deserialisedSchema.getConfig("key"));
-        assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getConfig("timestampProperty"));
+        assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
+        assertEquals(TestPropertyNames.TIMESTAMP, schema.getTimestampProperty());
+        assertEquals(2, schema.getConfig().size());
+        assertEquals("value", schema.getConfig("key"));
+        assertEquals(TestPropertyNames.TIMESTAMP, schema.getConfig("timestampProperty"));
+    }
+
+    private void assertExpectedSchemaSerialisationContent(final Schema schema) {
+
+        assertEquals(JavaSerialiser.class, schema.getVertexSerialiser().getClass());
+    }
+
+    private void assertExpectedSchemaTypesContent(final Schema schema) {
+
+        assertEquals(6, schema.getTypes().size());
     }
 
     @Test
