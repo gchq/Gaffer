@@ -33,6 +33,7 @@ import java.io.IOException;
 public final class MiniAccumuloClusterProvider {
     public static final String ROOT = "root";
     public static final String USER = "user";
+    public static final String USER_NO_GRANTED_PERMISSION = "user2";
     public static final String PASSWORD = "password";
     private static File tempFolder = new File(CommonTestConstants.TMP_DIRECTORY + File.separator
             + "MiniAccumuloCluster-spark-accumulo-library-tests");
@@ -79,6 +80,7 @@ public final class MiniAccumuloClusterProvider {
         cluster.start();
         // Create user USER with permissions to create a table
         cluster.getConnector(ROOT, PASSWORD).securityOperations().createLocalUser(USER, new PasswordToken(PASSWORD));
+        cluster.getConnector(ROOT, PASSWORD).securityOperations().createLocalUser(USER_NO_GRANTED_PERMISSION, new PasswordToken(PASSWORD));
         cluster.getConnector(ROOT, PASSWORD).securityOperations().grantSystemPermission(USER, SystemPermission.CREATE_TABLE);
         // Create properties
         accumuloProperties = new AccumuloProperties();
