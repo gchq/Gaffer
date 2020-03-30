@@ -30,12 +30,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Paths;
-import java.security.Permission;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
