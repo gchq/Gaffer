@@ -33,7 +33,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
-@Since("1.10.6")
+@Since("1.11.0")
 @Summary("Gets the ids of all available Graphs from a federated store")
 public class GetAllGraphInfo implements
         FederatedOperation,

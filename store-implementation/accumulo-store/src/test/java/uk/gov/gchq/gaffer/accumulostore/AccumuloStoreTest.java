@@ -24,7 +24,9 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -89,7 +91,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -108,6 +109,9 @@ public class AccumuloStoreTest {
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void setup() {
@@ -204,20 +208,20 @@ public class AccumuloStoreTest {
         assertEquals("tableName", store.getTableName());
     }
 
-    @Test
-    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
         // Given
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
         properties.setTable("tableName");
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
 
-        // When / Then
-        try {
-            store.initialise("graphId", SCHEMA, properties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        // When
+        store.initialise("graphId", SCHEMA, properties);
+
+        // Then
+        final String expected = "The table in store.properties should no longer be used. Please use a graphId instead " +
+                "or for now just set the graphId to be the same value as the store.properties table.";
+        thrown.expectMessage(expected);
     }
 
     @Test
@@ -292,7 +296,7 @@ public class AccumuloStoreTest {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
     }
 
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
+    private void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
@@ -344,6 +348,7 @@ public class AccumuloStoreTest {
                 .input(entityId1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+
         assertEquals(0, Iterables.size(relatedResults));
     }
 
@@ -385,7 +390,6 @@ public class AccumuloStoreTest {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
-
 
     @Test
     public void testStoreTraitsGaffer1() {
@@ -438,13 +442,13 @@ public class AccumuloStoreTest {
 
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
 
+        // When & Then
         store.preInitialise("graphId", inconsistentSchema, PROPERTIES);
-        try {
-            store.validateSchemas();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assert (e.getMessage().contains("serialisers to be consistent."));
-        }
+        thrown.expectMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+
+        // When & Then
+        store.validateSchemas();
+        thrown.expectMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
     }
 
     @Test
@@ -477,6 +481,7 @@ public class AccumuloStoreTest {
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
+
         // When
         store.initialise("graphId", schema, properties);
 
@@ -513,14 +518,15 @@ public class AccumuloStoreTest {
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
+
         // When
         store.initialise("graphId", schema, properties);
 
         // Then - no validation exceptions
     }
 
-    @Test
-    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws Exception {
+    @Test(expected = SchemaException.class)
+    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
@@ -545,13 +551,15 @@ public class AccumuloStoreTest {
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
-        // When / Then
-        try {
-            store.initialise("graphId", schema, properties);
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("The aggregator for the timestamp property must be set to: " + Max.class.getName()));
-        }
+
+        // When
+        store.initialise("graphId", schema, properties);
+
+        // Then
+        final String expected = "Schema is not valid. Validation errors: \n" +
+                "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max " +
+                "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property " +
+                "in the timestamp column.";
+        thrown.expectMessage(expected);
     }
 }
-

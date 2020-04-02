@@ -256,6 +256,7 @@ public class FederatedStoreTest {
             assertContains(e, "GraphId: ", ACC_ID_2);
         }
     }
+
     @Test
     public void shouldThrowAppropriateExceptionWhenHandlingAnUnsupportedOperation() {
         // Given
@@ -271,6 +272,7 @@ public class FederatedStoreTest {
             assertEquals("Operation class uk.gov.gchq.gaffer.operation.impl.OperationImpl is not supported by the FederatedStore.", e.getMessage());
         }
     }
+
     @Test
     public void shouldAlwaysReturnSupportedTraits() throws Exception {
         // Given
@@ -1361,8 +1363,8 @@ public class FederatedStoreTest {
             //then
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[graphA]\n" +
-                    "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "Entity group entityB does not exist in the schema", e.getMessage());
+                    "(graphId: graphA) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphA) Entity group entityB does not exist in the schema", e.getMessage());
         }
 
         try {
@@ -1373,8 +1375,8 @@ public class FederatedStoreTest {
             //then
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[graphB]\n" +
-                    "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "Entity group entityA does not exist in the schema", e.getMessage());
+                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphB) Entity group entityA does not exist in the schema", e.getMessage());
         }
 
         addGraphWithPaths("graphC", PATH_ACC_STORE_PROPERTIES_1, PATH_ENTITY_B_SCHEMA_JSON);
@@ -1387,8 +1389,10 @@ public class FederatedStoreTest {
             //then
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[graphB,graphC]\n" +
-                    "View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "Entity group entityA does not exist in the schema", e.getMessage());
+                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphB) Entity group entityA does not exist in the schema\n" +
+                    "(graphId: graphC) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphC) Entity group entityA does not exist in the schema", e.getMessage());
         }
     }
 
