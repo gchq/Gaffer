@@ -82,7 +82,9 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                     //If any graph has a valid View, break with valid current result
                     break;
                 } else {
-                    savedResult.add(currentResult);
+                    ValidationResult prependGraphId = new ValidationResult();
+                    currentResult.getErrors().forEach(s -> prependGraphId.addError(String.format("(graphId: %s) %s", graphId, s)));
+                    savedResult.add(prependGraphId);
                 }
             }
         }
