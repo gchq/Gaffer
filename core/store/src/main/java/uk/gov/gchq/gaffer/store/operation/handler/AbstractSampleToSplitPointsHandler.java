@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractSampleToSplitPointsHandler <T, S extends Store> implements OutputOperationHandler<SampleToSplitPoints<T>, List<T>> {
+public abstract class AbstractSampleToSplitPointsHandler<T, S extends Store> implements OutputOperationHandler<SampleToSplitPoints<T>, List<T>> {
 
     @Override
     public List<T> doOperation(final SampleToSplitPoints<T> operation, final Context context, final Store store) throws OperationException {
