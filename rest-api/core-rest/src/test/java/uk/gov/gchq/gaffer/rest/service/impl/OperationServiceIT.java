@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -34,6 +37,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -41,6 +45,35 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 public abstract class OperationServiceIT extends AbstractRestApiIT {
+
+    @Test
+    public void shouldReturnNamedOpDetailWithLabelWhenLabelIsAddedToNamedOp() throws Exception {
+        // Given
+        final AddNamedOperation namedOperation = new AddNamedOperation.Builder()
+                .name("My Operation With Label")
+                .label("test label")
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .build();
+        client.executeOperation(namedOperation);
+
+        // When
+        final Response response = client.executeOperation(new GetAllNamedOperations());
+        final List<NamedOperationDetail> namedOperationDetails = response.readEntity(new GenericType<List<NamedOperationDetail>>() {
+        });
+
+        // Then
+        final NamedOperationDetail expected = new NamedOperationDetail.Builder()
+                .operationName("My Operation With Label")
+                .label("test label")
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
+                .creatorId("UNKNOWN")
+                .readers(Arrays.asList())
+                .writers(Arrays.asList())
+                .build();
+        assertEquals(expected, namedOperationDetails.iterator().next());
+    }
+
     @Test
     public void shouldReturnAllElements() throws IOException {
         // Given

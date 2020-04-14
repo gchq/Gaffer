@@ -82,12 +82,12 @@ public class GetAllNamedOperationsHandlerTest {
 
     @Test
     public void shouldReturnLabelWhenNamedOperationHasLabel() throws Exception {
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperationWithLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
                 .label("test label")
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
-        addNamedOperationHandler.doOperation(addNamedOperation, context, store);
+        addNamedOperationHandler.doOperation(addNamedOperationWithLabel, context, store);
 
         final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
@@ -96,12 +96,12 @@ public class GetAllNamedOperationsHandlerTest {
 
     @Test
     public void shouldReturnNullLabelWhenLabelIsNullFromAddNamedOperationRequest() throws Exception {
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperationWithNullLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
                 .label(null)
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
-        addNamedOperationHandler.doOperation(addNamedOperation, context, store);
+        addNamedOperationHandler.doOperation(addNamedOperationWithNullLabel, context, store);
 
         final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
