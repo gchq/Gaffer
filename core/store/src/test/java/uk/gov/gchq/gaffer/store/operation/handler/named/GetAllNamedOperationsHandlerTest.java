@@ -81,6 +81,34 @@ public class GetAllNamedOperationsHandlerTest {
     }
 
     @Test
+    public void shouldReturnLabelWhenNamedOperationHasLabel() throws Exception {
+        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .name("My Operation With Label")
+                .label("test label")
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .build();
+        addNamedOperationHandler.doOperation(addNamedOperation, context, store);
+
+        final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+
+        assertEquals("test label", allNamedOperations.iterator().next().getLabel());
+    }
+
+    @Test
+    public void shouldReturnNullLabelWhenLabelIsNullFromAddNamedOperationRequest() throws Exception {
+        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .name("My Operation With Label")
+                .label(null)
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .build();
+        addNamedOperationHandler.doOperation(addNamedOperation, context, store);
+
+        final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+
+        assertEquals(null, allNamedOperations.iterator().next().getLabel());
+    }
+
+    @Test
     public void shouldReturnNamedOperationWithInputType() throws Exception {
         // Given
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
