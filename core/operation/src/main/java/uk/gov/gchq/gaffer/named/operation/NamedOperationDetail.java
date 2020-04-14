@@ -225,41 +225,42 @@ public class NamedOperationDetail implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
 
-        NamedOperationDetail that = (NamedOperationDetail) o;
+        final NamedOperationDetail op = (NamedOperationDetail) obj;
 
         return new EqualsBuilder()
-                .append(operationName, that.operationName)
-                .append(inputType, that.inputType)
-                .append(description, that.description)
-                .append(label, that.label)
-                .append(creatorId, that.creatorId)
-                .append(operations, that.operations)
-                .append(readAccessRoles, that.readAccessRoles)
-                .append(writeAccessRoles, that.writeAccessRoles)
-                .append(parameters, that.parameters)
-                .append(score, that.score)
+                .append(operationName, op.operationName)
+                .append(label, op.label)
+                .append(inputType, op.inputType)
+                .append(creatorId, op.creatorId)
+                .append(operations, op.operations)
+                .append(readAccessRoles, op.readAccessRoles)
+                .append(writeAccessRoles, op.writeAccessRoles)
+                .append(parameters, op.parameters)
+                .append(score, op.score)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(71, 3)
                 .append(operationName)
                 .append(inputType)
-                .append(description)
-                .append(label)
                 .append(creatorId)
                 .append(operations)
                 .append(readAccessRoles)
                 .append(writeAccessRoles)
                 .append(parameters)
                 .append(score)
-                .toHashCode();
+                .hashCode();
     }
 
     @Override
