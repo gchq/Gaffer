@@ -62,6 +62,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
+                .label("Test label")
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -78,7 +79,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"class\" : \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\",%n" +
                 " \"operationName\": \"Test\",%n" +
                 " \"description\": \"Test Named Operation\",%n" +
-                " \"score\": 0,%n" +
+                " \"score\" : 0,%n" +
+                " \"label\": \"Test label\",%n" +
                 " \"operationChain\": {" +
                 " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
                 " \"overwriteFlag\" : true,%n" +
@@ -99,6 +101,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
+                .label("Test label")
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -116,6 +119,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"operationName\": \"Test\",%n" +
                 " \"description\": \"Test Named Operation\",%n" +
                 " \"score\": 0,%n" +
+                " \"label\": \"Test label\",%n" +
                 " \"operationChain\": {" +
                 " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
                 " \"overwriteFlag\" : true,%n" +
@@ -132,6 +136,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
+                .label("Test label")
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -144,6 +149,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         }
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
         assertEquals("Test", addNamedOperation.getOperationName());
+        assertEquals("Test label", addNamedOperation.getLabel());
         assertEquals("Test Named Operation", addNamedOperation.getDescription());
         assertEquals(Collections.singletonList(USER), addNamedOperation.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), addNamedOperation.getWriteAccessRoles());
@@ -160,6 +166,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
+                .label("Test label")
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -180,6 +187,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotSame(addNamedOperation, clone);
         assertEquals(opChain, clone.getOperationChainAsString());
         assertEquals("Test", clone.getOperationName());
+        assertEquals("Test label", clone.getLabel());
         assertEquals("Test Named Operation", clone.getDescription());
         assertEquals(2, (int) clone.getScore());
         assertFalse(clone.isOverwriteFlag());
@@ -196,6 +204,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
                 .description("Test Named Operation")
                 .name("Test")
+                .label("Test label")
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -228,6 +237,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
                 .description("Test Named Operation")
                 .name("Test")
+                .label("Test label")
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)

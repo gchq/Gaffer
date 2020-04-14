@@ -46,6 +46,7 @@ public class NamedOperationDetail implements Serializable {
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
+    private String label;
     private String inputType;
     private String description;
     private String creatorId;
@@ -58,15 +59,15 @@ public class NamedOperationDetail implements Serializable {
     public NamedOperationDetail() {
     }
 
-    public NamedOperationDetail(final String operationName, final String description, final String userId,
+    public NamedOperationDetail(final String operationName, final String label, final String description, final String userId,
                                 final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
-        this(operationName, null, description, userId, operations, readers, writers, parameters, score);
+        this(operationName, label, null, description, userId, operations, readers, writers, parameters, score);
     }
 
-    public NamedOperationDetail(final String operationName, final String inputType, final String description, final String userId,
-                                final String operations, final List<String> readers,
+    public NamedOperationDetail(final String operationName, final String label, final String inputType, final String description,
+                                final String userId, final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
         if (null == operations) {
@@ -77,6 +78,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         this.operationName = operationName;
+        this.label = label;
         this.inputType = inputType;
         this.description = description;
         this.creatorId = userId;
@@ -90,6 +92,10 @@ public class NamedOperationDetail implements Serializable {
 
     public String getOperationName() {
         return operationName;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public String getInputType() {
@@ -219,47 +225,48 @@ public class NamedOperationDetail implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
 
-        if (null == obj || getClass() != obj.getClass()) {
-            return false;
-        }
+        if (o == null || getClass() != o.getClass()) return false;
 
-        final NamedOperationDetail op = (NamedOperationDetail) obj;
+        NamedOperationDetail that = (NamedOperationDetail) o;
 
         return new EqualsBuilder()
-                .append(operationName, op.operationName)
-                .append(inputType, op.inputType)
-                .append(creatorId, op.creatorId)
-                .append(operations, op.operations)
-                .append(readAccessRoles, op.readAccessRoles)
-                .append(writeAccessRoles, op.writeAccessRoles)
-                .append(parameters, op.parameters)
-                .append(score, op.score)
+                .append(operationName, that.operationName)
+                .append(inputType, that.inputType)
+                .append(description, that.description)
+                .append(label, that.label)
+                .append(creatorId, that.creatorId)
+                .append(operations, that.operations)
+                .append(readAccessRoles, that.readAccessRoles)
+                .append(writeAccessRoles, that.writeAccessRoles)
+                .append(parameters, that.parameters)
+                .append(score, that.score)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(71, 3)
+        return new HashCodeBuilder(17, 37)
                 .append(operationName)
                 .append(inputType)
+                .append(description)
+                .append(label)
                 .append(creatorId)
                 .append(operations)
                 .append(readAccessRoles)
                 .append(writeAccessRoles)
                 .append(parameters)
                 .append(score)
-                .hashCode();
+                .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
+                .append("label", label)
                 .append("inputType", inputType)
                 .append("creatorId", creatorId)
                 .append("operations", operations)
@@ -304,6 +311,7 @@ public class NamedOperationDetail implements Serializable {
 
     public static final class Builder {
         private String operationName;
+        private String label;
         private String inputType;
         private String description;
         private String creatorId;
@@ -320,6 +328,11 @@ public class NamedOperationDetail implements Serializable {
 
         public Builder operationName(final String operationName) {
             this.operationName = operationName;
+            return this;
+        }
+
+        public Builder label(final String label) {
+            this.label = label;
             return this;
         }
 
@@ -371,7 +384,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         public NamedOperationDetail build() {
-            return new NamedOperationDetail(operationName, inputType, description, creatorId, opChain, readers, writers, parameters, score);
+            return new NamedOperationDetail(operationName, label, inputType, description, creatorId, opChain, readers, writers, parameters, score);
         }
     }
 }
