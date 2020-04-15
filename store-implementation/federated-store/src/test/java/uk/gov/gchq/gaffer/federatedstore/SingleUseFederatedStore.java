@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.federatedstore;
 
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
+public class SingleUseFederatedStore extends uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore {
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-public class AccumuloTabletTest {
-
-    @DisplayName("Equals and hashcode test coverage")
-    @Test
-    public void testAccumuloTabletEquals() {
-        final AccumuloTablet accumuloTablet = new AccumuloTablet(0, 0, "a", "b");
-
-        final AccumuloTablet expected = new AccumuloTablet(0, 0, "a", "b");
-        assertTrue(accumuloTablet.equals(expected));
+    protected String getPathToDelegateProperties() {
+        return "properties/singleUseFederatedStore.properties";
     }
 }

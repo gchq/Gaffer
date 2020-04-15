@@ -99,7 +99,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         linkedGraphs.add(getGraphWithMockStore(mockStore2));
         linkedGraphs.add(getGraphWithMockStore(mockStore3));
         linkedGraphs.add(getGraphWithMockStore(mockStore4));
-        Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(user, null, op)).thenReturn(linkedGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
@@ -130,7 +130,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
-        Mockito.when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, "1,3", op)).thenReturn(filteredGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
@@ -159,7 +159,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID, op)).thenReturn(filteredGraphs);
 
         // When
         try {
@@ -185,7 +185,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willReturn(null);
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID, op)).thenReturn(filteredGraphs);
 
         // When
         final O results = getFederatedHandler().doOperation(op, context, mockStore);
@@ -216,7 +216,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
-        Mockito.when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, "1,3", op)).thenReturn(filteredGraphs);
 
         // When
         O theMergedResultsOfOperation = null;
