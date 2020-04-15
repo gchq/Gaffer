@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -152,9 +152,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
         handler.doOperation(operation, new Context(), store);
 
         // Then
-        final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor = ArgumentCaptor.forClass(SampleToSplitPoints.class);
-        verify(store).execute(sampleToSplitPointsCaptor.capture(), any(Context.class));
-        assertExpectedNumberOfSplitPointsAndSampleSize(sampleToSplitPointsCaptor, numSplits, elements.size());
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, numSplits, elements.size());
     }
 
     @Test
@@ -182,9 +182,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
         handler.doOperation(operation, new Context(), store);
 
         // Then
-        final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor = ArgumentCaptor.forClass(SampleToSplitPoints.class);
-        verify(store).execute(sampleToSplitPointsCaptor.capture(), any(Context.class));
-        assertExpectedNumberOfSplitPointsAndSampleSize(sampleToSplitPointsCaptor, numSplits, elements.size());
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, numSplits, elements.size());
     }
 
     @Test
@@ -209,10 +209,10 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
         handler.doOperation(operation, new Context(), store);
 
         // Then
-        final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor = ArgumentCaptor.forClass(SampleToSplitPoints.class);
-        verify(store).execute(sampleToSplitPointsCaptor.capture(), any(Context.class));
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
         final int maximumExpectedSampleSize = (int) ((elements.size() / 2) * 1.1);
-        assertExpectedNumberOfSplitPointsAndSampleSizeOfNoMoreThan(sampleToSplitPointsCaptor, numSplits, maximumExpectedSampleSize);
+        assertExpectedNumberOfSplitPointsAndSampleSizeOfNoMoreThan(generateSplitPointsFromSampleCaptor, numSplits, maximumExpectedSampleSize);
     }
 
     protected abstract S createStore();
@@ -220,25 +220,25 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
     protected abstract AbstractSampleElementsForSplitPointsHandler<?, S> createHandler();
 
     protected void assertExpectedNumberOfSplitPointsAndSampleSize(
-            final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor,
+            final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor,
             final int expectedNumSplits,
             final int expectedSampleSize) {
 
-        assertEquals(expectedNumSplits, sampleToSplitPointsCaptor.getValue().getNumSplits().intValue());
+        assertEquals(expectedNumSplits, generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue());
 
-        final long sampleSize = StreamSupport.stream(sampleToSplitPointsCaptor.getValue().getInput().spliterator(), false).count();
+        final long sampleSize = StreamSupport.stream(generateSplitPointsFromSampleCaptor.getValue().getInput().spliterator(), false).count();
 
         assertEquals(expectedSampleSize, sampleSize);
     }
 
     private void assertExpectedNumberOfSplitPointsAndSampleSizeOfNoMoreThan(
-            final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor,
+            final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor,
             final int expectedNumSplits,
             final int maximumExpectedSampleSize) {
 
-        assertEquals(expectedNumSplits, sampleToSplitPointsCaptor.getValue().getNumSplits().intValue());
+        assertEquals(expectedNumSplits, generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue());
 
-        final long sampleSize = StreamSupport.stream(sampleToSplitPointsCaptor.getValue().getInput().spliterator(), false).count();
+        final long sampleSize = StreamSupport.stream(generateSplitPointsFromSampleCaptor.getValue().getInput().spliterator(), false).count();
 
         assertTrue(maximumExpectedSampleSize > sampleSize);
     }

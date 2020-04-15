@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -35,7 +35,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public abstract class AbstractSampleToSplitPointsHandlerTest<S extends Store> {
+public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends Store> {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -45,8 +45,8 @@ public abstract class AbstractSampleToSplitPointsHandlerTest<S extends Store> {
     @Test
     public void shouldThrowExceptionForNullInput() throws OperationException {
         // Given
-        final AbstractSampleToSplitPointsHandler<?, S> handler = createHandler();
-        final SampleToSplitPoints operation = new SampleToSplitPoints.Builder<>()
+        final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
+        final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(1)
                 .build();
 
@@ -60,8 +60,8 @@ public abstract class AbstractSampleToSplitPointsHandlerTest<S extends Store> {
     public void shouldReturnEmptyCollectionIfNumSplitsIsLessThan1() throws OperationException {
         // Given
         final List<String> sample = createSampleOfSize(100);
-        final AbstractSampleToSplitPointsHandler<?, S> handler = createHandler();
-        final SampleToSplitPoints operation = new SampleToSplitPoints.Builder<>()
+        final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
+        final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()
                 .input(sample)
                 .numSplits(0)
                 .build();
@@ -80,8 +80,8 @@ public abstract class AbstractSampleToSplitPointsHandlerTest<S extends Store> {
         final int numSplits = 3;
         final List<String> sample = createSampleOfSize(numSplits * 10);
 
-        final AbstractSampleToSplitPointsHandler<?, S> handler = createHandler();
-        final SampleToSplitPoints operation = new SampleToSplitPoints.Builder<>()
+        final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
+        final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()
                 .input(sample)
                 .numSplits(numSplits)
                 .build();
@@ -99,8 +99,8 @@ public abstract class AbstractSampleToSplitPointsHandlerTest<S extends Store> {
         final int numSplits = 3;
         final List<String> sample = Collections.nCopies(numSplits * 10, "key1");
 
-        final AbstractSampleToSplitPointsHandler<?, S> handler = createHandler();
-        final SampleToSplitPoints operation = new SampleToSplitPoints.Builder<>()
+        final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
+        final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()
                 .input(sample)
                 .numSplits(numSplits)
                 .build();
@@ -117,10 +117,10 @@ public abstract class AbstractSampleToSplitPointsHandlerTest<S extends Store> {
 
     protected abstract S createStore();
 
-    protected abstract AbstractSampleToSplitPointsHandler<?, S> createHandler();
+    protected abstract AbstractGenerateSplitPointsFromSampleHandler<?, S> createHandler();
 
-    protected void verifySplits(final List<Integer> indexes, final List<String> sample, final List<?> splits, final AbstractSampleToSplitPointsHandler<?, S> handler) throws OperationException {
-        final SampleToSplitPoints operatation = new SampleToSplitPoints.Builder<>()
+    protected void verifySplits(final List<Integer> indexes, final List<String> sample, final List<?> splits, final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler) throws OperationException {
+        final GenerateSplitPointsFromSample operatation = new GenerateSplitPointsFromSample.Builder<>()
                 .input(sample)
                 .numSplits(Integer.MAX_VALUE)
                 .build();

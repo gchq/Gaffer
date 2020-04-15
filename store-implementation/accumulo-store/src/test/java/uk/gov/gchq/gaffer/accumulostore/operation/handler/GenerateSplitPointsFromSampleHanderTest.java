@@ -23,11 +23,11 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleToSplitPointsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleToSplitPointsHandlerTest;
+import uk.gov.gchq.gaffer.store.operation.handler.AbstractGenerateSplitPointsFromSampleHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.AbstractGenerateSplitPointsFromSampleHandlerTest;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class SampleToSplitPointsHanderTest extends AbstractSampleToSplitPointsHandlerTest<AccumuloStore> {
+public class GenerateSplitPointsFromSampleHanderTest extends AbstractGenerateSplitPointsFromSampleHandlerTest<AccumuloStore> {
 
     public static final int NUM_TABLET_SERVERS = 4;
 
@@ -60,8 +60,8 @@ public class SampleToSplitPointsHanderTest extends AbstractSampleToSplitPointsHa
     }
 
     @Override
-    protected AbstractSampleToSplitPointsHandler<String, AccumuloStore> createHandler() {
-        return new SampleToSplitPointsHandler();
+    protected AbstractGenerateSplitPointsFromSampleHandler<String, AccumuloStore> createHandler() {
+        return new GenerateSplitPointsFromSampleHandler();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SampleToSplitPointsHanderTest extends AbstractSampleToSplitPointsHa
         final Integer numSplits = null;
         final List<String> sample = createSampleOfSize(100);
 
-        final SampleToSplitPoints<String> operation = new SampleToSplitPoints.Builder<String>()
+        final GenerateSplitPointsFromSample<String> operation = new GenerateSplitPointsFromSample.Builder<String>()
                 .input(sample)
                 .numSplits(numSplits)
                 .build();

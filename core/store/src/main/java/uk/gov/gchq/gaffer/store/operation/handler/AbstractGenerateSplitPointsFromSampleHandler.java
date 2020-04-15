@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -27,10 +27,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractSampleToSplitPointsHandler<T, S extends Store> implements OutputOperationHandler<SampleToSplitPoints<T>, List<T>> {
+public abstract class AbstractGenerateSplitPointsFromSampleHandler<T, S extends Store> implements OutputOperationHandler<GenerateSplitPointsFromSample<T>, List<T>> {
 
     @Override
-    public List<T> doOperation(final SampleToSplitPoints<T> operation, final Context context, final Store store) throws OperationException {
+    public List<T> doOperation(final GenerateSplitPointsFromSample<T> operation, final Context context, final Store store) throws OperationException {
 
         final S typedStore = (S) store;
 
@@ -69,13 +69,13 @@ public abstract class AbstractSampleToSplitPointsHandler<T, S extends Store> imp
         return splits;
     }
 
-    protected void validate(final SampleToSplitPoints operation, final S store) throws OperationException {
+    protected void validate(final GenerateSplitPointsFromSample operation, final S store) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Operation input is required.");
         }
     }
 
-    protected Integer getNumSplits(final SampleToSplitPoints operation, final S typedStore) {
+    protected Integer getNumSplits(final GenerateSplitPointsFromSample operation, final S typedStore) {
         return operation.getNumSplits();
     }
 

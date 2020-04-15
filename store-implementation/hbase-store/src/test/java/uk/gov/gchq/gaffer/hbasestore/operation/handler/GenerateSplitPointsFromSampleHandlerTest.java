@@ -24,11 +24,11 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleToSplitPointsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleToSplitPointsHandlerTest;
+import uk.gov.gchq.gaffer.store.operation.handler.AbstractGenerateSplitPointsFromSampleHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.AbstractGenerateSplitPointsFromSampleHandlerTest;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class SampleToSplitPointsHandlerTest extends AbstractSampleToSplitPointsHandlerTest<HBaseStore> {
+public class GenerateSplitPointsFromSampleHandlerTest extends AbstractGenerateSplitPointsFromSampleHandlerTest<HBaseStore> {
 
     public static final int NUM_TABLE_REGIONS = 4;
     private HBaseStore store;
@@ -64,8 +64,8 @@ public class SampleToSplitPointsHandlerTest extends AbstractSampleToSplitPointsH
     }
 
     @Override
-    protected AbstractSampleToSplitPointsHandler<String, HBaseStore> createHandler() {
-        return new SampleToSplitPointsHandler();
+    protected AbstractGenerateSplitPointsFromSampleHandler<String, HBaseStore> createHandler() {
+        return new GenerateSplitPointsFromSampleHandler();
     }
 
     @Test
@@ -75,7 +75,7 @@ public class SampleToSplitPointsHandlerTest extends AbstractSampleToSplitPointsH
         final Integer numSplits = null;
         final List<String> sample = createSampleOfSize(100);
 
-        final SampleToSplitPoints<String> operation = new SampleToSplitPoints.Builder<String>()
+        final GenerateSplitPointsFromSample<String> operation = new GenerateSplitPointsFromSample.Builder<String>()
                 .input(sample)
                 .numSplits(numSplits)
                 .build();

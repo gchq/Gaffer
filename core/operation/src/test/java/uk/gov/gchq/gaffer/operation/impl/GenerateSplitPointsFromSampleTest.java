@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class SampleToSplitPointsTest extends OperationTest<SampleToSplitPoints> {
+public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSplitPointsFromSample> {
 
     private static final List<String> TEST_INPUT = asList("one", "two", "three");
     private static final int TEST_NUM_SPLITS = 10;
@@ -37,7 +37,7 @@ public class SampleToSplitPointsTest extends OperationTest<SampleToSplitPoints> 
     @Test
     public void shouldFailValidationIfNumSplitsIsLessThan1() {
 
-        final SampleToSplitPoints op = new SampleToSplitPoints.Builder<>()
+        final GenerateSplitPointsFromSample op = new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(0)
                 .build();
 
@@ -50,11 +50,11 @@ public class SampleToSplitPointsTest extends OperationTest<SampleToSplitPoints> 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
 
-        final SampleToSplitPoints op = getTestObject();
+        final GenerateSplitPointsFromSample op = getTestObject();
 
         byte[] json = JSONSerialiser.serialise(op, true);
 
-        final SampleToSplitPoints deserialisedOp = JSONSerialiser.deserialise(json, SampleToSplitPoints.class);
+        final GenerateSplitPointsFromSample deserialisedOp = JSONSerialiser.deserialise(json, GenerateSplitPointsFromSample.class);
 
         assertExpected(deserialisedOp);
     }
@@ -62,7 +62,7 @@ public class SampleToSplitPointsTest extends OperationTest<SampleToSplitPoints> 
     @Override
     public void builderShouldCreatePopulatedOperation() {
 
-        final SampleToSplitPoints op = getTestObject();
+        final GenerateSplitPointsFromSample op = getTestObject();
 
         assertExpected(op);
     }
@@ -70,23 +70,23 @@ public class SampleToSplitPointsTest extends OperationTest<SampleToSplitPoints> 
     @Override
     public void shouldShallowCloneOperation() {
 
-        final SampleToSplitPoints op = getTestObject();
+        final GenerateSplitPointsFromSample op = getTestObject();
 
-        final SampleToSplitPoints clone = op.shallowClone();
+        final GenerateSplitPointsFromSample clone = op.shallowClone();
 
         assertExpected(clone);
     }
 
     @Override
-    protected SampleToSplitPoints getTestObject() {
+    protected GenerateSplitPointsFromSample getTestObject() {
 
-        return new SampleToSplitPoints.Builder<>()
+        return new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(TEST_NUM_SPLITS)
                 .input(TEST_INPUT)
                 .build();
     }
 
-    private void assertExpected(final SampleToSplitPoints operation) {
+    private void assertExpected(final GenerateSplitPointsFromSample operation) {
 
         assertEquals(TEST_NUM_SPLITS, (int) operation.getNumSplits());
         assertEquals(TEST_INPUT, operation.getInput());

@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * <p>
- * The {@code SampleToSplitPoints} operation takes an {@link Iterable} sample
+ * The {@code GenerateSplitPointsFromSample} operation takes an {@link Iterable} sample
  * and generates a {@link List} of split points from that. The sample and
  * split points are normally UTF strings but this may differ for different
  * Stores.
@@ -44,12 +44,12 @@ import java.util.Map;
  * </p>
  *
  * @param <T> the type of splits
- * @see SampleToSplitPoints.Builder
+ * @see GenerateSplitPointsFromSample.Builder
  */
 @JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
 @Since("1.12.0")
 @Summary("Generates split points from the supplied Iterable")
-public class SampleToSplitPoints<T> implements
+public class GenerateSplitPointsFromSample<T> implements
         Operation,
         InputOutput<Iterable<? extends T>, List<T>>,
         MultiInput<T> {
@@ -83,8 +83,8 @@ public class SampleToSplitPoints<T> implements
     }
 
     @Override
-    public SampleToSplitPoints<T> shallowClone() throws CloneFailedException {
-        return new SampleToSplitPoints.Builder<T>()
+    public GenerateSplitPointsFromSample<T> shallowClone() throws CloneFailedException {
+        return new GenerateSplitPointsFromSample.Builder<T>()
                 .input(input)
                 .numSplits(numSplits)
                 .options(options)
@@ -109,15 +109,15 @@ public class SampleToSplitPoints<T> implements
         this.numSplits = numSplits;
     }
 
-    public static class Builder<T> extends Operation.BaseBuilder<SampleToSplitPoints<T>, SampleToSplitPoints.Builder<T>>
-            implements InputOutput.Builder<SampleToSplitPoints<T>, Iterable<? extends T>, List<T>, SampleToSplitPoints.Builder<T>>,
-            MultiInput.Builder<SampleToSplitPoints<T>, T, SampleToSplitPoints.Builder<T>> {
+    public static class Builder<T> extends Operation.BaseBuilder<GenerateSplitPointsFromSample<T>, GenerateSplitPointsFromSample.Builder<T>>
+            implements InputOutput.Builder<GenerateSplitPointsFromSample<T>, Iterable<? extends T>, List<T>, GenerateSplitPointsFromSample.Builder<T>>,
+            MultiInput.Builder<GenerateSplitPointsFromSample<T>, T, GenerateSplitPointsFromSample.Builder<T>> {
 
         public Builder() {
-            super(new SampleToSplitPoints<>());
+            super(new GenerateSplitPointsFromSample<>());
         }
 
-        public SampleToSplitPoints.Builder<T> numSplits(final Integer numSplits) {
+        public GenerateSplitPointsFromSample.Builder<T> numSplits(final Integer numSplits) {
             _getOp().setNumSplits(numSplits);
             return this;
         }

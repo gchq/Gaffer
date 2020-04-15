@@ -19,18 +19,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleToSplitPointsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.AbstractGenerateSplitPointsFromSampleHandler;
 
 import java.io.IOException;
 
-public class SampleToSplitPointsHandler extends AbstractSampleToSplitPointsHandler<String, HBaseStore> {
+public class GenerateSplitPointsFromSampleHandler extends AbstractGenerateSplitPointsFromSampleHandler<String, HBaseStore> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SampleToSplitPointsHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenerateSplitPointsFromSampleHandler.class);
 
     @Override
-    protected Integer getNumSplits(final SampleToSplitPoints operation, final HBaseStore store) {
+    protected Integer getNumSplits(final GenerateSplitPointsFromSample operation, final HBaseStore store) {
         Integer numSplits = super.getNumSplits(operation, store);
         if (null == numSplits) {
             numSplits = getNumAccumuloSplits(store);

@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplitPointsHandler;
@@ -85,11 +85,11 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
         createHandler().doOperation(operation, new Context(), store);
 
         // Then
-        final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor = ArgumentCaptor.forClass(SampleToSplitPoints.class);
-        verify(store).execute(sampleToSplitPointsCaptor.capture(), any(Context.class));
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
         final int expectedNumOfSplits = NUM_TABLE_REGIONS - 1;
         final int expectedElementCount = elements.size() * 2;
-        assertExpectedNumberOfSplitPointsAndSampleSize(sampleToSplitPointsCaptor, expectedNumOfSplits, expectedElementCount);
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, expectedNumOfSplits, expectedElementCount);
     }
 
     @Test
@@ -110,10 +110,10 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
         createHandler().doOperation(operation, new Context(), createStore());
 
         // Then
-        final ArgumentCaptor<SampleToSplitPoints> sampleToSplitPointsCaptor = ArgumentCaptor.forClass(SampleToSplitPoints.class);
-        verify(store).execute(sampleToSplitPointsCaptor.capture(), any(Context.class));
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
         final int expectedElementCount = elements.size() * 2;
-        assertExpectedNumberOfSplitPointsAndSampleSize(sampleToSplitPointsCaptor, numSplits, expectedElementCount);
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, numSplits, expectedElementCount);
     }
 
     @Override

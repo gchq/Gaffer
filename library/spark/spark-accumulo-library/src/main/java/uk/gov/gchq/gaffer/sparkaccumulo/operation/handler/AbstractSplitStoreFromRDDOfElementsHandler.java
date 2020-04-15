@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.spark.operation.javardd.SplitStoreFromJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -60,7 +60,7 @@ public abstract class AbstractSplitStoreFromRDDOfElementsHandler<OP extends Oper
 
         store.execute(
                 new OperationChain.Builder()
-                        .first(new SampleToSplitPoints.Builder<>()
+                        .first(new GenerateSplitPointsFromSample.Builder<>()
                                 .input(sample)
                                 .build())
                         .then(new SplitStoreFromIterable.Builder<>()

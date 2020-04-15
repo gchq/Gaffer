@@ -31,11 +31,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.GenerateSplitPointsFromSampleHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.SampleElementsForSplitPointsHandler;
-import uk.gov.gchq.gaffer.hbasestore.operation.handler.SampleToSplitPointsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
@@ -43,8 +43,8 @@ import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -253,6 +253,6 @@ public class HBaseStore extends Store {
         addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
         addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
         addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
-        addOperationHandler(SampleToSplitPoints.class, new SampleToSplitPointsHandler());
+        addOperationHandler(GenerateSplitPointsFromSample.class, new GenerateSplitPointsFromSampleHandler());
     }
 }

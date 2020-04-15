@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
-import uk.gov.gchq.gaffer.operation.impl.SampleToSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -68,7 +68,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
         final List<T> records = sortedRecordStream.collect(Collectors.toList());
 
         return store.execute(
-                new SampleToSplitPoints.Builder<T>()
+                new GenerateSplitPointsFromSample.Builder<T>()
                         .input(records)
                         .numSplits(numSplits)
                         .build(),
