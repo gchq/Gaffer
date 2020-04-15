@@ -36,7 +36,7 @@ import java.util.Set;
  * @param <K> The object type that acts as the key for the cache
  * @param <V> The value that is stored in the cache
  */
-public class JcsCache <K, V> implements ICache<K, V> {
+public class JcsCache<K, V> implements ICache<K, V> {
 
     private final GroupCacheAccess<K, V> cache;
     private final String groupName;

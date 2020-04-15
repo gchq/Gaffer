@@ -19,6 +19,13 @@ import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 
 public class AbstractRestApiV2IT extends AbstractRestApiIT<RestApiV2TestClient> {
 
+    public AbstractRestApiV2IT() {
+    }
+
+    public AbstractRestApiV2IT(final String schemaResourcePath, final String storePropertiesResourcePath) {
+        super(schemaResourcePath, storePropertiesResourcePath);
+    }
+
     @Override
     protected RestApiV2TestClient getClient() {
         return new RestApiV2TestClient();

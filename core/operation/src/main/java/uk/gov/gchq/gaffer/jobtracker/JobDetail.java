@@ -15,14 +15,18 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 
 /**
  * POJO containing details of a Gaffer job.
@@ -33,11 +37,12 @@ public class JobDetail implements Serializable {
     private String parentJobId;
     private Repeat repeat;
     private String jobId;
-    private String userId;
+    private User user;
     private JobStatus status;
     private Long startTime;
     private Long endTime;
     private String opChain;
+    private String serialisedOperationChain;
     private String description;
 
     public JobDetail() {
@@ -45,8 +50,9 @@ public class JobDetail implements Serializable {
 
     public JobDetail(final JobDetail oldJobDetail, final JobDetail newJobDetail) {
         this.jobId = getNewOrOld(oldJobDetail.jobId, newJobDetail.jobId);
-        this.userId = getNewOrOld(oldJobDetail.userId, newJobDetail.userId);
+        this.user = getNewOrOld(oldJobDetail.user, newJobDetail.user);
         this.opChain = getNewOrOld(oldJobDetail.opChain, newJobDetail.opChain);
+        this.serialisedOperationChain = getNewOrOld(oldJobDetail.serialisedOperationChain, newJobDetail.serialisedOperationChain);
         this.description = getNewOrOld(oldJobDetail.description, newJobDetail.description);
         this.status = getNewOrOld(oldJobDetail.status, newJobDetail.status);
         this.parentJobId = getNewOrOld(oldJobDetail.parentJobId, newJobDetail.parentJobId);
@@ -60,36 +66,37 @@ public class JobDetail implements Serializable {
         }
     }
 
-    public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
-        this(jobId, null, userId, opChain, jobStatus, description);
+    public JobDetail(final String jobId, final User user, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, user, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
-        this(jobId, null, userId, opChain, jobStatus, description);
+    public JobDetail(final String jobId, final User user, final String opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, user, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String parentJobId, final User user, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
         this.jobId = jobId;
         this.parentJobId = parentJobId;
-        this.userId = userId;
+        this.user = user;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
         this.opChain = null != opChain ? opChain.toOverviewString() : "";
         this.description = description;
     }
 
-    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String parentJobId, final User user, final String opChain, final JobStatus jobStatus, final String description) {
         setOpChain(opChain);
         this.jobId = jobId;
-        this.userId = userId;
+        this.user = user;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
         this.description = description;
         this.parentJobId = parentJobId;
     }
 
-    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
-        this(jobId, parentJobId, userId, opChain, jobStatus, description);
+    public JobDetail(final String jobId, final String parentJobId, final User user, final String opChain, final String serialisedOperationChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
+        this(jobId, parentJobId, user, opChain, jobStatus, description);
+        this.serialisedOperationChain = serialisedOperationChain;
         this.repeat = repeat;
     }
 
@@ -101,12 +108,12 @@ public class JobDetail implements Serializable {
         this.jobId = jobId;
     }
 
-    public String getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(final String userId) {
-        this.userId = userId;
+    public void setUser(final User user) {
+        this.user = user;
     }
 
     public JobStatus getStatus() {
@@ -149,6 +156,19 @@ public class JobDetail implements Serializable {
         this.opChain = opChain;
     }
 
+    public String getSerialisedOperationChain() {
+        return serialisedOperationChain;
+    }
+
+    public void setSerialisedOperationChain(final String serialisedOperationChain) {
+        this.serialisedOperationChain = serialisedOperationChain;
+    }
+
+    @JsonIgnore
+    public void setSerialisedOperationChain(final OperationChain operationChain) {
+        this.serialisedOperationChain = serialiseOperationChain(operationChain);
+    }
+
     public String getDescription() {
         return description;
     }
@@ -176,8 +196,9 @@ public class JobDetail implements Serializable {
         final JobDetail jobDetail = (JobDetail) obj;
         return new EqualsBuilder()
                 .append(jobId, jobDetail.jobId)
-                .append(userId, jobDetail.userId)
+                .append(user, jobDetail.user)
                 .append(opChain, jobDetail.opChain)
+                .append(serialisedOperationChain, jobDetail.serialisedOperationChain)
                 .append(startTime, jobDetail.startTime)
                 .append(endTime, jobDetail.endTime)
                 .append(status, jobDetail.status)
@@ -191,8 +212,9 @@ public class JobDetail implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder(23, 53)
                 .append(jobId)
-                .append(userId)
+                .append(user)
                 .append(opChain)
+                .append(serialisedOperationChain)
                 .append(startTime)
                 .append(endTime)
                 .append(status)
@@ -206,11 +228,12 @@ public class JobDetail implements Serializable {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("jobId", jobId)
-                .append("userId", userId)
+                .append("user", user)
                 .append("status", status)
                 .append("startTime", startTime)
                 .append("endTime", endTime)
                 .append("opChain", opChain)
+                .append("serialisedOperationChain", serialisedOperationChain)
                 .append("description", description)
                 .append("parentJobId", parentJobId)
                 .append("repeat", repeat)
@@ -225,9 +248,10 @@ public class JobDetail implements Serializable {
         private String parentJobId;
         private Repeat repeat;
         private String jobId;
-        private String userId;
+        private User user;
         private JobStatus status;
         private String opChain;
+        private String serialisedOperationChain;
         private String description;
 
         public Builder parentJobId(final String parentJobId) {
@@ -245,8 +269,8 @@ public class JobDetail implements Serializable {
             return this;
         }
 
-        public Builder userId(final String userId) {
-            this.userId = userId;
+        public Builder user(final User user) {
+            this.user = user;
             return this;
         }
 
@@ -261,7 +285,19 @@ public class JobDetail implements Serializable {
         }
 
         public Builder opChain(final OperationChain opChain) {
-            this.opChain = opChain != null ? opChain.toOverviewString() : "";
+
+            this.opChain = null != opChain ? opChain.toOverviewString() : "";
+            return this;
+        }
+
+        public Builder serialisedOperationChain(final String serialisedOperationChain) {
+            this.serialisedOperationChain = serialisedOperationChain;
+            return this;
+        }
+
+        public Builder serialisedOperationChain(final OperationChain opChain) {
+
+            this.serialisedOperationChain = serialiseOperationChain(opChain);
             return this;
         }
 
@@ -271,7 +307,23 @@ public class JobDetail implements Serializable {
         }
 
         public JobDetail build() {
-            return new JobDetail(jobId, parentJobId, userId, opChain, status, description, repeat);
+            return new JobDetail(jobId, parentJobId, user, opChain, serialisedOperationChain, status, description, repeat);
+        }
+    }
+
+    private static String serialiseOperationChain(final OperationChain operationChain) {
+
+        if (operationChain == null) {
+            return "";
+        }
+
+        try {
+
+            return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+
+        } catch (final Exception exception) {
+
+            throw new IllegalArgumentException(exception.getMessage());
         }
     }
 }
