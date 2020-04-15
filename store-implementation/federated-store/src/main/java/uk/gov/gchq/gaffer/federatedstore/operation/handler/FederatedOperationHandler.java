@@ -38,7 +38,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipF
  */
 public class FederatedOperationHandler implements OperationHandler<Operation> {
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation);
         for (final Graph graph : graphs) {
             final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
