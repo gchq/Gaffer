@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
 
 import java.io.IOException;
@@ -24,6 +25,9 @@ import java.io.IOException;
 
 public class HBaseDisableOperationsTest extends DisableOperationsTest {
     public HBaseDisableOperationsTest() throws IOException {
-        super(AddElementsFromHdfs.class);
+        super(
+                AddElementsFromHdfs.class,
+                GenerateSplitPointsFromSample.class
+        );
     }
 }

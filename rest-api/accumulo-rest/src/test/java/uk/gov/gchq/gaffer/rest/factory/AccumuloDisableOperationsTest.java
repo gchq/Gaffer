@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.factory;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
 
@@ -29,6 +30,7 @@ public class AccumuloDisableOperationsTest extends DisableOperationsTest {
     public AccumuloDisableOperationsTest() throws IOException {
         super(
                 SplitStore.class,
+                GenerateSplitPointsFromSample.class,
                 AddElementsFromHdfs.class,
                 SampleDataForSplitPoints.class,
                 ImportAccumuloKeyValueFiles.class
