@@ -58,7 +58,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     @Required
     private String operations;
     private String operationName;
-    private String label;
+    private List<String> labels;
     private String description;
     private List<String> readAccessRoles = new ArrayList<>();
     private List<String> writeAccessRoles = new ArrayList<>();
@@ -124,12 +124,12 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         this.operationName = operationName;
     }
 
-    public String getLabel() {
-        return label;
+    public List<String> getLabels() {
+        return labels;
     }
 
-    public void setLabel(final String label) {
-        this.label = label;
+    public void setLabels(final List<String> labels) {
+        this.labels = labels;
     }
 
     public List<String> getReadAccessRoles() {
@@ -169,7 +169,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)
                 .name(operationName)
-                .label(label)
+                .labels(labels)
                 .description(description)
                 .readAccessRoles(readAccessRoles.toArray(new String[readAccessRoles.size()]))
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
@@ -270,8 +270,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
             return _self();
         }
 
-        public Builder label(final String label) {
-            _getOp().setLabel(label);
+        public Builder labels(final List<String> labels) {
+            _getOp().setLabels(labels);
             return _self();
         }
 

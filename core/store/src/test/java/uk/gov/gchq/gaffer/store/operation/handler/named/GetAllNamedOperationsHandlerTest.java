@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -84,28 +85,28 @@ public class GetAllNamedOperationsHandlerTest {
     public void shouldReturnLabelWhenNamedOperationHasLabel() throws Exception {
         final AddNamedOperation addNamedOperationWithLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
-                .label("test label")
+                .labels(Arrays.asList("test label"))
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithLabel, context, store);
 
         final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
-        assertEquals("test label", allNamedOperations.iterator().next().getLabel());
+        assertEquals(Arrays.asList("test label"), allNamedOperations.iterator().next().getLabels());
     }
 
     @Test
     public void shouldReturnNullLabelWhenLabelIsNullFromAddNamedOperationRequest() throws Exception {
         final AddNamedOperation addNamedOperationWithNullLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
-                .label(null)
+                .labels(null)
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithNullLabel, context, store);
 
         final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
-        assertEquals(null, allNamedOperations.iterator().next().getLabel());
+        assertEquals(null, allNamedOperations.iterator().next().getLabels());
     }
 
     @Test

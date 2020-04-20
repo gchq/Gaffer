@@ -51,7 +51,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         // Given
         final AddNamedOperation namedOperation = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
-                .label("test label")
+                .labels(Arrays.asList("test label"))
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
         client.executeOperation(namedOperation);
@@ -64,7 +64,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         // Then
         final NamedOperationDetail expected = new NamedOperationDetail.Builder()
                 .operationName("My Operation With Label")
-                .label("test label")
+                .labels(Arrays.asList("test label"))
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
                 .creatorId("UNKNOWN")

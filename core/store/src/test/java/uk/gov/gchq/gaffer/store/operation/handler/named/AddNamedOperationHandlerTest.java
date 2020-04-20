@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -218,7 +219,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
-        addNamedOperation.setLabel("test label");
+        addNamedOperation.setLabels(Arrays.asList("test label"));
 
         handler.doOperation(addNamedOperation, context, store);
 
@@ -226,7 +227,7 @@ public class AddNamedOperationHandlerTest {
 
         assert cacheContains("testOp");
         assertTrue(result.getScore() == 2);
-        assertEquals("test label", result.getLabel());
+        assertEquals(Arrays.asList("test label"), result.getLabels());
     }
 
     private boolean cacheContains(final String operationName) {

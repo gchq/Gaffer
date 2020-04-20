@@ -486,8 +486,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     public AddNamedOperation addNamedOperation() {
         return new AddNamedOperation.Builder()
                 .name("My Named Operation")
-                .label("My Group Name Label")
-                .description("A description of my named operation")
+                .labels(Arrays.asList("Optional list of group labels"))
+                .description("Optional description of my named operation")
                 .score(2)
                 .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
                 .overwrite(true)

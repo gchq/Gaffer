@@ -63,7 +63,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
             final NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
                     .operationChain(operation.getOperationChainAsString())
                     .operationName(operation.getOperationName())
-                    .label(operation.getLabel())
+                    .labels(operation.getLabels())
                     .creatorId(context.getUser().getUserId())
                     .readers(operation.getReadAccessRoles())
                     .writers(operation.getWriteAccessRoles())
