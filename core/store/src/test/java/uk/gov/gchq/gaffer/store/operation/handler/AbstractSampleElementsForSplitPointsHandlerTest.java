@@ -17,12 +17,14 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -34,17 +36,19 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 
 public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends Store> {
+
     protected Schema schema = new Schema.Builder()
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex(TestTypes.ID_STRING)
@@ -77,24 +81,6 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             fail("Exception expected");
         } catch (final OperationException e) {
             assertTrue(e.getMessage(), e.getMessage().contains("input is required"));
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionIfNumSplitsIsNull() {
-        // Given
-        final AbstractSampleElementsForSplitPointsHandler<?, ?> handler = createHandler();
-        final SampleElementsForSplitPoints operation = new SampleElementsForSplitPoints.Builder<>()
-                .input(Collections.singletonList(new Entity(TestGroups.ENTITY, "vertex")))
-                .numSplits(null)
-                .build();
-
-        // When / Then
-        try {
-            handler.doOperation(operation, new Context(), createStore());
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().equals("Operation input is undefined - please specify an input."));
         }
     }
 
@@ -146,42 +132,6 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
     }
 
     @Test
-    public void shouldReturnEmptyCollectionIfNumSplitsIsLessThan1() throws OperationException {
-        // Given
-        final AbstractSampleElementsForSplitPointsHandler<?, S> handler = createHandler();
-        final SampleElementsForSplitPoints operation = new SampleElementsForSplitPoints.Builder<>()
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .numSplits(0)
-                .build();
-
-        // When
-        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
-
-        // Then
-        assertTrue(splits.isEmpty());
-    }
-
-    @Test
-    public void shouldDeduplicateElements() throws OperationException {
-        // Given
-        final int numSplits = 3;
-        final List<Element> elements = Collections.nCopies(10, new Entity(TestGroups.ENTITY, "vertex"));
-
-        final AbstractSampleElementsForSplitPointsHandler<?, S> handler = createHandler();
-        final SampleElementsForSplitPoints operation = new SampleElementsForSplitPoints.Builder<>()
-                .input(elements)
-                .numSplits(numSplits)
-                .build();
-
-        // When
-        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
-
-        // Then
-        assertEquals(1, splits.size());
-        verifySplits(Collections.singletonList(0), elements, splits, handler);
-    }
-
-    @Test
     public void shouldUseFullSampleOfAllElementsByDefault() throws OperationException {
         // Given
         final int numSplits = 3;
@@ -196,12 +146,15 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .numSplits(numSplits)
                 .build();
 
+        final S store = createStore();
+
         // When
-        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
+        handler.doOperation(operation, new Context(), store);
 
         // Then
-        assertEquals(numSplits, splits.size());
-        verifySplits(Arrays.asList(0, 1, 2), elements, splits, handler);
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, numSplits, elements.size());
     }
 
     @Test
@@ -223,16 +176,19 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .numSplits(numSplits)
                 .build();
 
+        final S store = createStore();
+
         // When
-        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
+        handler.doOperation(operation, new Context(), store);
 
         // Then
-        assertEquals(numSplits, splits.size());
-        verifySplits(Arrays.asList(0, 1, 2), elements, splits, handler);
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, numSplits, elements.size());
     }
 
     @Test
-    public void shouldSampleHalfOfElements() throws OperationException {
+    public void shouldSampleApproximatelyHalfOfElements() throws OperationException {
         // Given
         final int numSplits = 3;
         final List<Element> elements =
@@ -247,51 +203,43 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .proportionToSample(0.5f)
                 .build();
 
-        // When
-        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
-
-        // Then
-        assertEquals(numSplits, splits.size());
-    }
-
-    @Test
-    public void shouldCalculateRequiredNumberOfSplits() throws OperationException {
-        // Given
-        final int numSplits = 3;
-        final List<Element> elements =
-                IntStream.range(0, numSplits * 10)
-                        .mapToObj(i -> new Entity(TestGroups.ENTITY, "vertex_" + i))
-                        .collect(Collectors.toList());
-
-        final AbstractSampleElementsForSplitPointsHandler<?, S> handler = createHandler();
-        final SampleElementsForSplitPoints operation = new SampleElementsForSplitPoints.Builder<>()
-                .input(elements)
-                .numSplits(numSplits)
-                .build();
+        final S store = createStore();
 
         // When
-        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
+        handler.doOperation(operation, new Context(), store);
 
         // Then
-        verifySplits(Arrays.asList(6, 14, 21), elements, splits, handler);
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        final int maximumExpectedSampleSize = (int) ((elements.size() / 2) * 1.1);
+        assertExpectedNumberOfSplitPointsAndSampleSizeOfNoMoreThan(generateSplitPointsFromSampleCaptor, numSplits, maximumExpectedSampleSize);
     }
 
     protected abstract S createStore();
 
     protected abstract AbstractSampleElementsForSplitPointsHandler<?, S> createHandler();
 
-    protected void verifySplits(final List<Integer> indexes, final List<Element> elements, final List<?> splits, final AbstractSampleElementsForSplitPointsHandler<?, S> handler) throws OperationException {
-        final SampleElementsForSplitPoints operatation = new SampleElementsForSplitPoints.Builder<>()
-                .input(elements)
-                .numSplits(Integer.MAX_VALUE)
-                .build();
-        final List<?> allElementsAsSplits = handler.doOperation(operatation, new Context(), createStore());
+    protected void assertExpectedNumberOfSplitPointsAndSampleSize(
+            final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor,
+            final int expectedNumSplits,
+            final int expectedSampleSize) {
 
-        final List<Object> expectedSplits = new ArrayList<>(indexes.size());
-        for (final Integer index : indexes) {
-            expectedSplits.add(allElementsAsSplits.get(index));
-        }
+        assertEquals(expectedNumSplits, generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue());
 
-        assertEquals(expectedSplits, splits);
+        final long sampleSize = StreamSupport.stream(generateSplitPointsFromSampleCaptor.getValue().getInput().spliterator(), false).count();
+
+        assertEquals(expectedSampleSize, sampleSize);
+    }
+
+    private void assertExpectedNumberOfSplitPointsAndSampleSizeOfNoMoreThan(
+            final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor,
+            final int expectedNumSplits,
+            final int maximumExpectedSampleSize) {
+
+        assertEquals(expectedNumSplits, generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue());
+
+        final long sampleSize = StreamSupport.stream(generateSplitPointsFromSampleCaptor.getValue().getInput().spliterator(), false).count();
+
+        assertTrue(maximumExpectedSampleSize > sampleSize);
     }
 }
