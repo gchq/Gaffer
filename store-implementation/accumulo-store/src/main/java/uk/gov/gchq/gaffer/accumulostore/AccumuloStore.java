@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GenerateSplitPointsFromSampleHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
@@ -77,6 +78,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
@@ -374,6 +376,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
         addOperationHandler(SplitStore.class, new SplitStoreHandler());
         addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
+        addOperationHandler(GenerateSplitPointsFromSample.class, new GenerateSplitPointsFromSampleHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
