@@ -37,6 +37,8 @@ import static java.util.Objects.nonNull;
  */
 public class User implements Serializable {
 
+    private static final long serialVersionUID = -2446354817298439281L;
+
     public static final String UNKNOWN_USER_ID = "UNKNOWN";
     private final String userId;
     private final Set<String> dataAuths = new HashSet<>();

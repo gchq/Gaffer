@@ -66,12 +66,23 @@ public class JobDetail implements Serializable {
         }
     }
 
+    @Deprecated
+    public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, userId, opChain, jobStatus, description);
+    }
+
     public JobDetail(final String jobId, final User user, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
         this(jobId, null, user, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final User user, final String opChain, final JobStatus jobStatus, final String description) {
-        this(jobId, null, user, opChain, jobStatus, description);
+    @Deprecated
+    public JobDetail(final String jobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, null, userId, opChain, jobStatus, description);
+    }
+
+    @Deprecated
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, parentJobId, new User(userId), opChain, jobStatus, description);
     }
 
     public JobDetail(final String jobId, final String parentJobId, final User user, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
@@ -84,6 +95,11 @@ public class JobDetail implements Serializable {
         this.description = description;
     }
 
+    @Deprecated
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description) {
+        this(jobId, parentJobId, new User(userId), opChain, jobStatus, description);
+    }
+
     public JobDetail(final String jobId, final String parentJobId, final User user, final String opChain, final JobStatus jobStatus, final String description) {
         setOpChain(opChain);
         this.jobId = jobId;
@@ -92,6 +108,12 @@ public class JobDetail implements Serializable {
         this.status = jobStatus;
         this.description = description;
         this.parentJobId = parentJobId;
+    }
+
+    @Deprecated
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final String opChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
+        this(jobId, parentJobId, userId, opChain, jobStatus, description);
+        this.repeat = repeat;
     }
 
     public JobDetail(final String jobId, final String parentJobId, final User user, final String opChain, final String serialisedOperationChain, final JobStatus jobStatus, final String description, final Repeat repeat) {
@@ -114,6 +136,18 @@ public class JobDetail implements Serializable {
 
     public void setUser(final User user) {
         this.user = user;
+    }
+
+    @Deprecated
+    @JsonIgnore
+    public String getUserId() {
+        return user != null ? user.getUserId() : null;
+    }
+
+    @Deprecated
+    @JsonIgnore
+    public void setUserId(final String userId) {
+        this.user = new User(userId);
     }
 
     public JobStatus getStatus() {
@@ -271,6 +305,12 @@ public class JobDetail implements Serializable {
 
         public Builder user(final User user) {
             this.user = user;
+            return this;
+        }
+
+        @Deprecated
+        public Builder userId(final String userId) {
+            this.user = new User(userId);
             return this;
         }
 
