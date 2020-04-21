@@ -24,7 +24,7 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -99,40 +99,49 @@ public class AccumuloStoreRelationTest {
 
     private void testBuildScanWithView(final String name, final View view, final Predicate<Element> returnElement)
             throws OperationException, StoreException {
-        // Given
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final Schema schema = getSchema();
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
-        addElements(store);
+        SingleUseMiniAccumuloStore store = null;
+        try {
+            // Given
+            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+            final Schema schema = getSchema();
+            final AccumuloProperties properties = AccumuloProperties
+                    .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
+            store = new SingleUseMiniAccumuloStore();
+            store.initialise("graphId", schema, properties);
+            addElements(store);
 
-        // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextUtil.createContext(new User(), sparkSession),
-                Collections.emptyList(), view,
-                store, null);
-        final RDD<Row> rdd = relation.buildScan();
-        final Row[] returnedElements = (Row[]) rdd.collect();
+            // When
+            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                    SparkContextUtil.createContext(new User(), sparkSession),
+                    Collections.emptyList(), view,
+                    store, null);
+            final RDD<Row> rdd = relation.buildScan();
+            final Row[] returnedElements = (Row[]) rdd.collect();
 
-        // Then
-        //  - Actual results are:
-        final Set<Row> results = new HashSet<>();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+            // Then
+            //  - Actual results are:
+            final Set<Row> results = new HashSet<>();
+            for (int i = 0; i < returnedElements.length; i++) {
+                results.add(returnedElements[i]);
+            }
+            //  - Expected results are:
+            final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                    new ArrayList<>());
+            final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
+                    schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+            final Set<Row> expectedRows = new HashSet<>();
+            Streams.toStream(getElements())
+                    .filter(returnElement)
+                    .map(elementConverter::apply)
+                    .forEach(expectedRows::add);
+            assertEquals(expectedRows, results);
+        } finally {
+            try {
+                store.closeMiniAccumuloStore();
+            } catch (Exception e) {
+                // Ignore any exceptions
+            }
         }
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        Streams.toStream(getElements())
-                .filter(returnElement)
-                .map(elementConverter::apply)
-                .forEach(expectedRows::add);
-        assertEquals(expectedRows, results);
     }
 
     @Test
@@ -147,40 +156,49 @@ public class AccumuloStoreRelationTest {
     private void testBuildScanSpecifyColumnsWithView(final View view, final String[] requiredColumns,
                                                      final Predicate<Element> returnElement)
             throws OperationException, StoreException {
-        // Given
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final Schema schema = getSchema();
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
-        addElements(store);
+        SingleUseMiniAccumuloStore store = null;
+        try {
+            // Given
+            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+            final Schema schema = getSchema();
+            final AccumuloProperties properties = AccumuloProperties
+                    .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+            store = new SingleUseMiniAccumuloStore();
+            store.initialise("graphId", schema, properties);
+            addElements(store);
 
-        // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextUtil.createContext(new User(), sparkSession),
-                Collections.emptyList(), view,
-                store, null);
-        final RDD<Row> rdd = relation.buildScan(requiredColumns);
-        final Row[] returnedElements = (Row[]) rdd.collect();
+            // When
+            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                    SparkContextUtil.createContext(new User(), sparkSession),
+                    Collections.emptyList(), view,
+                    store, null);
+            final RDD<Row> rdd = relation.buildScan(requiredColumns);
+            final Row[] returnedElements = (Row[]) rdd.collect();
 
-        // Then
-        //  - Actual results are:
-        final Set<Row> results = new HashSet<>();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+            // Then
+            //  - Actual results are:
+            final Set<Row> results = new HashSet<>();
+            for (int i = 0; i < returnedElements.length; i++) {
+                results.add(returnedElements[i]);
+            }
+            //  - Expected results are:
+            final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                    new ArrayList<>());
+            final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                    schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+            final Set<Row> expectedRows = new HashSet<>();
+            Streams.toStream(getElements())
+                    .filter(returnElement)
+                    .map(elementConverter::apply)
+                    .forEach(expectedRows::add);
+            assertEquals(expectedRows, results);
+        } finally {
+            try {
+                store.closeMiniAccumuloStore();
+            } catch (Exception e) {
+                // Ignore any exceptions
+            }
         }
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        Streams.toStream(getElements())
-                .filter(returnElement)
-                .map(elementConverter::apply)
-                .forEach(expectedRows::add);
-        assertEquals(expectedRows, results);
     }
 
     @Test
@@ -201,67 +219,87 @@ public class AccumuloStoreRelationTest {
                                                                final Filter[] filters,
                                                                final Predicate<Element> returnElement)
             throws OperationException, StoreException {
-        // Given
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final Schema schema = getSchema();
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
-        addElements(store);
+        SingleUseMiniAccumuloStore store = null;
+        try {
+            // Given
+            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+            final Schema schema = getSchema();
+            final AccumuloProperties properties = AccumuloProperties
+                    .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+            store = new SingleUseMiniAccumuloStore();
+            store.initialise("graphId", schema, properties);
+            addElements(store);
 
-        // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextUtil.createContext(new User(), sparkSession),
-                Collections.emptyList(), view,
-                store, null);
-        final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
-        final Row[] returnedElements = (Row[]) rdd.collect();
+            // When
+            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                    SparkContextUtil.createContext(new User(), sparkSession),
+                    Collections.emptyList(), view,
+                    store, null);
+            final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
+            final Row[] returnedElements = (Row[]) rdd.collect();
 
-        // Then
-        //  - Actual results are:
-        final Set<Row> results = new HashSet<>();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
+            // Then
+            //  - Actual results are:
+            final Set<Row> results = new HashSet<>();
+            for (int i = 0; i < returnedElements.length; i++) {
+                results.add(returnedElements[i]);
+            }
+            //  - Expected results are:
+            final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                    new ArrayList<>());
+            final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                    schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+            final Set<Row> expectedRows = new HashSet<>();
+            Streams.toStream(getElements())
+                    .filter(returnElement)
+                    .map(elementConverter::apply)
+                    .forEach(expectedRows::add);
+            assertEquals(expectedRows, results);
+        } finally {
+            // Tidy up
+            try {
+                store.closeMiniAccumuloStore();
+            } catch (Exception e) {
+                // Ignore any exceptions
+            }
         }
-        //  - Expected results are:
-        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
-                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-        final Set<Row> expectedRows = new HashSet<>();
-        Streams.toStream(getElements())
-                .filter(returnElement)
-                .map(elementConverter::apply)
-                .forEach(expectedRows::add);
-        assertEquals(expectedRows, results);
     }
 
     @Test
     public void shouldReturnEmptyDataFrameWithNoResultsFromFilter() throws StoreException, OperationException {
-        // Given
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final Schema schema = getSchema();
-        final View view = getViewFromSchema(schema);
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise("graphId", schema, properties);
-        addElements(store);
-        final String[] requiredColumns = new String[1];
-        requiredColumns[0] = "property1";
-        final Filter[] filters = new Filter[1];
-        filters[0] = new EqualTo("group", "abc");
+        SingleUseMiniAccumuloStore store = null;
+        try {
+            // Given
+            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+            final Schema schema = getSchema();
+            final View view = getViewFromSchema(schema);
+            final AccumuloProperties properties = AccumuloProperties
+                    .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+            store = new SingleUseMiniAccumuloStore();
+            store.initialise("graphId", schema, properties);
+            addElements(store);
+            final String[] requiredColumns = new String[1];
+            requiredColumns[0] = "property1";
+            final Filter[] filters = new Filter[1];
+            filters[0] = new EqualTo("group", "abc");
 
-        // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextUtil.createContext(new User(), sparkSession),
-                Collections.emptyList(), view, store, null);
-        final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
+            // When
+            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                    SparkContextUtil.createContext(new User(), sparkSession),
+                    Collections.emptyList(), view, store, null);
+            final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
 
-        // Then
-        assertTrue(rdd.isEmpty());
+            // Then
+            assertTrue(rdd.isEmpty());
 
+        } finally {
+            // Tidy up
+            try {
+                store.closeMiniAccumuloStore();
+            } catch (Exception e) {
+                // Ignore any exceptions
+            }
+        }
     }
 
     private static Schema getSchema() {
