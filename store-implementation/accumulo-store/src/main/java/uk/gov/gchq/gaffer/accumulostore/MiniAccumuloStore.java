@@ -99,8 +99,6 @@ public class MiniAccumuloStore extends AccumuloStore {
 
     @Override
     protected void addZookeeperToConfiguration(final Configuration conf) {
-        LOGGER.info("Adding the miniAccumuloStore zookeeper to the configuration{}", conf);
-
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
                 miniAccumuloCluster.getClientConfig());

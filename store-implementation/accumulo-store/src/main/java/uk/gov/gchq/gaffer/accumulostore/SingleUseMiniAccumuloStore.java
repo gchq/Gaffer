@@ -50,8 +50,6 @@ public class SingleUseMiniAccumuloStore extends MiniAccumuloStore {
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             // no action required
         }
-        // TODO: this will have to go permanently.
-        // super.preInitialise(graphId, schema, properties);
     }
 
 }

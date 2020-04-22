@@ -40,13 +40,17 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStr
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -61,17 +65,25 @@ import static org.junit.Assert.assertTrue;
  * Contains unit tests for {@link AccumuloStoreRelation}.
  */
 public class AccumuloStoreRelationTest {
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        System.out.println("Initialising: " + getClass().getSimpleName() + dateFormat.format(Calendar.getInstance().getTime()));
+    }
 
     @Test
     public void testBuildScanFullView() throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanFullView: " + dateFormat.format(Calendar.getInstance().getTime()));
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
         testBuildScanWithView("testBuildScanFullView", view, e -> true);
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanFullView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void testBuildScanRestrictViewToOneGroup() throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanRestrictViewToOneGroup: " + dateFormat.format(Calendar.getInstance().getTime()));
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
                 .build();
@@ -79,10 +91,12 @@ public class AccumuloStoreRelationTest {
         final Predicate<Element> returnElement = (Element element) ->
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
         testBuildScanWithView("testBuildScanRestrictViewToOneGroup", view, returnElement);
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanRestrictViewToOneGroup:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanRestrictViewByProperty: " + dateFormat.format(Calendar.getInstance().getTime()));
         final List<TupleAdaptedPredicate<String, ?>> filters = new ArrayList<>();
         filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), new String[]{"property1"}));
         final View view = new View.Builder()
@@ -95,10 +109,12 @@ public class AccumuloStoreRelationTest {
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
                         && (Integer) element.getProperty("property1") > 5;
         testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanRestrictViewByProperty:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private void testBuildScanWithView(final String name, final View view, final Predicate<Element> returnElement)
             throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanWithView: " + dateFormat.format(Calendar.getInstance().getTime()));
         SingleUseMiniAccumuloStore store = null;
         try {
             // Given
@@ -142,20 +158,24 @@ public class AccumuloStoreRelationTest {
                 // Ignore any exceptions
             }
         }
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanWithView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void testBuildScanSpecifyColumnsFullView() throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsFullView: " + dateFormat.format(Calendar.getInstance().getTime()));
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
         final String[] requiredColumns = new String[]{"property1"};
         testBuildScanSpecifyColumnsWithView(view, requiredColumns, e -> true);
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsFullView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private void testBuildScanSpecifyColumnsWithView(final View view, final String[] requiredColumns,
                                                      final Predicate<Element> returnElement)
             throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsWithView: " + dateFormat.format(Calendar.getInstance().getTime()));
         SingleUseMiniAccumuloStore store = null;
         try {
             // Given
@@ -199,10 +219,12 @@ public class AccumuloStoreRelationTest {
                 // Ignore any exceptions
             }
         }
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsWithView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void testBuildScanSpecifyColumnsAndFiltersFullView() throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsAndFiltersFullView: " + dateFormat.format(Calendar.getInstance().getTime()));
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
@@ -212,6 +234,7 @@ public class AccumuloStoreRelationTest {
         filters[0] = new GreaterThan("property1", 4);
         final Predicate<Element> returnElement = (Element element) -> ((Integer) element.getProperty("property1")) > 4;
         testBuildScanSpecifyColumnsAndFiltersWithView(view, requiredColumns, filters, returnElement);
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsAndFiltersFullView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private void testBuildScanSpecifyColumnsAndFiltersWithView(final View view,
@@ -219,6 +242,7 @@ public class AccumuloStoreRelationTest {
                                                                final Filter[] filters,
                                                                final Predicate<Element> returnElement)
             throws OperationException, StoreException {
+        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsAndFiltersWithView: " + dateFormat.format(Calendar.getInstance().getTime()));
         SingleUseMiniAccumuloStore store = null;
         try {
             // Given
@@ -263,10 +287,12 @@ public class AccumuloStoreRelationTest {
                 // Ignore any exceptions
             }
         }
+        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsAndFiltersWithView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void shouldReturnEmptyDataFrameWithNoResultsFromFilter() throws StoreException, OperationException {
+        System.out.println(getClass().getSimpleName() + ": Starting shouldReturnEmptyDataFrameWithNoResultsFromFilter: " + dateFormat.format(Calendar.getInstance().getTime()));
         SingleUseMiniAccumuloStore store = null;
         try {
             // Given
@@ -300,6 +326,7 @@ public class AccumuloStoreRelationTest {
                 // Ignore any exceptions
             }
         }
+        System.out.println(getClass().getSimpleName() + ": Ending shouldReturnEmptyDataFrameWithNoResultsFromFilter:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private static Schema getSchema() {
