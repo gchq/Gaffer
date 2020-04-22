@@ -38,7 +38,6 @@ public final class ExecutorService {
     }
 
     public static synchronized void initialise(final int jobExecutorThreadCount) {
-
         if (service == null) {
             LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
             service = Executors.newScheduledThreadPool(jobExecutorThreadCount, runnable -> {
