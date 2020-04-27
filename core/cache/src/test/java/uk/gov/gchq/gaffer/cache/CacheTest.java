@@ -16,87 +16,76 @@
 
 package uk.gov.gchq.gaffer.cache;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CacheTest {
+
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static Cache<Integer> cache;
     private static Properties properties = new Properties();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
         cache = new Cache<>("serviceName1");
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationException {
         cache.clearCache();
     }
 
     @Test
-    public void shouldAddAndGetCache() throws CacheOperationException {
-        Integer expected = 1;
-        cache.addToCache("key1", expected, true);
-        Integer actual = cache.getFromCache("key1");
-        Integer actual2 = cache.getFromCache("key2");
+    public void shouldAddAndGetValueFromCache() throws CacheOperationException {
+        cache.addToCache("key1", 1, true);
 
-        assertEquals(expected, actual);
-        assertNotEquals(expected, actual2);
-        assertNull(actual2);
+        assertEquals((Integer) 1, cache.getFromCache("key1"));
+        assertNull(cache.getFromCache("key2"));
     }
 
     @Test
     public void shouldAddAndGetCacheOverwrite() throws CacheOperationException {
-        Integer expected = 1;
-        Integer before = 2;
-        cache.addToCache("key1", before, true);
-        cache.addToCache("key1", expected, true);
-        Integer actual = cache.getFromCache("key1");
+        cache.addToCache("key1", 1, true);
+        cache.addToCache("key1", 2, true);
 
-        assertEquals(expected, actual);
+        assertEquals(2, cache.getFromCache("key1").intValue());
     }
 
     @Test
     public void shouldAddAndGetCacheNoOverwrite() throws CacheOperationException {
-        Integer expected = 1;
-        Integer before = 2;
-        cache.addToCache("key1", before, true);
-        try {
-            cache.addToCache("key1", expected, false);
-            fail("exception expected");
-        } catch (Exception e) {
-            assertEquals("Cache entry already exists for key: key1", e.getMessage());
-        }
-        Integer actual = cache.getFromCache("key1");
+        cache.addToCache("key1", 1, true);
 
-        assertEquals(before, actual);
+        final Exception exception = assertThrows(OverwritingException.class, () -> {
+            cache.addToCache("key1", 2, false);
+        });
+
+        assertEquals("Cache entry already exists for key: key1", exception.getMessage());
+        assertEquals(1, cache.getFromCache("key1").intValue());
     }
 
     @Test
-    public void shouldGetCacheServiceName() throws CacheOperationException {
+    public void shouldGetCacheServiceName() {
         assertEquals("serviceName1", cache.getCacheName());
     }
 
     @Test
-    public void shouldDelete() throws CacheOperationException {
+    public void shouldDeleteKeyValuePair() throws CacheOperationException {
         cache.addToCache("key1", 1, false);
         cache.deleteFromCache("key1");
-        Integer actual = cache.getFromCache("key1");
 
-        assertEquals(null, actual);
+        assertNull(cache.getFromCache("key1"));
     }
 }
