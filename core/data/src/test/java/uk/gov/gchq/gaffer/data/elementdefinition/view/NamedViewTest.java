@@ -167,7 +167,7 @@ public class NamedViewTest {
         byte[] json = namedView.toJson(true);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView\"," +
                 "  \"entities\" : {\n" +
                 "    \"BasicEntity\" : {\n" +

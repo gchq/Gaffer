@@ -260,7 +260,7 @@ public class ViewUtilTest {
         byte[] json = view.toJson(true);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -383,7 +383,7 @@ public class ViewUtilTest {
         // When
         view.expandGlobalDefinitions();
 
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +
@@ -846,7 +846,7 @@ public class ViewUtilTest {
         View viewAfterRemove = ViewUtil.removeGroups(view, TestGroups.ENTITY);
 
         // Then - views identical
-        JsonAssert.assertEquals(view.toJson(false), viewAfterRemove.toJson(false));
+        JsonAssert.assertJsonEquals(view.toJson(false), viewAfterRemove.toJson(false));
     }
 
     @Test

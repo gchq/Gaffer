@@ -118,7 +118,7 @@ public class HllSketchIsLessThanTest extends PredicateTest {
         // When 1
         final String json = new String(JSONSerialiser.serialise(filter, true));
         // Then 1
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate.HllSketchIsLessThan\",%n" +
                 "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +

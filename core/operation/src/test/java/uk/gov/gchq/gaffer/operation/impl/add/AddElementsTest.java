@@ -102,7 +102,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
         String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
                 "  \"validate\" : true,%n" +
                 "  \"options\" : {\"option\": \"value\"},%n" +
@@ -135,7 +135,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
         String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
-        JsonAssert.assertEquals(ADD_ELEMENTS_JSON, json);
+        JsonAssert.assertJsonEquals(ADD_ELEMENTS_JSON, json);
     }
 
     @Test

@@ -50,7 +50,7 @@ public class NamedViewDetailTest {
         final byte[] json = JSONSerialiser.serialise(namedViewDetail, true);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"name\" : \"view1\",%n" +
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +

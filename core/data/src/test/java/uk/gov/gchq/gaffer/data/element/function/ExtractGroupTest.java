@@ -102,7 +102,7 @@ public class ExtractGroupTest extends FunctionTest {
         final ExtractGroup deserialised = JSONSerialiser.deserialise(json, ExtractGroup.class);
 
         // Then
-        JsonAssert.assertEquals("{\"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractGroup\"}",
+        JsonAssert.assertJsonEquals("{\"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractGroup\"}",
                 new String(json));
     }
 }

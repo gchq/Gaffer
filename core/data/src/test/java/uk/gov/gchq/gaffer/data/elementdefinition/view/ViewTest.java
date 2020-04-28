@@ -120,7 +120,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         final byte[] json = toJson(view);
 
         // Then
-        JsonAssert.assertEquals(String.format("{" +
+        JsonAssert.assertJsonEquals(String.format("{" +
                 "  \"globalEdges\" : [ {%n" +
                 "    \"groupBy\" : [ ]%n" +
                 "  } ]%n" +
@@ -156,7 +156,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         byte[] json = view.toJson(true);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -288,7 +288,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // When
         view.expandGlobalDefinitions();
 
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +

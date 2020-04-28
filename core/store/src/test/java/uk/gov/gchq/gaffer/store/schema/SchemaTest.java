@@ -89,7 +89,7 @@ public class SchemaTest {
         // Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        JsonAssert.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonAssert.assertJsonEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toCompactJson();
 
         // Then
-        JsonAssert.assertEquals(json1, json2);
+        JsonAssert.assertJsonEquals(json1, json2);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        JsonAssert.assertEquals(json1, json2);
+        JsonAssert.assertJsonEquals(json1, json2);
     }
 
     @Test
@@ -330,7 +330,7 @@ public class SchemaTest {
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
         Schema schema = createSchema();
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +
@@ -476,7 +476,7 @@ public class SchemaTest {
 
         final Schema schema = Schema.fromJson(Paths.get(SchemaTest.class.getResource("/schema").toURI()));
 
-        JsonAssert.assertEquals(schema.toCompactJson(), schemaNested.toCompactJson());
+        JsonAssert.assertJsonEquals(schema.toCompactJson(), schemaNested.toCompactJson());
     }
 
     private void assertExpectedSchemaElementsContent(final Schema schema) {

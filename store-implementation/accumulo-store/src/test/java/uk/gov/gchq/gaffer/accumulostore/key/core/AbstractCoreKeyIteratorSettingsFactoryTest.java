@@ -87,7 +87,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, iterator.getName());
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, iterator.getPriority());
         assertEquals(ValidatorFilter.class.getName(), iterator.getIteratorClass());
-        JsonAssert.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
+        JsonAssert.assertJsonEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
         assertEquals(converter.getClass().getName(), iterator.getOptions().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
     }
 
@@ -140,8 +140,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         assertEquals(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, iterator.getName());
         assertEquals(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY, iterator.getPriority());
         assertEquals(ElementPreAggregationFilter.class.getName(), iterator.getIteratorClass());
-        JsonAssert.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
-        JsonAssert.assertEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
+        JsonAssert.assertJsonEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
+        JsonAssert.assertJsonEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
         assertEquals(converter.getClass().getName(), iterator.getOptions().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
     }
 
@@ -194,8 +194,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         assertEquals(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, iterator.getName());
         assertEquals(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY, iterator.getPriority());
         assertEquals(ElementPostAggregationFilter.class.getName(), iterator.getIteratorClass());
-        JsonAssert.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
-        JsonAssert.assertEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
+        JsonAssert.assertJsonEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
+        JsonAssert.assertJsonEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
         assertEquals(converter.getClass().getName(), iterator.getOptions().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
     }
 

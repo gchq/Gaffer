@@ -129,7 +129,7 @@ public class FederatedGetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        JsonAssert.assertEquals(edgeSchema.toJson(true), result.toJson(true));
+        JsonAssert.assertJsonEquals(edgeSchema.toJson(true), result.toJson(true));
     }
 
     @Test
@@ -190,7 +190,7 @@ public class FederatedGetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        JsonAssert.assertEquals(edgeSchema1.toJson(true), result.toJson(true));
+        JsonAssert.assertJsonEquals(edgeSchema1.toJson(true), result.toJson(true));
     }
 
     @Test

@@ -16,17 +16,24 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StringUtilTest {
+
     @Test
     public void nullIfEmptyStringTest() {
-        assertEquals(null, StringUtil.nullIfEmpty(null));
         assertEquals(null, StringUtil.nullIfEmpty(""));
-        assertEquals(" ", StringUtil.nullIfEmpty(" "));
-        assertEquals("String", StringUtil.nullIfEmpty("String"));
-        assertEquals(" string ", StringUtil.nullIfEmpty(" string "));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {" ", "String", " string "})
+    public void shouldReturnValueWhenNotEmptyString(String input) {
+        assertEquals(input, StringUtil.nullIfEmpty(input));
     }
 }

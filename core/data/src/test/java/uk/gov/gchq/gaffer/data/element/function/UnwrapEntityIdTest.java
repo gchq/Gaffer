@@ -92,7 +92,7 @@ public class UnwrapEntityIdTest extends FunctionTest {
         final UnwrapEntityId deserialisedObj = JSONSerialiser.deserialise(json, UnwrapEntityId.class);
 
         // Then
-        JsonAssert.assertEquals(
+        JsonAssert.assertJsonEquals(
                 "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}",
                 new String(json)
         );

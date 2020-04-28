@@ -16,51 +16,35 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FieldUtilTest {
 
-    /**
-     * Compares the error set returned by the ValidationResult
-     */
     @Test
     public void testNullField() {
+        final Pair nullPair = new Pair("Test", null);
 
-        //Given
-        Pair nullPair = new Pair("Test", null);
-        Set<String> testErrorSet = new LinkedHashSet<>();
-        testErrorSet.add("Test is required.");
+        final ValidationResult validationResult = FieldUtil.validateRequiredFields(nullPair);
 
-        //When
-        ValidationResult validationResult = FieldUtil.validateRequiredFields(nullPair);
-
-        //Then
-        assertEquals(validationResult.getErrors(), testErrorSet);
+        final Set<String> expected = new LinkedHashSet<>();
+        expected.add("Test is required.");
+        assertEquals(expected, validationResult.getErrors());
     }
 
-    /**
-     * Compares the empty error set returned by the ValidationResult
-     */
     @Test
     public void testNotNullField() {
+        final Pair nonNullPair = new Pair("Test", "Test");
 
-        //Given
-        Pair nonNullPair = new Pair("Test", "Test");
-        Set<String> testNoErrorSet = new LinkedHashSet<>();
+        final ValidationResult validationResult = FieldUtil.validateRequiredFields(nonNullPair);
 
-        //When
-        ValidationResult validationResult = FieldUtil.validateRequiredFields(nonNullPair);
-
-        //Then
-        assertEquals(validationResult.getErrors(), testNoErrorSet);
-
+        final Set<String> expected = new LinkedHashSet<>();
+        assertEquals(expected, validationResult.getErrors());
     }
 }

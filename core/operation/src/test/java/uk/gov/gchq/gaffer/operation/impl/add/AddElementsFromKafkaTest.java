@@ -59,7 +59,7 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         final AddElementsFromKafka deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromKafka.class);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                         "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka\",%n" +
                         "  \"topic\" : \"topic\",%n" +
                         "  \"groupId\" : \"groupId\",%n" +

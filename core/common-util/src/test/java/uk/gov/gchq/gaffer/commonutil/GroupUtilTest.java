@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GroupUtilTest {
     private static final String INVALID_STRING = "inv@l1dStr|ng&^";
@@ -27,20 +28,14 @@ public class GroupUtilTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidStringName() {
-        // When / Then
-        try {
-            GroupUtil.validateName(INVALID_STRING);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Group is invalid"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> GroupUtil.validateName(INVALID_STRING));
+
+        final String expected = "Group is invalid: inv@l1dStr|ng&^, it must match regex: [a-zA-Z0-9|-]*";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
     public void shouldPassValidationWithValidStringName() {
-        // When
-        GroupUtil.validateName(VALID_STRING);
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> GroupUtil.validateName(VALID_STRING));
     }
 }

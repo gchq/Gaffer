@@ -78,7 +78,7 @@ public class ForEachTest extends OperationTest<ForEach> {
         final ForEach deserialisedObj = fromJson(json);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.ForEach\",%n" +
                 "  \"input\" : [ {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +

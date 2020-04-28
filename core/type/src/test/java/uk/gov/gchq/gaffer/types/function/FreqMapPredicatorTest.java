@@ -124,11 +124,11 @@ public class FreqMapPredicatorTest {
         final String json2 = new String(JSONSerialiser.serialise(regexPredicator, false));
 
         //then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.FreqMapPredicator\"%n" +
                 "}"), json);
 
-        JsonAssert.assertEquals("{\"class\":\"uk.gov.gchq.gaffer.types.function.FreqMapPredicator\"," +
+        JsonAssert.assertJsonEquals("{\"class\":\"uk.gov.gchq.gaffer.types.function.FreqMapPredicator\"," +
                 "\"predicate\":{\"class\":\"uk.gov.gchq.koryphe.impl.predicate.Regex\",\"value\":" +
                 "{\"java.util.regex.Pattern\":\"^\\\\wo\\\\w$\"}}}", json2);
 

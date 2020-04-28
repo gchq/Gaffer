@@ -111,7 +111,7 @@ public class ExtractIdTest extends FunctionTest {
         final ExtractId deserialisedObj = JSONSerialiser.deserialise(json, ExtractId.class);
 
         // Then
-        JsonAssert.assertEquals(
+        JsonAssert.assertJsonEquals(
                 "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractId\",\"id\":\"SOURCE\"}",
                 new String(json)
         );

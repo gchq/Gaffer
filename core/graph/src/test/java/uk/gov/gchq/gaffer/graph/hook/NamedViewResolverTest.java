@@ -94,7 +94,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        JsonAssert.assertEquals(FULL_VIEW.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertJsonEquals(FULL_VIEW.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -144,7 +144,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -191,7 +191,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         final View mergedView = new View.Builder().merge(namedViewWithNestedNamedView).build();
 
         // Then
-        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -424,7 +424,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         final View mergedView = new View.Builder().merge(nestedNamedView3).build();
 
         // Then
-        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -452,7 +452,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         RESOLVER.preExecute(opChain, CONTEXT);
 
         // Then
-        JsonAssert.assertEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
+        JsonAssert.assertJsonEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
     }
 
     @Test
@@ -481,7 +481,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         RESOLVER.preExecute(opChain, CONTEXT);
 
         // Then
-        JsonAssert.assertEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
+        JsonAssert.assertJsonEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
     }
 
     @Test

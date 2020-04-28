@@ -82,7 +82,7 @@ public class WalkTest {
 
         // Then
         assertThat(walk, is(equalTo(deserialisedWalk)));
-        JsonAssert.assertEquals(String.format("{" +
+        JsonAssert.assertJsonEquals(String.format("{" +
                 "  \"edges\": [" +
                 "  [" +
                 "    {\"group\": \"BasicEdge\"," +

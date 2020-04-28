@@ -111,7 +111,7 @@ public class ExtractPropertyTest extends FunctionTest {
         final ExtractProperty deserialisedObj = JSONSerialiser.deserialise(json, ExtractProperty.class);
 
         // Then
-        JsonAssert.assertEquals(
+        JsonAssert.assertJsonEquals(
                 "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\"name\":\"count\"}",
                 new String(json)
         );

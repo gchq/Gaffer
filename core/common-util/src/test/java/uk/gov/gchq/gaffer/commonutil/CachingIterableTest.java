@@ -35,22 +35,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class CachingIterableTest {
+
     private static final List<Integer> SMALL_LIST = Arrays.asList(0, 1, 2, 3, 4);
     private static final List<Integer> LARGE_LIST = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     @Test
     public void shouldCacheSmallIterable() {
-        // Given
         final CloseableIterable<Integer> iterable = mock(CloseableIterable.class);
         given(iterable.iterator()).willReturn(
                 new WrappedCloseableIterator<>(SMALL_LIST.iterator()),
                 new WrappedCloseableIterator<>(SMALL_LIST.iterator())
         );
 
-        // When
         final CachingIterable<Integer> cachingIterable = new CachingIterable<>(iterable, 5);
 
-        // Then
         assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
         assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
         verify(iterable, times(1)).iterator();
@@ -58,17 +56,14 @@ public class CachingIterableTest {
 
     @Test
     public void shouldNotCacheALargeIterable() {
-        // Given
         final CloseableIterable<Integer> iterable = mock(CloseableIterable.class);
         given(iterable.iterator()).willReturn(
                 new WrappedCloseableIterator<>(LARGE_LIST.iterator()),
                 new WrappedCloseableIterator<>(LARGE_LIST.iterator())
         );
 
-        // When
         final CachingIterable<Integer> cachingIterable = new CachingIterable<>(iterable, 5);
 
-        // Then
         assertEquals(LARGE_LIST, Lists.newArrayList(cachingIterable));
         assertEquals(LARGE_LIST, Lists.newArrayList(cachingIterable));
         verify(iterable, times(2)).iterator();
@@ -76,30 +71,24 @@ public class CachingIterableTest {
 
     @Test
     public void shouldHandleNullIterable() {
-        // When
         final CachingIterable<Integer> cachingIterable = new CachingIterable<>(null);
 
-        // Then
         assertEquals(Collections.emptyList(), Lists.newArrayList(cachingIterable));
         assertEquals(Collections.emptyList(), Lists.newArrayList(cachingIterable));
     }
 
     @Test
     public void shouldCloseTheIterable() {
-        // Given
         final CloseableIterable<Integer> iterable = mock(CloseableIterable.class);
         final CachingIterable<Integer> cachingIterable = new CachingIterable<>(iterable, 5);
 
-        // When
         cachingIterable.close();
 
-        // Then
         verify(iterable).close();
     }
 
     @Test
     public void shouldCloseTheIterableWhenFullyCached() {
-        // Given
         final CloseableIterable<Integer> iterable = mock(CloseableIterable.class);
         given(iterable.iterator()).willReturn(
                 new WrappedCloseableIterator<>(SMALL_LIST.iterator()),
@@ -107,10 +96,8 @@ public class CachingIterableTest {
         );
         final CachingIterable<Integer> cachingIterable = new CachingIterable<>(iterable, 5);
 
-        // When
         assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
 
-        // Then
         verify(iterable).close();
     }
 
@@ -138,6 +125,7 @@ public class CachingIterableTest {
         itr3.next();
         final CloseableIterator<Integer> itr4 = cachingIterable.iterator();
         assertEquals(SMALL_LIST, Lists.newArrayList(itr4));
+
         // should be cached now as it has been fully read.
         verify(iterable, times(3)).close();
         itr3.next();

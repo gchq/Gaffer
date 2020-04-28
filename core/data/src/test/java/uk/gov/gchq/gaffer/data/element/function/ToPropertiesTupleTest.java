@@ -75,7 +75,7 @@ public class ToPropertiesTupleTest extends FunctionTest {
         final ToPropertiesTuple deserialisedObj = JSONSerialiser.deserialise(json, ToPropertiesTuple.class);
 
         // Then
-        JsonAssert.assertEquals(
+        JsonAssert.assertJsonEquals(
                 "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToPropertiesTuple\"}",
                 new String(json)
         );

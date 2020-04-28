@@ -79,7 +79,7 @@ public class ToTypeValueTest extends FunctionTest {
         final String json = new String(JSONSerialiser.serialise(function, true));
 
         // Then 1
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.ToTypeValue\"%n" +
                 "}"), json);
 

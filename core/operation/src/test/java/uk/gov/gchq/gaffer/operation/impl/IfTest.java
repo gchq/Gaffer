@@ -234,7 +234,7 @@ public class IfTest extends OperationTest<If> {
 
         // When
         final byte[] json = toJson(op);
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.If\",%n" +
                 "  \"input\" : [ {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
@@ -273,7 +273,7 @@ public class IfTest extends OperationTest<If> {
 
         // When
         final byte[] json = toJson(op);
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.If\",%n" +
                 "  \"input\" :  {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +

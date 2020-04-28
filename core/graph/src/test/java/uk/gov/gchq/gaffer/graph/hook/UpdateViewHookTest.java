@@ -258,7 +258,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
         GetAllElements op = (GetAllElements) opChain.getOperations().get(0);
-        JsonAssert.assertEquals(
+        JsonAssert.assertJsonEquals(
                 new View.Builder()
                         .entity("white1", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

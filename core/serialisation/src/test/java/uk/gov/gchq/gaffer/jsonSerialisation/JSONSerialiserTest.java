@@ -115,7 +115,7 @@ public class JSONSerialiserTest {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
         byte[] bytes = JSONSerialiser.serialise(test, true);
-        JsonAssert.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
+        JsonAssert.assertJsonEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
     @Test

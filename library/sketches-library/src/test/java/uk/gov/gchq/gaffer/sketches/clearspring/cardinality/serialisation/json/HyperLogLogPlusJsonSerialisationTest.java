@@ -137,7 +137,7 @@ public class HyperLogLogPlusJsonSerialisationTest {
         final String json = new String(JSONSerialiser.serialise(sketch));
 
         // Then - serialise
-        JsonAssert.assertEquals("" +
+        JsonAssert.assertJsonEquals("" +
                 "{\"hyperLogLogPlus\":" +
                 "{\"hyperLogLogPlusSketchBytes\":" + new String(JSONSerialiser.serialise(sketch.getBytes())) + "," +
                 "\"cardinality\":" + sketch.cardinality() + "}}", json);

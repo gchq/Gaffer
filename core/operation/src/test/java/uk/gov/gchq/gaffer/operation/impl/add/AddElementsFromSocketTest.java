@@ -58,7 +58,7 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
         final AddElementsFromSocket deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromSocket.class);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                         "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket\",%n" +
                         "  \"hostname\" : \"hostname\",%n" +
                         "  \"port\" : 6874,%n" +

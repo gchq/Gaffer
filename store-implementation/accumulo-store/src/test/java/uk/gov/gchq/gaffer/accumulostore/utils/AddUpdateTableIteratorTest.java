@@ -71,7 +71,7 @@ public class AddUpdateTableIteratorTest {
         assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
         assertNotNull(pair.getFirst(), "Schema not found");
         assertNotNull(pair.getSecond(), "Store properties not found");
-        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
+        JsonAssert.assertJsonEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
     }
 
@@ -89,7 +89,7 @@ public class AddUpdateTableIteratorTest {
         assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
         assertNotNull(pair.getFirst(), "Schema not found");
         assertNotNull(pair.getSecond(), "Store properties not found");
-        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
+        JsonAssert.assertJsonEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
     }
 

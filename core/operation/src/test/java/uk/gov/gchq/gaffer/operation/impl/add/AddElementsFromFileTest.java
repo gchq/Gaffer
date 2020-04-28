@@ -54,7 +54,7 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
         final AddElementsFromFile deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromFile.class);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        JsonAssert.assertJsonEquals(String.format("{%n" +
                         "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile\",%n" +
                         "  \"filename\" : \"filename\",%n" +
                         "  \"parallelism\" : 2,%n" +

@@ -78,6 +78,6 @@ public class TextMessageBodyWriterTest {
         inOrder.verify(outputStream).flush();
         inOrder.verify(outputStream).close();
 
-        JsonAssert.assertEquals(JSONSerialiser.serialise(object), bytesCaptor.getValue());
+        JsonAssert.assertJsonEquals(JSONSerialiser.serialise(object), bytesCaptor.getValue());
     }
 }

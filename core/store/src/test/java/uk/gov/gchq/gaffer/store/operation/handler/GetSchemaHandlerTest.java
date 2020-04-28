@@ -100,8 +100,8 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        JsonAssert.assertNotEqual(schema.toJson(true), result.toJson(true));
-        JsonAssert.assertEquals(compactSchemaBytes, result.toJson(true));
+        JsonAssert.assertJsonNotEqual(schema.toJson(true), result.toJson(true));
+        JsonAssert.assertJsonEquals(compactSchemaBytes, result.toJson(true));
     }
 
     @Test
@@ -117,7 +117,7 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        JsonAssert.assertEquals(schema.toJson(true), result.toJson(true));
+        JsonAssert.assertJsonEquals(schema.toJson(true), result.toJson(true));
     }
 
     @Test
