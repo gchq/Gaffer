@@ -28,83 +28,65 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LimitedCloseableIterableTest {
 
     @Test
     public void shouldLimitResultsToFirstItem() {
-        // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
         final int end = 1;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertEquals(values.subList(start, end), Lists.newArrayList(limitedValues));
     }
 
     @Test
     public void shouldLimitResultsToLastItem() {
-        // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 2;
         final int end = Integer.MAX_VALUE;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertEquals(values.subList(start, values.size()), Lists.newArrayList(limitedValues));
     }
 
     @Test
     public void shouldNotLimitResults() {
-        // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
         final int end = Integer.MAX_VALUE;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertEquals(values, Lists.newArrayList(limitedValues));
     }
 
     @Test
-    public void shouldReturnNoValuesIfStartIsBiggerThanSize() {
-        // Given
+    public void shouldReturnNoValuesWhenStartIsBiggerThanSize() {
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 5;
         final int end = Integer.MAX_VALUE;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertTrue(Lists.newArrayList(limitedValues).isEmpty());
     }
 
     @Test
-    public void shouldThrowExceptionIfStartIsBiggerThanEnd() {
-        // Given
+    public void shouldThrowIAXWhenStartIsBiggerThanEnd() {
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 3;
         final int end = 1;
 
-        // When / Then
-        try {
-            new LimitedCloseableIterable<>(values, start, end);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(IllegalArgumentException.class, () -> new LimitedCloseableIterable<>(values, start, end));
     }
 
     @Test
-    public void shouldThrowExceptionIfDataIsTruncated() {
+    public void shouldThrowExceptionWhenDataIsTruncated() {
         // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
@@ -114,24 +96,19 @@ public class LimitedCloseableIterableTest {
         // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end, truncate);
 
-        // Then
-        try {
+        final Exception exception = assertThrows(LimitExceededException.class, () -> {
             for (final Integer i : limitedValues) {
-                // Do nothing
+                // Do nothing until LimitExceededException is thrown
             }
-            fail("Exception expected");
-        } catch (final LimitExceededException e) {
-            assertEquals("Limit of " + end + " exceeded.", e
-                    .getMessage());
-        }
+        });
+
+        assertEquals("Limit of 2 exceeded.", exception.getMessage());
     }
 
     @Test
     public void shouldHandleNullIterable() {
-        // Given
         final CloseableIterable<Integer> nullIterable = new LimitedCloseableIterable<>(null, 0, 1, true);
 
-        // Then
         assertTrue(Lists.newArrayList(nullIterable).isEmpty());
     }
 

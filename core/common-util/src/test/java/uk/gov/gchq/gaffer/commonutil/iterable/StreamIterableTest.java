@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 
 import java.io.IOException;

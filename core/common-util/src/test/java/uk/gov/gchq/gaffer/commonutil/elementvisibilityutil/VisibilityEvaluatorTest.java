@@ -16,16 +16,18 @@
 
 package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 
 import java.util.regex.PatternSyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility.quote;
 
 /**
@@ -34,7 +36,7 @@ import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibil
 
 public class VisibilityEvaluatorTest {
 
-    VisibilityEvaluator ve = new VisibilityEvaluator(new Authorisations("one", "two", "three", "four"));
+    final VisibilityEvaluator ve = new VisibilityEvaluator(new Authorisations("one", "two", "three", "four"));
 
     @Test
     public void testVisibilityEvaluator() throws VisibilityParseException {
@@ -42,65 +44,50 @@ public class VisibilityEvaluatorTest {
         assertTrue(ve.evaluate(new ElementVisibility(new byte[0])));
 
         // test for and
-        assertTrue("'and' test", ve.evaluate(new ElementVisibility("one&two")));
+        assertTrue(ve.evaluate(new ElementVisibility("one&two")), "'and' test");
 
         // test for or
-        assertTrue("'or' test", ve.evaluate(new ElementVisibility("foor|four")));
+        assertTrue(ve.evaluate(new ElementVisibility("foor|four")), "'or' test");
 
         // test for and and or
-        assertTrue("'and' and 'or' test", ve.evaluate(new ElementVisibility("(one&two)|(foo&bar)")));
+        assertTrue(ve.evaluate(new ElementVisibility("(one&two)|(foo&bar)")), "'and' and 'or' test");
+    }
 
-        // test for false negatives
-        for (String marking : new String[]{"one", "one|five", "five|one", "(one)",
-                "(one&two)|(foo&bar)", "(one|foo)&three", "one|foo|bar",
-                "(one|foo)|bar", "((one|foo)|bar)&two"}) {
-            assertTrue(marking, ve.evaluate(new ElementVisibility(marking)));
-        }
+    @ParameterizedTest
+    @ValueSource(strings = {"one", "one|five", "five|one", "(one)", "(one&two)|(foo&bar)", "(one|foo)&three", "one|foo|bar",
+            "(one|foo)|bar", "((one|foo)|bar)&two"})
+    public void testFalseNegatives(String marking) throws VisibilityParseException {
+        assertTrue(ve.evaluate(new ElementVisibility(marking)), marking);
+    }
 
-        // test for false positives
-        for (String marking : new String[]{"five", "one&five",
-                "five&one", "((one|foo)|bar)&goober"}) {
-            assertFalse(marking, ve.evaluate(new ElementVisibility(marking)));
-        }
+    @ParameterizedTest
+    @ValueSource(strings = {"five", "one&five", "five&one", "((one|foo)|bar)&goober"})
+    public void testFalsePositives(String marking) throws VisibilityParseException {
+        assertFalse(ve.evaluate(new ElementVisibility(marking)), marking);
+    }
 
-        // test missing separators; these should throw an exception
-        for (String marking : new String[]{"one(five)", "(five)one",
-                "(one)(two)", "a|(b(c))"}) {
-            try {
-                ve.evaluate(new ElementVisibility(marking));
-                fail(marking + " failed to throw");
-            } catch (PatternSyntaxException e) {
-                // all is good
-            }
-        }
+    @ParameterizedTest
+    @ValueSource(strings = {"one(five)", "(five)one", "(one)(two)", "a|(b(c))"})
+    public void testMissingSeparatorsShouldThrowPSX(String marking) {
+        assertThrows(PatternSyntaxException.class, () -> ve.evaluate(new ElementVisibility(marking)));
+    }
 
-        // test unexpected separator
-        for (String marking : new String[]{"&(five)", "|(five)", "(five)&",
-                "five|", "a|(b)&", "(&five)", "(five|)"}) {
-            try {
-                ve.evaluate(new ElementVisibility(marking));
-                fail(marking + " failed to throw");
-            } catch (PatternSyntaxException e) {
-                // all is good
-            }
-        }
+    @ParameterizedTest
+    @ValueSource(strings = {"&(five)", "|(five)", "(five)&", "five|", "a|(b)&", "(&five)", "(five|)"})
+    public void testUnexpectedSeparatorShouldThrowPSX(String marking) {
+        assertThrows(PatternSyntaxException.class, () -> ve.evaluate(new ElementVisibility(marking)));
+    }
 
-        // test mismatched parentheses
-        for (String marking : new String[]{"(", ")", "(a&b", "b|a)"}) {
-            try {
-                ve.evaluate(new ElementVisibility(marking));
-                fail(marking + " failed to throw");
-            } catch (PatternSyntaxException e) {
-                // all is good
-            }
-        }
-
+    @ParameterizedTest
+    @ValueSource(strings = {"(", ")", "(a&b", "b|a)"})
+    public void testMismatchedParenthesisShouldThrowPSX(String marking) {
+        assertThrows(PatternSyntaxException.class, () -> ve.evaluate(new ElementVisibility(marking)));
     }
 
     @Test
     public void testQuotedExpressions() throws VisibilityParseException {
-        Authorisations auths = new Authorisations("A#C", "A\"C", "A\\C", "AC");
-        VisibilityEvaluator ve = new VisibilityEvaluator(auths);
+        final Authorisations auths = new Authorisations("A#C", "A\"C", "A\\C", "AC");
+        final VisibilityEvaluator ve = new VisibilityEvaluator(auths);
 
         assertTrue(ve.evaluate(new ElementVisibility(quote("A#C") + "|" + quote("A?C"))));
 
@@ -122,7 +109,7 @@ public class VisibilityEvaluatorTest {
 
     @Test
     public void testNonAscii() throws VisibilityParseException {
-        VisibilityEvaluator ve = new VisibilityEvaluator(new Authorisations("五", "六", "八", "九", "五十"));
+        final VisibilityEvaluator ve = new VisibilityEvaluator(new Authorisations("五", "六", "八", "九", "五十"));
 
         assertTrue(ve.evaluate(new ElementVisibility(quote("五") + "|" + quote("四"))));
         assertFalse(ve.evaluate(new ElementVisibility(quote("五") + "&" + quote("四"))));

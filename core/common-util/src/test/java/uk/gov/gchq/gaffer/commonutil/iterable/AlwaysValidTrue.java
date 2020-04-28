@@ -16,59 +16,34 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.junit.Test;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertTrue;
 
 public class AlwaysValidTrue {
 
-    @Test
-    public void shouldReturnTrueForNull() {
-        // Given
-        final AlwaysValid<?> validator = new AlwaysValid<>();
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"test"})
+    public void shouldReturnTrueForNullAndString(String input) {
+        final AlwaysValid<String> validator = new AlwaysValid<>();
 
-        // When
-        final boolean result = validator.validate(null);
+        final boolean result = validator.validate(input);
 
-        // Then
         assertTrue(result);
     }
 
-    @Test
-    public void shouldReturnTrueForString() {
-        // Given
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"test"})
+    public void shouldReturnValidationResultForNullAndString(String input) {
         final AlwaysValid<String> validator = new AlwaysValid<>();
 
-        // When
-        final boolean result = validator.validate("test");
+        final ValidationResult result = validator.validateWithValidationResult(input);
 
-        // Then
-        assertTrue(result);
-    }
-
-    @Test
-    public void shouldReturnValidationResultForNull() {
-        // Given
-        final AlwaysValid<?> validator = new AlwaysValid<>();
-
-        // When
-        final ValidationResult result = validator.validateWithValidationResult(null);
-
-        // Then
-        assertTrue(result.isValid());
-    }
-
-    @Test
-    public void shouldReturnValidationResultForString() {
-        // Given
-        final AlwaysValid<String> validator = new AlwaysValid<>();
-
-        // When
-        final ValidationResult result = validator.validateWithValidationResult("test");
-
-        // Then
         assertTrue(result.isValid());
     }
 }

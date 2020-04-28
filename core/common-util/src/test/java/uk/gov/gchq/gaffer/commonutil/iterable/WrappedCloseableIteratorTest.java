@@ -16,13 +16,13 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterator;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 
 import java.util.Iterator;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -30,26 +30,19 @@ public class WrappedCloseableIteratorTest {
 
     @Test
     public void shouldDelegateCloseToWrappedIterator() {
-        // Given
         final CloseableIterator<Object> closeableIterator = mock(CloseableIterator.class);
         final WrappedCloseableIterator<Object> wrappedIterator = new WrappedCloseableIterator<>(closeableIterator);
 
-        // When
         wrappedIterator.close();
 
-        // Then
         verify(closeableIterator).close();
     }
 
     @Test
     public void shouldDoNothingWhenCloseCalledOnNoncloseableIterator() {
-        // Given
         final Iterator<Object> iterator = mock(Iterator.class);
         final WrappedCloseableIterator<Object> wrappedIterator = new WrappedCloseableIterator<>(iterator);
 
-        // When
-        wrappedIterator.close();
-
-        // Then - no exception
+        assertDoesNotThrow(() -> wrappedIterator.close());
     }
 }

@@ -114,9 +114,7 @@ public class HashMapCacheTest {
 
         TempClass tempClass = new TempClass();
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> {
-            map.put("test1", tempClass);
-        });
+        final Exception exception = assertThrows(RuntimeException.class, () -> map.put("test1", tempClass));
         assertTrue(exception.getCause() instanceof SerialisationException);
     }
 
