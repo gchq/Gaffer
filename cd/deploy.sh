@@ -81,7 +81,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
             }"
         echo $JSON_DATA
 
-        curl -v -H "Authorization: token $GITHUB_TOKEN" --data "$JSON_DATA" https://api.github.com/repos/arijitdatta/Gaffer_dummy/releases
+        curl -v -H "Authorization: token $GITHUB_TOKEN" --data "$JSON_DATA" https://api.github.com/repos/gchq/$repoId/releases
         
         echo ""
         echo "--------------------------------------"
