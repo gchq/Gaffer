@@ -16,13 +16,13 @@
 package uk.gov.gchq.gaffer;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.junit.Test;
 
+import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Provides a common interface for testing classes that should be JSON serialisable.
@@ -30,6 +30,7 @@ import static org.junit.Assume.assumeTrue;
  * @param <T> Object of type T that is to be tested
  */
 public abstract class JSONSerialisationTest<T> {
+
     @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
@@ -44,7 +45,7 @@ public abstract class JSONSerialisationTest<T> {
     }
 
     @Test
-    public void shouldHaveJsonPropertyAnnotation() throws Exception {
+    public void shouldHaveJsonPropertyAnnotation() {
         // Given
         final T op = getTestObject();
 
