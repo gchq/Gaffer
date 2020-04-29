@@ -77,7 +77,7 @@ public class ErrorTest {
     }
 
     @Test
-    public void shouldBuildDetailedAndSimpleMessageWhenDebugPropertyIsTrue() throws Exception {
+    public void shouldBuildDetailedAndSimpleMessageWhenDebugPropertyIsTrue() {
         setDebugMode("true");
 
         final Error error = new ErrorBuilder()
