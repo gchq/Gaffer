@@ -72,7 +72,7 @@ public class ToPropertiesTupleTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{PropertiesTuple.class};
+        return new Class[]{};
     }
 
     @Override
