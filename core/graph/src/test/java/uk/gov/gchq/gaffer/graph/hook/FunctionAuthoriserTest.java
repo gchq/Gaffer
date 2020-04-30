@@ -67,6 +67,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
         // Then
+//        assertThrows()
         try {
             functionAuthoriser.preExecute(badOperation, new Context());
             fail("Exception expected");

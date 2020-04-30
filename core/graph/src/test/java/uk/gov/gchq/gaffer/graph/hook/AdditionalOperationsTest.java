@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -42,10 +42,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations> {
+
     private static final String ADDITIONAL_OPERATIONS_RESOURCE_PATH = "additionalOperations.json";
 
     public AdditionalOperationsTest() {
@@ -54,10 +55,8 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
 
     @Test
     public void shouldReturnClonedOperations() {
-        //Given
         final AdditionalOperations additionalOperations = fromJson(ADDITIONAL_OPERATIONS_RESOURCE_PATH);
 
-        // When / Then
         assertClonedOperations(additionalOperations.getStart(), additionalOperations.getStart());
         assertClonedOperations(additionalOperations.getBefore(), additionalOperations.getBefore());
         assertClonedOperations(additionalOperations.getAfter(), additionalOperations.getAfter());

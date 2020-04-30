@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Sets;
+import org.hamcrest.Matcher;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
@@ -25,7 +26,6 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.TestOperationsImpl;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -38,19 +38,20 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> {
+
     private static final String OP_AUTHS_PATH = "/opAuthoriser.json";
-    public static final String USER = "User";
 
     public OperationAuthoriserTest() {
         super(OperationAuthoriser.class);
@@ -58,7 +59,6 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
 
     @Test
     public void shouldAcceptOperationChainWhenUserHasAllOpAuths() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetElements())
@@ -70,10 +70,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("SuperUser", "ReadUser", "User")
                 .build();
 
-        // When
-        hook.preExecute(opChain, new Context(user));
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
@@ -91,31 +88,13 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldAcceptOperationChainWhenUserHasAllOpAuthsForAddNamedOperation() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
-                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}")
-                .description("Test Named Operation")
-                .name("Test")
-                .overwrite(false)
-                .parameter("testParameter", new ParameterDetail.Builder()
-                        .description("the seed")
-                        .defaultValue("seed1")
-                        .valueClass(String.class)
-                        .required(false)
-                        .build())
-                .score(2)
-                .build();
+        final AddNamedOperation addNamedOperation = makeAddNamedOperation("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}");
         final OperationChain opChain = new OperationChain.Builder()
                 .first(addNamedOperation)
                 .build();
@@ -123,29 +102,13 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("SuperUser", "ReadUser", "User")
                 .build();
 
-        // When
-        hook.preExecute(opChain, new Context(user));
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAllOpAuthsForAddNamedOperation() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
-                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}")
-                .description("Test Named Operation")
-                .name("Test")
-                .overwrite(false)
-                .parameter("testParameter", new ParameterDetail.Builder()
-                        .description("the seed")
-                        .defaultValue("seed1")
-                        .valueClass(String.class)
-                        .required(false)
-                        .build())
-                .score(2)
-                .build();
+        final AddNamedOperation addNamedOperation = makeAddNamedOperation("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}");
         final OperationChain opChain = new OperationChain.Builder()
                 .first(addNamedOperation)
                 .build();
@@ -153,32 +116,13 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("SuperUser", "ReadUser", "User")
                 .build();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveSuperAuthForAddNamedOperation() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
-                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}")
-                .description("Test Named Operation")
-                .name("Test")
-                .overwrite(false)
-                .parameter("testParameter", new ParameterDetail.Builder()
-                        .description("the seed")
-                        .defaultValue("seed1")
-                        .valueClass(String.class)
-                        .required(false)
-                        .build())
-                .score(2)
-                .build();
+        final AddNamedOperation addNamedOperation = makeAddNamedOperation("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}");
         final OperationChain opChain = new OperationChain.Builder()
                 .first(addNamedOperation)
                 .build();
@@ -186,32 +130,13 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("ReadUser", "User")
                 .build();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveWriteAuthForAddNamedOperation() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
-                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.AddElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}")
-                .description("Test Named Operation")
-                .name("Test")
-                .overwrite(false)
-                .parameter("testParameter", new ParameterDetail.Builder()
-                        .description("the seed")
-                        .defaultValue("seed1")
-                        .valueClass(String.class)
-                        .required(false)
-                        .build())
-                .score(2)
-                .build();
+        final AddNamedOperation addNamedOperation = makeAddNamedOperation("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.AddElements\", \"options\": {\"optionKey\": \"${testParameter}\"}}]}");
         final OperationChain opChain = new OperationChain.Builder()
                 .first(addNamedOperation)
                 .build();
@@ -219,13 +144,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("User")
                 .build();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
@@ -241,17 +160,11 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
-    public void shouldRejectOperationChainWhenUserDoesntHaveAnyOpAuths() throws OperationException {
-        // Given
+    public void shouldRejectOperationChainWhenUserDoesntHaveAnyOpAuths() {
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
@@ -260,18 +173,11 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
 
         final User user = new User();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
-    public void shouldRejectOperationChainWhenUserDoesntHaveAllowedAuth() throws OperationException {
-        // Given
+    public void shouldRejectOperationChainWhenUserDoesntHaveAllowedAuth() {
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
@@ -282,31 +188,21 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("unknownAuth")
                 .build();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldReturnAllOpAuths() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
 
-        // When
         final Set<String> allOpAuths = hook.getAllAuths();
 
-        // Then
-        assertThat(allOpAuths,
-                IsCollectionContaining.hasItems("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser"));
+        final Matcher<Iterable<String>> matcher = IsCollectionContaining.hasItems("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser");
+        assertThat(allOpAuths, matcher);
     }
 
     @Test
     public void shouldReturnResultWithoutModification() {
-        // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
@@ -316,10 +212,8 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .opAuths("NoScore")
                 .build();
 
-        // When
         final Object returnedResult = hook.postExecute(result, opChain, new Context(user));
 
-        // Then
         assertSame(result, returnedResult);
     }
 
@@ -338,10 +232,9 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
 
         // Then
         assertEquals(auths, result);
-        assertEquals(
-                Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
-                hook.getAllAuths()
-        );
+
+        final HashSet<String> expected = Sets.newHashSet("auth1", "auth2", "auth3", "auth4");
+        assertEquals(expected, hook.getAllAuths());
     }
 
     @Test
@@ -359,18 +252,29 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
 
         // Then
         assertEquals(auths, result);
-        assertEquals(
-                Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
-                hook.getAllAuths()
-        );
-    }
 
-    @Test
-    public void shouldHandleNestedOperationChain() {
+        final HashSet<String> expected = Sets.newHashSet("auth1", "auth2", "auth3", "auth4");
+        assertEquals(expected, hook.getAllAuths());
     }
 
     @Override
     protected OperationAuthoriser getTestObject() {
         return fromJson(OP_AUTHS_PATH);
+    }
+
+    private AddNamedOperation makeAddNamedOperation(final String operationChain) {
+        return new AddNamedOperation.Builder()
+                .operationChain(operationChain)
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .parameter("testParameter", new ParameterDetail.Builder()
+                        .description("the seed")
+                        .defaultValue("seed1")
+                        .valueClass(String.class)
+                        .required(false)
+                        .build())
+                .score(2)
+                .build();
     }
 }
