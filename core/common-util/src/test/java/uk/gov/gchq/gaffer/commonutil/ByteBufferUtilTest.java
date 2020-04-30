@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.apache.hadoop.io.Text;
-
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ArrayByteSequence;
 
 import java.io.ByteArrayInputStream;

@@ -17,10 +17,9 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -36,32 +35,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldCreateEmptyViewWithBasicConstructor() {
-        //Given
+        final View view = new View();
 
-        //When
-        View view = new View();
-
-        //Then
         assertTrue(view.getEdges().isEmpty());
         assertTrue(view.getEntities().isEmpty());
     }
 
     @Test
     public void shouldCreateNewViewWithEdgeAndEntityGroups() {
-        //Given
-        List<String> entityGroups = new ArrayList<>();
-        List<String> edgeGroups = new ArrayList<>();
+        final List<String> entityGroups = new ArrayList<>();
+        final List<String> edgeGroups = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
             entityGroups.add(TestGroups.ENTITY + i);
@@ -69,7 +64,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         }
 
         //When
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .entities(entityGroups)
                 .edges(edgeGroups)
                 .build();
@@ -109,27 +104,24 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldSerialiseToJsonSkippingEmptyElementMaps() {
-        // Given
         final View view = new View.Builder()
                 .globalEdges(new GlobalViewElementDefinition.Builder()
                         .groupBy()
                         .build())
                 .build();
 
-        // When
         final byte[] json = toJson(view);
 
-        // Then
-        JsonAssert.assertJsonEquals(String.format("{" +
+        final String expected = String.format("{" +
                 "  \"globalEdges\" : [ {%n" +
                 "    \"groupBy\" : [ ]%n" +
                 "  } ]%n" +
-                "}"), new String(json));
+                "}");
+        assertJsonEquals(expected, new String(json));
     }
 
     @Test
     public void shouldSerialiseToJson() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -152,11 +144,9 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .config("key1", "value1")
                 .build();
 
-        // When
-        byte[] json = view.toJson(true);
+        final byte[] json = view.toJson(true);
 
-        // Then
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -188,7 +178,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "    }%n" +
                 "  },%n" +
                 " \"config\" : { \"key1\": \"value1\"}" +
-                "}"), new String(json));
+                "}");
+        assertJsonEquals(expected, new String(json));
     }
 
     @Test
@@ -288,7 +279,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // When
         view.expandGlobalDefinitions();
 
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +
@@ -438,13 +429,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldSerialiseToCompactJson() {
-        // Given
         final View view = new View();
 
-        // When
         final String compactJson = new String(view.toCompactJson());
 
-        // Then - no description fields or new lines
         assertFalse(compactJson.contains(String.format("%n")));
     }
 

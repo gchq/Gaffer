@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 
 import java.util.regex.PatternSyntaxException;

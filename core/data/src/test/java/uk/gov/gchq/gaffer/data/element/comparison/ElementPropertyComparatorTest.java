@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.data.element.comparison;
 
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -53,8 +54,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompare() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -73,8 +74,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWhenBothElementsHaveMissingProperties() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -92,8 +93,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWhenFirstElementHasMissingProperties() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_2, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_2, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -111,8 +112,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWhenSecondElementHasMissingProperties() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_2, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_2, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -131,8 +132,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWhenBothElementsHaveWrongGroup() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY_2)
@@ -150,8 +151,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWhenFirstElementsHasWrongGroup() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY_2, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY_2, TestPropertyNames.PROP_1, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY_2)
@@ -169,8 +170,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWhenSecondElementsHasWrongGroup() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY_2, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY_2, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY_2)
@@ -188,8 +189,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareReversed() {
         // Given
-        final Entity smallEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
-        final Entity largeEntity = createEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
+        final Entity smallEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 1);
+        final Entity largeEntity = makeEntity(TestGroups.ENTITY, TestPropertyNames.PROP_1, 2);
 
         final ElementComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -208,8 +209,8 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
     @Test
     public void shouldCompareWithNoProvidedComparatorInstance() {
         // Given
-        final Entity smallEntity = createEntityWithPropertyValueAsPrimitiveInt(1);
-        final Entity largeEntity = createEntityWithPropertyValueAsPrimitiveInt(2);
+        final Entity smallEntity = makeEntityWithPropertyValueAsPrimitiveInt(1);
+        final Entity largeEntity = makeEntityWithPropertyValueAsPrimitiveInt(2);
 
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -223,13 +224,13 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         assertThat(result, lessThan(0));
     }
 
-    private Entity createEntityWithPropertyValueAsPrimitiveInt(final int propertyValue) {
+    private Entity makeEntityWithPropertyValueAsPrimitiveInt(final int propertyValue) {
         return new Entity.Builder().group(TestGroups.ENTITY)
                 .property(TestPropertyNames.PROP_1, propertyValue)
                 .build();
     }
 
-    private Entity createEntity(final String entityGroup, final String propertyName, final int propertyValue) {
+    private Entity makeEntity(final String entityGroup, final String propertyName, final int propertyValue) {
         return new Entity.Builder().group(entityGroup)
                 .property(propertyName, new IntegerWrapper(propertyValue))
                 .build();

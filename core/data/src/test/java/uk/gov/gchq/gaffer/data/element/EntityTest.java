@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -26,41 +24,35 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
 public class EntityTest extends ElementTest {
 
     @Override
     public void shouldSetAndGetFields() {
-        // Given
         final Entity entity = new Entity.Builder()
                 .group("group")
                 .vertex("identifier")
                 .build();
 
-        // Then
         assertEquals("group", entity.getGroup());
         assertEquals("identifier", entity.getVertex());
     }
 
     @Test
     public void shouldBuildEntity() {
-        // Given
         final String vertex = "vertex1";
         final String propValue = "propValue";
 
-        // When
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex(vertex)
                 .property(TestPropertyNames.STRING, propValue)
                 .build();
 
-        // Then
         assertEquals(TestGroups.ENTITY, entity.getGroup());
         assertEquals(vertex, entity.getVertex());
         assertEquals(propValue, entity.getProperty(TestPropertyNames.STRING));
@@ -68,15 +60,12 @@ public class EntityTest extends ElementTest {
 
     @Test
     public void shouldConstructEntity() {
-        // Given
         final String vertex = "vertex1";
         final String propValue = "propValue";
 
-        // When
         final Entity entity = new Entity(TestGroups.ENTITY, vertex);
         entity.putProperty(TestPropertyNames.STRING, propValue);
 
-        // Then
         assertEquals(TestGroups.ENTITY, entity.getGroup());
         assertEquals(vertex, entity.getVertex());
         assertEquals(propValue, entity.getProperty(TestPropertyNames.STRING));
@@ -84,28 +73,21 @@ public class EntityTest extends ElementTest {
 
     @Test
     public void shouldCloneEntity() {
-        // Given
         final String vertex = "vertex1";
-        final String propValue = "propValue";
 
-        // When
         final Entity entity = new Entity(TestGroups.ENTITY, vertex);
         final Entity clone = entity.emptyClone();
 
-        // Then
         assertEquals(clone, entity);
     }
 
     @Override
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
-        // Given
         final Entity entity = new Entity("group");
         entity.setVertex("identifier");
 
-        // When
         boolean isEqual = entity.equals(entity);
 
-        // Then
         assertTrue(isEqual);
         assertEquals(entity.hashCode(), entity.hashCode());
     }
@@ -165,32 +147,25 @@ public class EntityTest extends ElementTest {
 
     @Test
     public void shouldReturnFalseForEqualsWhenIdentifierIsDifferent() {
-        // Given
         final Entity entity1 = new Entity("group");
         entity1.setVertex("vertex");
-
         final Entity entity2 = cloneCoreFields(entity1);
         entity2.setVertex("different vertex");
 
-        // When
         boolean isEqual = entity1.equals((Object) entity2);
 
-        // Then
         assertFalse(isEqual);
         assertFalse(entity1.hashCode() == entity2.hashCode());
     }
 
     @Override
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
-        // Given
         final Entity entity = newElement("group");
         entity.setVertex(1L);
 
-        // When
         final byte[] serialisedElement = JSONSerialiser.serialise(entity);
         final Entity deserialisedElement = JSONSerialiser.deserialise(serialisedElement, entity.getClass());
 
-        // Then
         assertEquals(entity, deserialisedElement);
         assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.lang.Long\":1}"));
     }

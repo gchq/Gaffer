@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 

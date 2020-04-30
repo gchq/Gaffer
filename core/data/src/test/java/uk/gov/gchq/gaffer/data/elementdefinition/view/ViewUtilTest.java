@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -34,12 +33,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ViewUtilTest {
 
@@ -257,10 +258,10 @@ public class ViewUtilTest {
                 .build();
 
         // When
-        byte[] json = view.toJson(true);
+        final byte[] json = view.toJson(true);
 
         // Then
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -291,7 +292,8 @@ public class ViewUtilTest {
                 "      } ]%n" +
                 "    }%n" +
                 "  }%n" +
-                "}"), new String(json));
+                "}");
+        assertJsonEquals(expected, new String(json));
     }
 
     @Test
@@ -300,7 +302,7 @@ public class ViewUtilTest {
         final View view = createView();
 
         // When
-        byte[] json = view.toJson(true);
+        final byte[] json = view.toJson(true);
         final View deserialisedView = new View.Builder().json(json).build();
         deserialisedView.expandGlobalDefinitions();
 
@@ -383,7 +385,7 @@ public class ViewUtilTest {
         // When
         view.expandGlobalDefinitions();
 
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +
@@ -489,7 +491,8 @@ public class ViewUtilTest {
                 "      } ]%n" +
                 "    }%n" +
                 "  }%n" +
-                "}"), new String(view.toJson(true)));
+                "}");
+        assertJsonEquals(expected, new String(view.toJson(true)));
     }
 
     @Test
@@ -607,7 +610,6 @@ public class ViewUtilTest {
 
     @Test
     public void shouldReturnTrueWhenViewHasPreAggEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -619,32 +621,26 @@ public class ViewUtilTest {
                 .edge(TestGroups.EDGE_2, null)
                 .build();
 
-        // When
         final boolean result = view.hasPreAggregationFilters();
 
-        // Then
         assertTrue(result);
     }
 
     @Test
     public void shouldReturnFalseWhenViewHasNullPreAggEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .preAggregationFilter(null)
                         .build())
                 .build();
 
-        // When
         final boolean result = view.hasPreAggregationFilters();
 
-        // Then
         assertFalse(result);
     }
 
     @Test
     public void shouldReturnFalseWhenViewHasEmptyPreAggEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .preAggregationFilter(new ElementFilter.Builder()
@@ -652,16 +648,13 @@ public class ViewUtilTest {
                         .build())
                 .build();
 
-        // When
         final boolean result = view.hasPreAggregationFilters();
 
-        // Then
         assertFalse(result);
     }
 
     @Test
     public void shouldReturnTrueWhenViewHasPostAggEntityFilters() {
-        // Given
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .postAggregationFilter(new ElementFilter.Builder()
@@ -673,16 +666,13 @@ public class ViewUtilTest {
                 .edge(TestGroups.EDGE_2, null)
                 .build();
 
-        // When
         final boolean result = view.hasPostAggregationFilters();
 
-        // Then
         assertTrue(result);
     }
 
     @Test
     public void shouldReturnTrueWhenViewHasPostAggEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -694,32 +684,26 @@ public class ViewUtilTest {
                 .edge(TestGroups.EDGE_2, null)
                 .build();
 
-        // When
         final boolean result = view.hasPostAggregationFilters();
 
-        // Then
         assertTrue(result);
     }
 
     @Test
     public void shouldReturnFalseWhenViewHasNullPostAggEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .postAggregationFilter(null)
                         .build())
                 .build();
 
-        // When
         final boolean result = view.hasPostAggregationFilters();
 
-        // Then
         assertFalse(result);
     }
 
     @Test
     public void shouldReturnFalseWhenViewHasEmptyPostAggEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .postAggregationFilter(new ElementFilter.Builder()
@@ -727,16 +711,13 @@ public class ViewUtilTest {
                         .build())
                 .build();
 
-        // When
         final boolean result = view.hasPostAggregationFilters();
 
-        // Then
         assertFalse(result);
     }
 
     @Test
     public void shouldReturnTrueWhenViewHasPostTransformEntityFilters() {
-        // Given
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .postTransformFilter(new ElementFilter.Builder()
@@ -748,16 +729,13 @@ public class ViewUtilTest {
                 .edge(TestGroups.EDGE_2, null)
                 .build();
 
-        // When
         final boolean result = view.hasPostTransformFilters();
 
-        // Then
         assertTrue(result);
     }
 
     @Test
     public void shouldReturnTrueWhenViewHasPostTransformEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -769,32 +747,26 @@ public class ViewUtilTest {
                 .edge(TestGroups.EDGE_2, null)
                 .build();
 
-        // When
         final boolean result = view.hasPostTransformFilters();
 
-        // Then
         assertTrue(result);
     }
 
     @Test
     public void shouldReturnFalseWhenViewHasNullPostTransformEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .postTransformFilter(null)
                         .build())
                 .build();
 
-        // When
         final boolean result = view.hasPostTransformFilters();
 
-        // Then
         assertFalse(result);
     }
 
     @Test
     public void shouldReturnFalseWhenViewHasEmptyPostTransformEdgeFilters() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .postTransformFilter(new ElementFilter.Builder()
@@ -802,16 +774,13 @@ public class ViewUtilTest {
                         .build())
                 .build();
 
-        // When
         final boolean result = view.hasPostTransformFilters();
 
-        // Then
         assertFalse(result);
     }
 
     @Test
     public void shouldRemoveGroupFromView() {
-        // Given
         View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
@@ -837,41 +806,29 @@ public class ViewUtilTest {
 
     @Test
     public void shouldIgnoreRemovingGroupFromViewWhenNotSet() {
-        // Given
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
 
-        // When
-        View viewAfterRemove = ViewUtil.removeGroups(view, TestGroups.ENTITY);
+        final View viewAfterRemove = ViewUtil.removeGroups(view, TestGroups.ENTITY);
 
-        // Then - views identical
-        JsonAssert.assertJsonEquals(view.toJson(false), viewAfterRemove.toJson(false));
+        assertJsonEquals(view.toJson(false), viewAfterRemove.toJson(false));
     }
 
     @Test
     public void shouldThrowExceptionOnRemovalOfNullGroups() {
-        // Given
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
 
-        // When / Then
-        try {
-            ViewUtil.removeGroups(view, null);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().equals("Specified group(s) to remove is null"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ViewUtil.removeGroups(view, null));
+        assertEquals("Specified group(s) to remove is null", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionOnWhenRemovingGroupFromNullView() {
-        // When / Then
-        try {
-            ViewUtil.removeGroups(null, TestGroups.EDGE);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().equals("View cannot be null"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ViewUtil.removeGroups(null, TestGroups.EDGE));
+        assertEquals("View cannot be null", exception.getMessage());
     }
 
     private View createView() {

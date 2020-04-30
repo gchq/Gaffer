@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertTrue;

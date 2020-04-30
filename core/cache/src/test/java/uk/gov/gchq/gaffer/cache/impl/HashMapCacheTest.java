@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.cache.impl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import static org.hamcrest.MatcherAssert.assertThat;

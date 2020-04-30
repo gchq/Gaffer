@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,12 +24,11 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
 public abstract class ElementTest {
 
     @Test
@@ -108,37 +105,28 @@ public abstract class ElementTest {
 
     @Test
     public void shouldReturnFalseForEqualsWithNullObject() {
-        // Given
         final Element element1 = newElement("group");
 
-        // When
         boolean isEqual = element1.equals((Object) null);
 
-        // Then
         assertFalse(isEqual);
     }
 
     @Test
     public void shouldReturnFalseForEqualsWithNullElement() {
-        // Given
         final Element element1 = newElement("group");
 
-        // When
         boolean isEqual = element1.equals(null);
 
-        // Then
         assertFalse(isEqual);
     }
 
     @Test
     public void shouldReturnItselfForGetElement() {
-        // Given
         final Element element = newElement("group");
 
-        // When
         final Element result = element.getElement();
 
-        // Then
         assertSame(element, result);
     }
 

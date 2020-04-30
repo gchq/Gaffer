@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.ByteUtil;
 
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class ComparableOrToStringComparatorTest {
 
         final int result = comparator.compare("1", "2");
 
-        assertTrue(result < 0 , "Both should be less than 0");
+        assertTrue(result < 0, "Both should be less than 0");
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ComparableOrToStringComparatorTest {
 
         final int result = comparator.compare("2", "1");
 
-        assertTrue(result < 0 , "Both should be less than 0");
+        assertTrue(result > 0, "Both should be less than 0");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ComparableOrToStringComparatorTest {
 
         final int bytesResult = ByteUtil.compareSortedBytes(bytes2, bytes1);
 
-        assertTrue(bytesResult < 0, "Both should be less than 0");
+        assertTrue(bytesResult > 0, "Both should be less than 0");
     }
 
     @Test
@@ -152,7 +152,7 @@ public class ComparableOrToStringComparatorTest {
     public void shouldCompareEqualArrayWithString() {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        final int result = comparator.compare(new Integer[]{1, 1}, "[1, 1]");
+        final int result = comparator.compare(new Integer[] {1, 1}, "[1, 1]");
 
         assertEquals(0, result);
     }
@@ -161,7 +161,7 @@ public class ComparableOrToStringComparatorTest {
     public void shouldCompareIntegerArrays() {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        final int result = comparator.compare(new Integer[]{1, 1}, new Integer[]{1, 2});
+        final int result = comparator.compare(new Integer[] {1, 1}, new Integer[] {1, 2});
 
         assertTrue(result < 0, "Should be less than 0");
     }
@@ -170,7 +170,7 @@ public class ComparableOrToStringComparatorTest {
     public void shouldCompareIntegerArraysReversed() {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        final int result = comparator.compare(new Integer[]{1, 2}, new Integer[]{1, 1});
+        final int result = comparator.compare(new Integer[] {1, 2}, new Integer[] {1, 1});
 
         assertTrue(result > 0, "Should be more than 0");
     }
@@ -179,7 +179,7 @@ public class ComparableOrToStringComparatorTest {
     public void shouldCompareEqualIntegerArrays() {
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        final int result = comparator.compare(new Integer[]{1, 2}, new Integer[]{1, 2});
+        final int result = comparator.compare(new Integer[] {1, 2}, new Integer[] {1, 2});
 
         assertEquals(0, result);
     }

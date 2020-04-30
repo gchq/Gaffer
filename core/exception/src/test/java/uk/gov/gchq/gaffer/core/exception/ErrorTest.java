@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.core.exception;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 

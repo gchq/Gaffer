@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 

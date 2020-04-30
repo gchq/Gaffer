@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import com.google.common.collect.Iterables;
-
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable;
 
 import java.util.LinkedHashSet;
