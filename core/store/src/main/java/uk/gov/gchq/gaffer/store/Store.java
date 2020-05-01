@@ -1015,4 +1015,12 @@ public abstract class Store {
     public Schema getOriginalSchema() {
         return originalSchema;
     }
+
+    public StoreProperties setUpTestDB(final StoreProperties properties) throws StoreException {
+        return properties;
+    }
+
+    public void tearDownTestDB() {
+        return;
+    }
 }

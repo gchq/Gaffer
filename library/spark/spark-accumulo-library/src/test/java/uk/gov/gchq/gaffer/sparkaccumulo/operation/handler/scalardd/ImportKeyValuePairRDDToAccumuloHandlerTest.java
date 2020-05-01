@@ -20,6 +20,8 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -44,6 +46,8 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -61,6 +65,36 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    private static Store store;
+    private static StoreProperties storeProperties;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        // Get the store class from the properties supplied
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        StoreProperties suppliedProperties = StoreProperties
+                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
+        final String storeClass = suppliedProperties.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+        // Instantiate the store class
+        try {
+            store = Class.forName(storeClass)
+                    .asSubclass(Store.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+        // Set up the data store and set the properties to suit.
+        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        store.tearDownTestDB();
+    }
+
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
@@ -70,7 +104,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(storeProperties)
                 .build();
 
         final ArrayBuffer<Element> elements = new ArrayBuffer<>();

@@ -19,21 +19,17 @@ package uk.gov.gchq.gaffer.accumulostore;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,28 +40,14 @@ import java.util.UUID;
  * provide a {@link Connector}.
  */
 public class MiniAccumuloStore extends AccumuloStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
-
-    private static final PasswordToken PASSWORD_TOKEN = new PasswordToken("rootPW");
     private static final String BASE_DIRECTORY = "miniAccumuloStoreTest-";
+    private static final String ROOTPW = "rootPW";
     private MiniAccumuloCluster miniAccumuloCluster = null;
     private MiniAccumuloConfig miniAccumuloConfig = null;
     private Connector miniConnector;
 
     @Override
-    public Connector getConnection() throws StoreException {
-        try {
-            miniConnector = miniAccumuloCluster.getConnector(
-                    "root",        // TODO: not sure user and pw should be hard coded but it might be acceptable if mini is JUST a replacement for mock.
-                    "rootPW");
-        } catch (final AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-        return miniConnector;
-    }
-
-    @Override
-    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public StoreProperties setUpTestDB(final StoreProperties properties) throws StoreException {
         setProperties(properties);
 
         File targetDir = new File("target");
@@ -78,7 +60,7 @@ public class MiniAccumuloStore extends AccumuloStore {
 
         try {
             FileUtils.deleteDirectory(baseDir);
-            miniAccumuloConfig = new MiniAccumuloConfig(baseDir, "rootPW");
+            miniAccumuloConfig = new MiniAccumuloConfig(baseDir, ROOTPW);
             miniAccumuloConfig.setInstanceName(getProperties().getInstance());
             miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
             miniAccumuloCluster.start();
@@ -86,22 +68,30 @@ public class MiniAccumuloStore extends AccumuloStore {
             throw new StoreException(e.getMessage(), e);
         }
 
-        super.preInitialise(graphId, schema, getProperties());
+        // Create the user specified in the properties together with the specified password and give them all authorisations
+        try {
+            miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
+                    .createLocalUser(getProperties().getUser(), new PasswordToken(getProperties().getPassword()));
+            miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
+                    .grantSystemPermission(getProperties().getUser(), SystemPermission.CREATE_TABLE);
+            Authorizations auths = new Authorizations("public", "private", "publicVisibility", "privateVisibility", "vis1", "vis2");
+            miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
+                    .changeUserAuthorizations(getProperties().getUser(), auths);
+        } catch (AccumuloException | AccumuloSecurityException e) {
+            throw new StoreException(e.getMessage(), e);
+        }
+
+        // Create the new properties object to pass back, including connection items
+        AccumuloProperties accumuloProperties = (AccumuloProperties)properties.clone();
+        accumuloProperties.setInstance(miniAccumuloCluster.getInstanceName());
+        accumuloProperties.setZookeepers(miniAccumuloCluster.getZooKeepers());
+
+        return accumuloProperties;
     }
 
     @Override
-    protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
-        InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
-                conf,
-                "root",
-                PASSWORD_TOKEN);
-    }
-
-    @Override
-    protected void addZookeeperToConfiguration(final Configuration conf) {
-        InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
-                conf,
-                miniAccumuloCluster.getClientConfig());
+    public void tearDownTestDB() {
+        this.closeMiniAccumuloStore();
     }
 
     public MiniAccumuloCluster getMiniAccumuloCluster() {
@@ -116,7 +106,7 @@ public class MiniAccumuloStore extends AccumuloStore {
         return super.getOperationHandler(opClass);
     }
 
-    public void closeMiniAccumuloStore() {
+    private void closeMiniAccumuloStore() {
         if (null == miniAccumuloCluster) {
             return;
         }

@@ -21,6 +21,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
@@ -40,6 +42,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -65,6 +69,36 @@ public class GetDataFrameOfElementsHandlerTest {
     static final String EDGE_GROUP = "BasicEdge";
     static final String EDGE_GROUP2 = "BasicEdge2";
     private static final int NUM_ELEMENTS = 10;
+
+    private static Store store;
+    private static StoreProperties storeProperties;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        // Get the store class from the properties supplied
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        StoreProperties suppliedProperties = StoreProperties
+                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
+        final String storeClass = suppliedProperties.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+        // Instantiate the store class
+        try {
+            store = Class.forName(storeClass)
+                    .asSubclass(Store.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+        // Set up the data store and set the properties to suit.
+        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        store.tearDownTestDB();
+    }
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
@@ -493,7 +527,7 @@ public class GetDataFrameOfElementsHandlerTest {
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(storeProperties)
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

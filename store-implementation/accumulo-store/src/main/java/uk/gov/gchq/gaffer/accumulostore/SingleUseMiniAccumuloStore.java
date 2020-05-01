@@ -44,12 +44,12 @@ public class SingleUseMiniAccumuloStore extends MiniAccumuloStore {
             // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
         }
 
-        // TODO: not sure if we need this
         try {
             getConnection().tableOperations().delete(getTableName());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             // no action required
         }
+        super.preInitialise(graphId, schema, properties);
     }
 
 }

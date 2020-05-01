@@ -30,6 +30,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
  */
+/* @deprecated MockAccumuloCluster which SingleUseMockAccumuloStore uses will be unsupported from Accumulo 2.0.
+ * Use SingleUseMiniAccumuloStore instead of SingleUseMockAccumuloStore. Github Issue #1836.
+ */
+@Deprecated
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)

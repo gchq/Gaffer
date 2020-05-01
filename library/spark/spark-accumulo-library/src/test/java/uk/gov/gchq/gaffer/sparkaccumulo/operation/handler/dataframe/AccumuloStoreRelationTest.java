@@ -21,6 +21,8 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -46,11 +48,8 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -65,25 +64,47 @@ import static org.junit.Assert.assertTrue;
  * Contains unit tests for {@link AccumuloStoreRelation}.
  */
 public class AccumuloStoreRelationTest {
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        System.out.println("Initialising: " + getClass().getSimpleName() + dateFormat.format(Calendar.getInstance().getTime()));
+    private static Store store;
+    private static StoreProperties storeProperties;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        // Get the store class from the properties supplied
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        StoreProperties suppliedProperties = StoreProperties
+                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
+        final String storeClass = suppliedProperties.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+        // Instantiate the store class
+        try {
+            store = Class.forName(storeClass)
+                    .asSubclass(Store.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+        // Set up the data store and set the properties to suit.
+        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        store.tearDownTestDB();
     }
 
     @Test
     public void testBuildScanFullView() throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanFullView: " + dateFormat.format(Calendar.getInstance().getTime()));
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
         testBuildScanWithView("testBuildScanFullView", view, e -> true);
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanFullView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void testBuildScanRestrictViewToOneGroup() throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanRestrictViewToOneGroup: " + dateFormat.format(Calendar.getInstance().getTime()));
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
                 .build();
@@ -91,12 +112,10 @@ public class AccumuloStoreRelationTest {
         final Predicate<Element> returnElement = (Element element) ->
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
         testBuildScanWithView("testBuildScanRestrictViewToOneGroup", view, returnElement);
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanRestrictViewToOneGroup:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanRestrictViewByProperty: " + dateFormat.format(Calendar.getInstance().getTime()));
         final List<TupleAdaptedPredicate<String, ?>> filters = new ArrayList<>();
         filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), new String[]{"property1"}));
         final View view = new View.Builder()
@@ -109,122 +128,96 @@ public class AccumuloStoreRelationTest {
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
                         && (Integer) element.getProperty("property1") > 5;
         testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanRestrictViewByProperty:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private void testBuildScanWithView(final String name, final View view, final Predicate<Element> returnElement)
             throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanWithView: " + dateFormat.format(Calendar.getInstance().getTime()));
-        SingleUseMiniAccumuloStore store = null;
-        try {
-            // Given
-            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-            final Schema schema = getSchema();
-            final AccumuloProperties properties = AccumuloProperties
-                    .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
-            store = new SingleUseMiniAccumuloStore();
-            store.initialise("graphId", schema, properties);
-            addElements(store);
+        // Given
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final Schema schema = getSchema();
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
+        final SingleUseMiniAccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise("graphId", schema, storeProperties);
+        addElements(store);
 
-            // When
-            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                    SparkContextUtil.createContext(new User(), sparkSession),
-                    Collections.emptyList(), view,
-                    store, null);
-            final RDD<Row> rdd = relation.buildScan();
-            final Row[] returnedElements = (Row[]) rdd.collect();
+        // When
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                SparkContextUtil.createContext(new User(), sparkSession),
+                Collections.emptyList(), view,
+                store, null);
+        final RDD<Row> rdd = relation.buildScan();
+        final Row[] returnedElements = (Row[]) rdd.collect();
 
-            // Then
-            //  - Actual results are:
-            final Set<Row> results = new HashSet<>();
-            for (int i = 0; i < returnedElements.length; i++) {
-                results.add(returnedElements[i]);
-            }
-            //  - Expected results are:
-            final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                    new ArrayList<>());
-            final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
-                    schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-            final Set<Row> expectedRows = new HashSet<>();
-            Streams.toStream(getElements())
-                    .filter(returnElement)
-                    .map(elementConverter::apply)
-                    .forEach(expectedRows::add);
-            assertEquals(expectedRows, results);
-        } finally {
-            try {
-                store.closeMiniAccumuloStore();
-            } catch (Exception e) {
-                // Ignore any exceptions
-            }
+        // Then
+        //  - Actual results are:
+        final Set<Row> results = new HashSet<>();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
         }
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanWithView:   " + dateFormat.format(Calendar.getInstance().getTime()));
+        //  - Expected results are:
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                new ArrayList<>());
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
+                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+        final Set<Row> expectedRows = new HashSet<>();
+        Streams.toStream(getElements())
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
+        assertEquals(expectedRows, results);
     }
 
     @Test
     public void testBuildScanSpecifyColumnsFullView() throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsFullView: " + dateFormat.format(Calendar.getInstance().getTime()));
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
         final String[] requiredColumns = new String[]{"property1"};
         testBuildScanSpecifyColumnsWithView(view, requiredColumns, e -> true);
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsFullView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private void testBuildScanSpecifyColumnsWithView(final View view, final String[] requiredColumns,
                                                      final Predicate<Element> returnElement)
             throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsWithView: " + dateFormat.format(Calendar.getInstance().getTime()));
-        SingleUseMiniAccumuloStore store = null;
-        try {
-            // Given
-            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-            final Schema schema = getSchema();
-            final AccumuloProperties properties = AccumuloProperties
-                    .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-            store = new SingleUseMiniAccumuloStore();
-            store.initialise("graphId", schema, properties);
-            addElements(store);
+        // Given
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final Schema schema = getSchema();
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+        final SingleUseMiniAccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise("graphId", schema, storeProperties);
+        addElements(store);
 
-            // When
-            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                    SparkContextUtil.createContext(new User(), sparkSession),
-                    Collections.emptyList(), view,
-                    store, null);
-            final RDD<Row> rdd = relation.buildScan(requiredColumns);
-            final Row[] returnedElements = (Row[]) rdd.collect();
+        // When
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                SparkContextUtil.createContext(new User(), sparkSession),
+                Collections.emptyList(), view,
+                store, null);
+        final RDD<Row> rdd = relation.buildScan(requiredColumns);
+        final Row[] returnedElements = (Row[]) rdd.collect();
 
-            // Then
-            //  - Actual results are:
-            final Set<Row> results = new HashSet<>();
-            for (int i = 0; i < returnedElements.length; i++) {
-                results.add(returnedElements[i]);
-            }
-            //  - Expected results are:
-            final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                    new ArrayList<>());
-            final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
-                    schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-            final Set<Row> expectedRows = new HashSet<>();
-            Streams.toStream(getElements())
-                    .filter(returnElement)
-                    .map(elementConverter::apply)
-                    .forEach(expectedRows::add);
-            assertEquals(expectedRows, results);
-        } finally {
-            try {
-                store.closeMiniAccumuloStore();
-            } catch (Exception e) {
-                // Ignore any exceptions
-            }
+        // Then
+        //  - Actual results are:
+        final Set<Row> results = new HashSet<>();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
         }
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsWithView:   " + dateFormat.format(Calendar.getInstance().getTime()));
+        //  - Expected results are:
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                new ArrayList<>());
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+        final Set<Row> expectedRows = new HashSet<>();
+        Streams.toStream(getElements())
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
+        assertEquals(expectedRows, results);
     }
 
     @Test
     public void testBuildScanSpecifyColumnsAndFiltersFullView() throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsAndFiltersFullView: " + dateFormat.format(Calendar.getInstance().getTime()));
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
 
@@ -234,7 +227,6 @@ public class AccumuloStoreRelationTest {
         filters[0] = new GreaterThan("property1", 4);
         final Predicate<Element> returnElement = (Element element) -> ((Integer) element.getProperty("property1")) > 4;
         testBuildScanSpecifyColumnsAndFiltersWithView(view, requiredColumns, filters, returnElement);
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsAndFiltersFullView:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private void testBuildScanSpecifyColumnsAndFiltersWithView(final View view,
@@ -242,91 +234,67 @@ public class AccumuloStoreRelationTest {
                                                                final Filter[] filters,
                                                                final Predicate<Element> returnElement)
             throws OperationException, StoreException {
-        System.out.println(getClass().getSimpleName() + ": Starting testBuildScanSpecifyColumnsAndFiltersWithView: " + dateFormat.format(Calendar.getInstance().getTime()));
-        SingleUseMiniAccumuloStore store = null;
-        try {
-            // Given
-            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-            final Schema schema = getSchema();
-            final AccumuloProperties properties = AccumuloProperties
-                    .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-            store = new SingleUseMiniAccumuloStore();
-            store.initialise("graphId", schema, properties);
-            addElements(store);
+        // Given
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final Schema schema = getSchema();
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+        final SingleUseMiniAccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise("graphId", schema, storeProperties);
+        addElements(store);
 
-            // When
-            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                    SparkContextUtil.createContext(new User(), sparkSession),
-                    Collections.emptyList(), view,
-                    store, null);
-            final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
-            final Row[] returnedElements = (Row[]) rdd.collect();
+        // When
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                SparkContextUtil.createContext(new User(), sparkSession),
+                Collections.emptyList(), view,
+                store, null);
+        final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
+        final Row[] returnedElements = (Row[]) rdd.collect();
 
-            // Then
-            //  - Actual results are:
-            final Set<Row> results = new HashSet<>();
-            for (int i = 0; i < returnedElements.length; i++) {
-                results.add(returnedElements[i]);
-            }
-            //  - Expected results are:
-            final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
-                    new ArrayList<>());
-            final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
-                    schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
-            final Set<Row> expectedRows = new HashSet<>();
-            Streams.toStream(getElements())
-                    .filter(returnElement)
-                    .map(elementConverter::apply)
-                    .forEach(expectedRows::add);
-            assertEquals(expectedRows, results);
-        } finally {
-            // Tidy up
-            try {
-                store.closeMiniAccumuloStore();
-            } catch (Exception e) {
-                // Ignore any exceptions
-            }
+        // Then
+        //  - Actual results are:
+        final Set<Row> results = new HashSet<>();
+        for (int i = 0; i < returnedElements.length; i++) {
+            results.add(returnedElements[i]);
         }
-        System.out.println(getClass().getSimpleName() + ": Ending testBuildScanSpecifyColumnsAndFiltersWithView:   " + dateFormat.format(Calendar.getInstance().getTime()));
+        //  - Expected results are:
+        final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
+                new ArrayList<>());
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+                schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+        final Set<Row> expectedRows = new HashSet<>();
+        Streams.toStream(getElements())
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
+        assertEquals(expectedRows, results);
     }
 
     @Test
     public void shouldReturnEmptyDataFrameWithNoResultsFromFilter() throws StoreException, OperationException {
-        System.out.println(getClass().getSimpleName() + ": Starting shouldReturnEmptyDataFrameWithNoResultsFromFilter: " + dateFormat.format(Calendar.getInstance().getTime()));
-        SingleUseMiniAccumuloStore store = null;
-        try {
-            // Given
-            final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-            final Schema schema = getSchema();
-            final View view = getViewFromSchema(schema);
-            final AccumuloProperties properties = AccumuloProperties
-                    .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
-            store = new SingleUseMiniAccumuloStore();
-            store.initialise("graphId", schema, properties);
-            addElements(store);
-            final String[] requiredColumns = new String[1];
-            requiredColumns[0] = "property1";
-            final Filter[] filters = new Filter[1];
-            filters[0] = new EqualTo("group", "abc");
+        // Given
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final Schema schema = getSchema();
+        final View view = getViewFromSchema(schema);
+        final AccumuloProperties properties = AccumuloProperties
+                .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
+        final SingleUseMiniAccumuloStore store = new SingleUseMiniAccumuloStore();
+        store.initialise("graphId", schema, storeProperties);
+        addElements(store);
+        final String[] requiredColumns = new String[1];
+        requiredColumns[0] = "property1";
+        final Filter[] filters = new Filter[1];
+        filters[0] = new EqualTo("group", "abc");
 
-            // When
-            final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                    SparkContextUtil.createContext(new User(), sparkSession),
-                    Collections.emptyList(), view, store, null);
-            final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
+        // When
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
+                SparkContextUtil.createContext(new User(), sparkSession),
+                Collections.emptyList(), view, store, null);
+        final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
 
-            // Then
-            assertTrue(rdd.isEmpty());
+        // Then
+        assertTrue(rdd.isEmpty());
 
-        } finally {
-            // Tidy up
-            try {
-                store.closeMiniAccumuloStore();
-            } catch (Exception e) {
-                // Ignore any exceptions
-            }
-        }
-        System.out.println(getClass().getSimpleName() + ": Ending shouldReturnEmptyDataFrameWithNoResultsFromFilter:   " + dateFormat.format(Calendar.getInstance().getTime()));
     }
 
     private static Schema getSchema() {

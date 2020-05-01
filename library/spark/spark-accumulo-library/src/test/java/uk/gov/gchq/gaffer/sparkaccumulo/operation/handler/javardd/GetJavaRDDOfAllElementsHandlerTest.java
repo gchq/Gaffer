@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -30,9 +32,13 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.AccumuloStoreRelationTest;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,6 +50,36 @@ import static org.junit.Assert.fail;
 
 public class GetJavaRDDOfAllElementsHandlerTest {
 
+    private static Store store;
+    private static StoreProperties storeProperties;
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        // Get the store class from the properties supplied
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        StoreProperties suppliedProperties = StoreProperties
+                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
+        final String storeClass = suppliedProperties.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+        // Instantiate the store class
+        try {
+            store = Class.forName(storeClass)
+                    .asSubclass(Store.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+        // Set up the data store and set the properties to suit.
+        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        store.tearDownTestDB();
+    }
+
     @Test
     public void checkGetAllElementsInJavaRDD() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
@@ -53,7 +89,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(storeProperties)
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -119,7 +155,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(storeProperties)
                 .build();
 
         final List<Element> elements = new ArrayList<>();

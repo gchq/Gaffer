@@ -37,6 +37,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
  * provide a {@link Connector}.
  */
+/* @deprecated MockAccumuloCluster which MockAccumuloStore uses will be unsupported from Accumulo 2.0.
+ * Use MiniAccumuloStore instead of MockAccumuloStore. Github Issue #1836.
+ */
+@Deprecated
 public class MockAccumuloStore extends AccumuloStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
 
