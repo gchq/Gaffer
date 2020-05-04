@@ -309,6 +309,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     }
 
     @Test
+    @TraitRequirement({StoreTrait.TRANSFORMATION})
     public void shouldAllowBiFunctionInView() throws OperationException {
 
         final Map<String, Class<?>> transientProperties = new HashMap<>();
