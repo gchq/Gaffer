@@ -100,7 +100,7 @@ public class TransformOneToManyIterableTest {
         given(validator.validate(items2A_B)).willReturn(true);
 
         // Then iterations 1-3
-        assertEquals("ITEM 1",  itr.next());
+        assertEquals("ITEM 1", itr.next());
         assertEquals("ITEM 2A", itr.next());
         assertEquals("ITEM 2B", itr.next());
 
