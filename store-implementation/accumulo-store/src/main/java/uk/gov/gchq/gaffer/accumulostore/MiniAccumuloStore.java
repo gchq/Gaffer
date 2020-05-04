@@ -77,12 +77,12 @@ public class MiniAccumuloStore extends AccumuloStore {
             Authorizations auths = new Authorizations("public", "private", "publicVisibility", "privateVisibility", "vis1", "vis2");
             miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
                     .changeUserAuthorizations(getProperties().getUser(), auths);
-        } catch (AccumuloException | AccumuloSecurityException e) {
+        } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
 
         // Create the new properties object to pass back, including connection items
-        AccumuloProperties accumuloProperties = (AccumuloProperties)properties.clone();
+        AccumuloProperties accumuloProperties = (AccumuloProperties) properties.clone();
         accumuloProperties.setInstance(miniAccumuloCluster.getInstanceName());
         accumuloProperties.setZookeepers(miniAccumuloCluster.getZooKeepers());
 
