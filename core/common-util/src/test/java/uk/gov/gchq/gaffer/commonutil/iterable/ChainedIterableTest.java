@@ -23,10 +23,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ChainedIterableTest {
+
+    @Test
+    public void shouldThrowNSEXWhenNoNextIterableWhenOneElementAndNo2ndNext() {
+        final Iterable<Integer> chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
+        final Iterator<Integer> iterator = chainedIterable.iterator();
+
+        iterator.next();
+
+        assertThrows(NoSuchElementException.class, () -> iterator.next());
+    }
+
+    @Test
+    public void shouldThrowIAXWhenIterablesAreEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>());
+    }
+
+    @Test
+    public void shouldThrowIAXWhenIterablesAreNull() {
+        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>(null));
+    }
 
     @Test
     public void shouldWrapAllIterables() {
