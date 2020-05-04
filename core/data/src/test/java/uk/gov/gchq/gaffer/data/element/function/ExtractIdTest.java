@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;

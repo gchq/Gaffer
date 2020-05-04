@@ -37,6 +37,7 @@ public class ChainedIterableTest {
 
         iterator.next();
 
+        // No 2nd element
         assertThrows(NoSuchElementException.class, () -> iterator.next());
     }
 

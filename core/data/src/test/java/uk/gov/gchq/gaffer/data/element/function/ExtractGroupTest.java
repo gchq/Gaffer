@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -25,8 +25,8 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 import java.io.IOException;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ExtractGroupTest extends FunctionTest {
