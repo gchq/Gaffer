@@ -21,9 +21,9 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
@@ -57,8 +57,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Contains unit tests for {@link AccumuloStoreRelation}.
@@ -68,7 +68,7 @@ public class AccumuloStoreRelationTest {
     private static Store store;
     private static StoreProperties storeProperties;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         // Get the store class from the properties supplied
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -90,7 +90,7 @@ public class AccumuloStoreRelationTest {
         storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         store.tearDownTestDB();
     }

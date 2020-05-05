@@ -28,9 +28,9 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -59,7 +59,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     protected static final String[] VERTICES = {"1", "2", "3"};
@@ -67,8 +67,8 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     private static Store store;
     private static StoreProperties storeProperties;
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @BeforeAll
+    public static void setUpBeforeAll() throws Exception {
         // Get the store class from the properties supplied
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
         StoreProperties suppliedProperties = StoreProperties
@@ -89,8 +89,8 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
         storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
+    @AfterAll
+    public static void tearDownAfterAll() throws Exception {
         store.tearDownTestDB();
     }
 

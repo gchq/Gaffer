@@ -20,11 +20,10 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import scala.Tuple2;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
@@ -50,25 +49,27 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ImportKeyValuePairRDDToAccumuloHandlerTest {
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
     private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @TempDir
+    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
 
     private static Store store;
     private static StoreProperties storeProperties;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         // Get the store class from the properties supplied
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -90,7 +91,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         store.tearDownTestDB();
     }
@@ -142,8 +143,8 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final String configurationString = AbstractGetRDDHandler
                 .convertConfigurationToString(configuration);
 
-        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
-        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
+        final String outputPath = testFolder.getAbsolutePath() + "/output";
+        final String failurePath = testFolder.getAbsolutePath() + "/failure";
 
         final ElementConverterFunction func = new ElementConverterFunction(sparkSession.sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         final RDD<Tuple2<Key, Value>> elementRDD = sparkSession.sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);

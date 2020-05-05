@@ -21,9 +21,9 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
 import scala.collection.mutable.MutableList;
@@ -54,8 +54,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * These tests test that the handler for {@link GetDataFrameOfElements} operate correctly. Note however that
@@ -73,7 +73,7 @@ public class GetDataFrameOfElementsHandlerTest {
     private static Store store;
     private static StoreProperties storeProperties;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         // Get the store class from the properties supplied
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -95,7 +95,7 @@ public class GetDataFrameOfElementsHandlerTest {
         storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         store.tearDownTestDB();
     }

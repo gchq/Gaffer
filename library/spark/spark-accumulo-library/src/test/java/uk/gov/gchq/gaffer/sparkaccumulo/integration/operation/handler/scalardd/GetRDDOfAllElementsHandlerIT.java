@@ -31,11 +31,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -75,19 +74,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetRDDOfAllElementsHandlerIT {
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public final File tempFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
 
     private static Store store;
     private static StoreProperties storeProperties;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         // Get the store class from the properties supplied
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -109,7 +109,7 @@ public class GetRDDOfAllElementsHandlerIT {
         storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
         store.tearDownTestDB();
     }
@@ -522,9 +522,14 @@ public class GetRDDOfAllElementsHandlerIT {
         // data from multiple Rfiles is combined, i.e. whether the ingest aggregation is applied at query time when
         // using the RFileReaderRDD
         for (int i = 0; i < 2; i++) {
-            final String dir = tempFolder.newFolder().getAbsolutePath();
+            final String tempFolderName = tempFolder.getAbsolutePath();
+            final File dirFile = new File(tempFolder, UUID.randomUUID().toString());
+            dirFile.mkdir();
+            final String dir = dirFile.getAbsolutePath();
             final String file = dir + File.separator + "file" + i + ".rf";
-            final String failure = tempFolder.newFolder().getAbsolutePath();
+            final File failureFile = new File(tempFolder, UUID.randomUUID().toString());
+            failureFile.mkdir();
+            final String failure = failureFile.getAbsolutePath();
             writeFile(keyPackage, graph.getSchema(), file);
             cluster.getConnector(MiniAccumuloClusterProvider.USER, MiniAccumuloClusterProvider.PASSWORD)
                     .tableOperations()
