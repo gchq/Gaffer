@@ -104,7 +104,7 @@ public class AuthorisationsTest {
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
 
         assertThrows(UnsupportedOperationException.class, () -> {
-            actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[]{'a'}));
+            actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
         });
     }
 }

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CachingIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -94,10 +94,10 @@ public class CachingIterableTest {
                 new WrappedCloseableIterator<>(SMALL_LIST.iterator()),
                 new WrappedCloseableIterator<>(SMALL_LIST.iterator())
         );
+
         final CachingIterable<Integer> cachingIterable = new CachingIterable<>(iterable, 5);
 
         assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
-
         verify(iterable).close();
     }
 
@@ -123,14 +123,18 @@ public class CachingIterableTest {
         itr1.close();
         final CloseableIterator<Integer> itr3 = cachingIterable.iterator();
         itr3.next();
+
         final CloseableIterator<Integer> itr4 = cachingIterable.iterator();
         assertEquals(SMALL_LIST, Lists.newArrayList(itr4));
 
         // should be cached now as it has been fully read.
         verify(iterable, times(3)).close();
+
         itr3.next();
+
         verify(iterable, times(4)).iterator();
         assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
+
         final CloseableIterator<Integer> itr5 = cachingIterable.iterator();
         assertEquals((Integer) 0, itr5.next());
         verify(iterable, times(4)).iterator();

@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AlwaysValidTrue {
 

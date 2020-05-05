@@ -21,13 +21,62 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StringUtilTest {
 
     @Test
-    public void nullIfEmptyStringTest() {
-        assertEquals(null, StringUtil.nullIfEmpty(""));
+    public void unescapeCommaShouldReplaceBackslashesWithComma() {
+        assertEquals("replaceBackslashesWith,Comma", StringUtil.unescapeComma("replaceBackslashesWith\\\\Comma"));
+    }
+
+    @Test
+    public void unescapeCommaShouldNotRemoveSemicolon() {
+        assertEquals("don'tRemove;SemiColon", StringUtil.unescapeComma("don'tRemove;SemiColon"));
+    }
+
+    @Test
+    public void unescapeCommaShouldNotRemoveComma() {
+        assertEquals("don'tRemove,Comma", StringUtil.unescapeComma("don'tRemove,Comma"));
+    }
+
+    @Test
+    public void unescapeCommaShouldRemoveBackslash() {
+        assertEquals("removeBackslash", StringUtil.unescapeComma("remove\\Backslash"));
+    }
+
+    @Test
+    public void escapeCommaShouldReplaceBackslashWithSemiColon() {
+        assertEquals("replaceWith\\;semicolon", StringUtil.escapeComma("replaceWith\\semicolon"));
+    }
+
+    @Test
+    public void escapeCommaShouldReplaceCommaWith2Backslashes() {
+        assertEquals("replaceWith\\\\comma", StringUtil.escapeComma("replaceWith,comma"));
+    }
+
+    @Test
+    public void toBytesWhenStringIsValid() {
+        assertArrayEquals("isValid".getBytes(), StringUtil.toBytes("isValid"));
+    }
+
+    @Test
+    public void toBytesWhenStringIsNull() {
+        assertArrayEquals(new byte[0], StringUtil.toBytes(null));
+    }
+
+    @Test
+    public void toStringWhenBytesAreValid() {
+        final byte[] validBytes = "isValid".getBytes();
+
+        assertEquals("isValid", StringUtil.toString(validBytes));
+    }
+
+    @Test
+    public void ifEmptyStringTestReturnNull() {
+        assertNull(StringUtil.nullIfEmpty(""));
     }
 
     @ParameterizedTest
