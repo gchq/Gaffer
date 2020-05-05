@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.util.function.Function;
 
