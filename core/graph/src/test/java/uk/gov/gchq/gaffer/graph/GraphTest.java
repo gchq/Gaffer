@@ -30,7 +30,6 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -59,7 +58,6 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -104,15 +102,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -121,9 +119,11 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
+
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
@@ -140,7 +140,7 @@ public class GraphTest {
     private GetElements operation;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         HashMapGraphLibrary.clear();
         TestStore.mockStore = mock(TestStore.class);
 
@@ -247,7 +247,8 @@ public class GraphTest {
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
-        Graph graph = null;
+        Graph graph;
+
         File schemaDir = null;
         try {
             schemaDir = createSchemaDirectory();
@@ -267,7 +268,7 @@ public class GraphTest {
         }
 
         // Then
-        JsonAssert.assertJsonEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+        assertJsonEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     @Test
@@ -279,7 +280,7 @@ public class GraphTest {
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
-        Graph graph = null;
+        Graph graph;
         File schemaDir = null;
 
         try {
@@ -300,15 +301,14 @@ public class GraphTest {
         }
 
         // Then
-        JsonAssert.assertJsonEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+        assertJsonEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     private URI getResourceUri(String resource) throws URISyntaxException {
         resource = resource.replaceFirst(Pattern.quote("/"), "");
         final URI resourceURI = getClass().getClassLoader().getResource(resource).toURI();
-        if (resourceURI == null) {
-            fail("Test json file not found: " + resource);
-        }
+        assertNotNull(resourceURI, "Test json file not found: " + resource);
+
         return resourceURI;
     }
 
@@ -405,13 +405,8 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertSame(exception, e);
-            verify(clonedOpChain).close();
-        }
+        assertThrows(RuntimeException.class, () -> graph.execute(opChain, context));
+        verify(clonedOpChain).close();
     }
 
     @Test
@@ -435,13 +430,8 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertSame(exception, e);
-            verify(clonedOpChain).close();
-        }
+        assertThrows(RuntimeException.class, () -> graph.executeJob(opChain, context));
+        verify(clonedOpChain).close();
     }
 
     @Test
@@ -655,18 +645,14 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook2, never()).preExecute(any(), any());
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
-            inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
-        }
+        assertThrows(RuntimeException.class, () -> graph.execute(opChain, context));
+        final InOrder inOrder = inOrder(context, hook1, hook2);
+        inOrder.verify(context).setOriginalOpChain(opChain);
+        inOrder.verify(hook2, never()).preExecute(any(), any());
+        inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
+        inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
     }
 
     @Test
@@ -702,20 +688,16 @@ public class GraphTest {
         given(store.execute(captor.capture(), eq(clonedContext))).willReturn(result1);
 
         // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
-            inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
-            inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
-            inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
-            final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
-            assertSame(operation, ops.get(0));
-        }
+        assertThrows(RuntimeException.class, () -> graph.execute(opChain, context));
+        final InOrder inOrder = inOrder(context, hook1, hook2);
+        inOrder.verify(context).setOriginalOpChain(opChain);
+        inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
+        inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
+        inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
+        inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
+        final List<Operation> ops = captor.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
     }
 
     @Test
@@ -747,20 +729,17 @@ public class GraphTest {
         given(store.execute(captor.capture(), eq(clonedContext))).willThrow(e);
 
         // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, clonedContext, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
-            inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
-            final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
-            assertSame(operation, ops.get(0));
-        }
+        assertThrows(RuntimeException.class, () -> graph.execute(opChain, context));
+
+        final InOrder inOrder = inOrder(context, clonedContext, hook1, hook2);
+        inOrder.verify(context).setOriginalOpChain(opChain);
+        inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
+        inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
+        final List<Operation> ops = captor.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
     }
 
     @Test
@@ -789,18 +768,14 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook2, never()).preExecute(any(), any());
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
-            inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
-        }
+        assertThrows(RuntimeException.class, () -> graph.executeJob(opChain, context));
+        final InOrder inOrder = inOrder(context, hook1, hook2);
+        inOrder.verify(context).setOriginalOpChain(opChain);
+        inOrder.verify(hook2, never()).preExecute(any(), any());
+        inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook1).onFailure(eq(null), any(), eq(clonedContext), eq(e));
+        inOrder.verify(hook2).onFailure(eq(null), any(), eq(clonedContext), eq(e));
     }
 
     @Test
@@ -837,20 +812,16 @@ public class GraphTest {
         given(store.executeJob(captor.capture(), eq(clonedContext))).willReturn(result1);
 
         // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
-            inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
-            inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
-            inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
-            final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
-            assertSame(operation, ops.get(0));
-        }
+        assertThrows(RuntimeException.class, () -> graph.executeJob(opChain, context));
+        final InOrder inOrder = inOrder(context, hook1, hook2);
+        inOrder.verify(context).setOriginalOpChain(opChain);
+        inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
+        inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
+        inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
+        inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
+        final List<Operation> ops = captor.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
     }
 
     @Test
@@ -888,20 +859,18 @@ public class GraphTest {
         given(store.executeJob(captor.capture(), eq(clonedContext))).willThrow(e);
 
         // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(context, hook1, hook2);
-            inOrder.verify(context).setOriginalOpChain(opChain);
-            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
-            inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
-            inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
-            final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
-            assertSame(operation, ops.get(0));
-        }
+        assertThrows(RuntimeException.class, () -> graph.executeJob(opChain, context));
+
+        final InOrder inOrder = inOrder(context, hook1, hook2);
+        inOrder.verify(context).setOriginalOpChain(opChain);
+        inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+        inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
+        inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
+        final List<Operation> ops = captor.getValue().getOperations();
+
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
     }
 
     @Test
@@ -956,14 +925,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
-
+        final Graph graph = makeGraph(store, view);
 
         // When
         final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
@@ -1013,13 +975,7 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE)
                 .build();
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(store, view);
         final Integer expectedResult = 5;
         final GetElements operation = new GetElements();
 
@@ -1035,7 +991,7 @@ public class GraphTest {
         // Then
         assertEquals(expectedResult, result);
         verify(store).execute(clonedOpChain, clonedContext);
-        JsonAssert.assertJsonEquals(view.toJson(false), operation.getView().toJson(false));
+        assertJsonEquals(view.toJson(false), operation.getView().toJson(false));
     }
 
     @Test
@@ -1046,13 +1002,7 @@ public class GraphTest {
         given(store.getProperties()).willReturn(new StoreProperties());
         final View opView = mock(View.class);
         final View view = mock(View.class);
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(store, view);
         final Integer expectedResult = 5;
         given(operation.getView()).willReturn(opView);
 
@@ -1078,13 +1028,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .view(view)
-                        .build())
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(store, view);
         final int expectedResult = 5;
         final Operation operation = mock(Operation.class);
 
@@ -1103,58 +1047,54 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException {
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .addSchema(new Schema())
-                    .storeProperties(new StoreProperties())
-                    .build();
-            fail("exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + GRAPH_ID, e.getMessage());
-        }
+    public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() {
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .addSchema(new Schema())
+                .storeProperties(new StoreProperties())
+                .build());
+
+        final String expected = "The Store class name was not found in the store properties for " +
+                "key: " + StoreProperties.STORE_CLASS + ", GraphId: " + GRAPH_ID;
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
+    public void shouldThrowExceptionIfSchemaIsInvalid() {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .addSchema(new Schema.Builder()
-                            .type("int", new TypeDefinition.Builder()
-                                    .clazz(Integer.class)
-                                    .aggregateFunction(new Sum())
-                                    // invalid serialiser
-                                    .serialiser(new RawDoubleSerialiser())
-                                    .build())
-                            .type("string", new TypeDefinition.Builder()
-                                    .clazz(String.class)
-                                    .aggregateFunction(new StringConcat())
-                                    .build())
-                            .type("boolean", Boolean.class)
-                            .edge("EDGE", new SchemaEdgeDefinition.Builder()
-                                    .source("string")
-                                    .destination("string")
-                                    .directed("boolean")
-                                    .build())
-                            .entity("ENTITY", new SchemaEntityDefinition.Builder()
-                                    .vertex("string")
-                                    .property("p2", "int")
-                                    .build())
-                            .build())
-                    .storeProperties(storeProperties)
-                    .build();
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            assertNotNull(e.getMessage());
-        }
+
+        assertThrows(SchemaException.class, () ->
+                new Graph.Builder()
+                        .config(new GraphConfig.Builder()
+                                .graphId(GRAPH_ID)
+                                .build())
+                        .addSchema(new Schema.Builder()
+                                .type("int", new TypeDefinition.Builder()
+                                        .clazz(Integer.class)
+                                        .aggregateFunction(new Sum())
+                                        // invalid serialiser
+                                        .serialiser(new RawDoubleSerialiser())
+                                        .build())
+                                .type("string", new TypeDefinition.Builder()
+                                        .clazz(String.class)
+                                        .aggregateFunction(new StringConcat())
+                                        .build())
+                                .type("boolean", Boolean.class)
+                                .edge("EDGE", new SchemaEdgeDefinition.Builder()
+                                        .source("string")
+                                        .destination("string")
+                                        .directed("boolean")
+                                        .build())
+                                .entity("ENTITY", new SchemaEntityDefinition.Builder()
+                                        .vertex("string")
+                                        .property("p2", "int")
+                                        .build())
+                                .build())
+                        .storeProperties(storeProperties)
+                        .build());
     }
 
     @Test
@@ -1232,20 +1172,26 @@ public class GraphTest {
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         //When / Then
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId(GRAPH_ID)
-                            .build())
-                    .addSchema(new Schema.Builder()
-                            .edge("group", new SchemaEdgeDefinition())
-                            .entity("group", new SchemaEntityDefinition())
-                            .build())
-                    .storeProperties(storeProperties)
-                    .build();
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Schema is not valid"));
-        }
+        final Exception exception = assertThrows(SchemaException.class, () ->
+                new Graph.Builder()
+                        .config(new GraphConfig.Builder()
+                                .graphId(GRAPH_ID)
+                                .build())
+                        .addSchema(new Schema.Builder()
+                                .edge("group", new SchemaEdgeDefinition())
+                                .entity("group", new SchemaEntityDefinition())
+                                .build())
+                        .storeProperties(storeProperties)
+                        .build());
+
+        final String expected = "Schema is not valid. Validation errors: \n" +
+                "Groups must not be shared between Entity definitions and Edge definitions.Found edgeGroup 'group' in the collection of entities\n" +
+                "Edge source type is not defined.\n" +
+                "Edge destination type is not defined.\n" +
+                "VALIDITY ERROR: Invalid edge definition for group: group\n" +
+                "Entity vertex type is not defined.\n" +
+                "VALIDITY ERROR: Invalid entity definition for group: group";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -1279,24 +1225,19 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfGraphIdIsInvalid() throws Exception {
+    public void shouldThrowExceptionIfGraphIdIsInvalid() {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId("invalid-id")
-                            .build())
-                    .build();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(IllegalArgumentException.class, () -> new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("invalid-id")
+                        .build())
+                .build());
     }
 
     @Test
-    public void shouldBuildGraphUsingGraphIdAndLookupSchema() throws Exception {
+    public void shouldBuildGraphUsingGraphIdAndLookupSchema() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1379,11 +1320,11 @@ public class GraphTest {
                 .build();
 
         // Then
-        JsonAssert.assertJsonEquals(graph.getSchema().toJson(false), graph2.getSchema().toJson(false));
+        assertJsonEquals(graph.getSchema().toJson(false), graph2.getSchema().toJson(false));
     }
 
     @Test
-    public void shouldAddHooksVarArgsAndGetGraphHooks() throws Exception {
+    public void shouldAddHooksVarArgsAndGetGraphHooks() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1405,7 +1346,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddHookAndGetGraphHooks() throws Exception {
+    public void shouldAddHookAndGetGraphHooks() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -1430,7 +1371,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldAddNamedViewResolverHookAfterNamedOperationResolver() throws Exception {
+    public void shouldAddNamedViewResolverHookAfterNamedOperationResolver() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
@@ -1508,7 +1449,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigFile() throws Exception {
+    public void shouldBuildGraphFromConfigFile() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1533,7 +1474,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig() throws Exception {
+    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1579,7 +1520,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndOverrideFields() throws Exception {
+    public void shouldBuildGraphFromConfigAndOverrideFields() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1625,7 +1566,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldReturnClonedViewFromConfig() throws Exception {
+    public void shouldReturnClonedViewFromConfig() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1688,7 +1629,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        JsonAssert.assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
+        assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         final Pair<String, String> ids = library.getIds(graphId1);
         // Check that the schemaIds are different between the parent and supplied schema
         assertEquals(graphId1, ids.getFirst());
@@ -1728,11 +1669,11 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        JsonAssert.assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
+        assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
         // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
-        assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
+        assertEquals(library.getIds(graphId1).getFirst(), graphId1);
         // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
-        assertTrue(library.getIds(graphId1).getSecond().equals(graphId1));
+        assertEquals(library.getIds(graphId1).getSecond(), graphId1);
     }
 
     @Test
@@ -1771,11 +1712,11 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        JsonAssert.assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
+        assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
-        assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
+        assertEquals(library.getIds(graphId1).getFirst(), graphId1);
         // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
-        assertTrue(library.getIds(graphId1).getSecond().equals(graphId1));
+        assertEquals(library.getIds(graphId1).getSecond(), graphId1);
     }
 
     @Test
@@ -1835,16 +1776,12 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A context containing a user is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.execute(opChain, context));
+        assertEquals("A context containing a user is required", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullContext() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobWithANullContext() {
         // Given
         final Context context = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -1858,16 +1795,12 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A context containing a user is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.execute(opChain, context));
+        assertEquals("A context containing a user is required", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullUser() throws OperationException {
+    public void shouldThrowExceptionOnExecuteWithANullUser() {
         // Given
         final User user = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -1881,16 +1814,12 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(opChain, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A user is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.execute(opChain, user));
+        assertEquals("A user is required", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobWithANullUser() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobWithANullUser() {
         // Given
         final User user = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -1904,16 +1833,12 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.executeJob(opChain, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A user is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.executeJob(opChain, user));
+        assertEquals("A user is required", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullContext() {
         // Given
         final Context context = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -1929,12 +1854,8 @@ public class GraphTest {
         final Job job = new Job(null, opChain);
 
         // When / Then
-        try {
-            graph.executeJob(job, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A context is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.executeJob(job, context));
+        assertEquals("A context is required", exception.getMessage());
     }
 
     @Test
@@ -1953,16 +1874,12 @@ public class GraphTest {
         final Job job = new Job(new Repeat(), new OperationChain<>());
 
         // When / Then
-        try {
-            graph.executeJob(job, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("An operation is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.executeJob(job, context));
+        assertEquals("An operation is required", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullJob() {
         // Given
         final Context context = new Context();
 
@@ -1977,16 +1894,12 @@ public class GraphTest {
         final Job job = null;
 
         // When / Then
-        try {
-            graph.executeJob(job, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A job is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.executeJob(job, context));
+        assertEquals("A job is required", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullUser() {
         // Given
         final User user = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -2002,12 +1915,8 @@ public class GraphTest {
         final Job job = new Job(null, opChain);
 
         // When / Then
-        try {
-            graph.executeJob(job, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("User is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> graph.executeJob(job, user));
+        assertEquals("User is required", exception.getMessage());
     }
 
     @Test
@@ -2034,14 +1943,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
 
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(updateViewHook)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(updateViewHook, store);
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
@@ -2053,7 +1955,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2080,14 +1982,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
 
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(updateViewHook)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(updateViewHook, store);
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
@@ -2099,7 +1994,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().build().toCompactJson(),
+        assertJsonEquals(new View.Builder().build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2133,7 +2028,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
-        .build());
+                .build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -2151,7 +2046,7 @@ public class GraphTest {
 
         given(store.execute(captor.capture(), contextCaptor1.capture())).willReturn(new ArrayList<>());
 
-        User user = new User.Builder()
+        final User user = new User.Builder()
                 .userId("user")
                 .opAuths("opAuth1", "opAuth2")
                 .build();
@@ -2160,7 +2055,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().build().toCompactJson(),
+        assertJsonEquals(new View.Builder().build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2187,14 +2082,7 @@ public class GraphTest {
                 .build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(updateViewHook)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(updateViewHook, store);
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
@@ -2206,7 +2094,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2230,14 +2118,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE_5, new SchemaEdgeDefinition()).edge(TestGroups.EDGE, new SchemaEdgeDefinition()).build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(updateViewHook)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(updateViewHook, store);
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
@@ -2249,7 +2130,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2278,14 +2159,7 @@ public class GraphTest {
                 .build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(updateViewHook)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(updateViewHook, store);
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
@@ -2297,7 +2171,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
+        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2327,14 +2201,7 @@ public class GraphTest {
                 .build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .addHook(updateViewHook)
-                        .build())
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .store(store)
-                .build();
+        final Graph graph = makeGraph(updateViewHook, store);
 
         final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
@@ -2346,7 +2213,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2471,24 +2338,24 @@ public class GraphTest {
         }
     }
 
-    private static class ViewCheckerGraphHook implements GraphHook {
-        @Override
-        public void preExecute(final OperationChain<?> opChain, final Context context) {
-            for (Operation operation : opChain.getOperations()) {
-                if (operation instanceof OperationView && null == ((OperationView) operation).getView()) {
-                    throw new IllegalArgumentException("View should not be null");
-                }
-            }
-        }
+    private Graph makeGraph(final UpdateViewHook updateViewHook, final Store store) {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(updateViewHook)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .build();
+    }
 
-        @Override
-        public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
-            return result;
-        }
-
-        @Override
-        public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-            return result;
-        }
+    private Graph makeGraph(final Store store, final View view) {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .view(view)
+                        .build())
+                .store(store)
+                .build();
     }
 }

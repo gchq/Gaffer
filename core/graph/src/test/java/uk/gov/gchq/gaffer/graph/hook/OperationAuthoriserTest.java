@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.google.common.collect.Sets;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
@@ -60,12 +60,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
     @Test
     public void shouldAcceptOperationChainWhenUserHasAllOpAuths() {
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-        final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetElements())
-                .then(new GenerateObjects<>())
-                .then(new DiscardOutput())
-                .then(new TestOperationsImpl(Collections.singletonList(new Sort())))
-                .build();
+        final OperationChain opChain = makeOperationChain(new Sort());
         final User user = new User.Builder()
                 .opAuths("SuperUser", "ReadUser", "User")
                 .build();
@@ -77,12 +72,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
     public void shouldRejectOperationChainWhenUserDoesntHaveAllOpAuthsForNestedOperations() {
         // Given
         final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-        final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetElements())
-                .then(new GenerateObjects<>())
-                .then(new DiscardOutput())
-                .then(new TestOperationsImpl(Collections.singletonList(new GetAllElements())))
-                .build();
+        final OperationChain opChain = makeOperationChain(new GetAllElements());
         final User user = new User.Builder()
                 .opAuths("SuperUser", "ReadUser", "User")
                 .build();
@@ -260,6 +250,15 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
     @Override
     protected OperationAuthoriser getTestObject() {
         return fromJson(OP_AUTHS_PATH);
+    }
+
+    private OperationChain makeOperationChain(final Operation operation) {
+        return new OperationChain.Builder()
+                .first(new GetElements())
+                .then(new GenerateObjects<>())
+                .then(new DiscardOutput())
+                .then(new TestOperationsImpl(Collections.singletonList(operation)))
+                .build();
     }
 
     private AddNamedOperation makeAddNamedOperation(final String operationChain) {

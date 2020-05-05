@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -46,8 +45,10 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.spy;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
@@ -59,136 +60,101 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
     @Test
     public void shouldNotAllowOperationWhichContainsUnauthorisedFunction() {
-        // Given
-        OperationChain badOperation = generateOperation(Identity.class);
-        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+        final OperationChain badOperation = generateOperation(Identity.class);
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
-        // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
-        // Then
-//        assertThrows()
-        try {
-            functionAuthoriser.preExecute(badOperation, new Context());
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", e.getMessage());
-        }
+        final Exception exception = assertThrows(UnauthorisedException.class, () -> functionAuthoriser.preExecute(badOperation, new Context()));
+        assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", exception.getMessage());
     }
 
     @Test
     public void shouldNotAllowGetElementsOperationWithUnauthorisedFunctionsInTheView() {
-        final OperationChain<CloseableIterable<? extends Element>> viewOperation = new OperationChain.Builder().first(new GetElements.Builder()
-                .view(new View.Builder()
-                        .globalElements(new GlobalViewElementDefinition.Builder()
-                                .transformFunctions(Lists.newArrayList(new TupleAdaptedFunction(new String[]{"input"}, new DivideBy(6), new String[]{"output"})))
-                                .build())
+        final View viewWithUnauthorisedFunction = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .transformFunctions(Lists.newArrayList(new TupleAdaptedFunction(new String[] {"input"}, new DivideBy(6), new String[] {"output"})))
                         .build())
+                .build();
+        final OperationChain<CloseableIterable<? extends Element>> viewOperation = new OperationChain.Builder().first(new GetElements.Builder()
+                .view(viewWithUnauthorisedFunction)
                 .build())
                 .build();
 
-        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
         // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
-
-        // Then
-        try {
-            functionAuthoriser.preExecute(viewOperation, new Context());
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.DivideBy", e.getMessage());
-        }
-
+        final Exception exception = assertThrows(UnauthorisedException.class, () -> functionAuthoriser.preExecute(viewOperation, new Context()));
+        assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.DivideBy", exception.getMessage());
     }
 
     @Test
     public void shouldAllowOperationChainWhichDoesNotContainAnyUnauthorisedElements() {
-        // Given
-        OperationChain mapOperation = generateOperation(Identity.class, ToString.class);
-        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+        final OperationChain mapOperation = generateOperation(Identity.class, ToString.class);
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
-        // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
-        // Then
-        functionAuthoriser.preExecute(mapOperation, new Context());
-        // No exceptions thrown
+        assertDoesNotThrow(() -> functionAuthoriser.preExecute(mapOperation, new Context()));
     }
 
     @Test
     public void shouldAllowEmptyOperationChain() {
-        // Given
-        OperationChain chain = new OperationChain();
+        final OperationChain chain = new OperationChain();
 
-        // When
-        FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
+        final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
 
-        // Then no exceptions
-        authoriser.preExecute(chain, new Context());
+        assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldAllowAllFunctionsWhenUnauthorisedFunctionsAreNull() {
-        // Given
-        OperationChain chain = generateOperation(Identity.class, ToString.class);
+        final OperationChain chain = generateOperation(Identity.class, ToString.class);
 
-        // When
-        FunctionAuthoriser authoriser = new FunctionAuthoriser(null);
+        final FunctionAuthoriser authoriser = new FunctionAuthoriser(null);
 
-        // Then no exceptions
-        authoriser.preExecute(chain, new Context());
+        assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldAllowAllFunctionsWhenUnauthorisedFunctionsAreEmpty() {
-        // Given
-        OperationChain chain = generateOperation(Identity.class, ToString.class);
+        final OperationChain chain = generateOperation(Identity.class, ToString.class);
 
-        // When
-        FunctionAuthoriser authoriser = new FunctionAuthoriser(new ArrayList<>());
+        final FunctionAuthoriser authoriser = new FunctionAuthoriser(new ArrayList<>());
 
-        // Then no exceptions
-        authoriser.preExecute(chain, new Context());
+        assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldNotErrorIfFirstOperationIsNotInput() {
-        // Given
-        OperationChain chain = new OperationChain.Builder()
+        final OperationChain chain = new OperationChain.Builder()
                 .first(new GetAllElements()).build();
 
-        // When
-        FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
+        final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
 
-        // Then no exceptions
-        authoriser.preExecute(chain, new Context());
+        assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldWorkIfUsingShortClassNames() {
         // Given
-        OperationChain badOperation = generateOperation(Identity.class);
-        FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
+        final OperationChain badOperation = generateOperation(Identity.class);
+        final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
         // When
         SimpleClassNameCache.setUseFullNameForSerialisation(false);
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
         // Then
-        try {
-            functionAuthoriser.preExecute(badOperation, new Context());
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", e.getMessage());
-        }
+        final Exception exception = assertThrows(UnauthorisedException.class, () -> functionAuthoriser.preExecute(badOperation, new Context()));
+        assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", exception.getMessage());
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithPopulatedFields() throws SerialisationException {
-        String json = "" +
-                "{" +
+        final String json = "{" +
                 "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"," +
                 "\"unauthorisedFunctions\":[" +
                 "\"uk.gov.gchq.koryphe.impl.function.ToString\"" +
@@ -197,19 +163,18 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(ToString.class));
 
-        JsonAssert.assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+        assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithNoFields() throws SerialisationException {
-        String json = "" +
-                "{" +
+        final String json = "{" +
                 "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"" +
                 "}";
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser();
 
-        JsonAssert.assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+        assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test
@@ -230,7 +195,6 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
         // When
         authoriser.preExecute(chain, new Context());
-
 
         // Then
         assertEquals(fakeInput, ((Input) chain.getOperations().get(0)).getInput());

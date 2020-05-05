@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -44,6 +43,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
@@ -62,7 +62,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals(obj.getDescription(), deserialisedObj.getDescription());
-        assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertEquals(obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
     @Test
@@ -94,11 +94,11 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
         // Then
         assertNotNull(deserialisedObj);
-        assertEquals(Arrays.asList(Log4jLogger.class, AddOperationsToChain.class, NamedOperationResolver.class), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertEquals(Arrays.asList(Log4jLogger.class, AddOperationsToChain.class, NamedOperationResolver.class), deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
     @Test
-    public void shouldReturnClonedView() throws Exception {
+    public void shouldReturnClonedView() {
         // Given
         final String graphId = "graphId";
         final View view = new View.Builder().entity(TestGroups.ENTITY).build();
