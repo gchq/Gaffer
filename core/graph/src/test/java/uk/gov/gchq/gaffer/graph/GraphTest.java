@@ -18,18 +18,15 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -128,8 +125,8 @@ public class GraphTest {
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    File anotherTempDir;
 
     private User user;
     private Context context;
@@ -139,7 +136,7 @@ public class GraphTest {
     private OperationChain clonedOpChain;
     private GetElements operation;
 
-    @Before
+    @BeforeEach
     public void before() {
         HashMapGraphLibrary.clear();
         TestStore.mockStore = mock(TestStore.class);
@@ -284,7 +281,7 @@ public class GraphTest {
         File schemaDir = null;
 
         try {
-            schemaDir = createSchemaDirectory();
+//            schemaDir = createSchemaDirectory();
 
             // When
             graph = new Graph.Builder()
@@ -313,7 +310,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCreateNewContextInstanceWhenExecuteOperation() throws OperationException, IOException {
+    public void shouldCreateNewContextInstanceWhenExecuteOperation() throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
@@ -337,7 +334,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCreateNewContextInstanceWhenExecuteOutputOperation() throws OperationException, IOException {
+    public void shouldCreateNewContextInstanceWhenExecuteOutputOperation() throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
@@ -361,7 +358,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCreateNewContextInstanceWhenExecuteJob() throws OperationException, IOException {
+    public void shouldCreateNewContextInstanceWhenExecuteJob() throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema();
@@ -620,7 +617,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailure() throws OperationException {
+    public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailure() {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -743,7 +740,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailureWhenRunningJob() throws OperationException {
+    public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailureWhenRunningJob() {
         // Given
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
@@ -919,7 +916,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldExposeGetTraitsMethod() throws OperationException {
+    public void shouldExposeGetTraitsMethod() {
         // Given
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
@@ -938,7 +935,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldGetSchemaFromStoreIfSchemaIsEmpty() throws OperationException {
+    public void shouldGetSchemaFromStoreIfSchemaIsEmpty()  {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema.Builder()
@@ -1213,17 +1210,6 @@ public class GraphTest {
         }
     }
 
-    private File createSchemaDirectory() throws IOException {
-        final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
-        writeToFile("elements.json", tmpDir);
-        writeToFile("types.json", tmpDir);
-        return tmpDir;
-    }
-
-    private void writeToFile(final String schemaFile, final File dir) throws IOException {
-        Files.copy(new File(getClass().getResource("/schema/" + schemaFile).getPath()), new File(dir + "/" + schemaFile));
-    }
-
     @Test
     public void shouldThrowExceptionIfGraphIdIsInvalid() {
         final StoreProperties properties = mock(StoreProperties.class);
@@ -1400,9 +1386,7 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
-
-        final File graphHooks = tempFolder.newFile("graphHooks.json");
-        FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
+        final File graphHooks = createTempFile("graphHooks.json");
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1426,12 +1410,8 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
-
-        final File graphHook1File = tempFolder.newFile("opChainLimiter.json");
-        FileUtils.writeLines(graphHook1File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json")));
-
-        final File graphHook2File = tempFolder.newFile("opAuthoriser.json");
-        FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json")));
+        final File graphHook1File = createTempFile("opChainLimiter.json");
+        final File graphHook2File = createTempFile("opAuthoriser.json");
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1762,7 +1742,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullContext() throws OperationException {
+    public void shouldThrowExceptionOnExecuteWithANullContext()  {
         // Given
         final Context context = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -1859,7 +1839,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() throws OperationException {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation()  {
         // Given
         final Context context = new Context();
 
@@ -1936,7 +1916,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -1975,7 +1955,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -2021,7 +2001,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -2072,7 +2052,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -2111,7 +2091,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -2148,7 +2128,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -2190,7 +2170,7 @@ public class GraphTest {
         given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(opChain.shallowClone()).willReturn(clonedOpChain);
         given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
-        given(clonedOpChain.flatten()).willReturn(Arrays.asList(operation));
+        given(clonedOpChain.flatten()).willReturn(Collections.singletonList(operation));
 
         final Store store = mock(Store.class);
 
@@ -2357,5 +2337,27 @@ public class GraphTest {
                         .build())
                 .store(store)
                 .build();
+    }
+
+    private File createTempFile(final String fileName) throws IOException {
+        assertTrue(anotherTempDir.isDirectory(), "Should be a directory ");
+        final File tempFile = new File(anotherTempDir, fileName);
+        FileUtils.writeLines(tempFile, IOUtils.readLines(StreamUtil.openStream(getClass(), fileName)));
+        return tempFile;
+    }
+
+    private File createSchemaDirectory() throws IOException {
+        assertTrue(anotherTempDir.isDirectory(), "Should be a directory ");
+        final File tempSchemaFolder = new File(anotherTempDir, "tmpSchemaDir/");
+
+        copyToTempSchemaFolder("tmpSchemaDir/elements.json", "/schema/elements.json");
+        copyToTempSchemaFolder("tmpSchemaDir/types.json", "/schema/types.json");
+
+        return tempSchemaFolder;
+    }
+
+    private void copyToTempSchemaFolder(final String tempSchemaDir, final String schemaDirFromResources) throws IOException {
+        final File tempSchemaFile = new File(anotherTempDir, tempSchemaDir);
+        FileUtils.writeLines(tempSchemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), schemaDirFromResources)));
     }
 }
