@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -24,12 +24,12 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.operation.data.generator.EdgeIdExtractor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EdgeIdExtractorTest {
+
     @Test
     public void shouldGetIdentifierFromEdge() {
         // Given
@@ -57,11 +57,27 @@ public class EdgeIdExtractorTest {
         final Entity entity = new Entity(TestGroups.ENTITY, "identifier");
 
         // When / Then
-        try {
-            extractor._apply(entity);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> extractor._apply(entity));
+        assertEquals("Cannot get an EdgeId from and Entity", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionForEntityWithGroupOnly() {
+        // Given
+        final EdgeIdExtractor extractor = new EdgeIdExtractor();
+        final Entity entity = new Entity(TestGroups.ENTITY);
+
+        // When / Then
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> extractor._apply(entity));
+        assertEquals("Cannot get an EdgeId from and Entity", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionForNullEntity() {
+        // Given
+        final EdgeIdExtractor extractor = new EdgeIdExtractor();
+
+        // When / Then
+        assertThrows(NullPointerException.class, () -> extractor._apply(null));
     }
 }

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -23,10 +24,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NamedOperationTest extends OperationTest<NamedOperation> {
 
+    @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
         final String testOpName = "testOpName";

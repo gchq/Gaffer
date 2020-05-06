@@ -16,10 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.graph;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -28,7 +27,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class OperationViewTest {
     private final View testView1 = new View.Builder()
@@ -49,72 +49,55 @@ public class OperationViewTest {
 
     private OperationViewImpl operationView;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         operationView = new OperationViewImpl();
     }
 
     @Test
     public void shouldMergeTwoViewsWhenSettingBothAtOnce() {
-        // When
         operationView.setViews(Arrays.asList(testView1, testView2));
 
-        // Then
-        JsonAssert.assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
+        assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldMergeTwoViewsWhenOneIsNamedView() {
-        // When
-        operationView.setViews(Arrays.asList(testView1, testNamedView1));
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> operationView.setViews(Arrays.asList(testView1, testNamedView1)));
     }
 
     @Test
     public void shouldMergeTwoViewsWhenOneAlreadySet() {
-        // When
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView2));
 
-        // Then
-        JsonAssert.assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
+        assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldMergeEmptyViewCorrectly() {
-        // When
         operationView.setViews(Arrays.asList(testView1, new View()));
 
-        // Then
-        JsonAssert.assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldCorrectlyMergeIdenticalViewsWhenSettingBothAtOnce() {
-        // When
         operationView.setViews(Arrays.asList(testView1, testView1));
 
-        // Then
-        JsonAssert.assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldCorrectlyMergeIdenticalViewsWhenOneAlreadySet() {
-        // When
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView1));
 
-        // Then
-        JsonAssert.assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingViewsToNull() {
-        try {
-            operationView.setViews(null);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Supplied View list cannot be null"));
-        }
+    public void doesNotThrowAnyExceptionsWhenSettingViewsToNull() {
+        assertDoesNotThrow(() -> operationView.setViews(null));
     }
 }

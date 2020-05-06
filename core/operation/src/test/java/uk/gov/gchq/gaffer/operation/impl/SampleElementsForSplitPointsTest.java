@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -27,11 +27,12 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SampleElementsForSplitPointsTest extends OperationTest<SampleElementsForSplitPoints> {
+
     @Test
     public void shouldFailValidationIfNumSplitsIsLessThan1() {
         // Given
@@ -44,7 +45,7 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
 
         // Then
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("numSplits must be null or greater than 0"));
+        assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"), result.getErrorString());
     }
 
     @Test
@@ -59,17 +60,13 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
 
         // Then
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("proportionToSample must within range: [0, 1]"));
+        assertTrue(result.getErrorString().contains("proportionToSample must within range: [0, 1]"), result.getErrorString());
     }
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
+        final SampleElementsForSplitPoints op = makeSampleElementsForSplitPoints();
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
@@ -86,11 +83,7 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // When
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
+        final SampleElementsForSplitPoints op = makeSampleElementsForSplitPoints();
 
         // Then
         assertEquals(10, (int) op.getNumSplits());
@@ -98,14 +91,11 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
         assertEquals(Collections.singletonList(new Entity(TestGroups.ENTITY, "vertex")), op.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
+        final SampleElementsForSplitPoints op = makeSampleElementsForSplitPoints();
 
         // When
         final SampleElementsForSplitPoints clone = op.shallowClone();
@@ -114,6 +104,14 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
         assertEquals(10, (int) clone.getNumSplits());
         assertEquals(0.5f, clone.getProportionToSample(), 0.1);
         assertEquals(Collections.singletonList(new Entity(TestGroups.ENTITY, "vertex")), clone.getInput());
+    }
+
+    private SampleElementsForSplitPoints makeSampleElementsForSplitPoints() {
+        return new SampleElementsForSplitPoints.Builder<>()
+                .numSplits(10)
+                .proportionToSample(0.5f)
+                .input(new Entity(TestGroups.ENTITY, "vertex"))
+                .build();
     }
 
     @Override

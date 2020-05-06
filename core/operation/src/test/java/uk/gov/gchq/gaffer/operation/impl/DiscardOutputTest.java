@@ -16,37 +16,32 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class DiscardOutputTest extends OperationTest<DiscardOutput> {
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        // Given
         final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
 
-        // Then
         assertThat(discardOutput.getInput(), is(nullValue()));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
-        // Given
         final DiscardOutput op = getTestObject();
 
-        // When
         final DiscardOutput clone = op.shallowClone();
 
-        // Then
         assertNotSame(op, clone);
     }
 

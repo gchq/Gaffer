@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -25,12 +25,12 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class EntityIdExtractorTest {
+
     @Test
     public void shouldGetIdentifierFromEntity() {
         // Given
@@ -131,11 +131,7 @@ public class EntityIdExtractorTest {
                 .build();
 
         // When / Then
-        try {
-            extractor._apply(edge);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> extractor._apply(edge));
+        assertEquals("Cannot get an EntityId from an Edge when IdentifierType is DIRECTED", exception.getMessage());
     }
 }

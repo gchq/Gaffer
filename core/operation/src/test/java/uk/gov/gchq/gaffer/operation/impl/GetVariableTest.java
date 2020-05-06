@@ -16,14 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class GetVariableTest extends OperationTest<GetVariable> {
     private final String varName = "varName";
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final GetVariable getVariableOp = new GetVariable.Builder().variableName(varName).build();
@@ -31,6 +34,7 @@ public class GetVariableTest extends OperationTest<GetVariable> {
         assertEquals(varName, getVariableOp.getVariableName());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final GetVariable op = new GetVariable.Builder().variableName(varName).build();

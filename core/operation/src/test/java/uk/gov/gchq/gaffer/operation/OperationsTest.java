@@ -15,13 +15,14 @@
  */
 package uk.gov.gchq.gaffer.operation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 
 /**
  * Provides a common interface for testing implementations of the {@link Operations} class.
- * @param <T>   The implementation of {@link Operations} to be tested
+ *
+ * @param <T> The implementation of {@link Operations} to be tested
  */
 public abstract class OperationsTest<T extends Operation> extends JSONSerialisationTest<T> {
 

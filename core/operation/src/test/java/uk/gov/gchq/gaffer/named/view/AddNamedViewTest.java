@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.named.view;
 
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -28,13 +27,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
+
     private static final String TEST_NAMED_VIEW_NAME = "testNamedViewName";
     private static final String TEST_DESCRIPTION = "testDescription";
     private static final View VIEW = new View.Builder()
@@ -47,7 +48,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)
@@ -56,7 +57,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
                 .build();
 
         assertEquals(TEST_NAMED_VIEW_NAME, addNamedView.getName());
-        JsonAssert.assertJsonEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
+        assertJsonEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
         assertTrue(addNamedView.isOverwriteFlag());
         assertEquals(parameters, addNamedView.getParameters());
         assertEquals(TEST_DESCRIPTION, addNamedView.getDescription());
@@ -67,7 +68,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)
@@ -81,7 +82,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Then
         assertNotSame(addNamedView, clone);
         assertEquals(addNamedView.getName(), clone.getName());
-        JsonAssert.assertJsonEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
+        assertJsonEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
         assertFalse(clone.isOverwriteFlag());
         assertEquals(addNamedView.getParameters(), clone.getParameters());
         assertEquals(addNamedView.getDescription(), clone.getDescription());

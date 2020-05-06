@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JobDetailTest {
 
@@ -34,7 +34,7 @@ public class JobDetailTest {
         // given
         final OperationChain operationChain = new OperationChain.Builder().first(new GetAllElements()).build();
 
-        JobDetail original = new JobDetail.Builder()
+        final JobDetail original = new JobDetail.Builder()
                 .description("thing")
                 .jobId("abc")
                 .parentJobId("cde")

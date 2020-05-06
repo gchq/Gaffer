@@ -44,7 +44,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
     @Parameters(name = "{0}")
     public static Collection<Object[]> instancesToTest() {
-        return Arrays.asList(new Object[][]{
+        return Arrays.asList(new Object[][] {
                 // Single values
                 {"Long", 1L,
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[\"java.lang.Long\",1]}"},
@@ -56,31 +56,31 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type\",\"value\":\"value\"}}"},
 
                 // Array of values
-                {"Long array (size 1)", new Long[]{1L},
+                {"Long array (size 1)", new Long[] {1L},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[[\"java.lang.Long\",1]]}"},
-                {"Integer array (size 1)", new Integer[]{1},
+                {"Integer array (size 1)", new Integer[] {1},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[1]}"},
-                {"Date array (size 1)", new Date[]{new Date(0)},
+                {"Date array (size 1)", new Date[] {new Date(0)},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[[\"java.util.Date\",0]]}"},
-                {"TypeValue array (size 1)", new TypeValue[]{new TypeValue("type1", "value1")},
+                {"TypeValue array (size 1)", new TypeValue[] {new TypeValue("type1", "value1")},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type1\",\"value\":\"value1\"}]}"},
 
-                {"Long array (size 2)", new Long[]{1L, 2L},
+                {"Long array (size 2)", new Long[] {1L, 2L},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[[\"java.lang.Long\",1],[\"java.lang.Long\",2]]}"},
-                {"Integer array (size 2)", new Integer[]{1, 2},
+                {"Integer array (size 2)", new Integer[] {1, 2},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[1,2]}"},
-                {"Date array (size 2)", new Date[]{new Date(0), new Date(1)},
+                {"Date array (size 2)", new Date[] {new Date(0), new Date(1)},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[[\"java.util.Date\",0],[\"java.util.Date\",1]]}"},
-                {"TypeValue array (size 2)", new TypeValue[]{new TypeValue("type1", "value1"), new TypeValue("type2", "value2")},
+                {"TypeValue array (size 2)", new TypeValue[] {new TypeValue("type1", "value1"), new TypeValue("type2", "value2")},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type1\",\"value\":\"value1\"},{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type2\",\"value\":\"value2\"}]}"},
 
-                {"Long array (size 3)", new Long[]{1L, 2L, 3L},
+                {"Long array (size 3)", new Long[] {1L, 2L, 3L},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[[\"java.lang.Long\",1],[\"java.lang.Long\",2],[\"java.lang.Long\",3]]}"},
-                {"Integer array (size 3)", new Integer[]{1, 2, 3},
+                {"Integer array (size 3)", new Integer[] {1, 2, 3},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[1,2,3]}"},
-                {"Date array (size 3)", new Date[]{new Date(0), new Date(1), new Date(2)},
+                {"Date array (size 3)", new Date[] {new Date(0), new Date(1), new Date(2)},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[[\"java.util.Date\",0],[\"java.util.Date\",1],[\"java.util.Date\",2]]}"},
-                {"TypeValue array (size 3)", new TypeValue[]{new TypeValue("type1", "value1"), new TypeValue("type2", "value2"), new TypeValue("type3", "value3")},
+                {"TypeValue array (size 3)", new TypeValue[] {new TypeValue("type1", "value1"), new TypeValue("type2", "value2"), new TypeValue("type3", "value3")},
                         "{\"class\":\"uk.gov.gchq.gaffer.operation.impl.io.GenericInputImpl\",\"input\":[{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type1\",\"value\":\"value1\"},{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type2\",\"value\":\"value2\"},{\"class\":\"uk.gov.gchq.gaffer.types.TypeValue\",\"type\":\"type3\",\"value\":\"value3\"}]}"}
         });
     }

@@ -16,18 +16,21 @@
 
 package uk.gov.gchq.gaffer.operation.job;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
     private final String testJobId = "testJobId";
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -41,6 +44,7 @@ public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
         assertEquals(Collections.singletonMap("testOp", "testOpVal"), op.getOptions());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

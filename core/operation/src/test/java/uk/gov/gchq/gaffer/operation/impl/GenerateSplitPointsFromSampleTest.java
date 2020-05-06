@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -25,9 +25,9 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSplitPointsFromSample> {
 
@@ -36,7 +36,6 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
 
     @Test
     public void shouldFailValidationIfNumSplitsIsLessThan1() {
-
         final GenerateSplitPointsFromSample op = new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(0)
                 .build();
@@ -44,12 +43,11 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
         final ValidationResult result = op.validate();
 
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("numSplits must be null or greater than 0"));
+        assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"), result.getErrorString());
     }
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
-
         final GenerateSplitPointsFromSample op = getTestObject();
 
         byte[] json = JSONSerialiser.serialise(op, true);
@@ -59,9 +57,9 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
         assertExpected(deserialisedOp);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-
         final GenerateSplitPointsFromSample op = getTestObject();
 
         assertExpected(op);
@@ -69,7 +67,6 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
 
     @Override
     public void shouldShallowCloneOperation() {
-
         final GenerateSplitPointsFromSample op = getTestObject();
 
         final GenerateSplitPointsFromSample clone = op.shallowClone();
@@ -79,7 +76,6 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
 
     @Override
     protected GenerateSplitPointsFromSample getTestObject() {
-
         return new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(TEST_NUM_SPLITS)
                 .input(TEST_INPUT)
@@ -87,7 +83,6 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
     }
 
     private void assertExpected(final GenerateSplitPointsFromSample operation) {
-
         assertEquals(TEST_NUM_SPLITS, (int) operation.getNumSplits());
         assertEquals(TEST_INPUT, operation.getInput());
     }

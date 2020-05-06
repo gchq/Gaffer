@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Arrays;
@@ -26,8 +28,10 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 public class GetVariablesTest extends OperationTest<GetVariables> {
+
     final List<String> variableNames = Arrays.asList("var1", "var2", "var3");
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetVariables getVariablesOp = new GetVariables.Builder()
@@ -38,6 +42,7 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
         assertTrue(getVariablesOp.getVariableNames().containsAll(variableNames));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetVariables op = new GetVariables.Builder()
