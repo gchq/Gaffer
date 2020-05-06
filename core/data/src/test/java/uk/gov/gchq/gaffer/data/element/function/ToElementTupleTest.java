@@ -78,7 +78,7 @@ public class ToElementTupleTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{};
+        return new Class[]{ElementTuple.class};
     }
 
     @Override
