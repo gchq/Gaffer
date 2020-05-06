@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -26,14 +26,14 @@ import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GafferResultCacheUtilTest {
+
     private final Edge validEdge = new Edge.Builder()
             .group("result")
             .source("jobId")
@@ -60,12 +60,10 @@ public class GafferResultCacheUtilTest {
     @Test
     public void shouldThrowExceptionIfStorePropertiesAreNull() {
         // When / Then
-        try {
-            GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE));
+
+        assertEquals("Gaffer result cache Store properties are required", exception.getMessage());
     }
 
     @Test
@@ -77,7 +75,6 @@ public class GafferResultCacheUtilTest {
 
         // When
         final boolean isValid = schema.validate().isValid();
-
 
         // Then
         assertTrue(isValid);

@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.integration.graph;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -50,7 +50,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,6 +60,7 @@ import java.util.List;
  * completely hide group 2 and never read any group 2 data from the store.
  */
 public abstract class SchemaHidingIT {
+
     private static final User USER = new User.Builder()
             .dataAuth("public")
             .build();
@@ -71,23 +71,22 @@ public abstract class SchemaHidingIT {
         this.storePropertiesPath = storePropertiesPath;
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         cleanUp();
     }
 
-    @After
+    @AfterEach
     public void after() {
         cleanUp();
     }
 
     protected abstract void cleanUp();
 
-    protected Store createStore(final Schema schema) throws IOException {
+    protected Store createStore(final Schema schema) {
         return Store.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldCreateStoreWithFullSchemaAndThenBeAbleUseASubsetOfTheSchema() throws Exception {
         // Add some data to the full graph
@@ -96,36 +95,9 @@ public abstract class SchemaHidingIT {
                 .store(fullStore)
                 .build();
 
-        final Edge edge1a = new Edge.Builder()
-                .source("source1a")
-                .dest("dest1a")
-                .directed(true)
-                .group(TestGroups.EDGE)
-                .property(TestPropertyNames.COUNT, 1)
-                .property(TestPropertyNames.PROP_1, "1a")
-                .property(TestPropertyNames.VISIBILITY, "public")
-                .property(TestPropertyNames.TIMESTAMP, 1L)
-                .build();
-        final Edge edge1b = new Edge.Builder()
-                .source("source1b")
-                .dest("dest1b")
-                .directed(true)
-                .group(TestGroups.EDGE)
-                .property(TestPropertyNames.COUNT, 1)
-                .property(TestPropertyNames.PROP_1, "1b")
-                .property(TestPropertyNames.VISIBILITY, "public")
-                .property(TestPropertyNames.TIMESTAMP, 1L)
-                .build();
-        final Edge edge2 = new Edge.Builder()
-                .source("source2")
-                .dest("dest2")
-                .directed(true)
-                .group(TestGroups.EDGE_2)
-                .property(TestPropertyNames.COUNT, 1)
-                .property(TestPropertyNames.PROP_1, "2")
-                .property(TestPropertyNames.VISIBILITY, "public")
-                .property(TestPropertyNames.TIMESTAMP, 1L)
-                .build();
+        final Edge edge1a = makeEdge("source1a", "dest1a", TestGroups.EDGE, "1a");
+        final Edge edge1b = makeEdge("source1b", "dest1b", TestGroups.EDGE, "1b");
+        final Edge edge2 = makeEdge("source2", "dest2", TestGroups.EDGE_2, "2");
 
         fullGraph.execute(new AddElements.Builder()
                         .input(edge1a, edge1b, edge2)
@@ -230,6 +202,19 @@ public abstract class SchemaHidingIT {
                         .groupBy(TestPropertyNames.PROP_1)
                         .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .build();
+    }
+
+    private Edge makeEdge(final String source, final String destination, final String group, final String property1Value) {
+        return new Edge.Builder()
+                .source(source)
+                .dest(destination)
+                .directed(true)
+                .group(group)
+                .property(TestPropertyNames.PROP_1, property1Value)
+                .property(TestPropertyNames.COUNT, 1)
+                .property(TestPropertyNames.VISIBILITY, "public")
+                .property(TestPropertyNames.TIMESTAMP, 1L)
                 .build();
     }
 }
