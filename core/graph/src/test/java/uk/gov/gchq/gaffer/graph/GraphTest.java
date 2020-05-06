@@ -935,7 +935,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldGetSchemaFromStoreIfSchemaIsEmpty()  {
+    public void shouldGetSchemaFromStoreIfSchemaIsEmpty() {
         // Given
         final Store store = mock(Store.class);
         final Schema schema = new Schema.Builder()
@@ -1742,7 +1742,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteWithANullContext()  {
+    public void shouldThrowExceptionOnExecuteWithANullContext() {
         // Given
         final Context context = null;
         final OperationChain opChain = mock(OperationChain.class);
@@ -1839,7 +1839,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation()  {
+    public void shouldThrowExceptionOnExecuteJobUsingJobWithANullOperation() {
         // Given
         final Context context = new Context();
 

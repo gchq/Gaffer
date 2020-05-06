@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;

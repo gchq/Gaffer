@@ -284,7 +284,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     public void shouldThrowExceptionWhenAddingFalseExtraOperation() {
         final String falseOperationTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
 
-       final Exception exception = assertThrows(RuntimeException.class, ()->   fromJson(falseOperationTestJson.getBytes()) );
+        final Exception exception = assertThrows(RuntimeException.class, () -> fromJson(falseOperationTestJson.getBytes()));
         final String expected = "uk.gov.gchq.gaffer.exception.SerialisationException: Invalid type id 'this.Operation.Doesnt.Exist' (for id type 'Id.class'): " +
                 "no such class found (through reference chain: uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain[\"start\"]->java.util.ArrayList[0])";
         assertEquals(expected, exception.getMessage());

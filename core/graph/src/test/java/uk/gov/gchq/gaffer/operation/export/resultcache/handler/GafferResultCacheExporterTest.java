@@ -65,7 +65,7 @@ public class GafferResultCacheExporterTest {
     private final String key = "key";
     private final Store store = mock(Store.class);
     private final String visibility = "visibility value";
-    private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[]{"1", "2"});
+    private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[] {"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
     private Graph resultCache;

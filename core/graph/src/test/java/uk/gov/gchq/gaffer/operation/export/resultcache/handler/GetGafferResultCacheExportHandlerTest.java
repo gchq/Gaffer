@@ -140,7 +140,7 @@ public class GetGafferResultCacheExportHandlerTest {
     }
 
     @Test
-    public void shouldCreateCacheGraph()  {
+    public void shouldCreateCacheGraph() {
         // Given
         final Store store = mock(Store.class);
         final long timeToLive = 10000L;

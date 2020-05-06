@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.graph;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -36,16 +35,17 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    File tempDir;
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
@@ -68,10 +68,11 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     @Test
     public void shouldJsonDeserialiseFromHookPaths() throws IOException {
         // Given
-        final File hook1Path = folder.newFile();
-        final File hook2Path = folder.newFile();
-        FileUtils.write(hook1Path, "{\"class\": \"" + Log4jLogger.class.getName() + "\"}");
-        FileUtils.write(hook2Path, "{\"class\": \"" + AddOperationsToChain.class.getName() + "\"}");
+        final File hook1Path = new File(tempDir, "hook1Path.tmp");
+        FileUtils.writeLines(hook1Path, Collections.singletonList("{\"class\": \"" + Log4jLogger.class.getName() + "\"}"));
+        final File hook2Path = new File(tempDir, "hook2Path.tmp");
+        FileUtils.writeLines(hook2Path, Collections.singletonList("{\"class\": \"" + AddOperationsToChain.class.getName() + "\"}"));
+
         final String json = "{" +
                 "  \"graphId\": \"graphId1\"," +
                 "  \"hooks\": [" +
