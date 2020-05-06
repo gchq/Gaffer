@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.types.CustomMap;
 
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap> {
 
@@ -40,8 +40,10 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
         final CustomMap<String, Integer> expected = new CustomMap<>(new StringSerialiser(), new IntegerSerialiser());
         expected.put("one", 111);
         expected.put("two", 221);
+
         //when
         final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
+
         //then
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new IntegerSerialiser());
     }
