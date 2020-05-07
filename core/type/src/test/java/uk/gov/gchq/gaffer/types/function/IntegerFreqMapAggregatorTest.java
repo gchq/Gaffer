@@ -16,18 +16,19 @@
 
 package uk.gov.gchq.gaffer.types.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
+
     @Test
     public void shouldMergeFreqMaps() {
         // Given
@@ -59,7 +60,7 @@ public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
 
         // Then 1
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.IntegerFreqMapAggregator\"%n" +
                 "}"), json);
 

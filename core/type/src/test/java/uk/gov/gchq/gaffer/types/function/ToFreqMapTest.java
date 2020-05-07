@@ -16,18 +16,19 @@
 
 package uk.gov.gchq.gaffer.types.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ToFreqMapTest extends FunctionTest {
+
     @Test
     public void shouldConvertStringToFreqMap() {
         // Given
@@ -79,7 +80,7 @@ public class ToFreqMapTest extends FunctionTest {
         final String json = new String(JSONSerialiser.serialise(function, true));
 
         // Then 1
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.ToFreqMap\"%n" +
                 "}"), json);
 

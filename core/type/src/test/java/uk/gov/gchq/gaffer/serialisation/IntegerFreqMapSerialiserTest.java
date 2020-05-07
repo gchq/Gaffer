@@ -15,23 +15,25 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<IntegerFreqMap> {
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
         byte[] b = serialiser.serialise(new IntegerFreqMap());
-        Object o = serialiser.deserialise(b);
+
+        final Object o = serialiser.deserialise(b);
+
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertEquals(0, ((IntegerFreqMap) o).size());
     }
@@ -42,7 +44,9 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         freqMap.put("x", 10);
         freqMap.put("y", 5);
         freqMap.put("z", 20);
+
         byte[] b = serialiser.serialise(freqMap);
+
         IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertEquals((Integer) 10, o.get("x"));
@@ -56,8 +60,10 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         freqMap.put("x", null);
         freqMap.put("y", 5);
         freqMap.put("z", 20);
-        byte[] b = serialiser.serialise(freqMap);
-        IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
+
+        final byte[] b = serialiser.serialise(freqMap);
+        final IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
+
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertNull(o.get("x"));
         assertEquals((Integer) 5, o.get("y"));
@@ -65,12 +71,12 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseFreqMap() throws SerialisationException {
+    public void canSerialiseFreqMap() {
         assertTrue(serialiser.canHandle(IntegerFreqMap.class));
     }
 
@@ -87,8 +93,8 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         freqMap.put("y", 5);
         freqMap.put("z", 20);
 
-        return new Pair[]{
-                new Pair(freqMap, new byte[]{120, 92, 44, 49, 48, 92, 44, 121, 92, 44, 53, 92, 44, 122, 92, 44, 50, 48})
+        return new Pair[] {
+                new Pair(freqMap, new byte[] {120, 92, 44, 49, 48, 92, 44, 121, 92, 44, 53, 92, 44, 122, 92, 44, 50, 48})
         };
     }
 

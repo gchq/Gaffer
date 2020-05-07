@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.types;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TypeValueTest {
 
@@ -45,11 +45,11 @@ public class TypeValueTest {
     @Test
     public void testHashCodeAndEqualsMethodTreatsEmptyStringAsNull() {
         // Given
-        TypeValue typeValueEmptyStrings = new TypeValue("", "");
-        TypeValue typeValueNullStrings = new TypeValue(null, null);
+        final TypeValue typeValueEmptyStrings = new TypeValue("", "");
+        final TypeValue typeValueNullStrings = new TypeValue(null, null);
 
         // When
-        boolean equalsResult = typeValueEmptyStrings.equals(typeValueNullStrings);
+        final boolean equalsResult = typeValueEmptyStrings.equals(typeValueNullStrings);
 
         // Then
         assertTrue(equalsResult);

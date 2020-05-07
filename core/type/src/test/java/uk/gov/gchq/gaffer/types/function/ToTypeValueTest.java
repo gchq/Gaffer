@@ -16,37 +16,36 @@
 
 package uk.gov.gchq.gaffer.types.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ToTypeValueTest extends FunctionTest {
+
     @Test
     public void shouldConvertStringToTypeValue() {
         // Given
         final ToTypeValue function = new ToTypeValue();
-
-        final Object value = "value1";
+        final String value = "value1";
 
         // When
         final TypeValue result = function.apply(value);
 
         // Then
-        assertEquals(new TypeValue(null, value.toString()), result);
+        assertEquals(new TypeValue(null, value), result);
     }
 
     @Test
     public void shouldConvertObjectToTypeValue() {
         // Given
         final ToTypeValue function = new ToTypeValue();
-
         final Object value = 1L;
 
         // When
@@ -79,7 +78,7 @@ public class ToTypeValueTest extends FunctionTest {
         final String json = new String(JSONSerialiser.serialise(function, true));
 
         // Then 1
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        assertJsonEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.ToTypeValue\"%n" +
                 "}"), json);
 

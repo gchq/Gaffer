@@ -15,22 +15,24 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
-        byte[] b = serialiser.serialise(new FreqMap());
-        Object o = serialiser.deserialise(b);
+        final byte[] b = serialiser.serialise(new FreqMap());
+
+        final Object o = serialiser.deserialise(b);
+
         assertEquals(FreqMap.class, o.getClass());
         assertEquals(0, ((FreqMap) o).size());
     }
@@ -118,12 +120,12 @@ public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseFreqMap() throws SerialisationException {
+    public void canSerialiseFreqMap() {
         assertTrue(serialiser.canHandle(FreqMap.class));
     }
 
@@ -138,8 +140,8 @@ public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
         freqMap.put("x", 10L);
         freqMap.put("y", 5L);
         freqMap.put("z", 20L);
-        return new Pair[]{
-                new Pair(freqMap, new byte[]{120, 0, 10, 0, 121, 0, 5, 0, 122, 0, 20})
+        return new Pair[] {
+                new Pair(freqMap, new byte[] {120, 0, 10, 0, 121, 0, 5, 0, 122, 0, 20})
         };
     }
 }
