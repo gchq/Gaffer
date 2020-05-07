@@ -68,12 +68,15 @@ public class MiniAccumuloStore extends AccumuloStore {
             throw new StoreException(e.getMessage(), e);
         }
 
-        // Create the user specified in the properties together with the specified password and give them all authorisations
+        // Create the user specified in the properties (if not root)
+        // together with the specified password and give them all authorisations
         try {
-            miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
-                    .createLocalUser(getProperties().getUser(), new PasswordToken(getProperties().getPassword()));
-            miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
-                    .grantSystemPermission(getProperties().getUser(), SystemPermission.CREATE_TABLE);
+            if (getProperties().getUser().equalsIgnoreCase("root") == false) {
+                miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
+                        .createLocalUser(getProperties().getUser(), new PasswordToken(getProperties().getPassword()));
+                miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
+                        .grantSystemPermission(getProperties().getUser(), SystemPermission.CREATE_TABLE);
+            }
             Authorizations auths = new Authorizations("public", "private", "publicVisibility", "privateVisibility", "vis1", "vis2");
             miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
                     .changeUserAuthorizations(getProperties().getUser(), auths);
