@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -23,6 +25,12 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class BooleanSerialiserTest extends ToBytesSerialisationTest<Boolean> {
+
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertFalse(serialiser.deserialiseEmpty());
+    }
 
     @Override
     public Serialiser<Boolean, byte[]> getSerialisation() {
@@ -33,13 +41,8 @@ public class BooleanSerialiserTest extends ToBytesSerialisationTest<Boolean> {
     @SuppressWarnings("unchecked")
     public Pair<Boolean, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
-                new Pair(false, new byte[]{0}),
-                new Pair(true, new byte[]{1})
+                new Pair<>(false, new byte[]{0}),
+                new Pair<>(true, new byte[]{1})
         };
-    }
-
-    @Override
-    public void shouldDeserialiseEmpty() throws SerialisationException {
-        assertFalse(serialiser.deserialiseEmpty());
     }
 }

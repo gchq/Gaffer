@@ -15,22 +15,23 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (double i = 0; i < 1000; i += 1.1) {
-            byte[] b = serialiser.serialise(i);
-            Object o = serialiser.deserialise(b);
+            final byte[] b = serialiser.serialise(i);
+            final Object o = serialiser.deserialise(b);
+
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,16 +39,18 @@ public class DoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
     @Test
     public void canSerialiseDoubleMinValue() throws SerialisationException {
-        byte[] b = serialiser.serialise(Double.MIN_VALUE);
-        Object o = serialiser.deserialise(b);
+        final byte[] b = serialiser.serialise(Double.MIN_VALUE);
+        final Object o = serialiser.deserialise(b);
+
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseDoubleMaxValue() throws SerialisationException {
-        byte[] b = serialiser.serialise(Double.MAX_VALUE);
-        Object o = serialiser.deserialise(b);
+        final byte[] b = serialiser.serialise(Double.MAX_VALUE);
+        final Object o = serialiser.deserialise(b);
+
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MAX_VALUE, o);
     }
