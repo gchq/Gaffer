@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -28,9 +28,9 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
@@ -80,11 +80,14 @@ public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long>
     private void test(final long value) throws SerialisationException {
         final byte[] b = serialiser.serialise(value);
         final Object o = ((ToBytesSerialiser) serialiser).deserialise(b, 0, b.length);
+
         assertEquals(Long.class, o.getClass());
         assertEquals(value, o);
+
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         CompactRawSerialisationUtils.write(value, new DataOutputStream(stream));
         final long result = CompactRawSerialisationUtils.read(new DataInputStream(new ByteArrayInputStream(stream.toByteArray())));
+
         assertEquals(result, value);
     }
 

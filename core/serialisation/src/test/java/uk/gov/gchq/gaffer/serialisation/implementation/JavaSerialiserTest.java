@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.collect.Maps;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -28,21 +28,23 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void testPrimitiveSerialisation() throws SerialisationException {
         final byte[] b = serialiser.serialise(2);
+
         final Object o = serialiser.deserialise(b);
+
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
 
     @Test
-    public void canHandleUnParameterisedDAO() throws SerialisationException {
+    public void canHandleUnParameterisedDAO() {
         assertTrue(serialiser.canHandle(SimpleTestObject.class));
     }
 
@@ -51,13 +53,15 @@ public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
         final byte[] b = serialiser.serialise(test);
+
         final Object o = serialiser.deserialise(b);
+
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", ((SimpleTestObject) o).getX());
     }
 
     @Test
-    public void canHandleParameterisedDAO() throws SerialisationException {
+    public void canHandleParameterisedDAO() {
         assertTrue(serialiser.canHandle(ParameterisedTestObject.class));
     }
 
@@ -67,7 +71,9 @@ public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
         test.setX("Test");
         test.setK(2);
         final byte[] b = serialiser.serialise(test);
+
         final Object o = serialiser.deserialise(b);
+
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", ((ParameterisedTestObject) o).getX());
         assertEquals(Integer.class, ((ParameterisedTestObject) o).getK().getClass());

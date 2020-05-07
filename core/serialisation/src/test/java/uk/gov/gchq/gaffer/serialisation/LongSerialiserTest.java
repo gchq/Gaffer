@@ -53,12 +53,12 @@ public class LongSerialiserTest extends ToBytesSerialisationTest<Long> {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
+    public void canSerialiseLongClass() {
         assertTrue(serialiser.canHandle(Long.class));
     }
 

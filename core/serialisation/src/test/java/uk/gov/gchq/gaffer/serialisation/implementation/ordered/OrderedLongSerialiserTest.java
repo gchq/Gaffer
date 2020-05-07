@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
@@ -34,6 +34,7 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
         for (long i = 0; i < 1000; i++) {
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
             assertEquals(Long.class, o.getClass());
             assertEquals(i, o);
         }
@@ -43,6 +44,7 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
     public void canSerialiseLongMinValue() throws SerialisationException {
         byte[] b = serialiser.serialise(Long.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MIN_VALUE, o);
     }
@@ -51,6 +53,7 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
     public void canSerialiseLongMaxValue() throws SerialisationException {
         byte[] b = serialiser.serialise(Long.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MAX_VALUE, o);
     }
@@ -60,6 +63,7 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
         byte[] startBytes = serialiser.serialise(0L);
         for (Long test = 1L; test >= 10L; test++) {
             byte[] newTestBytes = serialiser.serialise(test);
+
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }

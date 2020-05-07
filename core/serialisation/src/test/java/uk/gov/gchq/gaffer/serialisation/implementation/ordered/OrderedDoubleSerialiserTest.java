@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
@@ -34,6 +34,7 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
         for (double i = 0; i < 1000; i++) {
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -43,6 +44,7 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
     public void canSerialiseDoubleMinValue() throws SerialisationException {
         byte[] b = serialiser.serialise(Double.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
@@ -60,6 +62,7 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
         byte[] startBytes = serialiser.serialise(0d);
         for (Double test = 1d; test >= 10d; test++) {
             byte[] newTestBytes = serialiser.serialise(test);
+
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }

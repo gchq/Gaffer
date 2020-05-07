@@ -53,12 +53,12 @@ public class DoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseDoubleClass() throws SerialisationException {
+    public void canSerialiseDoubleClass() {
         assertTrue(serialiser.canHandle(Double.class));
     }
 
@@ -70,11 +70,11 @@ public class DoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Double.MAX_VALUE, new byte[]{49, 46, 55, 57, 55, 54, 57, 51, 49, 51, 52, 56, 54, 50, 51, 49, 53, 55, 69, 51, 48, 56}),
-                new Pair<>(Double.MIN_VALUE, new byte[]{52, 46, 57, 69, 45, 51, 50, 52}),
-                new Pair<>(0.0, new byte[]{48, 46, 48}),
-                new Pair<>(1.00, new byte[]{49, 46, 48}),
+        return new Pair[] {
+                new Pair<>(Double.MAX_VALUE, new byte[] {49, 46, 55, 57, 55, 54, 57, 51, 49, 51, 52, 56, 54, 50, 51, 49, 53, 55, 69, 51, 48, 56}),
+                new Pair<>(Double.MIN_VALUE, new byte[] {52, 46, 57, 69, 45, 51, 50, 52}),
+                new Pair<>(0.0, new byte[] {48, 46, 48}),
+                new Pair<>(1.00, new byte[] {49, 46, 48}),
         };
     }
 }

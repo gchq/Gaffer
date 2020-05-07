@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -29,34 +29,13 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSeri
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
+
     private static final String PATH = "multiSerialiser.json";
-
-    @Override
-    public Serialiser<Object, byte[]> getSerialisation() {
-        MultiSerialiser multiSerialiser;
-        try {
-            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), PATH), MultiSerialiser.class);
-        } catch (SerialisationException e) {
-            throw new RuntimeException(e);
-        }
-        return multiSerialiser;
-    }
-
-    @Override
-    public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
-        Pair[] pairs = new Pair[]{
-                new Pair("hello world", new byte[]{0, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100}),
-                new Pair(420L, new byte[]{1, -114, 1, -92}),
-        };
-
-        return pairs;
-    }
 
     @Test
     public void shouldAcceptSupportedSerialisers() throws Exception {
@@ -66,9 +45,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
-        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), PATH))
-                .stream()
-                .collect(Collectors.joining("\n"));
+        final String fromDisk = String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), PATH)));
 
         final MultiSerialiser multiSerialiser = new MultiSerialiser()
                 .addSerialiser((byte) 0, new StringSerialiser(), String.class)
@@ -82,11 +59,28 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void shouldNotAddMultiSerialiser() {
-        try {
-            new MultiSerialiser().addSerialiser((byte) 0, new MultiSerialiser(), Object.class);
-            fail("exception not thrown");
-        } catch (GafferCheckedException e) {
-            assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER, e.getMessage());
-        }
+        final Exception exception = assertThrows(GafferCheckedException.class, () -> new MultiSerialiser().addSerialiser((byte) 0, new MultiSerialiser(), Object.class));
+
+        assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER, exception.getMessage());
     }
+
+    @Override
+    public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[] {
+                new Pair<>("hello world", new byte[] {0, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100}),
+                new Pair<>(420L, new byte[] {1, -114, 1, -92}),
+        };
+    }
+
+    @Override
+    public Serialiser<Object, byte[]> getSerialisation() {
+        MultiSerialiser multiSerialiser;
+        try {
+            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), PATH), MultiSerialiser.class);
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
+        }
+        return multiSerialiser;
+    }
+
 }
