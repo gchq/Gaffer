@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
@@ -40,9 +41,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends Store> {
     protected Schema schema = new Schema.Builder()
@@ -76,7 +77,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("input is required"));
+            assertTrue(e.getMessage().contains("input is required"), e.getMessage());
         }
     }
 
@@ -94,7 +95,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().equals("Operation input is undefined - please specify an input."));
+            assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."), e.getMessage());
         }
     }
 
@@ -118,7 +119,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final LimitExceededException e) {
-            assertTrue(e.getMessage(), e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."));
+            assertTrue(e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."), e.getMessage());
         }
     }
 

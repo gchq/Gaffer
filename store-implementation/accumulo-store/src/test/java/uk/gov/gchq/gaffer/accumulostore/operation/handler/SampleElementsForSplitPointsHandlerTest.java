@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -39,7 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -48,7 +49,7 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
 
     private AccumuloStore store;
 
-    @Before
+    @BeforeEach
     public void before() throws StoreException {
         store = mock(AccumuloStore.class);
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);

@@ -23,9 +23,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
@@ -52,33 +52,34 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class AccumuloAddElementsFromHdfsJobFactoryTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
 
     public String inputDir;
     public String outputDir;
     public String splitsDir;
     public String splitsFile;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        inputDir = testFolder.getRoot().getAbsolutePath() + "inputDir";
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
+        inputDir = testFolder.getAbsolutePath() + "inputDir";
+        outputDir = testFolder.getAbsolutePath() + "/outputDir";
+        splitsDir = testFolder.getAbsolutePath() + "/splitsDir";
         splitsFile = splitsDir + "/splits";
     }
 

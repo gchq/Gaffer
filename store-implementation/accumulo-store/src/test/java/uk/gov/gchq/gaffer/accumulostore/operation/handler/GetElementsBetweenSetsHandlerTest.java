@@ -18,14 +18,14 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -52,9 +52,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetElementsBetweenSetsHandlerTest {
     // Query for all edges between the set {A0} and the set {A23}
@@ -64,6 +64,8 @@ public class GetElementsBetweenSetsHandlerTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+    private static AccumuloProperties gaffer1KeyStoreProperties;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsBetweenSetsHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -109,13 +111,15 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private User user = new User();
 
-    @BeforeClass
-    public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    @BeforeAll
+    public static void setup() throws StoreException {
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        gaffer1KeyStore = new SingleUseMiniAccumuloStore();
+        gaffer1KeyStoreProperties = (AccumuloProperties) gaffer1KeyStore.setUpTestDB(CLASSIC_PROPERTIES);
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
@@ -145,16 +149,16 @@ public class GetElementsBetweenSetsHandlerTest {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, byteEntityStoreProperties);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, gaffer1KeyStoreProperties);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
+        byteEntityStore.tearDownTestDB();
+        gaffer1KeyStore.tearDownTestDB();
         defaultView = null;
     }
 
