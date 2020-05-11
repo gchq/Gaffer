@@ -21,8 +21,8 @@ mvn -q org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=pr
 oldVersion=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=koryphe.version | grep -v '\['`
 
 
-sed -i '' "s/<koryphe.version>$oldVersion</<koryphe.version>$newVersion</g" pom.xml
-sed -i '' "s/uk.gov.gchq.koryphe:koryphe:$oldVersion/uk.gov.gchq.koryphe:koryphe:$newVersion/g" NOTICES
+sed -i'' "s/<koryphe.version>$oldVersion</<koryphe.version>$newVersion</g" pom.xml
+sed -i'' "s/uk.gov.gchq.koryphe:koryphe:$oldVersion/uk.gov.gchq.koryphe:koryphe:$newVersion/g" NOTICES
 
 git add .
 git commit -a -m "Updated Koryphe version to $newVersion"
