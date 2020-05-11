@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.time.function;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -31,15 +31,15 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
     private Instant instant;
     private MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange();
 
-    @Before
+    @BeforeEach
     public void setup() {
         instant = Instant.now();
     }
@@ -62,7 +62,6 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
     @Test
     public void shouldBeAbleToChangeTimeUnit() {
-
         // Given
         final RBMBackedTimestampSet timestampSet = createTimestampSet();
 
@@ -75,20 +74,15 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
                 .build();
 
         // When
-
         final RBMBackedTimestampSet output = mask.apply(timestampSet);
 
         // Then
-
         final RBMBackedTimestampSet expected = new RBMBackedTimestampSet.Builder()
                 .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
                 .timestamps(Sets.newHashSet(instant, instant.plus(Duration.ofDays(100))))
                 .build();
-
         assertEquals(expected, output);
-
     }
-
 
     @Test
     public void shouldNotMutateOriginalValue() {
@@ -99,9 +93,8 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
         final RBMBackedTimestampSet actualTimestampSet = maskTimestampSetByTimeRange.apply(timestampSet);
 
-        assertNotEquals(actualTimestampSet, timestampSet);
+        assertNotEquals(timestampSet, actualTimestampSet);
         assertEquals(4, timestampSet.getTimestamps().size());
-
     }
 
     @Test
@@ -122,7 +115,22 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
                 .build();
 
         assertEquals(expectedTimestampSet, actualTimestampSet);
+    }
 
+    @Test
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // Given
+        final MaskTimestampSetByTimeRange maskTimestampSetByTimeRange =
+                new MaskTimestampSetByTimeRange(1L, 2L);
+
+        // When
+        final String json = new String(JSONSerialiser.serialise(maskTimestampSetByTimeRange));
+        MaskTimestampSetByTimeRange deserialisedMaskTimestampSetByTimeRange = JSONSerialiser.deserialise(json, MaskTimestampSetByTimeRange.class);
+
+        // Then
+        assertEquals(maskTimestampSetByTimeRange, deserialisedMaskTimestampSetByTimeRange);
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.MaskTimestampSetByTimeRange\",\"startTime\":1,\"endTime\":2,\"timeUnit\":\"MILLISECOND\"}", json);
     }
 
     private RBMBackedTimestampSet createTimestampSet() {
@@ -142,20 +150,5 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     @Override
     protected Class<? extends Function> getFunctionClass() {
         return MaskTimestampSetByTimeRange.class;
-    }
-
-    @Override
-    public void shouldJsonSerialiseAndDeserialise() throws IOException {
-        // Given
-        final MaskTimestampSetByTimeRange maskTimestampSetByTimeRange =
-                new MaskTimestampSetByTimeRange(1L, 2L);
-
-        // When
-        final String json = new String(JSONSerialiser.serialise(maskTimestampSetByTimeRange));
-        MaskTimestampSetByTimeRange deserialisedMaskTimestampSetByTimeRange = JSONSerialiser.deserialise(json, MaskTimestampSetByTimeRange.class);
-
-        // Then
-        assertEquals(maskTimestampSetByTimeRange, deserialisedMaskTimestampSetByTimeRange);
-        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.MaskTimestampSetByTimeRange\",\"startTime\":1,\"endTime\":2,\"timeUnit\":\"MILLISECOND\"}", json);
     }
 }

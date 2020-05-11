@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.types.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.FunctionTest;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeValue;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,10 +60,8 @@ public class ToTypeValueTest extends FunctionTest {
         // Given
         final ToTypeValue function = new ToTypeValue();
 
-        final Object value = null;
-
         // When
-        final TypeValue result = function.apply(value);
+        final TypeValue result = function.apply(null);
 
         // Then
         assertEquals(new TypeValue(null, null), result);

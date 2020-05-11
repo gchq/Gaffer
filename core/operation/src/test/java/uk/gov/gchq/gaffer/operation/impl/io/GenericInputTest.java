@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -30,14 +29,16 @@ import uk.gov.gchq.gaffer.types.TypeValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.runners.Parameterized.Parameters;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 @RunWith(Parameterized.class)
 public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
@@ -85,7 +86,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
         });
     }
 
-    @Parameterized.Parameter(0)
+    @Parameterized.Parameter()
     public String description;
     @Parameterized.Parameter(1)
     public Object inputData;
@@ -99,7 +100,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json = toJson(input);
-        JsonAssert.assertJsonEquals(getExpectedJson(), json);
+        assertJsonEquals(getExpectedJson(), json);
 
         // When / Then
         final GenericInput inputFromJson = fromJson(json);
@@ -107,7 +108,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json2 = toJson(inputFromJson);
-        JsonAssert.assertJsonEquals(getExpectedJson(), json2);
+        assertJsonEquals(getExpectedJson(), json2);
 
         // When / Then
         final GenericInput inputFromJson2 = fromJson(json2);
@@ -132,9 +133,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
                 fail("Expected and actual objects must be the same length.");
             }
 
-            zip(expectedList, actualList).forEach(pair -> {
-                assertEquals(pair.getFirst(), pair.getSecond());
-            });
+            zip(expectedList, actualList).forEach(pair -> assertEquals(pair.getFirst(), pair.getSecond()));
 
         } else {
             assertEquals(expectedList, actualList);
@@ -149,9 +148,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
     private List<Object> getAsList(final Object obj) {
         if (obj.getClass().isArray()) {
             final List<Object> objList = new ArrayList<>();
-            for (int i = 0; i < ((Object[]) obj).length; i++) {
-                objList.add(((Object[]) obj)[i]);
-            }
+            Collections.addAll(objList, ((Object[]) obj));
             return objList;
         } else if (obj instanceof Collection) {
             return Lists.newArrayList((Collection) obj);

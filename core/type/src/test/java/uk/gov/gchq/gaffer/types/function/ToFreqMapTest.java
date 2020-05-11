@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.types.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.FunctionTest;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,21 +33,19 @@ public class ToFreqMapTest extends FunctionTest {
     public void shouldConvertStringToFreqMap() {
         // Given
         final ToFreqMap function = new ToFreqMap();
-
-        final Object value = "value1";
+        final String value = "value1";
 
         // When
         final FreqMap result = function.apply(value);
 
         // Then
-        assertEquals(new FreqMap(value.toString()), result);
+        assertEquals(new FreqMap(value), result);
     }
 
     @Test
     public void shouldConvertObjectToFreqMap() {
         // Given
         final ToFreqMap function = new ToFreqMap();
-
         final Object value = 1L;
 
         // When
@@ -62,10 +60,8 @@ public class ToFreqMapTest extends FunctionTest {
         // Given
         final ToFreqMap function = new ToFreqMap();
 
-        final Object value = null;
-
         // When
-        final FreqMap result = function.apply(value);
+        final FreqMap result = function.apply(null);
 
         // Then
         assertEquals(new FreqMap((String) null), result);
