@@ -15,27 +15,31 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 
 import java.security.InvalidParameterException;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BytesAndRangeTest {
 
     private byte[] emptyBytes = new byte[]{};
 
     @Test
-    public void shouldThrowNoException() throws Exception {
+    public void shouldThrowNoException() {
         new BytesAndRange(emptyBytes, 1, 1);
     }
 
-    @Test(expected = InvalidParameterException.class)
-    public void shouldThrowExceptionForOffset() throws Exception {
-        new BytesAndRange(emptyBytes, -1, 1);
+    @Test
+    public void shouldThrowExceptionForOffset() {
+        assertThrows(InvalidParameterException.class, () -> new BytesAndRange(emptyBytes, -1, 1));
     }
 
-    @Test(expected = InvalidParameterException.class)
-    public void shouldThrowExceptionForLength() throws Exception {
-        new BytesAndRange(emptyBytes, 1, -1);
+    @Test
+    public void shouldThrowExceptionForLength() {
+        assertThrows(InvalidParameterException.class, () -> new BytesAndRange(emptyBytes, 1, -1));
     }
 
 
