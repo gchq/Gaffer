@@ -208,6 +208,10 @@ Apache HttpComponents (org.apache.httpcomponents:httpclient:4.4,org.apache.httpc
 - Apache License, Version 2.0
 
 
+JCommander (com.beust:jcommander:1.78)
+
+- Apache License, Version 2.0
+
 ------------------------------------------------------------------------------------------------
 
 The Gaffer rest-api module contains the following javascript dependencies:
