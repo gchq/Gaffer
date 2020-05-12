@@ -96,4 +96,14 @@ public class ToTypeSubTypeValueTest extends FunctionTest {
     protected Class<ToTypeSubTypeValue> getFunctionClass() {
         return ToTypeSubTypeValue.class;
     }
+
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[0];
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[0];
+    }
 }
