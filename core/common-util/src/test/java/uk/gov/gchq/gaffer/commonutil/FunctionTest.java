@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.SummaryUtil;
 import uk.gov.gchq.koryphe.util.VersionUtil;
 
@@ -113,21 +112,5 @@ public abstract class FunctionTest {
         assertNotNull(annotation, "Missing Summary annotation on class " + instance.getClass().getName());
         assertNotNull(annotation.value(), "Missing Summary annotation on class " + instance.getClass().getName());
         assertTrue(SummaryUtil.validateSummaryString(annotation.value()), annotation.value() + " is not a valid value string.");
-    }
-
-    @Test
-    public void shouldGenerateExpectedInputSignature() {
-        Function function = this.getInstance();
-        Signature signature = Signature.getInputSignature(function);
-
-        assertTrue(signature.assignable(this.getExpectedSignatureInputClasses()).isValid());
-    }
-
-    @Test
-    public void shouldGenerateExpectedOutputSignature() {
-        Function function = this.getInstance();
-        Signature signature = Signature.getOutputSignature(function);
-
-        assertTrue(signature.assignable(this.getExpectedSignatureOutputClasses()).isValid());
     }
 }

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -77,7 +77,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
 
         // When / Then
         final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(), createStore()));
-        assertEquals("e.getMessage()", exception.getMessage());
+        assertEquals("Operation input is required.", exception.getMessage());
     }
 
     @Test
