@@ -100,7 +100,7 @@ public class ElementIdSerialiserTest {
     }
 
     @Test
-    public void testCanSerialiseElementIdClass()  {
+    public void testCanSerialiseElementIdClass() {
         assertTrue(serialiser.canHandle(ElementId.class));
     }
 
@@ -110,7 +110,7 @@ public class ElementIdSerialiserTest {
     }
 
     @Test
-    public void testPreserveObjectOrdering()  {
+    public void testPreserveObjectOrdering() {
         assertTrue(serialiser.preservesObjectOrdering());
     }
 

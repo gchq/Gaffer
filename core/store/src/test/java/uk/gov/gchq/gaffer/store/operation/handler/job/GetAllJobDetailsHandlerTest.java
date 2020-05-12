@@ -45,7 +45,7 @@ public class GetAllJobDetailsHandlerTest {
         given(store.getJobTracker()).willReturn(null);
 
         // When / Then
-        assertThrows(OperationException.class, ()->handler.doOperation(operation, new Context(user), store));
+        assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(user), store));
     }
 
     @Test

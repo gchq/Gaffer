@@ -81,7 +81,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
     }
 
     @Test
-    public void shouldThrowExceptionIfNumberOfSampledElementsIsMoreThanMaxAllowed()  {
+    public void shouldThrowExceptionIfNumberOfSampledElementsIsMoreThanMaxAllowed() {
         // Given
         int maxSampledElements = 5;
         final AbstractSampleElementsForSplitPointsHandler<?, ?> handler = createHandler();

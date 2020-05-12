@@ -837,7 +837,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue( result.isValid(),result.getErrorString());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test

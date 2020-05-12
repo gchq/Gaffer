@@ -51,7 +51,7 @@ public class EdgeIdSerialiserTest {
 
         // When / Then
         final Exception exception = assertThrows(IllegalArgumentException.class, () -> new EdgeIdSerialiser(schema));
-        assertEquals("Vertex serialiser is required",exception.getMessage());
+        assertEquals("Vertex serialiser is required", exception.getMessage());
     }
 
     @Test
@@ -83,7 +83,7 @@ public class EdgeIdSerialiserTest {
     }
 
     @Test
-    public void testPreserveObjectOrdering()  {
+    public void testPreserveObjectOrdering() {
         assertTrue(serialiser.preservesObjectOrdering());
     }
 

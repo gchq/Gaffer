@@ -39,7 +39,7 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends
     protected Schema schema = new Schema.Builder().build();
 
     @Test
-    public void shouldThrowExceptionForNullInput()  {
+    public void shouldThrowExceptionForNullInput() {
         // Given
         final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
         final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()

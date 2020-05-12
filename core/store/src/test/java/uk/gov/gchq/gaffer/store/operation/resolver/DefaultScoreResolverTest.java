@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation.Builder;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -135,7 +134,7 @@ public class DefaultScoreResolverTest {
 
 
     @Test
-    public void shouldGetOperationChainScore()   {
+    public void shouldGetOperationChainScore() {
         // Given
         final DefaultScoreResolver scoreResolver = new DefaultScoreResolver();
         final OperationChain opChain = new OperationChain.Builder()
@@ -151,7 +150,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreForOperationChainWithNestedOperationChain()  {
+    public void shouldGetScoreForOperationChainWithNestedOperationChain() {
         // Given
         final DefaultScoreResolver scoreResolver = new DefaultScoreResolver();
 

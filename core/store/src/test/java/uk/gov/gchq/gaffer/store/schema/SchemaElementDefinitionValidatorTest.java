@@ -445,7 +445,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
+                "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -514,7 +514,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [stringProperty, timestamp], is aggregated by: " + function1.getClass().getName()
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [stringProperty, timestamp], is aggregated by: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -550,7 +550,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -583,7 +583,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "ElementAggregator contains a null function."
+                "ElementAggregator contains a null function."
                 ),
                 result.getErrors());
     }
@@ -617,7 +617,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
+                "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
                 ),
                 result.getErrors());
     }

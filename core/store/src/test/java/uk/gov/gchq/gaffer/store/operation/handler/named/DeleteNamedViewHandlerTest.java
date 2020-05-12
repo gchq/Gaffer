@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

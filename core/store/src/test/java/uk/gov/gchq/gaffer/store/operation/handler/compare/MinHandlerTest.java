@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
@@ -193,7 +192,7 @@ public class MinHandlerTest {
                 .build();
     }
 
-    private Entity makeEntity(final String propertyName1,final int property1) {
+    private Entity makeEntity(final String propertyName1, final int property1) {
         return new Entity.Builder().group(TestGroups.ENTITY)
                 .property(propertyName1, property1)
                 .build();

@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -124,7 +123,7 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-     final   CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allNamedOperationsList));
@@ -134,7 +133,7 @@ public class GetAllNamedOperationsHandlerTest {
     @Test
     public void shouldReturnNamedOperationWithNoInputType() throws Exception {
         // Given
-      final  AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .name(expectedOperationDetailWithoutInputType.getOperationName())
                 .description(expectedOperationDetailWithoutInputType.getDescription())
                 .operationChain(expectedOperationDetailWithoutInputType.getOperationChainWithDefaultParams())
@@ -143,7 +142,7 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-      final   CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allNamedOperationsList));

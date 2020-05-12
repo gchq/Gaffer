@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
