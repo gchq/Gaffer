@@ -138,7 +138,7 @@ public class MiniAccumuloStore extends AccumuloStore {
         // Create the user specified in the properties (if not root)
         // together with the specified password and give them all authorisations
         try {
-            if (getProperties().getUser().equalsIgnoreCase("root") == false) {
+            if (!getProperties().getUser().equalsIgnoreCase("root")) {
                 miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
                         .createLocalUser(getProperties().getUser(), new PasswordToken(getProperties().getPassword()));
                 miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()

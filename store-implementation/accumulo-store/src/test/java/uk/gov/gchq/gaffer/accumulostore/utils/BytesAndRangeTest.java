@@ -17,8 +17,6 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-
 import java.security.InvalidParameterException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
