@@ -15,10 +15,9 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,10 +33,13 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonNotEqual;
 
 public class GetSchemaHandlerTest {
     private GetSchemaHandler handler;
@@ -48,14 +50,63 @@ public class GetSchemaHandlerTest {
     private StoreProperties properties;
     private byte[] compactSchemaBytes;
 
-    @Before
+    @BeforeEach
     public void setup() {
         handler = new GetSchemaHandler();
         store = mock(Store.class);
         context = mock(Context.class);
         user = mock(User.class);
         properties = new StoreProperties();
-        schema = new Schema.Builder()
+        schema = makeSchema();
+        compactSchemaBytes = schema.toCompactJson();
+    }
+
+    @Test
+    public void shouldReturnCompactSchema() throws OperationException {
+        given(store.getProperties()).willReturn(properties);
+        given(store.getSchema()).willReturn(schema);
+        given(context.getUser()).willReturn(user);
+
+        final GetSchema operation = new GetSchema.Builder()
+                .compact(true)
+                .build();
+
+        // When
+        final Schema result = handler.doOperation(operation, context, store);
+
+        // Then
+        assertNotNull(result);
+        assertJsonNotEqual(schema.toJson(true), result.toJson(true));
+        assertJsonEquals(compactSchemaBytes, result.toJson(true));
+    }
+
+    @Test
+    public void shouldReturnFullSchema() throws OperationException {
+        given(store.getProperties()).willReturn(properties);
+        given(store.getOriginalSchema()).willReturn(schema);
+        given(context.getUser()).willReturn(user);
+
+        final GetSchema operation = new GetSchema();
+
+        // When
+        final Schema result = handler.doOperation(operation, context, store);
+
+        // Then
+        assertNotNull(result);
+        assertJsonEquals(schema.toJson(true), result.toJson(true));
+    }
+
+    @Test
+    public void shouldThrowExceptionForNullOperation() {
+        final GetSchema operation = null;
+
+        // When / Then
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
+        assertEquals("Operation cannot be null", exception.getMessage());
+    }
+
+    private Schema makeSchema() {
+        return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
@@ -82,53 +133,5 @@ public class GetSchemaHandlerTest {
                         .build())
                 .type("true", Boolean.class)
                 .build();
-        compactSchemaBytes = schema.toCompactJson();
-    }
-
-    @Test
-    public void shouldReturnCompactSchema() throws OperationException {
-        given(store.getProperties()).willReturn(properties);
-        given(store.getSchema()).willReturn(schema);
-        given(context.getUser()).willReturn(user);
-
-        final GetSchema operation = new GetSchema.Builder()
-                .compact(true)
-                .build();
-
-        // When
-        final Schema result = handler.doOperation(operation, context, store);
-
-        // Then
-        assertNotNull(result);
-        JsonAssert.assertJsonNotEqual(schema.toJson(true), result.toJson(true));
-        JsonAssert.assertJsonEquals(compactSchemaBytes, result.toJson(true));
-    }
-
-    @Test
-    public void shouldReturnFullSchema() throws OperationException {
-        given(store.getProperties()).willReturn(properties);
-        given(store.getOriginalSchema()).willReturn(schema);
-        given(context.getUser()).willReturn(user);
-
-        final GetSchema operation = new GetSchema();
-
-        // When
-        final Schema result = handler.doOperation(operation, context, store);
-
-        // Then
-        assertNotNull(result);
-        JsonAssert.assertJsonEquals(schema.toJson(true), result.toJson(true));
-    }
-
-    @Test
-    public void shouldThrowExceptionForNullOperation() throws OperationException {
-        final GetSchema operation = null;
-
-        // When / Then
-        try {
-            handler.doOperation(operation, context, store);
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Operation cannot be null"));
-        }
     }
 }

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
@@ -24,17 +24,18 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ContextTest {
+
     @Test
     public void shouldConstructContextsWithTheSameUserAndGenerateDifferentJobIds() {
         // Given
@@ -83,12 +84,8 @@ public class ContextTest {
         final User user = null;
 
         // When / Then
-        try {
-            new Context(user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("User is required", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Context(user));
+        assertEquals("User is required", exception.getMessage());
     }
 
     @Test

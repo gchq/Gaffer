@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
@@ -26,16 +26,16 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GroupedPropertiesSerialiserTest {
 
     private Schema schema;
     private GroupedPropertiesSerialiser serialiser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
@@ -74,12 +74,12 @@ public class GroupedPropertiesSerialiserTest {
     }
 
     @Test
-    public void testCantSerialiseIntegerClass() throws SerialisationException {
+    public void testCantSerialiseIntegerClass() {
         assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseGroupedPropertiesClass() throws SerialisationException {
+    public void testCanSerialiseGroupedPropertiesClass() {
         assertTrue(serialiser.canHandle(GroupedProperties.class));
     }
 
@@ -89,7 +89,7 @@ public class GroupedPropertiesSerialiserTest {
     }
 
     @Test
-    public void testPreserveObjectOrdering() throws SerialisationException {
+    public void testPreserveObjectOrdering() {
         assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

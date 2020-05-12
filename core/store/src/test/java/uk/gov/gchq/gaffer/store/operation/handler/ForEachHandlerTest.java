@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ForEach;
@@ -29,10 +29,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,12 +50,8 @@ public class ForEachHandlerTest {
         final ForEachHandler handler = new ForEachHandler();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Operation cannot be null"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(op, context, store));
+        assertEquals("Operation cannot be null", exception.getMessage());
     }
 
     @Test
@@ -70,12 +65,8 @@ public class ForEachHandlerTest {
         final ForEachHandler handler = new ForEachHandler();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Inputs cannot be null"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(op, context, store));
+        assertEquals("Inputs cannot be null", exception.getMessage());
     }
 
     @Test

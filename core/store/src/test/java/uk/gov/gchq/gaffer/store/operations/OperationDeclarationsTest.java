@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operations;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -28,11 +28,12 @@ import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OperationDeclarationsTest {
+
     @Test
     public void testSerialiseDeserialise() throws SerialisationException {
         // Given
@@ -54,7 +55,7 @@ public class OperationDeclarationsTest {
     }
 
     @Test
-    public void testDeserialiseFile() throws SerialisationException {
+    public void testDeserialiseFile() {
         // Given
         final String paths = "operationDeclarations1.json,operationDeclarations2.json";
 
@@ -75,18 +76,12 @@ public class OperationDeclarationsTest {
     }
 
     @Test
-    public void testMissingFile() throws SerialisationException {
+    public void testMissingFile() {
         // Given
         final String paths = "missingFile.json,operationDeclarations2.json";
 
         // When
-        try {
-            OperationDeclarations.fromPaths(paths);
-        } catch (final IllegalArgumentException e) {
-            // Then
-            assertTrue(e.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
-            return;
-        }
-        fail("Exception wasn't thrown");
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> OperationDeclarations.fromPaths(paths));
+        assertTrue(exception.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
     }
 }

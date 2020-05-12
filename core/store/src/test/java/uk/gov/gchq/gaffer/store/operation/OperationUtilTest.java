@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class OperationUtilTest {
+
     @Test
     public void shouldGetInputOutputTypes() {
         final GetElements operation = new GetElements();

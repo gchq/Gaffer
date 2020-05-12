@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 
@@ -36,14 +36,15 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class SchemaElementDefinitionValidatorTest {
+
     @Test
     public void shouldValidateComponentTypesAndReturnTrueWhenNoIdentifiersOrProperties() {
         // Given

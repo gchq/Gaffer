@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -55,19 +53,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class ScoreOperationChainHandlerTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {
@@ -75,7 +72,7 @@ public class ScoreOperationChainHandlerTest {
         final OperationDeclarations deserialised = JSONSerialiser.deserialise(s, OperationDeclarations.class);
 
         assertEquals(1, deserialised.getOperations().size());
-        assert (deserialised.getOperations().get(0).getHandler() instanceof ScoreOperationChainHandler);
+        assertTrue(deserialised.getOperations().get(0).getHandler() instanceof ScoreOperationChainHandler);
     }
 
     @Test
@@ -480,14 +477,12 @@ public class ScoreOperationChainHandlerTest {
         opScores.put(GetElements.class.getName(), 2);
         opScores.put(GetAllElements.class.getName(), 3);
 
-        // When
-        handler.setOpScoresFromStrings(opScores);
-
-        // Then - no exceptions
+        // When / Then
+        assertDoesNotThrow(() -> handler.setOpScoresFromStrings(opScores));
     }
 
     @Test
-    public void shouldFailValidationOfOperationScores() throws ClassNotFoundException {
+    public void shouldFailValidationOfOperationScores() {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
         final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
@@ -496,12 +491,10 @@ public class ScoreOperationChainHandlerTest {
         opScores.put(Operation.class.getName(), 1);
 
         // When / Then
-        try {
-            handler.setOpScoresFromStrings(opScores);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation scores are configured incorrectly."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.setOpScoresFromStrings(opScores));
+        final String expected = "Operation scores are configured incorrectly.  " +
+                "The operation Operation is a parent operation of GetElements so the score of GetElements can never be accessed.";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -513,7 +506,6 @@ public class ScoreOperationChainHandlerTest {
         assertTrue(defaultResolvers.keySet().contains(NamedOperation.class));
         assertNotNull(defaultResolvers.get(NamedOperation.class));
         assertTrue(defaultResolvers.get(NamedOperation.class) instanceof NamedOperationScoreResolver);
-
     }
 
     @Test

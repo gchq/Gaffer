@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -44,9 +43,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.NotSerializableException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
@@ -56,16 +53,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
@@ -79,21 +78,18 @@ public class SchemaTest {
     private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
     @Test
-    public void shouldCloneSchema() throws SerialisationException {
-        //Given
-
+    public void shouldCloneSchema() {
         // When
         final Schema clonedSchema = schema.clone();
 
-        // Then
-        // Check they are different instances
+        // Then - Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        JsonAssert.assertJsonEquals(schema.toJson(true), clonedSchema.toJson(true));
+        assertJsonEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
-    public void shouldDeserialiseAndReserialiseIntoTheSameJson() throws SerialisationException {
+    public void shouldDeserialiseAndReserialiseIntoTheSameJson() {
         //Given
         final byte[] json1 = schema.toCompactJson();
         final Schema schema2 = new Schema.Builder().json(json1).build();
@@ -102,11 +98,11 @@ public class SchemaTest {
         final byte[] json2 = schema2.toCompactJson();
 
         // Then
-        JsonAssert.assertJsonEquals(json1, json2);
+        assertJsonEquals(json1, json2);
     }
 
     @Test
-    public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() throws SerialisationException {
+    public void shouldDeserialiseAndReserialiseIntoTheSamePrettyJson() {
         //Given
         final byte[] json1 = schema.toJson(true);
         final Schema schema2 = new Schema.Builder().json(json1).build();
@@ -115,7 +111,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        JsonAssert.assertJsonEquals(json1, json2);
+        assertJsonEquals(json1, json2);
     }
 
     @Test
@@ -140,44 +136,28 @@ public class SchemaTest {
         int index = 0;
 
         TupleAdaptedPredicate<String, ?> tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(IdentifierType.SOURCE.name(), tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, IdentifierType.SOURCE.name());
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(IdentifierType.DESTINATION.name(), tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, IdentifierType.DESTINATION.name());
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, IdentifierType.DIRECTED.name());
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
+        assertTupleIs_ExampleFilterFunction(tuplePredicate, IdentifierType.DIRECTED.name());
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, TestPropertyNames.PROP_2);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
+        assertTupleIs_ExampleFilterFunction(tuplePredicate, TestPropertyNames.PROP_2);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(TestPropertyNames.DATE, tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, TestPropertyNames.DATE);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(TestPropertyNames.TIMESTAMP, tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, TestPropertyNames.TIMESTAMP);
 
         assertEquals(index, valContexts.size());
 
@@ -209,14 +189,10 @@ public class SchemaTest {
         assertEquals(TestPropertyNames.VISIBILITY, tuplePredicate.getSelection()[1]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(IdentifierType.VERTEX.name(), tuplePredicate.getSelection()[0]);
+        assertTupleIs_IsA(tuplePredicate, IdentifierType.VERTEX.name());
 
-        tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
-        assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
+        tuplePredicate = valContexts.get(index);
+        assertTupleIs_IsA(tuplePredicate, TestPropertyNames.PROP_1);
 
 
         final ElementAggregator aggregator = edgeDefinition.getFullAggregator();
@@ -233,15 +209,27 @@ public class SchemaTest {
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
 
-        TypeDefinition mapTypeDef = schema.getType(TestTypes.PROP_MAP);
+        final TypeDefinition mapTypeDef = schema.getType(TestTypes.PROP_MAP);
         assertEquals(LinkedHashMap.class, mapTypeDef.getClazz());
         assertEquals(MAP_TYPE_DESCRIPTION, mapTypeDef.getDescription());
-        Serialiser serialiser = mapTypeDef.getSerialiser();
+        final Serialiser serialiser = mapTypeDef.getSerialiser();
         assertEquals(MapSerialiser.class, serialiser.getClass());
-        MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
+        final MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
         assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
         assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
         assertNull(mapSerialiser.getMapClass());
+    }
+
+    private void assertTupleIs_IsA(TupleAdaptedPredicate<String, ?> tuplePredicate, final String date) {
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(date, tuplePredicate.getSelection()[0]);
+    }
+
+    private void assertTupleIs_ExampleFilterFunction(TupleAdaptedPredicate<String, ?> tuplePredicate, final String name) {
+        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(name, tuplePredicate.getSelection()[0]);
     }
 
     @Test
@@ -328,9 +316,9 @@ public class SchemaTest {
     }
 
     @Test
-    public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
+    public void writeProgramaticSchemaAsJson() throws SchemaException {
         Schema schema = createSchema();
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        assertJsonEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +
@@ -406,7 +394,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void testCorrectSerialiserRetrievableFromConfig() throws NotSerializableException {
+    public void testCorrectSerialiserRetrievableFromConfig() {
         Schema store = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -446,7 +434,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void testSchemaConstructedFromInputStream() throws IOException {
+    public void testSchemaConstructedFromInputStream() {
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.ELEMENTS_SCHEMA);
         assertNotNull(resourceAsStream);
         final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
@@ -476,7 +464,7 @@ public class SchemaTest {
 
         final Schema schema = Schema.fromJson(Paths.get(SchemaTest.class.getResource("/schema").toURI()));
 
-        JsonAssert.assertJsonEquals(schema.toCompactJson(), schemaNested.toCompactJson());
+        assertJsonEquals(schema.toCompactJson(), schemaNested.toCompactJson());
     }
 
     private void assertExpectedSchemaElementsContent(final Schema schema) {
@@ -682,14 +670,12 @@ public class SchemaTest {
                 .build();
 
         // When / Then
-        try {
-            new Schema.Builder()
-                    .merge(schema1)
-                    .merge(schema2);
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue("Actual message was: " + e.getMessage(), e.getMessage().contains("Element group properties cannot be defined in different schema parts"));
-        }
+        final Exception exception = assertThrows(SchemaException.class, () -> new Schema.Builder()
+                .merge(schema1)
+                .merge(schema2));
+        final String expected = "Element group properties cannot be defined in different schema parts, " +
+                "they must all be defined in a single schema part. Please fix this group: BasicEdge";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -707,14 +693,12 @@ public class SchemaTest {
                 .build();
 
         // When / Then
-        try {
-            new Schema.Builder()
-                    .merge(schema1)
-                    .merge(schema2);
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue("Actual message was: " + e.getMessage(), e.getMessage().contains("Element group properties cannot be defined in different schema parts"));
-        }
+        final Exception exception = assertThrows(SchemaException.class, () -> new Schema.Builder()
+                .merge(schema1)
+                .merge(schema2));
+        final String expected = "Element group properties cannot be defined in different schema parts, " +
+                "they must all be defined in a single schema part. Please fix this group: BasicEntity";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -730,15 +714,11 @@ public class SchemaTest {
                 .build();
 
         // When / Then
-        try {
-            new Schema.Builder()
-                    .merge(schema1)
-                    .merge(schema2)
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("vertex serialiser"));
-        }
+        final Exception exception = assertThrows(SchemaException.class, () -> new Schema.Builder()
+                .merge(schema1)
+                .merge(schema2)
+                .build());
+        assertTrue(exception.getMessage().contains("Unable to merge schemas. Conflict with vertex serialiser"));
     }
 
     @Test
@@ -752,15 +732,12 @@ public class SchemaTest {
                 .build();
 
         // When / Then
-        try {
-            new Schema.Builder()
-                    .merge(schema1)
-                    .merge(schema2)
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("visibility property"));
-        }
+        final Exception exception = assertThrows(SchemaException.class, () -> new Schema.Builder()
+                .merge(schema1)
+                .merge(schema2)
+                .build());
+        final String expected = "Unable to merge schemas. Conflict with visibility property, options are: visibility and count";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -773,7 +750,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
+        assertArrayEquals(new String[] {TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
                 .getParents()
                 .toArray());
     }
@@ -803,7 +780,7 @@ public class SchemaTest {
         final SchemaEdgeDefinition childEdge1 = schema.getEdge(TestGroups.EDGE);
         assertEquals("string", childEdge1.getSource());
         assertEquals("int", childEdge1.getDestination());
-        assertEquals(null, childEdge1.getDirected());
+        assertNull(childEdge1.getDirected());
 
         final SchemaEdgeDefinition childEdge2 = schema.getEdge(TestGroups.EDGE_2);
         assertEquals("string", childEdge2.getSource());
@@ -825,7 +802,7 @@ public class SchemaTest {
 
         // Then
         // Check edges
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -833,7 +810,7 @@ public class SchemaTest {
                 schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
 
         // Check order of properties and overrides is from order of parents
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -843,11 +820,11 @@ public class SchemaTest {
 
         assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE).getDescription());
         assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema.getEdge(TestGroups.EDGE_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
 
         // Check entities
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -857,7 +834,7 @@ public class SchemaTest {
                         .toArray());
 
         // Check order of properties and overrides is from order of parents
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -869,8 +846,8 @@ public class SchemaTest {
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
     }
 
     @Test
@@ -899,7 +876,7 @@ public class SchemaTest {
 
 
         // Then
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -907,7 +884,7 @@ public class SchemaTest {
                 schema.getEdge(TestGroups.EDGE_4).getProperties().toArray());
 
         // Then - check order of properties and overrides is from order of parents
-        assertArrayEquals(new String[]{
+        assertArrayEquals(new String[] {
                         TestPropertyNames.PROP_1,
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
@@ -919,21 +896,16 @@ public class SchemaTest {
     @Test
     public void shouldThrowExceptionIfPropertyExistsInParentAndChild() {
         // When / Then
-        try {
-            new Schema.Builder()
-                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                            .property(TestPropertyNames.PROP_1, "prop.string")
-                            .property(TestPropertyNames.PROP_2, "prop.integer")
-                            .build())
-                    .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
-                            .parents(TestGroups.EDGE)
-                            .property(TestPropertyNames.PROP_1, "prop.string.changed")
-                            .build())
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertNotNull(e);
-        }
+        assertThrows(SchemaException.class, () -> new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .property(TestPropertyNames.PROP_1, "prop.string.changed")
+                        .build())
+                .build());
     }
 
     @Test
@@ -952,7 +924,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_2},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -1011,7 +983,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_2},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -1031,7 +1003,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -1050,7 +1022,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
@@ -1070,7 +1042,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
     }
 
@@ -1091,7 +1063,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+        assertArrayEquals(new String[] {TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
     }
 
@@ -1285,14 +1257,10 @@ public class SchemaTest {
         final String invalidGroupString = "invalidGroup-@?";
 
         // When / Then
-        try {
-            new Schema.Builder()
-                    .edge(invalidGroupString, edgeDef)
-                    .build();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Group is invalid"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Schema.Builder()
+                .edge(invalidGroupString, edgeDef)
+                .build());
+        assertEquals("Group is invalid: invalidGroup-@?, it must match regex: [a-zA-Z0-9|-]*", exception.getMessage());
     }
 
     @Test
@@ -1302,11 +1270,9 @@ public class SchemaTest {
         final String validGroupString = "val1dGr0up||";
 
         // When
-        new Schema.Builder()
+        assertDoesNotThrow(() -> new Schema.Builder()
                 .edge(validGroupString, edgeDef)
-                .build();
-
-        // Then - no exceptions
+                .build());
     }
 
     @Test
@@ -1316,14 +1282,10 @@ public class SchemaTest {
         final String invalidGroupString = "invalidGroup-@?";
 
         // When / Then
-        try {
-            new Schema.Builder()
-                    .entity(invalidGroupString, entityDef)
-                    .build();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Group is invalid"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Schema.Builder()
+                .entity(invalidGroupString, entityDef)
+                .build());
+        assertEquals("Group is invalid: invalidGroup-@?, it must match regex: [a-zA-Z0-9|-]*", exception.getMessage());
     }
 
     @Test
@@ -1333,25 +1295,19 @@ public class SchemaTest {
         final String validGroupString = "val1dGr0up||";
 
         // When
-        new Schema.Builder()
+        assertDoesNotThrow(() -> new Schema.Builder()
                 .entity(validGroupString, entityDef)
-                .build();
-
-        // Then - no exceptions
+                .build());
     }
 
     @Test
     public void shouldThrowExceptionWhenEdgePropertyIsInvalid() {
         // When / Then
-        try {
-            new Schema.Builder()
-                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                            .property("invalidPropName{@3#", "str")
-                            .build());
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Property is invalid"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property("invalidPropName{@3#", "str")
+                        .build()));
+        assertEquals("Property is invalid: invalidPropName{@3#, it must match regex: [a-zA-Z0-9|-]*", exception.getMessage());
     }
 
     @Test
@@ -1362,24 +1318,17 @@ public class SchemaTest {
                 .build();
 
         // When
-        new Schema.Builder()
-                .edge(TestGroups.EDGE, edgeDef);
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> new Schema.Builder()
+                .edge(TestGroups.EDGE, edgeDef));
     }
 
     @Test
     public void shouldThrowExceptionWhenEntityPropertyIsInvalid() {
-        // When / Then
-        try {
-            new Schema.Builder()
-                    .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                            .property("invalidPropName{@3#", "str")
-                            .build());
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Property is invalid"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property("invalidPropName{@3#", "str")
+                        .build()));
+        assertEquals("Property is invalid: invalidPropName{@3#, it must match regex: [a-zA-Z0-9|-]*", exception.getMessage());
     }
 
     @Test
@@ -1389,11 +1338,9 @@ public class SchemaTest {
                 .property("val1dPr0perty||", "str")
                 .build();
 
-        // When
-        new Schema.Builder()
-                .entity(TestGroups.ENTITY, entityDef);
-
-        // Then - no exceptions
+        // When / Then
+        assertDoesNotThrow(() -> new Schema.Builder()
+                .entity(TestGroups.ENTITY, entityDef));
     }
 
     @Test
@@ -1407,14 +1354,12 @@ public class SchemaTest {
                 .merge(schema2ToMerge)
                 .build();
 
-        // When
-        graphLibrary.addSchema("TEST_SCHEMA_ID_merged", schema);
-
-        // Then - no exceptions
+        // When / Then
+        assertDoesNotThrow(() -> graphLibrary.addSchema("TEST_SCHEMA_ID_merged", schema));
     }
 
 
-    private class SerialisationImpl implements ToBytesSerialiser<Object> {
+    private static class SerialisationImpl implements ToBytesSerialiser<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
 
         @Override
@@ -1423,7 +1368,7 @@ public class SchemaTest {
         }
 
         @Override
-        public byte[] serialise(final Object object) throws SerialisationException {
+        public byte[] serialise(final Object object) {
             return new byte[0];
         }
 
@@ -1433,7 +1378,7 @@ public class SchemaTest {
         }
 
         @Override
-        public Object deserialiseEmpty() throws SerialisationException {
+        public Object deserialiseEmpty() {
             return null;
         }
 

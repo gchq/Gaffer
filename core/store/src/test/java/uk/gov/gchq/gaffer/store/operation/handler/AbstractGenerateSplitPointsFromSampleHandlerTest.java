@@ -15,9 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
@@ -32,28 +30,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends Store> {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     protected Schema schema = new Schema.Builder().build();
 
     @Test
-    public void shouldThrowExceptionForNullInput() throws OperationException {
+    public void shouldThrowExceptionForNullInput()  {
         // Given
         final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
         final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(1)
                 .build();
 
-        expectedException.expect(OperationException.class);
-        expectedException.expectMessage("input is required");
-
-        handler.doOperation(operation, new Context(), createStore());
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(), createStore()));
+        assertEquals("input ", exception.getMessage());
     }
 
     @Test

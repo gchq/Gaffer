@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetTraitsTest extends OperationTest<GetTraits> {
 
@@ -28,6 +30,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         return new GetTraits();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetTraits op = new Builder()
@@ -37,6 +40,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         assertEquals(false, op.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetTraits op = new Builder()
@@ -48,6 +52,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         assertEquals(op.isCurrentTraits(), clone.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given

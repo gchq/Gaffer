@@ -19,9 +19,9 @@ package uk.gov.gchq.gaffer.store;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -145,27 +145,30 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
+
     private final User user = new User("user01");
     private final Context context = new Context(user);
 
@@ -182,7 +185,7 @@ public class StoreTest {
     private StoreImpl store;
     private OperationChainValidator operationChainValidator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -234,28 +237,24 @@ public class StoreTest {
                 .build();
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
         JSONSerialiser.update();
     }
 
-
     @Test
-    public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
+    public void shouldThrowExceptionIfGraphIdIsNull() {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        try {
-            store.initialise(null, schema, properties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> store.initialise(null, schema, properties));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionWhenPropertyIsNotSerialisable() throws StoreException {
+    public void shouldThrowExceptionWhenPropertyIsNotSerialisable() {
         // Given
         final Schema mySchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -270,12 +269,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
-        try {
-            store.initialise("graphId", mySchema, properties);
-            fail();
-        } catch (final SchemaException exception) {
-            assertNotNull(exception.getMessage());
-        }
+        assertThrows(SchemaException.class, () -> store.initialise("graphId", mySchema, properties));
     }
 
     @Test
@@ -361,18 +355,17 @@ public class StoreTest {
         store.addOperationHandler(Operation.class, opHandler);
         store.initialise("graphId", schema, properties);
 
-        given(opHandler.doOperation(operation, context, store)).willThrow(new RuntimeException());
+        final ArrayList<Operation> doUnhandledOperationCalls = mock(ArrayList.class);
+        store.setDoUnhandledOperationCalls(doUnhandledOperationCalls);
+        when(doUnhandledOperationCalls.add(operation)).thenThrow(new RuntimeException());
 
         // When / Then
-        try {
-            store.handleOperation(operation, context);
-        } catch (final Exception e) {
-            verify(operation).close();
-        }
+        assertThrows(RuntimeException.class, () -> store.handleOperation(operation, context));
+        verify(operation).close();
     }
 
     @Test
-    public void shouldThrowExceptionIfOperationChainIsInvalid() throws OperationException, StoreException {
+    public void shouldThrowExceptionIfOperationChainIsInvalid() throws StoreException {
         // Given
         // Given
         final Schema schema = createSchemaMock();
@@ -388,17 +381,15 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When / Then
-        try {
-            store.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            verify(operationChainValidator).validate(opChain, user, store);
-            assertTrue(e.getMessage().contains("Operation chain"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> store.execute(opChain, context));
+        verify(operationChainValidator).validate(opChain, user, store);
+        final String expected = "Operation chain is invalid. Validation errors: \n" +
+                "error";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
-    public void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass() throws Exception {
+    public void shouldCallDoUnhandledOperationWhenDoOperationWithUnknownOperationClass() throws StoreException, OperationException {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -707,8 +698,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws
-            Exception {
+    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws Exception {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -886,7 +876,7 @@ public class StoreTest {
     }
 
 
-    @Test(expected = SchemaException.class)
+    @Test
     public void shouldFindInvalidSerialiser() throws Exception {
         final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
         Schema invalidSchema = new Schema.Builder()
@@ -912,18 +902,13 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         final Class<ToBytesSerialiser> validSerialiserInterface = ToBytesSerialiser.class;
-        try {
-            new StoreImpl() {
-                @Override
-                protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-                    return validSerialiserInterface;
-                }
-            }.initialise("graphId", invalidSchema, properties);
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
-            throw e;
-        }
-        fail("Exception wasn't caught");
+        final Exception exception = assertThrows(SchemaException.class, () -> new StoreImpl() {
+            @Override
+            protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+                return validSerialiserInterface;
+            }
+        }.initialise("graphId", invalidSchema, properties));
+        assertTrue(exception.getMessage().contains(invalidSerialiserClass.getSimpleName()));
     }
 
     @Test
@@ -967,13 +952,11 @@ public class StoreTest {
 
     @Test
     public void shouldCorrectlyRescheduleJobsOnInitialisation() throws Exception {
-
         shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(1);
     }
 
     @Test
     public void shouldOnlyRescheduleJobsOnceWhenInitialisationCalledMultipleTimes() throws Exception {
-
         shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(5);
     }
 
@@ -1032,9 +1015,13 @@ public class StoreTest {
 
     private class StoreImpl extends Store {
         private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
-        private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
+        private ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+
+        public void setDoUnhandledOperationCalls(ArrayList<Operation> doUnhandledOperationCalls) {
+            this.doUnhandledOperationCalls = doUnhandledOperationCalls;
+        }
 
         @Override
         protected OperationChainValidator createOperationChainValidator() {
@@ -1113,7 +1100,6 @@ public class StoreTest {
             if (getProperties().getJobTrackerEnabled()) {
                 return jobTracker;
             }
-
             return null;
         }
 

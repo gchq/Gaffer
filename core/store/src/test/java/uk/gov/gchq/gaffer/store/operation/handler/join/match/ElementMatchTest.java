@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,23 +27,16 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ElementMatchTest {
 
     @Test
     public void shouldFullyMatchEqualElementsWithNoGroupBy() {
         // Given
-        Entity testEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
-
-        List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
+        final Entity testEntity = makeEntity(TestGroups.ENTITY_3, 3L);
+        final List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch();
         elementMatch.init(comparisonEntityList);
@@ -53,25 +46,14 @@ public class ElementMatchTest {
 
         // Then
         assertEquals(2, matchingElements.size());
-        assertTrue(matchingElements.equals(comparisonEntityList));
+        assertEquals(matchingElements, comparisonEntityList);
     }
 
     @Test
     public void shouldPartiallyMatchEqualElementsWithNoGroupBy() {
         // Given
-        Entity testEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
-
-        Entity testEntity2 = new Entity.Builder()
-                .group(TestGroups.ENTITY_4)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
+        final Entity testEntity = makeEntity(TestGroups.ENTITY_3, 3L);
+        final Entity testEntity2 = makeEntity(TestGroups.ENTITY_4, 3L);
 
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity2.shallowClone());
 
@@ -83,25 +65,14 @@ public class ElementMatchTest {
 
         // Then
         assertEquals(1, matchingElements.size());
-        assertTrue(matchingElements.get(0).equals(testEntity));
+        assertEquals(matchingElements.get(0), testEntity);
     }
 
     @Test
     public void shouldGiveNoMatchForNonEqualElementsWithNoGroupBy() {
         // Given
-        Entity testEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
-
-        Entity testEntity2 = new Entity.Builder()
-                .group(TestGroups.ENTITY_4)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
+        final Entity testEntity = makeEntity(TestGroups.ENTITY_3, 3L);
+        final Entity testEntity2 = makeEntity(TestGroups.ENTITY_4, 3L);
 
         List<Entity> comparisonEntityList = Arrays.asList(testEntity2.shallowClone(), testEntity2.shallowClone());
 
@@ -118,46 +89,28 @@ public class ElementMatchTest {
     @Test
     public void shouldThrowExceptionIfInitialisedWithNullValue() {
         // Given
-
         ElementMatch elementMatch = new ElementMatch();
 
         // When / Then
-
-        try {
-            elementMatch.init(null);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> elementMatch.init(null));
+        assertEquals("ElementMatch must be initialised with non-null match candidates", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionIfNotInitialised() {
         // Given
-
-        ElementMatch elementMatch = new ElementMatch();
+        final ElementMatch elementMatch = new ElementMatch();
 
         // When / Then
-
-        try {
-            elementMatch.matching(new Entity("testGroup", "test"));
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> elementMatch.matching(new Entity("testGroup", "test")));
+        assertEquals("ElementMatch must be initialised with non-null match candidates", exception.getMessage());
     }
 
 
     @Test
     public void shouldFullyMatchEqualElementsWithGroupBy() {
         // Given
-        Entity testEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
-
+        final Entity testEntity = makeEntity(TestGroups.ENTITY_3, 3L);
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity.shallowClone());
 
         ElementMatch elementMatch = new ElementMatch("count");
@@ -168,25 +121,14 @@ public class ElementMatchTest {
 
         // Then
         assertEquals(2, matchingElements.size());
-        assertTrue(matchingElements.equals(comparisonEntityList));
+        assertEquals(matchingElements, comparisonEntityList);
     }
 
     @Test
     public void shouldPartiallyMatchEqualElementsWithGroupBy() {
         // Given
-        Entity testEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
-
-        Entity testEntity2 = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 5L)
-                .build();
+        final Entity testEntity = makeEntity(TestGroups.ENTITY_3, 3L);
+        final Entity testEntity2 = makeEntity(TestGroups.ENTITY_3, 5L);
 
         List<Entity> comparisonEntityList = Arrays.asList(testEntity.shallowClone(), testEntity2.shallowClone());
 
@@ -198,32 +140,15 @@ public class ElementMatchTest {
 
         // Then
         assertEquals(1, matchingElements.size());
-        assertTrue(matchingElements.get(0).equals(testEntity));
+        assertEquals(matchingElements.get(0), testEntity);
     }
 
     @Test
     public void shouldGiveNoMatchForEqualElementsWithGroupBy() {
         // Given
-        Entity testEntity = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 3L)
-                .build();
-
-        Entity testEntity2 = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 5L)
-                .build();
-
-        Entity testEntity3 = new Entity.Builder()
-                .group(TestGroups.ENTITY_3)
-                .vertex("vertex")
-                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
-                .property(TestPropertyNames.COUNT, 7L)
-                .build();
+        final Entity testEntity = makeEntity(TestGroups.ENTITY_3, 3L);
+        final Entity testEntity2 = makeEntity(TestGroups.ENTITY_3, 5L);
+        final Entity testEntity3 = makeEntity(TestGroups.ENTITY_3, 7L);
 
 
         List<Entity> comparisonEntityList = Arrays.asList(testEntity2.shallowClone(), testEntity3.shallowClone());
@@ -236,5 +161,14 @@ public class ElementMatchTest {
 
         // Then
         assertEquals(0, matchingElements.size());
+    }
+
+    private Entity makeEntity(final String groupName, long countProperty) {
+        return new Entity.Builder()
+                .group(groupName)
+                .vertex("vertex")
+                .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
+                .property(TestPropertyNames.COUNT, countProperty)
+                .build();
     }
 }

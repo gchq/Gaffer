@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.resolver;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -34,9 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -182,11 +181,7 @@ public class IfScoreResolverTest {
                 .build();
 
         // When / Then
-        try {
-            resolver.getScore(operation);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertTrue(e.getMessage().contains("Default Score Resolver has not been provided."));
-        }
+        final Exception exception = assertThrows(UnsupportedOperationException.class, () -> resolver.getScore(operation));
+        assertEquals("Default Score Resolver has not been provided.", exception.getMessage());
     }
 }

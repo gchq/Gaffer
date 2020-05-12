@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockserver.integration.ClientAndServer;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -34,15 +34,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 public class GetFromEndpointHandlerTest {
+
     private static final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
     private static final String ENDPOINT_PATH = "/jsonEndpoint";
     private static final String RESPONSE = String.format("[%n" +
@@ -63,7 +64,7 @@ public class GetFromEndpointHandlerTest {
     private final GetFromEndpointHandler handler = new GetFromEndpointHandler();
     private ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
 
-    @After
+    @AfterEach
     public void tearDown() {
         mockServer.stop();
         assertFalse(mockServer.isRunning());
@@ -72,10 +73,10 @@ public class GetFromEndpointHandlerTest {
     @Test
     public void shouldLoadOperationDeclarations() throws IOException {
         // When
-        InputStream stream = StreamUtil.openStream(GetFromEndpointHandler.class, "GetFromEndpointOperationDeclarations.json");
+        final InputStream stream = StreamUtil.openStream(GetFromEndpointHandler.class, "GetFromEndpointOperationDeclarations.json");
 
         // Given
-        OperationDeclarations opDeclarations = JSONSerialiser.deserialise(IOUtils.toByteArray(stream), OperationDeclarations.class);
+        final OperationDeclarations opDeclarations = JSONSerialiser.deserialise(IOUtils.toByteArray(stream), OperationDeclarations.class);
 
         // Then
         assertEquals(1, opDeclarations.getOperations().size());
@@ -93,12 +94,12 @@ public class GetFromEndpointHandlerTest {
                         .withStatusCode(200)
                         .withBody(RESPONSE));
         final String endpointString = ENDPOINT_BASE_PATH + port + ENDPOINT_PATH;
-        GetFromEndpoint op = new GetFromEndpoint.Builder()
+        final GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint(endpointString)
                 .build();
 
         // When
-        String result = handler.doOperation(op, context, store);
+        final String result = handler.doOperation(op, context, store);
 
         // Then
         assertEquals(RESPONSE, result);
@@ -112,11 +113,7 @@ public class GetFromEndpointHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getCause().getClass().equals(MalformedURLException.class));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(op, context, store));
+        assertTrue(exception.getCause().getClass().equals(MalformedURLException.class));
     }
 }

@@ -198,6 +198,9 @@ public abstract class GraphLibrary {
      * @throws OverwritingException If there is already a relationship.
      */
     public void addSchema(final String id, final Schema schema) throws OverwritingException {
+        if (schema == null) {
+            throw new IllegalArgumentException("Schema cannot be null");
+        }
         if (null != schema) {
             validateId(id);
             final byte[] schemaJson = schema.toJson(false);
@@ -245,6 +248,9 @@ public abstract class GraphLibrary {
      * @throws OverwritingException If there is already a relationship.
      */
     public void addProperties(final String id, final StoreProperties properties) throws OverwritingException {
+        if (properties == null) {
+            throw new IllegalArgumentException("Store properties cannot be null");
+        }
         if (null != properties) {
             validateId(id);
             if (!checkPropertiesExist(id, properties)) {
