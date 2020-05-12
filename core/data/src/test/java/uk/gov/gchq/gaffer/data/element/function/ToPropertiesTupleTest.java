@@ -61,6 +61,16 @@ public class ToPropertiesTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Properties.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{PropertiesTuple.class};
+    }
+
+    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToPropertiesTuple function = getInstance();
 

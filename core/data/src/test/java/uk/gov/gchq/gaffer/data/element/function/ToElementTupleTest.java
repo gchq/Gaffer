@@ -67,6 +67,16 @@ public class ToElementTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Element.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{ElementTuple.class};
+    }
+
+    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToElementTuple function = getInstance();
 
