@@ -99,11 +99,11 @@ public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long>
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Long.MAX_VALUE, new byte[]{-120, 127, -1, -1, -1, -1, -1, -1, -1}),
-                new Pair<>(Long.MIN_VALUE, new byte[]{-128, 127, -1, -1, -1, -1, -1, -1, -1}),
-                new Pair<>(0L, new byte[]{0}),
-                new Pair<>(1L, new byte[]{1})
+        return new Pair[] {
+                new Pair<>(Long.MAX_VALUE, new byte[] {-120, 127, -1, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(Long.MIN_VALUE, new byte[] {-128, 127, -1, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(0L, new byte[] {0}),
+                new Pair<>(1L, new byte[] {1})
         };
     }
 }

@@ -101,10 +101,10 @@ public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(new Date(60460074000000L), new byte[]{8, -128, 0, 54, -4, -11, 59, -34, -128}),
-                new Pair<>(new Date(61406234880000L), new byte[]{8, -128, 0, 55, -39, 64, -47, 40, 0}),
-                new Pair<>(new Date(59514676680000L), new byte[]{8, -128, 0, 54, 32, -41, 41, -107, 64})
+        return new Pair[] {
+                new Pair<>(new Date(60460074000000L), new byte[] {8, -128, 0, 54, -4, -11, 59, -34, -128}),
+                new Pair<>(new Date(61406234880000L), new byte[] {8, -128, 0, 55, -39, 64, -47, 40, 0}),
+                new Pair<>(new Date(59514676680000L), new byte[] {8, -128, 0, 54, 32, -41, 41, -107, 64})
         };
     }
 }

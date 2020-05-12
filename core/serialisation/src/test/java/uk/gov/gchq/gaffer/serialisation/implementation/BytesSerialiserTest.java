@@ -31,12 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
 
     @Test
-    public void cantSerialiseLongClass()  {
+    public void cantSerialiseLongClass() {
         assertFalse(serialiser.canHandle(Long.class));
     }
 
     @Test
-    public void canSerialiseByteArrayClass()  {
+    public void canSerialiseByteArrayClass() {
         assertTrue(serialiser.canHandle(byte[].class));
     }
 
@@ -74,11 +74,11 @@ public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<byte[], byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(new byte[]{1, 2, 3, 4, 5, 6}, new byte[]{1, 2, 3, 4, 5, 6}),
-                new Pair<>(new byte[]{12, 31, 43}, new byte[]{12, 31, 43}),
-                new Pair<>(new byte[]{}, new byte[]{}),
-                new Pair<>(new byte[]{122, -111, -33}, new byte[]{122, -111, -33})
+        return new Pair[] {
+                new Pair<>(new byte[] {1, 2, 3, 4, 5, 6}, new byte[] {1, 2, 3, 4, 5, 6}),
+                new Pair<>(new byte[] {12, 31, 43}, new byte[] {12, 31, 43}),
+                new Pair<>(new byte[] {}, new byte[] {}),
+                new Pair<>(new byte[] {122, -111, -33}, new byte[] {122, -111, -33})
         };
     }
 

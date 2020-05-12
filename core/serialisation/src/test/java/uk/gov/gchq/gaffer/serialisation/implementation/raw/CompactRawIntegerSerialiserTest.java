@@ -62,7 +62,7 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     }
 
     @Test
-    public void cantSerialiseStringClass()  {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
@@ -86,11 +86,11 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{-116, 127, -1, -1, -1}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{-124, 127, -1, -1, -1}),
-                new Pair<>(0, new byte[]{0}),
-                new Pair<>(1, new byte[]{1})
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {-116, 127, -1, -1, -1}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {-124, 127, -1, -1, -1}),
+                new Pair<>(0, new byte[] {0}),
+                new Pair<>(1, new byte[] {1})
         };
     }
 }

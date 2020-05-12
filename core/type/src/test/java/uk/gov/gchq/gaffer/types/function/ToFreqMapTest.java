@@ -96,14 +96,4 @@ public class ToFreqMapTest extends FunctionTest {
     protected Class<ToFreqMap> getFunctionClass() {
         return ToFreqMap.class;
     }
-
-    @Override
-    protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Object.class};
-    }
-
-    @Override
-    protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{FreqMap.class};
-    }
 }

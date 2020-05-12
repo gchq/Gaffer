@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.util.SummaryUtil;
 import uk.gov.gchq.koryphe.util.VersionUtil;
 
@@ -49,6 +50,10 @@ public abstract class FunctionTest {
     protected abstract Function getInstance();
 
     protected abstract Class<? extends Function> getFunctionClass();
+
+    protected abstract Class[] getExpectedSignatureInputClasses();
+
+    protected abstract Class[] getExpectedSignatureOutputClasses();
 
     @Test
     public abstract void shouldJsonSerialiseAndDeserialise() throws IOException;
@@ -110,4 +115,19 @@ public abstract class FunctionTest {
         assertTrue(SummaryUtil.validateSummaryString(annotation.value()), annotation.value() + " is not a valid value string.");
     }
 
+    @Test
+    public void shouldGenerateExpectedInputSignature() {
+        Function function = this.getInstance();
+        Signature signature = Signature.getInputSignature(function);
+
+        assertTrue(signature.assignable(this.getExpectedSignatureInputClasses()).isValid());
+    }
+
+    @Test
+    public void shouldGenerateExpectedOutputSignature() {
+        Function function = this.getInstance();
+        Signature signature = Signature.getOutputSignature(function);
+
+        assertTrue(signature.assignable(this.getExpectedSignatureOutputClasses()).isValid());
+    }
 }

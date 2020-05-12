@@ -67,7 +67,7 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
     }
 
     @Test
-    public void shouldBeAbleToHandleATreeSet()  {
+    public void shouldBeAbleToHandleATreeSet() {
         // Given
         final Class testClass = TreeSet.class;
 
@@ -79,7 +79,7 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
     }
 
     @Test
-    public void shouldNotBeAbleToHandleAHashSet()  {
+    public void shouldNotBeAbleToHandleAHashSet() {
         // Given
         final Class testClass = HashSet.class;
 
@@ -111,6 +111,6 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
         set.add("this");
         set.add("is");
         set.add("S P A R T A!!!!!");
-        return new Pair[]{new Pair<>(set, new byte[]{123, 83, 32, 80, 32, 65, 32, 82, 32, 84, 32, 65, 33, 33, 33, 33, 33, 92, 44, 105, 115, 92, 44, 116, 104, 105, 115, 125})};
+        return new Pair[] {new Pair<>(set, new byte[] {123, 83, 32, 80, 32, 65, 32, 82, 32, 84, 32, 65, 33, 33, 33, 33, 33, 92, 44, 105, 115, 92, 44, 116, 104, 105, 115, 125})};
     }
 }

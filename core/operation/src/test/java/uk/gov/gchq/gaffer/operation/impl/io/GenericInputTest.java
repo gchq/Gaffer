@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runners.Parameterized;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -28,7 +27,6 @@ import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -38,7 +36,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.runners.Parameterized.Parameters;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class GenericInputTest extends JSONSerialisationTest<GenericInput> {

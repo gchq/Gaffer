@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.FunctionTest;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
@@ -83,12 +82,12 @@ public class ExtractGroupTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Element.class};
+        return new Class[0];
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{String.class};
+        return new Class[0];
     }
 
     @Override

@@ -76,12 +76,12 @@ public class UnwrapEntityIdTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Object.class};
+        return new Class[0];
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{Object.class};
+        return new Class[0];
     }
 
     @Override

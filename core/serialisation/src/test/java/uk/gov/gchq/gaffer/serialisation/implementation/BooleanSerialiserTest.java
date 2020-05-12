@@ -40,9 +40,9 @@ public class BooleanSerialiserTest extends ToBytesSerialisationTest<Boolean> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Boolean, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(false, new byte[]{0}),
-                new Pair<>(true, new byte[]{1})
+        return new Pair[] {
+                new Pair<>(false, new byte[] {0}),
+                new Pair<>(true, new byte[] {1})
         };
     }
 }
