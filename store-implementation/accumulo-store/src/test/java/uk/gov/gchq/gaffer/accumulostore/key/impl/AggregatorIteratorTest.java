@@ -22,14 +22,14 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.MockAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -56,7 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -71,23 +71,27 @@ public class AggregatorIteratorTest {
             .loadStoreProperties(StreamUtil.openStream(AggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+    private static AccumuloProperties gaffer1KeyStoreProperties;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws IOException, StoreException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        gaffer1KeyStore = new SingleUseMiniAccumuloStore();
+        gaffer1KeyStoreProperties = (AccumuloProperties) gaffer1KeyStore.setUpTestDB(CLASSIC_PROPERTIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
+        byteEntityStore.tearDownTestDB();
+        gaffer1KeyStore.tearDownTestDB();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, byteEntityStoreProperties);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, gaffer1KeyStoreProperties);
     }
 
     @Test

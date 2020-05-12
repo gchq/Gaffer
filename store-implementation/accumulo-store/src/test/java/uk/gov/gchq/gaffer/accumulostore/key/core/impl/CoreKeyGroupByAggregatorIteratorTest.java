@@ -27,14 +27,14 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
@@ -55,13 +55,15 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+    private static AccumuloProperties gaffer1KeyStoreProperties;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -69,26 +71,28 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;
 
-    @BeforeClass
-    public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
+    @BeforeAll
+    public static void setup() throws StoreException {
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
+        gaffer1KeyStore = new SingleUseMiniAccumuloStore();
+        gaffer1KeyStoreProperties = (AccumuloProperties) gaffer1KeyStore.setUpTestDB(CLASSIC_PROPERTIES);
+        gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, byteEntityStoreProperties);
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, gaffer1KeyStoreProperties);
         createTable(byteEntityStore);
         createTable(gaffer1KeyStore);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        gaffer1KeyStore = null;
-        byteEntityStore = null;
+        byteEntityStore.tearDownTestDB();
+        gaffer1KeyStore.tearDownTestDB();
     }
 
     @Test

@@ -22,15 +22,18 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetrieverTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -50,6 +53,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -57,31 +61,40 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CreateSplitPointsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloRangeIDRetrieverTest.class));
+    private static AccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
+    @TempDir
+    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
     private FileSystem fs;
 
     private String inputDir;
     private String outputDir;
     public String splitsFile;
 
-    @Before
-    public void setup() throws IOException {
+    @BeforeAll
+    public static void setupAll() throws StoreException {
+        byteEntityStore = new SingleUseMiniAccumuloStoreWithTabletServers();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, byteEntityStoreProperties);
+    }
+
+    @BeforeEach
+    public void setupEach() throws IOException {
 
         fs = createFileSystem();
 
         final String root = fs.resolvePath(new Path("/")).toString()
                 .replaceFirst("/$", "")
-                + testFolder.getRoot().getAbsolutePath();
-
+                + testFolder.getAbsolutePath();
 
         LOGGER.info("using root dir: " + root);
 
@@ -90,20 +103,24 @@ public class CreateSplitPointsIT {
         splitsFile = root + "/splitsDir/splits";
     }
 
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
     @Test
     public void shouldAddElementsFromHdfs() throws Exception {
         // Given
         createInputFile();
 
-        final SingleUseMockAccumuloStoreWithTabletServers store = new SingleUseMockAccumuloStoreWithTabletServers();
-        store.initialise(
+        byteEntityStore.initialise(
                 "graphId1",
                 Schema.fromJson(StreamUtil.schemas(getClass())),
                 AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
         );
 
         final Graph graph = new Graph.Builder()
-                .store(store)
+                .store(byteEntityStore)
                 .build();
 
         // When
@@ -124,7 +141,7 @@ public class CreateSplitPointsIT {
                 .build(), new User());
 
         // Then
-        final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getTableName(), 10));
+        final List<Text> splitsOnTable = Lists.newArrayList(byteEntityStore.getConnection().tableOperations().listSplits(byteEntityStore.getTableName(), 10));
         final List<String> stringSplitsOnTable = Lists.transform(splitsOnTable, t -> StringUtil.toString(t.getBytes()));
         final List<String> fileSplitsDecoded = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(splitsFile))));
@@ -168,7 +185,7 @@ public class CreateSplitPointsIT {
         }
     }
 
-    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
+    private static final class SingleUseMiniAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
         @Override
         public List<String> getTabletServers() throws StoreException {
             return Arrays.asList("1", "2", "3");
