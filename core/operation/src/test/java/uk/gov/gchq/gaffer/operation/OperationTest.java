@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.google.common.collect.Maps;
+import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
@@ -34,7 +35,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
@@ -83,7 +83,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         assertEquals("four", testObject.getOption("three"));
     }
 
-//    @Test
+    @Test
     public void shouldHaveSinceAnnotation() {
         // Given
         final T instance = getTestObject();
@@ -92,13 +92,14 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         final Since annotation = instance.getClass().getAnnotation(Since.class);
 
         // Then
-        assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
-        assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
+        if (null == annotation || null == annotation.value()) {
+            throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
+        }
         assertTrue(VersionUtil.validateVersionString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
     }
 
-//    @Test
+    @Test
     public void shouldHaveSummaryAnnotation() {
         // Given
         final T instance = getTestObject();
@@ -107,8 +108,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         final Summary annotation = instance.getClass().getAnnotation(Summary.class);
 
         // Then
-        assertNotNull(annotation, "Missing Summary annotation on class " + instance.getClass().getName());
-        assertNotNull(annotation.value(), "Missing Summary annotation on class " + instance.getClass().getName());
+        if (null == annotation || null == annotation.value()) {
+            throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
+        }
         assertTrue(SummaryUtil.validateSummaryString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
     }
