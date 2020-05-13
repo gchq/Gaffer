@@ -29,10 +29,9 @@ import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
@@ -79,14 +78,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class BloomFilterIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File tempFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory gaffer1RangeFactory;
     private AccumuloElementConverter gafferV1ElementConverter;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Schema schema = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, Integer.class)
@@ -164,7 +163,7 @@ public class BloomFilterIT {
 
         // Open file
         final String suffix = FileOperations.getNewFileExtension(accumuloConf);
-        final String filenameTemp = tempFolder.getRoot().getAbsolutePath();
+        final String filenameTemp = tempFolder.getAbsolutePath();
         final String filename = filenameTemp + "." + suffix;
         final File file = new File(filename);
         if (file.exists()) {

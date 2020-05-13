@@ -15,13 +15,20 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import org.junit.BeforeClass;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 
 public class AccumuloStoreClassicKeysITs extends AccumuloStoreITs {
-    private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
+    private static final AccumuloProperties CLASSIC_STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        setUpDatabase(CLASSIC_STORE_PROPERTIES);
+    }
 
     public AccumuloStoreClassicKeysITs() {
-        super(STORE_PROPERTIES);
+        super(CLASSIC_STORE_PROPERTIES);
     }
 }
