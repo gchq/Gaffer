@@ -29,13 +29,15 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -62,11 +64,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class InputFormatTest {
+
+    private static final String BYTE_ENTITY_GRAPH = "byteEntityGraph";
+    private static SingleUseMiniAccumuloStore store;
+    private static AccumuloProperties storeProperties;
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
 
     private enum KeyPackage {
         BYTE_ENTITY_KEY_PACKAGE,
@@ -131,8 +140,20 @@ public class InputFormatTest {
         }
     }
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+
+    @BeforeAll
+    public static void setup() throws StoreException {
+        store = new SingleUseMiniAccumuloStore();
+        storeProperties = (AccumuloProperties) store.setUpTestDB(PROPERTIES);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        store.tearDownTestDB();
+    }
+
 
     private static String getJsonString(final Object obj) throws SerialisationException {
         return new String(JSONSerialiser.serialise(obj));
@@ -253,22 +274,18 @@ public class InputFormatTest {
                                                        final String instanceName,
                                                        final Set<String> expectedResults)
             throws Exception {
-        final AccumuloStore store = new SingleUseMockAccumuloStore();
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
-                properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_BYTE_ENTITY");
+                storeProperties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
                 graphId = "byteEntityGraph";
                 break;
             case CLASSIC_KEY_PACKAGE:
                 graphId = "gaffer1Graph";
-                properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_CLASSIC");
+                storeProperties.setKeyPackageClass(ClassicKeyPackage.class.getName());
         }
         try {
-            store.initialise(graphId, schema, properties);
+            store.initialise(graphId, schema, storeProperties);
         } catch (final StoreException e) {
             fail("StoreException thrown: " + e);
         }
@@ -284,7 +301,8 @@ public class InputFormatTest {
         store.updateConfiguration(conf, graphFilters, user);
 
         // Run Driver
-        final File outputFolder = testFolder.newFolder();
+        final String testFolderName = testFolder.getAbsolutePath();
+        final File outputFolder = new File(testFolder, UUID.randomUUID().toString());
         FileUtils.deleteDirectory(outputFolder);
         final Driver driver = new Driver(outputFolder.getAbsolutePath());
         driver.setConf(conf);

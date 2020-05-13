@@ -18,13 +18,19 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -34,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -48,6 +55,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
+
+    private static final String BYTE_ENTITY_GRAPH = "byteEntity";
+    private static final String CLASSIC_GRAPH = "classic";
+    private static MiniAccumuloStore byteEntityStore;
+    private static MiniAccumuloStore classicStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+    private static AccumuloProperties classicStoreProperties;
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    @BeforeAll
+    public static void setup() throws StoreException {
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        classicStore = new SingleUseMiniAccumuloStore();
+        classicStoreProperties = (AccumuloProperties) classicStore.setUpTestDB(CLASSIC_PROPERTIES);
+    }
+
+    @BeforeEach
+    public void beforeMethod() throws StoreException {
+        byteEntityStore.initialise(BYTE_ENTITY_GRAPH, SCHEMA, byteEntityStoreProperties);
+        classicStore.initialise(CLASSIC_GRAPH, SCHEMA, classicStoreProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+        classicStore.tearDownTestDB();
+    }
+
     @Test
     public void shouldReturnSameResultsFromByteEntityAndClassicKeyPackages() throws OperationException {
         // Given
@@ -61,27 +99,25 @@ public class GetElementsInRangesIT {
                 .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
-        final AccumuloProperties propsByteEntity = new AccumuloProperties();
-        propsByteEntity.setStoreClass(MockAccumuloStore.class);
-        propsByteEntity.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
+        byteEntityStoreProperties.setStoreClass(MiniAccumuloStore.class);
+        byteEntityStoreProperties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
 
-        final AccumuloProperties propsClassic = new AccumuloProperties();
-        propsClassic.setStoreClass(MockAccumuloStore.class);
-        propsClassic.setKeyPackageClass(ClassicKeyPackage.class.getName());
+        classicStoreProperties.setStoreClass(MiniAccumuloStore.class);
+        classicStoreProperties.setKeyPackageClass(ClassicKeyPackage.class.getName());
 
         final Graph graphBE = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("byteEntity")
+                        .graphId(BYTE_ENTITY_GRAPH)
                         .build())
                 .addSchema(schema)
-                .storeProperties(propsByteEntity)
+                .storeProperties(byteEntityStoreProperties)
                 .build();
         final Graph graphClassic = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("classic")
+                        .graphId(CLASSIC_GRAPH)
                         .build())
                 .addSchema(schema)
-                .storeProperties(propsClassic)
+                .storeProperties(classicStoreProperties)
                 .build();
 
         final List<Element> elements = Arrays.asList(
