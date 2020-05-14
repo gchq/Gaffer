@@ -23,6 +23,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,7 +32,8 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
@@ -74,12 +77,30 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     public String splitsDir;
     public String splitsFile;
 
+    private static final String BYTE_ENTITY_GRAPH = "byteEntityGraph";
+    private static SingleUseMiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+
+    @BeforeAll
+    public static void setupDatabase() throws StoreException {
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
     @BeforeEach
-    public void setup() {
+    public void setup() throws StoreException {
         inputDir = testFolder.getAbsolutePath() + "inputDir";
         outputDir = testFolder.getAbsolutePath() + "/outputDir";
         splitsDir = testFolder.getAbsolutePath() + "/splitsDir";
         splitsFile = splitsDir + "/splits";
+        byteEntityStore.initialise("graphId", SCHEMA, byteEntityStoreProperties);
     }
 
     @Test
@@ -148,11 +169,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -165,7 +181,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context(new User()));
+        byteEntityStore.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -176,7 +192,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() <= 10);
@@ -188,7 +204,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() <= 100);
@@ -200,7 +216,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() <= 1000);
@@ -209,11 +225,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -226,7 +237,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context(new User()));
+        byteEntityStore.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -237,7 +248,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .minReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 10);
@@ -249,7 +260,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .minReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 100);
@@ -261,7 +272,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .minReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 1000);
@@ -270,11 +281,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -287,7 +293,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context(new User()));
+        byteEntityStore.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -299,7 +305,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(20)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 10);
@@ -313,7 +319,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(200)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 100);
@@ -327,7 +333,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(2000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 1000);
@@ -338,11 +344,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -355,7 +356,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable, new Context(new User()));
+        byteEntityStore.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
@@ -370,7 +371,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
 
         // Then
         try {
-            factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
+            factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), byteEntityStore);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("not a valid range"));
