@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -27,30 +30,62 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.util.List;
 
 public class AccumuloSchemaHidingIT extends SchemaHidingIT {
+    private static final AccumuloProperties BYTE_STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private static AccumuloStore store;
+    private static StoreProperties storeProperties;
+
+    @BeforeClass
+    public static void setUpDatabase() throws Exception {
+        // Get the store class from the properties supplied
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        AccumuloProperties inStoreProperties = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSchemaHidingIT.class, "miniAccumuloStore.properties"));
+        final String storeClass = inStoreProperties.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+        // Instantiate the store class
+        try {
+            store = Class.forName(storeClass)
+                    .asSubclass(AccumuloStore.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+        // Set up the data store and set the properties to suit.
+        AccumuloProperties accumuloProperties = (AccumuloProperties) store.setUpTestDB(inStoreProperties);
+        if (null != accumuloProperties.getInstance()) {
+            inStoreProperties.setInstance(accumuloProperties.getInstance());
+        }
+        if (null != accumuloProperties.getZookeepers()) {
+            inStoreProperties.setZookeepers(accumuloProperties.getZookeepers());
+        }
+        if (null != accumuloProperties.getNamespace()) {
+            inStoreProperties.setNamespace(accumuloProperties.getNamespace());
+        }
+        storeProperties = inStoreProperties;
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        store.tearDownTestDB();
+    }
+
     public AccumuloSchemaHidingIT() {
-        super("mockAccumuloStore.properties");
+        super(storeProperties);
     }
 
     @Override
     protected void cleanUp() {
-        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
-
-        final AccumuloStore store;
-        try {
-            store = Class.forName(storeProps.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
-        }
-
         try {
             store.preInitialise(
                     "graphId",
                     createFullSchema(),
-                    storeProps
+                    storeProperties
             );
             store.getConnection().tableOperations().delete(store.getTableName());
         } catch (final Exception e) {
