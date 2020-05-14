@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * are delegated to a mock. The mock is a public static variable that you can set.
  * After using this class please call "cleanUp" to delete the reference to the mock.
  */
-@Deprecated
 public class MockAccumuloElementConverter implements AccumuloElementConverter {
     public static AccumuloElementConverter mock;
     public static Schema schema;
