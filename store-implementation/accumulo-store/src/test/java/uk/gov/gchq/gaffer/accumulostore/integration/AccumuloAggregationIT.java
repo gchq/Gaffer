@@ -17,9 +17,12 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -54,11 +57,49 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AccumuloAggregationIT extends StandaloneIT {
+    private static final AccumuloProperties BYTE_STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private static AccumuloStore store;
+
     private static final String VERTEX = "vertex";
     private static final String PUBLIC_VISIBILITY = "publicVisibility";
     private static final String PRIVATE_VISIBILITY = "privateVisibility";
 
     private final User user = getUser();
+
+    @BeforeAll
+    public static void setUpDatabase() throws Exception {
+        // Get the store class from the properties supplied
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        final String storeClass = BYTE_STORE_PROPERTIES.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+        // Instantiate the store class
+        try {
+            store = Class.forName(storeClass)
+                    .asSubclass(AccumuloStore.class)
+                    .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+        // Set up the data store and set the properties to suit.
+        AccumuloProperties accumuloProperties = (AccumuloProperties) store.setUpTestDB(BYTE_STORE_PROPERTIES);
+        if (null != accumuloProperties.getInstance()) {
+            BYTE_STORE_PROPERTIES.setInstance(accumuloProperties.getInstance());
+        }
+        if (null != accumuloProperties.getZookeepers()) {
+            BYTE_STORE_PROPERTIES.setZookeepers(accumuloProperties.getZookeepers());
+        }
+        if (null != accumuloProperties.getNamespace()) {
+            BYTE_STORE_PROPERTIES.setNamespace(accumuloProperties.getNamespace());
+        }
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        store.tearDownTestDB();
+    }
+
 
     @Test
     public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
@@ -691,6 +732,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Override
     public StoreProperties createStoreProperties() {
-        return AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+        return BYTE_STORE_PROPERTIES;
     }
 }
