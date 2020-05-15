@@ -18,17 +18,20 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -65,7 +68,6 @@ public class FederatedGraphStorageTest {
     public static final String EXCEPTION_EXPECTED = "Exception expected";
     public static final String X = "x";
     private FederatedGraphStorage graphStorage;
-    private AccumuloProperties accumuloProperties;
     private GraphSerialisable a;
     private GraphSerialisable b;
     private User nullUser;
@@ -84,11 +86,29 @@ public class FederatedGraphStorageTest {
     private static final String GROUP_ENT = "ent";
     private static final String GROUP_EDGE = "edg";
 
+    private static SingleUseMiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        AccumuloProperties allProperties = new AccumuloProperties();
+        allProperties.setStoreClass(SingleUseMiniAccumuloStore.class);
+        allProperties.setZookeepers("aZookeeper");
+        allProperties.setInstance("instance01");
+        allProperties.setUser("user01");
+        allProperties.setPassword("password01");
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(allProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
-        accumuloProperties = new AccumuloProperties();
-        accumuloProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         e1 = new SchemaEntityDefinition.Builder()
                 .vertex("string")
@@ -96,7 +116,7 @@ public class FederatedGraphStorageTest {
 
         a = new GraphSerialisable.Builder()
                 .config(new GraphConfig(GRAPH_ID_A))
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .schema(new Schema.Builder()
                         .entity("e1", e1)
                         .type("string", String.class)
@@ -109,7 +129,7 @@ public class FederatedGraphStorageTest {
 
         b = new GraphSerialisable.Builder()
                 .config(new GraphConfig(GRAPH_ID_B))
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .schema(new Schema.Builder()
                         .entity("e2", e2)
                         .type("string2", String.class)
@@ -458,7 +478,7 @@ public class FederatedGraphStorageTest {
 
         final GraphSerialisable graph1 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .schema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
@@ -469,7 +489,7 @@ public class FederatedGraphStorageTest {
                         .entity("e2", e2)
                         .type("string2", String.class)
                         .build())
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .build();
 
         // When / Then
@@ -508,7 +528,7 @@ public class FederatedGraphStorageTest {
 
         final GraphSerialisable graph1 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .schema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
@@ -543,7 +563,7 @@ public class FederatedGraphStorageTest {
 
         final GraphSerialisable graph1 = new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .schema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
@@ -555,7 +575,7 @@ public class FederatedGraphStorageTest {
                         .entity("e2", e2)
                         .type("string2", String.class)
                         .build())
-                .properties(accumuloProperties)
+                .properties(byteEntityStoreProperties)
                 .build();
         graphStorage.put(graph2, altAccess);
 
