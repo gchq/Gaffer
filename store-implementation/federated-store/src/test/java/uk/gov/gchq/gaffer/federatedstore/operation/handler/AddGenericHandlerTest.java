@@ -16,16 +16,21 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.mockito.BDDMockito.given;
@@ -41,12 +46,27 @@ public class AddGenericHandlerTest {
     private FederatedStore store;
     private Graph graph;
 
-    @Before
+    private static SingleUseMiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        AccumuloProperties allProperties = AccumuloProperties.loadStoreProperties("properties/singleUseMiniAccStore.properties");
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(allProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
+    @BeforeEach
     public void setUp() throws Exception {
         store = mock(FederatedStore.class);
 
         graph = new Graph.Builder()
-                .addStoreProperties(StoreProperties.loadStoreProperties("properties/singleUseMockAccStore.properties"))
+                .addStoreProperties(byteEntityStoreProperties)
                 .config(new GraphConfig("TestGraph"))
                 .addSchema(new Schema())
                 .build();
@@ -62,7 +82,8 @@ public class AddGenericHandlerTest {
 
         verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationIterableHandler.class));
     }
- @Test
+
+    @Test
     public void shouldNotHandleAnything() throws Exception {
         given(store.isSupported(any())).willReturn(true);
 
@@ -71,6 +92,4 @@ public class AddGenericHandlerTest {
 
         verify(store, never()).addOperationHandler(any(), any(FederatedOperationIterableHandler.class));
     }
-
-
 }
