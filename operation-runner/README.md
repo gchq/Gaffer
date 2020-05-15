@@ -15,7 +15,7 @@ limitations under the License.
 Operation Runner
 ================
 
-The Operation Runner is a command line tool allowing Operations to be executed against a graph.
+The Operation Runner is a command line tool allowing Operations to be executed against a graph:
 
 ```bash
 java -jar operation-runner-<version>-with-dependencies.jar \
@@ -26,3 +26,14 @@ java -jar operation-runner-<version>-with-dependencies.jar \
     graphId
 ```
 
+To add additional classpath entries:
+
+```bash
+java -cp operation-runner-<version>-with-dependencies.jar \
+    uk.gov.gchq.gaffer.operation.runner.OperationRunner \
+    --store-properties <path-to-store-properties> \
+    --schema <path-to-schema> \
+    --operation-chain <path-to-json-serialised-operation> \
+    --user <optional-path-to-json-serialised-user> \
+    graphId
+```
