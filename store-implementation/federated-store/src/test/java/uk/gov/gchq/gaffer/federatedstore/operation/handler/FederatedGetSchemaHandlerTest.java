@@ -16,12 +16,14 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -52,7 +54,6 @@ public class FederatedGetSchemaHandlerTest {
     private Context context;
     private User user;
     private StoreProperties properties;
-    private AccumuloProperties accProperties;
     private static final String ACC_PROP_ID = "accProp";
     private static final String EDGE_SCHEMA_ID = "edgeSchema";
 
@@ -66,7 +67,28 @@ public class FederatedGetSchemaHandlerTest {
                     .build())
             .build();
 
-    @Before
+    private static MiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        AccumuloProperties allProperties = new AccumuloProperties();
+        allProperties.setStoreClass(MiniAccumuloStore.class);
+        allProperties.setStorePropertiesClass(AccumuloProperties.class);
+        allProperties.setZookeepers("aZookeeper");
+        allProperties.setInstance("instance01");
+        allProperties.setUser("user01");
+        allProperties.setPassword("password01");
+        byteEntityStore = new MiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(allProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
+    @BeforeEach
     public void setup() throws StoreException {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -77,18 +99,13 @@ public class FederatedGetSchemaHandlerTest {
         properties = new FederatedStoreProperties();
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
-        accProperties = new AccumuloProperties();
-
-        accProperties.setStoreClass(MockAccumuloStore.class);
-        accProperties.setStorePropertiesClass(AccumuloProperties.class);
-
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, properties);
 
         library.clear();
     }
 
-    @After
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -96,7 +113,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldReturnSchema() throws OperationException {
-        library.addProperties(ACC_PROP_ID, accProperties);
+        library.addProperties(ACC_PROP_ID, byteEntityStoreProperties);
         fStore.setGraphLibrary(library);
 
         final Schema edgeSchema = new Schema.Builder()
@@ -134,7 +151,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldReturnSchemaOnlyForEnabledGraphs() throws OperationException {
-        library.addProperties(ACC_PROP_ID, accProperties);
+        library.addProperties(ACC_PROP_ID, byteEntityStoreProperties);
         fStore.setGraphLibrary(library);
 
         final Schema edgeSchema1 = new Schema.Builder()
@@ -195,7 +212,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldThrowExceptionForANullOperation() throws OperationException {
-        library.addProperties(ACC_PROP_ID, accProperties);
+        library.addProperties(ACC_PROP_ID, byteEntityStoreProperties);
         fStore.setGraphLibrary(library);
 
         final GetSchema operation = null;

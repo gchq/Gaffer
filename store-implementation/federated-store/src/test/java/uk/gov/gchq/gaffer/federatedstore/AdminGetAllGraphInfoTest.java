@@ -16,22 +16,26 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AdminGetAllGraphInfoTest {
 
@@ -39,9 +43,28 @@ public class AdminGetAllGraphInfoTest {
     private FederatedAccess access;
     private FederatedStore store;
     private User adminUser;
-    private StoreProperties properties;
 
-    @Before
+    private static MiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        AccumuloProperties allProperties = new AccumuloProperties();
+        allProperties.setStoreClass(MiniAccumuloStore.class);
+        allProperties.setZookeepers("aZookeeper");
+        allProperties.setInstance("instance01");
+        allProperties.setUser("user01");
+        allProperties.setPassword("password01");
+        byteEntityStore = new MiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(allProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
+    @BeforeEach
     public void setUp() throws Exception {
         access = new FederatedAccess(Sets.newHashSet("authA"), "testuser1", false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
         store = new FederatedStore();
@@ -49,8 +72,6 @@ public class AdminGetAllGraphInfoTest {
         fedProps.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
         store.initialise("testFedStore", null, fedProps);
         adminUser = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
-        this.properties = new StoreProperties();
-        this.properties.setStoreClass(MockAccumuloStore.class);
     }
 
     @Test
@@ -62,7 +83,7 @@ public class AdminGetAllGraphInfoTest {
                         .graphId(graph1)
                         .build())
                 .schema(new Schema())
-                .properties(properties)
+                .properties(byteEntityStoreProperties)
                 .build());
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(adminUser, null, true);
@@ -81,7 +102,7 @@ public class AdminGetAllGraphInfoTest {
                         .graphId(graph1)
                         .build())
                 .schema(new Schema())
-                .properties(properties)
+                .properties(byteEntityStoreProperties)
                 .build());
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, true);

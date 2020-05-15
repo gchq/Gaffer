@@ -66,7 +66,7 @@ public class FederatedStoreSchemaTest {
     private static AccumuloProperties byteEntityStoreProperties;
 
     @BeforeAll
-    public static void setUpDatabase () throws StoreException {
+    public static void setUpDatabase() throws StoreException {
         AccumuloProperties allProperties = new AccumuloProperties();
         allProperties.setStoreClass(MiniAccumuloStore.class);
         allProperties.setZookeepers("aZookeeper");
@@ -159,7 +159,6 @@ public class FederatedStoreSchemaTest {
                 .type(DIRECTED_EITHER, Boolean.class)
                 .merge(STRING_SCHEMA)
                 .build(), byteEntityStoreProperties);
-
 
         fStore.execute(new AddGraph.Builder()
                 .graphId("a")

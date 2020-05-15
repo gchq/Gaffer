@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
@@ -31,7 +31,7 @@ public class FederatedAccessNullEmptyTest {
 
     User user;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         user = StoreUser.blankUser();
     }

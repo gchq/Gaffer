@@ -17,13 +17,13 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.beust.jcommander.internal.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
@@ -36,7 +36,7 @@ public class FederatedAccessAuthTest {
 
     User testUser;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testUser = testUser();
     }

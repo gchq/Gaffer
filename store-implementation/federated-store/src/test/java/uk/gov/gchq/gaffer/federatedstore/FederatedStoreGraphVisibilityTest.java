@@ -17,17 +17,20 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -58,6 +61,27 @@ public class FederatedStoreGraphVisibilityTest {
     private FederatedStoreProperties fedProperties;
     private HashMapGraphLibrary library;
 
+    private static SingleUseMiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        AccumuloProperties allProperties = new AccumuloProperties();
+        allProperties.setStoreClass(SingleUseMiniAccumuloStore.class);
+        allProperties.setStorePropertiesClass(AccumuloProperties.class);
+        allProperties.setZookeepers("aZookeeper");
+        allProperties.setInstance("instance01");
+        allProperties.setUser("user01");
+        allProperties.setPassword("password01");
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(allProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
@@ -82,11 +106,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
-
-        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
+        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, byteEntityStoreProperties);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
@@ -130,11 +150,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties(); // <- without ID
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
-
-        library.add(TEST_GRAPH_ID, aSchema, accProp);
+        library.add(TEST_GRAPH_ID, aSchema, byteEntityStoreProperties);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
@@ -191,7 +207,7 @@ public class FederatedStoreGraphVisibilityTest {
             sets.add(iterator.next());
         }
 
-        assertNotNull(graphIds,"Returned iterator should not be null, it should be empty.");
+        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
         assertEquals(1, sets.size(), "Not Showing graphId with correct auth");
         assertTrue(sets.contains("g2"));
 
