@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.google.common.collect.Maps;
-import org.junit.Assert;
 import org.junit.AssumptionViolatedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.koryphe.Since;
@@ -34,8 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected Set<String> getRequiredFields() {
@@ -75,7 +74,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         expected.put("one", "two");
         testObject.setOptions(expected);
         final Map<String, String> actual = testObject.getOptions();
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         assertEquals("two", testObject.getOption("one"));
     }
 
@@ -91,8 +90,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         if (null == annotation || null == annotation.value()) {
             throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
         }
-        assumeTrue(annotation.value() + " is not a valid value string.",
-                VersionUtil.validateVersionString(annotation.value()));
+        assumeTrue(VersionUtil.validateVersionString(annotation.value()), annotation.value() + " is not a valid value string.");
     }
 
     @Test
@@ -107,8 +105,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         if (null == annotation || null == annotation.value()) {
             throw new AssumptionViolatedException("Missing Summary annotation on class " + instance.getClass().getName());
         }
-        assumeTrue(annotation.value() + " is not a valid value string.",
-                SummaryUtil.validateSummaryString(annotation.value()));
+        assumeTrue(SummaryUtil.validateSummaryString(annotation.value()), annotation.value() + " is not a valid value string.");
     }
 }
 

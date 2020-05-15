@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
-import org.junit.Assert;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -25,7 +24,8 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
     @Override
@@ -49,7 +49,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
                 .build();
 
         final GetAllGraphIds a = operation.shallowClone();
-        Assert.assertNotNull(a);
+        assertNotNull(a);
         assertEquals("b", a.getOption("a"));
     }
 

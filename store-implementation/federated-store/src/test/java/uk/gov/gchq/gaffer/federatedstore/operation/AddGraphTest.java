@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
@@ -28,6 +27,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
 
@@ -48,10 +50,10 @@ public class AddGraphTest extends OperationTest<AddGraph> {
                 .storeProperties(storeProperties)
                 .build();
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
-        Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
-        Assert.assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
+        assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertEquals(expectedSchema, op.getSchema());
+        assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
+        assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
     }
 
     @Override
@@ -68,10 +70,10 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
         final AddGraph b = a.shallowClone();
 
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
-        Assert.assertEquals(a.getSchema(), b.getSchema());
-        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        assertEquals(a.getSchema(), b.getSchema());
+        assertEquals(a.getGraphAuths(), b.getGraphAuths());
     }
 
     @Test
@@ -87,10 +89,10 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
         final AddGraph b = a.shallowClone();
 
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
-        Assert.assertEquals(a.getSchema(), b.getSchema());
-        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        assertEquals(a.getSchema(), b.getSchema());
+        assertEquals(a.getGraphAuths(), b.getGraphAuths());
     }
 
     @Override
