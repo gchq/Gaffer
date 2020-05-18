@@ -224,7 +224,13 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>sketches-library</artifactId>
+            <version>${project.parent.version}</version>
+            <classifier>deploy</classifier>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.avro</groupId>
