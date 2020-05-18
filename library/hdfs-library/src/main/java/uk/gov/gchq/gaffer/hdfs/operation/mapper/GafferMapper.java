@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.ElementValidator;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
@@ -34,9 +35,6 @@ import java.io.UnsupportedEncodingException;
 import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.MAPPER_GENERATOR;
 import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.SCHEMA;
 import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.VALIDATE;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.JSON_SERIALISER_MODULES;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.STRICT_JSON;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.STRICT_JSON_DEFAULT;
 
 /**
@@ -91,10 +89,13 @@ public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends
 
     private void configureJSONSerialiser(final Context context) {
         final Configuration configuration = context.getConfiguration();
-        final String jsonSerialiserClass = configuration.get(JSON_SERIALISER_CLASS_KEY);
-        final String jsonSerialiserModules = configuration.get(JSON_SERIALISER_MODULES);
-        final Boolean strictJson = configuration.getBoolean(STRICT_JSON, STRICT_JSON_DEFAULT);
+        final String jsonSerialiserClass = configuration.get(StoreProperties.JSON_SERIALISER_CLASS);
+        final String jsonSerialiserModules = configuration.get(StoreProperties.JSON_SERIALISER_MODULES);
+        final Boolean strictJson = configuration.getBoolean(StoreProperties.STRICT_JSON, STRICT_JSON_DEFAULT);
+        configureJSONSerialiser(jsonSerialiserClass, jsonSerialiserModules, strictJson);
+    }
 
+    protected void configureJSONSerialiser(final String jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) {
         JSONSerialiser.update(jsonSerialiserClass, jsonSerialiserModules, strictJson);
     }
 

@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public abstract class AbstractJobFactoryTest {
     private static final Class<JSONSerialiser> JSON_SERIALISER_CLASS = JSONSerialiser.class;
@@ -41,11 +41,11 @@ public abstract class AbstractJobFactoryTest {
     private static final Boolean STRICT_JSON = Boolean.TRUE;
 
     @Test
-    public void shouldConfigureJsonSerialiserModulePropertiesOnJob() throws IOException, StoreException {
+    public void shouldConfigureJsonSerialiserModulePropertiesOnJobConfiguration() throws IOException, StoreException {
         final Store store = getStoreConfiguredWith(JSON_SERIALISER_CLASS, toCommaSeparatedString(JSON_SERIALISER_MODULES), STRICT_JSON);
         final List<Job> jobs = getJobFactory().createJobs(getMapReduceOperation(), store);
 
-        assertTrue(!jobs.isEmpty());
+        assertFalse(jobs.isEmpty());
 
         for (Job job : jobs) {
             assertEquals(JSON_SERIALISER_CLASS.getName(), job.getConfiguration().get(StoreProperties.JSON_SERIALISER_CLASS));
