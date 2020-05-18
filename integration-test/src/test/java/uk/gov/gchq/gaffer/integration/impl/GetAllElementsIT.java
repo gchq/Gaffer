@@ -35,19 +35,27 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.ApplyBiFunction;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -298,5 +306,47 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy, expectedElements.size(),
                 Lists.newArrayList(results).size());
+    }
+
+    @Test
+    @TraitRequirement({StoreTrait.TRANSFORMATION})
+    public void shouldAllowBiFunctionInView() throws OperationException {
+
+        final Map<String, Class<?>> transientProperties = new HashMap<>();
+        transientProperties.put("propLong", Long.class);
+        transientProperties.put("combined", Long.class);
+
+        final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions = new ArrayList<>();
+
+        final TupleAdaptedFunction<String, Integer, Long> convertToLong = new TupleAdaptedFunction<>();
+        convertToLong.setSelection(new String[]{TestPropertyNames.INT});
+        convertToLong.setFunction((Function) new ToLong());
+        convertToLong.setProjection(new String[]{"propLong"});
+
+        final TupleAdaptedFunction<String, Integer, Long> sum = new TupleAdaptedFunction<>();
+        sum.setSelection(new String[]{"propLong", TestPropertyNames.COUNT});
+        sum.setFunction(new ApplyBiFunction(new Sum()));
+        sum.setProjection(new String[]{"combined"});
+
+        transformFunctions.add(convertToLong);
+        transformFunctions.add(sum);
+
+        final GetAllElements get = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .transientProperties(transientProperties)
+                                .addTransformFunctions(transformFunctions)
+                                .build())
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(get, user);
+
+        for (final Element result : results) {
+
+            final Long expectedResult = (Long) result.getProperty("propLong") + (Long) result.getProperty(TestPropertyNames.COUNT);
+            final Long combined = (Long) result.getProperty("combined");
+            assertEquals(expectedResult, combined);
+        }
     }
 }
