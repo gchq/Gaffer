@@ -404,7 +404,7 @@ public class FederatedStoreTest {
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(ACC_ID_1)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(miniAccStoreProperties1)
                 .build(), new Context(testUser()));
 
         final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
