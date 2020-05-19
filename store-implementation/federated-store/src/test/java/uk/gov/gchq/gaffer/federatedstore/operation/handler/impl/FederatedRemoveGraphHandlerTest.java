@@ -16,10 +16,14 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -29,12 +33,13 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedRemoveGraphHandlerTest {
@@ -42,8 +47,27 @@ public class FederatedRemoveGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private User testUser;
+    private static SingleUseMiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
 
-    @Before
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        AccumuloProperties allProperties = new AccumuloProperties();
+        allProperties.setStoreClass(SingleUseMiniAccumuloStore.class);
+        allProperties.setZookeepers("aZookeeper");
+        allProperties.setInstance("instance01");
+        allProperties.setUser("user01");
+        allProperties.setPassword("password01");
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(allProperties);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         testUser = testUser();
@@ -56,13 +80,11 @@ public class FederatedRemoveGraphHandlerTest {
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         store.addGraphs(testUser.getOpAuths(), testUser.getUserId(), false, new GraphSerialisable.Builder()
                 .config(new GraphConfig(EXPECTED_GRAPH_ID))
                 .schema(new Schema.Builder().build())
-                .properties(storeProperties)
+                .properties(byteEntityStoreProperties)
                 .build());
 
         assertEquals(1, store.getGraphs(testUser, null).size());

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -44,7 +44,7 @@ public abstract class FederatedItElementToElementHandlerTest<
     protected OPH mockHandler;
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         o1 = new Entity.Builder().group(TEST_ENTITY)

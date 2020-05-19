@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -44,8 +44,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

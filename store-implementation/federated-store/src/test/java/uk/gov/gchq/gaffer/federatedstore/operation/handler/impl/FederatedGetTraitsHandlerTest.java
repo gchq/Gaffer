@@ -17,9 +17,13 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -35,6 +39,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
@@ -47,7 +52,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -62,7 +67,21 @@ public class FederatedGetTraitsHandlerTest {
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
 
-    @Before
+    private static SingleUseMiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
+    @BeforeAll
+    public static void setUpDatabase() throws StoreException {
+        byteEntityStore = new SingleUseMiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(StoreProperties.loadStoreProperties("/properties/singleUseMiniAccStore.properties"));
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
+    }
+
+    @BeforeEach
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
         properties = new FederatedStoreProperties();
@@ -90,7 +109,7 @@ public class FederatedGetTraitsHandlerTest {
     public void shouldGetAllTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
-        assertEquals("graph is not starting empty", 0, federatedStore.getAllGraphIds(testUser()).size());
+        assertEquals(0, federatedStore.getAllGraphIds(testUser()).size(), "graph is not starting empty");
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(new GetTraits.Builder()
@@ -168,7 +187,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(byteEntityStoreProperties)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -207,7 +226,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(byteEntityStoreProperties)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
