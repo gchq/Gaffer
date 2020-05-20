@@ -16,10 +16,13 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -27,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.Properties;
 import java.util.Set;
@@ -37,22 +41,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class FederatedStoreCacheTest {
-    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMiniAccStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String MAP_ID_1 = "mockMapGraphId1";
-    private Graph testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
-            .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
-            .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
-            .build();
+    private static Graph testGraph;
     private static FederatedStoreCache federatedStoreCache;
     private static Properties properties = new Properties();
 
+    private static MiniAccumuloStore byteEntityStore;
+    private static AccumuloProperties byteEntityStoreProperties;
+
     @BeforeAll
-    public static void setUp() {
+    public static void setUp() throws StoreException {
+        AccumuloProperties mapProperties = AccumuloProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES);
+        byteEntityStore = new MiniAccumuloStore();
+        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(mapProperties);
+
+        testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
+                .addStoreProperties(byteEntityStoreProperties)
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build();
+
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
         federatedStoreCache = new FederatedStoreCache();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        byteEntityStore.tearDownTestDB();
     }
 
     @BeforeEach
