@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -109,13 +108,11 @@ public class FederatedRemoveGraphHandlerTest {
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         store.addGraphs(testUser.getOpAuths(), "other", false, new GraphSerialisable.Builder()
                 .config(new GraphConfig(EXPECTED_GRAPH_ID))
                 .schema(new Schema.Builder().build())
-                .properties(storeProperties)
+                .properties(byteEntityStoreProperties)
                 .build());
 
         assertEquals(1, store.getGraphs(testUser, null).size());
