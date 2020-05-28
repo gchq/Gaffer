@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +35,10 @@ import static java.util.Objects.nonNull;
  * uses the values of the dataAuths and opAuths objects associated with the user
  * to determine if they are allowed to perform the operation or not.
  */
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = -2446354817298439281L;
+
     public static final String UNKNOWN_USER_ID = "UNKNOWN";
     private final String userId;
     private final Set<String> dataAuths = new HashSet<>();

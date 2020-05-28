@@ -422,7 +422,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         public User createUser() {
             final String headerAuthVal = httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION);
             return new User.Builder()
-                    .userId("unknown")
+                    .userId("UNKNOWN")
                     .opAuth(headerAuthVal)
                     .build();
         }

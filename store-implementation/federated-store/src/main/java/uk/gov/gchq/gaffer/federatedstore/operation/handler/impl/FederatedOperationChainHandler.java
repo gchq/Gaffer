@@ -40,7 +40,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP
 public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, CloseableIterable<O_ITEM>> {
     @Override
     public CloseableIterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation);
         final List<Object> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OperationChain opChain = operation.getOperationChain();

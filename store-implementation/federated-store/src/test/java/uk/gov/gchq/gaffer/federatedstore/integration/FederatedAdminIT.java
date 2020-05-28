@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
+import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -376,5 +377,114 @@ public class FederatedAdminIT extends AbstractStoreIT {
         assertFalse(changed);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
         assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+    }
+
+    @Test
+    public void shouldChangeGraphIdForOwnGraph() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final String graphB = "graphB";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphId.Builder()
+                .graphId(graphA)
+                .newGraphId(graphB)
+                .build(), user);
+
+        //then
+        assertTrue(changed);
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+
+    }
+
+    @Test
+    public void shouldChangeGraphIdForNonOwnedGraphAsAdminWhenRequestingAdminAccess() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final String graphB = "graphB";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphId.Builder()
+                .graphId(graphA)
+                .newGraphId(graphB)
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), ADMIN_USER);
+
+        //then
+        assertTrue(changed);
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+
+    }
+
+    @Test
+    public void shouldNotChangeGraphIdForNonOwnedGraphAsAdminWhenNotRequestingAdminAccess() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final String graphB = "graphB";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphId.Builder()
+                .graphId(graphA)
+                .newGraphId(graphB)
+                .build(), ADMIN_USER);
+
+        //then
+        assertFalse(changed);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+
+    }
+
+    @Test
+    public void shouldNotChangeGraphIdForNonOwnedGraphAsNonAdminWhenRequestingAdminAccess() throws Exception {
+        //given
+        final String graphA = "graphA";
+        final String graphB = "graphB";
+        final User otherUser = new User("other");
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .graphAuths("Auths1")
+                .build(), user);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser)).contains(graphA));
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphId.Builder()
+                .graphId(graphA)
+                .newGraphId(graphB)
+                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "true")
+                .build(), otherUser);
+
+        //then
+        assertFalse(changed);
+        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser)).contains(graphA));
+        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser)).contains(graphB));
     }
 }

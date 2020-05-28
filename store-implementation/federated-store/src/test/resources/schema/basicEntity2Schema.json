@@ -1,0 +1,12 @@
+{
+  "entities": {
+    "BasicEntity2": {
+      "vertex": "vertex.string"
+    }
+  },
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    }
+  }
+}

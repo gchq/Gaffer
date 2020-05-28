@@ -43,8 +43,8 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
 
         super.initialise(graphId, schema, properties);
 
-        // Accumulo store just contains edges
         try {
+            // Accumulo store just contains edges
             addGraphs(null, User.UNKNOWN_USER_ID, true, new GraphSerialisable.Builder()
                     .config(new GraphConfig(ACCUMULO_GRAPH_WITH_EDGES))
                     .schema(new Schema.Builder()

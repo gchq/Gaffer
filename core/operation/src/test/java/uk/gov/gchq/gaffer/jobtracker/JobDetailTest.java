@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,14 +32,17 @@ public class JobDetailTest {
     @Test
     public void shouldBeSerialisable() throws SerialisationException {
         // given
+        final OperationChain operationChain = new OperationChain.Builder().first(new GetAllElements()).build();
+
         JobDetail original = new JobDetail.Builder()
                 .description("thing")
                 .jobId("abc")
                 .parentJobId("cde")
                 .repeat(new Repeat(20L, 30L, TimeUnit.MINUTES))
                 .status(JobStatus.RUNNING)
-                .userId("a user")
-                .opChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .user(new User("a user"))
+                .opChain(operationChain)
+                .serialisedOperationChain(operationChain)
                 .build();
 
         final JavaSerialiser serialiser = new JavaSerialiser();

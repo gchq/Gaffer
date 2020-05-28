@@ -54,9 +54,11 @@ import static java.util.Objects.nonNull;
 @Since("1.0.0")
 @Summary("Adds a new named operation")
 public class AddNamedOperation implements Operation, Operations<Operation> {
+
     @Required
     private String operations;
     private String operationName;
+    private List<String> labels;
     private String description;
     private List<String> readAccessRoles = new ArrayList<>();
     private List<String> writeAccessRoles = new ArrayList<>();
@@ -64,6 +66,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
     private Integer score;
+
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -121,6 +124,14 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         this.operationName = operationName;
     }
 
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(final List<String> labels) {
+        this.labels = labels;
+    }
+
     public List<String> getReadAccessRoles() {
         return readAccessRoles;
     }
@@ -158,6 +169,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)
                 .name(operationName)
+                .labels(labels)
                 .description(description)
                 .readAccessRoles(readAccessRoles.toArray(new String[readAccessRoles.size()]))
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
@@ -255,6 +267,11 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
 
         public Builder name(final String name) {
             _getOp().setOperationName(name);
+            return _self();
+        }
+
+        public Builder labels(final List<String> labels) {
+            _getOp().setLabels(labels);
             return _self();
         }
 

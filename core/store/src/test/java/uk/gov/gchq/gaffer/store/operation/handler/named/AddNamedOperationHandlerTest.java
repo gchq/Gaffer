@@ -42,10 +42,12 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -212,24 +214,26 @@ public class AddNamedOperationHandlerTest {
     }
 
     @Test
-    public void shouldAddNamedOperationWithScoreCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
+        addNamedOperation.setLabels(Arrays.asList("test label"));
 
         handler.doOperation(addNamedOperation, context, store);
 
         final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
 
         assert cacheContains("testOp");
-        assertEquals(addNamedOperation.getScore(), result.getScore());
+        assertTrue(result.getScore() == 2);
+        assertEquals(Arrays.asList("test label"), result.getLabels());
     }
 
-    private boolean cacheContains(final String opName) {
+    private boolean cacheContains(final String operationName) {
         Iterable<NamedOperationDetail> ops = mockCache.getAllNamedOperations(context.getUser(), EMPTY_ADMIN_AUTH);
         for (final NamedOperationDetail op : ops) {
-            if (op.getOperationName().equals(opName)) {
+            if (op.getOperationName().equals(operationName)) {
                 return true;
             }
         }
