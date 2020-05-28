@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.migration.ToInteger;
 import uk.gov.gchq.gaffer.function.migration.ToLong;
 
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
 
@@ -38,7 +38,7 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
         final byte[] serialisedTwiceJson = toJson(deserialisedOnceTestObject);
 
         // Then
-        assertJsonEquals(serialisedOnceJson, serialisedTwiceJson);
+        assertEquals(serialisedOnceJson, serialisedTwiceJson);
     }
 
     @Override

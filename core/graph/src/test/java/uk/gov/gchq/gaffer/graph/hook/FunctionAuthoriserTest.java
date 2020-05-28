@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -48,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.spy;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
@@ -163,7 +164,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(ToString.class));
 
-        assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+        JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test
@@ -174,7 +175,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser();
 
-        assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+        JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test

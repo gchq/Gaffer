@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -40,7 +41,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class IfTest extends OperationTest<If> {
 
@@ -234,7 +235,7 @@ public class IfTest extends OperationTest<If> {
 
         // When
         final byte[] json = toJson(op);
-        assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.If\",%n" +
                 "  \"input\" : [ {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
@@ -273,7 +274,7 @@ public class IfTest extends OperationTest<If> {
 
         // When
         final byte[] json = toJson(op);
-        assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.If\",%n" +
                 "  \"input\" :  {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +

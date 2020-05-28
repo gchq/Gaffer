@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.rest;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
@@ -35,10 +38,7 @@ import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -97,12 +97,28 @@ public abstract class RestApiTestClient {
                     .store(out, "This is an optional header comment string");
         }
 
-        // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
-
+        setGraphProperties(testFolder.getRoot().toString());
         reinitialiseGraph();
+    }
+
+    public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
+        FileUtils.writeByteArrayToFile(new File(testFolder, "schema.json"), schema
+                .toJson(true));
+
+        try (OutputStream out = new FileOutputStream(new File(testFolder, "store.properties"))) {
+            storeProperties.getProperties()
+                    .store(out, "This is an optional header comment string");
+        }
+
+        setGraphProperties(testFolder.getPath());
+        reinitialiseGraph();
+    }
+
+    private void setGraphProperties(final String filePath) {
+        // set properties for REST service
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, filePath + "/store.properties");
+        System.setProperty(SystemProperty.SCHEMA_PATHS, filePath + "/schema.json");
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
     }
 
     public void reinitialiseGraph(final Graph graph) {

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -33,13 +34,12 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonNotEqual;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertNotEqual;
 
 public class GetSchemaHandlerTest {
     private GetSchemaHandler handler;
@@ -76,8 +76,8 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        assertJsonNotEqual(schema.toJson(true), result.toJson(true));
-        assertJsonEquals(compactSchemaBytes, result.toJson(true));
+        assertNotEqual(schema.toJson(true), result.toJson(true));
+        JsonAssert.assertEquals(compactSchemaBytes, result.toJson(true));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        assertJsonEquals(schema.toJson(true), result.toJson(true));
+        JsonAssert.assertEquals(schema.toJson(true), result.toJson(true));
     }
 
     @Test

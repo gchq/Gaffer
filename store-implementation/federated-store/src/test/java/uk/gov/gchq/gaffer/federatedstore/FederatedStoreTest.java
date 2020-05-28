@@ -1109,7 +1109,7 @@ public class FederatedStoreTest {
         // Then
         final Collection<Graph> graphs = store.getGraphs(userContext.getUser(), ACC_ID_2, ignore);
         assertEquals(1, graphs.size());
-        JsonAssert.assertJsonEquals(
+        JsonAssert.assertEquals(
                 JSONSerialiser.serialise(Schema.fromJson(StreamUtil.openStream(getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))),
                 JSONSerialiser.serialise(graphs.iterator().next().getSchema())
         );

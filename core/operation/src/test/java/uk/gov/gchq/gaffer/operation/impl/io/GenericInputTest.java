@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.operation.io.GenericInput;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -36,7 +37,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
@@ -48,7 +48,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json = toJson(input);
-        assertJsonEquals(expectedJson.getBytes(), json);
+        JsonAssert.assertEquals(expectedJson.getBytes(), json);
 
         // When / Then
         final GenericInput inputFromJson = fromJson(json);
@@ -56,7 +56,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json2 = toJson(inputFromJson);
-        assertJsonEquals(expectedJson.getBytes(), json2);
+        JsonAssert.assertEquals(expectedJson.getBytes(), json2);
 
         // When / Then
         final GenericInput inputFromJson2 = fromJson(json2);

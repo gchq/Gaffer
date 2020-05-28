@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.FunctionTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,7 +30,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ToElementTupleTest extends FunctionTest {
 
@@ -68,12 +68,12 @@ public class ToElementTupleTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Element.class};
+        return new Class[] {Element.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{ElementTuple.class};
+        return new Class[] {ElementTuple.class};
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ToElementTupleTest extends FunctionTest {
         final ToElementTuple deserialisedObj = JSONSerialiser.deserialise(json, ToElementTuple.class);
 
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToElementTuple\"}";
-        assertJsonEquals(expectedJson, new String(json));
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

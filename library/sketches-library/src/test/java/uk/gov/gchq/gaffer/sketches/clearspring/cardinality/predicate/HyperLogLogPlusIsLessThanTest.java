@@ -117,7 +117,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         // When 1
         final String json = new String(JSONSerialiser.serialise(filter, true));
         // Then 1
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate.HyperLogLogPlusIsLessThan\",%n" +
                 "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +

@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -55,7 +56,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
 
@@ -101,7 +102,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .first(expectedGetWalks)
                 .then(limit)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -143,7 +144,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(validate)
                 .then(count)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -176,7 +177,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(getAllElements)
                 .then(splitStore)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -211,7 +212,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(getAllElements)
                 .then(splitStore)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -257,7 +258,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(validate)
                 .then(count)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -316,7 +317,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(getElements)
                 .then(count)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -373,7 +374,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .build())
                 .then(new Count())
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -403,7 +404,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .build())
                 .then(new Count())
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -439,7 +440,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(nestedUnmodifiableOps)
                 .then(count)
                 .build();
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test
@@ -492,7 +493,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .then(limit)
                 .build();
 
-        assertJsonEquals(JSONSerialiser.serialise(expectedOpChain),
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain),
                 JSONSerialiser.serialise(opChain));
     }
 

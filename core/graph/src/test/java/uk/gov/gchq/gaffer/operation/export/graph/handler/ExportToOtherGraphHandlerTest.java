@@ -260,7 +260,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
-        JsonAssert.assertJsonEquals(new Schema.Builder()
+        JsonAssert.assertEquals(new Schema.Builder()
                         .entity("entity", new SchemaEntityDefinition.Builder()
                                 .vertex("vertex")
                                 .build())

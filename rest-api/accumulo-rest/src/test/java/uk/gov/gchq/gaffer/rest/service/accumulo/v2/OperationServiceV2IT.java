@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
+import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -24,8 +25,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationDetailPojo;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
-
-import javax.ws.rs.core.Response;
 
 import java.util.Set;
 
@@ -44,17 +43,23 @@ public class OperationServiceV2IT extends AbstractRestApiIT {
         // Then
         final byte[] json = response.readEntity(byte[].class);
         final OperationDetailPojo opDetails = JSONSerialiser.deserialise(json, OperationDetailPojo.class);
-        final Set<OperationFieldPojo> fields = Sets.newHashSet(
-                new OperationFieldPojo("input", "java.lang.Object[]", false, null, null),
-                new OperationFieldPojo("view", "uk.gov.gchq.gaffer.data.elementdefinition.view.View", false, null, null),
-                new OperationFieldPojo("includeIncomingOutGoing", "java.lang.String", false, "Should the edges point towards, or away from your seeds", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING")),
-                new OperationFieldPojo("inputB", "java.lang.Object[]", false, null, null),
-                new OperationFieldPojo("seedMatching", "java.lang.String", false, "How should the seeds be matched?", Sets.newHashSet("RELATED", "EQUAL")),
-                new OperationFieldPojo("options", "java.util.Map<java.lang.String,java.lang.String>", false, null, null),
-                new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
-                new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
-        );
+        final Set<OperationFieldPojo> fields = makeOperationSet();
+
+
         assertEquals(fields, Sets.newHashSet(opDetails.getFields()));
+    }
+
+    private Set<OperationFieldPojo> makeOperationSet() {
+        return Sets.newHashSet(
+                    new OperationFieldPojo("input", "java.lang.Object[]", false, null, null),
+                    new OperationFieldPojo("view", "uk.gov.gchq.gaffer.data.elementdefinition.view.View", false, null, null),
+                    new OperationFieldPojo("includeIncomingOutGoing", "java.lang.String", false, "Should the edges point towards, or away from your seeds", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING")),
+                    new OperationFieldPojo("inputB", "java.lang.Object[]", false, null, null),
+                    new OperationFieldPojo("seedMatching", "java.lang.String", false, "How should the seeds be matched?", Sets.newHashSet("RELATED", "EQUAL")),
+                    new OperationFieldPojo("options", "java.util.Map<java.lang.String,java.lang.String>", false, null, null),
+                    new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
+                    new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
+            );
     }
 
     @Override

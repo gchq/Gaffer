@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -47,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
@@ -95,7 +96,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertJsonEquals(FULL_VIEW.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertEquals(FULL_VIEW.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -119,7 +120,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -145,7 +146,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -192,7 +193,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         final View mergedView = new View.Builder().merge(namedViewWithNestedNamedView).build();
 
         // Then
-        assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -425,7 +426,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         final View mergedView = new View.Builder().merge(nestedNamedView3).build();
 
         // Then
-        assertJsonEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedView.toCompactJson(), getElements.getView().toCompactJson());
     }
 
     @Test
@@ -453,7 +454,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         RESOLVER.preExecute(opChain, CONTEXT);
 
         // Then
-        assertJsonEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
+        JsonAssert.assertEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
     }
 
     @Test
@@ -482,7 +483,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         RESOLVER.preExecute(opChain, CONTEXT);
 
         // Then
-        assertJsonEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
+        JsonAssert.assertEquals(finalExpectedView.toCompactJson(), ((OperationView) opChain.getOperations().get(0)).getView().toCompactJson());
     }
 
     @Test

@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -44,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
@@ -264,7 +265,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
                                 .build())
                         .build())
                 .build().toJson(true);
-        assertJsonEquals(expected, op.getView().toJson(true));
+        JsonAssert.assertEquals(expected, op.getView().toJson(true));
         assertTrue(op.getView().getGroups().contains("testGroup"));
     }
 

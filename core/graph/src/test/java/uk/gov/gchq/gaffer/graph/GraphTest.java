@@ -27,6 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -116,7 +117,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
@@ -265,7 +266,7 @@ public class GraphTest {
         }
 
         // Then
-        assertJsonEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+        JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     @Test
@@ -298,7 +299,7 @@ public class GraphTest {
         }
 
         // Then
-        assertJsonEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+        JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     private URI getResourceUri(String resource) throws URISyntaxException {
@@ -988,7 +989,7 @@ public class GraphTest {
         // Then
         assertEquals(expectedResult, result);
         verify(store).execute(clonedOpChain, clonedContext);
-        assertJsonEquals(view.toJson(false), operation.getView().toJson(false));
+        JsonAssert.assertEquals(view.toJson(false), operation.getView().toJson(false));
     }
 
     @Test
@@ -1306,7 +1307,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertJsonEquals(graph.getSchema().toJson(false), graph2.getSchema().toJson(false));
+        JsonAssert.assertEquals(graph.getSchema().toJson(false), graph2.getSchema().toJson(false));
     }
 
     @Test
@@ -1609,7 +1610,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         final Pair<String, String> ids = library.getIds(graphId1);
         // Check that the schemaIds are different between the parent and supplied schema
         assertEquals(graphId1, ids.getFirst());
@@ -1649,7 +1650,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
         // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
         assertEquals(library.getIds(graphId1).getFirst(), graphId1);
         // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
@@ -1692,7 +1693,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertJsonEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
         assertEquals(library.getIds(graphId1).getFirst(), graphId1);
         // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
@@ -1935,7 +1936,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -1974,7 +1975,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2035,7 +2036,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2074,7 +2075,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2110,7 +2111,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2151,7 +2152,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
@@ -2193,7 +2194,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        assertJsonEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).build().toCompactJson(),
                 ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 

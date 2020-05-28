@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -31,7 +32,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ForEachTest extends OperationTest<ForEach> {
 
@@ -96,7 +96,7 @@ public class ForEachTest extends OperationTest<ForEach> {
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"%n" +
                 "  }%n" +
                 "}");
-        assertJsonEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
         assertNotNull(deserialisedObj);
     }
 

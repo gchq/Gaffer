@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -33,7 +34,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
 
@@ -60,7 +61,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("graphId", deserialisedOp.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), deserialisedOp.getParentSchemaIds());
         assertEquals("props1", deserialisedOp.getParentStorePropertiesId());
-        assertJsonEquals(schema.toJson(false), deserialisedOp.getSchema().toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), deserialisedOp.getSchema().toJson(false));
         assertEquals(storeProperties, deserialisedOp.getStoreProperties());
     }
 
@@ -85,7 +86,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("graphId", op.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), op.getParentSchemaIds());
         assertEquals("props1", op.getParentStorePropertiesId());
-        assertJsonEquals(schema.toJson(false), op.getSchema().toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), op.getSchema().toJson(false));
         assertEquals(storeProperties, op.getStoreProperties());
     }
 
@@ -112,7 +113,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("graphId", clone.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), clone.getParentSchemaIds());
         assertEquals("props1", clone.getParentStorePropertiesId());
-        assertJsonEquals(schema.toJson(false), clone.getSchema().toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), clone.getSchema().toJson(false));
         assertEquals(storeProperties, clone.getStoreProperties());
     }
 

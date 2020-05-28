@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.view;
 
 import com.google.common.collect.Sets;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
@@ -57,7 +58,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
                 .build();
 
         assertEquals(TEST_NAMED_VIEW_NAME, addNamedView.getName());
-        assertJsonEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
+        JsonAssert.assertEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
         assertTrue(addNamedView.isOverwriteFlag());
         assertEquals(parameters, addNamedView.getParameters());
         assertEquals(TEST_DESCRIPTION, addNamedView.getDescription());
@@ -82,7 +83,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Then
         assertNotSame(addNamedView, clone);
         assertEquals(addNamedView.getName(), clone.getName());
-        assertJsonEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
+        JsonAssert.assertEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
         assertFalse(clone.isOverwriteFlag());
         assertEquals(addNamedView.getParameters(), clone.getParameters());
         assertEquals(addNamedView.getDescription(), clone.getDescription());
