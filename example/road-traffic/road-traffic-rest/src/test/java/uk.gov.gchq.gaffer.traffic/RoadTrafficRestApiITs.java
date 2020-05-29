@@ -46,10 +46,8 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    //    @ClassRule
-//    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     @TempDir
-    static File TEST_FOLDER;
+    static File testfolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
@@ -58,7 +56,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
         // Connect it to a Gaffer store, as specified in the 'store.type' property
         CLIENT.reinitialiseGraph(
-                TEST_FOLDER,
+                testfolder,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
         );

@@ -16,10 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -38,11 +34,17 @@ import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+
+import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
 
 public abstract class RestApiTestClient {
     protected final Client client = ClientBuilder.newClient();
@@ -89,7 +91,7 @@ public abstract class RestApiTestClient {
     }
 
     public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
-        FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
+        writeByteArrayToFile(testFolder.newFile("schema.json"), schema
                 .toJson(true));
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
@@ -102,7 +104,7 @@ public abstract class RestApiTestClient {
     }
 
     public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
-        FileUtils.writeByteArrayToFile(new File(testFolder, "schema.json"), schema
+        writeByteArrayToFile(new File(testFolder, "schema.json"), schema
                 .toJson(true));
 
         try (OutputStream out = new FileOutputStream(new File(testFolder, "store.properties"))) {

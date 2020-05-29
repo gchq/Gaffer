@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -25,6 +24,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationDetailPojo;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+
+import javax.ws.rs.core.Response;
 
 import java.util.Set;
 
