@@ -196,7 +196,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(ToString.class));
 
-        JsonAssert.assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+        JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
         final FunctionAuthoriser authoriser = new FunctionAuthoriser();
 
-        JsonAssert.assertJsonEquals(json, new String(JSONSerialiser.serialise(authoriser)));
+        JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test

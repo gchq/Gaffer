@@ -56,7 +56,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
                 .build();
 
         assertEquals(TEST_NAMED_VIEW_NAME, addNamedView.getName());
-        JsonAssert.assertJsonEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
+        JsonAssert.assertEquals(VIEW.toCompactJson(), addNamedView.getView().toCompactJson());
         assertTrue(addNamedView.isOverwriteFlag());
         assertEquals(parameters, addNamedView.getParameters());
         assertEquals(TEST_DESCRIPTION, addNamedView.getDescription());
@@ -81,7 +81,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Then
         assertNotSame(addNamedView, clone);
         assertEquals(addNamedView.getName(), clone.getName());
-        JsonAssert.assertJsonEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
+        JsonAssert.assertEquals(addNamedView.getView().toJson(false), clone.getView().toJson(false));
         assertFalse(clone.isOverwriteFlag());
         assertEquals(addNamedView.getParameters(), clone.getParameters());
         assertEquals(addNamedView.getDescription(), clone.getDescription());

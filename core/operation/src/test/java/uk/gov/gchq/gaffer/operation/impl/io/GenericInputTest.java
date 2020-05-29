@@ -99,7 +99,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json = toJson(input);
-        JsonAssert.assertJsonEquals(getExpectedJson(), json);
+        JsonAssert.assertEquals(getExpectedJson(), json);
 
         // When / Then
         final GenericInput inputFromJson = fromJson(json);
@@ -107,7 +107,7 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json2 = toJson(inputFromJson);
-        JsonAssert.assertJsonEquals(getExpectedJson(), json2);
+        JsonAssert.assertEquals(getExpectedJson(), json2);
 
         // When / Then
         final GenericInput inputFromJson2 = fromJson(json2);

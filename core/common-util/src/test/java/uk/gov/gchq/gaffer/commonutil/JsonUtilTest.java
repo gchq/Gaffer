@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class JsonUtilTest {
 
@@ -32,8 +32,8 @@ public class JsonUtilTest {
         assertTrue(JsonUtil.equals(json1, json2));
         assertTrue(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        assertJsonEquals(json1, json2);
-        assertJsonEquals(json1.getBytes(), json2.getBytes());
+        JsonAssert.assertEquals(json1, json2);
+        assertEquals(json1.getBytes(), json2.getBytes());
     }
 
     @Test
@@ -44,8 +44,8 @@ public class JsonUtilTest {
         assertFalse(JsonUtil.equals(json1, json2));
         assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1, json2));
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1.getBytes(), json2.getBytes()));
+        assertThrows(AssertionError.class, () -> JsonAssert.assertEquals(json1, json2));
+        assertThrows(AssertionError.class, () -> assertEquals(json1.getBytes(), json2.getBytes()));
     }
 
     @Test
@@ -56,8 +56,8 @@ public class JsonUtilTest {
         assertFalse(JsonUtil.equals(json1, json2));
         assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1, json2));
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1.getBytes(), json2.getBytes()));
+        assertThrows(AssertionError.class, () -> JsonAssert.assertEquals(json1, json2));
+        assertThrows(AssertionError.class, () -> assertEquals(json1.getBytes(), json2.getBytes()));
     }
 
     @Test
@@ -68,8 +68,8 @@ public class JsonUtilTest {
         assertTrue(JsonUtil.equals(json1, json2));
         assertTrue(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        assertJsonEquals(json1, json2);
-        assertJsonEquals(json1.getBytes(), json2.getBytes());
+        JsonAssert.assertEquals(json1, json2);
+        assertEquals(json1.getBytes(), json2.getBytes());
     }
 
     @Test
@@ -81,8 +81,8 @@ public class JsonUtilTest {
         assertFalse(JsonUtil.equals(json1, json2));
         assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1, json2));
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1.getBytes(), json2.getBytes()));
+        assertThrows(AssertionError.class, () -> JsonAssert.assertEquals(json1, json2));
+        assertThrows(AssertionError.class, () -> assertEquals(json1.getBytes(), json2.getBytes()));
     }
 
     @Test
@@ -93,8 +93,8 @@ public class JsonUtilTest {
         assertFalse(JsonUtil.equals(json1, json2));
         assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1, json2));
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1.getBytes(), json2.getBytes()));
+        assertThrows(AssertionError.class, () -> JsonAssert.assertEquals(json1, json2));
+        assertThrows(AssertionError.class, () -> assertEquals(json1.getBytes(), json2.getBytes()));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class JsonUtilTest {
         assertFalse(JsonUtil.equals(json1, null));
         assertFalse(JsonUtil.equals(json1.getBytes(), null));
 
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1, null));
-        assertThrows(AssertionError.class, () -> assertJsonEquals(json1.getBytes(), null));
+        assertThrows(AssertionError.class, () -> JsonAssert.assertEquals(json1, null));
+        assertThrows(AssertionError.class, () -> assertEquals(json1.getBytes(), null));
     }
 }

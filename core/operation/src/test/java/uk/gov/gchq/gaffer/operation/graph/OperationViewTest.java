@@ -60,7 +60,7 @@ public class OperationViewTest {
         operationView.setViews(Arrays.asList(testView1, testView2));
 
         // Then
-        JsonAssert.assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class OperationViewTest {
         operationView.setViews(Collections.singletonList(testView2));
 
         // Then
-        JsonAssert.assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class OperationViewTest {
         operationView.setViews(Arrays.asList(testView1, new View()));
 
         // Then
-        JsonAssert.assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class OperationViewTest {
         operationView.setViews(Arrays.asList(testView1, testView1));
 
         // Then
-        JsonAssert.assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class OperationViewTest {
         operationView.setViews(Collections.singletonList(testView1));
 
         // Then
-        JsonAssert.assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test

@@ -74,7 +74,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"inputMapperPairs\" : { \"inputPath\" :\"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"},%n" +
@@ -158,7 +158,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         final String json = new String(JSONSerialiser.serialise(addElementsFromHdfs, true));
 
         // Then
-        JsonAssert.assertJsonEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
+        JsonAssert.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
     }
 
     @Test

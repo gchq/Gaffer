@@ -37,7 +37,7 @@ public class MigrateElementTest extends JSONSerialisationTest<MigrateElement> {
         final byte[] serialisedTwiceJson = toJson(deserialisedOnceTestObject);
 
         // Then
-        JsonAssert.assertJsonEquals(serialisedOnceJson, serialisedTwiceJson);
+        JsonAssert.assertEquals(serialisedOnceJson, serialisedTwiceJson);
     }
 
     @Override

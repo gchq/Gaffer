@@ -146,7 +146,7 @@ public class TableUtilsTest {
         assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
-        JsonAssert.assertJsonEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
+        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(HBaseProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
     }
 
@@ -164,7 +164,7 @@ public class TableUtilsTest {
         assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
-        JsonAssert.assertJsonEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
+        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(HBaseProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
     }
 

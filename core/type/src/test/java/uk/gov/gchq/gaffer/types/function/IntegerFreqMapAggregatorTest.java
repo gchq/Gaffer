@@ -59,7 +59,7 @@ public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
 
         // Then 1
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.IntegerFreqMapAggregator\"%n" +
                 "}"), json);
 

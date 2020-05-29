@@ -100,7 +100,7 @@ public abstract class AbstractGraphLibraryTest {
         graphLibrary.addSchema(TEST_SCHEMA_ID, schema);
 
         // Then
-        JsonAssert.assertJsonEquals(schema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
     }
 
     @Test
@@ -135,13 +135,13 @@ public abstract class AbstractGraphLibraryTest {
         Schema tempSchema = new Schema.Builder().edge("testEdge", new SchemaEdgeDefinition()).build();
 
         // Then
-        JsonAssert.assertJsonEquals(schema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
 
         // When
         graphLibrary.addOrUpdateSchema(TEST_SCHEMA_ID, tempSchema);
 
         // Then
-        JsonAssert.assertJsonEquals(tempSchema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
+        JsonAssert.assertEquals(tempSchema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
     }
 
     @Test

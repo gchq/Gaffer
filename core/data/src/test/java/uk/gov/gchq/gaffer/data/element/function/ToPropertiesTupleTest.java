@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -25,7 +26,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ToPropertiesTupleTest extends FunctionTest {
 
@@ -67,7 +67,7 @@ public class ToPropertiesTupleTest extends FunctionTest {
         final ToPropertiesTuple deserialisedObj = JSONSerialiser.deserialise(json, ToPropertiesTuple.class);
 
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToPropertiesTuple\"}";
-        assertJsonEquals(expectedJson, new String(json));
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

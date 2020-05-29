@@ -208,7 +208,7 @@ public class RBMBackedTimestampSetInRangeTest {
                 "}";
 
         // then
-        JsonAssert.assertJsonEquals(expectedSerialisedForm, JsonSerialiser.serialise(pred));
+        JsonAssert.assertEquals(expectedSerialisedForm, JsonSerialiser.serialise(pred));
     }
 
     @Test
@@ -245,7 +245,7 @@ public class RBMBackedTimestampSetInRangeTest {
                 "}";
 
         // Then
-        JsonAssert.assertJsonEquals(expectedJson, JsonSerialiser.serialise(pred));
+        JsonAssert.assertEquals(expectedJson, JsonSerialiser.serialise(pred));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class RBMBackedTimestampSetInRangeTest {
                 "}";
 
         // Then
-        JsonAssert.assertJsonEquals(expectedJson, JsonSerialiser.serialise(pred));
+        JsonAssert.assertEquals(expectedJson, JsonSerialiser.serialise(pred));
     }
 
 }

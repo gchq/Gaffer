@@ -93,7 +93,7 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         final FederatedOperationChain deserialisedOp = fromJson(json);
 
         // Then
-        JsonAssert.assertJsonEquals(StringUtil.toBytes(String.format("{%n" +
+        JsonAssert.assertEquals(StringUtil.toBytes(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain\",%n" +
                 "  \"operationChain\" : {%n" +
                 "    \"operations\" : [ {%n" +

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ExtractPropertyTest extends FunctionTest {
 
@@ -96,7 +97,7 @@ public class ExtractPropertyTest extends FunctionTest {
         final ExtractProperty deserialisedObj = JSONSerialiser.deserialise(json, ExtractProperty.class);
 
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\"name\":\"count\"}";
-        assertJsonEquals(expectedJson, new String(json));
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertEquals("count", deserialisedObj.getName());
     }
 }

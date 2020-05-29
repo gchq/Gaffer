@@ -75,7 +75,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         final AddNamedOperation deserialisedObj = fromJson(json);
 
         // Then
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 " \"class\" : \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\",%n" +
                 " \"operationName\": \"Test\",%n" +
                 " \"description\": \"Test Named Operation\",%n" +
@@ -114,7 +114,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         final AddNamedOperation deserialisedObj = fromJson(json);
 
         // Then
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 " \"class\" : \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\",%n" +
                 " \"operationName\": \"Test\",%n" +
                 " \"description\": \"Test Named Operation\",%n" +

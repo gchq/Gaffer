@@ -223,7 +223,7 @@ public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
         final LongTimeSeries deserialisedObj = fromJson(json);
 
         // Then
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"timeBucket\" : \"SECOND\",%n" +
                 "  \"timeSeries\" : {%n" +
                 "    \"1970-01-01T00:00:01Z\" : 10,%n" +

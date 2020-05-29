@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class NamedViewTest {
 
@@ -179,7 +180,7 @@ public class NamedViewTest {
                 "           \"testParamKey\" : 1" +
                 "         }" +
                 "    }");
-        assertJsonEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ExtractIdTest extends FunctionTest {
 
@@ -94,7 +94,7 @@ public class ExtractIdTest extends FunctionTest {
         final ExtractId deserialisedObj = JSONSerialiser.deserialise(json, ExtractId.class);
 
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractId\",\"id\":\"SOURCE\"}";
-        assertJsonEquals(expectedJson, new String(json));
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertEquals(IdentifierType.SOURCE, deserialisedObj.getId());
     }
 }

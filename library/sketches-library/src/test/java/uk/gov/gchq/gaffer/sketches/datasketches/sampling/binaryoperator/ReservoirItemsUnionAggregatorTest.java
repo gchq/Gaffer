@@ -92,7 +92,7 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
-        JsonAssert.assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsUnionAggregator\"%n" +
                 "}"), json);
 

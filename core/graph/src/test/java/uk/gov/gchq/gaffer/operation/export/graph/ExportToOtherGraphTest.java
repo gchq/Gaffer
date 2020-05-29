@@ -60,7 +60,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("graphId", deserialisedOp.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), deserialisedOp.getParentSchemaIds());
         assertEquals("props1", deserialisedOp.getParentStorePropertiesId());
-        JsonAssert.assertJsonEquals(schema.toJson(false), deserialisedOp.getSchema().toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), deserialisedOp.getSchema().toJson(false));
         assertEquals(storeProperties, deserialisedOp.getStoreProperties());
     }
 
@@ -85,7 +85,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("graphId", op.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), op.getParentSchemaIds());
         assertEquals("props1", op.getParentStorePropertiesId());
-        JsonAssert.assertJsonEquals(schema.toJson(false), op.getSchema().toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), op.getSchema().toJson(false));
         assertEquals(storeProperties, op.getStoreProperties());
     }
 
@@ -112,7 +112,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals("graphId", clone.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), clone.getParentSchemaIds());
         assertEquals("props1", clone.getParentStorePropertiesId());
-        JsonAssert.assertJsonEquals(schema.toJson(false), clone.getSchema().toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), clone.getSchema().toJson(false));
         assertEquals(storeProperties, clone.getStoreProperties());
     }
 
