@@ -38,11 +38,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @see uk.gov.gchq.koryphe.function.FunctionTest
  */
-public abstract class FunctionTest {
+public abstract class GafferFunctionTest {
 
     private static final ObjectMapper MAPPER = createObjectMapper();
 
-    public FunctionTest() {
+    public GafferFunctionTest() {
     }
 
     private static ObjectMapper createObjectMapper() {

@@ -28,7 +28,7 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
-public class ExtractGroupTest extends FunctionTest {
+public class ExtractGroupTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnGroupFromEdge() {

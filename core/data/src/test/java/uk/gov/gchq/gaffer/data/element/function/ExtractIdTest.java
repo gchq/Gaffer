@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExtractIdTest extends FunctionTest {
+public class ExtractIdTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {

@@ -30,7 +30,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
-public class ExtractPropertyTest extends FunctionTest {
+public class ExtractPropertyTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {
