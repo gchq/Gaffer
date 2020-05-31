@@ -56,6 +56,10 @@ public abstract class GafferFunctionTest {
 
     protected abstract Class<? extends Function> getFunctionClass();
 
+    protected abstract Class[] getExpectedSignatureInputClasses();
+
+    protected abstract Class[] getExpectedSignatureOutputClasses();
+
     @Test
     public abstract void shouldJsonSerialiseAndDeserialise() throws IOException;
 
