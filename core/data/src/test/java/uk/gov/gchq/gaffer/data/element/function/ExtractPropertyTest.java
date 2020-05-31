@@ -90,6 +90,16 @@ public class ExtractPropertyTest extends GafferFunctionTest {
     }
 
     @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Element.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ExtractProperty function = getInstance();
 
