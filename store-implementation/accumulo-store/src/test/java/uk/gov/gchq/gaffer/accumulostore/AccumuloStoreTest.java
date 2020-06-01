@@ -205,18 +205,20 @@ public class AccumuloStoreTest {
         assertEquals("tableName", byteEntityStore.getTableName());
     }
 
-    @Test
-    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws Exception {
+    @Test()
+    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
         // Given
         final AccumuloProperties properties = byteEntityStoreProperties.clone();
         properties.setTable("tableName");
 
-        // When / Then
+        // When
         try {
             byteEntityStore.initialise("graphId", SCHEMA, properties);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
+            final String expected = "The table in store.properties should no longer be used. Please use a graphId instead " +
+                    "or for now just set the graphId to be the same value as the store.properties table.";
+            assertTrue(e.getMessage().equals(expected));
         }
     }
 
@@ -289,7 +291,7 @@ public class AccumuloStoreTest {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
     }
 
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
+    private void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
@@ -341,6 +343,7 @@ public class AccumuloStoreTest {
                 .input(entityId1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+
         assertEquals(0, Iterables.size(relatedResults));
     }
 
@@ -432,14 +435,11 @@ public class AccumuloStoreTest {
                 .vertexSerialiser(new JavaSerialiser())
                 .build();
 
+        Exception e1 = assertThrows(SchemaException.class, () -> byteEntityStore.preInitialise("graphId", inconsistentSchema, byteEntityStoreProperties));
+        assertTrue(e1.getMessage().equals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way."));
 
-        assertThrows(SchemaException.class, () -> byteEntityStore.preInitialise("graphId", inconsistentSchema, byteEntityStoreProperties));
-        try {
-            byteEntityStore.validateSchemas();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Vertex serialiser is inconsistent."));
-        }
+        Exception e2 = assertThrows(SchemaException.class, () -> byteEntityStore.validateSchemas());
+        assertTrue(e2.getMessage().equals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way."));
     }
 
     @Test
@@ -470,6 +470,7 @@ public class AccumuloStoreTest {
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
+
         // When
         byteEntityStore.initialise("graphId", schema, byteEntityStoreProperties);
 
@@ -504,14 +505,15 @@ public class AccumuloStoreTest {
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
+
         // When
         byteEntityStore.initialise("graphId", schema, byteEntityStoreProperties);
 
         // Then - no validation exceptions
     }
 
-    @Test
-    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws Exception {
+    @Test()
+    public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -534,12 +536,14 @@ public class AccumuloStoreTest {
                         .build())
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
+
         // When / Then
-        try {
-            byteEntityStore.initialise("graphId", schema, byteEntityStoreProperties);
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("The aggregator for the timestamp property must be set to: " + Max.class.getName()), e.getMessage());
-        }
+        Exception e1 = assertThrows(SchemaException.class, () -> byteEntityStore.initialise("graphId", schema, byteEntityStoreProperties));
+        final String expected = "Schema is not valid. Validation errors: \n" +
+                "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max " +
+                "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property " +
+                "in the timestamp column.";
+        assertTrue(e1.getMessage().equals(expected));
     }
+
 }

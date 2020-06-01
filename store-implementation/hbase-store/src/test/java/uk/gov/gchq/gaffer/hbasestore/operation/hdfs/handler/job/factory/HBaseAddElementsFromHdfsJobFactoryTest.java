@@ -41,8 +41,14 @@ import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMa
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.reducer.AddElementsFromHdfsReducer;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
+import uk.gov.gchq.gaffer.hdfs.operation.hander.job.factory.AbstractJobFactoryTest;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.JobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -53,7 +59,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class HBaseAddElementsFromHdfsJobFactoryTest {
+public class HBaseAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -77,15 +83,9 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
 
-        final HBaseAddElementsFromHdfsJobFactory factory = new HBaseAddElementsFromHdfsJobFactory();
+        final JobFactory factory = getJobFactory();
         final Job job = mock(Job.class);
-        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
-                .outputPath(outputDir)
-                .failurePath(failureDir)
-                .jobInitialiser(new TextJobInitialiser())
-                .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
-                .build();
+        final MapReduce operation = getMapReduceOperation();
 
         final HBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
@@ -122,6 +122,39 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         conf.set(JTConfig.JT_IPC_ADDRESS, JTConfig.LOCAL_FRAMEWORK_NAME);
 
         return conf;
+    }
+
+    @Override
+    protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
+        final HBaseStore store = new SingleUseMiniHBaseStore();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+
+        super.configureStoreProperties(properties, jsonSerialiserClass, jsonSerialiserModules, strictJson);
+
+        store.initialise("graphId", schema, properties);
+
+        final JobConf localConf = createLocalConf();
+        final FileSystem fs = FileSystem.getLocal(localConf);
+        fs.mkdirs(new Path(outputDir));
+
+        return store;
+    }
+
+    @Override
+    protected JobFactory getJobFactory() {
+        return new HBaseAddElementsFromHdfsJobFactory();
+    }
+
+    @Override
+    protected MapReduce getMapReduceOperation() {
+        return new AddElementsFromHdfs.Builder()
+                .addInputMapperPair(new Path(inputDir).toString(), JsonMapperGenerator.class.getName())
+                .outputPath(outputDir)
+                .failurePath(failureDir)
+                .jobInitialiser(new TextJobInitialiser())
+                .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
+                .build();
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {

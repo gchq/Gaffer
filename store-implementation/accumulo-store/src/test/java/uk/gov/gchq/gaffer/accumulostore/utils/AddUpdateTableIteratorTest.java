@@ -61,7 +61,6 @@ public class AddUpdateTableIteratorTest {
         // When
         AddUpdateTableIterator.main(args);
 
-
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
         assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");

@@ -347,7 +347,7 @@ public class InputFormatTest {
         @Override
         public int run(final String[] args) throws Exception {
             final Configuration conf = getConf();
-            final Job job = new Job(conf);
+            final Job job = Job.getInstance(conf);
             job.setJarByClass(getClass());
             job.setInputFormatClass(ElementInputFormat.class);
             job.setMapperClass(AMapper.class);

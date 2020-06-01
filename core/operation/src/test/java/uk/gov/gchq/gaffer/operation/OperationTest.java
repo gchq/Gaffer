@@ -76,6 +76,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         final Map<String, String> actual = testObject.getOptions();
         assertEquals(expected, actual);
         assertEquals("two", testObject.getOption("one"));
+
+        testObject.addOption("three", "four");
+        assertEquals("four", testObject.getOption("three"));
     }
 
     @Test

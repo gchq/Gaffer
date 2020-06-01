@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -550,6 +551,65 @@ public class FederatedGraphStorage {
 
     private boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
         boolean rtn;
+        Graph graphToMove = getGraphToMove(graphId, accessPredicate);
+
+        if (nonNull(graphToMove)) {
+            //remove graph to be moved
+            for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
+                entry.getValue().removeIf(graph -> graph.getGraphId().equals(graphId));
+            }
+
+            //add the graph being moved.
+            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), newFederatedAccess);
+            rtn = true;
+        } else {
+            rtn = false;
+        }
+        return rtn;
+    }
+
+    public boolean changeGraphId(final String graphId, final String newGraphId, final User requestingUser) throws StorageException {
+        final Graph graphToMove = getGraphToMove(graphId, access -> access.isAddingUser(requestingUser));
+        return changeGraphId(graphId, newGraphId, graphToMove);
+    }
+
+    public boolean changeGraphIdAsAdmin(final String graphId, final String newGraphId) throws StorageException {
+        final Graph graphToMove = getGraphToMove(graphId, access -> true);
+        return changeGraphId(graphId, newGraphId, graphToMove);
+    }
+
+    private boolean changeGraphId(final String graphId, final String newGraphId, final Graph graphToMove) throws StorageException {
+        boolean rtn;
+
+        if (nonNull(graphToMove)) {
+            FederatedAccess key = null;
+            //remove graph to be moved
+            for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
+                final boolean removed = entry.getValue().removeIf(graph -> graph.getGraphId().equals(graphId));
+                if (removed) {
+                    key = entry.getKey();
+                    break;
+                }
+            }
+
+            final GraphConfig configWithNewGraphId = new GraphConfig.Builder()
+                    .json(new GraphSerialisable.Builder().graph(graphToMove).build().getConfig())
+                    .graphId(newGraphId)
+                    .build();
+
+            //add the graph being renamed.
+            this.put(new GraphSerialisable.Builder()
+                    .graph(graphToMove)
+                    .config(configWithNewGraphId)
+                    .build(), key);
+            rtn = true;
+        } else {
+            rtn = false;
+        }
+        return rtn;
+    }
+
+    private Graph getGraphToMove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
         Graph graphToMove = null;
         for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
             if (accessPredicate.test(entry.getKey())) {
@@ -567,19 +627,8 @@ public class FederatedGraphStorage {
                 }
             }
         }
-
-        if (nonNull(graphToMove)) {
-            //remove graph to be moved
-            for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-                entry.getValue().removeIf(graph -> graph.getGraphId().equals(graphId));
-            }
-
-            //add the graph being moved.
-            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), newFederatedAccess);
-            rtn = true;
-        } else {
-            rtn = false;
-        }
-        return rtn;
+        return graphToMove;
     }
+
+
 }

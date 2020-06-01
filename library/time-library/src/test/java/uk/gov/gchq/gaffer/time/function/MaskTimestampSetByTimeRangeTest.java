@@ -145,6 +145,16 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     }
 
     @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{RBMBackedTimestampSet.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{RBMBackedTimestampSet.class};
+    }
+
+    @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given
         final MaskTimestampSetByTimeRange maskTimestampSetByTimeRange =

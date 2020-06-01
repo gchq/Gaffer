@@ -31,12 +31,14 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -46,6 +48,7 @@ public class FederatedRemoveGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private User testUser;
+
     private static SingleUseMiniAccumuloStore byteEntityStore;
     private static AccumuloProperties byteEntityStoreProperties;
 
@@ -66,10 +69,13 @@ public class FederatedRemoveGraphHandlerTest {
         byteEntityStore.tearDownTestDB();
     }
 
+    private GetAllElements ignore;
+
     @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         testUser = testUser();
+        ignore = new IgnoreOptions();
     }
 
     @Test
@@ -86,7 +92,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .properties(byteEntityStoreProperties)
                 .build());
 
-        assertEquals(1, store.getGraphs(testUser, null).size());
+        assertEquals(1, store.getGraphs(testUser, null, ignore).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -95,7 +101,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, null);
+        Collection<Graph> graphs = store.getGraphs(testUser, null, ignore);
 
         assertEquals(0, graphs.size());
 
@@ -115,7 +121,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .properties(byteEntityStoreProperties)
                 .build());
 
-        assertEquals(1, store.getGraphs(testUser, null).size());
+        assertEquals(1, store.getGraphs(testUser, null, ignore).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -124,9 +130,16 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(testUser, null);
+        Collection<Graph> graphs = store.getGraphs(testUser, null, ignore);
 
         assertEquals(1, graphs.size());
 
+    }
+
+    private class IgnoreOptions extends GetAllElements {
+        @Override
+        public void setOptions(final Map<String, String> options) {
+            //nothing
+        }
     }
 }

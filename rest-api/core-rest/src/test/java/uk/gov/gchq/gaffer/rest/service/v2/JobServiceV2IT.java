@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class JobServiceV2IT extends AbstractRestApiV2IT {
 
@@ -86,7 +87,7 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldKeepScheduledJobsRunningAfterRestart() throws IOException {
+    public void shouldNotKeepScheduledJobsRunningAfterRestartWhenUsingInMemoryCache() throws IOException {
         // Given - schedule Job
         final Repeat repeat = new Repeat(1, 2, TimeUnit.SECONDS);
         Job job = new Job(repeat, new OperationChain.Builder().first(new GetAllElements()).build());
@@ -107,7 +108,8 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
                 allJobDetails.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId)).findFirst().get().getStatus());
 
         // Restart server to check Job still scheduled
-        client.restartServer();
+        client.stopServer();
+        client.reinitialiseGraph();
 
         // When - get all JobDetails
         final Response allJobDetailsResponse2 =
@@ -116,9 +118,8 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
                 allJobDetailsResponse2.readEntity(new GenericType<List<JobDetail>>() {
                 });
 
-        // then - assert parent is of Scheduled parent still
-        assertEquals(JobStatus.SCHEDULED_PARENT,
-                allJobDetails2.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId)).findFirst().get().getStatus());
+        // then - assert parent job id is not present
+        assertTrue(allJobDetails2.stream().noneMatch(jobDetail -> jobDetail.getJobId().equals(parentJobId)));
     }
 
     @Test

@@ -28,7 +28,9 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -59,6 +61,7 @@ public class FederatedStoreAuthTest {
     private FederatedStore federatedStore;
     private FederatedStoreProperties federatedStoreProperties;
     private Schema schema;
+    private Operation ignore;
 
     private static SingleUseMiniAccumuloStore byteEntityStore;
     private static AccumuloProperties byteEntityStoreProperties;
@@ -92,6 +95,8 @@ public class FederatedStoreAuthTest {
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         schema = new Schema.Builder().build();
+
+        ignore = new GetAllElements();
     }
 
     @Test
@@ -108,14 +113,14 @@ public class FederatedStoreAuthTest {
                 new Context(testUser),
                 federatedStore);
 
-        Collection<Graph> graphs = federatedStore.getGraphs(authUser, null);
+        Collection<Graph> graphs = federatedStore.getGraphs(authUser, null, ignore);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(schema, next.getSchema());
 
-        graphs = federatedStore.getGraphs(blankUser(), null);
+        graphs = federatedStore.getGraphs(blankUser(), null, ignore);
 
         assertNotNull(graphs);
         assertTrue(graphs.isEmpty());
@@ -151,7 +156,7 @@ public class FederatedStoreAuthTest {
                 new Context(authUser),
                 federatedStore);
 
-        assertEquals(1, federatedStore.getGraphs(authUser, null).size());
+        assertEquals(1, federatedStore.getGraphs(authUser, null, ignore).size());
 
         try {
             federatedAddGraphHandler.doOperation(
@@ -172,6 +177,6 @@ public class FederatedStoreAuthTest {
             assertFalse(e.getMessage().contains(groupEnt), message);
         }
 
-        assertTrue(federatedStore.getGraphs(testUser(), null).isEmpty());
+        assertTrue(federatedStore.getGraphs(testUser(), null, ignore).isEmpty());
     }
 }

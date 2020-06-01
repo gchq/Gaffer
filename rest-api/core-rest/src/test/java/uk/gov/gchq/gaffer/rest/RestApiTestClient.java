@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.servlet.ServletRegistration;
+import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -102,7 +105,7 @@ public abstract class RestApiTestClient {
         reinitialiseGraph();
     }
 
-    public void reinitialiseGraph(final Graph graph) throws IOException {
+    public void reinitialiseGraph(final Graph graph) {
         DefaultGraphFactory.setGraph(graph);
 
         startServer();
@@ -145,15 +148,26 @@ public abstract class RestApiTestClient {
 
     public abstract Response getOperationDetails(final Class clazz) throws IOException;
 
-    public void startServer() throws IOException {
+    public void startServer() {
         if (null == server) {
-            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);
+            server = createHttpServer();
         }
     }
 
-    public void restartServer() throws IOException {
-        stopServer();
-        startServer();
+    private HttpServer createHttpServer() {
+
+        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString));
+        final String webappContextName = "WebappContext";
+        final WebappContext context = new WebappContext(webappContextName, "/".concat(fullPath));
+        context.addListener(ServletLifecycleListener.class.getName());
+
+        final String servletContainerName = "ServletContainer";
+        final ServletRegistration registration = context.addServlet(servletContainerName, new ServletContainer(new ResourceConfig(config)));
+        registration.addMapping("/*");
+
+        context.deploy(server);
+
+        return server;
     }
 
     public String getPath() {

@@ -70,7 +70,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
         // Set up the data store and set the properties to suit.
-        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+        storeProperties = store.setUpTestDB(suppliedProperties);
     }
 
     @AfterAll

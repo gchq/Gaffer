@@ -293,6 +293,13 @@ Try using a batch scanner to read the data from the tablet server. To enable thi
 
 If you still don't see a significant improvement, try increasing the value of the `table.scan.max.memory` setting in Accumulo for your table.
 
+**Running accumulo-store Integration Tests and getting error: Error BAD_AUTHORIZATIONS for user root on table integrationTestGraph(ID:1l)**
+
+This means you have correctly set your user (in this case user 'root') in store.properties as ```accumulo.user=root``` however you have not set the correct scan authorisations for the user 'root' required by the integration tests.
+If you have the accumulo cluster shell running, you can set these scan auths directly from the shell by entering the following command:
+
+```root@instance> setauths -u root -s vis1,vis2,publicVisibility,privateVisibility,public,private```
+
 Implementation details
 -----------------------------------------------
 
@@ -498,15 +505,43 @@ Accumulo's ability to have a large number of different column families allows Ga
 
 ### Running the integration tests
 
-Update the following store properties files to point to the location of the Accumulo store to test against:
+#### Running a Mini Accumulo Cluster locally
+
+Follow this [README.md](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) in gaffer-tools on how 
+to run a Mini Accumulo Cluster (with a shell) on your local machine.
+
+Note: that when running a mini Accumulo cluster locally a store.properties file is generated, this can help identify the
+values you need to replace in the store.properties used for the integration tests below (such as the username, password,
+instance name and Zookeeper location).
+
+#### Setting up accumulo-store integration tests
+
+Update the following store properties files in src/test/resources/ to point to the location of the Accumulo store to test against:
 - [src/test/resources/store.properties](src/test/resources/store.properties)
+- [src/test/resources/store2.properties](src/test/resources/store2.properties)
 - [src/test/resources/accumuloStoreClassicKeys.properties](src/test/resources/accumuloStoreClassicKeys.properties)
 
 Ensure that one of the following classes is being used for the `gaffer.store.class` property:
-- uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
-- uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore
+- uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore *(for testing against a  mocked Accumulo instance)*
+- uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore *(for testing against a Mini Accumulo cluster running locally)*
 
-Ensure that the Accumulo user specified by the `accumulo.user` property has the `System.CREATE_TABLE` permission and the following scan authorisations:
+If you are running an Accumulo cluster locally, here is what an example test store.properties file should look like:
+```text
+gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore
+gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
+accumulo.instance=instance
+accumulo.user=root
+accumulo.password=password
+
+accumulo.zookeepers=localhost:58630
+
+gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
+gaffer.store.job.tracker.enabled=true
+gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,ResultCacheExportOperations.json
+```
+Also replace the these same properties for the values in [accumuloStoreClassicKeys.properties](src/test/resources/accumuloStoreClassicKeys.properties)
+
+Ensure that when running an Accumulo instance, the user specified by the `accumulo.user` property has the `System.CREATE_TABLE` permission ('root' user has this set by default) and the following scan authorisations:
 
 | Authorisation     | Required by |
 | ----------------- | ----------- |
@@ -517,9 +552,16 @@ Ensure that the Accumulo user specified by the `accumulo.user` property has the 
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 
+You can set these scan authorisations via the Accumulo shell:
+e.g. if your store.properties have: accumulo.user=root, accumulo.instance=instance
+
+```shell script
+root@instance> setauths -u root -s vis1,vis2,publicVisibility,privateVisibility,public,private
+```
+
 Run the integration tests:
 
-```
+```shell script
 mvn verify
 ```
 

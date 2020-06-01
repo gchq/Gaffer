@@ -43,11 +43,16 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
+import uk.gov.gchq.gaffer.hdfs.operation.hander.job.factory.AbstractJobFactoryTest;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -67,7 +72,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class AccumuloAddElementsFromHdfsJobFactoryTest {
+public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     @TempDir
     public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
 
@@ -113,7 +118,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             writer.write("1");
         }
 
-        final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
+        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
@@ -387,7 +392,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             writer.write("1");
         }
 
-        final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
+        final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
@@ -434,5 +439,34 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             final String[] parts = domainObject.split(",");
             return new Entity(parts[0], parts[1]);
         }
+    }
+
+    @Override
+    protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
+        super.configureStoreProperties(byteEntityStoreProperties, jsonSerialiserClass, jsonSerialiserModules, strictJson);
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+
+        byteEntityStore.initialise("graphId", schema, byteEntityStoreProperties);
+
+        final JobConf localConf = createLocalConf();
+        final FileSystem fileSystem = FileSystem.getLocal(localConf);
+        fileSystem.mkdirs(new Path(outputDir));
+        fileSystem.mkdirs(new Path(splitsDir));
+
+        return byteEntityStore;
+    }
+
+    @Override
+    protected AccumuloAddElementsFromHdfsJobFactory getJobFactory() {
+        return new AccumuloAddElementsFromHdfsJobFactory();
+    }
+
+    @Override
+    protected MapReduce getMapReduceOperation() {
+        return new AddElementsFromHdfs.Builder()
+                .outputPath(outputDir)
+                .addInputMapperPair(inputDir, JsonMapperGenerator.class.getName())
+                .splitsFilePath(splitsFile)
+                .build();
     }
 }
