@@ -32,11 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public abstract class FunctionTest {
+public abstract class GafferFunctionTest {
 
     private static final ObjectMapper MAPPER = createObjectMapper();
 
-    public FunctionTest() {
+    public GafferFunctionTest() {
     }
 
     private static ObjectMapper createObjectMapper() {

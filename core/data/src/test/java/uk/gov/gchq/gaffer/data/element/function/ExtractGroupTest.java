@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.FunctionTest;
+import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
-public class ExtractGroupTest extends FunctionTest {
+public class ExtractGroupTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnGroupFromEdge() {

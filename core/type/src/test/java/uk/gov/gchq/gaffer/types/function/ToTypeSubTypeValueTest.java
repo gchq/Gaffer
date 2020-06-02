@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.types.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.FunctionTest;
+import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
-public class ToTypeSubTypeValueTest extends FunctionTest {
+public class ToTypeSubTypeValueTest extends GafferFunctionTest {
 
     @Test
     public void shouldConvertStringToTypeSubTypeValue() {

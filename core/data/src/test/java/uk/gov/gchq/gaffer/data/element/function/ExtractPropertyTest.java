@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.FunctionTest;
+import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -30,7 +30,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
-public class ExtractPropertyTest extends FunctionTest {
+public class ExtractPropertyTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {
