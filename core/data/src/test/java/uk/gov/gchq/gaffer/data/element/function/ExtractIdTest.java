@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.FunctionTest;
+import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExtractIdTest extends FunctionTest {
+public class ExtractIdTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {

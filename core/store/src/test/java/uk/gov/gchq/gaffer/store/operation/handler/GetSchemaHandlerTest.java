@@ -39,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertNotEqual;
 
 public class GetSchemaHandlerTest {
     private GetSchemaHandler handler;
@@ -76,7 +75,7 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        assertNotEqual(schema.toJson(true), result.toJson(true));
+        JsonAssert.assertNotEqual(schema.toJson(true), result.toJson(true));
         JsonAssert.assertEquals(compactSchemaBytes, result.toJson(true));
     }
 

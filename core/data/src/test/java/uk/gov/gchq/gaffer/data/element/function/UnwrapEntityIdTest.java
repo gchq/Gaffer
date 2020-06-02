@@ -17,8 +17,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.FunctionTest;
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -29,8 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
-public class UnwrapEntityIdTest extends FunctionTest {
+public class UnwrapEntityIdTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnNullForNullValue() {
@@ -92,7 +92,7 @@ public class UnwrapEntityIdTest extends FunctionTest {
         final UnwrapEntityId deserialisedObj = JSONSerialiser.deserialise(json, UnwrapEntityId.class);
 
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}";
-        JsonAssert.assertEquals(expectedJson, new String(json));
+        assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }
