@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.graph;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -37,7 +38,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class WalkTest {
 
@@ -100,7 +101,7 @@ public class WalkTest {
                 "    {\"C\": []}" +
                 "  ]" +
                 "}\n";
-        assertJsonEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test

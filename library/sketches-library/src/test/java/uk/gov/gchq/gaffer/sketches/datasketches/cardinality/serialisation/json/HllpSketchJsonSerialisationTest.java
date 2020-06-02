@@ -125,7 +125,7 @@ public class HllpSketchJsonSerialisationTest {
         final String json = new String(JSONSerialiser.serialise(sketch));
 
         // Then - serialise
-        JsonAssert.assertJsonEquals("" +
+        JsonAssert.assertEquals("" +
                 "{\"bytes\":" + new String(JSONSerialiser.serialise(sketch.toCompactByteArray())) + "," +
                 "\"cardinality\":" + sketch.getCompositeEstimate() + "}", json);
 

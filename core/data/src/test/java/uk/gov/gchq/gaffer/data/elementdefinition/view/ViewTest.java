@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ViewTest extends JSONSerialisationTest<View> {
 
@@ -117,7 +118,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "    \"groupBy\" : [ ]%n" +
                 "  } ]%n" +
                 "}");
-        assertJsonEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
@@ -179,7 +180,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "  },%n" +
                 " \"config\" : { \"key1\": \"value1\"}" +
                 "}");
-        assertJsonEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
@@ -279,7 +280,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         // When
         view.expandGlobalDefinitions();
 
-        assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +

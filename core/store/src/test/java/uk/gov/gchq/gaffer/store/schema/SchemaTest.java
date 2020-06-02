@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -64,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
@@ -85,7 +86,7 @@ public class SchemaTest {
         // Then - Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        assertJsonEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonAssert.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
@@ -98,7 +99,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toCompactJson();
 
         // Then
-        assertJsonEquals(json1, json2);
+        JsonAssert.assertEquals(json1, json2);
     }
 
     @Test
@@ -111,7 +112,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        assertJsonEquals(json1, json2);
+        JsonAssert.assertEquals(json1, json2);
     }
 
     @Test
@@ -318,7 +319,7 @@ public class SchemaTest {
     @Test
     public void writeProgramaticSchemaAsJson() throws SchemaException {
         Schema schema = createSchema();
-        assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +
@@ -464,7 +465,7 @@ public class SchemaTest {
 
         final Schema schema = Schema.fromJson(Paths.get(SchemaTest.class.getResource("/schema").toURI()));
 
-        assertJsonEquals(schema.toCompactJson(), schemaNested.toCompactJson());
+        JsonAssert.assertEquals(schema.toCompactJson(), schemaNested.toCompactJson());
     }
 
     private void assertExpectedSchemaElementsContent(final Schema schema) {

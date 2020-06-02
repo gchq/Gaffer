@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class UnwrapEntityIdTest extends GafferFunctionTest {
 
@@ -92,7 +92,7 @@ public class UnwrapEntityIdTest extends GafferFunctionTest {
         final UnwrapEntityId deserialisedObj = JSONSerialiser.deserialise(json, UnwrapEntityId.class);
 
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}";
-        assertJsonEquals(expectedJson, new String(json));
+        assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

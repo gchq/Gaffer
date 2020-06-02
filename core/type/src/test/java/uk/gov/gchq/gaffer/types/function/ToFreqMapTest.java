@@ -19,13 +19,13 @@ package uk.gov.gchq.gaffer.types.function;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class ToFreqMapTest extends GafferFunctionTest {
 
@@ -76,7 +76,7 @@ public class ToFreqMapTest extends GafferFunctionTest {
         final String json = new String(JSONSerialiser.serialise(function, true));
 
         // Then 1
-        assertJsonEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.ToFreqMap\"%n" +
                 "}"), json);
 

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.graph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -28,7 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
 
 public class OperationViewTest {
     private final View testView1 = new View.Builder()
@@ -58,7 +58,7 @@ public class OperationViewTest {
     public void shouldMergeTwoViewsWhenSettingBothAtOnce() {
         operationView.setViews(Arrays.asList(testView1, testView2));
 
-        assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
@@ -71,21 +71,21 @@ public class OperationViewTest {
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView2));
 
-        assertJsonEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldMergeEmptyViewCorrectly() {
         operationView.setViews(Arrays.asList(testView1, new View()));
 
-        assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldCorrectlyMergeIdenticalViewsWhenSettingBothAtOnce() {
         operationView.setViews(Arrays.asList(testView1, testView1));
 
-        assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class OperationViewTest {
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView1));
 
-        assertJsonEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
+        JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test

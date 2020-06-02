@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -25,9 +26,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.IOException;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ExtractGroupTest extends GafferFunctionTest {
 
@@ -97,6 +97,6 @@ public class ExtractGroupTest extends GafferFunctionTest {
         final byte[] json = JSONSerialiser.serialise(function);
 
         final String expectedJson = "{\"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractGroup\"}";
-        assertJsonEquals(expectedJson, new String(json));
+        JsonAssert.assertEquals(expectedJson, new String(json));
     }
 }

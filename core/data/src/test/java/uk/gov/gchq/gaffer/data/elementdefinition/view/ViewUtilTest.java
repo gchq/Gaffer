@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -40,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertJsonEquals;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ViewUtilTest {
 
@@ -293,7 +294,7 @@ public class ViewUtilTest {
                 "    }%n" +
                 "  }%n" +
                 "}");
-        assertJsonEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
@@ -492,7 +493,7 @@ public class ViewUtilTest {
                 "    }%n" +
                 "  }%n" +
                 "}");
-        assertJsonEquals(expected, new String(view.toJson(true)));
+        JsonAssert.assertEquals(expected, new String(view.toJson(true)));
     }
 
     @Test
@@ -812,7 +813,7 @@ public class ViewUtilTest {
 
         final View viewAfterRemove = ViewUtil.removeGroups(view, TestGroups.ENTITY);
 
-        assertJsonEquals(view.toJson(false), viewAfterRemove.toJson(false));
+        JsonAssert.assertEquals(view.toJson(false), viewAfterRemove.toJson(false));
     }
 
     @Test
