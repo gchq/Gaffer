@@ -17,10 +17,9 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -31,13 +30,14 @@ import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public abstract class DisableOperationsTest {
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File tempFolder;
+
     protected final Class<? extends Operation>[] disabledOperations;
     protected File graphConfigPath;
     protected File storePropsPath;
@@ -52,11 +52,11 @@ public abstract class DisableOperationsTest {
         this.disabledOperations = disabledOperations;
     }
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
-        graphConfigPath = tempFolder.newFile("tmpGraphConfig.json");
-        storePropsPath = tempFolder.newFile("tmpStore.properties");
-        schemaPath = tempFolder.newFile("tmpSchema.json");
+        graphConfigPath = new File(tempFolder, "tmpGraphConfig.json");
+        storePropsPath = new File(tempFolder, "tmpStore.properties");
+        schemaPath = new File(tempFolder, "tmpSchema.json");
         FileUtils.copyURLToFile(getClass().getResource("/graphConfig.json"), graphConfigPath);
         FileUtils.copyURLToFile(getClass().getResource("/store.properties"), storePropsPath);
         FileUtils.copyURLToFile(getClass().getResource("/schema/schema.json"), schemaPath);
@@ -75,7 +75,7 @@ public abstract class DisableOperationsTest {
 
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
-            assertFalse(disabledOperation.getSimpleName() + " should not be supported", graph.isSupported(disabledOperation));
+            assertFalse(graph.isSupported(disabledOperation), disabledOperation.getSimpleName() + " should not be supported");
         }
     }
 
@@ -95,7 +95,7 @@ public abstract class DisableOperationsTest {
 
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
-            assertTrue(disabledOperation.getSimpleName() + " should be supported", graph.isSupported(disabledOperation));
+            assertTrue(graph.isSupported(disabledOperation), disabledOperation.getSimpleName() + " should be supported");
         }
     }
 }

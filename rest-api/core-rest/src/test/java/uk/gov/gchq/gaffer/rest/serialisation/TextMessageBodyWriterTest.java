@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.rest.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -29,8 +30,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class TextMessageBodyWriterTest {

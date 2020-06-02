@@ -18,16 +18,12 @@ package uk.gov.gchq.gaffer.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.reflections.Reflections;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
@@ -38,45 +34,36 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
-@RunWith(Parameterized.class)
 public class ExampleGeneratorTest {
 
     private final DefaultExamplesFactory generator = new DefaultExamplesFactory();
     private final GraphFactory graphFactory = new DefaultGraphFactory();
-    private final Class<? extends Operation> opClass;
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File tempFolder;
 
-    public ExampleGeneratorTest(final Class<? extends Operation> opClass) {
-        this.opClass = opClass;
-    }
-
-    @Parameters
-    public static Collection<Object[]> instancesToTest() {
+    private static Stream<Object[]> instancesToTest() {
         final Reflections reflections = new Reflections("uk.gov.gchq");
         final Set<Class<? extends Operation>> clazzes = reflections.getSubTypesOf(Operation.class);
 
         return clazzes.stream()
                 .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
-                .map(clazz -> new Object[]{clazz})
-                .collect(Collectors.toList());
+                .map(clazz -> new Object[]{clazz});
     }
 
-    @Before
+    @BeforeEach
     public void before() throws IllegalAccessException, NoSuchFieldException, IOException {
-        final File storePropertiesFile = tempFolder.newFile("store.properties");
+        final File storePropertiesFile = new File(tempFolder, "store.properties");
         FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "store.properties")));
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
 
-        final File schemaFile = tempFolder.newFile("schema.json");
+        final File schemaFile = new File(tempFolder, "schema.json");
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
@@ -89,15 +76,17 @@ public class ExampleGeneratorTest {
         field.set(generator, graphFactory);
     }
 
-    @Test
-    public void shouldBuildOperation() throws InstantiationException, IllegalAccessException, JsonProcessingException {
+    @ParameterizedTest
+    @MethodSource("instancesToTest")
+    public void shouldBuildOperation(Class<? extends Operation> opClass) throws InstantiationException, IllegalAccessException, JsonProcessingException {
         // Given
         final Operation operation = generator.generateExample(opClass);
 
         // Then
         assertThat(operation, notNullValue());
     }
-    @Test
+    @ParameterizedTest
+    @MethodSource("instancesToTest")
     public void shouldHandleCharField() throws InstantiationException, IllegalAccessException {
         // Given
         final Operation operation = generator.generateExample(ExampleCharOperation.class);

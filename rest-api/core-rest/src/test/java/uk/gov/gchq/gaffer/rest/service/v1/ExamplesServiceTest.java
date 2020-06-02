@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.rest.service.v1;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -44,12 +43,12 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExamplesServiceTest {
     @InjectMocks
     private ExamplesService service;
@@ -58,11 +57,11 @@ public class ExamplesServiceTest {
     private GraphFactory graphFactory;
 
     @Mock
-    private UserFactory userFactory;
+    private Store store;
 
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         schema = new Schema.Builder()
                 .type("string", String.class)
@@ -79,17 +78,17 @@ public class ExamplesServiceTest {
                         .build())
                 .build();
 
-        final Store store = mock(Store.class);
-        given(store.getSchema()).willReturn(schema);
-        given(store.getProperties()).willReturn(new StoreProperties());
-        given(store.getOriginalSchema()).willReturn(schema);
+        when(store.getSchema()).thenReturn(schema);
+        when(store.getProperties()).thenReturn(new StoreProperties());
+        lenient().when(store.getOriginalSchema()).thenReturn(schema);
+
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
                         .build())
                 .store(store)
                 .build();
-        given(graphFactory.getGraph()).willReturn(graph);
+        lenient().when(graphFactory.getGraph()).thenReturn(graph);
     }
 
     @Test
