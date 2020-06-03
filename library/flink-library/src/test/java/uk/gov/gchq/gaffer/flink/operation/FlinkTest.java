@@ -122,7 +122,7 @@ public abstract class FlinkTest {
 
     public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
         // Wait for the elements to be ingested.
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         final Iterable<? extends Element> allElements = graph.execute(new GetAllElements(), new User());
         ElementUtil.assertElementEquals(EXPECTED_ELEMENTS, allElements);
     }

@@ -17,84 +17,96 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ChainedIterableTest {
 
     @Test
+    public void shouldThrowNSEXWhenNoNextIterableWhenOneElementAndNo2ndNext() {
+        final Iterable<Integer> chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
+        final Iterator<Integer> iterator = chainedIterable.iterator();
+
+        iterator.next();
+
+        // No 2nd element
+        assertThrows(NoSuchElementException.class, () -> iterator.next());
+    }
+
+    @Test
+    public void shouldThrowIAXWhenIterablesAreEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>());
+    }
+
+    @Test
+    public void shouldThrowIAXWhenIterablesAreNull() {
+        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>(null));
+    }
+
+    @Test
     public void shouldWrapAllIterables() {
-        // Given
         final List<Integer> itr1 = Collections.singletonList(0);
-        final List<Integer> itr2 = new ArrayList<>(0);
+        final List<Integer> emptyItr2 = new ArrayList<>(0);
         final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, 4);
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
-        // When
-        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, itr2, itr3, itr4);
+        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
-        // Then
         assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
     }
 
     @Test
     public void shouldRemoveElementFromFirstIterable() {
         // Given
-        final List<Integer> itr1 = Lists.newArrayList(0);
-        final List<Integer> itr2 = new ArrayList<>(0);
-        final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, 4);
-        final List<Integer> itr4 = Lists.newArrayList(5, 6);
+        final List<String> itr1 = Lists.newArrayList("a");
+        final List<String> emptyItr2 = new ArrayList<>(0);
+        final List<String> itr3 = Lists.newArrayList("b", "c", "d", "e");
+        final List<String> itr4 = Lists.newArrayList("f", "g");
 
-        final int itr1Size = itr1.size();
-        final int itr2Size = itr2.size();
-        final int itr3Size = itr3.size();
-        final int itr4Size = itr4.size();
-
-        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, itr2, itr3, itr4);
+        final Iterable<String> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
         // When
-        final Iterator<Integer> itr = wrappedItr.iterator();
-        assertEquals(0, (int) itr.next());
+        final Iterator<String> itr = wrappedItr.iterator();
+        assertEquals("a", itr.next());
+
         itr.remove();
 
         // Then
-        assertEquals(itr1Size - 1, itr1.size());
-        assertEquals(itr2Size, itr2.size());
-        assertEquals(itr3Size, itr3.size());
-        assertEquals(itr4Size, itr4.size());
+        assertEquals(0, itr1.size());
+        assertEquals(0, emptyItr2.size());
+        assertEquals(4, itr3.size());
+        assertEquals(2, itr4.size());
     }
 
     @Test
     public void shouldRemoveElementFromThirdIterable() {
         // Given
-        final List<Integer> itr1 = Lists.newArrayList(0);
-        final List<Integer> itr2 = new ArrayList<>(0);
-        final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, 4);
-        final List<Integer> itr4 = Lists.newArrayList(5, 6);
+        final List<String> itr1 = Lists.newArrayList("a");
+        final List<String> emptyItr2 = new ArrayList<>(0);
+        final List<String> itr3 = Lists.newArrayList("b", "c", "d", "e");
+        final List<String> itr4 = Lists.newArrayList("f", "g");
 
-        final int itr1Size = itr1.size();
-        final int itr2Size = itr2.size();
-        final int itr3Size = itr3.size();
-        final int itr4Size = itr4.size();
-
-        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, itr2, itr3, itr4);
+        final Iterable<String> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
         // When
-        final Iterator<Integer> itr = wrappedItr.iterator();
-        assertEquals(0, (int) itr.next());
-        assertEquals(1, (int) itr.next());
+        final Iterator<String> itr = wrappedItr.iterator();
+        assertEquals("a", itr.next());
+        assertEquals("b", itr.next());
+
         itr.remove();
 
         // Then
-        assertEquals(itr1Size, itr1.size());
-        assertEquals(itr2Size, itr2.size());
-        assertEquals(itr3Size - 1, itr3.size());
-        assertEquals(itr4Size, itr4.size());
+        assertEquals(1, itr1.size());
+        assertEquals(0, emptyItr2.size());
+        assertEquals(3, itr3.size());
+        assertEquals(2, itr4.size());
     }
 }

@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class ElementUtil {
+
     private ElementUtil() {
         // Private to avoid instantiation
     }
@@ -85,12 +86,12 @@ public final class ElementUtil {
                 }
             }
 
-            assertTrue("\nMissing entities:\n(" + missingEntities.size() + ") " + missingEntities.toString()
-                            + "\nUnexpected entities:\n(" + incorrectEntities.size() + ") " + incorrectEntities.toString()
-                            + "\nMissing edges:\n(" + missingEdges.size() + ")" + missingEdges.toString()
-                            + "\nUnexpected edges:\n(" + incorrectEdges.size() + ")" + incorrectEdges.toString(),
-                    missingEntities.isEmpty() && incorrectEntities.isEmpty()
-                            && missingEdges.isEmpty() && incorrectEdges.isEmpty());
+            final String message = "\nMissing entities:\n(" + missingEntities.size() + ") " + missingEntities.toString()
+                    + "\nUnexpected entities:\n(" + incorrectEntities.size() + ") " + incorrectEntities.toString()
+                    + "\nMissing edges:\n(" + missingEdges.size() + ")" + missingEdges.toString()
+                    + "\nUnexpected edges:\n(" + incorrectEdges.size() + ")" + incorrectEdges.toString();
+            assertTrue(missingEntities.isEmpty() && incorrectEntities.isEmpty()
+                    && missingEdges.isEmpty() && incorrectEdges.isEmpty(), message);
         }
     }
 }

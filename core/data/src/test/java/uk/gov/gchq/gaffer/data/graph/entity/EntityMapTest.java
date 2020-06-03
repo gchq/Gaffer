@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.graph.entity;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -33,61 +33,46 @@ public class EntityMapTest {
 
     @Test
     public void shouldGetEntities() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final Set<Object> results = entityMap.getVertices();
 
-        // Then
         assertThat(results, hasItems(1));
     }
 
     @Test
     public void shouldGetEmptyEntitySet() {
-        // Given
         final EntityMap entityMap = new EntityMap();
 
-        // When
         final Set<Object> results = entityMap.getVertices();
 
-        // Then
         assertThat(results, is(empty()));
     }
 
     @Test
     public void shouldGetVertices() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final Set<Object> results = entityMap.getVertices();
 
-        // Then
         assertThat(results, hasItems(1, 2, 3, 4, 5, 6));
     }
 
     @Test
     public void shouldContainVertex() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final boolean results = entityMap.containsVertex(6);
 
-        // Then
         assertThat(results, is(true));
     }
 
     @Test
     public void shouldNotContainVertex() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final boolean results = entityMap.containsVertex(7);
 
-        // Then
         assertThat(results, is(false));
     }
 
