@@ -20,6 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +45,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public Void doOperation(final AddElementsFromHdfs operation,
                             final Context context, final Store store)
             throws OperationException {
-        doOperation(operation, (HBaseStore) store);
+        doOperation(operation, context, (HBaseStore) store);
         return null;
     }
 
-    public void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
+    private void doOperation(final AddElementsFromHdfs operation, final Context context, final HBaseStore store) throws OperationException {
         validateOperation(operation);
 
         try {
@@ -57,7 +58,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
-        fetchElements(operation, store);
+        fetchElements(operation, context, store);
         final String skipImport = operation.getOption(HBaseStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
         if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
             importElements(operation, store);
@@ -85,10 +86,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
     }
 
-    private void fetchElements(final AddElementsFromHdfs operation, final HBaseStore store)
+    private void fetchElements(final AddElementsFromHdfs operation, final Context context, final HBaseStore store)
             throws OperationException {
-        final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(), operation, store);
         try {
+            /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
+            final String[] args = context.getCommandLineArgs();
+            final Configuration configuration = new GenericOptionsParser(store.getConfiguration(), args).getConfiguration();
+            final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(configuration), operation, store);
+
             LOGGER.info("Running FetchElementsFromHdfsTool job");
             ToolRunner.run(fetchTool, new String[0]);
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");

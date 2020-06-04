@@ -27,11 +27,13 @@ import uk.gov.gchq.gaffer.operation.runner.argument.converter.OperationChainConv
 import uk.gov.gchq.gaffer.operation.runner.argument.converter.UserConverter;
 import uk.gov.gchq.gaffer.operation.runner.argument.validator.IsFileOrDirectoryValidator;
 import uk.gov.gchq.gaffer.operation.runner.argument.validator.IsFileValidator;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.file.Paths;
 
 import static java.lang.String.format;
+import static uk.gov.gchq.gaffer.store.Context.COMMAND_LINE_ARGS_CONFIG_KEY;
 
 public class OperationRunner {
     @Parameter(names = "--help", description = "Display usage.", help = true)
@@ -49,18 +51,22 @@ public class OperationRunner {
     @Parameter(names = {"--u", "--user"}, description = "Path to the JSON serialised User to execute the Operation as.", converter = UserConverter.class, validateWith = IsFileValidator.class)
     private User user = new User();
 
-    @Parameter(description = "GraphId", required = true)
+    @Parameter(names = {"--g", "--graph-id"}, description = "GraphId", required = true)
     private String graphId;
 
+    private static String[] args;
+
     public static void main(final String[] args) {
+        OperationRunner.args = args;
         run(new OperationRunner(), args);
     }
 
     static void run(final OperationRunner operationRunner, final String[] args) {
-        final JCommander jcommander = JCommander.newBuilder()
-                .addObject(operationRunner)
-                .programName(OperationRunner.class.getName())
-                .build();
+        final JCommander jcommander = new JCommander();
+        jcommander.addObject(operationRunner);
+        jcommander.setProgramName(OperationRunner.class.getName());
+        jcommander.setAcceptUnknownOptions(true);
+
         try {
             jcommander.parse(args);
             if (operationRunner.help) {
@@ -90,7 +96,9 @@ public class OperationRunner {
     }
 
     protected Object execute(final Graph.Builder graphBuilder) throws OperationException {
-        return graphBuilder.build().execute(operationChain, user);
+        final Context context = new Context(user);
+        context.setConfig(COMMAND_LINE_ARGS_CONFIG_KEY, args);
+        return graphBuilder.build().execute(operationChain, context);
     }
 
     private static void display(final Object result, final Console console) {

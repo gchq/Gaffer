@@ -45,6 +45,15 @@ import java.io.IOException;
 
 public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataForSplitPointsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSampleDataForSplitPointsJobFactory.class);
+    private final Configuration configuration;
+
+    public AccumuloSampleDataForSplitPointsJobFactory(final Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public AccumuloSampleDataForSplitPointsJobFactory() {
+        this(new Configuration());
+    }
 
     @Override
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "key should always be an instance of Key")
@@ -80,7 +89,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
 
     @Override
     public JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
-        final JobConf jobConf = new JobConf(new Configuration());
+        final JobConf jobConf = new JobConf(configuration);
 
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));

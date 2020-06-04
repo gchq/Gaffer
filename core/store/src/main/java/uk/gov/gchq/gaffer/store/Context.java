@@ -34,6 +34,7 @@ import java.util.UUID;
  * as the user who executed the operation chain and a map of {@link Exporter}s.
  */
 public class Context {
+    public static final String COMMAND_LINE_ARGS_CONFIG_KEY = "config.command.line.args";
     private final User user;
     private final String jobId;
     private final Map<String, Object> config;
@@ -208,6 +209,14 @@ public class Context {
 
     public void setOriginalOpChain(final OperationChain<?> originalOpChain) {
         this.originalOpChain = originalOpChain;
+    }
+
+    public String[] getCommandLineArgs() {
+        final Object commandLineArgs = getConfig(COMMAND_LINE_ARGS_CONFIG_KEY);
+        if (commandLineArgs != null && String[].class.isAssignableFrom(commandLineArgs.getClass())) {
+            return String[].class.cast(commandLineArgs);
+        }
+        return new String[0];
     }
 
     @Override
