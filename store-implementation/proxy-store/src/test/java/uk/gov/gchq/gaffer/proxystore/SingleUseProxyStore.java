@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
@@ -27,6 +26,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
+import java.io.File;
 
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
@@ -40,7 +40,9 @@ import java.io.IOException;
  * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
 public abstract class SingleUseProxyStore extends ProxyStore {
-    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File TEST_FOLDER;
+
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @Override
@@ -50,13 +52,6 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     }
 
     protected void startMapStoreRestApi(final Schema schema) throws StoreException {
-        try {
-            TEST_FOLDER.delete();
-            TEST_FOLDER.create();
-        } catch (final IOException e) {
-            throw new StoreException("Unable to create temporary folder", e);
-        }
-
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), getPathToDelegateProperties()));
         try {
@@ -67,7 +62,6 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     }
 
     public static void cleanUp() {
-        TEST_FOLDER.delete();
         CLIENT.stopServer();
     }
 

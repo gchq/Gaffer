@@ -16,11 +16,23 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Runs {@link RoadTrafficTestQueries} against a GAFFER REST API that is linked to a store that the example Road Traffic
@@ -28,6 +40,32 @@ import uk.gov.gchq.gaffer.user.User;
  */
 public class RoadTrafficRestApiSTs extends RoadTrafficTestQueries {
 
+    public static final String STORE_TYPE_PROPERTY = "store.type";
+    public static final String STORE_TYPE_DEFAULT = "accumulo";
+
+    protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
+
+    @TempDir
+    public static File TEST_FOLDER;
+
+    @BeforeAll
+    public static void prepareRestApi() throws IOException {
+        // Spin up the REST API
+        CLIENT.startServer();
+
+        // Connect it to a Gaffer store, as specified in the 'store.type' property
+        CLIENT.reinitialiseGraph(
+                TEST_FOLDER,
+                Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiSTs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
+        );
+
+        // Load Road Traffic data into the store
+        final DataLoader loader = new DataLoader();
+        loader.contextInitialized(null);
+    }
+
+    @BeforeEach
     @Override
     public void prepareProxy() {
         ProxyProperties props = new ProxyProperties(System.getProperties());

@@ -16,12 +16,11 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -34,6 +33,7 @@ import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 
 /**
@@ -47,10 +47,10 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @ClassRule
-    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public static File TEST_FOLDER;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepareRestApi() throws IOException {
         // Spin up the REST API
         CLIENT.startServer();
@@ -67,11 +67,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         loader.contextInitialized(null);
     }
 
-    @AfterClass
-    public static void after() {
-        CLIENT.stopServer();
-    }
-
+    @BeforeEach
     @Override
     public void prepareProxy() throws IOException {
         // Create a proxy store that will proxy all queries to the REST API that has been spun up
@@ -92,4 +88,8 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         this.user = new User();
     }
 
+    @AfterAll
+    public static void after() {
+        CLIENT.stopServer();
+    }
 }
