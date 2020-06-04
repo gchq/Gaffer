@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -29,24 +29,24 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElementSerialiserTest {
 
-    private Schema schema;
     private ElementSerialiser elementSerialiser;
     private static final String TEST_VERTEX = "testVertex";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
         final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
                 .build();
 
-        schema = new Schema.Builder()
+        final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, entityDef)
                 .edge(TestGroups.EDGE, edgeDef)
                 .vertexSerialiser(new StringSerialiser())
@@ -102,22 +102,22 @@ public class ElementSerialiserTest {
     }
 
     @Test
-    public void testCantSerialiseIntegerClass() throws SerialisationException {
+    public void testCantSerialiseIntegerClass() {
         assertFalse(elementSerialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseElementClass() throws SerialisationException {
+    public void testCanSerialiseElementClass() {
         assertTrue(elementSerialiser.canHandle(Element.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, elementSerialiser.deserialiseEmpty());
+        assertNull(elementSerialiser.deserialiseEmpty());
     }
 
     @Test
-    public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, elementSerialiser.preservesObjectOrdering());
+    public void testPreserveObjectOrdering() {
+        assertFalse(elementSerialiser.preservesObjectOrdering());
     }
 }

@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -27,12 +26,11 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GetWalksHandlerTest {
+
     @Test
     public void shouldHandleNullInput() throws Exception {
         // Given
@@ -51,11 +49,11 @@ public class GetWalksHandlerTest {
         final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
         // Then
-        assertThat(result, is(nullValue()));
+        assertNull(result);
     }
 
     @Test
-    public void shouldSerialiseDeserialise() throws SerialisationException, JsonProcessingException {
+    public void shouldSerialiseDeserialise() throws SerialisationException {
         // Given
         final GetWalksHandler obj = new GetWalksHandler();
         obj.setPrune(true);

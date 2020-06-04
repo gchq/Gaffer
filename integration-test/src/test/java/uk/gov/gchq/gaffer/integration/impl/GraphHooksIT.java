@@ -100,6 +100,7 @@ public class GraphHooksIT extends AbstractStoreIT {
                         .build())
                 .description("named operation GetAllElements test query")
                 .name("GetAllElements test")
+                .labels(Arrays.asList("label 1", "Label 2"))
                 .overwrite(true)
                 .build();
 

@@ -15,17 +15,18 @@
  */
 package uk.gov.gchq.gaffer.operation.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
+
     @Override
     protected AggregatePair getTestObject() {
         return new AggregatePair();
@@ -39,7 +40,7 @@ public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
         pair.setElementAggregator(new ElementAggregator());
 
         // When / Then
-        assertArrayEquals(new String[]{"timestamp"}, pair.getGroupBy());
+        assertArrayEquals(new String[] {"timestamp"}, pair.getGroupBy());
         assertNotNull(pair.getElementAggregator());
     }
 

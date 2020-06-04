@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary.Builder;
@@ -27,7 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
 
@@ -36,7 +37,7 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
     private ArrayList<String> parentSchemaIds;
     private AddSchemaToLibrary op;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         schema = new Schema.Builder()
                 .id("schemaID")
@@ -59,6 +60,7 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
         return new AddSchemaToLibrary();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         assertEquals(schema, op.getSchema());
@@ -66,6 +68,7 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
         assertEquals(TEST_ID, op.getId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         //when

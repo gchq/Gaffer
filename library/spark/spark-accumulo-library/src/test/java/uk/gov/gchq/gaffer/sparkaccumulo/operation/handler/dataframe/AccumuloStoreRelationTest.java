@@ -118,15 +118,13 @@ public class AccumuloStoreRelationTest {
 
         // Then
         //  - Actual results are:
-        final Set<Row> results = new HashSet<>();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
+        final Set<Row> results = new HashSet<>(Arrays.asList(returnedElements));
         //  - Expected results are:
         final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
                 new ArrayList<>());
         final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
+
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
                 .filter(returnElement)
@@ -220,10 +218,7 @@ public class AccumuloStoreRelationTest {
 
         // Then
         //  - Actual results are:
-        final Set<Row> results = new HashSet<>();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
+        final Set<Row> results = new HashSet<>(Arrays.asList(returnedElements));
         //  - Expected results are:
         final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
                 new ArrayList<>());
@@ -261,7 +256,6 @@ public class AccumuloStoreRelationTest {
 
         // Then
         assertTrue(rdd.isEmpty());
-
     }
 
     private static Schema getSchema() {

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Iterables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -43,16 +43,17 @@ import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class GetGafferResultCacheExportHandlerTest {
+
     private final Edge validEdge = new Edge.Builder()
             .group("result")
             .source("jobId")
@@ -139,7 +140,7 @@ public class GetGafferResultCacheExportHandlerTest {
     }
 
     @Test
-    public void shouldCreateCacheGraph() throws OperationException {
+    public void shouldCreateCacheGraph() {
         // Given
         final Store store = mock(Store.class);
         final long timeToLive = 10000L;

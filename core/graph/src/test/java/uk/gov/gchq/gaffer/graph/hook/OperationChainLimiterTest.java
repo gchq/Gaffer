@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -32,13 +32,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimiter> {
+
     private static final String OP_CHAIN_LIMITER_PATH = "opChainLimiter.json";
 
     public OperationChainLimiterTest() {
@@ -47,7 +48,6 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
     @Test
     public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
-        // Given
         final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetElements())
@@ -56,15 +56,11 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("User")
                 .build();
 
-        // When
-        hook.preExecute(opChain, new Context(user));
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldAcceptOperationChainWhenUserHasAuthScoreEqualToChainScore() {
-        // Given
         final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
@@ -75,15 +71,11 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("User")
                 .build();
 
-        // When
-        hook.preExecute(opChain, new Context(user));
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldRejectOperationChainWhenUserHasAuthScoreLessThanChainScore() {
-        // Given
         final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
@@ -96,19 +88,11 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("User")
                 .build();
 
-        // When/Then
-
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldAcceptOperationChainWhenUserHasMaxAuthScoreGreaterThanChainScore() {
-        // Given
         final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
@@ -120,15 +104,11 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("SuperUser", "User")
                 .build();
 
-        // When
-        hook.preExecute(opChain, new Context(user));
-
-        // Then - no exceptions
+        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldRejectOperationChainWhenUserHasMaxAuthScoreLessThanChainScore() {
-        // Given
         final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
@@ -139,18 +119,11 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("SuperUser", "User")
                 .build();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test
     public void shouldRejectOperationChainWhenUserHasNoAuthWithAConfiguredScore() {
-        // Given
         final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetElements())
@@ -159,13 +132,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("NoScore")
                 .build();
 
-        // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
     }
 
     @Test

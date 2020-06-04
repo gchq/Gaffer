@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -36,6 +37,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class JoinTest extends OperationTest<Join> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -59,6 +62,7 @@ public class JoinTest extends OperationTest<Join> {
         assertTrue(op.getCollectionLimit().equals(10));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -82,6 +86,7 @@ public class JoinTest extends OperationTest<Join> {
         assertEquals(clone.getMatchMethod(), op.getMatchMethod());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given

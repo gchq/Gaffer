@@ -16,37 +16,36 @@
 
 package uk.gov.gchq.gaffer.types.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ToFreqMapTest extends FunctionTest {
+public class ToFreqMapTest extends GafferFunctionTest {
+
     @Test
     public void shouldConvertStringToFreqMap() {
         // Given
         final ToFreqMap function = new ToFreqMap();
-
-        final Object value = "value1";
+        final String value = "value1";
 
         // When
         final FreqMap result = function.apply(value);
 
         // Then
-        assertEquals(new FreqMap(value.toString()), result);
+        assertEquals(new FreqMap(value), result);
     }
 
     @Test
     public void shouldConvertObjectToFreqMap() {
         // Given
         final ToFreqMap function = new ToFreqMap();
-
         final Object value = 1L;
 
         // When
@@ -61,10 +60,8 @@ public class ToFreqMapTest extends FunctionTest {
         // Given
         final ToFreqMap function = new ToFreqMap();
 
-        final Object value = null;
-
         // When
-        final FreqMap result = function.apply(value);
+        final FreqMap result = function.apply(null);
 
         // Then
         assertEquals(new FreqMap((String) null), result);
@@ -98,5 +95,15 @@ public class ToFreqMapTest extends FunctionTest {
     @Override
     protected Class<ToFreqMap> getFunctionClass() {
         return ToFreqMap.class;
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[0];
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[0];
     }
 }

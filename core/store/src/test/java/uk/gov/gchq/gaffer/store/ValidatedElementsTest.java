@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,22 +34,22 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ValidatedElementsTest {
+
     private List<Element> elements;
     private List<ElementFilter> filters;
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         elements = new ArrayList<>();
         filters = new ArrayList<>();
@@ -127,13 +125,9 @@ public class ValidatedElementsTest {
         assertSame(elements.get(0), next1);
 
         // When 2a / Then 2a
-        try {
-            itr.hasNext();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Some error"));
-        }
-
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> itr.hasNext());
+        final String expected = "Validation errors: \n" + "Some error";
+        assertTrue(exception.getMessage().contains(expected));
         verify(filters.get(2), never()).test(elements.get(2));
     }
 
@@ -154,12 +148,7 @@ public class ValidatedElementsTest {
         assertSame(elements.get(2), next1);
 
         // When 2 / Then 2
-        try {
-            itr.next();
-            fail("Exception expected");
-        } catch (final NoSuchElementException e) {
-            assertNotNull(e);
-        }
+        assertThrows(NoSuchElementException.class, () -> itr.next());
     }
 
     @Test
@@ -170,12 +159,7 @@ public class ValidatedElementsTest {
         final Iterator<Element> itr = validElements.iterator();
 
         // When / Then
-        try {
-            itr.remove();
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> itr.remove());
     }
 
     @Test
@@ -186,12 +170,11 @@ public class ValidatedElementsTest {
         }
         final ValidatedElements ve = new ValidatedElements(x, new View.Builder().build(), true);
         Iterator<Element> it = ve.iterator();
-        try {
+
+        assertDoesNotThrow(() -> {
             while (it.hasNext()) {
                 it.next();
             }
-        } catch (final StackOverflowError ex) {
-            fail("Unexpected StackOverflowError.");
-        }
+        });
     }
 }

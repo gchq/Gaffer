@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -28,10 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -68,6 +66,6 @@ public class ToStreamHandlerTest {
         final Stream<Integer> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertNull(results);
     }
 }

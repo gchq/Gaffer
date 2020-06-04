@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,15 +36,15 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.operation.impl.GetWalks.HOP_DEFINITION;
 
 public class GetWalksTest extends OperationTest<GetWalks> {
@@ -68,7 +68,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Override
-    public void shouldValidateRequiredFields() throws Exception {
+    public void shouldValidateRequiredFields() {
         //We replace this test with the validation test below instead
     }
 
@@ -155,7 +155,8 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         final ValidationResult result = getWalks.validate();
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("The first operation in operation chain 0: " + ScoreOperationChain.class.getName() + " is not be able to accept the input seeds."));
+        assertTrue(result.getErrorString().contains("The first operation in operation chain 0: " + ScoreOperationChain.class.getName() + " is not be able to accept the input seeds."),
+                result.getErrorString());
     }
 
     @Test
@@ -173,7 +174,8 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         final ValidationResult result = getWalks.validate();
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("Operation chain 1 contains no operations"));
+        assertTrue(result.getErrorString().contains("Operation chain 1 contains no operations"),
+                result.getErrorString());
     }
 
     @Test
@@ -199,7 +201,8 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         final ValidationResult result = getWalks.validate();
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("All operations must contain a single hop. Operation 1 does not contain a hop."));
+        assertTrue(result.getErrorString().contains("All operations must contain a single hop. Operation 1 does not contain a hop."),
+                result.getErrorString());
     }
 
     @Test
@@ -224,9 +227,11 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         final ValidationResult result = getWalks.validate();
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("All operations must contain a single hop. Operation ") && result.getErrorString().contains(" contains multiple hops"));
+        assertTrue(result.getErrorString().contains("All operations must contain a single hop. Operation ") && result.getErrorString().contains(" contains multiple hops"),
+                result.getErrorString());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -243,11 +248,9 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         assertNotSame(getWalks, clone);
         assertEquals(input, Lists.newArrayList(clone.getInput()));
-        int i = 0;
         for (final Output<Iterable<Element>> operation : clone.getOperations()) {
             assertNotSame(getElements, operation);
             assertEquals(OperationChain.class, operation.getClass());
-            i++;
         }
     }
 

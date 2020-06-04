@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -51,25 +51,19 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class AggregatorUtilTest {
+
     @Test
     public void shouldThrowExceptionWhenIngestAggregatedIfSchemaIsNull() {
         // given
         final Schema schema = null;
 
         // When / Then
-        try {
-            AggregatorUtil.ingestAggregate(Collections.emptyList(), schema);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.ingestAggregate(Collections.emptyList(), schema));
     }
 
     @Test
@@ -374,12 +368,8 @@ public class AggregatorUtilTest {
         final View view = new View();
 
         // When / Then
-        try {
-            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Schema"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view));
+        assertEquals("Schema is required", exception.getMessage());
     }
 
     @Test
@@ -389,12 +379,9 @@ public class AggregatorUtilTest {
         final View view = null;
 
         // When / Then
-        try {
-            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("View"));
-        }
+
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view));
+        assertEquals("View is required", exception.getMessage());
     }
 
     @Test
@@ -875,12 +862,7 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
-        try {
-            fn.apply(element);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(RuntimeException.class, () -> fn.apply(element));
     }
 
     @Test
@@ -897,12 +879,7 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToQueryElementKey(schema, new View());
 
         // then
-        try {
-            fn.apply(element);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(RuntimeException.class, () -> fn.apply(element));
     }
 
     @Test

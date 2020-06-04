@@ -16,101 +16,92 @@
 
 package uk.gov.gchq.gaffer.types;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FreqMapTests {
 
     private FreqMap freqMap;
 
-    @Before
+    @BeforeEach
     public void initialiseFreqMap() {
         freqMap = new FreqMap();
     }
 
     @Test
     public void testUpsertCreatesNewKeyValue() {
-
-        //given
+        // Given
         final String key = "test";
         final Long value = 6L;
 
-        //when
+        // When
         freqMap.upsert(key, value);
 
-        //then
+        // Then
         assertTrue(freqMap.containsKey(key));
         assertEquals(value, freqMap.get(key));
-
     }
 
     @Test
     public void testUpsertUpdatesExistingKeyValue() {
-
-        //given
+        // Given
         final String key = "test";
         final Long initialValue = 3L;
         final Long increment = 11L;
         final Long expected = 14L;
         freqMap.put(key, initialValue);
 
-        //when
+        // When
         freqMap.upsert(key, increment);
 
-        //then
+        // Then
         assertEquals(freqMap.get(key), expected);
-
     }
 
     @Test
     public void testUpsertOverloadedCreateDefaultValue() {
-
-        //given
+        // Given
         final String key = "test";
         final Long expected = 1L;
 
-        //when
+        // When
         freqMap.upsert(key);
 
-        //then
+        // Then
         assertTrue(freqMap.containsKey(key));
         assertEquals(freqMap.get(key), expected);
-
     }
 
     @Test
     public void testUpsertOverloadedIncrementsDefaultValue() {
-
-        //given
+        // Given
         final String key = "test";
         final Long initialValue = 57L;
         final Long expected = 58L;
         freqMap.upsert(key, initialValue);
 
-        //when
+        // When
         freqMap.upsert(key);
 
-        //then
+        // Then
         assertEquals(freqMap.get(key), expected);
     }
 
     @Test
     public void testKeyExistsButValueNullIsHandled() {
-
-        //given
+        // Given
         final String key = "test";
         freqMap.put(key, null);
-        final Long initialValue = 7L;
         final Long expectedValue = 8L;
 
-        //when
+        // When
         freqMap.upsert(key, 7L);
         freqMap.upsert(key);
 
-        //then
+        // Then
         assertEquals(freqMap.get(key), expectedValue);
     }
 }

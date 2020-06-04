@@ -28,13 +28,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
+
     private static final String TEST_NAMED_VIEW_NAME = "testNamedViewName";
     private static final String TEST_DESCRIPTION = "testDescription";
     private static final View VIEW = new View.Builder()
@@ -47,7 +49,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)
@@ -67,7 +69,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)

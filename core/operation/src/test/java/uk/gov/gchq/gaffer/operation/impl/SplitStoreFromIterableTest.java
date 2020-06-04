@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -24,10 +24,11 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class SplitStoreFromIterableTest extends OperationTest<SplitStoreFromIterable> {
+
     private static final String TEST_OPTION_KEY = "testOption";
 
     @Test
@@ -60,6 +61,7 @@ public class SplitStoreFromIterableTest extends OperationTest<SplitStoreFromIter
         assertEquals("false", op.getOptions().get(TEST_OPTION_KEY));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -18,10 +18,9 @@ package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -34,13 +33,14 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NamedViewCacheTest {
     private static NamedViewCache cache;
@@ -48,7 +48,6 @@ public class NamedViewCacheTest {
     private static final String ADVANCED_GAFFER_USER = "advanced gaffer user";
     private static final String ADMIN_AUTH = "admin auth";
     private static final String EMPTY_ADMIN_AUTH = "";
-    private static final String EXCEPTION_EXPECTED = "Exception expected";
     private static final String STANDARD_VIEW_NAME = "standardView";
     private static final String ALTERNATIVE_VIEW_NAME = "alternativeView";
     private View standardView = new View.Builder().build();
@@ -72,7 +71,7 @@ public class NamedViewCacheTest {
             .view(alternativeView)
             .build();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
@@ -80,7 +79,7 @@ public class NamedViewCacheTest {
         cache = new NamedViewCache();
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationFailedException {
         cache.clearCache();
     }
@@ -88,7 +87,8 @@ public class NamedViewCacheTest {
     @Test
     public void shouldAddNamedView() throws CacheOperationFailedException {
         cache.addNamedView(standard, false);
-        NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
+
+        final NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
 
         assertEquals(standard, namedViewFromCache);
     }
@@ -96,32 +96,21 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationFailedException {
         cache.addNamedView(standard, false);
-        try {
-            cache.addNamedView(standard, false);
-            fail(EXCEPTION_EXPECTED);
-        } catch (OverwritingException e) {
-            assertTrue(e.getMessage().equals("Cache entry already exists for key: " + STANDARD_VIEW_NAME));
-        }
+
+        final Exception exception = assertThrows(OverwritingException.class, () -> cache.addNamedView(standard, false));
+        assertEquals("Cache entry already exists for key: " + STANDARD_VIEW_NAME, exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException {
-        try {
-            cache.deleteNamedView(null);
-            fail(EXCEPTION_EXPECTED);
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("NamedView name cannot be null"));
-        }
+    public void shouldThrowExceptionWhenDeletingIfKeyIsNull() {
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> cache.deleteNamedView(null));
+        assertEquals("NamedView name cannot be null", exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationFailedException {
-        try {
-            cache.getNamedView(null);
-            fail(EXCEPTION_EXPECTED);
-        } catch (CacheOperationFailedException e) {
-            assertTrue(e.getMessage().contains("NamedView name cannot be null"));
-        }
+    public void shouldThrowExceptionWhenGettingIfKeyIsNull() {
+        final Exception exception = assertThrows(CacheOperationFailedException.class, () -> cache.getNamedView(null));
+        assertEquals("NamedView name cannot be null", exception.getMessage());
     }
 
     @Test
@@ -153,17 +142,15 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
         cache.addNamedView(new NamedViewDetail.Builder().name(STANDARD_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
-        Assert.assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToOverwriteView() throws CacheOperationFailedException {
-        cache.addNamedView(alternative, false, standardUser, EMPTY_ADMIN_AUTH);
-        try {
-            cache.addNamedView(standard, true, blankUser, EMPTY_ADMIN_AUTH);
-        } catch (final CacheOperationFailedException e) {
-            assertTrue(e.getMessage().contains("does not have permission to overwrite"));
-        }
+        cache.addNamedView(alternative, false, standardUser, ADMIN_AUTH);
+
+        final Exception exception = assertThrows(CacheOperationFailedException.class, () -> cache.addNamedView(alternative, true, blankUser, EMPTY_ADMIN_AUTH));
+        assertEquals("User UNKNOWN does not have permission to overwrite", exception.getMessage());
     }
 
     @Test
@@ -173,7 +160,7 @@ public class NamedViewCacheTest {
                 .name(ALTERNATIVE_VIEW_NAME)
                 .description("alternative View")
                 .creatorId(advancedUser.getUserId())
-                .writers(Arrays.asList(GAFFER_USER))
+                .writers(Collections.singletonList(GAFFER_USER))
                 .view(alternativeView)
                 .build();
         cache.addNamedView(namedViewDetailWithUsersAllowedToWrite, false, advancedUser, EMPTY_ADMIN_AUTH);
@@ -187,12 +174,12 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToDeleteView() throws CacheOperationFailedException {
-        cache.addNamedView(standard, false, advancedUser, EMPTY_ADMIN_AUTH);
-        try {
-            cache.deleteNamedView(STANDARD_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH);
-        } catch (final CacheOperationFailedException e) {
-            assertTrue(e.getMessage().contains("does not have permission to delete named view"));
-        }
+        cache.addNamedView(alternative, false, advancedUser, EMPTY_ADMIN_AUTH);
+
+        final Exception exception = assertThrows(CacheOperationFailedException.class, () ->
+                cache.deleteNamedView(ALTERNATIVE_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH));
+        final String expected = "User User[userId=123,dataAuths=[],opAuths=[gaffer user]] does not have permission to delete named view: alternativeView";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -206,7 +193,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(namedViewDetailWithUsersAllowedToWrite, false);
 
         // When / Then - no exceptions
-        cache.deleteNamedView(ALTERNATIVE_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH);
+        assertDoesNotThrow(() -> cache.deleteNamedView(ALTERNATIVE_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH));
     }
 
     @Test
@@ -216,13 +203,13 @@ public class NamedViewCacheTest {
                 .name(ALTERNATIVE_VIEW_NAME)
                 .description("alternative View")
                 .creatorId(advancedUser.getUserId())
-                .writers(Arrays.asList(GAFFER_USER))
+                .writers(Collections.singletonList(GAFFER_USER))
                 .view(alternativeView)
                 .build();
         cache.addNamedView(namedViewDetailWithUsersAllowedToWrite, false, advancedUser, EMPTY_ADMIN_AUTH);
 
         // When / Then - no exceptions
-        cache.deleteNamedView(ALTERNATIVE_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH);
+        assertDoesNotThrow(() -> cache.deleteNamedView(ALTERNATIVE_VIEW_NAME, standardUser, EMPTY_ADMIN_AUTH));
     }
 
     @Test
@@ -238,6 +225,6 @@ public class NamedViewCacheTest {
                 .build();
 
         // When / Then - no exceptions
-        cache.addNamedView(alternativeWithADifferentView, true, userWithAdminAuth, ADMIN_AUTH);
+        assertDoesNotThrow(() -> cache.addNamedView(alternativeWithADifferentView, true, userWithAdminAuth, ADMIN_AUTH));
     }
 }

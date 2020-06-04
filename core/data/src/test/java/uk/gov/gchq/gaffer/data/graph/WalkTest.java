@@ -17,43 +17,34 @@
 package uk.gov.gchq.gaffer.data.graph;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class WalkTest {
 
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
     private static final Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
     private static final Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
-    private static final Edge EDGE_FC = new Edge.Builder().group(TestGroups.EDGE).source("F").dest("C").directed(true).build();
-    private static final Edge EDGE_EF = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("F").directed(true).build();
     private static final Edge EDGE_ED = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("D").directed(true).build();
     private static final Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
     private static final Edge EDGE_AE = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("E").directed(true).build();
@@ -63,8 +54,6 @@ public class WalkTest {
     private static final Entity ENTITY_C = new Entity.Builder().group(TestGroups.ENTITY).vertex("C").build();
     private static final Entity ENTITY_D = new Entity.Builder().group(TestGroups.ENTITY).vertex("D").build();
     private static final Entity ENTITY_E = new Entity.Builder().group(TestGroups.ENTITY).vertex("E").build();
-    private static final Entity ENTITY_F = new Entity.Builder().group(TestGroups.ENTITY).vertex("F").build();
-    private static final Entity ENTITY_G = new Entity.Builder().group(TestGroups.ENTITY).vertex("G").build();
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws Exception {
@@ -82,7 +71,7 @@ public class WalkTest {
 
         // Then
         assertThat(walk, is(equalTo(deserialisedWalk)));
-        JsonAssert.assertEquals(String.format("{" +
+        final String expected = "{" +
                 "  \"edges\": [" +
                 "  [" +
                 "    {\"group\": \"BasicEdge\"," +
@@ -111,126 +100,65 @@ public class WalkTest {
                 "    }," +
                 "    {\"C\": []}" +
                 "  ]" +
-                "}\n"), new String(json));
+                "}\n";
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
     public void shouldFailToAddEdgeWithInvalidEntitySource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        // When
-        try {
-            builder.edge(EDGE_BC);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid edge.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Edge must continue the current walk."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.edge(EDGE_BC));
+        assertEquals("Edge must continue the current walk.", exception.getMessage());
     }
 
     @Test
     public void shouldFailToAddEdgeWithInvalidEdgeSource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
-        // When
-        try {
-            builder.edge(EDGE_AB);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid edge.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Edge must continue the current walk."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.edge(EDGE_AB));
+        assertEquals("Edge must continue the current walk.", exception.getMessage());
     }
 
     @Test
     public void shouldFailToAddEntityWithInvalidEdgeSource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
         // When
-        try {
-            builder.entity(ENTITY_A);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entity(ENTITY_A));
+        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
     }
 
     @Test
     public void shouldFailToAddEntityWithInvalidEntitySource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        // When
-        try {
-            builder.entity(ENTITY_B);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entity(ENTITY_B));
+        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
     }
 
     @Test
     public void shouldFailToAddEntitiesWithDifferentVertices() {
-        // Given
         final Walk.Builder builder = new Walk.Builder();
 
-        // When
-        try {
-            builder.entities(ENTITY_A, ENTITY_B);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entities must all have the same vertex."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entities(ENTITY_A, ENTITY_B));
+        assertEquals("Entities must all have the same vertex.", exception.getMessage());
     }
 
     @Test
     public void shouldFailToAddEntitiesWithInvalidEdgeSource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
-        // When
-        try {
-            builder.entities(ENTITY_A, ENTITY_A);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entities(ENTITY_A, ENTITY_A));
+        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
     }
 
     @Test
     public void shouldFailToAddEntitiesWithInvalidEntitySource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        // When
-        try {
-            builder.entities(ENTITY_B, ENTITY_B);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entities(ENTITY_B, ENTITY_B));
+        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
     }
 
     @Test
@@ -576,33 +504,4 @@ public class WalkTest {
         // Then
         assertEquals("C", result);
     }
-
-    private List<EdgeId> getEdges() {
-        return IntStream.range(0, 10).mapToObj(i -> {
-            return new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(i)
-                    .dest(i + 1)
-                    .build();
-        }).collect(toList());
-    }
-
-    private List<EntityId> getEntities() {
-        return IntStream.range(0, 10).mapToObj(i -> {
-            return new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex(i)
-                    .build();
-        }).collect(Collectors.toList());
-    }
-
-    private List<EntityId> getEntities(final Object vertex) {
-        final List<Entity> entities = new ArrayList<>();
-
-        entities.add(new Entity.Builder().group(TestGroups.ENTITY).vertex(vertex).build());
-        entities.add(new Entity.Builder().group(TestGroups.ENTITY_2).vertex(vertex).build());
-
-        return Collections.unmodifiableList(entities);
-    }
-
 }

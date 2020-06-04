@@ -16,14 +16,19 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 public class SetVariableTest extends OperationTest<SetVariable> {
+
     private final String varName = "varName";
     private final int varVal = 4;
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final SetVariable setVariableOp = new SetVariable.Builder()
@@ -35,6 +40,7 @@ public class SetVariableTest extends OperationTest<SetVariable> {
         assertEquals(varVal, setVariableOp.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final SetVariable op = new SetVariable.Builder()

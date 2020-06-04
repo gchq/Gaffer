@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -37,7 +37,8 @@ import uk.gov.gchq.koryphe.impl.function.ToLong;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class KeyFunctionMatchTest {
 
@@ -49,25 +50,25 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldJsonSerialiseWithNoKeyFunctions() throws SerialisationException {
-        // given
-        String json = "{\n" +
+        // Given
+        final String json = "{\n" +
                 "   \"class\": \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\"\n" +
                 "}";
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch();
 
-        // then
+        // Then
         assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
     }
 
     @Test
     public void shouldAddDefaultIdentityFunctionToJson() throws SerialisationException {
-        // given
+        // Given
         KeyFunctionMatch match = new KeyFunctionMatch();
 
-        // when / then
-        String expected = "{\n" +
+        // When / then
+        final String expected = "{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
@@ -81,14 +82,14 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithKeyFunctions() throws SerialisationException {
-        // given
+        // Given
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new FunctionComposite(Lists.newArrayList(new DivideBy(20), new FirstItem())))
                 .secondKeyFunction(new ExtractProperty("count"))
                 .build();
 
-        // when / then
-        String expected = "{\n" +
+        // When / then
+        final String expected = "{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.koryphe.function.FunctionComposite\",\n" +
@@ -111,11 +112,11 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithSingleFirstKeyFunction() throws SerialisationException {
-        // given
+        // Given
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().firstKeyFunction(new ExtractProperty("count")).build();
 
-        // when / then
-        String json = "{\n" +
+        // When / then
+        final String json = "{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
@@ -125,9 +126,8 @@ public class KeyFunctionMatchTest {
 
         assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
 
-        // when / then
-
-        String jsonWithIdentity = "{\n" +
+        // When / Then
+        final String jsonWithIdentity = "{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
@@ -144,11 +144,11 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithSingleRightKeyFunction() throws SerialisationException {
-        // given
+        // Given
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().secondKeyFunction(new ExtractProperty("count")).build();
 
-        // when / then
-        String json = "{\n" +
+        // When / Then
+        final String json = "{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"secondKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\n" +
@@ -158,9 +158,8 @@ public class KeyFunctionMatchTest {
 
         assertEquals(match, JSONSerialiser.deserialise(json, KeyFunctionMatch.class));
 
-        // when / then
-
-        String jsonWithIdentity = "{\n" +
+        // When / Then
+        final String jsonWithIdentity = "{\n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch\",\n" +
                 "  \"firstKeyFunction\" : {\n" +
                 "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.Identity\"\n" +
@@ -176,11 +175,11 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldThrowExceptionIfKeyFunctionsAreSetToNull() {
-        // given
+        // Given
         Integer testValue = 3;
         List<Integer> testList = new ArrayList<>();
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(null)
                 .secondKeyFunction(null)
@@ -188,37 +187,33 @@ public class KeyFunctionMatchTest {
 
         match.init(testList);
 
-        // then
-
-        try {
-            match.matching(testValue);
-        } catch (IllegalArgumentException e) {
-            assertEquals("Key functions for left and right input cannot be null", e.getMessage());
-        }
+        // Then
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> match.matching(testValue));
+        assertEquals("Key functions for left and right input cannot be null", exception.getMessage());
     }
 
     @Test
     public void shouldMatchEqualObjectsIfNoKeyFunctionIsSpecified() {
-        // given
+        // Given
         Integer testValue = 3;
         List<Integer> testList = Lists.newArrayList(1, 2, 3, 4, 3);
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch();
         match.init(testList);
 
-        // then
+        // Then
         List<Integer> expected = Lists.newArrayList(3, 3);
         assertEquals(expected, match.matching(testValue));
     }
 
     @Test
     public void shouldMatchObjectsBasedOnKeyFunctions() {
-        // given
+        // Given
         TypeSubTypeValue testValue = new TypeSubTypeValue("myType", "mySubType", "30");
         List<Long> testList = Lists.newArrayList(100L, 200L, 300L, 400L);
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(
                         new FunctionComposite(
@@ -228,7 +223,7 @@ public class KeyFunctionMatchTest {
 
         match.init(testList);
 
-        // then
+        // Then
         List<Long> expected = Lists.newArrayList(300L);
         assertEquals(expected, match.matching(testValue));
 
@@ -236,42 +231,42 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldOutputEmptyListWhenNoMatchesAreFound() {
-        // given
+        // Given
         Integer testValue = 3;
         List<Integer> testList = Lists.newArrayList(1, 2, 5, 4, 8);
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch();
 
         match.init(testList);
 
-        // then
+        // Then
         List<Integer> expected = Lists.newArrayList();
         assertEquals(expected, match.matching(testValue));
     }
 
     @Test
     public void shouldOutputEmptyListWhenEmptyListIsSupplied() {
-        // given
+        // Given
         Integer testValue = 3;
         List<Integer> testList = Lists.newArrayList();
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch();
         match.init(testList);
 
-        // then
+        // Then
         List<Integer> expected = Lists.newArrayList();
         assertEquals(expected, match.matching(testValue));
     }
 
     @Test
     public void shouldThrowExceptionFromFunctionIfInputIsInvalid() {
-        // given
+        // Given
         // Performing a FirstItem on null should throw IllegalArgumentException
         List<Long> testList = Lists.newArrayList(100L, 200L, 300L, null);
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new FunctionComposite(
                         Lists.newArrayList(new CallMethod("getValue"), new ToInteger())))
@@ -279,61 +274,54 @@ public class KeyFunctionMatchTest {
                 .build();
 
 
-        // then
-        try {
-            match.init(testList);
-        } catch (final IllegalArgumentException e) {
-            // copied from docs of FirstItem
-            assertEquals("Input cannot be null", e.getMessage());
-        }
+        // Then
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> match.init(testList));
+        // copied from docs of FirstItem
+        assertEquals("Input cannot be null", exception.getMessage());
     }
 
     @Test
     public void shouldAllowNullValuesIfValid() {
-        // given
+        // Given
         List<Integer> testList = Lists.newArrayList(1, null, 5, 4, 8);
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch();
         match.init(testList);
 
-        // then
+        // Then
         List<Integer> expected = Lists.newArrayList((Integer) null);
         assertEquals(expected, match.matching(null));
     }
 
     @Test
     public void shouldAllowNullValuesInList() {
-        // given
+        // Given
         Integer testItem = 4;
         List<Integer> testList = Lists.newArrayList(1, null, 5, 4, 8);
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch();
         match.init(testList);
 
-        // then
+        // Then
         List<Integer> expected = Lists.newArrayList(4);
         assertEquals(expected, match.matching(testItem));
     }
 
     @Test
     public void shouldThrowExceptionIfListIsNull() {
-        // given
+        // Given
         KeyFunctionMatch match = new KeyFunctionMatch.Builder().build();
 
-        // when / then
-
-        try {
-            match.init(null);
-        } catch (IllegalArgumentException e) {
-            assertEquals("Iterable of match candidates cannot be null", e.getMessage());
-        }
+        // When / Then
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> match.init(null));
+        assertEquals("Iterable of match candidates cannot be null", exception.getMessage());
     }
 
     @Test
     public void shouldMatchElementsOfTheSameGroupBasedOnKeyFunctions() {
-        // given
+        // Given
         Entity testItem = new Entity.Builder().group(TEST_ENTITY_GROUP)
                 .vertex("test")
                 .property(PROP_1, 3L)
@@ -362,7 +350,7 @@ public class KeyFunctionMatchTest {
                         .build()
         );
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new ExtractProperty(PROP_1))
                 .secondKeyFunction(new ExtractProperty(PROP_1))
@@ -370,8 +358,8 @@ public class KeyFunctionMatchTest {
 
         match.init(testList);
 
-        // then
-        ArrayList<Entity> expected = Lists.newArrayList(
+        // Then
+        final List<Entity> expected = Lists.newArrayList(
                 new Entity.Builder()
                         .group(TEST_ENTITY_GROUP)
                         .vertex("test3")
@@ -388,7 +376,7 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldMatchElementsOfDifferentGroupsBasedOnKeyFunctions() {
-        // given
+        // Given
         Entity testItem = new Entity.Builder().group(TEST_ENTITY_GROUP)
                 .vertex("test")
                 .property(PROP_1, 2L)
@@ -417,7 +405,7 @@ public class KeyFunctionMatchTest {
                         .build()
         );
 
-        // when
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new ExtractProperty(PROP_1))
                 .secondKeyFunction(new FunctionComposite(Lists.newArrayList(new ExtractProperty(PROP_2), new ToLong())))
@@ -425,8 +413,8 @@ public class KeyFunctionMatchTest {
 
         match.init(testList);
 
-        // then
-        ArrayList<Entity> expected = Lists.newArrayList(
+        // Then
+        final ArrayList<Entity> expected = Lists.newArrayList(
                 new Entity.Builder()
                         .group(TEST_ENTITY_GROUP_2)
                         .vertex("test2")
@@ -443,8 +431,7 @@ public class KeyFunctionMatchTest {
 
     @Test
     public void shouldMatchElementsOfDifferentClassesBasedOnKeyFunctions() {
-        // given
-
+        // Given
         Edge testItem = new Edge.Builder().group(TEST_EDGE_GROUP)
                 .source("test1")
                 .dest("test4")
@@ -475,8 +462,7 @@ public class KeyFunctionMatchTest {
                         .build()
         );
 
-        // when
-
+        // When
         KeyFunctionMatch match = new KeyFunctionMatch.Builder()
                 .firstKeyFunction(new ExtractId(IdentifierType.SOURCE))
                 .secondKeyFunction(new ExtractId(IdentifierType.VERTEX))
@@ -484,8 +470,8 @@ public class KeyFunctionMatchTest {
 
         match.init(testList);
 
-        // then
-        ArrayList<Entity> expected = Lists.newArrayList(new Entity.Builder()
+        // Then
+        final List<Entity> expected = Lists.newArrayList(new Entity.Builder()
                 .group(TEST_ENTITY_GROUP)
                 .vertex("test1")
                 .property(PROP_1, 4L)

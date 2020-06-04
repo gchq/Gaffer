@@ -23,6 +23,9 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHandlerParent">
+        <level value="error"/>
+    </logger>
     <root>
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>

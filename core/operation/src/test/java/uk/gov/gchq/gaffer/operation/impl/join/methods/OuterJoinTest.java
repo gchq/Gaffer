@@ -15,6 +15,7 @@
  */
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
+
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 

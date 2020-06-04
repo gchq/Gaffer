@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
@@ -26,17 +26,15 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ReduceHandlerTest {
+
     @Test
     public void shouldAggregateResults() throws Exception {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
-        final Integer expectedResult = 15;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .aggregateFunction(new Sum())
@@ -48,16 +46,13 @@ public class ReduceHandlerTest {
         final Integer result = handler.doOperation(reduce, null, null);
 
         // Then
-        assertTrue(result instanceof Integer);
-        assertEquals(expectedResult, result);
+        assertEquals(Integer.valueOf(15), result);
     }
 
     @Test
     public void shouldAggregateResultsWithIdentity() throws Exception {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
-        final Integer identity = 10;
-        final Integer expectedResult = 10;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(10)
@@ -70,15 +65,13 @@ public class ReduceHandlerTest {
         final Integer result = handler.doOperation(reduce, null, null);
 
         // Then
-        assertTrue(result instanceof Integer);
-        assertEquals(expectedResult, result);
+        assertEquals(Integer.valueOf(10), result);
     }
 
     @Test
     public void shouldAggregateResultsWithNullIdentity() throws Exception {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
-        final Integer expectedResult = 5;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(null)
@@ -91,12 +84,11 @@ public class ReduceHandlerTest {
         final Integer result = handler.doOperation(reduce, null, null);
 
         // Then
-        assertTrue(result instanceof Integer);
-        assertEquals(expectedResult, result);
+        assertEquals(Integer.valueOf(5), result);
     }
 
     @Test
-    public void shouldHandleNullInput() throws Exception {
+    public void shouldHandleNullInput() {
         // Given
         final Iterable<Integer> input = null;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
@@ -106,27 +98,17 @@ public class ReduceHandlerTest {
         final ReduceHandler<Integer> handler = new ReduceHandler<>();
 
         // When
-        try {
-            final Integer result = handler.doOperation(reduce, null, null);
-        } catch (final OperationException oe) {
-
-            // Then
-            assertThat(oe.getMessage(), is("Input cannot be null"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(reduce, null, null));
+        assertEquals("Input cannot be null", exception.getMessage());
     }
 
     @Test
-    public void shouldHandleNullOperation() throws Exception {
+    public void shouldHandleNullOperation() {
         // Given
         final ReduceHandler<Integer> handler = new ReduceHandler<>();
 
         // When
-        try {
-            final Integer result = handler.doOperation(null, null, null);
-        } catch (final OperationException oe) {
-
-            // Then
-            assertThat(oe.getMessage(), is("Operation cannot be null"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(null, null, null));
+        assertEquals("Operation cannot be null", exception.getMessage());
     }
 }

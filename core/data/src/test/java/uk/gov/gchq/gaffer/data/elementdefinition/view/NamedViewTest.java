@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -35,14 +35,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class NamedViewTest {
+
     private static final String TEST_VIEW_NAME = "testViewName";
     private static final String TEST_PARAM_KEY = "testParamKey";
     private static final Object TEST_PARAM = 1L;
@@ -63,17 +66,15 @@ public class NamedViewTest {
                     .build())
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() {
         testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
     }
 
     @Test
     public void shouldCreateEmptyNamedViewWithBasicConstructor() {
-        // When
         NamedView namedView = new NamedView();
 
-        // Then
         assertTrue(namedView.getName().isEmpty());
         assertTrue(namedView.getMergedNamedViewNames().isEmpty());
         assertTrue(namedView.getParameters().isEmpty());
@@ -83,11 +84,9 @@ public class NamedViewTest {
 
     @Test
     public void shouldThrowExceptionWithNoName() {
-        try {
-            new NamedView.Builder().edge(TestGroups.EDGE).build();
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Name must be set"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new NamedView.Builder().edge(TestGroups.EDGE).build());
+
+        assertEquals("Name must be set", exception.getMessage());
     }
 
     @Test
@@ -156,18 +155,15 @@ public class NamedViewTest {
 
     @Test
     public void shouldSerialiseToJson() {
-        // Given
         final NamedView namedView = new NamedView.Builder()
                 .name(TEST_VIEW_NAME)
                 .entity(TestGroups.ENTITY, entityDef2)
                 .parameters(testParameters)
                 .build();
 
-        // When
-        byte[] json = namedView.toJson(true);
+        final byte[] json = namedView.toJson(true);
 
-        // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView\"," +
                 "  \"entities\" : {\n" +
                 "    \"BasicEntity\" : {\n" +
@@ -183,7 +179,8 @@ public class NamedViewTest {
                 "       \"parameters\": {" +
                 "           \"testParamKey\" : 1" +
                 "         }" +
-                "    }"), new String(json));
+                "    }");
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
@@ -345,24 +342,15 @@ public class NamedViewTest {
 
     @Test
     public void showAllowMergingOfNamedViewIntoAViewWhenNameIsEmpty() {
-        //When / Then
-        try {
-            new View.Builder().merge(new NamedView()).build();
-        } catch (final IllegalArgumentException e) {
-            fail("Exception not expected");
-        }
+        assertDoesNotThrow(() -> new View.Builder().merge(new NamedView()).build());
     }
 
     @Test
     public void shouldThrowExceptionWhenMergingNamedViewIntoAViewWhenNameIsSet() {
-        // Given
         final NamedView namedView = new NamedView.Builder().name(TEST_VIEW_NAME).build();
-        //When / Then
-        try {
-            new View.Builder().merge(namedView).build();
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("A NamedView cannot be merged into a View"));
-        }
+
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new View.Builder().merge(namedView).build());
+        assertEquals("A NamedView cannot be merged into a View", exception.getMessage());
     }
 
     @Test

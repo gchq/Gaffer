@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Iterables;
 import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -33,13 +33,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetAllNamedOperationsHandlerTest {
+
     private final NamedOperationCache cache = new NamedOperationCache();
     private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache);
     private final GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(cache);
@@ -72,7 +75,7 @@ public class GetAllNamedOperationsHandlerTest {
         CacheServiceLoader.shutdown();
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
         StoreProperties properties = new StoreProperties();
@@ -81,9 +84,37 @@ public class GetAllNamedOperationsHandlerTest {
     }
 
     @Test
+    public void shouldReturnLabelWhenNamedOperationHasLabel() throws Exception {
+        final AddNamedOperation addNamedOperationWithLabel = new AddNamedOperation.Builder()
+                .name("My Operation With Label")
+                .labels(Collections.singletonList("test label"))
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .build();
+        addNamedOperationHandler.doOperation(addNamedOperationWithLabel, context, store);
+
+        final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+
+        assertEquals(Collections.singletonList("test label"), allNamedOperations.iterator().next().getLabels());
+    }
+
+    @Test
+    public void shouldReturnNullLabelWhenLabelIsNullFromAddNamedOperationRequest() throws Exception {
+        final AddNamedOperation addNamedOperationWithNullLabel = new AddNamedOperation.Builder()
+                .name("My Operation With Label")
+                .labels(null)
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .build();
+        addNamedOperationHandler.doOperation(addNamedOperationWithNullLabel, context, store);
+
+        final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+
+        assertNull(allNamedOperations.iterator().next().getLabels());
+    }
+
+    @Test
     public void shouldReturnNamedOperationWithInputType() throws Exception {
         // Given
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .name(expectedOperationDetailWithInputType.getOperationName())
                 .description(expectedOperationDetailWithInputType.getDescription())
                 .operationChain(expectedOperationDetailWithInputType.getOperationChainWithDefaultParams())
@@ -92,7 +123,7 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-        CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allNamedOperationsList));
@@ -102,7 +133,7 @@ public class GetAllNamedOperationsHandlerTest {
     @Test
     public void shouldReturnNamedOperationWithNoInputType() throws Exception {
         // Given
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .name(expectedOperationDetailWithoutInputType.getOperationName())
                 .description(expectedOperationDetailWithoutInputType.getDescription())
                 .operationChain(expectedOperationDetailWithoutInputType.getOperationChainWithDefaultParams())
@@ -111,7 +142,7 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-        CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allNamedOperationsList));

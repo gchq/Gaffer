@@ -17,9 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Maps;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -42,17 +40,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-
+@SuppressWarnings("rawtypes")
 public class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     public NamedOperationResolverTest() {
         super(NamedOperationResolver.class);
@@ -223,7 +220,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithParameterOfWrongType() throws OperationException, CacheOperationFailedException {
+    public void shouldNotExecuteNamedOperationWithParameterOfWrongType() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -253,18 +250,17 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
-        // When
-        exception.expect(IllegalArgumentException.class);
-        resolver.preExecute(new OperationChain.Builder()
+        assertThrows(IllegalArgumentException.class, () -> resolver.preExecute(new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
                         .name(opName)
                         .parameters(paramMap)
                         .build())
-                .build(), new Context(user));
+                .build(), new Context(user))
+        );
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithWrongParameterName() throws OperationException, CacheOperationFailedException {
+    public void shouldNotExecuteNamedOperationWithWrongParameterName() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -295,17 +291,17 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        exception.expect(IllegalArgumentException.class);
-        resolver.preExecute(new OperationChain.Builder()
-                .first(new NamedOperation.Builder<>()
-                        .name(opName)
-                        .parameters(paramMap)
-                        .build())
-                .build(), new Context(user));
+        assertThrows(IllegalArgumentException.class, () ->
+                resolver.preExecute(new OperationChain.Builder()
+                        .first(new NamedOperation.Builder<>()
+                                .name(opName)
+                                .parameters(paramMap)
+                                .build())
+                        .build(), new Context(user)));
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithMissingRequiredArg() throws OperationException, CacheOperationFailedException {
+    public void shouldNotExecuteNamedOperationWithMissingRequiredArg() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -335,28 +331,28 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        exception.expect(IllegalArgumentException.class);
-        resolver.preExecute(new OperationChain.Builder()
-                .first(new NamedOperation.Builder<>()
-                        .name(opName)
-                        .parameters(paramMap)
-                        .build())
-                .build(), new Context(user));
+        assertThrows(IllegalArgumentException.class, () ->
+                resolver.preExecute(new OperationChain.Builder()
+                        .first(new NamedOperation.Builder<>()
+                                .name(opName)
+                                .parameters(paramMap)
+                                .build())
+                        .build(), new Context(user)));
     }
 
     @Test
     public void shouldReturnOperationsInParameters() {
         // Given
         final NamedOperation namedOperation = new NamedOperation();
-        Operation operation = new GetElements();
-        Map<String, Object> paramMap = Maps.newHashMap();
+        final Operation operation = new GetElements();
+        final Map<String, Operation> paramMap = Maps.newHashMap();
 
         paramMap.put("test param", operation);
         namedOperation.setParameters(paramMap);
 
         //When
         List<Operation> paramOperations = namedOperation.getOperations();
-        Operation op = paramOperations.get(0);
+        final Operation op = paramOperations.get(0);
 
         //Then
         assertEquals(paramOperations.size(), 1);

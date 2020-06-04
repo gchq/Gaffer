@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,10 +34,11 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class GetSchemaHandlerTest {
     private GetSchemaHandler handler;
@@ -48,40 +49,14 @@ public class GetSchemaHandlerTest {
     private StoreProperties properties;
     private byte[] compactSchemaBytes;
 
-    @Before
+    @BeforeEach
     public void setup() {
         handler = new GetSchemaHandler();
         store = mock(Store.class);
         context = mock(Context.class);
         user = mock(User.class);
         properties = new StoreProperties();
-        schema = new Schema.Builder()
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .description("anEdge")
-                        .directed("true")
-                        .property(TestPropertyNames.PROP_1, "string")
-                        .build())
-                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .description("anotherEdge")
-                        .directed("true")
-                        .property(TestPropertyNames.PROP_1, "string")
-                        .build())
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property(TestPropertyNames.PROP_1, "string")
-                        .description("anEntity")
-                        .build())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .serialiser(new StringSerialiser())
-                        .aggregateFunction(new StringConcat())
-                        .build())
-                .type("true", Boolean.class)
-                .build();
+        schema = makeSchema();
         compactSchemaBytes = schema.toCompactJson();
     }
 
@@ -121,14 +96,41 @@ public class GetSchemaHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionForNullOperation() throws OperationException {
+    public void shouldThrowExceptionForNullOperation() {
         final GetSchema operation = null;
 
         // When / Then
-        try {
-            handler.doOperation(operation, context, store);
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Operation cannot be null"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
+        assertEquals("Operation cannot be null", exception.getMessage());
+    }
+
+    private Schema makeSchema() {
+        return new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .description("anEdge")
+                        .directed("true")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .description("anotherEdge")
+                        .directed("true")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .description("anEntity")
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new StringSerialiser())
+                        .aggregateFunction(new StringConcat())
+                        .build())
+                .type("true", Boolean.class)
+                .build();
     }
 }

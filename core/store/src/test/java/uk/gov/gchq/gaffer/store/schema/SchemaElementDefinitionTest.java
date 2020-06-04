@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -36,13 +36,13 @@ import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import java.util.Collections;
 import java.util.Date;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinition> {
@@ -58,13 +58,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         final T elementDef = createBuilder().build();
 
         // When / Then
-        try {
-            elementDef.getPropertyMap()
-                    .put("new property", "string");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> elementDef.getPropertyMap().put("new property", "string"));
     }
 
     @Test
@@ -73,13 +67,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         final T elementDef = createBuilder().build();
 
         // When / Then
-        try {
-            elementDef.getIdentifierMap()
-                    .put(IdentifierType.SOURCE, "string");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> elementDef.getIdentifierMap().put(IdentifierType.SOURCE, "string"));
     }
 
     @Test
@@ -90,12 +78,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // When / Then
-        try {
-            elementDef.getGroupBy().add("property");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> elementDef.getGroupBy().add("property"));
     }
 
     @Test
@@ -107,12 +90,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // When / Then
-        try {
-            elementDef.getParents().add("parentGroup2");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> elementDef.getParents().add("parentGroup2"));
     }
 
     @Test
@@ -150,49 +128,49 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         int i = 0;
         assertEquals(IsXMoreThanY.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property1", "property2"},
+        assertArrayEquals(new String[] {"property1", "property2"},
                 validator.getComponents().get(i).getSelection());
         i++;
         if (elementDef instanceof SchemaEdgeDefinition) {
             assertEquals(Integer.class.getName(), ((IsA) validator.getComponents().get(i).getPredicate()).getType());
-            assertArrayEquals(new String[]{IdentifierType.SOURCE.name()},
+            assertArrayEquals(new String[] {IdentifierType.SOURCE.name()},
                     validator.getComponents().get(i).getSelection());
             i++;
             assertEquals(Date.class.getName(), ((IsA) validator.getComponents().get(i).getPredicate()).getType());
-            assertArrayEquals(new String[]{IdentifierType.DESTINATION.name()},
+            assertArrayEquals(new String[] {IdentifierType.DESTINATION.name()},
                     validator.getComponents().get(i).getSelection());
             i++;
             assertEquals(Boolean.class.getName(), ((IsA) validator.getComponents().get(i).getPredicate()).getType());
-            assertArrayEquals(new String[]{IdentifierType.DIRECTED.name()},
+            assertArrayEquals(new String[] {IdentifierType.DIRECTED.name()},
                     validator.getComponents().get(i).getSelection());
             i++;
         } else {
-            assertArrayEquals(new String[]{IdentifierType.VERTEX.name()},
+            assertArrayEquals(new String[] {IdentifierType.VERTEX.name()},
                     validator.getComponents().get(i).getSelection());
             i++;
         }
         assertEquals(String.class.getName(), ((IsA) validator.getComponents().get(i).getPredicate()).getType());
-        assertArrayEquals(new String[]{"property"},
+        assertArrayEquals(new String[] {"property"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(Exists.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property"},
+        assertArrayEquals(new String[] {"property"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(String.class.getName(), ((IsA) validator.getComponents().get(i).getPredicate()).getType());
-        assertArrayEquals(new String[]{"property1"},
+        assertArrayEquals(new String[] {"property1"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(Exists.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property1"},
+        assertArrayEquals(new String[] {"property1"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(String.class.getName(), ((IsA) validator.getComponents().get(i).getPredicate()).getType());
-        assertArrayEquals(new String[]{"property2"},
+        assertArrayEquals(new String[] {"property2"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(Exists.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property2"},
+        assertArrayEquals(new String[] {"property2"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(i, validator.getComponents().size());
@@ -222,19 +200,19 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         int i = 0;
         assertEquals(IsXMoreThanY.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property1", "property2"},
+        assertArrayEquals(new String[] {"property1", "property2"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(Exists.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property"},
+        assertArrayEquals(new String[] {"property"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(Exists.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property1"},
+        assertArrayEquals(new String[] {"property1"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(Exists.class, validator.getComponents().get(i).getPredicate().getClass());
-        assertArrayEquals(new String[]{"property2"},
+        assertArrayEquals(new String[] {"property2"},
                 validator.getComponents().get(i).getSelection());
         i++;
         assertEquals(i, validator.getComponents().size());
@@ -286,27 +264,22 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(5, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property1"},
+        assertArrayEquals(new String[] {"property1"},
                 aggregator.getComponents().get(0).getSelection());
         assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property2"},
+        assertArrayEquals(new String[] {"property2"},
                 aggregator.getComponents().get(1).getSelection());
         assertTrue(aggregator.getComponents().get(2).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property3"},
+        assertArrayEquals(new String[] {"property3"},
                 aggregator.getComponents().get(2).getSelection());
         assertTrue(aggregator.getComponents().get(3).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(3).getSelection());
         assertTrue(aggregator.getComponents().get(4).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(4).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getFullAggregator());
     }
@@ -337,35 +310,30 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(6, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property1", "property2"},
+        assertArrayEquals(new String[] {"property1", "property2"},
                 aggregator.getComponents().get(0).getSelection());
 
         assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property3"},
+        assertArrayEquals(new String[] {"property3"},
                 aggregator.getComponents().get(1).getSelection());
 
         assertTrue(aggregator.getComponents().get(2).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property4"},
+        assertArrayEquals(new String[] {"property4"},
                 aggregator.getComponents().get(2).getSelection());
 
         assertTrue(aggregator.getComponents().get(3).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property5"},
+        assertArrayEquals(new String[] {"property5"},
                 aggregator.getComponents().get(3).getSelection());
 
         assertTrue(aggregator.getComponents().get(4).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(4).getSelection());
 
         assertTrue(aggregator.getComponents().get(5).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(5).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getFullAggregator());
     }
@@ -390,18 +358,13 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(2, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property3"},
+        assertArrayEquals(new String[] {"property3"},
                 aggregator.getComponents().get(0).getSelection());
         assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(1).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getIngestAggregator());
     }
@@ -434,26 +397,21 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         int i = 0;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property3", "timestamp"},
+        assertArrayEquals(new String[] {"property3", "timestamp"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property4"},
+        assertArrayEquals(new String[] {"property4"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property5"},
+        assertArrayEquals(new String[] {"property5"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertEquals(i, aggregator.getComponents().size());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getIngestAggregator());
     }
@@ -478,24 +436,19 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(4, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property2"},
+        assertArrayEquals(new String[] {"property2"},
                 aggregator.getComponents().get(0).getSelection());
         assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property3"},
+        assertArrayEquals(new String[] {"property3"},
                 aggregator.getComponents().get(1).getSelection());
         assertTrue(aggregator.getComponents().get(2).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(2).getSelection());
         assertTrue(aggregator.getComponents().get(3).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(3).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet("property1"), null));
         // check a different aggregator is returned for different groupBys
@@ -530,30 +483,25 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(5, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property1", "property2"},
+        assertArrayEquals(new String[] {"property1", "property2"},
                 aggregator.getComponents().get(0).getSelection());
 
         assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property3", "property4"},
+        assertArrayEquals(new String[] {"property3", "property4"},
                 aggregator.getComponents().get(1).getSelection());
 
         assertTrue(aggregator.getComponents().get(2).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property5"},
+        assertArrayEquals(new String[] {"property5"},
                 aggregator.getComponents().get(2).getSelection());
         assertTrue(aggregator.getComponents().get(3).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(3).getSelection());
         assertTrue(aggregator.getComponents().get(4).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(4).getSelection());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
@@ -589,38 +537,33 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         int i = 0;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof StringConcat);
-        assertArrayEquals(new String[]{"property1"},
+        assertArrayEquals(new String[] {"property1"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property3", "property4"},
+        assertArrayEquals(new String[] {"property3", "property4"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property2"},
+        assertArrayEquals(new String[] {"property2"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property5"},
+        assertArrayEquals(new String[] {"property5"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertEquals(i, aggregator.getComponents().size());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is not cached
         assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator));
     }
@@ -658,38 +601,33 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         int i = 0;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof StringConcat);
-        assertArrayEquals(new String[]{"property1"},
+        assertArrayEquals(new String[] {"property1"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property1", "property2"},
+        assertArrayEquals(new String[] {"property1", "property2"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property3", "property4"},
+        assertArrayEquals(new String[] {"property3", "property4"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property5"},
+        assertArrayEquals(new String[] {"property5"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(i).getSelection());
         i++;
         assertEquals(i, aggregator.getComponents().size());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is not cached
         assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator));
     }
@@ -723,30 +661,25 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // As the groupBy property - property1 is aggregated alongside property2, this is still required in the aggregator function.
         assertEquals(5, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property1", "property2"},
+        assertArrayEquals(new String[] {"property1", "property2"},
                 aggregator.getComponents().get(0).getSelection());
 
         assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
-        assertArrayEquals(new String[]{"property3", "property4"},
+        assertArrayEquals(new String[] {"property3", "property4"},
                 aggregator.getComponents().get(1).getSelection());
 
         assertTrue(aggregator.getComponents().get(2).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property5"},
+        assertArrayEquals(new String[] {"property5"},
                 aggregator.getComponents().get(2).getSelection());
         assertTrue(aggregator.getComponents().get(3).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"visibility"},
+        assertArrayEquals(new String[] {"visibility"},
                 aggregator.getComponents().get(3).getSelection());
         assertTrue(aggregator.getComponents().get(4).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"timestamp"},
+        assertArrayEquals(new String[] {"timestamp"},
                 aggregator.getComponents().get(4).getSelection());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
@@ -799,15 +732,12 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // When / Then
-        try {
-            createEmptyBuilder()
-                    .merge(elementDef1)
-                    .merge(elementDef2)
-                    .build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("property"));
-        }
+        final Exception exception = assertThrows(SchemaException.class, () -> createEmptyBuilder()
+                .merge(elementDef1)
+                .merge(elementDef2)
+                .build());
+        final String expected = "Unable to merge element definitions because the property property1 exists in both definitions with different types: string and int";
+        assertEquals(expected, exception.getMessage());
     }
 
     protected void setupSchema(final T elementDef) {

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -29,10 +29,9 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import java.io.Serializable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -43,7 +42,7 @@ public class SchemaOptimiserTest {
     private TypeDefinition intType;
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         stringType = new TypeDefinition.Builder()
                 .clazz(String.class)
@@ -137,11 +136,6 @@ public class SchemaOptimiserTest {
                 .build();
 
         // When / Then
-        try {
-            optimiser.optimise(schema, isOrdered);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThrows(IllegalArgumentException.class, () -> optimiser.optimise(schema, isOrdered));
     }
 }

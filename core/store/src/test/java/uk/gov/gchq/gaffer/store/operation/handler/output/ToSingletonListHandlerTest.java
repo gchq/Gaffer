@@ -16,24 +16,25 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.store.Context;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ToSingletonListHandlerTest {
+
     @Test
     public void shouldConvertIntToSingletonList() throws OperationException {
         // Given
         final int singleInt = 4;
-        final List<Integer> expectedResult = Arrays.asList(4);
+        final List<Integer> expectedResult = Collections.singletonList(4);
 
         final ToSingletonListHandler handler = new ToSingletonListHandler();
         final ToSingletonList<Integer> operation = new ToSingletonList.Builder<Integer>().input(singleInt).build();
@@ -46,16 +47,13 @@ public class ToSingletonListHandlerTest {
     }
 
     @Test
-    public void shouldHandleNullInput() throws OperationException {
+    public void shouldHandleNullInput() {
         // Given
         final ToSingletonListHandler handler = new ToSingletonListHandler();
         final ToSingletonList<Integer> operation = new ToSingletonList.Builder<Integer>().input(null).build();
 
         // When
-        try {
-            handler.doOperation(operation, new Context(), null);
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().equals("Input cannot be null"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(), null));
+        assertEquals("Input cannot be null", exception.getMessage());
     }
 }

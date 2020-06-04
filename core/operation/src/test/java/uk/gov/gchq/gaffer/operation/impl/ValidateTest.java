@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,13 +29,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class ValidateTest extends OperationTest<Validate> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -97,6 +98,7 @@ public class ValidateTest extends OperationTest<Validate> {
         assertEquals(edge, validate.getInput().iterator().next());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -43,49 +42,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataForSplitPointsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSampleDataForSplitPointsJobFactory.class);
-
-    /**
-     * Creates a  list of jobs with the store specThe list is created using
-     * each Pair of InputMappers and creates a single Job for each MapperGenerator with all the inputs for a
-     * matching MapperGenerator in the same Job.ific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
-     *
-     * @param operation the add elements from hdfs operation
-     * @param store     the store executing the operation
-     * @return the created jobs
-     * @throws IOException for IO issues
-     */
-    @Override
-    public List<Job> createJobs(final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        final List<Job> jobs = new ArrayList<>();
-        Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
-        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
-            if (mapperGeneratorsToInputPathsList.containsKey(entry.getValue())) {
-                mapperGeneratorsToInputPathsList.get(entry.getValue()).add(entry.getKey());
-            } else {
-                mapperGeneratorsToInputPathsList.put(entry.getValue(), Lists.newArrayList(entry.getKey()));
-            }
-        }
-
-        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
-            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
-            final Job job = Job.getInstance(jobConf);
-            setupJob(job, operation, mapperGeneratorClassName, store);
-
-            if (null != operation.getJobInitialiser()) {
-                operation.getJobInitialiser().initialiseJob(job, operation, store);
-            }
-            jobs.add(job);
-        }
-        return jobs;
-    }
 
     @Override
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "key should always be an instance of Key")

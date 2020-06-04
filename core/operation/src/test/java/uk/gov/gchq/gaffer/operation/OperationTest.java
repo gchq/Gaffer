@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.google.common.collect.Maps;
-import org.junit.Assert;
 import org.junit.AssumptionViolatedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -34,22 +34,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
+
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
     }
 
     @Test
-    public abstract void builderShouldCreatePopulatedOperation();
+    public abstract void builderShouldCreatePopulatedOperation() throws SerialisationException;
 
     @Test
-    public abstract void shouldShallowCloneOperation();
+    public abstract void shouldShallowCloneOperation() throws SerialisationException;
 
     @Test
-    public void shouldValidateRequiredFields() throws Exception {
+    public void shouldValidateRequiredFields() {
         // Given
         final Operation op = getTestObject();
 
@@ -69,14 +70,17 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
     }
 
     @Test
-    public void shouldSetGetOption() throws Exception {
+    public void shouldSetGetOption() {
         final Operation testObject = getTestObject();
         final HashMap<String, String> expected = Maps.newHashMap();
         expected.put("one", "two");
         testObject.setOptions(expected);
         final Map<String, String> actual = testObject.getOptions();
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         assertEquals("two", testObject.getOption("one"));
+
+        testObject.addOption("three", "four");
+        assertEquals("four", testObject.getOption("three"));
     }
 
     @Test
@@ -91,8 +95,8 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         if (null == annotation || null == annotation.value()) {
             throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
         }
-        assumeTrue(annotation.value() + " is not a valid value string.",
-                VersionUtil.validateVersionString(annotation.value()));
+        assertTrue(VersionUtil.validateVersionString(annotation.value()),
+                annotation.value() + " is not a valid value string.");
     }
 
     @Test
@@ -105,10 +109,10 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
 
         // Then
         if (null == annotation || null == annotation.value()) {
-            throw new AssumptionViolatedException("Missing Summary annotation on class " + instance.getClass().getName());
+            throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
         }
-        assumeTrue(annotation.value() + " is not a valid value string.",
-                SummaryUtil.validateSummaryString(annotation.value()));
+        assertTrue(SummaryUtil.validateSummaryString(annotation.value()),
+                annotation.value() + " is not a valid value string.");
     }
 }
 

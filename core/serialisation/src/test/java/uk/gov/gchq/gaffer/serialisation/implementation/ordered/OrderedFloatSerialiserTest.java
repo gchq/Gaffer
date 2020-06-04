@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
@@ -34,6 +34,7 @@ public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> 
         for (float i = 0; i < 1000; i += 1.1) {
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
             assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
@@ -43,6 +44,7 @@ public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> 
     public void canSerialiseFloatMinValue() throws SerialisationException {
         byte[] b = serialiser.serialise(Float.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MIN_VALUE, o);
     }
@@ -51,6 +53,7 @@ public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> 
     public void canSerialiseFloatMaxValue() throws SerialisationException {
         byte[] b = serialiser.serialise(Float.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MAX_VALUE, o);
     }
@@ -58,8 +61,9 @@ public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
         byte[] startBytes = serialiser.serialise(0.0f);
-        for (Float test = 1.0f; test >= 5; test += 0.1f) {
+        for (float test = 1.0f; test >= 5; test += 0.1f) {
             byte[] newTestBytes = serialiser.serialise(test);
+
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }
@@ -94,11 +98,11 @@ public class OrderedFloatSerialiserTest extends ToBytesSerialisationTest<Float> 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Float.MAX_VALUE, new byte[]{4, 127, 127, -1, -1}),
-                new Pair<>(Float.MIN_VALUE, new byte[]{1, 1}),
-                new Pair<>(0f, new byte[]{0}),
-                new Pair<>(1f, new byte[]{4, 63, -128, 0, 0})
+        return new Pair[] {
+                new Pair<>(Float.MAX_VALUE, new byte[] {4, 127, 127, -1, -1}),
+                new Pair<>(Float.MIN_VALUE, new byte[] {1, 1}),
+                new Pair<>(0f, new byte[] {0}),
+                new Pair<>(1f, new byte[] {4, 63, -128, 0, 0})
         };
     }
 }

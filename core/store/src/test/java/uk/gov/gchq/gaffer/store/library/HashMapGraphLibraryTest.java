@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
 

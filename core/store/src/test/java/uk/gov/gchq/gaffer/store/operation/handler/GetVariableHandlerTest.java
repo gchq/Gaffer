@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetVariable;
@@ -24,14 +24,14 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetVariableHandlerTest {
+
     private final String varName = "varName";
     private final String varVal = "varVal";
     private final Store store = mock(Store.class);
@@ -69,19 +69,15 @@ public class GetVariableHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenVariableKeyIsNull() throws OperationException {
+    public void shouldThrowExceptionWhenVariableKeyIsNull() {
         // Given
         final Context context = mock(Context.class);
         final GetVariableHandler handler = new GetVariableHandler();
         final GetVariable op = new GetVariable.Builder().variableName(null).build();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Variable name cannot be null"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.doOperation(op, context, store));
+        assertEquals("Variable name cannot be null", exception.getMessage());
     }
 
     @Test

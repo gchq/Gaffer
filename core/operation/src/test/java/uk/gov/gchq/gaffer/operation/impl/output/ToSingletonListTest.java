@@ -16,14 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ToSingletonListTest extends OperationTest<ToSingletonList> {
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -35,6 +38,7 @@ public class ToSingletonListTest extends OperationTest<ToSingletonList> {
         assertTrue(operation.getInput().equals(1));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

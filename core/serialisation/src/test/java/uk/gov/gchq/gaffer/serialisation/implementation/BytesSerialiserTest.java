@@ -15,62 +15,54 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
 
     @Test
-    public void cantSerialiseLongClass() throws SerialisationException {
+    public void cantSerialiseLongClass() {
         assertFalse(serialiser.canHandle(Long.class));
     }
 
     @Test
-    public void canSerialiseByteArrayClass() throws SerialisationException {
+    public void canSerialiseByteArrayClass() {
         assertTrue(serialiser.canHandle(byte[].class));
     }
 
     @Test
     public void shouldSerialiseBytesByJustReturningTheProvidedBytes() throws SerialisationException {
-        // Given
         final byte[] bytes = {0, 1};
 
-        // When
         final byte[] serialisedBytes = serialiser.serialise(bytes);
 
-        // Then
         assertSame(bytes, serialisedBytes);
     }
 
     @Test
-    public void shouldDeerialiseBytesByJustReturningTheProvidedBytes() throws SerialisationException {
-        // Given
+    public void shouldDeserialiseBytesByJustReturningTheProvidedBytes() throws SerialisationException {
         final byte[] bytes = {0, 1};
 
-        // When
         final byte[] deserialisedBytes = serialiser.deserialise(bytes);
 
-        // Then
         assertSame(bytes, deserialisedBytes);
     }
 
     @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
-        // When
         final byte[] value = serialiser.deserialiseEmpty();
 
-        // Then
         assertEquals(0, value.length);
     }
 
@@ -82,11 +74,11 @@ public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<byte[], byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair(new byte[]{1, 2, 3, 4, 5, 6}, new byte[]{1, 2, 3, 4, 5, 6}),
-                new Pair(new byte[]{12, 31, 43}, new byte[]{12, 31, 43}),
-                new Pair(new byte[]{}, new byte[]{}),
-                new Pair(new byte[]{122, -111, -33}, new byte[]{122, -111, -33})
+        return new Pair[] {
+                new Pair<>(new byte[] {1, 2, 3, 4, 5, 6}, new byte[] {1, 2, 3, 4, 5, 6}),
+                new Pair<>(new byte[] {12, 31, 43}, new byte[] {12, 31, 43}),
+                new Pair<>(new byte[] {}, new byte[] {}),
+                new Pair<>(new byte[] {122, -111, -33}, new byte[] {122, -111, -33})
         };
     }
 

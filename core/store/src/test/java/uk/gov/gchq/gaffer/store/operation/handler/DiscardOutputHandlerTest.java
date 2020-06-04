@@ -15,15 +15,13 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.store.Context;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -41,6 +39,6 @@ public class DiscardOutputHandlerTest {
         final Void results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertThat(results, is(nullValue()));
+        assertNull(results);
     }
 }

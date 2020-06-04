@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -26,6 +28,7 @@ import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
+import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -40,6 +43,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHand
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphIdHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
@@ -79,12 +83,19 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
@@ -102,9 +113,21 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * @see Graph
  */
 public class FederatedStore extends Store {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
+    private static final List<Integer> ALL_IDS = new ArrayList<>();
+    private final int id;
+
+    public FederatedStore() {
+        Integer i = null;
+        while (isNull(i) || ALL_IDS.contains(i)) {
+            i = new Random().nextInt();
+        }
+        ALL_IDS.add(id = i);
+    }
 
     /**
      * Initialise this FederatedStore with any sub-graphs defined within the
@@ -328,16 +351,45 @@ public class FederatedStore extends Store {
      * given csv of graphIds, with visibility of the given user.
      * </p>
      * <p>
+     * Graphs are returned once per operation, this does not allow an infinite loop of FederatedStores to occur.
+     * </p>
+     * <p>
      * if graphIdsCsv is null then all graph objects within FederatedStore
      * scope are returned.
      * </p>
      *
      * @param user        the users scope to get graphs for.
      * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
+     * @param operation   the requesting operation, graphs are returned only once per operation.
      * @return the graph collection.
      */
-    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv) {
-        return graphStorage.get(user, getCleanStrings(graphIdsCsv));
+    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final Operation operation) {
+        Collection<Graph> rtn = new ArrayList<>();
+        if (nonNull(operation)) {
+            String optionKey = FEDERATED_STORE_PROCESSED + id;
+            boolean isIdFound = !operation.getOption(optionKey, "").isEmpty();
+            if (!isIdFound) {
+                HashMap<String, String> updatedOptions = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
+                updatedOptions.put(optionKey, getGraphId());
+                operation.setOptions(updatedOptions);
+                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
+            } else {
+                List<String> federatedStoreGraphIds = operation.getOptions()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getKey().startsWith(FEDERATED_STORE_PROCESSED))
+                        .map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
+
+                String ln = System.lineSeparator();
+                LOGGER.error("This operation has already been processed by this FederatedStore. " +
+                        "This is a symptom of an infinite loop of FederatedStores and Proxies.{}" +
+                        "This FederatedStore: {}{}" +
+                        "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreGraphIds.toString());
+            }
+        }
+
+        return rtn;
     }
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {
@@ -395,6 +447,7 @@ public class FederatedStore extends Store {
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
+        addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
     }
 
     @Override
@@ -446,9 +499,15 @@ public class FederatedStore extends Store {
         graphStorage.put(newGraph, access);
     }
 
-    public boolean changeGraphAccess(final User requestingUser, final String graphId, final Set<String> requestingUserOpAuths, final FederatedAccess federatedAccess, final boolean isAdmin) throws StorageException {
-        return isAdmin && isValidatedAsAdmin(requestingUserOpAuths)
+    public boolean changeGraphAccess(final User requestingUser, final String graphId, final FederatedAccess federatedAccess, final boolean isAdmin) throws StorageException {
+        return isAdmin && isValidatedAsAdmin(requestingUser.getOpAuths())
                 ? graphStorage.changeGraphAccessAsAdmin(graphId, federatedAccess)
                 : graphStorage.changeGraphAccess(graphId, federatedAccess, requestingUser);
+    }
+
+    public boolean changeGraphId(final User requestingUser, final String graphId, final String newGraphId, final boolean isAdmin) throws StorageException {
+        return isAdmin && isValidatedAsAdmin(requestingUser.getOpAuths())
+                ? graphStorage.changeGraphIdAsAdmin(graphId, newGraphId)
+                : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);
     }
 }

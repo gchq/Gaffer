@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -42,9 +42,9 @@ import uk.gov.gchq.koryphe.impl.predicate.Or;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ViewValidatorTest {
 
@@ -265,7 +265,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test
@@ -705,7 +705,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test
@@ -771,7 +771,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test
@@ -837,7 +837,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test

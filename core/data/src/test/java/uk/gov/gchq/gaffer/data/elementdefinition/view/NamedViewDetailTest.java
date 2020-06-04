@@ -16,16 +16,18 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
+
 public class NamedViewDetailTest {
+
     @Test
     public void shouldJsonSerialise() throws SerialisationException {
         // Given
@@ -50,7 +52,7 @@ public class NamedViewDetailTest {
         final byte[] json = JSONSerialiser.serialise(namedViewDetail, true);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"name\" : \"view1\",%n" +
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +
@@ -64,6 +66,7 @@ public class NamedViewDetailTest {
                 "    }%n" +
                 "  },%n" +
                 "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\"%n" +
-                "}"), new String(json));
+                "}");
+        assertEquals(expected, new String(json));
     }
 }

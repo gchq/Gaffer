@@ -17,18 +17,19 @@
 package uk.gov.gchq.gaffer.data.generator;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class OneToManyElementGeneratorTest {
+
     private Element elm1a;
     private Element elm1b;
     private Element elm2a;
@@ -37,7 +38,7 @@ public class OneToManyElementGeneratorTest {
     private final String obj1 = "object 1";
     private final String obj2 = "object 2";
 
-    @Before
+    @BeforeEach
     public void setup() {
         elm1a = mock(Element.class);
         elm1b = mock(Element.class);
@@ -47,14 +48,11 @@ public class OneToManyElementGeneratorTest {
 
     @Test
     public void getElementsWithIterableObjectsShouldReturnGeneratedElementTransformIterable() {
-        // Given
         final OneToManyElementGenerator<String> generator = new OneToManyElementGeneratorImpl();
 
-        // When
         final TransformOneToManyIterable<String, Element> result =
                 (TransformOneToManyIterable<String, Element>) generator.apply(Arrays.asList(obj1, obj2));
 
-        // Then
         assertEquals(Arrays.asList(elm1a, elm1b, elm2a, elm2b), Lists.newArrayList(result));
     }
 

@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
@@ -94,11 +94,11 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{8}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{0}),
-                new Pair<>(0, new byte[]{4, -128, 0, 0, 0}),
-                new Pair<>(1, new byte[]{4, -128, 0, 0, 1}),
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {8}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {0}),
+                new Pair<>(0, new byte[] {4, -128, 0, 0, 0}),
+                new Pair<>(1, new byte[] {4, -128, 0, 0, 1}),
         };
     }
 }

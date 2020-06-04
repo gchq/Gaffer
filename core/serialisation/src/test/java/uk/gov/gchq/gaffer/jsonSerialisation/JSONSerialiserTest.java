@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -42,16 +42,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class JSONSerialiserTest {
 
@@ -65,14 +66,14 @@ public class JSONSerialiserTest {
         SimpleTestObject simpleTestObject = new SimpleTestObject();
         simpleTestObject.setX("Test");
 
-        this.historicSerialisationPairs = new Pair[]{
-                new Pair(simpleTestObject, new byte[]{123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 125}),
-                new Pair(paramTest, new byte[]{123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 44, 34, 107, 34, 58, 50, 125})
+        this.historicSerialisationPairs = new Pair[] {
+                new Pair(simpleTestObject, new byte[] {123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 125}),
+                new Pair(paramTest, new byte[] {123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 44, 34, 107, 34, 58, 50, 125})
         };
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -81,55 +82,65 @@ public class JSONSerialiserTest {
 
     @Test
     public void testPrimitiveSerialisation() throws IOException {
-        byte[] b = JSONSerialiser.serialise(2);
-        Object o = JSONSerialiser.deserialise(b, Object.class);
+        final byte[] b = JSONSerialiser.serialise(2);
+
+        final Object o = JSONSerialiser.deserialise(b, Object.class);
+
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
 
     @Test
-    public void canHandleUnParameterisedDAO() throws SerialisationException {
+    public void canHandleUnParameterisedDAO() {
         assertTrue(JSONSerialiser.canHandle(SimpleTestObject.class));
     }
 
     @Test
     public void testDAOSerialisation() throws SerialisationException {
-        SimpleTestObject test = new SimpleTestObject();
+        final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        byte[] b = JSONSerialiser.serialise(test);
-        Object o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
+        final byte[] b = JSONSerialiser.serialise(test);
+
+        final Object o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
+
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", ((SimpleTestObject) o).getX());
     }
 
     @Test
     public void shouldNotPrettyPrintByDefaultWhenSerialising() throws SerialisationException {
-        SimpleTestObject test = new SimpleTestObject();
+        final SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
-        byte[] bytes = JSONSerialiser.serialise(test);
+
+        final byte[] bytes = JSONSerialiser.serialise(test);
+
         assertEquals("{\"x\":\"TestValue1\"}", new String(bytes));
     }
 
     @Test
     public void shouldPrettyPrintWhenSerialisingAndSetToPrettyPrint() throws SerialisationException {
-        SimpleTestObject test = new SimpleTestObject();
+        final SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
-        byte[] bytes = JSONSerialiser.serialise(test, true);
+
+        final byte[] bytes = JSONSerialiser.serialise(test, true);
+
         JsonAssert.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
     @Test
-    public void canHandleParameterisedDAO() throws SerialisationException {
+    public void canHandleParameterisedDAO() {
         assertTrue(JSONSerialiser.canHandle(ParameterisedTestObject.class));
     }
 
     @Test
     public void testParameterisedDAOSerialisation() throws SerialisationException {
-        ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
+        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
-        byte[] b = JSONSerialiser.serialise(test);
-        Object o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
+        final byte[] b = JSONSerialiser.serialise(test);
+
+        final Object o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
+
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", ((ParameterisedTestObject) o).getX());
         assertEquals(Integer.class, ((ParameterisedTestObject) o).getK().getClass());
@@ -138,33 +149,39 @@ public class JSONSerialiserTest {
 
     @Test
     public void testParameterisedDAOTypeRefDeserialisation() throws SerialisationException {
-        ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
+        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
-        byte[] b = JSONSerialiser.serialise(test);
+        final byte[] b = JSONSerialiser.serialise(test);
+
         ParameterisedTestObject<Integer> o = JSONSerialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {
         });
+
         assertEquals("Test", o.getX());
         assertEquals(Integer.valueOf(2), o.getK());
     }
 
     @Test
     public void testParameterisedDeserialisationOfComplexObject() throws SerialisationException {
-        SimpleTestObject test = new SimpleTestObject();
+        final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        byte[] b = JSONSerialiser.serialise(test);
-        SimpleTestObject o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
+        final byte[] b = JSONSerialiser.serialise(test);
+
+        final SimpleTestObject o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
+
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", o.getX());
     }
 
     @Test
     public void testParameterisedDeserialisationOfParameterisedComplexObject() throws SerialisationException {
-        ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
+        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
         byte[] b = JSONSerialiser.serialise(test);
-        ParameterisedTestObject o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
+
+        final ParameterisedTestObject o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
+
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", o.getX());
         assertEquals(Integer.class, o.getK().getClass());
@@ -172,41 +189,38 @@ public class JSONSerialiserTest {
     }
 
 
-    @Test(expected = SerialisationException.class)
+    @Test
     public void testParameterisedDeserialisationOfComplexObjectToIncorrectType() throws SerialisationException {
-        SimpleTestObject test = new SimpleTestObject();
+        final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        byte[] b = JSONSerialiser.serialise(test);
-        JSONSerialiser.deserialise(b, Integer.class);
+
+        final byte[] b = JSONSerialiser.serialise(test);
+
+        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(b, Integer.class));
     }
 
     @Test
     public void shouldSerialiseObjectWithoutFieldX() throws Exception {
-        // Given
         final SimpleTestObject obj = new SimpleTestObject();
 
-        // When
         final String json = new String(JSONSerialiser.serialise(obj, "x"), CommonConstants.UTF_8);
 
-        // Then
         assertFalse(json.contains("x"));
     }
 
     @Test
     public void shouldSerialiseObjectWithFieldX() throws Exception {
-        // Given
         final SimpleTestObject obj = new SimpleTestObject();
 
-        // When
         final String json = new String(JSONSerialiser.serialise(obj), CommonConstants.UTF_8);
 
-        // Then
         assertTrue(json.contains("x"));
     }
 
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
         assertNotNull(historicSerialisationPairs);
+
         for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
             serialiseFirst(pair);
             deserialiseSecond(pair);
@@ -214,50 +228,42 @@ public class JSONSerialiserTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenUpdateInstanceWithInvalidClassName() throws Exception {
-        // Given
+    public void shouldThrowExceptionWhenUpdateInstanceWithInvalidClassName() {
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, "invalidClassName");
 
-        // When / Then
-        try {
-            JSONSerialiser.update();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("invalidClassName"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> JSONSerialiser.update());
+        final String expected = "Property gaffer.serialiser.json.class must be set to a class that is a sub class of " +
+                "uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser. This class is not valid: invalidClassName";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionWhenUpdateInstanceWithInvalidModuleClass() throws Exception {
+    public void shouldThrowExceptionWhenUpdateInstanceWithInvalidModuleClass() {
         // Given
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, "module1");
 
         // When / Then
-        try {
-            JSONSerialiser.update();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("module1"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> JSONSerialiser.update());
+        final String expected = "Property gaffer.serialiser.json.modules must be set to a csv of classes that are a sub " +
+                "class of uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules. These classes are not valid: module1";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
-    public void shouldThrowExceptionWhenUpdateInstanceWithInvalidModulesValue() throws Exception {
+    public void shouldThrowExceptionWhenUpdateInstanceWithInvalidModulesValue() {
         // Given
         final String invalidValue = TestCustomJsonModules1.class.getName() + "-" + TestCustomJsonModules2.class.getName();
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, invalidValue);
 
-        // When / Then
-        try {
-            JSONSerialiser.update();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(invalidValue));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> JSONSerialiser.update());
+        final String expected = "Property gaffer.serialiser.json.modules must be set to a csv of classes that are a sub " +
+                "class of uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules. These classes are not valid: " +
+                "uk.gov.gchq.gaffer.jsonSerialisation.JSONSerialiserTest$TestCustomJsonModules1-uk.gov.gchq.gaffer.jsonSerialisation.JSONSerialiserTest$TestCustomJsonModules2";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
-    public void shouldUpdateInstanceWithCustomSerialiser() throws Exception {
+    public void shouldUpdateInstanceWithCustomSerialiser() {
         // Given
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
@@ -290,7 +296,7 @@ public class JSONSerialiserTest {
     }
 
     @Test
-    public void shouldUpdateInstanceWithCustomProperties() throws Exception {
+    public void shouldUpdateInstanceWithCustomProperties() {
         // Given
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
@@ -317,7 +323,7 @@ public class JSONSerialiserTest {
     }
 
     @Test
-    public void shouldUpdateInstanceTwiceWithCustomProperties() throws Exception {
+    public void shouldUpdateInstanceTwiceWithCustomProperties() {
         // Given
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         TestCustomJsonSerialiser2.mapper = mock(ObjectMapper.class);
@@ -369,12 +375,12 @@ public class JSONSerialiserTest {
         JSONSerialiser.update(null, null, true);
 
         // When / Then
-        try {
-            JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class);
-            fail("Exception expected");
-        } catch (final SerialisationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Unrecognized field \"unknown\""));
-        }
+        final Exception exception = assertThrows(SerialisationException.class, () ->
+                JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class));
+        final String expected = "Unrecognized field \"unknown\" (class uk.gov.gchq.gaffer.jsonSerialisation.JSONSerialiserTest$TestPojo), " +
+                "not marked as ignorable (one known property: \"field\"])\n" +
+                " at [Source: {\"field\": \"value\", \"unknown\": \"otherValue\"};";
+        assertTrue(exception.getMessage().contains(expected));
     }
 
     protected void deserialiseSecond(final Pair<Object, byte[]> pair) throws SerialisationException {

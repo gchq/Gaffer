@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
@@ -46,10 +45,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class TransformHandlerTest {
     private List<Element> input;
@@ -59,7 +60,7 @@ public class TransformHandlerTest {
     private TransformHandler handler;
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         input = new ArrayList<>();
         expected = new ArrayList<>();
@@ -355,12 +356,10 @@ public class TransformHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Entity group: " + TestGroups.ENTITY + " does not exist in the schema."));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(transform, context, store));
+        final String expected = "Transform operation is invalid. Validation errors: \n" +
+                "Entity group: BasicEntity does not exist in the schema.";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -394,12 +393,10 @@ public class TransformHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains(transformer.getClass().getSimpleName() + " contains a null function."));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(transform, context, store));
+        final String expected = "Transform operation is invalid. Validation errors: \n" +
+                "ElementTransformer contains a null function.";
+        assertEquals(expected, exception.getMessage());
     }
 
     @Test
@@ -439,12 +436,9 @@ public class TransformHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Incompatible number of types"));
-        }
+        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(transform, context, store));
+        assertTrue(exception.getMessage().contains("Transform operation is invalid. Validation errors: \n" +
+                "Incompatible number of types. class uk.gov.gchq.koryphe.impl.function.Divide: "));
     }
 
     @Test
@@ -479,7 +473,7 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(TestPropertyNames.PROP_3, "srcVal")
                 .build();
-        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+        assertElementEquals(Collections.singletonList(expectedEdge), results);
     }
 
     @Test
@@ -514,6 +508,6 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property(TestPropertyNames.PROP_3, "destVal")
                 .build();
-        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+        assertElementEquals(Collections.singletonList(expectedEdge), results);
     }
 }
