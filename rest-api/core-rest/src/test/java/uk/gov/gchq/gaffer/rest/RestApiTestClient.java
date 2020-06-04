@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,12 +73,6 @@ public abstract class RestApiTestClient {
     public boolean isRunning() {
         return null != server;
     }
-
-/*
-    public void reinitialiseGraph() throws IOException {
-        reinitialiseGraph(StreamUtil.SCHEMA, StreamUtil.STORE_PROPERTIES);
-    }
-*/
 
     public void reinitialiseGraph(final File testFolder, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
         reinitialiseGraph(testFolder,

@@ -17,11 +17,12 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public abstract class DisableOperationsTest {
     @TempDir
     public File tempFolder;
@@ -43,6 +43,10 @@ public abstract class DisableOperationsTest {
     protected File storePropsPath;
     protected File schemaPath;
 
+    static String originalGraphConfigPath;
+    static String originalStorePropsPath;
+    static String originalSchemaPath;
+
     public DisableOperationsTest() throws IOException {
         this(AddElementsFromFile.class);
     }
@@ -50,6 +54,18 @@ public abstract class DisableOperationsTest {
     @SafeVarargs
     protected DisableOperationsTest(final Class<? extends Operation>... disabledOperations) throws IOException {
         this.disabledOperations = disabledOperations;
+    }
+
+    @BeforeAll
+    static public void beforeAll() {
+        originalGraphConfigPath = System.getProperty(SystemProperty.GRAPH_CONFIG_PATH);
+        originalSchemaPath = System.getProperty(SystemProperty.SCHEMA_PATHS);
+        originalStorePropsPath = System.getProperty(SystemProperty.STORE_PROPERTIES_PATH);
+    }
+
+    @AfterAll
+    static public void afterAll() {
+        setSystemPaths(originalStorePropsPath, originalGraphConfigPath, originalSchemaPath);
     }
 
     @BeforeEach
@@ -65,9 +81,7 @@ public abstract class DisableOperationsTest {
     @Test
     public void shouldDisableOperationsUsingOperationDeclarations() {
         // Given
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
-        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
-        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
+        setSystemPaths(storePropsPath.getAbsolutePath(), graphConfigPath.getAbsolutePath(), schemaPath.getAbsolutePath());
         final DefaultGraphFactory factory = new DefaultGraphFactory();
 
         // When
@@ -82,9 +96,7 @@ public abstract class DisableOperationsTest {
     @Test
     public void shouldNotDisableOperationsWhenNotUsingRestApi() {
         // Given
-        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
-        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
+        setSystemPaths(storePropsPath.getAbsolutePath(), graphConfigPath.getAbsolutePath(), schemaPath.getAbsolutePath());
 
         // When
         final Graph graph = new Graph.Builder()
@@ -96,6 +108,37 @@ public abstract class DisableOperationsTest {
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
             assertTrue(graph.isSupported(disabledOperation), disabledOperation.getSimpleName() + " should be supported");
+        }
+    }
+
+    /**
+     * Helper method to store the System Properties.
+     *
+     * @param storeProps
+     * @param graphConfig
+     * @param schema
+     */
+    private static void setSystemPaths(final String storeProps, final String graphConfig, final String schema) {
+
+        if (null == storeProps || storeProps.isEmpty()) {
+            System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
+        } else {
+
+            System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storeProps);
+        }
+
+        if (null == graphConfig || graphConfig.isEmpty()) {
+            System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
+        } else {
+
+            System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfig);
+        }
+
+        if (null == schema || schema.isEmpty()) {
+            System.clearProperty(SystemProperty.SCHEMA_PATHS);
+        } else {
+
+            System.setProperty(SystemProperty.SCHEMA_PATHS, schema);
         }
     }
 }
