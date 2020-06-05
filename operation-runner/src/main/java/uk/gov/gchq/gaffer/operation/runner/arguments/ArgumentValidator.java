@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.operation.runner.argument.converter;
+package uk.gov.gchq.gaffer.operation.runner.arguments;
 
-import com.beust.jcommander.IStringConverter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import uk.gov.gchq.gaffer.user.User;
-
-public class UserConverter implements IStringConverter<User> {
-    private final ArgumentConverter argumentConverter;
-
-    public UserConverter() {
-        this.argumentConverter = new ArgumentConverter();
+public class ArgumentValidator {
+    public boolean isValidFile(final String pathArgument) {
+        return Files.isRegularFile(Paths.get(pathArgument));
     }
 
-    UserConverter(final ArgumentConverter argumentConverter) {
-        this.argumentConverter = argumentConverter;
+    public boolean isValidDirectory(final String pathArgument) {
+        return Files.isDirectory(Paths.get(pathArgument));
     }
 
-    @Override
-    public User convert(final String value) {
-        return argumentConverter.convert(value, User.class);
+    public boolean isValidFileOrDirectory(final String pathArgument) {
+        return isValidFile(pathArgument) || isValidDirectory(pathArgument);
     }
 }

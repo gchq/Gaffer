@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
@@ -208,6 +209,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         try {
             /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
             final String[] args = context.getCommandLineArgs();
+            System.out.println("AddElementsFromHdfsHandler args....... " + Arrays.deepToString(args));
             final Configuration configuration = new GenericOptionsParser(args).getConfiguration();
             final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(configuration), operation, store);
             LOGGER.info("Running FetchElementsFromHdfsTool job");

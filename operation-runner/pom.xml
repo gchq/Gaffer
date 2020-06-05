@@ -12,19 +12,11 @@
     <artifactId>operation-runner</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>${jcommander.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>

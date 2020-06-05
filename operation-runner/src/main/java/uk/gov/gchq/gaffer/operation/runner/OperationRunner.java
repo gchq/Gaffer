@@ -15,75 +15,134 @@
  */
 package uk.gov.gchq.gaffer.operation.runner;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.internal.Console;
-
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.runner.argument.converter.OperationChainConverter;
-import uk.gov.gchq.gaffer.operation.runner.argument.converter.UserConverter;
-import uk.gov.gchq.gaffer.operation.runner.argument.validator.IsFileOrDirectoryValidator;
-import uk.gov.gchq.gaffer.operation.runner.argument.validator.IsFileValidator;
+import uk.gov.gchq.gaffer.operation.runner.arguments.ArgumentParser;
+import uk.gov.gchq.gaffer.operation.runner.arguments.ArgumentValidator;
+import uk.gov.gchq.gaffer.operation.runner.arguments.Arguments;
+import uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.stream.Stream;
 
-import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.MANDATORY;
+import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.OPTIONAL;
 import static uk.gov.gchq.gaffer.store.Context.COMMAND_LINE_ARGS_CONFIG_KEY;
 
 public class OperationRunner {
-    @Parameter(names = "--help", description = "Display usage.", help = true)
-    private boolean help;
-
-    @Parameter(names = {"--op", "--operation-chain"}, description = "Path to the JSON serialised Operation to execute.", required = true, converter = OperationChainConverter.class, validateWith = IsFileValidator.class)
-    private OperationChain operationChain;
-
-    @Parameter(names = {"--sp", "--store-properties"}, description = "Path to the store properties.", required = true, validateWith = IsFileValidator.class)
-    private String storeProperties;
-
-    @Parameter(names = {"--schema", "--schema-path"}, description = "Path to the schema definition.", required = true, validateWith = IsFileOrDirectoryValidator.class)
+    private final ArgumentValidator argumentValidator = new ArgumentValidator();
+    private final ArgumentParser argumentParser = new ArgumentParser();
     private String schemaPath;
-
-    @Parameter(names = {"--u", "--user"}, description = "Path to the JSON serialised User to execute the Operation as.", converter = UserConverter.class, validateWith = IsFileValidator.class)
-    private User user = new User();
-
-    @Parameter(names = {"--g", "--graph-id"}, description = "GraphId", required = true)
+    private String storePropertiesPath;
     private String graphId;
-
-    private static String[] args;
+    private OperationChain operationChain;
+    private Context context;
 
     public static void main(final String[] args) {
-        OperationRunner.args = args;
         run(new OperationRunner(), args);
     }
 
     static void run(final OperationRunner operationRunner, final String[] args) {
-        final JCommander jcommander = new JCommander();
-        jcommander.addObject(operationRunner);
-        jcommander.setProgramName(OperationRunner.class.getName());
-        jcommander.setAcceptUnknownOptions(true);
+
+        final ArgumentValidator argumentValidator = operationRunner.argumentValidator;
+        final ArgumentParser argumentParser = operationRunner.argumentParser;
+
+        final Argument<OperationChain> operationChainArgument = new Argument<>(
+                MANDATORY,
+                new String[]{"--operation-chain"},
+                argumentValidator::isValidFile,
+                argumentParser::parseOperationChain,
+                "Path to file containing JSON serialised Operation.");
+
+        final Argument<String> storePropertiesArgument = new Argument<>(
+                MANDATORY,
+                new String[]{"--store-properties"},
+                argumentValidator::isValidFile,
+                identity(),
+                "Path to file containing store properties.");
+
+        final Argument<String> schemaPathArgument = new Argument<>(
+                MANDATORY,
+                new String[]{"--schema", "--schema-path"},
+                argumentValidator::isValidFileOrDirectory,
+                identity(),
+                "Path to file or parent directory containing graph schema.");
+
+        final Argument<User> userArgument = new Argument<>(
+                OPTIONAL,
+                new String[]{"--user"},
+                argumentValidator::isValidFile,
+                argumentParser::parseUser,
+                "Path to file containing JSON serialised User");
+
+        final Argument<String> graphIdArgument = new Argument<>(
+                MANDATORY,
+                new String[]{"--graph-id"},
+                string -> true,
+                identity(),
+                "The graph Id.");
+
+        final Argument[] argumentDefinitions = new Argument[]{
+                operationChainArgument, storePropertiesArgument, schemaPathArgument, userArgument, graphIdArgument
+        };
+        final Arguments arguments = new Arguments(argumentDefinitions);
 
         try {
-            jcommander.parse(args);
-            if (operationRunner.help) {
-                jcommander.usage();
-            } else {
-                display(operationRunner.run(), jcommander.getConsole());
+            final Map<Argument, Object> parsedArguments = arguments.parse(args);
+
+            operationRunner.schemaPath = (String) parsedArguments.get(schemaPathArgument);
+            operationRunner.storePropertiesPath = (String) parsedArguments.get(storePropertiesArgument);
+            operationRunner.graphId = (String) parsedArguments.get(graphIdArgument);
+            operationRunner.operationChain = (OperationChain) parsedArguments.get(operationChainArgument);
+
+            final User user = (parsedArguments.containsKey(userArgument))
+                    ? (User) parsedArguments.get(userArgument)
+                    : new User();
+
+            final Context context = new Context(user);
+            context.setConfig(COMMAND_LINE_ARGS_CONFIG_KEY, stripRedundantArgs(args));
+            operationRunner.context = context;
+
+            display(operationRunner.run());
+
+        } catch (final IllegalArgumentException e) {
+            System.out.println(arguments.toDisplayString());
+
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String[] stripRedundantArgs(final String[] args) {
+        return Stream.of(args).filter(OperationRunner::isRequiredArg).collect(toList()).toArray(new String[]{});
+    }
+
+    private static boolean isRequiredArg(final String arg) {
+        return !OperationRunner.class.getName().equals(arg);
+    }
+
+    private static void display(final Object result) {
+        if (result instanceof Iterable) {
+            System.out.println("Results:");
+            for (final Object value : (Iterable) result) {
+                System.out.println(value);
             }
-        } catch (final Exception exception) {
-            jcommander.getConsole().println(format("Unable to process request, received exception: %s", exception.getMessage()));
-            jcommander.usage();
-            exception.printStackTrace();
+        } else {
+            System.out.println("Result:");
+            System.out.println(result);
         }
     }
 
     private Object run() throws OperationException {
         final Graph.Builder graphBuilder = createGraphBuilder()
-                .storeProperties(storeProperties)
+                .storeProperties(storePropertiesPath)
                 .addSchemas(Paths.get(schemaPath))
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)
@@ -91,37 +150,19 @@ public class OperationRunner {
         return execute(graphBuilder);
     }
 
+    protected Object execute(final Graph.Builder graphBuilder) throws OperationException {
+        return graphBuilder.build().execute(operationChain, context);
+    }
+
     protected Graph.Builder createGraphBuilder() {
         return new Graph.Builder();
     }
 
-    protected Object execute(final Graph.Builder graphBuilder) throws OperationException {
-        final Context context = new Context(user);
-        context.setConfig(COMMAND_LINE_ARGS_CONFIG_KEY, args);
-        return graphBuilder.build().execute(operationChain, context);
-    }
-
-    private static void display(final Object result, final Console console) {
-        if (result instanceof Iterable) {
-            console.println("Results:");
-            for (final Object value : (Iterable) result) {
-                console.println(toString(value));
-            }
-        } else {
-            console.println("Result:");
-            console.println(toString(result));
-        }
-    }
-
-    private static String toString(final Object object) {
-        return object == null ? null : object.toString();
-    }
-
-    User getUser() {
-        return user;
-    }
-
     OperationChain getOperationChain() {
         return operationChain;
+    }
+
+    Context getContext() {
+        return context;
     }
 }

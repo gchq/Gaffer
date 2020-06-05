@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -33,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.store.Context.COMMAND_LINE_ARGS_CONFIG_KEY;
 
 public class ContextTest {
     @Test
@@ -204,5 +206,36 @@ public class ContextTest {
         assertFalse(context.getVariables().isEmpty());
         assertEquals(context.getVariable("testVar"), "testVarVal");
         assertEquals(context.getVariable("testVar2"), "testVarVal2");
+    }
+
+    @Test
+    public void shouldReturnCommandLineArgsWhenPresent() {
+        final User user = new User("user");
+        final String[] args = new String[]{"-a", "b", "c"};
+        final Context context = new Context.Builder()
+                .user(user)
+                .config(COMMAND_LINE_ARGS_CONFIG_KEY, args)
+                .build();
+        assertArrayEquals(args, context.getCommandLineArgs());
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayWhenNoCommandLineArgs() {
+        final User user = new User("user");
+        final Context context = new Context.Builder()
+                .user(user)
+                .build();
+        assertArrayEquals(new String[0], context.getCommandLineArgs());
+    }
+
+    @Test
+    public void shouldReturnEmptyArrayWhenCommandLineArgsNotStringArray() {
+        final User user = new User("user");
+        final Object args = new Object();
+        final Context context = new Context.Builder()
+                .user(user)
+                .config(COMMAND_LINE_ARGS_CONFIG_KEY, args)
+                .build();
+        assertArrayEquals(new String[0], context.getCommandLineArgs());
     }
 }

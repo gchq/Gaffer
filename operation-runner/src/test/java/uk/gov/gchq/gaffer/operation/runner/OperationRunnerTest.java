@@ -43,7 +43,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class OperationRunnerTest {
@@ -101,7 +100,7 @@ public class OperationRunnerTest {
                 "--store-properties", storePropertiesPath,
                 "--schema", schemaPath,
                 "--user", userPath,
-                graphId
+                "--graph-id", graphId
         };
 
         OperationRunner.run(operationRunner, args);
@@ -109,6 +108,7 @@ public class OperationRunnerTest {
         checkGraphBuilderCreation();
         checkExpectedUser(user);
         checkExpectedOperation();
+        checkExpectedArgs(args);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class OperationRunnerTest {
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
                 "--schema", schemaPath,
-                graphId
+                "--graph-id", graphId
         };
 
         OperationRunner.run(operationRunner, args);
@@ -125,21 +125,28 @@ public class OperationRunnerTest {
         checkGraphBuilderCreation();
         checkExpectedUser(unknownUser);
         checkExpectedOperation();
+        checkExpectedArgs(args);
     }
 
     @Test
-    public void shouldNotRunOperationWhenHelpSpecified() {
-        final String[] args = new String[]{
-                "--help",
+    public void shouldStripRedundantArgs() throws SerialisationException {
+        final String[] expectedArgs = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
                 "--schema", schemaPath,
-                graphId
+                "--graph-id", graphId
         };
+
+        final String[] args = new String[expectedArgs.length + 1];
+        args[0] = OperationRunner.class.getName();
+        System.arraycopy(expectedArgs, 0, args, 1, expectedArgs.length);
 
         OperationRunner.run(operationRunner, args);
 
-        verifyZeroInteractions(graphBuilder);
+        checkGraphBuilderCreation();
+        checkExpectedUser(unknownUser);
+        checkExpectedOperation();
+        checkExpectedArgs(expectedArgs);
     }
 
     private class TestOperationRunner extends OperationRunner {
@@ -180,6 +187,10 @@ public class OperationRunnerTest {
     }
 
     private void checkExpectedUser(final User user) {
-        assertEquals(user, operationRunner.getUser());
+        assertEquals(user, operationRunner.getContext().getUser());
+    }
+
+    private void checkExpectedArgs(final String[] expectedArgs) {
+        assertArrayEquals(expectedArgs, operationRunner.getContext().getCommandLineArgs());
     }
 }
