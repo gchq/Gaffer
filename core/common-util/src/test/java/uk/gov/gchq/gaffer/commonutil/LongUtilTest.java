@@ -16,28 +16,26 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LongUtilTest {
+
     @Test
     public void shouldGetDifferentPositiveTimeBasedRandoms() {
-        // Given
-        int n = 1000;
+        final int n = 1000;
 
-        // When
         final Set<Long> timestamps = new HashSet<>(n);
         for (int i = 0; i < n; i++) {
             timestamps.add(LongUtil.getTimeBasedRandom());
         }
 
-        // Then
-        assertEquals(n, timestamps.size());
-        timestamps.forEach(t -> assertTrue("random number was negative " + t, t >= 0L));
+        assertEquals(1000, timestamps.size());
+        timestamps.forEach(t -> assertTrue(t >= 0L, "random number was negative " + t));
     }
 }

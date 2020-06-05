@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.data.element;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -31,20 +31,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EdgeTest extends ElementTest {
 
     @Override
     public void shouldSetAndGetFields() {
-        // Given
         final Edge edge = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -52,7 +51,6 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        // When/Then
         assertEquals("group", edge.getGroup());
         assertEquals("source vertex", edge.getSource());
         assertEquals("destination vertex", edge.getDestination());
@@ -61,7 +59,6 @@ public class EdgeTest extends ElementTest {
 
     @Test
     public void shouldSetAndGetIdentifiersWithMatchedSource() {
-        // Given
         final Edge edge = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -70,7 +67,6 @@ public class EdgeTest extends ElementTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build();
 
-        // When/Then
         assertEquals("source vertex", edge.getMatchedVertexValue());
         assertEquals("source vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
         assertEquals("destination vertex", edge.getAdjacentMatchedVertexValue());
@@ -80,7 +76,6 @@ public class EdgeTest extends ElementTest {
 
     @Test
     public void shouldSetAndGetIdentifiersWithMatchedDestination() {
-        // Given
         final Edge edge = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -89,7 +84,6 @@ public class EdgeTest extends ElementTest {
                 .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
                 .build();
 
-        // When/Then
         assertEquals("destination vertex", edge.getMatchedVertexValue());
         assertEquals("destination vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
         assertEquals("source vertex", edge.getIdentifier(IdentifierType.ADJACENT_MATCHED_VERTEX));
@@ -99,7 +93,6 @@ public class EdgeTest extends ElementTest {
 
     @Test
     public void shouldSetAndGetIdentifiersWithMatchedSourceIsNull() {
-        // Given
         final Edge edge = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -108,7 +101,6 @@ public class EdgeTest extends ElementTest {
                 .matchedVertex(null)
                 .build();
 
-        // When/Then
         assertEquals("source vertex", edge.getMatchedVertexValue());
         assertEquals("source vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
         assertEquals("destination vertex", edge.getIdentifier(IdentifierType.ADJACENT_MATCHED_VERTEX));
@@ -184,13 +176,11 @@ public class EdgeTest extends ElementTest {
 
         final Edge clone = edge.emptyClone();
 
-        // Then
         assertEquals(edge, clone);
     }
 
     @Override
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
-        // Given
         final Edge edge = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -198,17 +188,14 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        // When
         boolean isEqual = edge.equals(edge);
 
-        // Then
         assertTrue(isEqual);
         assertEquals(edge.hashCode(), edge.hashCode());
     }
 
     @Test
     public void shouldReturnTrueForShallowEqualsWhenAllCoreFieldsAreEqual() {
-        // Given
         final Edge edge1 = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -578,86 +565,66 @@ public class EdgeTest extends ElementTest {
 
     @Test
     public void shouldSetIdentifiers() {
-        // Given
         final Edge edge1 = new Edge(TestGroups.EDGE, 1, 2, false);
         final Edge edge2 = new Edge(TestGroups.EDGE_2, 4, 3, false);
 
-        // When
         edge1.setIdentifiers(4, 3, false);
         edge1.setGroup(TestGroups.EDGE_2);
 
-        // Then
         assertEquals(3, edge1.getSource());
         assertThat(edge1, equalTo(edge2));
     }
 
     @Test
     public void shouldFallbackToToStringComparisonIfSourceAndDestinationHaveDifferentTypes() {
-        // Given
         final Edge edge1 = new Edge(TestGroups.EDGE, 1, "2", false);
         final Edge edge2 = new Edge(TestGroups.EDGE, "2", 1, false);
 
-        // Then
         assertThat(edge1, equalTo(edge2));
     }
 
     @Test
     public void shouldDeserialiseFromJsonUsingDirectedTrueField() throws SerialisationException {
-        // Given
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true}";
 
-        // When
         final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
 
-        // Then
         assertTrue(deserialisedEdge.isDirected());
     }
 
     @Test
     public void shouldDeserialiseFromJsonUsingDirectedFalseField() throws SerialisationException {
-        // Given
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": false}";
 
-        // When
         final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
 
-        // Then
         assertFalse(deserialisedEdge.isDirected());
     }
 
     @Test
     public void shouldDeserialiseFromJsonWhenDirectedTypeIsDirected() throws SerialisationException {
-        // Given
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directedType\": \"DIRECTED\"}";
 
-        // When
         final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
 
-        // Then
         assertTrue(deserialisedEdge.isDirected());
     }
 
     @Test
     public void shouldDeserialiseFromJsonWhenDirectedTypeIsUndirected() throws SerialisationException {
-        // Given
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directedType\": \"UNDIRECTED\"}";
 
-        // When
         final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
 
-        // Then
         assertFalse(deserialisedEdge.isDirected());
     }
 
     @Test
     public void shouldDeserialiseFromJsonWhenDirectedTypeIsEither() throws SerialisationException {
-        // Given
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directedType\": \"EITHER\"}";
 
-        // When
         final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
 
-        // Then
         assertTrue(deserialisedEdge.isDirected());
     }
 
@@ -667,12 +634,10 @@ public class EdgeTest extends ElementTest {
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        try {
-            JSONSerialiser.deserialise(json.getBytes(), Edge.class);
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("not both"));
-        }
+        final Exception exception = assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(json.getBytes(), Edge.class));
+        final String expected = "Instantiation of [simple type, class uk.gov.gchq.gaffer.data.element.Edge] " +
+                "value failed: Use either 'directed' or 'directedType' - not both.";
+        assertEquals(expected, exception.getMessage());
     }
 
     private Edge cloneCoreFields(final Edge edge) {

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;

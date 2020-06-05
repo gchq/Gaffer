@@ -15,60 +15,51 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class UnwrapEntityIdTest extends FunctionTest {
+public class UnwrapEntityIdTest extends GafferFunctionTest {
+
     @Test
     public void shouldReturnNullForNullValue() {
-        // Given
         final UnwrapEntityId function = new UnwrapEntityId();
 
-        // When
         final Object result = function.apply(null);
 
-        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldReturnOriginalValueForEdgeIds() {
-        // Given
         final EdgeId value = mock(EdgeId.class);
         final UnwrapEntityId function = new UnwrapEntityId();
 
-        // When
         final Object result = function.apply(value);
 
-        // Then
         assertSame(value, result);
     }
 
     @Test
     public void shouldUnwrapEntityIds() {
-        // Given
         final EntityId value = mock(EntityId.class);
         final Object vertex = mock(Object.class);
         given(value.getVertex()).willReturn(vertex);
 
         final UnwrapEntityId function = new UnwrapEntityId();
 
-        // When
         final Object result = function.apply(value);
 
-        // Then
         assertSame(vertex, result);
     }
 
@@ -94,18 +85,13 @@ public class UnwrapEntityIdTest extends FunctionTest {
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        // Given
         final UnwrapEntityId function = getInstance();
 
-        // When
         final byte[] json = JSONSerialiser.serialise(function);
         final UnwrapEntityId deserialisedObj = JSONSerialiser.deserialise(json, UnwrapEntityId.class);
 
-        // Then
-        JsonAssert.assertEquals(
-                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}",
-                new String(json)
-        );
+        final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}";
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

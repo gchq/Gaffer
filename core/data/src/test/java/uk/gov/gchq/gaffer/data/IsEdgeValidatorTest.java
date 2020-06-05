@@ -16,43 +16,38 @@
 
 package uk.gov.gchq.gaffer.data;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class IsEdgeValidatorTest {
 
     @Test
     public void shouldValidateWhenEdge() {
-        // Given
         final Element element = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .build();
 
-        // When
         final boolean valid = new IsEdgeValidator().validate(element);
 
-        // Then
         assertTrue(valid);
     }
 
     @Test
     public void shouldNotValidateWhenEntity() {
-        // Given
         final Element element = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .build();
 
-        // When
         final boolean valid = new IsEdgeValidator().validate(element);
 
-        // Then
         assertFalse(valid);
     }
 }
