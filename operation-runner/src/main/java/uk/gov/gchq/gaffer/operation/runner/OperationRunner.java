@@ -50,7 +50,6 @@ public class OperationRunner {
     }
 
     static void run(final OperationRunner operationRunner, final String[] args) {
-
         final ArgumentValidator argumentValidator = operationRunner.argumentValidator;
         final ArgumentParser argumentParser = operationRunner.argumentParser;
 
@@ -110,10 +109,10 @@ public class OperationRunner {
             context.setConfig(COMMAND_LINE_ARGS_CONFIG_KEY, stripRedundantArgs(args));
             operationRunner.context = context;
 
-            display(operationRunner.run());
+            displayOperationResult(operationRunner.run());
 
         } catch (final IllegalArgumentException e) {
-            System.out.println(arguments.toDisplayString());
+            display(arguments.toDisplayString());
 
         } catch (final Exception e) {
             throw new RuntimeException(e);
@@ -128,16 +127,20 @@ public class OperationRunner {
         return !OperationRunner.class.getName().equals(arg);
     }
 
-    private static void display(final Object result) {
+    private static void displayOperationResult(final Object result) {
         if (result instanceof Iterable) {
-            System.out.println("Results:");
+            display("Results:");
             for (final Object value : (Iterable) result) {
-                System.out.println(value);
+                display(value);
             }
         } else {
-            System.out.println("Result:");
-            System.out.println(result);
+            display("Result:");
+            display(result);
         }
+    }
+
+    private static void display(final Object value) {
+        System.out.println(value);
     }
 
     private Object run() throws OperationException {

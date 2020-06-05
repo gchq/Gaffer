@@ -104,7 +104,7 @@ public class ArgumentParserTest {
         final OperationChain parsedOperationChain = argumentParser.parseOperationChain(createFileContaining(JSONSerialiser.serialise(operation)).getPath());
 
         assertEquals(1, parsedOperationChain.getOperations().size());
-        final Operation parsedOperation = (Operation)parsedOperationChain.getOperations().get(0);
+        final Operation parsedOperation = (Operation) parsedOperationChain.getOperations().get(0);
         assertTrue(parsedOperation instanceof GetAllElements);
         final GetAllElements parsedGetAllElements = GetAllElements.class.cast(parsedOperation);
         assertEquals(operation.getDirectedType(), parsedGetAllElements.getDirectedType());

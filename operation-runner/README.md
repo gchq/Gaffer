@@ -18,22 +18,51 @@ Operation Runner
 The Operation Runner is a command line tool allowing Operations to be executed against a graph:
 
 ```bash
-java -jar operation-runner-<version>-with-dependencies.jar \
+java -jar operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
     --store-properties <path-to-store-properties> \
     --schema <path-to-schema> \
     --operation-chain <path-to-json-serialised-operation> \
     --user <optional-path-to-json-serialised-user> \
-    graphId
+    --graph-id graphId
 ```
 
-To add additional classpath entries:
+
+Operations containing Map Reduce stages
+=======================================
+
+The following example shows how to run the AddElementsFromHdfs operation against an Accumulo store:
+```bash
+${ACCUMULO_HOME}/bin/tool.sh operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
+    uk.gov.gchq.gaffer.operation.runner.OperationRunner \
+    --store-properties <path-to-Accumulo-store-properties> \
+    --schema <path-to-schema> \
+    --operation-chain <path-to-json-serialised-AddElementsFromHdfs-operation> \
+    --user <optional-path-to-json-serialised-user> \
+    --graph-id graphId
+```
+The Accumulo tool.sh script automates adding the additional Accumulo dependencies required to the classpath.
+If your operation requires additional external dependencies these can be configured using the `-libjars` option and a comma separated String containing the paths to the external dependencies:
 
 ```bash
-java -cp operation-runner-<version>-with-dependencies.jar \
+${ACCUMULO_HOME}/bin/tool.sh operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
     uk.gov.gchq.gaffer.operation.runner.OperationRunner \
-    --store-properties <path-to-store-properties> \
+    -libjars <path-libjar1,
+    --store-properties <path-to-Accumulo-store-properties> \
     --schema <path-to-schema> \
-    --operation-chain <path-to-json-serialised-operation> \
+    --operation-chain <path-to-json-serialised-AddElementsFromHdfs-operation> \
     --user <optional-path-to-json-serialised-user> \
-    graphId
+    --graph-id graphId
 ```
+
+The following example shows how to run the AddElementsFromHdfs operation against a HBase store:
+```bash
+export HADOOP_CLASSPATH="$(${HBASE_HOME}/bin/hbase classpath)
+${HADOOP_HOME}/bin/hadoop jar operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
+    uk.gov.gchq.gaffer.operation.runner.OperationRunner \
+    --store-properties <path-to-HBase-store-properties> \
+    --schema <path-to-schema> \
+    --operation-chain <path-to-json-serialised-AddElementsFromHdfs-operation> \
+    --user <optional-path-to-json-serialised-user> \
+    --graph-id graphId
+```
+If your operation requires additional external dependencies then use the `-libjars` operation as shown in the Accumulo example above.
