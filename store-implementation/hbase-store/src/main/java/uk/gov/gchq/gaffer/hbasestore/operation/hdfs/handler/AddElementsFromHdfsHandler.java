@@ -45,11 +45,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public Void doOperation(final AddElementsFromHdfs operation,
                             final Context context, final Store store)
             throws OperationException {
-        doOperation(operation, context, (HBaseStore) store);
+        doOperation(operation, (HBaseStore) store);
         return null;
     }
 
-    private void doOperation(final AddElementsFromHdfs operation, final Context context, final HBaseStore store) throws OperationException {
+    private void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
         validateOperation(operation);
 
         try {
@@ -58,7 +58,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
-        fetchElements(operation, context, store);
+        fetchElements(operation, store);
         final String skipImport = operation.getOption(HBaseStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
         if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
             importElements(operation, store);
@@ -86,16 +86,15 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
     }
 
-    private void fetchElements(final AddElementsFromHdfs operation, final Context context, final HBaseStore store)
+    private void fetchElements(final AddElementsFromHdfs operation, final HBaseStore store)
             throws OperationException {
         try {
             /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
-            final String[] args = context.getCommandLineArgs();
-            final Configuration configuration = new GenericOptionsParser(store.getConfiguration(), args).getConfiguration();
+            final Configuration configuration = new GenericOptionsParser(store.getConfiguration(), operation.getCommandLineArgs()).getConfiguration();
             final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(configuration), operation, store);
 
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            ToolRunner.run(fetchTool, new String[0]);
+            ToolRunner.run(fetchTool, operation.getCommandLineArgs());
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());

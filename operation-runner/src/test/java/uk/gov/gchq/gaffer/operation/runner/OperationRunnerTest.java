@@ -25,7 +25,12 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
@@ -55,6 +60,7 @@ public class OperationRunnerTest {
     private String schemaPath;
     private String userPath;
     private OperationRunner operationRunner;
+    private Operation operation;
 
     private final String graphId = "graphId";
     private final User unknownUser = new User();
@@ -63,15 +69,22 @@ public class OperationRunnerTest {
             .dataAuth("dataAuth")
             .opAuth("opAuth")
             .build();
-    private final GetAllElements operation = new GetAllElements.Builder()
+    private static final GetAllElements GET_ALL_ELEMENTS_OPERATION = new GetAllElements.Builder()
             .directedType(DirectedType.EITHER)
+            .build();
+    private static final AddElementsFromHdfs ADD_ELEMENTS_FROM_HDFS_OPERATION = new AddElementsFromHdfs.Builder()
+            .workingPath("/tmp/working")
+            .outputPath("/output")
+            .failurePath("/tmp/failure")
+            .splitsFilePath("/tmp/splits/splitsFile")
+            .addInputMapperPair("/data", JsonMapperGenerator.class.getName())
+            .jobInitialiser(new TextJobInitialiser())
             .build();
 
     @Before
     public void setUp() throws IOException {
         graphBuilder = mock(Graph.Builder.class);
 
-        operationChainPath = createFileContaining(JSONSerialiser.serialise(operation)).getPath();
         storePropertiesPath = temporaryFolder.newFile().getPath();
         schemaPath = temporaryFolder.newFile().getPath();
         userPath = createFileContaining(JSONSerialiser.serialise(user)).getPath();
@@ -81,6 +94,11 @@ public class OperationRunnerTest {
         when(graphBuilder.config(any(GraphConfig.class))).thenReturn(graphBuilder);
 
         operationRunner = new TestOperationRunner(graphBuilder);
+    }
+
+    private void setUpOperation(final Operation operation) throws IOException {
+        this.operation = operation;
+        this.operationChainPath = createFileContaining(JSONSerialiser.serialise(operation)).getPath();
     }
 
     private File createFileContaining(final byte[] content) throws IOException {
@@ -94,7 +112,9 @@ public class OperationRunnerTest {
     }
 
     @Test
-    public void shouldRunOperationUsingSuppliedParametersAndUser() throws SerialisationException {
+    public void shouldRunOperationUsingSuppliedParametersAndUser() throws IOException {
+        setUpOperation(GET_ALL_ELEMENTS_OPERATION);
+
         final String[] args = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
@@ -108,11 +128,12 @@ public class OperationRunnerTest {
         checkGraphBuilderCreation();
         checkExpectedUser(user);
         checkExpectedOperation();
-        checkExpectedArgs(args);
     }
 
     @Test
-    public void shouldRunOperationUsingSuppliedParametersAndDefaultUser() throws SerialisationException {
+    public void shouldRunOperationUsingSuppliedParametersAndDefaultUser() throws IOException {
+        setUpOperation(GET_ALL_ELEMENTS_OPERATION);
+
         final String[] args = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
@@ -125,11 +146,12 @@ public class OperationRunnerTest {
         checkGraphBuilderCreation();
         checkExpectedUser(unknownUser);
         checkExpectedOperation();
-        checkExpectedArgs(args);
     }
 
     @Test
-    public void shouldStripRedundantArgs() throws SerialisationException {
+    public void shouldConfigureCommandLineArgsForMapReduceOperations() throws IOException {
+        setUpOperation(ADD_ELEMENTS_FROM_HDFS_OPERATION);
+
         final String[] expectedArgs = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
@@ -145,6 +167,7 @@ public class OperationRunnerTest {
 
         checkGraphBuilderCreation();
         checkExpectedUser(unknownUser);
+        MapReduce.class.cast(operation).setCommandLineArgs(expectedArgs);
         checkExpectedOperation();
         checkExpectedArgs(expectedArgs);
     }
@@ -187,10 +210,10 @@ public class OperationRunnerTest {
     }
 
     private void checkExpectedUser(final User user) {
-        assertEquals(user, operationRunner.getContext().getUser());
+        assertEquals(user, operationRunner.getUser());
     }
 
     private void checkExpectedArgs(final String[] expectedArgs) {
-        assertArrayEquals(expectedArgs, operationRunner.getContext().getCommandLineArgs());
+        assertArrayEquals(expectedArgs, ((MapReduce) operationRunner.getOperationChain().getOperations().get(0)).getCommandLineArgs());
     }
 }

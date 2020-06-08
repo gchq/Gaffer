@@ -38,11 +38,11 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
     public Void doOperation(final SampleDataForSplitPoints operation,
                             final Context context, final Store store)
             throws OperationException {
-        generateSplitsFromSampleData(operation, context, (AccumuloStore) store);
+        generateSplitsFromSampleData(operation, (AccumuloStore) store);
         return null;
     }
 
-    private void generateSplitsFromSampleData(final SampleDataForSplitPoints operation, final Context context, final AccumuloStore store)
+    private void generateSplitsFromSampleData(final SampleDataForSplitPoints operation, final AccumuloStore store)
             throws OperationException {
         try {
             if (store.getTabletServers().size() < 2) {
@@ -55,10 +55,9 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
 
         try {
             /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
-            final String[] args = context.getCommandLineArgs();
-            final Configuration configuration = new GenericOptionsParser(args).getConfiguration();
+            final Configuration configuration = new GenericOptionsParser(operation.getCommandLineArgs()).getConfiguration();
             final SampleDataAndCreateSplitsFileTool sampleTool = new SampleDataAndCreateSplitsFileTool(new AccumuloSampleDataForSplitPointsJobFactory(configuration), operation, store);
-            ToolRunner.run(sampleTool, args);
+            ToolRunner.run(sampleTool, operation.getCommandLineArgs());
         } catch (final Exception e) {
             throw new OperationException(e.getMessage(), e);
         }

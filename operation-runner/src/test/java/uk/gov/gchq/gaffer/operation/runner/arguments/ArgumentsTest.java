@@ -27,8 +27,8 @@ import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.MANDATORY;
-import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.OPTIONAL;
+import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Mandatory;
+import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Optional;
 
 public class ArgumentsTest {
     @Rule
@@ -40,25 +40,25 @@ public class ArgumentsTest {
         expectedException.expectMessage(format("Duplicate option %s configured.", "-b"));
 
         new Arguments(
-                new Argument(MANDATORY, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
-                new Argument(MANDATORY, new String[]{"-b", "-c"}, string -> true, identity(), "An argument"));
+                new Argument(Mandatory, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
+                new Argument(Mandatory, new String[]{"-b", "-c"}, string -> true, identity(), "An argument"));
     }
 
     @Test
     public void shouldThrowExceptionWhenNotAllMandatoryArgumentsSupplied() {
         shouldThrowExceptionWhenMandatoryArgumentsMissing(
                 new String[]{"-a", "a"},
-                new Argument(MANDATORY, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
-                new Argument(MANDATORY, new String[]{"-c", "-d"}, string -> true, identity(), "An argument"));
+                new Argument(Mandatory, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
+                new Argument(Mandatory, new String[]{"-c", "-d"}, string -> true, identity(), "An argument"));
     }
 
     @Test
     public void shouldThrowExceptionWhenNotAllMandatoryArgumentsSupplied2() {
         shouldThrowExceptionWhenMandatoryArgumentsMissing(
                 new String[]{"-a", "a", "-c", "c"},
-                new Argument(MANDATORY, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
-                new Argument(MANDATORY, new String[]{"-c", "-d"}, string -> true, identity(), "An argument"),
-                new Argument(MANDATORY, new String[]{"-e", "-f"}, string -> true, identity(), "An argument"));
+                new Argument(Mandatory, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
+                new Argument(Mandatory, new String[]{"-c", "-d"}, string -> true, identity(), "An argument"),
+                new Argument(Mandatory, new String[]{"-e", "-f"}, string -> true, identity(), "An argument"));
     }
 
     private void shouldThrowExceptionWhenMandatoryArgumentsMissing(final String[] args, final Argument... arguments) {
@@ -69,8 +69,8 @@ public class ArgumentsTest {
 
     @Test
     public void shouldParseMandatoryArguments() {
-        final Argument argumentA = new Argument(MANDATORY, new String[]{"-a"}, string -> true, identity(), "An argument");
-        final Argument argumentB = new Argument(MANDATORY, new String[]{"-b"}, string -> true, identity(), "An argument");
+        final Argument argumentA = new Argument(Mandatory, new String[]{"-a"}, string -> true, identity(), "An argument");
+        final Argument argumentB = new Argument(Mandatory, new String[]{"-b"}, string -> true, identity(), "An argument");
 
         final Argument[] arguments = new Argument[]{argumentA, argumentB};
 
@@ -84,9 +84,9 @@ public class ArgumentsTest {
 
     @Test
     public void shouldParseArgumentsNotIncludingOptional() {
-        final Argument argumentA = new Argument(MANDATORY, new String[]{"-a"}, string -> true, identity(), "An argument");
-        final Argument argumentB = new Argument(MANDATORY, new String[]{"-b"}, string -> true, identity(), "An argument");
-        final Argument argumentC = new Argument(OPTIONAL, new String[]{"-c"}, string -> true, identity(), "An argument");
+        final Argument argumentA = new Argument(Mandatory, new String[]{"-a"}, string -> true, identity(), "An argument");
+        final Argument argumentB = new Argument(Mandatory, new String[]{"-b"}, string -> true, identity(), "An argument");
+        final Argument argumentC = new Argument(Optional, new String[]{"-c"}, string -> true, identity(), "An argument");
 
         final Argument[] arguments = new Argument[]{argumentA, argumentB, argumentC};
 
@@ -100,9 +100,9 @@ public class ArgumentsTest {
 
     @Test
     public void shouldParseArgumentsIncludingOptional() {
-        final Argument argumentA = new Argument(MANDATORY, new String[]{"-a"}, string -> true, identity(), "An argument");
-        final Argument argumentB = new Argument(MANDATORY, new String[]{"-b"}, string -> true, identity(), "An argument");
-        final Argument argumentC = new Argument(OPTIONAL, new String[]{"-c"}, string -> true, identity(), "An argument");
+        final Argument argumentA = new Argument(Mandatory, new String[]{"-a"}, string -> true, identity(), "An argument");
+        final Argument argumentB = new Argument(Mandatory, new String[]{"-b"}, string -> true, identity(), "An argument");
+        final Argument argumentC = new Argument(Optional, new String[]{"-c"}, string -> true, identity(), "An argument");
 
         final Argument[] arguments = new Argument[]{argumentA, argumentB, argumentC};
 
@@ -118,8 +118,8 @@ public class ArgumentsTest {
 
     @Test
     public void shouldIgnoreUnknownArguments() {
-        final Argument argumentA = new Argument(MANDATORY, new String[]{"-a"}, string -> true, identity(), "An argument");
-        final Argument argumentB = new Argument(MANDATORY, new String[]{"-b"}, string -> true, identity(), "An argument");
+        final Argument argumentA = new Argument(Mandatory, new String[]{"-a"}, string -> true, identity(), "An argument");
+        final Argument argumentB = new Argument(Mandatory, new String[]{"-b"}, string -> true, identity(), "An argument");
 
         final Argument[] arguments = new Argument[]{argumentA, argumentB};
 
@@ -129,5 +129,24 @@ public class ArgumentsTest {
         assertEquals("a", parsedArguments.get(argumentA));
         assertTrue(parsedArguments.containsKey(argumentB));
         assertEquals("b", parsedArguments.get(argumentB));
+    }
+
+    @Test
+    public void shouldDisplayArgumentInformation() {
+        final Argument argumentA = new Argument(Mandatory, new String[]{"-a", "--a"}, string -> true, identity(), "Mandatory argument A");
+        assertEquals("[-a, --a] (Mandatory)\n- Mandatory argument A", argumentA.toDisplayString());
+
+        final Argument argumentB = new Argument(Optional, new String[]{"-b"}, string -> true, identity(), "Optional argument B");
+        assertEquals("[-b] (Optional)\n- Optional argument B", argumentB.toDisplayString());
+    }
+
+    @Test
+    public void shouldDisplayArgumentsInformation() {
+        final Argument argumentA = new Argument(Mandatory, new String[]{"-a", "--a"}, string -> true, identity(), "Mandatory argument A");
+        final Argument argumentB = new Argument(Optional, new String[]{"-b"}, string -> true, identity(), "Optional argument B");
+
+        final Arguments arguments = new Arguments(argumentA, argumentB);
+
+        assertEquals("Usage:\n[-a, --a] (Mandatory)\n- Mandatory argument A\n[-b] (Optional)\n- Optional argument B", arguments.toDisplayString());
     }
 }

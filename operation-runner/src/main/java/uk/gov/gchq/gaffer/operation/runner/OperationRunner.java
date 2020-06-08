@@ -17,24 +17,24 @@ package uk.gov.gchq.gaffer.operation.runner;
 
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.runner.arguments.ArgumentParser;
 import uk.gov.gchq.gaffer.operation.runner.arguments.ArgumentValidator;
 import uk.gov.gchq.gaffer.operation.runner.arguments.Arguments;
 import uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
-import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.MANDATORY;
-import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.OPTIONAL;
-import static uk.gov.gchq.gaffer.store.Context.COMMAND_LINE_ARGS_CONFIG_KEY;
+import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Mandatory;
+import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Optional;
 
 public class OperationRunner {
     private final ArgumentValidator argumentValidator = new ArgumentValidator();
@@ -43,7 +43,7 @@ public class OperationRunner {
     private String storePropertiesPath;
     private String graphId;
     private OperationChain operationChain;
-    private Context context;
+    private User user;
 
     public static void main(final String[] args) {
         run(new OperationRunner(), args);
@@ -54,35 +54,35 @@ public class OperationRunner {
         final ArgumentParser argumentParser = operationRunner.argumentParser;
 
         final Argument<OperationChain> operationChainArgument = new Argument<>(
-                MANDATORY,
+                Mandatory,
                 new String[]{"--operation-chain"},
                 argumentValidator::isValidFile,
                 argumentParser::parseOperationChain,
                 "Path to file containing JSON serialised Operation.");
 
         final Argument<String> storePropertiesArgument = new Argument<>(
-                MANDATORY,
+                Mandatory,
                 new String[]{"--store-properties"},
                 argumentValidator::isValidFile,
                 identity(),
                 "Path to file containing store properties.");
 
         final Argument<String> schemaPathArgument = new Argument<>(
-                MANDATORY,
+                Mandatory,
                 new String[]{"--schema", "--schema-path"},
                 argumentValidator::isValidFileOrDirectory,
                 identity(),
                 "Path to file or parent directory containing graph schema.");
 
         final Argument<User> userArgument = new Argument<>(
-                OPTIONAL,
+                Optional,
                 new String[]{"--user"},
                 argumentValidator::isValidFile,
                 argumentParser::parseUser,
                 "Path to file containing JSON serialised User");
 
         final Argument<String> graphIdArgument = new Argument<>(
-                MANDATORY,
+                Mandatory,
                 new String[]{"--graph-id"},
                 string -> true,
                 identity(),
@@ -101,21 +101,23 @@ public class OperationRunner {
             operationRunner.graphId = (String) parsedArguments.get(graphIdArgument);
             operationRunner.operationChain = (OperationChain) parsedArguments.get(operationChainArgument);
 
-            final User user = (parsedArguments.containsKey(userArgument))
+            /* Configure Map Reduce operations with command line arguments */
+            for (final Object operation : operationRunner.operationChain.flatten()) {
+                if (MapReduce.class.isAssignableFrom(operation.getClass())) {
+                    MapReduce.class.cast(operation).setCommandLineArgs(stripRedundantArgs(args));
+                }
+            }
+
+            operationRunner.user = (parsedArguments.containsKey(userArgument))
                     ? (User) parsedArguments.get(userArgument)
                     : new User();
 
-            final Context context = new Context(user);
-            context.setConfig(COMMAND_LINE_ARGS_CONFIG_KEY, stripRedundantArgs(args));
-            operationRunner.context = context;
-
             displayOperationResult(operationRunner.run());
 
-        } catch (final IllegalArgumentException e) {
+        } catch (final Exception exception) {
+            display(format("Unable to execute Operation. Received exception: [%s], message: [%s]", exception.getClass().getName(), exception.getMessage()));
             display(arguments.toDisplayString());
-
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(exception);
         }
     }
 
@@ -154,7 +156,7 @@ public class OperationRunner {
     }
 
     protected Object execute(final Graph.Builder graphBuilder) throws OperationException {
-        return graphBuilder.build().execute(operationChain, context);
+        return graphBuilder.build().execute(operationChain, user);
     }
 
     protected Graph.Builder createGraphBuilder() {
@@ -165,7 +167,7 @@ public class OperationRunner {
         return operationChain;
     }
 
-    Context getContext() {
-        return context;
+    User getUser() {
+        return user;
     }
 }

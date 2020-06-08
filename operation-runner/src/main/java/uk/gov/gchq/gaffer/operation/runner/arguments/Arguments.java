@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.runner.arguments;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +70,10 @@ public class Arguments {
     }
 
     public String toDisplayString() {
-        return Arrays.stream(arguments).map(Argument::toDisplayString).collect(joining(lineSeparator()));
+        return new StringBuilder("Usage:")
+                .append(lineSeparator())
+                .append(Arrays.stream(arguments).map(Argument::toDisplayString).collect(joining(lineSeparator())))
+                .toString();
     }
 
     private void ensureMandatoryArgumentsPresent(final Map<Argument, Object> parsedArguments) {
@@ -92,7 +93,7 @@ public class Arguments {
 
     public static class Argument<T> {
         public enum Requirement {
-            MANDATORY, OPTIONAL
+            Mandatory, Optional;
         }
 
         private final Requirement requirement;
@@ -123,15 +124,17 @@ public class Arguments {
         }
 
         public boolean isMandatory() {
-            return requirement == Requirement.MANDATORY;
+            return requirement == Requirement.Mandatory;
         }
 
         public String toDisplayString() {
-            return new ToStringBuilder(this, new uk.gov.gchq.gaffer.commonutil.ToStringBuilder.GafferShortStyle())
-                    .append("requirement", requirement)
-                    .append("options", options)
-                    .append("converter", converter)
-                    .append("description", description)
+            return new StringBuilder(Arrays.deepToString(options))
+                    .append(" (")
+                    .append(requirement)
+                    .append(")")
+                    .append(lineSeparator())
+                    .append("- ")
+                    .append(description)
                     .toString();
         }
 

@@ -80,6 +80,7 @@ public class SampleDataForSplitPoints implements
 
     private Map<String, String> options;
     private Class<? extends CompressionCodec> compressionCodec = GzipCodec.class;
+    private String[] commandLineArgs;
 
     @Override
     public ValidationResult validate() {
@@ -245,6 +246,16 @@ public class SampleDataForSplitPoints implements
         throw new IllegalArgumentException(getClass().getSimpleName() + " is not able to set its own partitioner");
     }
 
+    @Override
+    public String[] getCommandLineArgs() {
+        return commandLineArgs;
+    }
+
+    @Override
+    public void setCommandLineArgs(final String[] commandLineArgs) {
+        this.commandLineArgs = commandLineArgs;
+    }
+
     public Class<? extends CompressionCodec> getCompressionCodec() {
         return compressionCodec;
     }
@@ -279,6 +290,7 @@ public class SampleDataForSplitPoints implements
                 .maxMappers(maxMapTasks)
                 .options(options)
                 .compressionCodec(compressionCodec)
+                .commandLineArgs(commandLineArgs)
                 .build();
     }
 

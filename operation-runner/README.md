@@ -12,8 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Operation Runner
-================
+# Operation Runner
 
 The Operation Runner is a command line tool allowing Operations to be executed against a graph:
 
@@ -26,9 +25,23 @@ java -jar operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
     --graph-id graphId
 ```
 
+## Running Operations against the Accumulo store
 
-Operations containing Map Reduce stages
-=======================================
+Use the `accumulo -add <jar>` command to configure the classpath with the Accumulo dependencies required for execution:
+```bash
+${ACCUMULO_HOME}/bin/accumulo -add operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
+    uk.gov.gchq.gaffer.operation.runner.OperationRunner \
+    --store-properties <path-to-Accumulo-store-properties> \
+    --schema <path-to-schema> \
+    --operation-chain <path-to-json-serialised-AddElementsFromHdfs-operation> \
+    --user <optional-path-to-json-serialised-user> \
+    --graph-id graphId
+```
+## Running Operations containing Map Reduce stages
+
+Operations which execute Map Reduce stages require additional configuration to ensure the Hadoop and Map Reduce classpaths are correctly configured.
+
+### Accumulo store Map Reduce Operations
 
 The following example shows how to run the AddElementsFromHdfs operation against an Accumulo store:
 ```bash
@@ -42,17 +55,18 @@ ${ACCUMULO_HOME}/bin/tool.sh operation-runner-${GAFFER_VERSION}-with-dependencie
 ```
 The Accumulo tool.sh script automates adding the additional Accumulo dependencies required to the classpath.
 If your operation requires additional external dependencies these can be configured using the `-libjars` option and a comma separated String containing the paths to the external dependencies:
-
 ```bash
 ${ACCUMULO_HOME}/bin/tool.sh operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
     uk.gov.gchq.gaffer.operation.runner.OperationRunner \
-    -libjars <path-libjar1,
+    -libjars <path-libjar1>,<path-libjar2>...,
     --store-properties <path-to-Accumulo-store-properties> \
     --schema <path-to-schema> \
     --operation-chain <path-to-json-serialised-AddElementsFromHdfs-operation> \
     --user <optional-path-to-json-serialised-user> \
     --graph-id graphId
 ```
+
+### HBase store Map Reduce Operations
 
 The following example shows how to run the AddElementsFromHdfs operation against a HBase store:
 ```bash
