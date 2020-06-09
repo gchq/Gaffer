@@ -63,7 +63,6 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         // Connect it to a Gaffer store, as specified in the 'store.type' property
         CLIENT.reinitialiseGraph(
                 testFolder,
-//                TEST_FOLDER,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
         );
