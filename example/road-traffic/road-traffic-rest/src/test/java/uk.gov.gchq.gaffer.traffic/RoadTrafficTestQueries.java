@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -305,5 +304,4 @@ public abstract class RoadTrafficTestQueries {
 
         assertEquals(SW_ROAD_JUNCTIONS_WITH_HEAVY_BUS_USAGE_IN_2000, resultSet);
     }
-
 }
