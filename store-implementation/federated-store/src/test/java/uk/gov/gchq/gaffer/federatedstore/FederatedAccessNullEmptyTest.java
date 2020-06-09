@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class FederatedAccessNullEmptyTest {
 
