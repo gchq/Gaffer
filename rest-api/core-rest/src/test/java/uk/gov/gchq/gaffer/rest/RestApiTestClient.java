@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest;
 
+import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -43,8 +44,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-
-import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
 
 public abstract class RestApiTestClient {
     protected final Client client = ClientBuilder.newClient();
@@ -91,7 +90,7 @@ public abstract class RestApiTestClient {
     }
 
     public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
-        writeByteArrayToFile(testFolder.newFile("schema.json"), schema
+        FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
                 .toJson(true));
 
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
@@ -99,27 +98,27 @@ public abstract class RestApiTestClient {
                     .store(out, "This is an optional header comment string");
         }
 
-        setGraphProperties(testFolder.getRoot().toString());
+        // set properties for REST service
+        setSystemProperties(testFolder.getRoot() + "/store.properties", testFolder.getRoot() + "/schema.json");
         reinitialiseGraph();
     }
 
     public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
-        writeByteArrayToFile(new File(testFolder, "schema.json"), schema
-                .toJson(true));
+        FileUtils.writeByteArrayToFile(new File(testFolder, "/schema.json"), schema.toJson(true));
 
-        try (OutputStream out = new FileOutputStream(new File(testFolder, "store.properties"))) {
+        try (OutputStream out = new FileOutputStream(new File(testFolder, "/store.properties"))) {
             storeProperties.getProperties()
                     .store(out, "This is an optional header comment string");
         }
 
-        setGraphProperties(testFolder.getPath());
+        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json");
         reinitialiseGraph();
     }
 
-    private void setGraphProperties(final String filePath) {
+    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
         // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, filePath + "/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, filePath + "/schema.json");
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
         System.setProperty(SystemProperty.GRAPH_ID, "graphId");
     }
 
@@ -135,8 +134,7 @@ public abstract class RestApiTestClient {
         }
     }
 
-
-    public void reinitialiseGraph() throws IOException {
+    public void reinitialiseGraph() {
         defaultGraphFactory.setGraph(null);
 
         startServer();

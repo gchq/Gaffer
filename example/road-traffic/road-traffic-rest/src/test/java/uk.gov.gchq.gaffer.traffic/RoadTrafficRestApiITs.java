@@ -16,10 +16,16 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -47,7 +53,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @TempDir
-    static File testfolder;
+    static File testFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
@@ -56,7 +62,8 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
         // Connect it to a Gaffer store, as specified in the 'store.type' property
         CLIENT.reinitialiseGraph(
-                testfolder,
+                testFolder,
+//                TEST_FOLDER,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
         );
@@ -66,11 +73,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         loader.contextInitialized(null);
     }
 
-    @AfterAll
-    public static void after() {
-        CLIENT.stopServer();
-    }
-
+    @BeforeEach
     @Override
     public void prepareProxy() throws IOException {
         // Create a proxy store that will proxy all queries to the REST API that has been spun up
@@ -91,4 +94,8 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         this.user = new User();
     }
 
+    @AfterAll
+    public static void after() {
+        CLIENT.stopServer();
+    }
 }

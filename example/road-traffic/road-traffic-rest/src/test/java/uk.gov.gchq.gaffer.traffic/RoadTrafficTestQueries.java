@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -76,7 +75,6 @@ public abstract class RoadTrafficTestQueries {
     protected Graph graph;
     protected User user;
 
-    @BeforeEach
     public abstract void prepareProxy() throws IOException;
 
     @Test
@@ -91,8 +89,11 @@ public abstract class RoadTrafficTestQueries {
                 .build();
 
         try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
-
-            assertEquals(14, Lists.newArrayList(elements).size());
+            int x = 0;
+            for (final Element element : elements) {
+                x++;
+            }
+            assertEquals(14, x);
         }
     }
 
@@ -139,7 +140,7 @@ public abstract class RoadTrafficTestQueries {
     }
 
     @Test
-    public void checkM4Junction17To16RoadUse() throws OperationException {
+    public void checkM4Junction17To16RoadUse() throws OperationException, ParseException {
         assumeTrue(this.graph.hasTrait(StoreTrait.INGEST_AGGREGATION), "Skipping test as the store does not implement required trait.");
         assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
