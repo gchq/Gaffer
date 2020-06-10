@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
