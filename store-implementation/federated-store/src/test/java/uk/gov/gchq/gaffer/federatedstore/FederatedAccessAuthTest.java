@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.beust.jcommander.internal.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.user.User;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
@@ -95,8 +95,8 @@ public class FederatedAccessAuthTest {
     public void shouldValidateWithListOfAuths() throws Exception {
 
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addGraphAuths(Lists.newArrayList(AUTH_1))
-                .addGraphAuths(Lists.newArrayList("X"))
+                .addGraphAuths(asList(AUTH_1))
+                .addGraphAuths(asList("X"))
                 .build();
 
         assertTrue(access.isValidToExecute(authUser()));
