@@ -44,8 +44,10 @@ public class MultiSerialiserStorageTest {
 
     @Test
     public void shouldPutAndGet() throws Exception {
+        // Given When
         multiSerialiserStorage.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
 
+        // Then
         assertPutInvoked();
     }
 
@@ -70,6 +72,7 @@ public class MultiSerialiserStorageTest {
 
     @Test
     public void shouldUpdateToNewerValueToSerialiser() throws Exception {
+        // Given
         final byte serialiserEncoding = BYTE + 1;
 
         multiSerialiserStorage.put(serialiserEncoding, SERIALISER_CLASS2, SUPPORTED_CLASS);

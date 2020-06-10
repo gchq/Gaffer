@@ -142,10 +142,8 @@ public class AddElementsTest extends OperationTest<AddElements> {
 
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
-        // Given
-
-        // When
-        AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
+        // Given / When
+        final AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
 
         // Then
         final Iterator<? extends Element> itr = addElements.getInput().iterator();
@@ -168,14 +166,18 @@ public class AddElementsTest extends OperationTest<AddElements> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element element = new Edge.Builder().group("testEdgeGroup").build();
-        AddElements addElements = new AddElements.Builder()
+        // Given
+        final Element element = new Edge.Builder().group("testEdgeGroup").build();
+
+        // When
+        final AddElements addElements = new AddElements.Builder()
                 .input(element)
                 .skipInvalidElements(true)
                 .option("testOption", "true")
                 .validate(false)
                 .build();
 
+        // Then
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());
         assertFalse(addElements.isValidate());

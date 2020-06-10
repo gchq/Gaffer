@@ -93,10 +93,13 @@ public class AddNamedViewHandlerTest {
 
     @Test
     public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
+        // Given
         handler.doOperation(addNamedView, context, store);
 
+        // When
         final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
 
+        // Then
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
@@ -105,25 +108,30 @@ public class AddNamedViewHandlerTest {
 
     @Test
     public void shouldNotAddNamedViewWithNoName() {
+        // Given
         addNamedView.setName(null);
 
+        // When / Then
         final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.doOperation(addNamedView, context, store));
         assertEquals("NamedView name must be set and not empty", exception.getMessage());
     }
 
     @Test
     public void shouldNotAddNestedNamedView() {
+        // Given
         final NamedView nestedNamedView = new NamedView.Builder()
                 .name(testNamedViewName + 1)
                 .edge(TestGroups.EDGE)
                 .build();
 
+        // When
         addNamedView = new AddNamedView.Builder()
                 .name(testNamedViewName)
                 .view(nestedNamedView)
                 .overwrite(false)
                 .build();
 
+        // Then
         final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(addNamedView, context, store));
         assertEquals("NamedView can not be nested within NamedView", exception.getMessage());
     }

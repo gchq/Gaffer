@@ -29,10 +29,13 @@ public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
+        // Given
         final byte[] b = serialiser.serialise(new FreqMap());
 
+        // When
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(FreqMap.class, o.getClass());
         assertEquals(0, ((FreqMap) o).size());
     }

@@ -55,8 +55,10 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
 
     @Test
     public void shouldReturnClonedOperations() {
+        // Given When
         final AdditionalOperations additionalOperations = fromJson(ADDITIONAL_OPERATIONS_RESOURCE_PATH);
 
+        // Then
         assertClonedOperationsEquals(additionalOperations.getStart(), additionalOperations.getStart());
         assertClonedOperationsEquals(additionalOperations.getBefore(), additionalOperations.getBefore());
         assertClonedOperationsEquals(additionalOperations.getAfter(), additionalOperations.getAfter());

@@ -169,7 +169,6 @@ public class OperationChainValidatorTest {
 
     @Test
     public void shouldNotValidateInvalidOperationChain() {
-
         //Given
         Operation operation = Mockito.mock(Operation.class);
         given(operation.validate()).willReturn(new ValidationResult("SparkContext is required"));
@@ -190,9 +189,7 @@ public class OperationChainValidatorTest {
         final Store store = mock(Store.class);
         final User user = mock(User.class);
 
-
         given(viewValidator.validate(any(View.class), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
-
 
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);

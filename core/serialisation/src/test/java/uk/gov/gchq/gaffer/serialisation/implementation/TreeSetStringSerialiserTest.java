@@ -94,8 +94,10 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
     @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
+        // Given When
         final TreeSet<String> tree = serialiser.deserialiseEmpty();
 
+        // Then
         assertNotNull(tree);
         assertTrue(tree.isEmpty());
     }

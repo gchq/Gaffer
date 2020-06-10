@@ -35,10 +35,13 @@ public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void testPrimitiveSerialisation() throws SerialisationException {
+        // Given
         final byte[] b = serialiser.serialise(2);
 
+        // When
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
@@ -50,12 +53,15 @@ public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void testDAOSerialisation() throws SerialisationException {
+        // Given
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
         final byte[] b = serialiser.serialise(test);
 
+        // When
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", ((SimpleTestObject) o).getX());
     }
@@ -67,13 +73,16 @@ public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void testParameterisedDAOSerialisation() throws SerialisationException {
+        // Given
         final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
         final byte[] b = serialiser.serialise(test);
 
+        // When
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", ((ParameterisedTestObject) o).getX());
         assertEquals(Integer.class, ((ParameterisedTestObject) o).getK().getClass());

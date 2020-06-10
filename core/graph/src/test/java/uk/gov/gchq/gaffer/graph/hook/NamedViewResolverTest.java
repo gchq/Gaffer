@@ -198,6 +198,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     @Test
     public void shouldResolveNamedViewWithParameter() throws CacheOperationFailedException {
+        // Given
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(EDGE_NAME_PARAM_KEY, TestGroups.EDGE_2);
 

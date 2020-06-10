@@ -61,17 +61,21 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
     @Test
     public void shouldNotAllowOperationWhichContainsUnauthorisedFunction() {
+        // Given
         final OperationChain badOperation = generateOperation(Identity.class);
         final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
+        // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
+        // Then
         final Exception exception = assertThrows(UnauthorisedException.class, () -> functionAuthoriser.preExecute(badOperation, new Context()));
         assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", exception.getMessage());
     }
 
     @Test
     public void shouldNotAllowGetElementsOperationWithUnauthorisedFunctionsInTheView() {
+        // Given
         final View viewWithUnauthorisedFunction = new View.Builder()
                 .globalElements(new GlobalViewElementDefinition.Builder()
                         .transformFunctions(Lists.newArrayList(new TupleAdaptedFunction(new String[] {"input"}, new DivideBy(6), new String[] {"output"})))
@@ -87,54 +91,70 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
         // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
+        // Then
         final Exception exception = assertThrows(UnauthorisedException.class, () -> functionAuthoriser.preExecute(viewOperation, new Context()));
         assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.DivideBy", exception.getMessage());
     }
 
     @Test
     public void shouldAllowOperationChainWhichDoesNotContainAnyUnauthorisedElements() {
+        // Given
         final OperationChain mapOperation = generateOperation(Identity.class, ToString.class);
         final FunctionAuthoriser functionAuthoriser = new FunctionAuthoriser();
 
+        // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
+        // Then
         assertDoesNotThrow(() -> functionAuthoriser.preExecute(mapOperation, new Context()));
     }
 
     @Test
     public void shouldAllowEmptyOperationChain() {
+        // Given
         final OperationChain chain = new OperationChain();
 
+        // When
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
 
+        // Then
         assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldAllowAllFunctionsWhenUnauthorisedFunctionsAreNull() {
+        // Given
         final OperationChain chain = generateOperation(Identity.class, ToString.class);
 
+        // Then
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(null);
 
+        // Then
         assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldAllowAllFunctionsWhenUnauthorisedFunctionsAreEmpty() {
+        // Given
         final OperationChain chain = generateOperation(Identity.class, ToString.class);
 
+        // When
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(new ArrayList<>());
 
+        // Then
         assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
     @Test
     public void shouldNotErrorIfFirstOperationIsNotInput() {
+        // Given
         final OperationChain chain = new OperationChain.Builder()
                 .first(new GetAllElements()).build();
 
+        // When
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(Identity.class));
 
+        // Then
         assertDoesNotThrow(() -> authoriser.preExecute(chain, new Context()));
     }
 
@@ -155,6 +175,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithPopulatedFields() throws SerialisationException {
+        // Given
         final String json = "{" +
                 "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"," +
                 "\"unauthorisedFunctions\":[" +
@@ -162,19 +183,24 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
                 "]" +
                 "}";
 
+        // When
         final FunctionAuthoriser authoriser = new FunctionAuthoriser(Lists.newArrayList(ToString.class));
 
+        // Then
         JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialiseWithNoFields() throws SerialisationException {
+        // Given
         final String json = "{" +
                 "\"class\": \"uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser\"" +
                 "}";
 
+        // When
         final FunctionAuthoriser authoriser = new FunctionAuthoriser();
 
+        // Then
         JsonAssert.assertEquals(json, new String(JSONSerialiser.serialise(authoriser)));
     }
 

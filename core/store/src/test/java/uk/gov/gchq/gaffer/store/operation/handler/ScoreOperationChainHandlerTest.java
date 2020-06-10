@@ -68,9 +68,11 @@ public class ScoreOperationChainHandlerTest {
 
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {
+        // When
         final InputStream s = StreamUtil.openStream(getClass(), "TestScoreOperationChainDeclaration.json");
         final OperationDeclarations deserialised = JSONSerialiser.deserialise(s, OperationDeclarations.class);
 
+        // Then
         assertEquals(1, deserialised.getOperations().size());
         assertTrue(deserialised.getOperations().get(0).getHandler() instanceof ScoreOperationChainHandler);
     }

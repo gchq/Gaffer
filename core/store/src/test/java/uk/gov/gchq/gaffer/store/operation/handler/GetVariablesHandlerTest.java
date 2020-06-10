@@ -45,6 +45,7 @@ public class GetVariablesHandlerTest {
     @Test
     public void shouldGetAllVariableValuesWhenAllPresent() throws OperationException {
         final Context context = mock(Context.class);
+        // Given
         given(context.getVariable(key1)).willReturn(val1);
         given(context.getVariable(key2)).willReturn(val2);
         given(context.getVariable(key3)).willReturn(val3);
@@ -53,13 +54,16 @@ public class GetVariablesHandlerTest {
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
+        // When
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
         assertEquals(ImmutableMap.of(key1, val1, key2, val2, key3, val3), resultMap);
     }
 
     @Test
     public void shouldReturnEmptyMapWhenNoValuesPresent() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
         given(context.getVariable(key1)).willReturn(null);
         given(context.getVariable(key2)).willReturn(null);
@@ -69,8 +73,10 @@ public class GetVariablesHandlerTest {
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
+        // When
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
         final Map expected = new HashMap<>();
         expected.put(key1, null);
         expected.put(key2, null);
@@ -80,6 +86,7 @@ public class GetVariablesHandlerTest {
 
     @Test
     public void shouldReturnPartiallyFilledMapWhenSomeValuesPresent() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
         given(context.getVariable(key1)).willReturn(val1);
         given(context.getVariable(key2)).willReturn(null);
@@ -89,8 +96,10 @@ public class GetVariablesHandlerTest {
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
+        // When
         final Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
         final Map expected = new HashMap<>();
         expected.put(key1, val1);
         expected.put(key2, null);
@@ -114,14 +123,15 @@ public class GetVariablesHandlerTest {
 
     @Test
     public void shouldReturnNothingWhenGetVariablesKeysAreNull() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
-
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(null, null)).build();
 
+        // When
         final GetVariablesHandler handler = new GetVariablesHandler();
-
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
         assertEquals(new HashMap<>(), resultMap);
     }
 }

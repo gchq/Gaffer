@@ -108,10 +108,13 @@ public class MapHandlerTest {
 
     @Test
     public void shouldHandleNullOperation() {
+        // Given
         final MapHandler<Integer, Integer> handler = new MapHandler<>();
 
+        // When
         final Map<Integer, Integer> operation = null;
 
+        // Then
         final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
         assertEquals("Operation cannot be null", exception.getMessage());
     }

@@ -62,6 +62,7 @@ public class GetSchemaHandlerTest {
 
     @Test
     public void shouldReturnCompactSchema() throws OperationException {
+        // Given
         given(store.getProperties()).willReturn(properties);
         given(store.getSchema()).willReturn(schema);
         given(context.getUser()).willReturn(user);
@@ -81,6 +82,7 @@ public class GetSchemaHandlerTest {
 
     @Test
     public void shouldReturnFullSchema() throws OperationException {
+        // Given
         given(store.getProperties()).willReturn(properties);
         given(store.getOriginalSchema()).willReturn(schema);
         given(context.getUser()).willReturn(user);
@@ -97,6 +99,7 @@ public class GetSchemaHandlerTest {
 
     @Test
     public void shouldThrowExceptionForNullOperation() {
+        // Given
         final GetSchema operation = null;
 
         // When / Then

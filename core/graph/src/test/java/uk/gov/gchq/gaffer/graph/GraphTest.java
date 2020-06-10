@@ -282,7 +282,7 @@ public class GraphTest {
         File schemaDir = null;
 
         try {
-//            schemaDir = createSchemaDirectory();
+            schemaDir = createSchemaDirectory();
 
             // When
             graph = new Graph.Builder()

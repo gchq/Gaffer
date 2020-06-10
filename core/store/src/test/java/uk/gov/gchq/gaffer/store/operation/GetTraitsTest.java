@@ -33,22 +33,27 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         GetTraits op = new Builder()
                 .currentTraits(false)
                 .build();
 
+        // When / Then
         assertEquals(false, op.isCurrentTraits());
     }
 
     @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         GetTraits op = new Builder()
                 .currentTraits(false)
                 .build();
 
+        // When
         GetTraits clone = op.shallowClone();
 
+        // Then
         assertEquals(op.isCurrentTraits(), clone.isCurrentTraits());
     }
 

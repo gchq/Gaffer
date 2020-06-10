@@ -53,24 +53,30 @@ public class AddStorePropertiesToLibraryHandlerTest {
 
     @Test
     public void shouldThrowWithNoGraphLibrary() throws Exception {
+        // Given
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // When
         final Exception exception = assertThrows(UnsupportedOperationException.class, () ->
                 store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser())));
 
+        // Then
         final String expected = String.format("Operation class %s is not supported by the %s.", AddStorePropertiesToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName());
         assertEquals(expected, exception.getMessage());
     }
 
     @Test
     public void shouldAddSchemaWithGraphLibrary() throws Exception {
+        // Given
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
         store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
 
+        // When
         final StoreProperties actualProps = library.getProperties(TEST_PROPS_ID);
 
+        // Then
         assertEquals(props.getProperties(), actualProps.getProperties());
     }
 
@@ -86,18 +92,23 @@ public class AddStorePropertiesToLibraryHandlerTest {
 
     @Test
     public void shouldNotSupportAddToGraphLibraryI() throws Exception {
-        //GraphLibrary has not been set
+        // GraphLibrary has not been set
+        // When
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // Then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
 
     @Test
     public void shouldNotSupportAddToGraphLibraryII() throws Exception {
+        // Given
         store.setGraphLibrary(new NoGraphLibrary());
 
+        // When
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // Then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
 }

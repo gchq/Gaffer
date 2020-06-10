@@ -94,7 +94,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldResolveNestedNamedOperation() throws OperationException, CacheOperationFailedException {
+    public void shouldResolveNestedNamedOperation() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);
@@ -136,7 +136,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldExecuteNamedOperationWithoutOverridingInput() throws OperationException, CacheOperationFailedException {
+    public void shouldExecuteNamedOperationWithoutOverridingInput() throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationCache cache = mock(NamedOperationCache.class);

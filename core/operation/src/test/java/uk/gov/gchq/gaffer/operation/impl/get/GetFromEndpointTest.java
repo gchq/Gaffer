@@ -31,23 +31,28 @@ public class GetFromEndpointTest extends OperationTest<GetFromEndpoint> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
                 .build();
 
+        // When / Then
         assertEquals("testEndpoint", op.getEndpoint());
     }
 
     @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
                 .option("testOption", "true")
                 .build();
 
+        // When
         GetFromEndpoint clone = op.shallowClone();
 
+        // Then
         assertNotSame(clone, op);
         assertEquals(clone.getEndpoint(), op.getEndpoint());
         assertEquals(clone.getOption("testOption"), op.getOption("testOption"));

@@ -209,12 +209,13 @@ public class UserTest {
         final String opAuth1 = "opAuth 1";
         final String opAuth2a = "opAuth 2a";
         final String opAuth2b = "opAuth 2b";
+
+        // When
         final User user1 = new User.Builder()
                 .userId(userId)
                 .opAuth(opAuth1)
                 .opAuth(opAuth2a)
                 .build();
-
         final User user2 = new User.Builder()
                 .userId(userId)
                 .opAuth(opAuth1)

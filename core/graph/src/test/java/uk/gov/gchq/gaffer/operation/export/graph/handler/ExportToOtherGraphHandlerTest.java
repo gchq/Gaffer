@@ -88,8 +88,10 @@ public class ExportToOtherGraphHandlerTest {
 
     @Test
     public void shouldGetExporterClass() {
+        // Given
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
 
+        // When / Then
         assertEquals(OtherGraphExporter.class, handler.getExporterClass());
     }
 
