@@ -70,7 +70,7 @@ ${ACCUMULO_HOME}/bin/tool.sh operation-runner-${GAFFER_VERSION}-with-dependencie
 
 The following example shows how to run the AddElementsFromHdfs operation against a HBase store:
 ```bash
-export HADOOP_CLASSPATH="$(${HBASE_HOME}/bin/hbase classpath)
+export HADOOP_CLASSPATH="$(${HBASE_HOME}/bin/hbase classpath)"
 ${HADOOP_HOME}/bin/hadoop jar operation-runner-${GAFFER_VERSION}-with-dependencies.jar \
     uk.gov.gchq.gaffer.operation.runner.OperationRunner \
     --store-properties <path-to-HBase-store-properties> \
@@ -79,4 +79,4 @@ ${HADOOP_HOME}/bin/hadoop jar operation-runner-${GAFFER_VERSION}-with-dependenci
     --user <optional-path-to-json-serialised-user> \
     --graph-id graphId
 ```
-If your operation requires additional external dependencies then use the `-libjars` operation as shown in the Accumulo example above.
+If your operation requires additional external dependencies then append these to the HADOOP_CLASSPATH and use the `-libjars` operation as shown in the Accumulo example to configure the MR job.
