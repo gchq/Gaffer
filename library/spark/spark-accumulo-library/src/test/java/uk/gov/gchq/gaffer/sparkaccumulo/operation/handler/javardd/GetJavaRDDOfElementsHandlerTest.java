@@ -34,8 +34,8 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -49,38 +49,20 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class GetJavaRDDOfElementsHandlerTest {
+public class GetJavaRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
 
     private static final String ENTITY_GROUP = "BasicEntity";
     private static final String EDGE_GROUP = "BasicEdge";
-    private static Store store;
     private static StoreProperties storeProperties;
 
     @BeforeAll
-    public static void setUpBeforeClass() throws Exception {
-        // Get the store class from the properties supplied
-        Class currentClass = new Object() { }.getClass().getEnclosingClass();
-        StoreProperties suppliedProperties = StoreProperties
-                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
-        final String storeClass = suppliedProperties.getStoreClass();
-        if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-        }
-        // Instantiate the store class
-        try {
-            store = Class.forName(storeClass)
-                    .asSubclass(Store.class)
-                    .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-        }
-        // Set up the data store and set the properties to suit.
-        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+    public static void beforeClass() throws Exception {
+        storeProperties = setUpBeforeClass("/store.properties");
     }
 
     @AfterAll
-    public static void tearDownAfterClass() throws Exception {
-        store.tearDownTestDB();
+    public static void afterClass() throws Exception {
+        tearDownAfterClass();
     }
 
     @Test

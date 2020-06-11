@@ -40,8 +40,8 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.SplitStoreFromRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -55,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class SplitStoreFromRDDOfElementsHandlerTest {
+public class SplitStoreFromRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
 
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
 
@@ -71,34 +71,16 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
     private RDD<Element> rdd;
     private String configurationString;
 
-    private static Store store;
     private static StoreProperties storeProperties;
 
     @BeforeAll
-    public static void setUpBeforeAll() throws Exception {
-        // Get the store class from the properties supplied
-        Class currentClass = new Object() { }.getClass().getEnclosingClass();
-        StoreProperties suppliedProperties = StoreProperties
-                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
-        final String storeClass = suppliedProperties.getStoreClass();
-        if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-        }
-        // Instantiate the store class
-        try {
-            store = Class.forName(storeClass)
-                    .asSubclass(Store.class)
-                    .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-        }
-        // Set up the data store and set the properties to suit.
-        storeProperties = store.setUpTestDB(suppliedProperties);
+    public static void beforeClass() throws Exception {
+        storeProperties = setUpBeforeClass("/store.properties");
     }
 
     @AfterAll
-    public static void tearDownAfterAll() throws Exception {
-        store.tearDownTestDB();
+    public static void afterClass() throws Exception {
+        tearDownAfterClass();
     }
 
     @BeforeEach

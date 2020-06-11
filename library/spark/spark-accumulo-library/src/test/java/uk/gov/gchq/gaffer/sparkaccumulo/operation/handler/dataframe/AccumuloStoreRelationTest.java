@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -63,36 +64,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Contains unit tests for {@link AccumuloStoreRelation}.
  */
-public class AccumuloStoreRelationTest {
+public class AccumuloStoreRelationTest extends AbstractPropertiesDrivenTest {
 
-    private static Store store;
     private static StoreProperties storeProperties;
 
     @BeforeAll
-    public static void setUpBeforeClass() throws Exception {
-        // Get the store class from the properties supplied
-        Class currentClass = new Object() { }.getClass().getEnclosingClass();
-        StoreProperties suppliedProperties = StoreProperties
-                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
-        final String storeClass = suppliedProperties.getStoreClass();
-        if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-        }
-        // Instantiate the store class
-        try {
-            store = Class.forName(storeClass)
-                    .asSubclass(Store.class)
-                    .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-        }
-        // Set up the data store and set the properties to suit.
-        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+    public static void beforeClass() throws Exception {
+        storeProperties = setUpBeforeClass("/store.properties");
     }
 
     @AfterAll
-    public static void tearDownAfterClass() throws Exception {
-        store.tearDownTestDB();
+    public static void afterClass() throws Exception {
+        tearDownAfterClass();
     }
 
     @Test
