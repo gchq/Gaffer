@@ -15,15 +15,27 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.minicluster.MiniAccumuloCluster;
+import org.apache.accumulo.minicluster.MiniAccumuloConfig;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import java.io.IOException;
 
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private static MiniAccumuloCluster cluster;
 
     public AccumuloStoreITs() {
+        // Instead of calling the method directly, I'll set up a MiniAccumuloCluster
         this(STORE_PROPERTIES);
     }
 
@@ -31,4 +43,52 @@ public class AccumuloStoreITs extends AbstractStoreITs {
         super(storeProperties);
         addExtraTest(AddElementsFromHdfsLoaderIT.class);
     }
+
+    @BeforeClass
+    public static void ensureClusterExists() {
+        // Do a check first before setting this up. This is so that when we run this on a full cluster,
+        // the MiniCluster doesn't get created.
+        final TemporaryFolder miniAccumuloDirectory;
+        try {
+            // should use some other method for this. As create() technically isn't supposed to be used.
+            miniAccumuloDirectory = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+            miniAccumuloDirectory.create();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        AccumuloProperties props = STORE_PROPERTIES.clone();
+        MiniAccumuloConfig config = new MiniAccumuloConfig(miniAccumuloDirectory.getRoot(), props.getPassword());
+        config.setInstanceName(props.getInstance());
+        config.setZooKeeperPort(2181);
+
+        try {
+            cluster = new MiniAccumuloCluster(config);
+            cluster.start();
+            // As this is just for demo purposes, I've changed the usernames to "root" but if you like,
+            // You can set the original up here.
+            cluster.getConnector(props.getUser(), props.getPassword()).securityOperations()
+                    .changeUserAuthorizations(props.getUser(), new Authorizations("vis1","vis2","publicVisibility","privateVisibility","public","private"));
+        } catch (IOException | InterruptedException | AccumuloException | AccumuloSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @AfterClass
+    public static void tearDownAccumuloCluster() {
+        for(int reties = 0; reties < 3; reties++) {
+            try {
+                cluster.stop();
+                break;
+            } catch (IOException e) {
+                e.printStackTrace(); // don't actually do this - use loggers.
+                continue;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            throw new RuntimeException("Failed to close accumulo cluster"); // probably don't do this either. Just tell the user it's failed.
+        }
+
+    }
+
+
 }
