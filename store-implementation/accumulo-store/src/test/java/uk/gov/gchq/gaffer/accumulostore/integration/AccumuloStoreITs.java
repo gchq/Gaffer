@@ -75,7 +75,7 @@ public class AccumuloStoreITs extends AbstractStoreITs {
 
     @AfterClass
     public static void tearDownAccumuloCluster() {
-        for(int reties = 0; reties < 3; reties++) {
+        for(int retries = 0; retries < 3; retries++) {
             try {
                 cluster.stop();
                 break;
