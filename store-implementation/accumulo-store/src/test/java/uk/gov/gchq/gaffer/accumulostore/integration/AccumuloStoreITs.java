@@ -35,7 +35,6 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     private static MiniAccumuloCluster cluster;
 
     public AccumuloStoreITs() {
-        // Instead of calling the method directly, I'll set up a MiniAccumuloCluster
         this(STORE_PROPERTIES);
     }
 
