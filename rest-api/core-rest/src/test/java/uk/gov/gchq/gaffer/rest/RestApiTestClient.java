@@ -20,9 +20,9 @@ import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
-import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;

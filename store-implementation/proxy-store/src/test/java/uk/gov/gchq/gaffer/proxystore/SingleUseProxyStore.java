@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
@@ -41,7 +41,7 @@ import java.io.File;
  */
 public abstract class SingleUseProxyStore extends ProxyStore {
     @TempDir
-    public File TEST_FOLDER;
+    public File testFolder;
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
@@ -55,7 +55,7 @@ public abstract class SingleUseProxyStore extends ProxyStore {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), getPathToDelegateProperties()));
         try {
-            CLIENT.reinitialiseGraph(TEST_FOLDER, schema, storeProperties);
+            CLIENT.reinitialiseGraph(testFolder, schema, storeProperties);
         } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }

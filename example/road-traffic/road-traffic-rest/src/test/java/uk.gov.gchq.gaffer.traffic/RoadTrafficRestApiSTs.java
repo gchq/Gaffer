@@ -46,7 +46,7 @@ public class RoadTrafficRestApiSTs extends RoadTrafficTestQueries {
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @TempDir
-    public static File TEST_FOLDER;
+    public static File testFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
@@ -55,7 +55,7 @@ public class RoadTrafficRestApiSTs extends RoadTrafficTestQueries {
 
         // Connect it to a Gaffer store, as specified in the 'store.type' property
         CLIENT.reinitialiseGraph(
-                TEST_FOLDER,
+                testFolder,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiSTs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
         );

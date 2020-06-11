@@ -37,8 +37,8 @@ import java.lang.reflect.Modifier;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ExampleGeneratorTest {
 

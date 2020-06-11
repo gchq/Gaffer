@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.google.common.collect.Sets;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -48,12 +48,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;

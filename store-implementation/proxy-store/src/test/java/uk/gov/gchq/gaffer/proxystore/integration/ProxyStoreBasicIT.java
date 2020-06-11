@@ -53,13 +53,13 @@ import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

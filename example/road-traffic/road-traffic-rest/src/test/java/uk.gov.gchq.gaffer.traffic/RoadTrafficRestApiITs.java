@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -48,7 +48,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @TempDir
-    public static File TEST_FOLDER;
+    public static File testFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
@@ -57,7 +57,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
         // Connect it to a Gaffer store, as specified in the 'store.type' property
         CLIENT.reinitialiseGraph(
-                TEST_FOLDER,
+                testFolder,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
         );

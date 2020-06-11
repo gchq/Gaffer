@@ -31,8 +31,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
     protected static final Element[] DEFAULT_ELEMENTS = {

@@ -57,14 +57,14 @@ public abstract class DisableOperationsTest {
     }
 
     @BeforeAll
-    static public void beforeAll() {
+    public static void beforeAll() {
         originalGraphConfigPath = System.getProperty(SystemProperty.GRAPH_CONFIG_PATH);
         originalSchemaPath = System.getProperty(SystemProperty.SCHEMA_PATHS);
         originalStorePropsPath = System.getProperty(SystemProperty.STORE_PROPERTIES_PATH);
     }
 
     @AfterAll
-    static public void afterAll() {
+    public static void afterAll() {
         setSystemPaths(originalStorePropsPath, originalGraphConfigPath, originalSchemaPath);
     }
 
@@ -111,13 +111,6 @@ public abstract class DisableOperationsTest {
         }
     }
 
-    /**
-     * Helper method to store the System Properties.
-     *
-     * @param storeProps
-     * @param graphConfig
-     * @param schema
-     */
     private static void setSystemPaths(final String storeProps, final String graphConfig, final String schema) {
 
         if (null == storeProps || storeProps.isEmpty()) {
