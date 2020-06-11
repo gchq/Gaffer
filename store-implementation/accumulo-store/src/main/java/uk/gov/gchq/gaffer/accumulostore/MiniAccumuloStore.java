@@ -25,6 +25,8 @@ import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -108,6 +110,7 @@ import java.util.UUID;
  * provide a {@link Connector}.
  */
 public class MiniAccumuloStore extends AccumuloStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloStore.class);
     private static final String BASE_DIRECTORY = "miniAccumuloStoreTest-";
     private static final String ROOTPW = "rootPW";
     private MiniAccumuloCluster miniAccumuloCluster = null;
@@ -263,12 +266,23 @@ public class MiniAccumuloStore extends AccumuloStore {
         try {
             miniAccumuloCluster.stop();
         } catch (final IOException | InterruptedException e) {
-            // Ignore any errors here;
+            try {
+                // Try one more time.
+                miniAccumuloCluster.stop();
+            } catch (final IOException | InterruptedException e2) {
+                LOGGER.error("Failed to stop MiniAccumuloCluster: " + e2.getMessage());
+            }
         }
         try {
             FileUtils.deleteDirectory(new File(miniAccumuloCluster.getConfig().getDir().getAbsolutePath()));
         } catch (final IOException e) {
-            // Ignore any errors here;
+            try {
+                FileUtils.deleteDirectory(new File(miniAccumuloCluster.getConfig().getDir().getAbsolutePath()));
+            } catch (final IOException e2) {
+                LOGGER.error("Failed to delete MiniAccumuloCluster directory: " +
+                        miniAccumuloCluster.getConfig().getDir().getAbsolutePath() +
+                        " : " + e2.getMessage());
+            }
         }
     }
 }
