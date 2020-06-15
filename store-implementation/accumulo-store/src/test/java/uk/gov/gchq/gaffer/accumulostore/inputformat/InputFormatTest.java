@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -141,7 +140,7 @@ public class InputFormatTest {
     }
 
     @TempDir
-    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File testFolder;
 
     @BeforeAll
     public static void setup() throws StoreException {

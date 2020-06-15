@@ -25,7 +25,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
@@ -42,7 +41,7 @@ import java.io.IOException;
 
 public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobFactoryTest {
     @TempDir
-    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File testFolder;
 
     public String inputDir;
     public String outputDir;

@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetrieverTest;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -73,7 +72,7 @@ public class CreateSplitPointsIT {
     private static AccumuloProperties byteEntityStoreProperties;
 
     @TempDir
-    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File testFolder;
     private FileSystem fs;
 
     private String inputDir;

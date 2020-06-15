@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloEle
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -79,7 +78,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BloomFilterIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
     @TempDir
-    public File tempFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File tempFolder;
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory gaffer1RangeFactory;

@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.G
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -74,7 +73,7 @@ import static org.mockito.Mockito.verify;
 
 public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
     @TempDir
-    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File testFolder;
 
     public String inputDir;
     public String outputDir;
