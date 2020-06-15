@@ -30,7 +30,6 @@ import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -64,7 +63,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest extends AbstractProperti
     private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
 
     @TempDir
-    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File testFolder;
 
     private static StoreProperties storeProperties;
 

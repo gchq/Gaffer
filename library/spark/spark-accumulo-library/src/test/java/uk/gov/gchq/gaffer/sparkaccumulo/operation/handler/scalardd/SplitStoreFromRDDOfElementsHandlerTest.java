@@ -25,7 +25,6 @@ import org.junit.jupiter.api.io.TempDir;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -60,7 +59,7 @@ public class SplitStoreFromRDDOfElementsHandlerTest extends AbstractPropertiesDr
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
 
     @TempDir
-    public final File testFolder = new File(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+    public File testFolder;
 
     private final User user = new User();
 
