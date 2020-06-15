@@ -37,7 +37,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public abstract class AbstractGraphLibraryTest {
 
@@ -48,7 +47,6 @@ public abstract class AbstractGraphLibraryTest {
     private static final String TEST_UNKNOWN_ID = "unknownId";
     private static final String TEST_SCHEMA_ID = "testSchemaId";
     private static final String TEST_PROPERTIES_ID = "testPropertiesId";
-    private static final String EXCEPTION_EXPECTED = "Exception expected";
 
     private Schema schema = new Schema.Builder().build();
     private Schema schema1 = new Schema.Builder().build();

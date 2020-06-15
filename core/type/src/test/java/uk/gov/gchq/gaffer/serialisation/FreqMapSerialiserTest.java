@@ -113,6 +113,7 @@ public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
         assertFalse(deserialised.containsKey("z"));
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         // When

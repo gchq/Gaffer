@@ -85,6 +85,7 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
         assertThat(toVertices.getEdgeVertices(), is(EdgeVertices.BOTH));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

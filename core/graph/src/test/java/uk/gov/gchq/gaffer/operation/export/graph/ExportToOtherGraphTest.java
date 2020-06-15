@@ -34,7 +34,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
 

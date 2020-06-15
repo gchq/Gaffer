@@ -51,6 +51,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
@@ -130,8 +131,10 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotNull(deserialisedObj);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() throws SerialisationException {
+        // Given
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
@@ -142,8 +145,10 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .writeAccessRoles(USER)
                 .build();
 
+        // When
         final String opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
 
+        // Then
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
         assertEquals("Test", addNamedOperation.getOperationName());
         assertEquals(Arrays.asList("Test label"), addNamedOperation.getLabels());
@@ -152,6 +157,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), addNamedOperation.getWriteAccessRoles());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() throws SerialisationException {
         // Given

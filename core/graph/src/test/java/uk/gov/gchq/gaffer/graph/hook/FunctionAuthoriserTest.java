@@ -49,7 +49,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.spy;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 

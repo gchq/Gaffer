@@ -67,6 +67,7 @@ public class ToFreqMapTest extends GafferFunctionTest {
         assertEquals(new FreqMap((String) null), result);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

@@ -39,9 +39,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class IfTest extends OperationTest<If> {
 
@@ -151,12 +149,8 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Collections.emptyList();
 
         // When / Then
-        try {
-            ifOp.updateOperations(opList);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Unable to update operations - exactly 3 operations are required. Received 0 operations", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ifOp.updateOperations(opList));
+        assertEquals("Unable to update operations - exactly 3 operations are required. Received 0 operations", exception.getMessage());
     }
 
     @Test
@@ -173,12 +167,8 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Lists.newArrayList(getElements);
 
         // When / Then
-        try {
-            ifOp.updateOperations(opList);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Unable to update operations - exactly 3 operations are required. Received 1 operations", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ifOp.updateOperations(opList));
+        assertEquals("Unable to update operations - exactly 3 operations are required. Received 1 operations", exception.getMessage());
     }
 
     @Test
