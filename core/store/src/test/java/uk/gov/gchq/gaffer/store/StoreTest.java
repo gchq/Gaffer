@@ -366,7 +366,6 @@ public class StoreTest {
     @Test
     public void shouldThrowExceptionIfOperationChainIsInvalid() throws StoreException {
         // Given
-        // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final OperationChain opChain = new OperationChain();
