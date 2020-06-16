@@ -42,7 +42,7 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         final Set actual = serialiser.deserialise(b);
 
         // Then
-        assertDeserialisedObjecttEquals(exampledSet, actual);
+        assertDeserialisedObjectEquals(exampledSet, actual);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         return set;
     }
 
-    private void assertDeserialisedObjecttEquals(Set<String> set, Set o) {
+    private void assertDeserialisedObjectEquals(Set<String> set, Set o) {
         assertEquals(HashSet.class, o.getClass());
         assertEquals(6, o.size());
         assertEquals(set, o);
