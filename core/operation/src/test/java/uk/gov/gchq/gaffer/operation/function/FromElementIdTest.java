@@ -29,40 +29,52 @@ public class FromElementIdTest {
 
     @Test
     public void shouldReturnNullIfTheInputIsNull() {
+        // Given
         final FromElementId function = new FromElementId();
 
+        // When
         final Object output = function.apply(null);
 
+        // Then
         assertNull(output);
     }
 
     @Test
     public void shouldUnwrapIfInputIsAnEntitySeed() {
+        // Given
         final EntitySeed input = new EntitySeed("item");
         final FromElementId function = new FromElementId();
 
+        // When
         final Object output = function.apply(input);
 
+        // Then
         assertSame(input.getVertex(), output);
     }
 
     @Test
     public void shouldUnwrapIfInputIsAnEntity() {
+        // Given
         final Entity input = new Entity("group", "item");
         final FromElementId function = new FromElementId();
 
+        // When
         final Object output = function.apply(input);
 
+        // Then
         assertSame(input.getVertex(), output);
     }
 
     @Test
     public void shouldReturnOriginalValueIfInputIsAnEdge() {
+        // Given
         final Edge input = new Edge("group");
         final FromElementId function = new FromElementId();
 
+        // When
         final Object output = function.apply(input);
 
+        // Then
         assertSame(input, output);
     }
 }

@@ -27,8 +27,10 @@ public class ParameterDetailTest {
 
     @Test
     public void shouldBuildFullParameterDetailWithOptions() {
+        // Given
         final List options = Arrays.asList("option1", "option2", "option3");
 
+        // When / Then
         assertDoesNotThrow(() -> new ParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
@@ -40,8 +42,10 @@ public class ParameterDetailTest {
 
     @Test
     public void shouldBuildFullParameterDetailWithOptionsOfDifferentTypes() {
+        // Given
         final List options = Arrays.asList("option1", 2, true);
 
+        // When / Then
         assertDoesNotThrow(() -> new ParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
@@ -53,6 +57,7 @@ public class ParameterDetailTest {
 
     @Test
     public void shouldBuildFullParameterDetailWithNullOptions() {
+        // Given / When / Then
         assertDoesNotThrow(() -> new ParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)

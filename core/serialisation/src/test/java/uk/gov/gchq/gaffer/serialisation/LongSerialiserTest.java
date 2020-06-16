@@ -28,10 +28,13 @@ public class LongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (long i = 0; i < 1000; i++) {
+            // When
             final byte[] b = serialiser.serialise(i);
             final Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Long.class, o.getClass());
             assertEquals(i, o);
         }
@@ -39,18 +42,22 @@ public class LongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     @Test
     public void canSerialiseLongMinValue() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(Long.MIN_VALUE);
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseLongMaxValue() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(Long.MAX_VALUE);
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MAX_VALUE, o);
     }

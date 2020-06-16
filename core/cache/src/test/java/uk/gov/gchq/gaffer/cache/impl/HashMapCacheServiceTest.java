@@ -48,81 +48,106 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldReturnInstanceOfHashMapCache() {
+        // When
         final ICache cache = service.getCache(CACHE_NAME);
 
+        // Then
         assertTrue(cache instanceof HashMapCache);
     }
 
     @Test
     public void shouldCreateNewHashMapCacheIfOneDoesNotExist() {
+        // When
         final ICache cache = service.getCache(CACHE_NAME);
 
+        // Then
         assertEquals(0, cache.size());
     }
 
     @Test
     public void shouldReUseCacheIfOneExists() throws CacheOperationException {
+        // Given
         final ICache<String, Integer> cache = service.getCache(CACHE_NAME);
         cache.put("key", 1);
 
+        // When
         final ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
+        // Then
         assertEquals(1, sameCache.size());
         assertEquals(new Integer(1), sameCache.get("key"));
     }
 
     @Test
     public void shouldAddEntriesToCache() throws CacheOperationException {
+       // When
         service.putInCache(CACHE_NAME, "test", 1);
 
+        // Then
         assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
     }
 
     @Test
     public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
+      // When
         service.putInCache(CACHE_NAME, "test", 1);
 
+        // Then
         assertThrows(OverwritingException.class, () -> {
             service.putSafeInCache(CACHE_NAME, "test", 2);
         });
         assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
 
+        // When
         service.putInCache(CACHE_NAME, "test", 2);
 
+        // Then
         assertEquals((Integer) 2, service.getFromCache(CACHE_NAME, "test"));
     }
 
     @Test
     public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
+        // Given
         service.putInCache(CACHE_NAME, "test", 1);
 
+        // When
         service.removeFromCache(CACHE_NAME, "test");
 
+        // Then
         assertEquals(0, service.sizeOfCache(CACHE_NAME));
     }
 
     @Test
     public void shouldBeAbleToClearCache() throws CacheOperationException {
+        // Given
         populateCache();
 
+        // When
         service.clearCache(CACHE_NAME);
 
+        // Then
         assertEquals(0, service.sizeOfCache(CACHE_NAME));
     }
 
     @Test
     public void shouldGetAllKeysFromCache() throws CacheOperationException {
+        // When
         populateCache();
 
+        // Then
         assertEquals(3, service.sizeOfCache(CACHE_NAME));
         assertThat(service.getAllKeysFromCache(CACHE_NAME), hasItems("test1", "test2", "test3"));
     }
 
     @Test
     public void shouldGetAllValues() throws CacheOperationException {
+        // Given
         populateCache();
+
+        // When
         service.putInCache(CACHE_NAME, "duplicate", 3);
 
+        // Then
         assertEquals(4, service.sizeOfCache(CACHE_NAME));
         assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
         assertThat(service.getAllValuesFromCache(CACHE_NAME), hasItems(1, 2, 3, 3));

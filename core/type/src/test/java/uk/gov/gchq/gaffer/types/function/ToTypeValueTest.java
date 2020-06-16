@@ -67,6 +67,7 @@ public class ToTypeValueTest extends GafferFunctionTest {
         assertEquals(new TypeValue(null, null), result);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

@@ -49,6 +49,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
         assertEquals("props1", deserialisedOp.getParentStorePropertiesId());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given / When / Then
@@ -57,6 +58,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
         assertEquals("props1", op.getParentStorePropertiesId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // When

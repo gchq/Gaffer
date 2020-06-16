@@ -32,8 +32,11 @@ public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void testPrimitiveSerialisation() throws SerialisationException {
-        byte[] b = serialiser.serialise(2);
-        Object o = serialiser.deserialise(b);
+        // When
+        final byte[] b = serialiser.serialise(2);
+        final Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }

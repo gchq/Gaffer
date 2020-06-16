@@ -42,25 +42,33 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
         final byte[] json = toJson(op);
         final NamedOperation deserialisedOp = fromJson(json);
 
+        // Then
         assertEquals(testOpName, deserialisedOp.getOperationName());
         assertEquals(testParamsMap, deserialisedOp.getParameters());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         final String testOpName = "testOpName";
         final Map testParamsMap = Collections.singletonMap("test", "testVal");
+
+        // When
         NamedOperation op = (NamedOperation) new NamedOperation.Builder()
                 .name(testOpName)
                 .parameters(testParamsMap)
                 .build();
 
+        // Then
         assertEquals(testOpName, op.getOperationName());
         assertEquals(testParamsMap, op.getParameters());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final String testOpName = "testOpName";
         final Map testParamsMap = Collections.singletonMap("test", "testVal");
         NamedOperation op = (NamedOperation) new NamedOperation.Builder()
@@ -68,8 +76,10 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
                 .parameters(testParamsMap)
                 .build();
 
+        // When
         NamedOperation clonedOp = op.shallowClone();
 
+        // Then
         assertEquals(testOpName, clonedOp.getOperationName());
         assertEquals(testParamsMap, clonedOp.getParameters());
     }

@@ -42,27 +42,35 @@ public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
 
     @Test
     public void shouldSerialiseBytesByJustReturningTheProvidedBytes() throws SerialisationException {
+        // Given
         final byte[] bytes = {0, 1};
 
+        // When
         final byte[] serialisedBytes = serialiser.serialise(bytes);
 
+        // Then
         assertSame(bytes, serialisedBytes);
     }
 
     @Test
     public void shouldDeserialiseBytesByJustReturningTheProvidedBytes() throws SerialisationException {
+        // Given
         final byte[] bytes = {0, 1};
 
+        // When
         final byte[] deserialisedBytes = serialiser.deserialise(bytes);
 
+        // Then
         assertSame(bytes, deserialisedBytes);
     }
 
     @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
+        // Given When
         final byte[] value = serialiser.deserialiseEmpty();
 
+        // Then
         assertEquals(0, value.length);
     }
 

@@ -76,6 +76,7 @@ public class ToElementTupleTest extends GafferFunctionTest {
         return new Class[] {ElementTuple.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToElementTuple function = getInstance();

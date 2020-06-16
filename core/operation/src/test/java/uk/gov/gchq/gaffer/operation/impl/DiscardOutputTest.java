@@ -30,18 +30,23 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
 
+        // When / Then
         assertThat(discardOutput.getInput(), is(nullValue()));
     }
 
     @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final DiscardOutput op = getTestObject();
 
+        // When
         final DiscardOutput clone = op.shallowClone();
 
+        // Then
         assertNotSame(op, clone);
     }
 

@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
+
     private final String testJobId = "testJobId";
 
     @Test

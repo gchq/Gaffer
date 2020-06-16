@@ -57,10 +57,12 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // When
         final ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder()
                 .operationChain(operationChain)
                 .build();
 
+        // Then
         assertEquals(operationChain, validateOperationChain.getOperationChain());
     }
 

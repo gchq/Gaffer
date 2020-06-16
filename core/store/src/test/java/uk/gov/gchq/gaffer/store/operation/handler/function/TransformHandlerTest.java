@@ -125,12 +125,12 @@ public class TransformHandlerTest {
         // When
         final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
         final List<Element> resultsList = Lists.newArrayList(results);
+
         // Then
         boolean isSame = false;
         for (int i = 0; i < resultsList.size(); i++) {
             isSame = expected.get(i).getProperty(TestPropertyNames.PROP_3).equals(resultsList.get(i).getProperty(TestPropertyNames.PROP_3));
         }
-
         assertTrue(isSame);
     }
 

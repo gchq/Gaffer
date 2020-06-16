@@ -31,6 +31,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class OperationViewTest {
+
     private final View testView1 = new View.Builder()
             .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                     .excludeProperties("testProp")
@@ -56,48 +57,60 @@ public class OperationViewTest {
 
     @Test
     public void shouldMergeTwoViewsWhenSettingBothAtOnce() {
+        // Given
         operationView.setViews(Arrays.asList(testView1, testView2));
 
+        // When / Then
         JsonAssert.assertEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldMergeTwoViewsWhenOneIsNamedView() {
+        // Given / When / Then
         assertDoesNotThrow(() -> operationView.setViews(Arrays.asList(testView1, testNamedView1)));
     }
 
     @Test
     public void shouldMergeTwoViewsWhenOneAlreadySet() {
+        // Given
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView2));
 
+        // When / Then
         JsonAssert.assertEquals(mergedTestViews.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldMergeEmptyViewCorrectly() {
+        // Given
         operationView.setViews(Arrays.asList(testView1, new View()));
 
+        // When / Then
         JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldCorrectlyMergeIdenticalViewsWhenSettingBothAtOnce() {
+        // Given
         operationView.setViews(Arrays.asList(testView1, testView1));
 
+        // When / Then
         JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void shouldCorrectlyMergeIdenticalViewsWhenOneAlreadySet() {
+        // Given
         operationView.setView(testView1);
         operationView.setViews(Collections.singletonList(testView1));
 
+        // When / Then
         JsonAssert.assertEquals(testView1.toCompactJson(), operationView.getView().toCompactJson());
     }
 
     @Test
     public void doesNotThrowAnyExceptionsWhenSettingViewsToNull() {
+        // Given / When / Then
         assertDoesNotThrow(() -> operationView.setViews(null));
     }
 }

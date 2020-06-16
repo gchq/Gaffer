@@ -48,7 +48,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
@@ -198,6 +197,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     @Test
     public void shouldResolveNamedViewWithParameter() throws CacheOperationFailedException {
+        // Given
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(EDGE_NAME_PARAM_KEY, TestGroups.EDGE_2);
 

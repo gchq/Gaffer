@@ -31,10 +31,13 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (double i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -42,27 +45,35 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
 
     @Test
     public void canSerialiseDoubleMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Double.MIN_VALUE);
         Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseDoubleMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Double.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
+        // Given
         byte[] startBytes = serialiser.serialise(0d);
         for (Double test = 1d; test >= 10d; test++) {
+            // When
             byte[] newTestBytes = serialiser.serialise(test);
 
+            // Then
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }

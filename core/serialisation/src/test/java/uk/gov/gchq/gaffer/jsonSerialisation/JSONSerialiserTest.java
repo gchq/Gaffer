@@ -52,7 +52,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class JSONSerialiserTest {
 
@@ -82,10 +81,13 @@ public class JSONSerialiserTest {
 
     @Test
     public void testPrimitiveSerialisation() throws IOException {
+        // Given
         final byte[] b = JSONSerialiser.serialise(2);
 
+        // When
         final Object o = JSONSerialiser.deserialise(b, Object.class);
 
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
@@ -97,33 +99,42 @@ public class JSONSerialiserTest {
 
     @Test
     public void testDAOSerialisation() throws SerialisationException {
+        // Given
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
         final byte[] b = JSONSerialiser.serialise(test);
 
+        // When
         final Object o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
 
+        // Then
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", ((SimpleTestObject) o).getX());
     }
 
     @Test
     public void shouldNotPrettyPrintByDefaultWhenSerialising() throws SerialisationException {
+        // Given
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
 
+        // When
         final byte[] bytes = JSONSerialiser.serialise(test);
 
+        // Then
         assertEquals("{\"x\":\"TestValue1\"}", new String(bytes));
     }
 
     @Test
     public void shouldPrettyPrintWhenSerialisingAndSetToPrettyPrint() throws SerialisationException {
+        // Given
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
 
+        // When
         final byte[] bytes = JSONSerialiser.serialise(test, true);
 
+        // Then
         JsonAssert.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
@@ -134,13 +145,16 @@ public class JSONSerialiserTest {
 
     @Test
     public void testParameterisedDAOSerialisation() throws SerialisationException {
+        // Given
         final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
         final byte[] b = JSONSerialiser.serialise(test);
 
+        // When
         final Object o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
 
+        // Then
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", ((ParameterisedTestObject) o).getX());
         assertEquals(Integer.class, ((ParameterisedTestObject) o).getK().getClass());
@@ -149,39 +163,48 @@ public class JSONSerialiserTest {
 
     @Test
     public void testParameterisedDAOTypeRefDeserialisation() throws SerialisationException {
+        // Given
         final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
         final byte[] b = JSONSerialiser.serialise(test);
 
+        // When
         ParameterisedTestObject<Integer> o = JSONSerialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {
         });
 
+        // Then
         assertEquals("Test", o.getX());
         assertEquals(Integer.valueOf(2), o.getK());
     }
 
     @Test
     public void testParameterisedDeserialisationOfComplexObject() throws SerialisationException {
+        // Given
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
         final byte[] b = JSONSerialiser.serialise(test);
 
+        // When
         final SimpleTestObject o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
 
+        // Then
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", o.getX());
     }
 
     @Test
     public void testParameterisedDeserialisationOfParameterisedComplexObject() throws SerialisationException {
+        // Given
         final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
         byte[] b = JSONSerialiser.serialise(test);
 
+        // When
         final ParameterisedTestObject o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
 
+        // Then
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", o.getX());
         assertEquals(Integer.class, o.getK().getClass());
@@ -191,36 +214,47 @@ public class JSONSerialiserTest {
 
     @Test
     public void testParameterisedDeserialisationOfComplexObjectToIncorrectType() throws SerialisationException {
+        // Given
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
 
+        // When
         final byte[] b = JSONSerialiser.serialise(test);
 
+        // Then
         assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(b, Integer.class));
     }
 
     @Test
     public void shouldSerialiseObjectWithoutFieldX() throws Exception {
+        // Given
         final SimpleTestObject obj = new SimpleTestObject();
 
+        // When
         final String json = new String(JSONSerialiser.serialise(obj, "x"), CommonConstants.UTF_8);
 
+        // Then
         assertFalse(json.contains("x"));
     }
 
     @Test
     public void shouldSerialiseObjectWithFieldX() throws Exception {
+        // Given
         final SimpleTestObject obj = new SimpleTestObject();
 
+        // When
         final String json = new String(JSONSerialiser.serialise(obj), CommonConstants.UTF_8);
 
+        // Then
         assertTrue(json.contains("x"));
     }
 
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
+        // Given
         assertNotNull(historicSerialisationPairs);
 
+        // When / Then
         for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
             serialiseFirst(pair);
             deserialiseSecond(pair);

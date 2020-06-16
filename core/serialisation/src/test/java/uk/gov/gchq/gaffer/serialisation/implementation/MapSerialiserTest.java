@@ -34,11 +34,14 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
 
     @Test
     public void shouldSerialiseAndDeSerialiseOverlappingMapValuesWithDifferentKeys() throws SerialisationException {
+        // Given
         final Map<String, Long> map = getExampleValue();
 
+        // When
         final byte[] b = serialiser.serialise(map);
         final Map o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(HashMap.class, o.getClass());
         assertEquals(6, o.size());
         assertEquals(map, o);
@@ -52,6 +55,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
 
     @Test
     public void mapSerialiserTest() throws SerialisationException {
+        // Given
         Map<Integer, Integer> map = new LinkedHashMap<>();
         map.put(1, 3);
         map.put(2, 7);
@@ -61,9 +65,11 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
         ((MapSerialiser) serialiser).setValueSerialiser(new IntegerSerialiser());
         ((MapSerialiser) serialiser).setMapClass(LinkedHashMap.class);
 
+        // When
         final byte[] b = serialiser.serialise(map);
         final Map o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(LinkedHashMap.class, o.getClass());
         assertEquals(3, o.size());
         assertEquals(3, o.get(1));

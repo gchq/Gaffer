@@ -71,9 +71,9 @@ public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
     @Test
     @Override
     public void shouldShallowCloneOperation() {
-        //when
+        // When
         AddSchemaToLibrary clone = op.shallowClone();
-        //then
+        // Then
         assertEquals(op.getSchema(), clone.getSchema());
         assertEquals(op.getParentSchemaIds(), clone.getParentSchemaIds());
         assertEquals(op.getId(), clone.getId());

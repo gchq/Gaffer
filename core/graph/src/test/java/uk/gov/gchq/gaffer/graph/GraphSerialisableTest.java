@@ -70,40 +70,48 @@ public class GraphSerialisableTest {
 
     @Test
     public void shouldSerialiseAndDeserialise() throws Exception {
+        // Given
         final JavaSerialiser javaSerialiser = new JavaSerialiser();
         final byte[] serialise = javaSerialiser.serialise(expected);
         final GraphSerialisable result = (GraphSerialisable) javaSerialiser.deserialise(serialise);
 
+        // When / Then
         assertEquals(expected, result);
     }
 
     @Test
     public void shouldConsumeGraph() {
+        // Given
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties)).config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
 
+        // When / Then
         assertEquals(expected, result);
     }
 
     @Test
     public void shouldSerialiseWithJavaSerialiser() {
+        // Given
         HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(true);
         String key = "key";
         GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
         cache.put(key, expected);
         GraphSerialisable actual = cache.get(key);
 
+        // When / Then
         assertEquals(expected, actual);
     }
 
     @Test
     public void shouldSerialiseWithJsonSerialiser() {
+        // Given
         HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
         String key = "key";
         GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
         cache.put(key, expected);
         GraphSerialisable actual = cache.get(key);
 
+        // When / Then
         assertEquals(expected, actual);
     }
 }

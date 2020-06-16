@@ -30,8 +30,11 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
 
     @Test
     public void shouldSerialiseAndDeserialise() throws Exception {
+        // Given When
         final String serialised = serialiser.serialise(STRING_VALUE_1);
         final String deserialise = serialiser.deserialise(serialised);
+
+        // Then
         assertEquals(STRING_VALUE_1, serialised);
         assertEquals(STRING_VALUE_1, deserialise);
         assertEquals(serialised, deserialise);

@@ -70,6 +70,7 @@ public class ToPropertiesTupleTest extends GafferFunctionTest {
         return new Class[]{PropertiesTuple.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToPropertiesTuple function = getInstance();

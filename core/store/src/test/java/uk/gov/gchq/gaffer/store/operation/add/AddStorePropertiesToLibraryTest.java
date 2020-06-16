@@ -60,7 +60,7 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        //then
+        // Then
         assertEquals(storeProperties, op.getStoreProperties());
         assertEquals(VALUE_1, op.getParentPropertiesId());
         assertEquals(TEST_ID, op.getId());
@@ -69,10 +69,10 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
     @Test
     @Override
     public void shouldShallowCloneOperation() {
-        //when
+        // When
         AddStorePropertiesToLibrary clone = op.shallowClone();
 
-        //then
+        // Then
         assertEquals(op.getStoreProperties(), clone.getStoreProperties());
         assertEquals(op.getParentPropertiesId(), clone.getParentPropertiesId());
         assertEquals(op.getId(), clone.getId());

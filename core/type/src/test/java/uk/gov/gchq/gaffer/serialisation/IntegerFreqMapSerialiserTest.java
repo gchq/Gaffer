@@ -30,24 +30,30 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
+        // Given
         byte[] b = serialiser.serialise(new IntegerFreqMap());
 
+        // When
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertEquals(0, ((IntegerFreqMap) o).size());
     }
 
     @Test
     public void canSerialiseDeSerialiseFreqMapWithValues() throws SerialisationException {
+        // Given
         IntegerFreqMap freqMap = new IntegerFreqMap();
         freqMap.put("x", 10);
         freqMap.put("y", 5);
         freqMap.put("z", 20);
 
+        // When
         byte[] b = serialiser.serialise(freqMap);
 
-        IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
+        // Then
+        IntegerFreqMap o = serialiser.deserialise(b);
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertEquals((Integer) 10, o.get("x"));
         assertEquals((Integer) 5, o.get("y"));
@@ -56,14 +62,17 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void testSerialiserWillSkipEntryWithNullValue() throws SerialisationException {
+        // Given
         IntegerFreqMap freqMap = new IntegerFreqMap();
         freqMap.put("x", null);
         freqMap.put("y", 5);
         freqMap.put("z", 20);
 
+        // When
         final byte[] b = serialiser.serialise(freqMap);
-        final IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
+        final IntegerFreqMap o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertNull(o.get("x"));
         assertEquals((Integer) 5, o.get("y"));

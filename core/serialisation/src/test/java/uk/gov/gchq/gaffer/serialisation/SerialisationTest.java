@@ -37,6 +37,7 @@ public abstract class SerialisationTest<INPUT, OUTPUT> {
 
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
+        // Then
         assertNotNull(historicSerialisationPairs, "historicSerialisationPairs should not be null.");
         assertNotEquals(0, historicSerialisationPairs.length, "historicSerialisationPairs should not be empty.");
 

@@ -85,6 +85,7 @@ public class GetAllNamedOperationsHandlerTest {
 
     @Test
     public void shouldReturnLabelWhenNamedOperationHasLabel() throws Exception {
+        // Given
         final AddNamedOperation addNamedOperationWithLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
                 .labels(Collections.singletonList("test label"))
@@ -92,13 +93,16 @@ public class GetAllNamedOperationsHandlerTest {
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithLabel, context, store);
 
+        // When
         final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
+        // Then
         assertEquals(Collections.singletonList("test label"), allNamedOperations.iterator().next().getLabels());
     }
 
     @Test
     public void shouldReturnNullLabelWhenLabelIsNullFromAddNamedOperationRequest() throws Exception {
+        // Given
         final AddNamedOperation addNamedOperationWithNullLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
                 .labels(null)
@@ -106,8 +110,10 @@ public class GetAllNamedOperationsHandlerTest {
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithNullLabel, context, store);
 
+        // When
         final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
+        // Then
         assertNull(allNamedOperations.iterator().next().getLabels());
     }
 

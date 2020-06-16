@@ -45,6 +45,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
+        // Given
         final String fromDisk = String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), PATH)));
 
         final MultiSerialiser multiSerialiser = new MultiSerialiser()
@@ -52,15 +53,19 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
                 .addSerialiser((byte) 1, new CompactRawLongSerialiser(), Long.class)
                 .addSerialiser((byte) 2, new CompactRawIntegerSerialiser(), Integer.class);
 
+        // When
         final String fromCode = new String(JSONSerialiser.serialise(multiSerialiser, true));
 
+        // Then
         assertEquals(fromDisk, fromCode);
     }
 
     @Test
     public void shouldNotAddMultiSerialiser() {
+        // Given When
         final Exception exception = assertThrows(GafferCheckedException.class, () -> new MultiSerialiser().addSerialiser((byte) 0, new MultiSerialiser(), Object.class));
 
+        // Then
         assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER, exception.getMessage());
     }
 

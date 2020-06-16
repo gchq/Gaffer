@@ -108,7 +108,7 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
     }
 
     @Test
-    public void shouldValidateASingleMissingRequiredField() throws SerialisationException {
+    public void shouldValidateASingleMissingRequiredField() {
         // Given
         final String requiredField1 = "value1";
         final Date optionalField1 = new Date(1L);

@@ -36,41 +36,51 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
 
     @Test
     public void shouldFailValidationIfNumSplitsIsLessThan1() {
+        // Given
         final GenerateSplitPointsFromSample op = new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(0)
                 .build();
 
+        // When
         final ValidationResult result = op.validate();
 
+        // Then
         assertFalse(result.isValid());
         assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"), result.getErrorString());
     }
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
+        // Given
         final GenerateSplitPointsFromSample op = getTestObject();
 
+        // When
         byte[] json = JSONSerialiser.serialise(op, true);
-
         final GenerateSplitPointsFromSample deserialisedOp = JSONSerialiser.deserialise(json, GenerateSplitPointsFromSample.class);
 
+        // Then
         assertExpected(deserialisedOp);
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given / When
         final GenerateSplitPointsFromSample op = getTestObject();
 
+        // Then
         assertExpected(op);
     }
 
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final GenerateSplitPointsFromSample op = getTestObject();
 
+        // When
         final GenerateSplitPointsFromSample clone = op.shallowClone();
 
+        // Then
         assertExpected(clone);
     }
 

@@ -31,10 +31,13 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (long i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Long.class, o.getClass());
             assertEquals(i, o);
         }
@@ -42,28 +45,35 @@ public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     @Test
     public void canSerialiseLongMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Long.MIN_VALUE);
         Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseLongMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Long.MAX_VALUE);
         Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
+        // Given
         byte[] startBytes = serialiser.serialise(0L);
         for (Long test = 1L; test >= 10L; test++) {
+            // When
             byte[] newTestBytes = serialiser.serialise(test);
 
+            // Then
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }

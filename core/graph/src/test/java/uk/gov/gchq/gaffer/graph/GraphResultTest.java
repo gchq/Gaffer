@@ -32,16 +32,20 @@ public class GraphResultTest {
 
     @Test
     public void equalsCoverage() {
+        // Given When
         final GraphResult<Operation> actual = new GraphResult<>(operation, context);
         final GraphResult<Operation> expected = new GraphResult<>(operation, context);
 
+        // Then
         assertEquals(expected, actual);
     }
 
     @Test
     public void toStringCoverage() {
+        // Given / When
         final GraphResult<Operation> actual = new GraphResult<>(operation, context);
 
+        // Then
         assertTrue(actual.toString().contains("GraphResult[result=uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"));
     }
 }

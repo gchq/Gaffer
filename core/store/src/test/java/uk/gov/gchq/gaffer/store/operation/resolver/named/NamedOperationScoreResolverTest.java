@@ -44,6 +44,7 @@ public class NamedOperationScoreResolverTest {
 
     @Test
     public void shouldGetScore() throws CacheOperationFailedException {
+        // Given
         final Integer expectedScore = 5;
         final String opName = "otherOp";
 
@@ -56,16 +57,17 @@ public class NamedOperationScoreResolverTest {
 
         given(cache.getFromCache(namedOpDetail.getOperationName())).willReturn(namedOpDetail);
         given(namedOpDetail.getOperationName()).willReturn(opName);
-        given(namedOpDetail.getScore()).willReturn(5);
+        given(namedOpDetail.getScore()).willReturn(expectedScore);
 
+        // When
         final Integer result = resolver.getScore(namedOp);
 
+        // Then
         assertEquals(expectedScore, result);
     }
 
     @Test
     public void shouldGetScoreFromOperationsInParameters() throws CacheOperationFailedException {
-
         //Given
         final Integer expectedScore = 8;
 
@@ -131,11 +133,14 @@ public class NamedOperationScoreResolverTest {
 
     @Test
     public void shouldCatchExceptionForCacheFailures() {
+        // Given
         final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
         final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver();
 
+        // When
         final Integer result = resolver.getScore(namedOp);
 
+        // Then
         assertNull(result);
     }
 }

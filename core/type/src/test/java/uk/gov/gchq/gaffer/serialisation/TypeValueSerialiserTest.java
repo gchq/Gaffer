@@ -29,15 +29,20 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectly() throws SerialisationException {
+        // Given
         final TypeValue typeValue = new TypeValue("testType", "testValue");
 
+        // When
         final byte[] bytes = serialiser.serialise(typeValue);
         final String serialisedForm = new String(bytes);
 
+        // Then
         assertEquals("testType\0testValue", serialisedForm);
 
+        // When
         final TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
 
+        // Then
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -45,16 +50,21 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectlyValueOnly() throws SerialisationException {
+        // Given
         final TypeValue typeValue = new TypeValue();
         typeValue.setValue("testValue");
 
+        // When
         final byte[] bytes = serialiser.serialise(typeValue);
         final String serialisedForm = new String(bytes);
 
+        // Then
         assertEquals("\0testValue", serialisedForm);
 
+        // When
         final TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
 
+        // Then
         assertNull(deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -62,16 +72,21 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectlyTypeOnly() throws SerialisationException {
+        // Given
         final TypeValue typeValue = new TypeValue();
         typeValue.setType("testType");
 
+        // When
         final byte[] bytes = serialiser.serialise(typeValue);
         final String serialisedForm = new String(bytes);
 
+        // Then
         assertEquals("testType\0", serialisedForm);
 
+        // When
         final TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
 
+        // When
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertNull(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -79,16 +94,21 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeserialiseCorrectlyAndBeEscaped() throws SerialisationException {
+        // Given
         final TypeValue typeValue = new TypeValue("testType", "testValue");
 
+        // When
         final byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeValue));
         final String serialisedForm = new String(bytes);
 
+        // Then
         assertEquals("testType\1\1testValue", serialisedForm);
 
+        // When
         final TypeValue deSerialisedTypeValue = serialiser.deserialise(ByteArrayEscapeUtils
                 .unEscape(bytes));
 
+        // Then
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
