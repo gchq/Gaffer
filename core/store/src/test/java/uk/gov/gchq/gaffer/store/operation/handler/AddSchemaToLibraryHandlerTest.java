@@ -82,11 +82,14 @@ public class AddSchemaToLibraryHandlerTest {
 
     @Test
     public void shouldSupportAddToGraphLibrary() throws StoreException {
+        // Given
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
 
+        // When
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // Then
         assertTrue(store.isSupported(AddSchemaToLibrary.class));
     }
 
