@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -56,6 +57,8 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByte;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerClassic;
     private static final String BYTE_ENTITY_GRAPH = "byteEntity";
     private static final String CLASSIC_GRAPH = "classic";
     private static MiniAccumuloStore byteEntityStore;
@@ -69,9 +72,12 @@ public class GetElementsInRangesIT {
     @BeforeAll
     public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStore();
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManagerByte = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = miniAccumuloClusterManagerByte.getProperties();
+
         classicStore = new SingleUseMiniAccumuloStore();
-        classicStoreProperties = (AccumuloProperties) classicStore.setUpTestDB(CLASSIC_PROPERTIES);
+        miniAccumuloClusterManagerClassic = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES);
+        classicStoreProperties = miniAccumuloClusterManagerClassic.getProperties();
     }
 
     @BeforeEach
@@ -82,8 +88,8 @@ public class GetElementsInRangesIT {
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
-        classicStore.tearDownTestDB();
+        miniAccumuloClusterManagerByte.close();
+        miniAccumuloClusterManagerClassic.close();
     }
 
     @Test

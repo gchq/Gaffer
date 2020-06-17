@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -58,6 +59,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
     private static View defaultView;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
     private static AccumuloProperties byteEntityStoreProperties;
@@ -72,9 +75,12 @@ public class GetElementsInRangesHandlerTest {
     @BeforeAll
     public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStore();
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = miniAccumuloClusterManagerByteEntity.getProperties();
+
         gaffer1KeyStore = new SingleUseMiniAccumuloStore();
-        gaffer1KeyStoreProperties = (AccumuloProperties) gaffer1KeyStore.setUpTestDB(CLASSIC_PROPERTIES);
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES);
+        gaffer1KeyStoreProperties = miniAccumuloClusterManagerGaffer1Key.getProperties();
     }
 
     @BeforeEach
@@ -90,8 +96,8 @@ public class GetElementsInRangesHandlerTest {
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
-        gaffer1KeyStore.tearDownTestDB();
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
         defaultView = null;
     }
 

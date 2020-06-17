@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -68,6 +69,8 @@ import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 public class RowIdAggregatorTest {
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
     private static AccumuloProperties byteEntityStoreProperties;
@@ -82,10 +85,13 @@ public class RowIdAggregatorTest {
     @BeforeAll
     public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStore();
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = miniAccumuloClusterManagerByteEntity.getProperties();
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
+
         gaffer1KeyStore = new SingleUseMiniAccumuloStore();
-        gaffer1KeyStoreProperties = (AccumuloProperties) gaffer1KeyStore.setUpTestDB(CLASSIC_PROPERTIES);
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES);
+        gaffer1KeyStoreProperties = miniAccumuloClusterManagerGaffer1Key.getProperties();
         gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
     }
 
@@ -99,9 +105,9 @@ public class RowIdAggregatorTest {
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
-        gaffer1KeyStore.tearDownTestDB();
-   }
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
+    }
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, RangeFactoryException {

@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
@@ -54,9 +53,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TableUtilsTest {
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static SingleUseMiniAccumuloStore byteEntityStore;
     private static AccumuloProperties byteEntityStoreProperties;
-    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
     private static final String GRAPH_ID = "graph1";
     private static final String LOCALITY_GRAPH_ID = "localityTest";
@@ -65,12 +64,13 @@ public class TableUtilsTest {
     @BeforeAll
     public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStore();
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = miniAccumuloClusterManager.getProperties();
     }
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
+        miniAccumuloClusterManager.close();
     }
 
     @Test
