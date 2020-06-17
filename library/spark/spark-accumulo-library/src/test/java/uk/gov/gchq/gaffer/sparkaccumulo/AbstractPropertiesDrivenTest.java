@@ -16,36 +16,25 @@
 
 package uk.gov.gchq.gaffer.sparkaccumulo;
 
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public abstract class AbstractPropertiesDrivenTest {
 
-    private static Store store;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     public static StoreProperties setUpBeforeClass(String propertiesID) throws Exception {
-        // Get the store class from the properties supplied
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
-        StoreProperties suppliedProperties = StoreProperties
+        AccumuloProperties suppliedProperties = AccumuloProperties
                 .loadStoreProperties(currentClass.getResourceAsStream(propertiesID));
-        final String storeClass = suppliedProperties.getStoreClass();
-        if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-        }
-        // Instantiate the store class
-        try {
-            store = Class.forName(storeClass)
-                    .asSubclass(Store.class)
-                    .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-        }
-        // Set up the data store and set the properties to suit.
-        return (StoreProperties) store.setUpTestDB(suppliedProperties);
+
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(suppliedProperties);
+        return miniAccumuloClusterManager.getProperties();
     }
 
     public static void tearDownAfterClass() throws Exception {
-        store.tearDownTestDB();
+        miniAccumuloClusterManager.close();
     }
 
 }

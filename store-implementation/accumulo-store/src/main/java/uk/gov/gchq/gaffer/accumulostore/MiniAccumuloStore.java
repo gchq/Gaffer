@@ -16,17 +16,8 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
-import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
-import org.apache.accumulo.minicluster.MiniAccumuloConfig;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -101,80 +92,11 @@ import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-
 /**
  * An {@link AccumuloStore} that uses an Accumulo {@link MiniAccumuloCluster} to
  * provide a {@link Connector}.
  */
 public class MiniAccumuloStore extends AccumuloStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloStore.class);
-    private static final String BASE_DIRECTORY = "miniAccumuloStoreTest-";
-    private static final String ROOTPW = "rootPW";
-    private MiniAccumuloCluster miniAccumuloCluster = null;
-    private MiniAccumuloConfig miniAccumuloConfig = null;
-    private Connector miniConnector;
-
-    public StoreProperties setUpTestDB(final StoreProperties properties) throws StoreException {
-        setProperties(properties);
-
-        File targetDir = new File("target");
-        File baseDir;
-        if (targetDir.exists() && targetDir.isDirectory()) {
-            baseDir = new File(targetDir, BASE_DIRECTORY + UUID.randomUUID());
-        } else {
-            baseDir = new File(FileUtils.getTempDirectory(), BASE_DIRECTORY + UUID.randomUUID());
-        }
-
-        try {
-            FileUtils.deleteDirectory(baseDir);
-            miniAccumuloConfig = new MiniAccumuloConfig(baseDir, ROOTPW);
-            miniAccumuloConfig.setInstanceName(getProperties().getInstance());
-            miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
-            miniAccumuloCluster.start();
-        } catch (final IOException | InterruptedException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-
-        // Create the user specified in the properties (if not root)
-        // together with the specified password and give them all authorisations
-        try {
-            if (!getProperties().getUser().equalsIgnoreCase("root")) {
-                miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
-                        .createLocalUser(getProperties().getUser(), new PasswordToken(getProperties().getPassword()));
-                miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
-                        .grantSystemPermission(getProperties().getUser(), SystemPermission.CREATE_TABLE);
-                miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
-                        .grantSystemPermission(getProperties().getUser(), SystemPermission.CREATE_NAMESPACE);
-            }
-            Authorizations auths = new Authorizations("public", "private", "publicVisibility", "privateVisibility", "vis1", "vis2");
-            miniAccumuloCluster.getConnector("root", ROOTPW).securityOperations()
-                    .changeUserAuthorizations(getProperties().getUser(), auths);
-        } catch (final AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException(e.getMessage(), e);
-        }
-
-        // Create the new properties object to pass back, including connection items
-        AccumuloProperties accumuloProperties = (AccumuloProperties) properties.clone();
-        accumuloProperties.setInstance(miniAccumuloCluster.getInstanceName());
-        accumuloProperties.setZookeepers(miniAccumuloCluster.getZooKeepers());
-
-        return accumuloProperties;
-    }
-
-    public void tearDownTestDB() {
-        this.closeMiniAccumuloStore();
-    }
-
-    public MiniAccumuloCluster getMiniAccumuloCluster() {
-        return miniAccumuloCluster;
-    }
-
-    public Connector getMiniConnector() {
-        return miniConnector;
-    }
 
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
@@ -259,30 +181,4 @@ public class MiniAccumuloStore extends AccumuloStore {
         return super.getOperationHandler(opClass);
     }
 
-    private void closeMiniAccumuloStore() {
-        if (null == miniAccumuloCluster) {
-            return;
-        }
-        try {
-            miniAccumuloCluster.stop();
-        } catch (final IOException | InterruptedException e) {
-            try {
-                // Try one more time.
-                miniAccumuloCluster.stop();
-            } catch (final IOException | InterruptedException e2) {
-                LOGGER.error("Failed to stop MiniAccumuloCluster: " + e2.getMessage());
-            }
-        }
-        try {
-            FileUtils.deleteDirectory(new File(miniAccumuloCluster.getConfig().getDir().getAbsolutePath()));
-        } catch (final IOException e) {
-            try {
-                FileUtils.deleteDirectory(new File(miniAccumuloCluster.getConfig().getDir().getAbsolutePath()));
-            } catch (final IOException e2) {
-                LOGGER.error("Failed to delete MiniAccumuloCluster directory: " +
-                        miniAccumuloCluster.getConfig().getDir().getAbsolutePath() +
-                        " : " + e2.getMessage());
-            }
-        }
-    }
 }

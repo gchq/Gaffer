@@ -32,8 +32,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -64,34 +66,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     protected static final String[] VERTICES = {"1", "2", "3"};
 
-    private static Store store;
     private static StoreProperties storeProperties;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     @BeforeAll
     public static void setUpBeforeAll() throws Exception {
-        // Get the store class from the properties supplied
-        Class currentClass = new Object() { }.getClass().getEnclosingClass();
-        StoreProperties suppliedProperties = StoreProperties
-                .loadStoreProperties(currentClass.getResourceAsStream("/store.properties"));
-        final String storeClass = suppliedProperties.getStoreClass();
-        if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-        }
-        // Instantiate the store class
-        try {
-            store = Class.forName(storeClass)
-                    .asSubclass(Store.class)
-                    .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-        }
-        // Set up the data store and set the properties to suit.
-        storeProperties = (StoreProperties) store.setUpTestDB(suppliedProperties);
+        storeProperties = setUpDB("/store.properties");
     }
 
     @AfterAll
     public static void tearDownAfterAll() throws Exception {
-        store.tearDownTestDB();
+        miniAccumuloClusterManager.close();
+    }
+
+    public static StoreProperties setUpDB(String propertiesID) throws Exception {
+        Class currentClass = new Object() { }.getClass().getEnclosingClass();
+        AccumuloProperties suppliedProperties = AccumuloProperties
+                .loadStoreProperties(currentClass.getResourceAsStream(propertiesID));
+
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(suppliedProperties);
+        return miniAccumuloClusterManager.getProperties();
     }
 
     protected abstract OP createGetOperation();

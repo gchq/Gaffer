@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -62,6 +63,7 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.integration.operation.handler.javaardd.SplitStoreFromJavaRDDOfElementsHandlerIT;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -91,6 +93,7 @@ public final class GetRDDOfAllElementsHandlerIT {
     private static final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
     private static final String GRAPH_ID = "graphId";
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static SingleUseMiniAccumuloStore singleUseMiniAccumuloStoreStore;
     private static AccumuloProperties accumuloProperties;
 
@@ -105,15 +108,16 @@ public final class GetRDDOfAllElementsHandlerIT {
 
     @BeforeAll
     public static void setup() throws StoreException {
-        StoreProperties storeProperties = StoreProperties
+        AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
         singleUseMiniAccumuloStoreStore = new SingleUseMiniAccumuloStore();
-        accumuloProperties = (AccumuloProperties) singleUseMiniAccumuloStoreStore.setUpTestDB(storeProperties);
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(properties);
+        accumuloProperties = miniAccumuloClusterManager.getProperties();
     }
 
     @AfterAll
     public static void tearDown() {
-        singleUseMiniAccumuloStoreStore.tearDownTestDB();
+        miniAccumuloClusterManager.close();
     }
 
     @Test

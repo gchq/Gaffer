@@ -36,10 +36,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -70,10 +70,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class InputFormatTest {
 
-    private static final String BYTE_ENTITY_GRAPH = "byteEntityGraph";
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static SingleUseMiniAccumuloStore store;
     private static AccumuloProperties storeProperties;
-    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
 
     private enum KeyPackage {
@@ -145,12 +144,13 @@ public class InputFormatTest {
     @BeforeAll
     public static void setup() throws StoreException {
         store = new SingleUseMiniAccumuloStore();
-        storeProperties = (AccumuloProperties) store.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES);
+        storeProperties = miniAccumuloClusterManager.getProperties();
     }
 
     @AfterAll
     public static void tearDown() {
-        store.tearDownTestDB();
+        miniAccumuloClusterManager.close();
     }
 
 

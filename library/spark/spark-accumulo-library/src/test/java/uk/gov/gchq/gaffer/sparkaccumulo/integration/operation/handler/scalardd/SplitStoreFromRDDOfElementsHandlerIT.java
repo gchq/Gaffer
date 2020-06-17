@@ -28,6 +28,7 @@ import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -58,6 +59,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     private ArrayBuffer<Element> elements;
     private RDD<Element> rdd;
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static SingleUseMiniAccumuloStoreWithTabletServers byteEntityStore;
     private static AccumuloProperties byteEntityStoreProperties;
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -67,12 +69,13 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     @BeforeAll
     public static void setupDatabase() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStoreWithTabletServers(TABLET_SERVER_COUNT);
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = miniAccumuloClusterManager.getProperties();
     }
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
+        miniAccumuloClusterManager.close();
     }
 
     @BeforeEach

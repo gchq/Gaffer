@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -104,6 +105,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 public class AccumuloStoreTest {
     private static final String BYTE_ENTITY_GRAPH = "byteEntityGraph";
     private static final String GAFFER_1_GRAPH = "gaffer1Graph";
+    private static MiniAccumuloClusterManager byteEntityClusterManager;
+    private static MiniAccumuloClusterManager gaffer1KeyClusterManager;
     private static SingleUseMiniAccumuloStore byteEntityStore;
     private static SingleUseMiniAccumuloStore gaffer1KeyStore;
     private static AccumuloProperties byteEntityStoreProperties;
@@ -115,9 +118,11 @@ public class AccumuloStoreTest {
     @BeforeAll
     public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStore();
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        byteEntityClusterManager = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = byteEntityClusterManager.getProperties();
         gaffer1KeyStore = new SingleUseMiniAccumuloStore();
-        gaffer1KeyStoreProperties = (AccumuloProperties) gaffer1KeyStore.setUpTestDB(CLASSIC_PROPERTIES);
+        gaffer1KeyClusterManager = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES);
+        gaffer1KeyStoreProperties = gaffer1KeyClusterManager.getProperties();
     }
 
     @BeforeEach
@@ -128,8 +133,8 @@ public class AccumuloStoreTest {
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
-        gaffer1KeyStore.tearDownTestDB();
+        byteEntityClusterManager.close();
+        gaffer1KeyClusterManager.close();
     }
 
     @Test

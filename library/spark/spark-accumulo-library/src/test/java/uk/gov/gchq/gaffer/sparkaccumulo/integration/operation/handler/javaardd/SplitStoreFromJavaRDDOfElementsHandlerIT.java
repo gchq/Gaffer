@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.utils.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -56,6 +57,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     private List<Element> elements;
     private JavaRDD<Element> rdd;
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static SingleUseMiniAccumuloStoreWithTabletServers byteEntityStore;
     private static AccumuloProperties byteEntityStoreProperties;
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -65,12 +67,13 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     @BeforeAll
     public static void setupDatabase() throws StoreException {
         byteEntityStore = new SingleUseMiniAccumuloStoreWithTabletServers(TABLET_SERVER_COUNT);
-        byteEntityStoreProperties = (AccumuloProperties) byteEntityStore.setUpTestDB(PROPERTIES);
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES);
+        byteEntityStoreProperties = miniAccumuloClusterManager.getProperties();
     }
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore.tearDownTestDB();
+        miniAccumuloClusterManager.close();
     }
 
     @BeforeEach
