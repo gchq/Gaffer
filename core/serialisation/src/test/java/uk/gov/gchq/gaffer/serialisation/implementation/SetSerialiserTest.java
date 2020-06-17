@@ -35,14 +35,14 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
     @Test
     public void shouldSerialiseAndDeSerialiseSet() throws SerialisationException {
         // Given
-        final Set<String> exampledSet = getExampleValue();
+        final Set<String> exampleSet = getExampleValue();
 
         // When
-        final byte[] b = serialiser.serialise(exampledSet);
+        final byte[] b = serialiser.serialise(exampleSet);
         final Set actual = serialiser.deserialise(b);
 
         // Then
-        assertDeserialisedObjecttEquals(exampledSet, actual);
+        assertDeserialisedObjectEquals(exampleSet, actual);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         return set;
     }
 
-    private void assertDeserialisedObjecttEquals(Set<String> set, Set o) {
+    private void assertDeserialisedObjectEquals(Set<String> set, Set o) {
         assertEquals(HashSet.class, o.getClass());
         assertEquals(6, o.size());
         assertEquals(set, o);
