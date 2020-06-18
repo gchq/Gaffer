@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -63,7 +62,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.integration.operation.handler.javaardd.SplitStoreFromJavaRDDOfElementsHandlerIT;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -94,7 +92,6 @@ public final class GetRDDOfAllElementsHandlerIT {
     private static final String GRAPH_ID = "graphId";
 
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-    private static SingleUseMiniAccumuloStore singleUseMiniAccumuloStoreStore;
     private static AccumuloProperties accumuloProperties;
 
     private Entity entityRetainedAfterValidation;
@@ -110,7 +107,6 @@ public final class GetRDDOfAllElementsHandlerIT {
     public static void setup() throws StoreException {
         AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
-        singleUseMiniAccumuloStoreStore = new SingleUseMiniAccumuloStore();
         miniAccumuloClusterManager = new MiniAccumuloClusterManager(properties);
         accumuloProperties = miniAccumuloClusterManager.getProperties();
     }
