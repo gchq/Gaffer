@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.graph.entity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -28,19 +28,18 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleEntityMapsTest {
 
     @Test
     public void shouldIterate() {
-        // When
+        // Given
         final EntityMaps entityMaps = getEntityMaps();
-
-        // Then
         final Iterator<EntityMap> it = entityMaps.iterator();
 
+        // When
         final EntityMap first = it.next();
         final EntityMap second = it.next();
 
@@ -50,16 +49,13 @@ public class SimpleEntityMapsTest {
 
     @Test
     public void shouldGetSize() {
-        // When
         final EntityMaps entityMaps = getEntityMaps();
 
-        // Then
         assertThat(entityMaps.size(), is(equalTo(2)));
     }
 
     @Test
     public void shouldGetNth() {
-        // When
         final EntityMaps entityMaps = getEntityMaps();
 
         // Then
@@ -75,15 +71,23 @@ public class SimpleEntityMapsTest {
 
     @Test
     public void shouldCheckEmpty() {
-        // When
         final EntityMaps first = new SimpleEntityMaps();
         final EntityMaps second = new SimpleEntityMaps();
 
         second.add(getEntityMap(3));
 
-        // Then
         assertTrue(first.empty());
         assertFalse(second.empty());
+    }
+
+
+    private EntityMaps getEntityMaps() {
+        final EntityMaps entityMaps = new SimpleEntityMaps();
+
+        entityMaps.add(getEntityMap(3));
+        entityMaps.add(getEntityMap(4));
+
+        return entityMaps;
     }
 
     private EntityMap getEntityMap(final int size) {
@@ -95,15 +99,6 @@ public class SimpleEntityMapsTest {
         }
 
         return entityMap;
-    }
-
-    private EntityMaps getEntityMaps() {
-        final EntityMaps entityMaps = new SimpleEntityMaps();
-
-        entityMaps.add(getEntityMap(3));
-        entityMaps.add(getEntityMap(4));
-
-        return entityMaps;
     }
 
     private Entity makeEntity(final Object vertex) {

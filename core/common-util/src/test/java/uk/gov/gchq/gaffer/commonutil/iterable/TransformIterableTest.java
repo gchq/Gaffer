@@ -17,33 +17,29 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TransformIterableTest {
 
     @Test
     public void shouldCreateIteratorThatReturnsOnlyValidStrings() {
         // Given
-        final String item1 = "item 1";
-        final String item2 = "item 2";
-        final String item3 = "item 3";
+        final String item1 = "valid item 1";
+        final String item2 = "invalid item 2";
+        final String item3 = "valid item 3";
         final Iterable<String> items = Arrays.asList(item1, item2, item3);
         final Validator<String> validator = mock(Validator.class);
         final TransformIterable iterable = new TransformIterableImpl(items, validator, true);
@@ -53,37 +49,21 @@ public class TransformIterableTest {
         given(validator.validate(item2)).willReturn(false);
         given(validator.validate(item3)).willReturn(true);
 
-        // When 1a
-        final boolean hasNext1 = itr.hasNext();
+        // Then 1st valid item
+        assertTrue(itr.hasNext());
+        assertEquals("VALID ITEM 1", itr.next());
 
-        // Then 1a
-        assertTrue(hasNext1);
-
-        // When 1b
-        final String next1 = itr.next();
-
-        // Then 1b
-        assertEquals(item1.toUpperCase(), next1);
-
-        // When 2a / Then 2a
-        final boolean hasNext2 = itr.hasNext();
-
-        // Then 2a
-        assertTrue(hasNext2);
-
-        // When 2b
-        final String next2 = itr.next();
-
-        // Then 2b
-        assertEquals(item3.toUpperCase(), next2);
+        // Then 2nd valid item
+        assertTrue(itr.hasNext());
+        assertEquals("VALID ITEM 3", itr.next());
     }
 
     @Test
-    public void shouldCreateIteratorThatThrowsExceptionOnInvalidString() {
+    public void shouldThrowIAXExceptionWhenNextItemIsInvalidString() {
         // Given
-        final String item1 = "item 1";
-        final String item2 = "item 2 invalid";
-        final String item3 = "item 3";
+        final String item1 = "valid item 1";
+        final String item2 = "invalid item 2 invalid";
+        final String item3 = "valid item 3";
         final Iterable<String> items = Arrays.asList(item1, item2, item3);
         final Validator<String> validator = mock(Validator.class);
         final TransformIterable iterable = new TransformIterableImpl(items, validator, false);
@@ -93,60 +73,33 @@ public class TransformIterableTest {
         given(validator.validate(item2)).willReturn(false);
         given(validator.validate(item3)).willReturn(true);
 
-        // When 1a
-        final boolean hasNext1 = itr.hasNext();
+        // Then 1st valid item
+        assertTrue(itr.hasNext());
+        assertEquals("VALID ITEM 1", itr.next());
 
-        // Then 1a
-        assertTrue(hasNext1);
-
-        // When 1b
-        final String next1 = itr.next();
-
-        // Then 1b
-        assertEquals(item1.toUpperCase(), next1);
-
-        // When 2a / Then 2a
-        try {
-            itr.hasNext();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThrows(IllegalArgumentException.class, () -> itr.hasNext());
     }
 
     @Test
-    public void shouldThrowExceptionIfNextCalledWhenNoNextString() {
+    public void shouldThrowNoElementExceptionWhenNextCalledWhenNoNextString() {
         // Given
         final String item1 = "item 1";
-        final String item2 = "item 2";
-        final Iterable<String> items = Arrays.asList(item1, item2);
+        final Iterable<String> items = Arrays.asList(item1);
         final Validator<String> validator = mock(Validator.class);
         final TransformIterable iterable = new TransformIterableImpl(items, validator);
         final Iterator<String> itr = iterable.iterator();
 
         given(validator.validate(item1)).willReturn(true);
-        given(validator.validate(item2)).willReturn(true);
 
-        // When 1
-        final String validElm1 = itr.next();
-        final String validElm2 = itr.next();
+        // Then 1st item
+        assertEquals("ITEM 1", itr.next());
 
-        // Then 1
-        assertEquals(item1.toUpperCase(), validElm1);
-        assertEquals(item2.toUpperCase(), validElm2);
-
-        // When 2 / Then 2
-        try {
-            itr.next();
-            fail("Exception expected");
-        } catch (final NoSuchElementException e) {
-            assertNotNull(e);
-        }
+        // Then 2nd item
+        assertThrows(NoSuchElementException.class, () -> itr.next());
     }
 
     @Test
     public void shouldThrowExceptionIfRemoveCalled() {
-        // Given
         final String item1 = "item 1";
         final String item2 = "item 2";
         final Iterable<String> items = Arrays.asList(item1, item2);
@@ -157,13 +110,7 @@ public class TransformIterableTest {
         given(validator.validate(item1)).willReturn(true);
         given(validator.validate(item2)).willReturn(true);
 
-        // When / Then
-        try {
-            itr.remove();
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThrows(UnsupportedOperationException.class, () -> itr.remove());
     }
 
     @Test
@@ -203,13 +150,6 @@ public class TransformIterableTest {
     }
 
     private class TransformIterableImpl extends TransformIterable<String, String> {
-        TransformIterableImpl() {
-            super(null);
-        }
-
-        TransformIterableImpl(final Iterable<String> input) {
-            super(input);
-        }
 
         TransformIterableImpl(final Iterable<String> input, final Validator<String> validator) {
             super(input, validator);

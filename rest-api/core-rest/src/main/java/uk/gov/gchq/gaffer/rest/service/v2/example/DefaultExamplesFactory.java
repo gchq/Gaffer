@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -102,6 +103,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         map.put(Min.class, min());
         map.put(ToMap.class, toMap());
         map.put(GetWalks.class, getWalks());
+        map.put(AddNamedOperation.class, addNamedOperation());
         map.put(AddNamedView.class, addNamedView());
         map.put(If.class, ifOperation());
         map.put(While.class, whileOperation());
@@ -477,6 +479,19 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                                 .build())
                         .build())
                 .resultsLimit(10000)
+                .build();
+    }
+
+    @Override
+    public AddNamedOperation addNamedOperation() {
+        return new AddNamedOperation.Builder()
+                .name("My Named Operation")
+                .labels(Arrays.asList("Optional list of group labels"))
+                .description("Optional description of my named operation")
+                .score(2)
+                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .overwrite(true)
+                .options(new HashMap<>())
                 .build();
     }
 

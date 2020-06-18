@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
@@ -27,14 +27,11 @@ public class StreamIteratorTest {
 
     @Test
     public void shouldDelegateCloseToWrappedIterator() {
-        // Given
         final Stream<Object> stream = mock(Stream.class);
         final StreamIterator<Object> streamIterator = new StreamIterator<>(stream);
 
-        // When
         streamIterator.close();
 
-        // Then
         verify(stream).close();
     }
 }

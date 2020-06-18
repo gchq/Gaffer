@@ -43,9 +43,11 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class NamedOperationDetail implements Serializable {
+
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
+    private List<String> labels;
     private String inputType;
     private String description;
     private String creatorId;
@@ -58,15 +60,23 @@ public class NamedOperationDetail implements Serializable {
     public NamedOperationDetail() {
     }
 
+
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
-        this(operationName, null, description, userId, operations, readers, writers, parameters, score);
+        this(operationName, null, null, description, userId, operations, readers, writers, parameters, score);
     }
 
     public NamedOperationDetail(final String operationName, final String inputType, final String description, final String userId,
                                 final String operations, final List<String> readers,
+                                final List<String> writers, final Map<String, ParameterDetail> parameters,
+                                final Integer score) {
+        this(operationName, null, inputType, description, userId, operations, readers, writers, parameters, score);
+    }
+
+    public NamedOperationDetail(final String operationName, final List<String> labels, final String inputType, final String description,
+                                final String userId, final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
         if (null == operations) {
@@ -77,6 +87,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         this.operationName = operationName;
+        this.labels = labels;
         this.inputType = inputType;
         this.description = description;
         this.creatorId = userId;
@@ -90,6 +101,10 @@ public class NamedOperationDetail implements Serializable {
 
     public String getOperationName() {
         return operationName;
+    }
+
+    public List<String> getLabels() {
+        return labels;
     }
 
     public String getInputType() {
@@ -232,6 +247,7 @@ public class NamedOperationDetail implements Serializable {
 
         return new EqualsBuilder()
                 .append(operationName, op.operationName)
+                .append(labels, op.labels)
                 .append(inputType, op.inputType)
                 .append(creatorId, op.creatorId)
                 .append(operations, op.operations)
@@ -260,6 +276,7 @@ public class NamedOperationDetail implements Serializable {
     public String toString() {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
+                .append("labels", labels)
                 .append("inputType", inputType)
                 .append("creatorId", creatorId)
                 .append("operations", operations)
@@ -304,6 +321,7 @@ public class NamedOperationDetail implements Serializable {
 
     public static final class Builder {
         private String operationName;
+        private List<String> labels;
         private String inputType;
         private String description;
         private String creatorId;
@@ -320,6 +338,11 @@ public class NamedOperationDetail implements Serializable {
 
         public Builder operationName(final String operationName) {
             this.operationName = operationName;
+            return this;
+        }
+
+        public Builder labels(final List<String> labels) {
+            this.labels = labels;
             return this;
         }
 
@@ -371,7 +394,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         public NamedOperationDetail build() {
-            return new NamedOperationDetail(operationName, inputType, description, creatorId, opChain, readers, writers, parameters, score);
+            return new NamedOperationDetail(operationName, labels, inputType, description, creatorId, opChain, readers, writers, parameters, score);
         }
     }
 }

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -27,12 +27,13 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ElementTransformerTest {
+
     @Test
     public void shouldTransformElementUsingMockFunction() {
         // Given

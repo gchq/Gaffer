@@ -15,43 +15,37 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ToPropertiesTupleTest extends FunctionTest {
+public class ToPropertiesTupleTest extends GafferFunctionTest {
+
     @Test
     public void shouldReturnNullForNullValue() {
-        // Given
         final ToPropertiesTuple function = new ToPropertiesTuple();
 
-        // When
         final Object result = function.apply(null);
 
-        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldConvertAnPropertiesIntoAnPropertiesTuple() {
-        // Given
         final Properties properties = new Properties();
         properties.put(TestPropertyNames.COUNT, 1);
         final ToPropertiesTuple function = new ToPropertiesTuple();
 
-        // When
         final Object result = function.apply(properties);
 
-        // Then
         assertEquals(new PropertiesTuple(properties), result);
     }
 
@@ -66,19 +60,24 @@ public class ToPropertiesTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Properties.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{PropertiesTuple.class};
+    }
+
+    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        // Given
         final ToPropertiesTuple function = getInstance();
 
-        // When
         final byte[] json = JSONSerialiser.serialise(function);
         final ToPropertiesTuple deserialisedObj = JSONSerialiser.deserialise(json, ToPropertiesTuple.class);
 
-        // Then
-        JsonAssert.assertEquals(
-                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToPropertiesTuple\"}",
-                new String(json)
-        );
+        final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToPropertiesTuple\"}";
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

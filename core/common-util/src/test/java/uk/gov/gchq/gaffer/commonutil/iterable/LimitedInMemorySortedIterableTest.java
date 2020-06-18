@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,31 +30,27 @@ import java.util.stream.IntStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LimitedInMemorySortedIterableTest {
+
     @Test
     public void shouldLimitEntries() {
-        // Given
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100);
         final List<Integer> expectedItems = new ArrayList<>();
         IntStream.rangeClosed(1, 100).forEach(expectedItems::add);
 
-        // When
         for (int i = 200; 0 < i; i--) {
             list.add(i);
         }
 
-        // Then
         assertEquals(expectedItems, Lists.newArrayList(list));
     }
 
     @Test
     public void shouldLimitAndDeduplicateEntries() {
-        // Given
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 2, true);
 
-        // When
         list.add(1);
         list.add(1);
         list.add(2);
@@ -62,55 +58,44 @@ public class LimitedInMemorySortedIterableTest {
         list.add(2);
         list.add(10);
 
-        // Then
         assertEquals(Arrays.asList(1, 2), Lists.newArrayList(list));
     }
 
     @Test
     public void shouldDeduplicateEntries() {
-        // Given
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100, true);
 
-        // When
         list.add(1);
         list.add(1);
 
-        // Then
         assertEquals(Collections.singletonList(1), Lists.newArrayList(list));
     }
 
     @Test
     public void shouldNotDeduplicateEntries() {
-        // Given
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100, false);
 
-        // When
         list.add(1);
         list.add(1);
 
-        // Then
         assertEquals(Arrays.asList(1, 1), Lists.newArrayList(list));
     }
 
     @Test
     public void shouldLimitAndNotDeduplicateEntries() {
-        // Given
         final LimitedInMemorySortedIterable<Integer> list = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 4, false);
 
-        // When
         list.add(1);
         list.add(2);
         list.add(1);
         list.add(2);
         list.add(10);
 
-        // Then
         assertEquals(Arrays.asList(1, 1, 2, 2), Lists.newArrayList(list));
     }
 
     @Test
     public void shouldAddAll() {
-        // Given
         final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator
                 .naturalOrder(), 100);
 
@@ -193,11 +178,11 @@ public class LimitedInMemorySortedIterableTest {
 
         // When
         stream.forEach(i -> list.add(Math.abs(i)));
-
-        // Then
-        final List<Integer> elements = Lists.newArrayList(list);
         final List<Integer> sortedElements = Lists.newArrayList(list);
         sortedElements.sort(Comparator.naturalOrder());
-        assertEquals(elements, sortedElements);
+
+        // Then
+        final List<Integer> expected = Lists.newArrayList(list);
+        assertEquals(expected, sortedElements);
     }
 }

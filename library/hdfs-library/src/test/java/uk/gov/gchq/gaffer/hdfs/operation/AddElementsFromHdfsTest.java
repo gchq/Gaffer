@@ -68,6 +68,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .reducers(10)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
+                .commandLineArgs(new String[]{"-libjars", "libjar1,libjar2"})
                 .build();
 
         // When
@@ -77,6 +78,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
+                "  \"commandLineArgs\" : [ \"-libjars\", \"libjar1,libjar2\" ],%n" +
                 "  \"inputMapperPairs\" : { \"inputPath\" :\"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"},%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +

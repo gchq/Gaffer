@@ -27,20 +27,24 @@ import uk.gov.gchq.gaffer.spark.operation.handler.graphframe.GetGraphFrameOfElem
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.javardd.SplitStoreFromJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.SplitStoreFromRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsInRangesHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportKeyValueJavaPairRDDToAccumuloHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.SplitStoreFromJavaRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsInRangesHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportKeyValuePairRDDToAccumuloHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.SplitStoreFromRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.GetJavaRDDOfElementsInRanges;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.GetRDDOfElementsInRanges;
@@ -113,6 +117,14 @@ public class SparkOperationDeclarationsTest {
                 new Builder()
                         .operation(GetRDDOfElementsInRanges.class)
                         .handler(new GetRDDOfElementsInRangesHandler())
+                        .build(),
+                new Builder()
+                        .operation(SplitStoreFromJavaRDDOfElements.class)
+                        .handler(new SplitStoreFromJavaRDDOfElementsHandler())
+                        .build(),
+                new Builder()
+                        .operation(SplitStoreFromRDDOfElements.class)
+                        .handler(new SplitStoreFromRDDOfElementsHandler())
                         .build()
         );
         assertEquals(expectedOps.size(), deserialisedOps.size());
