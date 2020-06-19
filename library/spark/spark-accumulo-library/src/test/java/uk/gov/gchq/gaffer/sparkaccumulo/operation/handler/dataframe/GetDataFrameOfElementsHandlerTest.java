@@ -21,6 +21,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
@@ -40,6 +42,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -59,12 +62,22 @@ import static org.junit.Assert.fail;
  * {@link AccumuloStoreRelation} ensure that the RDD that is returned has already had the correct filtering
  * applied in Accumulo.
  */
-public class GetDataFrameOfElementsHandlerTest {
+public class GetDataFrameOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
 
     static final String ENTITY_GROUP = "BasicEntity";
     static final String EDGE_GROUP = "BasicEdge";
     static final String EDGE_GROUP2 = "BasicEdge2";
     private static final int NUM_ELEMENTS = 10;
+
+    @BeforeClass
+    public static void setup() {
+        setUpBeforeClass("/store.properties");
+    }
+
+    @AfterClass
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
@@ -493,7 +506,7 @@ public class GetDataFrameOfElementsHandlerTest {
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

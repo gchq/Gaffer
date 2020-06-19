@@ -109,6 +109,8 @@ public class AccumuloStoreTest {
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity = null;
+    private static AccumuloTestClusterManager accumuloTestClusterManagerGaffer1Key = null;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -117,6 +119,8 @@ public class AccumuloStoreTest {
     public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager((AccumuloProperties) PROPERTIES);
+        accumuloTestClusterManagerGaffer1Key = new AccumuloTestClusterManager((AccumuloProperties) CLASSIC_PROPERTIES);
     }
 
     @Before
@@ -129,6 +133,8 @@ public class AccumuloStoreTest {
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
+        accumuloTestClusterManagerByteEntity.close();
+        accumuloTestClusterManagerGaffer1Key.close();
     }
 
     @Test
@@ -150,7 +156,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldCreateAStoreUsingTableName() throws Exception {
         // Given
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final AccumuloProperties properties = PROPERTIES.clone();
         properties.setTable("tableName");
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
 
@@ -165,7 +171,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldCreateAStoreUsingTableNameWithNamespace() throws Exception {
         // Given
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final AccumuloProperties properties = PROPERTIES.clone();
         properties.setNamespace("namespaceName");
 
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
@@ -181,7 +187,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldBuildGraphAndGetGraphIdFromTableName() {
         // Given
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final AccumuloProperties properties = PROPERTIES.clone();
         properties.setTable("tableName");
 
         // When
@@ -197,7 +203,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
         // Given
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final AccumuloProperties properties = PROPERTIES.clone();
         properties.setTable("tableName");
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
 
@@ -211,7 +217,7 @@ public class AccumuloStoreTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
         // Given
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final AccumuloProperties properties = PROPERTIES.clone();
         properties.setTable("tableName");
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
 
@@ -227,7 +233,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final AccumuloProperties properties = PROPERTIES.clone();
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
 
         // When
