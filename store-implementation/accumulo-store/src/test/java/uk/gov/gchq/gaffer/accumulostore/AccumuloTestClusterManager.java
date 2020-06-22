@@ -74,7 +74,6 @@ public class AccumuloTestClusterManager {
             FileUtils.deleteDirectory(baseDir);
             MiniAccumuloConfig miniAccumuloConfig = new MiniAccumuloConfig(baseDir, ROOTPW);
             miniAccumuloConfig.setInstanceName(suppliedProperties.getInstance());
-            miniAccumuloConfig.setZooKeeperPort(2181);
             miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
             miniAccumuloCluster.start();
         } catch (final IOException | InterruptedException e) {
