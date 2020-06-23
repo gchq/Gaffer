@@ -30,22 +30,28 @@ public class OperationUtilTest {
 
     @Test
     public void shouldGetInputOutputTypes() {
+        // Given
         final GetElements operation = new GetElements();
 
+        // When / Then
         final Class<?> inputType = OperationUtil.getInputType(operation);
         assertEquals(Iterable.class, inputType);
 
+        // When / Then
         final Class<?> outputType = OperationUtil.getOutputType(operation);
         assertEquals(CloseableIterable.class, outputType);
     }
 
     @Test
     public void shouldCheckGenericInputOutputTypes() {
+        // Given
         final ExportToSet operation = new ExportToSet();
 
+        // When / Then
         final Class<?> inputType = OperationUtil.getInputType(operation);
         assertEquals(OperationUtil.UnknownGenericType.class, inputType);
 
+        // When / Then
         final Class<?> outputType = OperationUtil.getOutputType(operation);
         assertEquals(OperationUtil.UnknownGenericType.class, outputType);
     }
@@ -53,6 +59,7 @@ public class OperationUtilTest {
 
     @Test
     public void shouldValidateOutputInputTypes() {
+        // When / Then
         assertTrue(OperationUtil.isValid(Iterable.class, Iterable.class).isValid());
         assertTrue(OperationUtil.isValid(CloseableIterable.class, Iterable.class).isValid());
         assertTrue(OperationUtil.isValid(Iterable.class, Object.class).isValid());

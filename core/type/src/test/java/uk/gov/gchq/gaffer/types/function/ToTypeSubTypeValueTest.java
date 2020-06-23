@@ -67,6 +67,7 @@ public class ToTypeSubTypeValueTest extends GafferFunctionTest {
         assertEquals(new TypeSubTypeValue(null, null, null), result);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -99,11 +100,11 @@ public class ToTypeSubTypeValueTest extends GafferFunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[]{Object.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{TypeSubTypeValue.class};
     }
 }

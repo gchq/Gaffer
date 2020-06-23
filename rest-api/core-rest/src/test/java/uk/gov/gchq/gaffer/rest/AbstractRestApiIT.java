@@ -55,7 +55,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
                     .build()};
 
     @TempDir
-    public File testFolder;
+    public File tempDir;
 
     protected final T client = getClient();
     private final String storePropertiesResourcePath;
@@ -73,7 +73,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
     @BeforeEach
     public void before() throws IOException {
         client.startServer();
-        client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        client.reinitialiseGraph(tempDir, schemaResourcePath, storePropertiesResourcePath);
     }
 
     @AfterEach

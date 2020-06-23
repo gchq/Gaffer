@@ -36,21 +36,21 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
 
     @Test
     public void shouldSerialiseStringInt() throws SerialisationException {
-        //given
+        // Given
         final CustomMap<String, Integer> expected = new CustomMap<>(new StringSerialiser(), new IntegerSerialiser());
         expected.put("one", 111);
         expected.put("two", 221);
 
-        //when
+        // When
         final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
 
-        //then
+        // Then
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new IntegerSerialiser());
     }
 
     @Test
     public void shouldSerialiserStringRBMBackedTimestampSet() throws SerialisationException {
-        //given
+        // Given
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
                 .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(10)))
@@ -67,9 +67,9 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
         expected.put("OneTimeStamp", timestampSet1);
         expected.put("TwoTimeStamp", timestampSet2);
 
-        //when
+        // When
         final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
-        //then
+        // Then
         detailedEquals(expected, deserialise, String.class, RBMBackedTimestampSet.class, new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
     }
 

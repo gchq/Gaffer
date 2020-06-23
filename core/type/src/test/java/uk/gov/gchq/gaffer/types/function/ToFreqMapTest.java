@@ -67,6 +67,7 @@ public class ToFreqMapTest extends GafferFunctionTest {
         assertEquals(new FreqMap((String) null), result);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -99,11 +100,11 @@ public class ToFreqMapTest extends GafferFunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[]{Object.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{FreqMap.class};
     }
 }

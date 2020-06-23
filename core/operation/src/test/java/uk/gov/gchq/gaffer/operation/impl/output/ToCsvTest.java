@@ -53,6 +53,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertNotNull(deserialisedOp);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -71,6 +72,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertEquals(generator, toCsv.getElementGenerator());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

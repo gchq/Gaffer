@@ -18,13 +18,12 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class NamedViewDetailTest {
 
@@ -67,6 +66,6 @@ public class NamedViewDetailTest {
                 "  },%n" +
                 "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\"%n" +
                 "}");
-        assertEquals(expected, new String(json));
+        JsonAssert.assertEquals(expected, new String(json));
     }
 }

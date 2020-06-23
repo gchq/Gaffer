@@ -72,8 +72,10 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     }
 
     private void test(final int value) throws SerialisationException {
+        // When
         final byte[] b = serialiser.serialise(value);
         final Object o = serialiser.deserialise(b);
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(value, o);
     }

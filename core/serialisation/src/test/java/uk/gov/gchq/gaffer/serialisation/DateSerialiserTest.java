@@ -30,10 +30,13 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (long i = 121231232; i < (121231232 + 1000); i++) {
+            // When
             final byte[] b = serialiser.serialise(new Date(i));
             final Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Date.class, o.getClass());
             assertEquals(new Date(i), o);
         }
@@ -41,9 +44,11 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void canSerialiseEpoch() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(new Date(0));
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Date.class, o.getClass());
         assertEquals(new Date(0), o);
     }

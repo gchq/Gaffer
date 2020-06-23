@@ -24,23 +24,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class GetVariableTest extends OperationTest<GetVariable> {
+
     private final String varName = "varName";
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given / When
         final GetVariable getVariableOp = new GetVariable.Builder().variableName(varName).build();
 
+        // Then
         assertEquals(varName, getVariableOp.getVariableName());
     }
 
     @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final GetVariable op = new GetVariable.Builder().variableName(varName).build();
 
+        // When
         final GetVariable opClone = op.shallowClone();
 
+        // Then
         assertNotEquals(op, opClone);
         assertEquals(op.getVariableName(), opClone.getVariableName());
     }

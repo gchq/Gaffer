@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -28,26 +29,31 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class UnwrapEntityIdTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnNullForNullValue() {
+        // Given
         final UnwrapEntityId function = new UnwrapEntityId();
 
+        // When
         final Object result = function.apply(null);
 
+        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldReturnOriginalValueForEdgeIds() {
+        // Given
         final EdgeId value = mock(EdgeId.class);
         final UnwrapEntityId function = new UnwrapEntityId();
 
+        // When
         final Object result = function.apply(value);
 
+        // Then
         assertSame(value, result);
     }
 
@@ -76,23 +82,27 @@ public class UnwrapEntityIdTest extends GafferFunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[]{Object.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{Object.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
+        // Given
         final UnwrapEntityId function = getInstance();
 
+        // When
         final byte[] json = JSONSerialiser.serialise(function);
         final UnwrapEntityId deserialisedObj = JSONSerialiser.deserialise(json, UnwrapEntityId.class);
 
+        // Then
         final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}";
-        assertEquals(expectedJson, new String(json));
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

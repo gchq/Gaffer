@@ -33,10 +33,13 @@ public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (long i = 1000000L; i < 1001000L; i++) {
+            // When
             final byte[] b = serialiser.serialise(new Date(i));
             final Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Date.class, o.getClass());
             assertEquals(new Date(i), o);
         }
@@ -44,9 +47,11 @@ public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void canSerialiseEpoch() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(new Date(0));
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Date.class, o.getClass());
         assertEquals(new Date(0), o);
     }
@@ -63,19 +68,23 @@ public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
+        // Given
         Date testDate = new Date(1L);
         Date aDayLater = new Date(86400000L);
 
+        // When / Then
         assertTrue(compare(serialiser.serialise(testDate), serialiser.serialise(aDayLater)) < 0);
     }
 
     @Test
     public void checkMultipleDatesOrderPreserved() throws SerialisationException {
+        // Given
         Date startTestDate = new Date(1L);
         Date newTestDate;
         for (Long time = 2L; time > 10L; time++) {
             newTestDate = new Date(time);
 
+            // When / Then
             assertTrue(compare(serialiser.serialise(startTestDate), serialiser.serialise(newTestDate)) < 0);
             startTestDate = newTestDate;
         }

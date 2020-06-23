@@ -31,11 +31,13 @@ public class SetVariableTest extends OperationTest<SetVariable> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given / When
         final SetVariable setVariableOp = new SetVariable.Builder()
                 .variableName("varName")
                 .input(varVal)
                 .build();
 
+        // Then
         assertEquals(varName, setVariableOp.getVariableName());
         assertEquals(varVal, setVariableOp.getInput());
     }
@@ -43,13 +45,16 @@ public class SetVariableTest extends OperationTest<SetVariable> {
     @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final SetVariable op = new SetVariable.Builder()
                 .variableName("varName")
                 .input(varVal)
                 .build();
 
+        // When
         final SetVariable opClone = op.shallowClone();
 
+        // Then
         assertNotSame(op, opClone);
         assertEquals(op.getVariableName(), opClone.getVariableName());
         assertEquals(op.getInput(), opClone.getInput());

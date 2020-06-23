@@ -34,16 +34,20 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
 
     @Test
     public void shouldSerialiseAndDeSerialiseSet() throws SerialisationException {
-        final Set<String> exampledSet = getExampleValue();
+        // Given
+        final Set<String> exampleSet = getExampleValue();
 
-        final byte[] b = serialiser.serialise(exampledSet);
+        // When
+        final byte[] b = serialiser.serialise(exampleSet);
         final Set actual = serialiser.deserialise(b);
 
-        assertDeserialisedObjecttEquals(exampledSet, actual);
+        // Then
+        assertDeserialisedObjectEquals(exampleSet, actual);
     }
 
     @Test
     public void setSerialiserWithOverlappingValuesTest() throws SerialisationException {
+        // Given
         final Set<Integer> set = new LinkedHashSet<>();
         set.add(1);
         set.add(3);
@@ -55,9 +59,11 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         ((SetSerialiser) serialiser).setObjectSerialiser(new IntegerSerialiser());
         ((SetSerialiser) serialiser).setSetClass(LinkedHashSet.class);
 
+        // When
         final byte[] b = serialiser.serialise(set);
         final Set o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(LinkedHashSet.class, o.getClass());
         assertEquals(5, o.size());
         assertTrue(o.contains(1));
@@ -78,7 +84,7 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         return set;
     }
 
-    private void assertDeserialisedObjecttEquals(Set<String> set, Set o) {
+    private void assertDeserialisedObjectEquals(Set<String> set, Set o) {
         assertEquals(HashSet.class, o.getClass());
         assertEquals(6, o.size());
         assertEquals(set, o);

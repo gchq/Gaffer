@@ -68,14 +68,15 @@ public class ToElementTupleTest extends GafferFunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Element.class};
+        return new Class[] {Element.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{ElementTuple.class};
+        return new Class[] {ElementTuple.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToElementTuple function = getInstance();

@@ -30,12 +30,16 @@ public class StringSerialiserTest extends ToBytesSerialisationTest<String> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
             builder.append(i);
+
+            // When
             byte[] b = serialiser.serialise(builder.toString());
             Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(String.class, o.getClass());
             assertEquals(builder.toString(), o);
         }

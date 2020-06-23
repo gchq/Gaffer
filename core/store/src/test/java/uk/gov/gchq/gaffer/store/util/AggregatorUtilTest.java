@@ -59,7 +59,7 @@ public class AggregatorUtilTest {
 
     @Test
     public void shouldThrowExceptionWhenIngestAggregatedIfSchemaIsNull() {
-        // given
+        // Given
         final Schema schema = null;
 
         // When / Then
@@ -68,7 +68,7 @@ public class AggregatorUtilTest {
 
     @Test
     public void shouldIngestAggregateElementsWhenProvidedIterableCanOnlyBeConsumedOnce() {
-        // given
+        // Given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
 
         final List<Element> elements = Arrays.asList(
@@ -99,16 +99,16 @@ public class AggregatorUtilTest {
             }
         };
 
-        // when
+        // When
         final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(onlyConsumingOnceIterable, schema);
 
-        // then
+        // Then
         assertElementEquals(elements, aggregatedElements);
     }
 
     @Test
     public void shouldIngestAggregateElementsWithNoGroupBy() {
-        // given
+        // Given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
 
         final List<Element> elements = Arrays.asList(
@@ -180,16 +180,16 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        // when
+        // When
         final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
 
-        // then
+        // Then
         assertElementEquals(expected, aggregatedElements);
     }
 
     @Test
     public void shouldIngestAggregateElementsWithGroupBy() {
-        // given
+        // Given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
         final List<Element> elements = Arrays.asList(
                 new Entity.Builder()
@@ -363,7 +363,7 @@ public class AggregatorUtilTest {
 
     @Test
     public void shouldThrowExceptionWhenQueryAggregatedIfSchemaIsNull() {
-        // given
+        // Given
         final Schema schema = null;
         final View view = new View();
 
@@ -374,19 +374,18 @@ public class AggregatorUtilTest {
 
     @Test
     public void shouldThrowExceptionWhenQueryAggregatedIfViewIsNull() {
-        // given
+        // Given
         final Schema schema = new Schema();
         final View view = null;
 
         // When / Then
-
         final Exception exception = assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view));
         assertEquals("View is required", exception.getMessage());
     }
 
     @Test
     public void shouldQueryAggregateElementsWithGroupBy() {
-        // given
+        // Given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -492,16 +491,16 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        // when
+        // When
         final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
 
-        // then
+        // Then
         assertElementEquals(expected, aggregatedElements);
     }
 
     @Test
     public void shouldQueryAggregateElementsWithGroupByAndViewAggregator() {
-        // given
+        // Given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

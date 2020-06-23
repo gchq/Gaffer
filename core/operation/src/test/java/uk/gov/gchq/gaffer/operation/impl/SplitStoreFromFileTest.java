@@ -56,7 +56,10 @@ public class SplitStoreFromFileTest extends OperationTest<SplitStoreFromFile> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // When
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder().inputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
+
+        // Then
         assertEquals(INPUT_DIRECTORY, splitTable.getInputPath());
         assertEquals("true", splitTable.getOption(TEST_OPTION_KEY));
     }

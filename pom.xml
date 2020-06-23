@@ -34,6 +34,7 @@
         <module>store-implementation</module>
         <module>rest-api</module>
         <module>example</module>
+        <module>operation-runner</module>
     </modules>
 
     <properties>
@@ -111,7 +112,7 @@
         <scm.plugin.version>1.1</scm.plugin.version>
         <shade.plugin.version>2.4.1</shade.plugin.version>
         <source.plugin.version>2.4</source.plugin.version>
-        <surefire.plugin.version>2.19.1</surefire.plugin.version>
+        <surefire.plugin.version>2.22.1</surefire.plugin.version>
         <tomcat-maven-plugin.version>2.2</tomcat-maven-plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->

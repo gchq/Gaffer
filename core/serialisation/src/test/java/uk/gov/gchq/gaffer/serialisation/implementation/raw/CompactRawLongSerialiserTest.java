@@ -78,9 +78,11 @@ public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long>
     }
 
     private void test(final long value) throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(value);
         final Object o = ((ToBytesSerialiser) serialiser).deserialise(b, 0, b.length);
 
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(value, o);
 

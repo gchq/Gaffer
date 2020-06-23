@@ -48,7 +48,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @TempDir
-    public static File testFolder;
+    static File testFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {

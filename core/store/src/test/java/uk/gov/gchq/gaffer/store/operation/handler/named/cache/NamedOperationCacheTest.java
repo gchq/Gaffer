@@ -98,23 +98,29 @@ public class NamedOperationCacheTest {
 
     @Test
     public void shouldAddNamedOperation() throws CacheOperationFailedException {
+        // When
         cache.addNamedOperation(standard, false, standardUser);
         NamedOperationDetail namedOperation = cache.getNamedOperation(OPERATION_NAME, standardUser);
 
+        // Then
         assertEquals(standard, namedOperation);
     }
 
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationFailedException {
+        // When
         cache.addNamedOperation(standard, false, standardUser);
 
+        // Then
         assertThrows(OverwritingException.class, () -> cache.addNamedOperation(alternative, false, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException { // needs work
+        // When
         cache.addNamedOperation(standard, false, standardUser);
 
+        // Then
         assertThrows(CacheOperationFailedException.class, () -> cache.deleteNamedOperation(null, advancedUser));
     }
 
@@ -130,20 +136,25 @@ public class NamedOperationCacheTest {
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToReadOperation() throws CacheOperationFailedException {
+        // When
         cache.addNamedOperation(standard, false, standardUser);
 
+        // Then
         assertThrows(CacheOperationFailedException.class, () -> cache.getNamedOperation(OPERATION_NAME, new User()));
     }
 
     @Test
     public void shouldAllowUsersWithCorrectOpAuthsReadAccessToTheOperationChain() throws CacheOperationFailedException { // see if this works with standard user - it should do
+        // When
         cache.addNamedOperation(standard, false, standardUser);
 
+        // Then
         assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, advancedUser));
     }
 
     @Test
     public void shouldAllowUsersReadAccessToTheirOwnNamedOperations() throws CacheOperationFailedException {
+        // Given
         final NamedOperationDetail op = new NamedOperationDetail.Builder()
                 .operationName(OPERATION_NAME)
                 .creatorId(standardUser.getUserId())
@@ -152,13 +163,16 @@ public class NamedOperationCacheTest {
                 .writers(writers)
                 .build();
 
+        // When
         cache.addNamedOperation(op, false, standardUser);
 
+        // Then
         assertEquals(op, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
     public void shouldAllowUsersWriteAccessToTheirOwnOperations() throws CacheOperationFailedException {
+        // Given
         final NamedOperationDetail op = new NamedOperationDetail.Builder()
                 .operationName(OPERATION_NAME)
                 .creatorId(standardUser.getUserId())
@@ -167,43 +181,56 @@ public class NamedOperationCacheTest {
                 .writers(new ArrayList<>())
                 .build();
 
+        // When
         cache.addNamedOperation(op, false, standardUser);
         cache.addNamedOperation(standard, true, standardUser);
 
+        // Then
         assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToOverwriteOperation() throws CacheOperationFailedException {
+        // When
         cache.addNamedOperation(alternative, false, advancedUser);
 
+        // Then
         assertThrows(CacheOperationFailedException.class, () -> cache.addNamedOperation(standard, true, standardUser));
     }
 
     @Test
     public void shouldAllowOverWriteIfFlagIsSetAndUserIsAuthorised() throws CacheOperationFailedException {
+        // Given
         cache.addNamedOperation(standard, false, standardUser);
+
+        // When
         cache.addNamedOperation(alternative, true, advancedUser);
 
+        // Then
         assertEquals(alternative, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToDeleteOperation() throws CacheOperationFailedException {
+        // When
         cache.addNamedOperation(alternative, false, advancedUser);
 
+        // Then
         assertThrows(CacheOperationFailedException.class, () -> cache.deleteNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() {
+        // When
         final CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(standardUser);
 
+        // Then
         assertEquals(0, Iterables.size(ops));
     }
 
     @Test
     public void shouldReturnSetOfNamedOperationsThatAUserCanExecute() throws CacheOperationFailedException {
+        // Given
         cache.addNamedOperation(standard, false, standardUser);
         final NamedOperationDetail alt = new NamedOperationDetail.Builder()
                 .operationName("different operation")
@@ -216,8 +243,10 @@ public class NamedOperationCacheTest {
 
         cache.addNamedOperation(alt, false, advancedUser);
 
+        // When
         final Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
 
+        // Then
         assertTrue(actual.contains(standard));
         assertTrue(actual.contains(alt));
         assertEquals(2, actual.size());
@@ -225,6 +254,7 @@ public class NamedOperationCacheTest {
 
     @Test
     public void shouldNotReturnANamedOperationThatAUserCannotExecute() throws CacheOperationFailedException {
+        // Given
         cache.addNamedOperation(standard, false, standardUser);
 
         final NamedOperationDetail noReadAccess = new NamedOperationDetail.Builder()
@@ -237,14 +267,17 @@ public class NamedOperationCacheTest {
                 .build();
         cache.addNamedOperation(noReadAccess, false, advancedUser);
 
+        // When
         Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
 
+        // Then
         assertTrue(actual.contains(standard));
         assertEquals(1, actual.size());
     }
 
     @Test
     public void shouldBeAbleToReturnFullExtendedOperationChain() throws CacheOperationFailedException {
+        // Given
         cache.addNamedOperation(standard, false, standardUser);
         final NamedOperationDetail alt = new NamedOperationDetail.Builder()
                 .operationName("different")
@@ -257,7 +290,10 @@ public class NamedOperationCacheTest {
 
         cache.addNamedOperation(alt, false, advancedUser);
 
-        Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
+        // When
+        final Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
+
+        // Then
         assertTrue(actual.contains(standard));
         assertTrue(actual.contains(alt));
         assertEquals(2, actual.size());
@@ -265,6 +301,7 @@ public class NamedOperationCacheTest {
 
     @Test
     public void shouldAllowAddingWhenUserHasAdminAuth() throws CacheOperationFailedException {
+        // Given
         cache.addNamedOperation(alternative, false, advancedUser, EMPTY_ADMIN_AUTH);
         NamedOperationDetail alt = new NamedOperationDetail.Builder()
                 .operationName(alternative.getOperationName())
@@ -273,6 +310,7 @@ public class NamedOperationCacheTest {
                 .operationChain(alternativeOpChain)
                 .build();
 
+        // When / Then
         assertDoesNotThrow(() -> cache.addNamedOperation(alt, true, userWithAdminAuth, ADMIN_AUTH));
     }
 }

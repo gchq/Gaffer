@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.named.view;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -33,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
@@ -44,6 +44,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
             .build();
     Map<String, ViewParameterDetail> parameters = new HashMap<>();
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -64,6 +65,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         assertEquals(TEST_DESCRIPTION, addNamedView.getDescription());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -28,10 +28,13 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (float i = 0; i < 1000; i += 1.1f) {
+            // When
             final byte[] b = serialiser.serialise(i);
             final Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
@@ -39,18 +42,22 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void canSerialiseFloatMinValue() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(Float.MIN_VALUE);
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseFloatMaxValue() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(Float.MAX_VALUE);
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MAX_VALUE, o);
     }

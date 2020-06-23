@@ -34,10 +34,12 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         GetVariables getVariablesOp = new GetVariables.Builder()
                 .variableNames(variableNames)
                 .build();
 
+        // When / Then
         assertEquals(3, getVariablesOp.getVariableNames().size());
         assertTrue(getVariablesOp.getVariableNames().containsAll(variableNames));
     }
@@ -45,12 +47,15 @@ public class GetVariablesTest extends OperationTest<GetVariables> {
     @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         GetVariables op = new GetVariables.Builder()
                 .variableNames(variableNames)
                 .build();
 
+        // When
         GetVariables opClone = op.shallowClone();
 
+        // Then
         assertNotSame(op, opClone);
         assertEquals(op.getVariableNames(), opClone.getVariableNames());
 

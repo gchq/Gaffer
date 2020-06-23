@@ -53,11 +53,14 @@ public class AddSchemaToLibraryHandlerTest {
 
     @Test
     public void shouldThrowWithNoGraphLibrary() throws StoreException {
+        // Given
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // When
         final Exception exception = assertThrows(UnsupportedOperationException.class, () ->
                 store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser())));
 
+        // Then
         final String expected = String.format("Operation class %s is not supported by the %s.", AddSchemaToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName());
         assertEquals(expected, exception.getMessage());
     }
@@ -79,11 +82,14 @@ public class AddSchemaToLibraryHandlerTest {
 
     @Test
     public void shouldSupportAddToGraphLibrary() throws StoreException {
+        // Given
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
 
+        // When
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // Then
         assertTrue(store.isSupported(AddSchemaToLibrary.class));
     }
 
@@ -91,17 +97,22 @@ public class AddSchemaToLibraryHandlerTest {
     public void shouldNotSupportAddToGraphLibraryI() throws StoreException {
         // Given - GraphLibrary has not been set
 
+        // When
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // Then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
 
     @Test
     public void shouldNotSupportAddToGraphLibraryII() throws StoreException {
+        // Given
         store.setGraphLibrary(new NoGraphLibrary());
 
+        // When
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
+        // Then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
 }

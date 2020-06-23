@@ -28,12 +28,15 @@ public class GraphRequestTest {
 
     @Test
     public void graphRequestEqualsCoverage() {
+        // Given
         final GetAllElements operation = new GetAllElements();
         final Context context = new Context();
 
+        // When
         final GraphRequest<Operation> request = new GraphRequest<Operation>(operation, context);
         final GraphRequest<Operation> expected = new GraphRequest<Operation>(operation, context);
 
+        // Then
         assertEquals(expected, request);
     }
 }

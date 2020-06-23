@@ -20,19 +20,21 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.IOException;
 import java.util.function.Function;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ExtractGroupTest extends GafferFunctionTest {
 
     @Test
     public void shouldReturnGroupFromEdge() {
+        // Given
         final ExtractGroup function = new ExtractGroup();
         final String group = "testGroup";
         final Edge edge = new Edge.Builder()
@@ -42,13 +44,16 @@ public class ExtractGroupTest extends GafferFunctionTest {
                 .group(group)
                 .build();
 
+        // When
         final String result = function.apply(edge);
 
+        // Then
         assertEquals(group, result);
     }
 
     @Test
     public void shouldReturnGroupFromEntity() {
+        // Given
         final ExtractGroup function = new ExtractGroup();
         final String group = "testGroup_2";
         final Entity entity = new Entity.Builder()
@@ -56,17 +61,22 @@ public class ExtractGroupTest extends GafferFunctionTest {
                 .group(group)
                 .build();
 
+        // When
         final String result = function.apply(entity);
 
+        // Then
         assertEquals(group, result);
     }
 
     @Test
     public void shouldReturnNullForNullElement() {
+        // Given
         final ExtractGroup function = new ExtractGroup();
 
+        // When
         final String result = function.apply(null);
 
+        // Then
         assertNull(result);
     }
 
@@ -82,20 +92,24 @@ public class ExtractGroupTest extends GafferFunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[]{Element.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{String.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // Given
         final ExtractGroup function = getInstance();
 
+        // When
         final byte[] json = JSONSerialiser.serialise(function);
 
+        // Then
         final String expectedJson = "{\"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractGroup\"}";
         JsonAssert.assertEquals(expectedJson, new String(json));
     }

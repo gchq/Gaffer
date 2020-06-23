@@ -28,10 +28,13 @@ public class IntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (int i = 0; i < 1000; i++) {
+            // When
             final byte[] b = serialiser.serialise(i);
             final Object o = serialiser.deserialise(b);
 
+            // Then
             assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
@@ -39,18 +42,22 @@ public class IntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(Integer.MIN_VALUE);
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(Integer.MAX_VALUE);
         final Object o = serialiser.deserialise(b);
 
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MAX_VALUE, o);
     }

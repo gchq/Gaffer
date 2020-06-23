@@ -110,6 +110,7 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldNotAllowForNonRecursiveNamedOperationsToBeNested() throws OperationException {
+        // Given
         OperationChain child = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(child);
         addNamedOperation.setOperationName("child");
@@ -120,19 +121,23 @@ public class AddNamedOperationHandlerTest {
                 .then(new GetElements())
                 .build();
 
+        // When
         addNamedOperation.setOperationChain(parent);
         addNamedOperation.setOperationName("parent");
 
+        // Then
         assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
     public void shouldAllowForOperationChainJSONWithParameter() {
+        // Given
         final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }";
 
         addNamedOperation.setOperationChain(opChainJSON);
         addNamedOperation.setOperationName("namedop");
 
+        // When
         final ParameterDetail param = new ParameterDetail.Builder()
                 .defaultValue(1L)
                 .description("Limit param")
@@ -142,12 +147,14 @@ public class AddNamedOperationHandlerTest {
         paramMap.put("param1", param);
         addNamedOperation.setParameters(paramMap);
 
+        // Then
         assertDoesNotThrow(() -> handler.doOperation(addNamedOperation, context, store));
         assert cacheContains("namedop");
     }
 
     @Test
     public void shouldNotAllowForOperationChainWithParameterNotInOperationString() {
+        // Given
         final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\", \"key\": \"${param1}\" } ] }";
 
         addNamedOperation.setOperationChain(opChainJSON);
@@ -163,13 +170,16 @@ public class AddNamedOperationHandlerTest {
         final Map<String, ParameterDetail> paramMap = Maps.newHashMap();
         paramMap.put("param2", param);
 
+        // When
         addNamedOperation.setParameters(paramMap);
 
+        // Then
         assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
     public void shouldNotAllowForOperationChainJSONWithInvalidParameter() {
+        // Given
         final String opChainJSON = "{" +
                 "  \"operations\": [" +
                 "      {" +
@@ -198,17 +208,22 @@ public class AddNamedOperationHandlerTest {
                 "   ]" +
                 "}";
 
+        // When / Then
         assertThrows(SerialisationException.class, () -> deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
     }
 
     @Test
     public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws CacheOperationFailedException {
+        // Given
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
+
+        // When
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
         addNamedOperation.setLabels(Arrays.asList("test label"));
 
+        // Then
         assertDoesNotThrow(() -> handler.doOperation(addNamedOperation, context, store));
 
         final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
