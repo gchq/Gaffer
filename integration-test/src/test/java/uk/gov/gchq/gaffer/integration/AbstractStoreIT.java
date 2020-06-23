@@ -129,6 +129,7 @@ public abstract class AbstractStoreIT {
 
     @Rule
     public TestName name = new TestName();
+
     private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
     private static Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
     protected String originalMethodName;
@@ -201,7 +202,7 @@ public abstract class AbstractStoreIT {
         method = this.getClass().getMethod(originalMethodName);
     }
 
-    protected void validateTest() throws Exception {
+    protected void validateTest() {
         assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
         assumeTrue("Skipping test as only " + singleTestMethod + " is being run.", null == singleTestMethod || singleTestMethod.equals(originalMethodName));
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
@@ -456,11 +457,11 @@ public abstract class AbstractStoreIT {
     public static Map<EdgeId, Edge> createDefaultEdges() {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
+            for (String vertexPrefix : VERTEX_PREFIXES) {
                 final Edge edge = new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .dest(vertexPrefix + i)
                         .directed(false)
                         .property(TestPropertyNames.INT, 1)
                         .property(TestPropertyNames.COUNT, 1L)
@@ -470,7 +471,7 @@ public abstract class AbstractStoreIT {
                 final Edge edgeDir = new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source(VERTEX_PREFIXES[0] + i)
-                        .dest(VERTEX_PREFIXES[j] + i)
+                        .dest(vertexPrefix + i)
                         .directed(true)
                         .property(TestPropertyNames.INT, 1)
                         .property(TestPropertyNames.COUNT, 1L)
@@ -521,8 +522,8 @@ public abstract class AbstractStoreIT {
     public static Map<EntityId, Entity> createDefaultEntities() {
         final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
-            for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
+            for (String vertexPrefix : VERTEX_PREFIXES) {
+                final Entity entity = new Entity(TestGroups.ENTITY, vertexPrefix + i);
                 entity.putProperty(TestPropertyNames.COUNT, 1L);
                 entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
                 addToMap(entity, entities);
