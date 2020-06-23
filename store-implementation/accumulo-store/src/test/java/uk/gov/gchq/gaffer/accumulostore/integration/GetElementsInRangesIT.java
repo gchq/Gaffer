@@ -18,13 +18,17 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -48,6 +52,23 @@ import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
+    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+    private static AccumuloTestClusterManager accumuloTestClusterManagerClassicKey;
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+
+    @BeforeClass
+    public static void storeSetup() {
+        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES);
+        accumuloTestClusterManagerClassicKey = new AccumuloTestClusterManager(CLASSIC_PROPERTIES);
+    }
+
+    @AfterClass
+    public static void storeTakeDown() {
+        accumuloTestClusterManagerByteEntity.close();
+        accumuloTestClusterManagerClassicKey.close();
+    }
+
     @Test
     public void shouldReturnSameResultsFromByteEntityAndClassicKeyPackages() throws OperationException {
         // Given
@@ -61,27 +82,22 @@ public class GetElementsInRangesIT {
                 .type(DIRECTED_EITHER, Boolean.class)
                 .build();
 
-        final AccumuloProperties propsByteEntity = new AccumuloProperties();
-        propsByteEntity.setStoreClass(MockAccumuloStore.class);
-        propsByteEntity.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
-
-        final AccumuloProperties propsClassic = new AccumuloProperties();
-        propsClassic.setStoreClass(MockAccumuloStore.class);
-        propsClassic.setKeyPackageClass(ClassicKeyPackage.class.getName());
+        PROPERTIES.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
+        CLASSIC_PROPERTIES.setKeyPackageClass(ClassicKeyPackage.class.getName());
 
         final Graph graphBE = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("byteEntity")
                         .build())
                 .addSchema(schema)
-                .storeProperties(propsByteEntity)
+                .storeProperties(PROPERTIES)
                 .build();
         final Graph graphClassic = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("classic")
                         .build())
                 .addSchema(schema)
-                .storeProperties(propsClassic)
+                .storeProperties(CLASSIC_PROPERTIES)
                 .build();
 
         final List<Element> elements = Arrays.asList(

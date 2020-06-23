@@ -25,7 +25,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -64,6 +65,8 @@ public class GetElementsBetweenSetsHandlerTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
+    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
+    private static AccumuloTestClusterManager accumuloTestClusterManagerGaffer1Key;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsBetweenSetsHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -111,8 +114,10 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @BeforeClass
     public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        byteEntityStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore = new SingleUseAccumuloStore();
+        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES);
+        accumuloTestClusterManagerGaffer1Key = new AccumuloTestClusterManager(CLASSIC_PROPERTIES);
     }
 
     @Before
@@ -153,6 +158,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @AfterClass
     public static void tearDown() {
+        accumuloTestClusterManagerByteEntity.close();
+        accumuloTestClusterManagerGaffer1Key.close();
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;

@@ -29,13 +29,16 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -133,6 +136,21 @@ public class InputFormatTest {
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    private static SingleUseAccumuloStore store;
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
+
+    @BeforeClass
+    public static void setup() {
+        store = new SingleUseAccumuloStore();
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        accumuloTestClusterManager.close();
+    }
 
     private static String getJsonString(final Object obj) throws SerialisationException {
         return new String(JSONSerialiser.serialise(obj));
@@ -253,19 +271,16 @@ public class InputFormatTest {
                                                        final String instanceName,
                                                        final Set<String> expectedResults)
             throws Exception {
-        final AccumuloStore store = new SingleUseMockAccumuloStore();
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        AccumuloProperties properties = PROPERTIES.clone();
         String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
                 properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_BYTE_ENTITY");
                 graphId = "byteEntityGraph";
                 break;
             case CLASSIC_KEY_PACKAGE:
                 graphId = "gaffer1Graph";
                 properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
-                properties.setInstance(instanceName + "_CLASSIC");
         }
         try {
             store.initialise(graphId, schema, properties);

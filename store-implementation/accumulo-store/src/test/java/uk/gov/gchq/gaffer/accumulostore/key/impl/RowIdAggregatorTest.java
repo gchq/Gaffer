@@ -34,7 +34,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -74,13 +75,18 @@ public class RowIdAggregatorTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
 
+    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
+    private static AccumuloTestClusterManager accumuloTestClusterManagerGaffer1Key;
+
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;
 
     @BeforeClass
     public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES);
+        accumuloTestClusterManagerGaffer1Key = new AccumuloTestClusterManager(CLASSIC_PROPERTIES);
+        byteEntityStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore = new SingleUseAccumuloStore();
         gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
@@ -95,6 +101,8 @@ public class RowIdAggregatorTest {
 
     @AfterClass
     public static void tearDown() {
+        accumuloTestClusterManagerByteEntity.close();
+        accumuloTestClusterManagerGaffer1Key.close();
         gaffer1KeyStore = null;
         byteEntityStore = null;
     }
