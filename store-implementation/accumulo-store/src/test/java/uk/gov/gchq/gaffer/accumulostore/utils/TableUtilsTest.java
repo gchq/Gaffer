@@ -21,11 +21,14 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -56,10 +59,24 @@ public class TableUtilsTest {
     private static final String LOCALITY_GRAPH_ID = "localityTest";
     private static final String NO_AGGREGATORS_GRAPH_ID = "noAggGraph";
 
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
+
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
@@ -73,8 +90,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        store.initialise(GRAPH_ID, schema, props);
+        store.initialise(GRAPH_ID, schema, PROPERTIES);
 
         // When
         TableUtils.createTable(store);
@@ -85,7 +101,24 @@ public class TableUtilsTest {
 
     @Test
     public void shouldFailTableValidationWhenMissingValidatorIterator() throws Exception {
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseAccumuloStore();
+
+        final Schema schema = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .aggregateFunction(new StringConcat())
+                        .validateFunctions(new Exists())
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_TRUE)
+                        .build())
+                .build();
+
+        store.initialise(GRAPH_ID, schema, PROPERTIES);
+
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
@@ -99,7 +132,24 @@ public class TableUtilsTest {
 
     @Test
     public void shouldFailTableValidationWhenMissingAggregatorIterator() throws Exception {
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseAccumuloStore();
+
+        final Schema schema = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .aggregateFunction(new StringConcat())
+                        .validateFunctions(new Exists())
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.DIRECTED_TRUE, Boolean.class)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_TRUE)
+                        .build())
+                .build();
+
+        store.initialise(GRAPH_ID, schema, PROPERTIES);
+
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
@@ -111,7 +161,7 @@ public class TableUtilsTest {
         shouldFailTableValidationWhenTableInvalid(store, invalidateTable);
     }
 
-    public void shouldFailTableValidationWhenTableInvalid(final SingleUseMockAccumuloStore store, final Runnable invalidateTable) throws Exception {
+    public void shouldFailTableValidationWhenTableInvalid(final AccumuloStore store, final Runnable invalidateTable) throws Exception {
         // Given
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -143,7 +193,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldCreateTableWithCorrectLocalityGroups() throws Exception {
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, String.class)
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
@@ -154,8 +204,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        store.initialise(LOCALITY_GRAPH_ID, schema, props);
+        store.initialise(LOCALITY_GRAPH_ID, schema, PROPERTIES);
 
         // When
         TableUtils.createTable(store);
@@ -170,7 +219,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableCorrectlyIfSchemaContainsNoAggregators() throws Exception {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -185,8 +234,7 @@ public class TableUtilsTest {
                         .build())
                 .build();
 
-        final AccumuloProperties props = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        store.initialise(NO_AGGREGATORS_GRAPH_ID, schema, props);
+        store.initialise(NO_AGGREGATORS_GRAPH_ID, schema, PROPERTIES);
 
         // When
         TableUtils.createTable(store);
@@ -233,7 +281,8 @@ public class TableUtilsTest {
                 .build();
 
         final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        properties.setStoreClass(PROPERTIES.getStoreClass());
+        properties.setZookeepers(PROPERTIES.getZookeepers());
 
         final AccumuloStore store = new AccumuloStore();
         store.initialise(null, schema, properties);
@@ -257,7 +306,8 @@ public class TableUtilsTest {
                 .build();
 
         final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        properties.setStoreClass(PROPERTIES.getStoreClass());
+        properties.setZookeepers((PROPERTIES.getZookeepers()));
 
         final AccumuloStore store = new AccumuloStore();
         store.initialise(null, schema, properties);
@@ -281,7 +331,8 @@ public class TableUtilsTest {
                 .build();
 
         final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        properties.setStoreClass(PROPERTIES.getStoreClass());
+        properties.setZookeepers(PROPERTIES.getZookeepers());
 
         // When
         new Graph.Builder()

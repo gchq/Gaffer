@@ -18,12 +18,16 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
@@ -47,6 +51,19 @@ public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobF
     public String splitsDir;
     public String splitsFile;
 
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSampleDataForSplitPointsJobFactoryTest.class));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setupStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     @Before
     public void setup() {
         inputDir = testFolder.getRoot().getAbsolutePath() + "inputDir";
@@ -57,13 +74,12 @@ public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobF
 
     @Override
     protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
 
-        super.configureStoreProperties(properties, jsonSerialiserClass, jsonSerialiserModules, strictJson);
+        super.configureStoreProperties(PROPERTIES, jsonSerialiserClass, jsonSerialiserModules, strictJson);
 
-        store.initialise("graphId", schema, properties);
+        store.initialise("graphId", schema, PROPERTIES);
 
         final FileSystem fileSystem = FileSystem.getLocal(new Configuration());
         fileSystem.mkdirs(new Path(outputDir));
