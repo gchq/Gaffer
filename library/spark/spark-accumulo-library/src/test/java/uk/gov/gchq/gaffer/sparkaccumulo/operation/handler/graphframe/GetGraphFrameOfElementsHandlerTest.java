@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
 
 import org.graphframes.GraphFrame;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -35,6 +37,7 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -44,7 +47,17 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
-public class GetGraphFrameOfElementsHandlerTest {
+public class GetGraphFrameOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
+
+    @BeforeClass
+    public static void setup() {
+        setUpBeforeClass("/store.properties");
+    }
+
+    @AfterClass
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     private static final int NUM_ELEMENTS = 10;
 
@@ -338,7 +351,7 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

@@ -22,6 +22,8 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -38,6 +40,7 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
@@ -52,9 +55,19 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
+public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest extends AbstractPropertiesDrivenTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setup() {
+        setUpBeforeClass("/store.properties");
+    }
+
+    @AfterClass
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     @Test
     public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
@@ -65,7 +78,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
 
         final List<Element> elements = new ArrayList<>();

@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -31,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -44,9 +47,19 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class GetRDDOfElementsHandlerTest {
+public class GetRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
     private static final String ENTITY_GROUP = "BasicEntity";
     private static final String EDGE_GROUP = "BasicEdge";
+
+    @BeforeClass
+    public static void setup() {
+        setUpBeforeClass("/store.properties");
+    }
+
+    @AfterClass
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     @Test
     public void checkGetCorrectElementsInRDDForEntityId() throws OperationException, IOException {
@@ -57,7 +70,7 @@ public class GetRDDOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -234,7 +247,7 @@ public class GetRDDOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -389,7 +402,7 @@ public class GetRDDOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
         final User user = new User();
         final Configuration conf = new Configuration();
