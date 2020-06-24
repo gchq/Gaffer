@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
@@ -25,7 +26,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
-    private static AccumuloTestClusterManager accumuloTestClusterManager = null;
+    protected static AccumuloTestClusterManager accumuloTestClusterManager = null;
 
     public AccumuloStoreITs() {
         this(STORE_PROPERTIES);
@@ -34,16 +35,16 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     protected AccumuloStoreITs(final AccumuloProperties storeProperties) {
         super(storeProperties);
         addExtraTest(AddElementsFromHdfsLoaderIT.class);
-        if (null == accumuloTestClusterManager) {
-            accumuloTestClusterManager = new AccumuloTestClusterManager((AccumuloProperties) getStoreProperties());
-        }
+    }
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(STORE_PROPERTIES);
     }
 
     @AfterClass
     public static void tearDownAccumuloCluster() {
-        if (null != accumuloTestClusterManager) {
-            accumuloTestClusterManager.close();
-        }
+        accumuloTestClusterManager.close();
     }
 
 }

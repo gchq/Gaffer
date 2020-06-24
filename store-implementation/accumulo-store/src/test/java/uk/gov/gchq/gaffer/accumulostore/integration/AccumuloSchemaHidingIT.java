@@ -15,8 +15,12 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
@@ -31,26 +35,37 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.List;
 
 public class AccumuloSchemaHidingIT extends SchemaHidingIT {
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSchemaHidingIT.class, "miniAccumuloStore.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     public AccumuloSchemaHidingIT() {
-        super("mockAccumuloStore.properties");
+        super(PROPERTIES);
     }
 
     @Override
     protected void cleanUp() {
-        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
-
         final AccumuloStore store;
         try {
-            store = Class.forName(storeProps.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
+            store = Class.forName(PROPERTIES.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
+            throw new IllegalArgumentException("Could not create store of type: " + PROPERTIES.getStoreClass(), e);
         }
 
         try {
             store.preInitialise(
                     "graphId",
                     createFullSchema(),
-                    storeProps
+                    PROPERTIES
             );
             store.getConnection().tableOperations().delete(store.getTableName());
         } catch (final Exception e) {
