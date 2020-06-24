@@ -86,7 +86,7 @@ public class AddUpdateTableIteratorTest {
         Properties properties = accumuloProperties.getProperties();
         try {
             OutputStream fos = new FileOutputStream(filename);
-            properties.store(fos, "AddUpdateTableIteratorTest - " + filename+ " with current zookeeper");
+            properties.store(fos, "AddUpdateTableIteratorTest - " + filename + " with current zookeeper");
             fos.close();
             FileUtils.forceDeleteOnExit(new File(filename));
         } catch (IOException e) {

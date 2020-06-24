@@ -77,7 +77,7 @@ public class CreateSplitPointsIT {
     public String splitsFile;
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
     private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
 
     @BeforeClass

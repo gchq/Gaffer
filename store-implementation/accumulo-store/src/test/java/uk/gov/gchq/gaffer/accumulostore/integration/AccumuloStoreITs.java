@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import org.junit.AfterClass;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
