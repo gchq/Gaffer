@@ -28,10 +28,13 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -64,6 +67,20 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
 
     protected abstract OP createGetOperation();
 
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     protected void assertElements(final Iterable<ElementId> expected, final O actual) {
         ElementUtil.assertElementEquals(expected, (Iterable) actual);
     }
@@ -85,7 +102,7 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
                         .type(TestTypes.ID_STRING, String.class)
                         .type(TestTypes.DIRECTED_EITHER, Boolean.class)
                         .build(),
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
+                PROPERTIES
         );
 
         final Graph graph = new Graph.Builder()

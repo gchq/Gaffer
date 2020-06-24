@@ -17,9 +17,12 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -59,6 +62,19 @@ public class AccumuloAggregationIT extends StandaloneIT {
     private static final String PRIVATE_VISIBILITY = "privateVisibility";
 
     private final User user = getUser();
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
 
     @Test
     public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
@@ -691,6 +707,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Override
     public StoreProperties createStoreProperties() {
-        return AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+        return PROPERTIES;
     }
 }
