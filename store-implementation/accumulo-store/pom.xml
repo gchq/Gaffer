@@ -144,6 +144,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>map-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-minicluster</artifactId>
             <version>${accumulo.version}</version>
