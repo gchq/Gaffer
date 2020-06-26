@@ -86,7 +86,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(value = Enclosed.class)
-public class GetRDDOfAllElementsHandlerIT {
+public final class GetRDDOfAllElementsHandlerIT {
 
     private static final User USER = new User();
     private static final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
@@ -97,6 +97,10 @@ public class GetRDDOfAllElementsHandlerIT {
     private static final AccumuloProperties PROPERTIES_A = AccumuloProperties.loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManagerB;
     private static final AccumuloProperties PROPERTIES_B = AccumuloProperties.loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
+
+    private GetRDDOfAllElementsHandlerIT() {
+
+    }
 
     @BeforeClass
     public static void setUpStore() {
