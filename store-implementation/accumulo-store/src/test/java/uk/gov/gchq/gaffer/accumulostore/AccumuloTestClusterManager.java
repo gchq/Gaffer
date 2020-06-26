@@ -36,7 +36,7 @@ import java.util.UUID;
 public class AccumuloTestClusterManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloTestClusterManager.class);
     private static final String BASE_DIRECTORY = "miniAccumuloStoreTest-";
-    private static final String ROOTPW = "password";
+    public static final String ROOTPW = "password";
     private MiniAccumuloCluster miniAccumuloCluster = null;
     private AccumuloProperties accumuloProperties;
 
@@ -58,6 +58,11 @@ public class AccumuloTestClusterManager {
 
     public AccumuloProperties getStoreProperties() {
         return accumuloProperties;
+    }
+
+    // Provided for access purposes for creating users etc. where required for tests.
+    public MiniAccumuloCluster getCluster() {
+        return miniAccumuloCluster;
     }
 
     private void setUpTestCluster(AccumuloProperties suppliedProperties) {
@@ -102,8 +107,6 @@ public class AccumuloTestClusterManager {
         // Update the properties with the connection details
         suppliedProperties.setInstance(miniAccumuloCluster.getInstanceName());
         suppliedProperties.setZookeepers(miniAccumuloCluster.getZooKeepers());
-
-        return;
     }
 
     public void close() {
