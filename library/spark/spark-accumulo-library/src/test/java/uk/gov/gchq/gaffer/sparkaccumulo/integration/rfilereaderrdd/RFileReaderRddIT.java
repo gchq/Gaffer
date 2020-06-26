@@ -70,7 +70,6 @@ public class RFileReaderRddIT {
 
     private static AccumuloTestClusterManager accumuloTestClusterManager;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(RFileReaderRddIT.class.getResourceAsStream("/store.properties"));
-    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.openStreams(RFileReaderRddIT.class, "/schema-basic/"));
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -218,7 +217,7 @@ public class RFileReaderRddIT {
             throws InterruptedException, AccumuloException, AccumuloSecurityException, StoreException, TableNotFoundException {
 
         AccumuloStore accumuloStore = new AccumuloStore();
-        accumuloStore.initialise(tableName, SCHEMA, PROPERTIES);
+        accumuloStore.initialise(tableName, new Schema(), PROPERTIES);
         final Connector connector = accumuloStore.getConnection();
 
         // Add data
