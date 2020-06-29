@@ -44,7 +44,6 @@ import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
 import uk.gov.gchq.gaffer.store.StoreException;
