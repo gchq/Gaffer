@@ -17,12 +17,15 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
@@ -33,7 +36,6 @@ import uk.gov.gchq.gaffer.user.StoreUser;
 import static org.junit.Assert.assertEquals;
 
 public class FederatedStorePublicAccessTest {
-
 
     public static final String GRAPH_1 = "graph1";
     public static final String PROP_1 = "prop1";
@@ -46,6 +48,20 @@ public class FederatedStorePublicAccessTest {
     private Context blankUserContext;
     private Context testUserContext;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "singleUseAccumuloStore.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
@@ -56,10 +72,7 @@ public class FederatedStorePublicAccessTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
-
-        library.addProperties(PROP_1, storeProperties);
+        library.addProperties(PROP_1, PROPERTIES);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
         store.setGraphLibrary(library);
         blankUserContext = new Context(StoreUser.blankUser());

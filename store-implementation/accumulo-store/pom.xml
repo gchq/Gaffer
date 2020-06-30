@@ -47,6 +47,12 @@
         <!-- External libraries -->
         <dependency>
             <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-minicluster</artifactId>
+            <version>${accumulo.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>
             <version>${accumulo.version}</version>
             <!-- hadoop-hdfs and avro use an older version of Jersey so to avoid deployment issues it must be excluded -->
@@ -147,12 +153,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>map-store</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.accumulo</groupId>
-            <artifactId>accumulo-minicluster</artifactId>
-            <version>${accumulo.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

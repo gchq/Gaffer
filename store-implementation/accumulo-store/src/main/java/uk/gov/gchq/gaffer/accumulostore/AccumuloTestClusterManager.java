@@ -40,7 +40,7 @@ public class AccumuloTestClusterManager {
     private MiniAccumuloCluster miniAccumuloCluster = null;
     private AccumuloProperties accumuloProperties;
 
-    public AccumuloTestClusterManager(AccumuloProperties inputProperties) {
+    public AccumuloTestClusterManager(final AccumuloProperties inputProperties) {
         // Check if we need a mini cluster set up from reading the properties
         accumuloProperties = inputProperties;
         final String storeClass = accumuloProperties.getStoreClass();
@@ -65,7 +65,7 @@ public class AccumuloTestClusterManager {
         return miniAccumuloCluster;
     }
 
-    private void setUpTestCluster(AccumuloProperties suppliedProperties) {
+    private void setUpTestCluster(final AccumuloProperties suppliedProperties) {
 
         File targetDir = new File("target");
         File baseDir;
@@ -82,7 +82,7 @@ public class AccumuloTestClusterManager {
             miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
             miniAccumuloCluster.start();
         } catch (final IOException | InterruptedException e) {
-            LOGGER.error("Failed to stop test MiniAccumuloCluster: " + e.getMessage());
+            LOGGER.error("Failed to start test MiniAccumuloCluster: " + e.getMessage());
         }
 
         // Create the user specified in the properties (if not root)

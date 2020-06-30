@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -59,6 +62,20 @@ public class FederatedStoreWrongGraphIDsTest {
     private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "singleUseAccumuloStore.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
@@ -69,10 +86,7 @@ public class FederatedStoreWrongGraphIDsTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
-
-        library.addProperties(PROP_1, storeProperties);
+        library.addProperties(PROP_1, PROPERTIES);
         library.addSchema(SCHEMA_1, new Schema.Builder()
                 .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
                         .vertex("string")

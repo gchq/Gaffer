@@ -16,16 +16,20 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.mockito.BDDMockito.given;
@@ -41,12 +45,26 @@ public class AddGenericHandlerTest {
     private FederatedStore store;
     private Graph graph;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseMiniAccStore.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
     @Before
     public void setUp() throws Exception {
         store = mock(FederatedStore.class);
 
         graph = new Graph.Builder()
-                .addStoreProperties(StoreProperties.loadStoreProperties("properties/singleUseMockAccStore.properties"))
+                .addStoreProperties(PROPERTIES)
                 .config(new GraphConfig("TestGraph"))
                 .addSchema(new Schema())
                 .build();
