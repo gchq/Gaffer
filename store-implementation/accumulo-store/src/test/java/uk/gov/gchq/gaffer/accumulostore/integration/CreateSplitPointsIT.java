@@ -78,16 +78,16 @@ public class CreateSplitPointsIT {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
-    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @BeforeClass
     public static void setupCluster() {
-        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES);
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
     }
 
     @AfterClass
     public static void takedownCluster() {
-        accumuloTestClusterManagerByteEntity.close();
+        accumuloTestClusterManager.close();
     }
 
     @Before
