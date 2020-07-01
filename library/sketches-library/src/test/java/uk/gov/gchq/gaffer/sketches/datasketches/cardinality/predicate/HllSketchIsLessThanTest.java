@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate;
 
 import com.yahoo.sketches.hll.HllSketch;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -32,13 +32,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class HllSketchIsLessThanTest extends PredicateTest {
+
     private static final double DELTA = 0.00001D;
 
     private static HllSketch hllSketchWithCardinality5;
     private static HllSketch hllSketchWithCardinality18;
     private static HllSketch hllSketchWithCardinality32;
 
-    @Before
+    @BeforeEach
     public void setup() {
         hllSketchWithCardinality5 = new HllSketch(10);
         for (int i = 1; i <= 5; i++) {
