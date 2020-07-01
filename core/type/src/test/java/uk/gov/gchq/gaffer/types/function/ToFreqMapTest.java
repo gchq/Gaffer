@@ -18,16 +18,16 @@ package uk.gov.gchq.gaffer.types.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.GafferFunctionTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ToFreqMapTest extends GafferFunctionTest {
+public class ToFreqMapTest extends FunctionTest {
 
     @Test
     public void shouldConvertStringToFreqMap() {
