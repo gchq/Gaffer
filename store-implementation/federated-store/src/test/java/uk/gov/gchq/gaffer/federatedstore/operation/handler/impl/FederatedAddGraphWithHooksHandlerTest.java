@@ -62,6 +62,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
+    private static final String EXPECTED_GRAPH_ID_3 = "testGraphID3";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String EXCEPTION_EXPECTED = "Exception expected";
     private User testUser;
@@ -71,7 +72,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private GetAllElements ignore;
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @BeforeClass
@@ -168,12 +169,12 @@ public class FederatedAddGraphWithHooksHandlerTest {
         assertEquals(expectedSchema, next.getSchema());
 
         final GraphLibrary library = new HashMapGraphLibrary();
-        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, PROPERTIES);
+        library.add(EXPECTED_GRAPH_ID_3, expectedSchema, PROPERTIES);
         store.setGraphLibrary(library);
 
         federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
-                        .graphId(EXPECTED_GRAPH_ID_2)
+                        .graphId(EXPECTED_GRAPH_ID_3)
                         .build(),
                 new Context(testUser),
                 store);
@@ -188,7 +189,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         }
 
         assertTrue(set.contains(EXPECTED_GRAPH_ID));
-        assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
+        assertTrue(set.contains(EXPECTED_GRAPH_ID_3));
     }
 
     @Test

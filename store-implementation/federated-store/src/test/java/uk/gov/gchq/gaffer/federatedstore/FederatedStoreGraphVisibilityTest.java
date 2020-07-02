@@ -62,7 +62,7 @@ public class FederatedStoreGraphVisibilityTest {
     private HashMapGraphLibrary library;
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @BeforeClass

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -35,6 +37,14 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
     public static final String ACCUMULO_GRAPH_WITH_ENTITIES = "AccumuloStoreContainingEntities";
     public static final String ALL_GRAPH_IDS = ACCUMULO_GRAPH_WITH_EDGES + "," + ACCUMULO_GRAPH_WITH_ENTITIES;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    static {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         HashMapGraphLibrary.clear();
@@ -51,7 +61,7 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
                             .merge(schema.clone())
                             .entities(Collections.emptyMap())
                             .build())
-                    .properties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties"))
+                    .properties(PROPERTIES)
                     .build());
 
             // Accumulo store just contains entities
@@ -61,7 +71,7 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
                             .merge(schema.clone())
                             .edges(Collections.emptyMap())
                             .build())
-                    .properties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties"))
+                    .properties(PROPERTIES)
                     .build());
         } catch (final StorageException e) {
             throw new StoreException(e.getMessage(), e);

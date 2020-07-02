@@ -43,7 +43,7 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     }
 
     @AfterClass
-    public static void tearDownAccumuloCluster() {
+    public static void tearDownStore() {
         accumuloTestClusterManager.close();
     }
 

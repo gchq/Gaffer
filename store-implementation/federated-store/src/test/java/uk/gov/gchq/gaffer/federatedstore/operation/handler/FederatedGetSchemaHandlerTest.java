@@ -69,7 +69,7 @@ public class FederatedGetSchemaHandlerTest {
             .build();
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @BeforeClass

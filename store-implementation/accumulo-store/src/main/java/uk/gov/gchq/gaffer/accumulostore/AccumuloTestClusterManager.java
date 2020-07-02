@@ -81,6 +81,12 @@ public class AccumuloTestClusterManager {
             miniAccumuloConfig.setInstanceName(suppliedProperties.getInstance());
             miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
             miniAccumuloCluster.start();
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    AccumuloTestClusterManager.this.close();
+                }
+            });
         } catch (final IOException | InterruptedException e) {
             LOGGER.error("Failed to start test MiniAccumuloCluster: " + e.getMessage());
         }
@@ -132,6 +138,7 @@ public class AccumuloTestClusterManager {
                         " : " + e.getMessage());
             }
         }
+        miniAccumuloCluster = null;
     }
 
 }

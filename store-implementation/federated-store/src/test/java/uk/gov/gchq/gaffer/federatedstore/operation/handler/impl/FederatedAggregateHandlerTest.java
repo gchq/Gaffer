@@ -56,7 +56,7 @@ import static org.mockito.Mockito.verify;
 public class FederatedAggregateHandlerTest {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @BeforeClass
@@ -94,10 +94,12 @@ public class FederatedAggregateHandlerTest {
 
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
+        FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
+                StreamUtil.openStream(currentClass, "predefinedFederatedStore.properties"));
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
                 .addSchema(new Schema())
-                .storeProperties(new FederatedStoreProperties())
+                .storeProperties(federatedStoreProperties)
                 .build();
 
         final Context context = new Context(new User());

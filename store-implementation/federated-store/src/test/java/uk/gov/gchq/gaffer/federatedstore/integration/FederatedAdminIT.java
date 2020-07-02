@@ -17,9 +17,13 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
@@ -31,7 +35,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -49,6 +52,21 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
+
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
+            StreamUtil.openStream(currentClass, "properties/singleUseMiniAccStore.properties"));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(ACCUMULO_PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
 
     @Override
     protected Schema createSchema() {
@@ -75,7 +93,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -98,7 +116,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -121,7 +139,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -141,7 +159,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -161,7 +179,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("authsValueA")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -188,7 +206,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -206,7 +224,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -226,7 +244,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
@@ -244,14 +262,14 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("authsValueA")
                 .build(), user);
         final String graphB = "graphB";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphB)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("authsValueB")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -278,7 +296,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -305,7 +323,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -333,7 +351,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -360,7 +378,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -387,7 +405,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -413,7 +431,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -440,7 +458,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
@@ -467,7 +485,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));

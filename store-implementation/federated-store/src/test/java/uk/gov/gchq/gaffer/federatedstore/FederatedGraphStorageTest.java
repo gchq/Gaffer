@@ -87,7 +87,7 @@ public class FederatedGraphStorageTest {
     private static final String GROUP_EDGE = "edg";
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @BeforeClass
