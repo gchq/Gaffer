@@ -16,6 +16,15 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
@@ -23,10 +32,45 @@ import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
 
 
 public class AccumuloDisableOperationsTest extends DisableOperationsTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloDisableOperationsTest.class);
+    private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
+    @BeforeClass
+    public static void setUpStore() {
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        accumuloTestClusterManager.close();
+    }
+
+    @Before
+    public void resetPropertiesIntoTheTempFile() {
+        createUpdatedPropertiesFile(PROPERTIES, this.storePropsPath.getAbsolutePath());
+    }
+
+    private void createUpdatedPropertiesFile(AccumuloProperties accumuloProperties, String filename) {
+        Properties properties = accumuloProperties.getProperties();
+        try {
+            OutputStream fos = new FileOutputStream(filename);
+            properties.store(fos, "AccumuloDisableOperationsTest - " + filename + " with current zookeeper");
+            fos.close();
+        } catch (IOException e) {
+            LOGGER.error("Failed to write Properties file: " + filename + ": " + e.getMessage());
+        }
+    }
+
     public AccumuloDisableOperationsTest() throws IOException {
         super(
                 SplitStore.class,

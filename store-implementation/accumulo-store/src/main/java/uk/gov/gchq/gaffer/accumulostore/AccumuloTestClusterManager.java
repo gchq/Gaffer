@@ -89,6 +89,7 @@ public class AccumuloTestClusterManager {
             });
         } catch (final IOException | InterruptedException e) {
             LOGGER.error("Failed to start test MiniAccumuloCluster: " + e.getMessage());
+            this.close();
         }
 
         // Create the user specified in the properties (if not root)
