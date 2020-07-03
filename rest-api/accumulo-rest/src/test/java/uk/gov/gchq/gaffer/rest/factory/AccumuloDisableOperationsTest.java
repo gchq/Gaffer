@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

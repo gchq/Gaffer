@@ -15,10 +15,10 @@
 #
 
 # Description:
-#   This is a sample gaffer accumulo store properties file where SingleUseMockAccumuloStore is being used.
+#   This is a sample gaffer accumulo store properties file where SingleUseMiniAccumuloStore is being used.
 #   The file is intended as an example of a minimal configuration file.
 
-gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
+gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore
 gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
 
 accumulo.instance=accumuloInstanceName
