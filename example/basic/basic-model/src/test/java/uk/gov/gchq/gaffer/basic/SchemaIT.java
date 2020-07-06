@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class SchemaIT {
