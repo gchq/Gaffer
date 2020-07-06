@@ -2,7 +2,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
     "graphId": "accEntitiesClashingGraph",
     "storeProperties": {
-         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.DemoMiniAccumuloStore",
          "accumulo.instance":"someInstanceName",
          "accumulo.zookeepers":"aZookeeper",
          "accumulo.user":"user01",
