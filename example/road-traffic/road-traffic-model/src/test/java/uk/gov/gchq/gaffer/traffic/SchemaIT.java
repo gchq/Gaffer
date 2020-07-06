@@ -31,7 +31,7 @@ import java.io.InputStream;
 public class SchemaIT {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static AccumuloProperties PROPERTIES =
+    private static final AccumuloProperties PROPERTIES =
             AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
