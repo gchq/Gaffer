@@ -21,6 +21,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -28,7 +30,6 @@ import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
@@ -47,11 +48,19 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES =
+            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES));
+    private static AccumuloTestClusterManager accumuloTestClusterManager;
+
     @ClassRule
     public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @BeforeClass
     public static void prepareRestApi() throws IOException {
+
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+
         // Spin up the REST API
         CLIENT.startServer();
 
@@ -59,7 +68,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         CLIENT.reinitialiseGraph(
                 TEST_FOLDER,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
+                PROPERTIES
         );
 
         // Load Road Traffic data into the store
@@ -70,6 +79,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @AfterClass
     public static void after() {
         CLIENT.stopServer();
+        accumuloTestClusterManager.close();
     }
 
     @Override
