@@ -27,7 +27,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <store.type>accumulo</store.type>
+        <store.type>map</store.type>
         <!-- Test Properties -->
         <gaffer.rest.host>localhost</gaffer.rest.host>
         <gaffer.rest.port>8080</gaffer.rest.port>
@@ -90,7 +90,7 @@
 
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>${store.type}-store</artifactId>
+            <artifactId>accumulo-store</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
