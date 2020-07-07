@@ -111,6 +111,14 @@ public class HllSketchIsLessThanTest extends PredicateTest {
     }
 
     @Test
+    public void shouldTestCoverageToString() {
+        // Given
+        final HllSketchIsLessThan filter = new HllSketchIsLessThan(15);
+        // Then
+        assertEquals("HllSketchIsLessThan[controlValue=15,orEqualTo=false]", filter.toString());
+    }
+
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
