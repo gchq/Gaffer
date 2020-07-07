@@ -47,6 +47,5 @@ public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
         assertNull(graphLibrary.getIds(TEST_GRAPH_ID));
         assertNull(graphLibrary.getSchema(TEST_SCHEMA_ID));
         assertNull(graphLibrary.getProperties(TEST_PROPERTIES_ID));
-
     }
 }

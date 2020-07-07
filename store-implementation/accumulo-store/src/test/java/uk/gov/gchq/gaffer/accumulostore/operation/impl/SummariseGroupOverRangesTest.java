@@ -38,6 +38,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOverRanges> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -63,6 +64,7 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
 
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -83,6 +85,7 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
         assertNotNull(summariseGroupOverRanges.getView());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
