@@ -154,6 +154,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
         return new Class[]{RBMBackedTimestampSet.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given
