@@ -82,10 +82,10 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
     @Override
     public void shouldSerialiseNull() {
         // Given
-        final MapSerialiser setSerialiser = new MapSerialiser();
+        final MapSerialiser mapSerialiser = new MapSerialiser();
 
         // Then
-        assertArrayEquals(new byte[0], setSerialiser.serialiseNull());
+        assertArrayEquals(new byte[0], mapSerialiser.serialiseNull());
     }
 
     private Map<String, Long> getExampleValue() {
