@@ -38,6 +38,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -80,6 +81,7 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
         assertNotNull(getElementsInRanges.getView());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

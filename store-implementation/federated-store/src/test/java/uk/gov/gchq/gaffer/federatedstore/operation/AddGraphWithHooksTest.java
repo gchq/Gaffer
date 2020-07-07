@@ -43,6 +43,7 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         return Sets.newHashSet("graphId");
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
@@ -64,6 +65,7 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         assertEquals(log4jLogger, op.getHooks()[0]);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final AddGraphWithHooks a = new Builder()
@@ -111,5 +113,4 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
     protected AddGraphWithHooks getTestObject() {
         return new AddGraphWithHooks();
     }
-
 }

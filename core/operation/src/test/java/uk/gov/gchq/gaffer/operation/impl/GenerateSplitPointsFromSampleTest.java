@@ -72,6 +72,7 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
         assertExpected(op);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

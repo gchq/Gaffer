@@ -209,6 +209,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         builderShouldCreatePopulatedOperationIncoming();
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

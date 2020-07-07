@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -28,11 +29,13 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
 
 public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
+
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()
@@ -42,6 +45,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
         assertThat(operation.getOptions(), hasEntry("a", "b"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()

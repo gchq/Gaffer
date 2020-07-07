@@ -35,6 +35,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class FederatedOperationChainTest extends OperationTest<FederatedOperationChain> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -76,6 +78,7 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         assertEquals("value", clone.getOption("key"));
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given

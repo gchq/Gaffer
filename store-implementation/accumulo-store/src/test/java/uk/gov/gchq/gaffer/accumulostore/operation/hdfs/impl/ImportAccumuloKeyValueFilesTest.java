@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumuloKeyValueFiles> {
+
     private static final String INPUT_DIRECTORY = "/input";
     private static final String FAIL_DIRECTORY = "/fail";
     private static final String TEST_OPTION_KEY = "testOption";
@@ -73,6 +74,7 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
         assertEquals("true", importAccumuloKeyValueFiles.getOption(TEST_OPTION_KEY));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

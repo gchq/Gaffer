@@ -106,6 +106,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         }
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

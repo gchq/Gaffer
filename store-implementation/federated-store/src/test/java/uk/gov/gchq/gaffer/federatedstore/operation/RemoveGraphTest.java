@@ -49,6 +49,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
         return Sets.newHashSet("graphId");
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
@@ -58,6 +59,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
         Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final RemoveGraph a = getTestObject();

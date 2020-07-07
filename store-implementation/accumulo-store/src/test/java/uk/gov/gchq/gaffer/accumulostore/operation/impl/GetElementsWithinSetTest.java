@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -56,7 +57,6 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_2, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
-
     }
 
     @Test
@@ -76,6 +76,7 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         assertNotNull(getElementsWithinSet.getView());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
