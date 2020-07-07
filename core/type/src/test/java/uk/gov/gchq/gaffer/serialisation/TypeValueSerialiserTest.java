@@ -114,6 +114,7 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
         assertEquals(typeValue, deSerialisedTypeValue);
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         final TypeValue value = serialiser.deserialiseEmpty();

@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
 
@@ -75,6 +76,16 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
         assertEquals(3, o.get(1));
         assertEquals(7, o.get(2));
         assertEquals(11, o.get(3));
+    }
+
+    @Test
+    @Override
+    public void shouldSerialiseNull() {
+        // Given
+        final MapSerialiser setSerialiser = new MapSerialiser();
+
+        // Then
+        assertArrayEquals(new byte[0], setSerialiser.serialiseNull());
     }
 
     private Map<String, Long> getExampleValue() {

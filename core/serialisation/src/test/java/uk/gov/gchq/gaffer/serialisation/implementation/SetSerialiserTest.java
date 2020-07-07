@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -96,6 +97,22 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         assertTrue(o.contains("six"));
     }
 
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertEquals(new HashSet(), serialiser.deserialiseEmpty());
+    }
+
+    @Test
+    @Override
+    public void shouldSerialiseNull() {
+        // Given
+        final SetSerialiser setSerialiser = new SetSerialiser();
+
+        // Then
+        assertArrayEquals(new byte[0], setSerialiser.serialiseNull());
+    }
+
     @Override
     public Serialiser<Set<?>, byte[]> getSerialisation() {
         SetSerialiser serialiser = new SetSerialiser();
@@ -107,11 +124,5 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
     @Override
     public Pair<Set<?>, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[] {new Pair<>(getExampleValue(), new byte[] {3, 115, 105, 120, 4, 102, 111, 117, 114, 3, 111, 110, 101, 3, 116, 119, 111, 5, 116, 104, 114, 101, 101, 4, 102, 105, 118, 101})};
-    }
-
-    @Test
-    @Override
-    public void shouldDeserialiseEmpty() throws SerialisationException {
-        assertEquals(new HashSet(), serialiser.deserialiseEmpty());
     }
 }

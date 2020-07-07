@@ -55,6 +55,7 @@ public class StringSerialiserTest extends ToBytesSerialisationTest<String> {
         assertTrue(serialiser.canHandle(String.class));
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         // When

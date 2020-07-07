@@ -220,6 +220,7 @@ public class TypeSubTypeValueSerialiserTest extends ToBytesSerialisationTest<Typ
         assertEquals(typeSubTypeValue, deSerialisedTypeSubTypeValue);
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() {
         final TypeSubTypeValue value = SERIALISER.deserialiseEmpty();

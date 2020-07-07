@@ -107,6 +107,7 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         };
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         assertEquals(new IntegerFreqMap(), serialiser.deserialiseEmpty());

@@ -51,6 +51,7 @@ public class RoaringBitmapSerialiserTest extends ToBytesSerialisationTest<Roarin
         return testBitmap;
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         // When

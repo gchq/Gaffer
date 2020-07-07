@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
+    @Test
     @Override
     public void shouldSerialiseNull() {
         final byte[] bytes = serialiser.serialiseNull();
@@ -43,6 +44,7 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
         assertNull(serialiser.deserialiseEmpty());
     }
 
+    @Test
     @Override
     protected void serialiseFirst(final Pair<T, byte[]> pair) throws SerialisationException {
         byte[] serialise = serialiser.serialise(pair.getFirst());
