@@ -44,7 +44,6 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
         assertNull(serialiser.deserialiseEmpty());
     }
 
-    @Test
     @Override
     protected void serialiseFirst(final Pair<T, byte[]> pair) throws SerialisationException {
         byte[] serialise = serialiser.serialise(pair.getFirst());
