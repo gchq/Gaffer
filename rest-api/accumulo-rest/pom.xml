@@ -74,7 +74,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
             <version>${hadoop.version}</version>
-            <scope>test</scope>
             <!-- exclude server-side parts that conflict with running in a webapp -->
             <exclusions>
                 <exclusion>
