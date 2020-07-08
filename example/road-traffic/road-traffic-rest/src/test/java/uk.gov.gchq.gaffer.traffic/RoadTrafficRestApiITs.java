@@ -21,7 +21,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -30,6 +29,7 @@ import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
@@ -49,8 +49,8 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES =
-            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES));
+    private static final StoreProperties PROPERTIES =
+            StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, STORE_TYPE_DEFAULT + StreamUtil.STORE_PROPERTIES));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
     @ClassRule

@@ -38,12 +38,11 @@ public class AccumuloTestClusterManager {
     private static final String BASE_DIRECTORY = "miniAccumuloStoreTest-";
     public static final String ROOTPW = "password";
     private MiniAccumuloCluster miniAccumuloCluster = null;
-    private AccumuloProperties accumuloProperties;
+    private AccumuloProperties accumuloProperties = null;
 
-    public AccumuloTestClusterManager(final AccumuloProperties inputProperties) {
+    public AccumuloTestClusterManager(final StoreProperties inputProperties) {
         // Check if we need a mini cluster set up from reading the properties
-        accumuloProperties = inputProperties;
-        final String storeClass = accumuloProperties.getStoreClass();
+        final String storeClass = inputProperties.getStoreClass();
         if (null == storeClass) {
             Class currentClass = new Object() { }.getClass().getEnclosingClass();
             throw new IllegalArgumentException(currentClass.getName() +
@@ -52,7 +51,7 @@ public class AccumuloTestClusterManager {
         }
         if (storeClass.equals("uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore") ||
             storeClass.equals("uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore")) {
-            setUpTestCluster(accumuloProperties);
+            setUpTestCluster((AccumuloProperties) inputProperties);
         }
     }
 
@@ -66,7 +65,7 @@ public class AccumuloTestClusterManager {
     }
 
     private void setUpTestCluster(final AccumuloProperties suppliedProperties) {
-
+        accumuloProperties = suppliedProperties;
         File targetDir = new File("target");
         File baseDir;
         if (targetDir.exists() && targetDir.isDirectory()) {
@@ -79,14 +78,14 @@ public class AccumuloTestClusterManager {
             FileUtils.deleteDirectory(baseDir);
             MiniAccumuloConfig miniAccumuloConfig = new MiniAccumuloConfig(baseDir, ROOTPW);
             miniAccumuloConfig.setInstanceName(suppliedProperties.getInstance());
-            miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
-            miniAccumuloCluster.start();
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
                     AccumuloTestClusterManager.this.close();
                 }
             });
+            miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);
+            miniAccumuloCluster.start();
         } catch (final IOException | InterruptedException e) {
             LOGGER.error("Failed to start test MiniAccumuloCluster: " + e.getMessage());
             this.close();
