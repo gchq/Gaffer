@@ -11,23 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License
-*/target/
-target/
-*/*.iml
-*.iml
-*/.settings
-*/.project
+**/target/
+**/*.iml
+**/.settings
+**/.project
 */bin
-*/*.class
+**/*.class
 */atlassian-ide*
-*/.idea
-.idea/*
-.idea
+**/.idea
 */.classpath
 __pycache__
 *.pem
 *.DS_Store
 .gaffer/
 parquet_data/
-*/graphLibrary/
-graphLibrary/
+**/graphLibrary/
