@@ -15,11 +15,11 @@
 **/*.iml
 **/.settings
 **/.project
+**/.classpath
 */bin
 **/*.class
 */atlassian-ide*
 **/.idea
-*/.classpath
 __pycache__
 *.pem
 *.DS_Store
