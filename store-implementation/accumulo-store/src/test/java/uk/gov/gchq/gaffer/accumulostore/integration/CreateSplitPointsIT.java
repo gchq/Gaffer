@@ -25,6 +25,7 @@ import org.apache.hadoop.io.Text;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -53,6 +54,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -80,9 +82,18 @@ public class CreateSplitPointsIT {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setupCluster() {
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+        File storeFolder = null;
+        try {
+            storeFolder = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @AfterClass

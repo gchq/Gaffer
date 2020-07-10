@@ -17,25 +17,42 @@ package uk.gov.gchq.gaffer.basic;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class SchemaIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchemaIT.class);
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES =
             AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setUpStore() {
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+        File storeFolder = null;
+        try {
+            storeFolder = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @AfterClass

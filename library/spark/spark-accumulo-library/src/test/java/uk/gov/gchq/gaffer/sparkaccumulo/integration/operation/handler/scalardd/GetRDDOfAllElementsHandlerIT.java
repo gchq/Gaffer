@@ -32,6 +32,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -40,6 +41,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -88,6 +91,7 @@ import static org.junit.Assert.fail;
 @RunWith(value = Enclosed.class)
 public final class GetRDDOfAllElementsHandlerIT {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetRDDOfAllElementsHandlerIT.class);
     private static final User USER = new User();
     private static final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
     private static final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
@@ -102,10 +106,25 @@ public final class GetRDDOfAllElementsHandlerIT {
 
     }
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setUpStore() {
-        accumuloTestClusterManagerA = new AccumuloTestClusterManager(PROPERTIES_A);
-        accumuloTestClusterManagerB = new AccumuloTestClusterManager(PROPERTIES_B);
+        File storeFolder1 = null;
+        File storeFolder2 = null;
+        try {
+            storeFolder1 = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder 1 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        try {
+            storeFolder2 = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        accumuloTestClusterManagerA = new AccumuloTestClusterManager(PROPERTIES_A, storeFolder1.getAbsolutePath());
+        accumuloTestClusterManagerB = new AccumuloTestClusterManager(PROPERTIES_B, storeFolder2.getAbsolutePath());
     }
 
     @AfterClass

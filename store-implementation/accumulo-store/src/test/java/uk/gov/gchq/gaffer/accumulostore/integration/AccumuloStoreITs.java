@@ -17,14 +17,23 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 
+import java.io.File;
+import java.io.IOException;
+
 public class AccumuloStoreITs extends AbstractStoreITs {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreITs.class);
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
     protected static AccumuloTestClusterManager accumuloTestClusterManager = null;
 
@@ -37,9 +46,18 @@ public class AccumuloStoreITs extends AbstractStoreITs {
         addExtraTest(AddElementsFromHdfsLoaderIT.class);
     }
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setUpStore() {
-        accumuloTestClusterManager = new AccumuloTestClusterManager(STORE_PROPERTIES);
+        File storeFolder = null;
+        try {
+            storeFolder = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        accumuloTestClusterManager = new AccumuloTestClusterManager(STORE_PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @AfterClass

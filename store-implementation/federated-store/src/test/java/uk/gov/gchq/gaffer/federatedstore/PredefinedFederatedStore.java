@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -42,7 +43,7 @@ public class PredefinedFederatedStore extends FederatedStore {
     private static AccumuloTestClusterManager accumuloTestClusterManager = null;
 
     static {
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES);
+        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
     }
 
     @Override

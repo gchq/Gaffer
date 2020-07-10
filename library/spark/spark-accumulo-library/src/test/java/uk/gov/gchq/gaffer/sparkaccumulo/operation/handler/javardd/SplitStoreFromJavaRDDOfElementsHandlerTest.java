@@ -21,6 +21,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -70,9 +71,12 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest extends AbstractProperti
     private JavaRDD<Element> javaRDD;
     private String configurationString;
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setup() {
-        setUpBeforeClass("/store.properties");
+        setUpBeforeClass("/store.properties", storeBaseFolder);
     }
 
     @AfterClass

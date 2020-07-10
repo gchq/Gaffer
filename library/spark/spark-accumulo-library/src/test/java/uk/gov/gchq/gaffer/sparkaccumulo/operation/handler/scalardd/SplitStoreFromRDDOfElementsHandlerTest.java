@@ -20,6 +20,7 @@ import org.apache.spark.rdd.RDD;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -72,9 +73,12 @@ public class SplitStoreFromRDDOfElementsHandlerTest extends AbstractPropertiesDr
     private RDD<Element> rdd;
     private String configurationString;
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setup() {
-        setUpBeforeClass("/store.properties");
+        setUpBeforeClass("/store.properties", storeBaseFolder);
     }
 
     @AfterClass

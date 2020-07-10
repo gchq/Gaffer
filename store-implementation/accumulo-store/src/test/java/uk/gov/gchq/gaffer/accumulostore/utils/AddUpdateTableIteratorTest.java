@@ -21,14 +21,17 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -49,7 +52,6 @@ import static org.junit.Assert.assertNull;
 public class AddUpdateTableIteratorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddUpdateTableIteratorTest.class);
-
     private static final String GRAPH_ID = "graphId";
     private static final String SCHEMA_DIR = "src/test/resources/schema";
     private static final String SCHEMA_2_DIR = "src/test/resources/schema2";
@@ -65,13 +67,28 @@ public class AddUpdateTableIteratorTest {
     private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
     private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH);
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void setUpStore() {
-        accumuloTestClusterManager1 = new AccumuloTestClusterManager(PROPERTIES_1);
-        accumuloTestClusterManager2 = new AccumuloTestClusterManager(PROPERTIES_2);
+        File storeFolder1 = null;
+        File storeFolder2 = null;
+        try {
+            storeFolder1 = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder 1 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        try {
+            storeFolder2 = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        accumuloTestClusterManager1 = new AccumuloTestClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
+        accumuloTestClusterManager2 = new AccumuloTestClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
         createUpdatedPropertiesFile(PROPERTIES_1, STORE_PROPS_PATH_UPDATED);
         createUpdatedPropertiesFile(PROPERTIES_2, STORE_PROPS_2_PATH_UPDATED);
     }

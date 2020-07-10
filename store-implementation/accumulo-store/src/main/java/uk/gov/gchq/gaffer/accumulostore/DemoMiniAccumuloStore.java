@@ -16,12 +16,18 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.File;
+
 public class DemoMiniAccumuloStore extends AccumuloStore {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemoMiniAccumuloStore.class);
     private static AccumuloTestClusterManager accumuloTestClusterManager;
     private static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
 
@@ -32,7 +38,15 @@ public class DemoMiniAccumuloStore extends AccumuloStore {
         ACCUMULO_PROPERTIES.setPassword("password01");
         ACCUMULO_PROPERTIES.setInstance("instance01");
 
-        accumuloTestClusterManager = new AccumuloTestClusterManager(ACCUMULO_PROPERTIES);
+        final String tmpDirectoryProperty = System.getProperty("java.io.tmpdir");
+        File storeFolder = null;
+        if (null != tmpDirectoryProperty) {
+            storeFolder = new File(tmpDirectoryProperty);
+        } else {
+            LOGGER.error(DemoMiniAccumuloStore.class + ": Could not create storeFolder directory");
+        }
+
+        accumuloTestClusterManager = new AccumuloTestClusterManager(ACCUMULO_PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @Override

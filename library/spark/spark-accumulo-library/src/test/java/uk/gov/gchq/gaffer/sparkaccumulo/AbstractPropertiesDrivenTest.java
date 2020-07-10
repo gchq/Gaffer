@@ -16,18 +16,32 @@
 
 package uk.gov.gchq.gaffer.sparkaccumulo;
 
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
 
+import java.io.File;
+import java.io.IOException;
+
 public abstract class AbstractPropertiesDrivenTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPropertiesDrivenTest.class);
     private static AccumuloTestClusterManager accumuloTestClusterManager;
 
-    public static void setUpBeforeClass(String propertiesID) {
+    public static void setUpBeforeClass(String propertiesID, TemporaryFolder storeBaseFolder) {
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
         AccumuloProperties suppliedProperties = AccumuloProperties
                 .loadStoreProperties(currentClass.getResourceAsStream(propertiesID));
-        accumuloTestClusterManager = new AccumuloTestClusterManager(suppliedProperties);
+        File storeFolder = null;
+        try {
+            storeFolder = storeBaseFolder.newFolder();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
+        }
+        accumuloTestClusterManager = new AccumuloTestClusterManager(suppliedProperties, storeFolder.getAbsolutePath());
     }
 
     public AccumuloProperties getStoreProperties() {

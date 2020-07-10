@@ -40,7 +40,7 @@ public class AccumuloTestClusterManager {
     private MiniAccumuloCluster miniAccumuloCluster = null;
     private AccumuloProperties accumuloProperties = null;
 
-    public AccumuloTestClusterManager(final StoreProperties inputProperties) {
+    public AccumuloTestClusterManager(final StoreProperties inputProperties, final String homeDirectory) {
         // Check if we need a mini cluster set up from reading the properties
         final String storeClass = inputProperties.getStoreClass();
         if (null == storeClass) {
@@ -49,9 +49,9 @@ public class AccumuloTestClusterManager {
                     ": The Store class name was not found in the store properties for key: " +
                     StoreProperties.STORE_CLASS);
         }
-        if (storeClass.equals("uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore") ||
-            storeClass.equals("uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore")) {
-            setUpTestCluster((AccumuloProperties) inputProperties);
+        if (storeClass.equals(SingleUseMiniAccumuloStore.class.getName()) ||
+            storeClass.equals(MiniAccumuloStore.class.getName())) {
+            setUpTestCluster((AccumuloProperties) inputProperties, homeDirectory);
         }
     }
 
@@ -64,15 +64,10 @@ public class AccumuloTestClusterManager {
         return miniAccumuloCluster;
     }
 
-    private void setUpTestCluster(final AccumuloProperties suppliedProperties) {
+    private void setUpTestCluster(final AccumuloProperties suppliedProperties, final String directory) {
         accumuloProperties = suppliedProperties;
-        File targetDir = new File("target");
-        File baseDir;
-        if (targetDir.exists() && targetDir.isDirectory()) {
-            baseDir = new File(targetDir, BASE_DIRECTORY + UUID.randomUUID());
-        } else {
-            baseDir = new File(FileUtils.getTempDirectory(), BASE_DIRECTORY + UUID.randomUUID());
-        }
+        File targetDir = new File(directory);
+        File baseDir = new File(targetDir, BASE_DIRECTORY + UUID.randomUUID());
 
         try {
             FileUtils.deleteDirectory(baseDir);
