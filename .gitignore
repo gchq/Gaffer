@@ -26,3 +26,4 @@ __pycache__
 .gaffer/
 parquet_data/
 **/graphLibrary/
+**/.vscode
