@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.IOException;
 import java.util.function.Function;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class ExtractGroupTest extends GafferFunctionTest {
 

@@ -38,7 +38,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
 public class WalkTest {
 
@@ -101,7 +100,7 @@ public class WalkTest {
                 "    {\"C\": []}" +
                 "  ]" +
                 "}\n";
-        JsonAssert.assertEquals(expected, new String(json));
+                JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
@@ -125,7 +124,8 @@ public class WalkTest {
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
         // When
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entity(ENTITY_A));
+        final Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> builder.entity(ENTITY_A));
         assertEquals("Entity must be added to correct vertex.", exception.getMessage());
     }
 
