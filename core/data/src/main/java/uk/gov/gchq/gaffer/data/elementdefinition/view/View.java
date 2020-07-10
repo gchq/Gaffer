@@ -67,7 +67,7 @@ import java.util.function.Function;
  */
 @JsonDeserialize(builder = View.Builder.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.EXISTING_PROPERTY, property = "class", defaultImpl = View.class)
-@JsonPropertyOrder(value = {"class", "edges", "entities"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "edges", "entities", "allEdges", "allEntities", "globalElements", "globalEntities", "globalEdges"}, alphabetic = true)
 @JsonSimpleClassName(includeSubtypes = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
@@ -328,6 +328,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 .append(globalElements, view.getGlobalElements())
                 .append(globalEntities, view.getGlobalEntities())
                 .append(globalEdges, view.getGlobalEdges())
+                .append(allEntities, view.isAllEntities())
+                .append(allEdges, view.isAllEdges())
                 .isEquals();
     }
 
@@ -338,6 +340,8 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 .append(globalElements)
                 .append(globalEntities)
                 .append(globalEdges)
+                .append(allEntities)
+                .append(allEdges)
                 .toHashCode();
     }
 
@@ -381,6 +385,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        @JsonSetter("allEntities")
         public CHILD_CLASS allEntities(final boolean allEntites) {
             getThisView().allEntities = allEntites;
             return self();
@@ -405,6 +410,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
+        @JsonSetter("allEdges")
         public CHILD_CLASS allEdges(final boolean allEdges) {
             getThisView().allEdges = allEdges;
             return self();
@@ -533,6 +539,9 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 if (null != view.config) {
                     getThisView().config.putAll(view.config);
                 }
+
+                getThisView().setAllEntities(view.allEntities);
+                getThisView().setAllEdges(view.allEdges);
             }
 
             return self();

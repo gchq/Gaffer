@@ -1462,6 +1462,24 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertEquals(Sets.newHashSet(TestGroups.EDGE_2), view.getEdgeGroups());
     }
 
+    @Test
+    public void shouldCopyAllEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
     private View createView() {
         return new View.Builder()
                 .globalElements(new GlobalViewElementDefinition.Builder()
