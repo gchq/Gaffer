@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;

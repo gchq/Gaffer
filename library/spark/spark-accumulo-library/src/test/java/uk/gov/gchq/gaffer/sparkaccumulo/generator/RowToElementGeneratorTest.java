@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.generator;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;

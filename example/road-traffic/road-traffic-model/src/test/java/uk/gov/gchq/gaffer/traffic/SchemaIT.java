@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;

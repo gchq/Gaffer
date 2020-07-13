@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends Store> {
 

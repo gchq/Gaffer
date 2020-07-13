@@ -19,7 +19,7 @@ import com.yahoo.sketches.hll.Union;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HllUnionKryoSerializerTest extends KryoSerializerTest<Union> {
     private static final double DELTA = 0.0000001D;

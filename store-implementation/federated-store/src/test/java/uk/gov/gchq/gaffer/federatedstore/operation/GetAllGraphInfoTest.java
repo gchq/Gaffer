@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -25,7 +25,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetAllGraphInfoTest extends OperationTest<GetAllGraphInfo> {
     @Override

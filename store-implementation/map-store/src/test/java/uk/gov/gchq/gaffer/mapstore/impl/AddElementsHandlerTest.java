@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.mapstore.MapStore;

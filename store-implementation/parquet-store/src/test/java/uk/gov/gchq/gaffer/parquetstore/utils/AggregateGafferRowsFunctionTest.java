@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import scala.collection.JavaConversions$;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThat;
 
 public class AggregateGafferRowsFunctionTest {
     private SchemaUtils utils;

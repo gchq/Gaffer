@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThat;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
     protected static final Element[] DEFAULT_ELEMENTS = {

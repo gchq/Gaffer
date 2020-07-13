@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import scala.collection.Seq;
 import scala.collection.mutable.WrappedArray$;
 
@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExtractKeyFromRowTest {
     private LinkedHashSet<String> groupByColumns;

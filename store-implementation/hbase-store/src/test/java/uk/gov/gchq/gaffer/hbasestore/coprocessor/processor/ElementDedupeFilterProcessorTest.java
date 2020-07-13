@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ElementDedupeFilterProcessorTest {
     private static final Schema SCHEMA = new Schema.Builder()

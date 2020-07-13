@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 

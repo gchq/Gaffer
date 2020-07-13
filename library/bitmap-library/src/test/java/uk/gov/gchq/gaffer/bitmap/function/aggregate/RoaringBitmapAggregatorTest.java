@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.bitmap.function.aggregate;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.roaringbitmap.RoaringBitmap;
 
@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
     @Rule

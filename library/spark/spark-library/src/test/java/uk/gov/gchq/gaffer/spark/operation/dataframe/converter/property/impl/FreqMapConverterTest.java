@@ -15,14 +15,14 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FreqMapConverterTest {
     private static final FreqMapConverter FREQ_MAP_CONVERTER = new FreqMapConverter();

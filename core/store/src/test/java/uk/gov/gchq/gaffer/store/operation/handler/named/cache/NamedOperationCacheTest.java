@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeAllClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NamedOperationCacheTest {
 

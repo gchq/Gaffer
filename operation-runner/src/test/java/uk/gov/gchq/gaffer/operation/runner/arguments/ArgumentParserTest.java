@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.operation.runner.arguments;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
@@ -36,8 +36,8 @@ import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ArgumentParserTest {
     private static final String NON_EXISTENT_PATH = "/not/existent/path";

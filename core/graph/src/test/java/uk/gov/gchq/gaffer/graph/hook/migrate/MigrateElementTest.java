@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook.migrate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;

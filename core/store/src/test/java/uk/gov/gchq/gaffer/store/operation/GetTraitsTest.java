@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.store.operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetTraitsTest extends OperationTest<GetTraits> {
 

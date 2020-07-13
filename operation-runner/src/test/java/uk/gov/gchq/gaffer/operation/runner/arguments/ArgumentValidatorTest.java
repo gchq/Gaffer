@@ -16,13 +16,13 @@
 package uk.gov.gchq.gaffer.operation.runner.arguments;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ArgumentValidatorTest {
     private static final String NON_EXISTENT_PATH = "/not/existent/path";

@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -40,7 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
 public class ExportIT extends AbstractStoreIT {

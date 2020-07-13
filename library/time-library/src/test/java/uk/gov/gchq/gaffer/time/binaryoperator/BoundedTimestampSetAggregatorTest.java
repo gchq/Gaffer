@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time.binaryoperator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BoundedTimestampSetAggregatorTest {
     private static final BoundedTimestampSetAggregator BOUNDED_TIMESTAMP_SET_AGGREGATOR

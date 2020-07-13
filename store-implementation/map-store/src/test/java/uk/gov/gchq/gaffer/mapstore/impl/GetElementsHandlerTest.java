@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.BeforeAllClass;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 

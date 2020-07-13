@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.operation.runner.arguments;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument;
@@ -25,8 +25,8 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Mandatory;
 import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Optional;
 
