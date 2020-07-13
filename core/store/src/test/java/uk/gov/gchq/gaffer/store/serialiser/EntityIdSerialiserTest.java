@@ -32,11 +32,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class EntityIdSerialiserTest {
 
-    private Schema schema;
-    private EntityIdSerialiser serialiser;
+    private static Schema schema;
+    private static EntityIdSerialiser serialiser;
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new StringSerialiser())
                 .build();
@@ -50,7 +50,7 @@ public class EntityIdSerialiserTest {
 
         // When / Then
         try {
-            serialiser = new EntityIdSerialiser(schema);
+            new EntityIdSerialiser(schema);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));

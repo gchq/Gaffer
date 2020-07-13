@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -59,7 +59,7 @@ public class TransformHandlerTest {
     private TransformHandler handler;
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         input = new ArrayList<>();
         expected = new ArrayList<>();
@@ -443,7 +443,7 @@ public class TransformHandlerTest {
             final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Incompatible number of types"));
+            assertTrue(e.getMessage().contains("Incompatible number of types"), e.getMessage());
         }
     }
 

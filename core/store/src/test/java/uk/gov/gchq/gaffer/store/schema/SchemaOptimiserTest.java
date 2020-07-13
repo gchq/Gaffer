@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -43,7 +43,7 @@ public class SchemaOptimiserTest {
     private TypeDefinition intType;
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         stringType = new TypeDefinition.Builder()
                 .clazz(String.class)

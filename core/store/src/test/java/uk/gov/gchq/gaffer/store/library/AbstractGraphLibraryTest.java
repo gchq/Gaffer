@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -56,7 +56,7 @@ public abstract class AbstractGraphLibraryTest {
 
     public abstract GraphLibrary createGraphLibraryInstance();
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         graphLibrary = createGraphLibraryInstance();
         if (graphLibrary instanceof HashMapGraphLibrary) {

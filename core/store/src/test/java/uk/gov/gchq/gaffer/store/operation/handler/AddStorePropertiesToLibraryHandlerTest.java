@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.Context;
@@ -42,7 +42,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
     private Store store;
     private StoreProperties props;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         store = new TestAddToGraphLibraryImpl();
         HashMapGraphLibrary.clear();

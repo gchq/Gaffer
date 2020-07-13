@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Iterables;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -71,7 +71,7 @@ public class GetAllNamedViewsHandlerTest {
             .overwrite(false)
             .build();
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }

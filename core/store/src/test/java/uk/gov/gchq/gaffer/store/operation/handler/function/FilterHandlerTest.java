@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -65,7 +65,7 @@ public class FilterHandlerTest {
     private Context context;
     private FilterHandler handler;
 
-    @Before
+    @BeforeEach
     public void setup() {
         input = new ArrayList<>();
         expected = new ArrayList<>();

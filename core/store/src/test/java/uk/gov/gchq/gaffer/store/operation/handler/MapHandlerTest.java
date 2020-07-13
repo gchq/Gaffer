@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -50,11 +50,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
@@ -94,7 +94,7 @@ public class MapHandlerTest {
             .edge(EDGE_DA)
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() {
         context = mock(Context.class);
         store = mock(Store.class);

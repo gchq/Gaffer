@@ -63,7 +63,7 @@ public class GetFromEndpointHandlerTest {
     private final GetFromEndpointHandler handler = new GetFromEndpointHandler();
     private ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
 
-    @After
+    @AfterEach
     public void tearDown() {
         mockServer.stop();
         assertFalse(mockServer.isRunning());

@@ -36,7 +36,7 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
         return new FileGraphLibrary(TEST_FILE_PATH);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         if (new File(TEST_FILE_PATH).exists()) {
             FileUtils.forceDelete(new File(TEST_FILE_PATH));
@@ -45,7 +45,6 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidPath() {
-
         // When / Then
         try {
             new FileGraphLibrary(TEST_INVALID_FINAL_PATH);

@@ -80,7 +80,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("input is required"));
+            assertTrue(e.getMessage().contains("input is required"), e.getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final LimitExceededException e) {
-            assertTrue(e.getMessage(), e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."));
+            assertTrue(e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."), e.getMessage());
         }
     }
 

@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.store;
 import com.fasterxml.jackson.databind.Module;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StorePropertiesTest {
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() {
         ReflectionUtil.resetReflectionPackages();
     }

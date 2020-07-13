@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -49,7 +49,7 @@ public class GetTraitsHandlerTest {
     private Set<StoreTrait> expectedTraits;
     private Schema string;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         expectedTraits = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         expectedTraits.remove(StoreTrait.ORDERED);
@@ -64,7 +64,7 @@ public class GetTraitsHandlerTest {
         string = new Schema.Builder().type(STRING, String.class).build();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         final Set<StoreTrait> temp = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         temp.remove(StoreTrait.ORDERED);

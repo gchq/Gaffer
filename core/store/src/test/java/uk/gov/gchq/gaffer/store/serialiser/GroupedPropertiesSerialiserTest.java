@@ -32,11 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GroupedPropertiesSerialiserTest {
 
-    private Schema schema;
-    private GroupedPropertiesSerialiser serialiser;
+    private static Schema schema;
+    private static GroupedPropertiesSerialiser serialiser;
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
 

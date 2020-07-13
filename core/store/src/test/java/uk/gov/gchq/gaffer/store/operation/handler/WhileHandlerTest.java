@@ -105,9 +105,9 @@ public class WhileHandlerTest {
         final Object result = handler.doOperation(operation, context, store);
 
         // Then
-        verify(delegateClone1).setInput(input);
-        verify(delegateClone2).setInput(result1);
-        verify(delegateClone3).setInput(result2);
+        verify(delegateClone1, times(1)).getInput();
+        verify(delegateClone2, times(1)).getInput();
+        verify(delegateClone3, times(1)).getInput();
         verify(store).execute((Output) delegateClone1, context);
         verify(store).execute((Output) delegateClone2, context);
         verify(store).execute((Output) delegateClone3, context);
@@ -149,9 +149,9 @@ public class WhileHandlerTest {
         final Object result = handler.doOperation(operation, context, store);
 
         // Then
-        verify(delegateClone1).setInput(input);
-        verify(delegateClone2).setInput(result1);
-        verify(delegateClone3).setInput(result2);
+        verify(delegateClone1, times(1)).getInput();
+        verify(delegateClone2, times(1)).getInput();
+        verify(delegateClone3, times(1)).getInput();
         verify(store).execute((Output) delegateClone1, context);
         verify(store).execute((Output) delegateClone2, context);
         verify(store).execute((Output) delegateClone3, context);

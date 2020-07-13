@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterEachClass;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -62,7 +62,7 @@ public class DeleteNamedViewHandlerTest {
     private View view;
     private AddNamedView addNamedView;
 
-    @Before
+    @BeforeEach
     public void before() throws OperationException {
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
@@ -85,12 +85,12 @@ public class DeleteNamedViewHandlerTest {
         addNamedViewHandler.doOperation(addNamedView, context, store);
     }
 
-    @After
+    @AfterEach
     public void clearCache() throws CacheOperationFailedException {
         namedViewCache.clearCache();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }

@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Iterables;
-import org.junit.jupiter.api.AfterEachClass;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -68,12 +68,12 @@ public class GetAllNamedOperationsHandlerTest {
 
     private Store store = mock(Store.class);
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
         StoreProperties properties = new StoreProperties();

@@ -18,9 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -72,7 +71,7 @@ public class NamedViewCacheTest {
             .view(alternativeView)
             .build();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
@@ -80,7 +79,7 @@ public class NamedViewCacheTest {
         cache = new NamedViewCache();
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationFailedException {
         cache.clearCache();
     }
@@ -153,7 +152,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
         cache.addNamedView(new NamedViewDetail.Builder().name(STANDARD_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
-        Assert.assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
     }
 
     @Test

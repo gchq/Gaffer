@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -48,7 +48,7 @@ public class GetSchemaHandlerTest {
     private StoreProperties properties;
     private byte[] compactSchemaBytes;
 
-    @Before
+    @BeforeEach
     public void setup() {
         handler = new GetSchemaHandler();
         store = mock(Store.class);

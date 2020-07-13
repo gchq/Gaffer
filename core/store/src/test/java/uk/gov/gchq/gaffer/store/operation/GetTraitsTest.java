@@ -30,18 +30,14 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new Builder().currentTraits(false).build();
 
         assertEquals(false, op.isCurrentTraits());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new Builder().currentTraits(false).build();
 
         GetTraits clone = op.shallowClone();
 
@@ -51,9 +47,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final GetTraits obj = new GetTraits.Builder()
-                .currentTraits(true)
-                .build();
+        final GetTraits obj = new GetTraits.Builder().currentTraits(true).build();
 
         // When
         final byte[] json = toJson(obj);
@@ -61,5 +55,17 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
         // Then
         assertEquals(obj.isCurrentTraits(), deserialisedObj.isCurrentTraits());
+    }
+
+    @Override
+    public void shouldHaveSinceAnnotation() {
+        // TODO Auto-generated method stub
+        super.shouldHaveSinceAnnotation();
+    }
+
+    @Override
+    public void shouldHaveSummaryAnnotation() {
+        // TODO Auto-generated method stub
+        super.shouldHaveSummaryAnnotation();
     }
 }

@@ -31,11 +31,11 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
 
     public static final String VALUE_1 = "value1";
     public static final String TEST_ID = "testId";
-    private AddStorePropertiesToLibrary op;
-    private StoreProperties storeProperties;
+    private static AddStorePropertiesToLibrary op;
+    private static StoreProperties storeProperties;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
 
         storeProperties = new StoreProperties();
 

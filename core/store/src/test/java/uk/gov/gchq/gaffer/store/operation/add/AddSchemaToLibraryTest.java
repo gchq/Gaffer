@@ -32,12 +32,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AddSchemaToLibraryTest extends OperationTest<AddSchemaToLibrary> {
 
     public static final String TEST_ID = "testId";
-    private Schema schema;
-    private ArrayList<String> parentSchemaIds;
-    private AddSchemaToLibrary op;
+    private static Schema schema;
+    private static ArrayList<String> parentSchemaIds;
+    private static AddSchemaToLibrary op;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         schema = new Schema.Builder()
                 .id("schemaID")
                 .build();

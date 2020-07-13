@@ -265,7 +265,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test
@@ -705,7 +705,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test
@@ -771,7 +771,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test
@@ -837,7 +837,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertTrue(result.getErrorString(), result.isValid());
+        assertTrue(result.isValid(), result.getErrorString());
     }
 
     @Test

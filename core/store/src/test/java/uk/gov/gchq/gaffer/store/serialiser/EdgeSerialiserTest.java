@@ -33,11 +33,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class EdgeSerialiserTest {
 
-    private Schema schema;
-    private EdgeSerialiser serialiser;
+    private static Schema schema;
+    private static EdgeSerialiser serialiser;
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
 
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
@@ -56,7 +56,7 @@ public class EdgeSerialiserTest {
 
         // When / Then
         try {
-            serialiser = new EdgeSerialiser(schema);
+            new EdgeSerialiser(schema);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
