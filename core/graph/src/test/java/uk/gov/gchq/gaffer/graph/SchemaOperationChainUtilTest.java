@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -68,7 +68,7 @@ public class SchemaOperationChainUtilTest {
             .then(new GetElements())
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() {
         storeProperties.setStoreClass(TestStore.class);
         graph = new Graph.Builder()

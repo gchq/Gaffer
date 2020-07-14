@@ -21,15 +21,13 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -92,6 +90,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,12 +123,13 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
+
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    Path tempDir;
 
     private User user;
     private Context context;
@@ -139,7 +139,7 @@ public class GraphTest {
     private OperationChain clonedOpChain;
     private GetElements operation;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         HashMapGraphLibrary.clear();
         TestStore.mockStore = mock(TestStore.class);
@@ -1268,10 +1268,9 @@ public class GraphTest {
     }
 
     private File createSchemaDirectory() throws IOException {
-        final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
-        writeToFile("elements.json", tmpDir);
-        writeToFile("types.json", tmpDir);
-        return tmpDir;
+        writeToFile("elements.json", tempDir.toFile());
+        writeToFile("types.json", tempDir.toFile());
+        return tempDir.toFile();
     }
 
     private void writeToFile(final String schemaFile, final File dir) throws IOException {
@@ -1460,7 +1459,7 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
-        final File graphHooks = tempFolder.newFile("graphHooks.json");
+        final File graphHooks = tempDir.resolve("graphHooks.json").toFile();
         FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
 
         // When
@@ -1486,10 +1485,10 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
-        final File graphHook1File = tempFolder.newFile("opChainLimiter.json");
+        final File graphHook1File = tempDir.resolve("opChainLimiter.json").toFile();
         FileUtils.writeLines(graphHook1File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json")));
 
-        final File graphHook2File = tempFolder.newFile("opAuthoriser.json");
+        final File graphHook2File = tempDir.resolve("opAuthoriser.json").toFile();
         FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json")));
 
         // When

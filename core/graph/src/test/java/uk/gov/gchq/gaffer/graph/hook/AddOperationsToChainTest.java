@@ -59,6 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
+
     private static final String ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH = "addOperationsToChain.json";
 
     public AddOperationsToChainTest() {
@@ -270,7 +271,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
             fromJson(nullTestJson.getBytes());
             fail("Exception expected");
         } catch (final RuntimeException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("'null'"));
+            assertTrue(e.getMessage().contains("'null'"), e.getMessage());
         }
     }
 
@@ -284,7 +285,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
             fromJson(emptyTestJson.getBytes());
             fail("Exception expected");
         } catch (final RuntimeException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("''"));
+            assertTrue(e.getMessage().contains("''"), e.getMessage());
         }
     }
 
@@ -298,7 +299,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
             fromJson(falseOperationTestJson.getBytes());
             fail("Exception expected");
         } catch (final RuntimeException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("'this.Operation.Doesnt.Exist'"));
+            assertTrue(e.getMessage().contains("'this.Operation.Doesnt.Exist'"), e.getMessage());
         }
     }
 

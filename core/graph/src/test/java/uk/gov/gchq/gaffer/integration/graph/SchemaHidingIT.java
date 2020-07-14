@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.integration.graph;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -71,12 +71,12 @@ public abstract class SchemaHidingIT {
         this.storePropertiesPath = storePropertiesPath;
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         cleanUp();
     }
 
-    @After
+    @AfterEach
     public void after() {
         cleanUp();
     }

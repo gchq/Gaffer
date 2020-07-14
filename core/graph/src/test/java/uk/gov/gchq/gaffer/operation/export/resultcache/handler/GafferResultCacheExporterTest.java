@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -69,7 +69,7 @@ public class GafferResultCacheExporterTest {
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
     private Graph resultCache;
 
-    @Before
+    @BeforeEach
     public void before() {
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());

@@ -17,8 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -70,7 +69,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         super(UpdateViewHook.class);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         userAuths.clear();
         validAuths.clear();
@@ -398,8 +397,8 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
     public void shouldPassWithOnlyData() throws Exception {
         updateViewHook.setWithOpAuth(null);
 
-        assertTrue("updateViewHook.getWithOpAuth() needs to be empty for this test",
-                updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty());
+        assertTrue(updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty(),
+                "updateViewHook.getWithOpAuth() needs to be empty for this test");
         userDataAuths.add("dA");
         dataAuths.add("dA");
 
@@ -557,10 +556,10 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
         byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
         String s = new String(serialise);
-        assertTrue(s, s.contains(TEST_EDGE));
+        assertTrue(s.contains(TEST_EDGE), s);
 
         UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
-        assertTrue(deserialise.getViewToMerge().equals(viewToMerge));
+        assertEquals(deserialise.getViewToMerge(), viewToMerge);
     }
 
     public static final String TEST_KEY = "testKey";
@@ -571,7 +570,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+        assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
@@ -579,7 +578,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertFalse(updateViewHook.removeElementGroups(getEntry()));
+        assertFalse(updateViewHook.removeElementGroups(getEntry()));
     }
 
 
@@ -589,7 +588,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+        assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
@@ -598,7 +597,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(OTHER));
 
-        Assert.assertFalse(updateViewHook.removeElementGroups(getEntry()));
+        assertFalse(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
@@ -607,7 +606,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(OTHER));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+        assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
 

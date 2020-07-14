@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCache;
@@ -42,7 +42,7 @@ public class GraphSerialisableTest {
     private Properties properties;
     private GraphSerialisable expected;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")

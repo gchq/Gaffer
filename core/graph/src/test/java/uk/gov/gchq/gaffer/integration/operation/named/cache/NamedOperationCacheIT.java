@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -78,14 +78,14 @@ public class NamedOperationCacheIT {
     private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler();
     private GetAllNamedOperations get = new GetAllNamedOperations();
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cacheProps.clear();
         properties.setAdminAuth(adminAuth);
         given(store.getProperties()).willReturn(properties);
     }
 
-    @After
+    @AfterEach
     public void after() throws CacheOperationException {
         CacheServiceLoader.getService().clearCache(CACHE_NAME);
     }
