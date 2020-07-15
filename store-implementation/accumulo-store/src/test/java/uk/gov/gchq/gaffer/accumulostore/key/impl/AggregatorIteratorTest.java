@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.MockAccumuloElementConverter;
@@ -80,8 +80,8 @@ public class AggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
-    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
-    private static AccumuloTestClusterManager accumuloTestClusterManagerGaffer1Key;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
 
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -100,16 +100,16 @@ public class AggregatorIteratorTest {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
-        accumuloTestClusterManagerGaffer1Key = new AccumuloTestClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
         byteEntityStore = new SingleUseAccumuloStore();
         gaffer1KeyStore = new SingleUseAccumuloStore();
     }
 
     @AfterClass
     public static void tearDown() {
-        accumuloTestClusterManagerByteEntity.close();
-        accumuloTestClusterManagerGaffer1Key.close();
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
         byteEntityStore = null;
         gaffer1KeyStore = null;
     }

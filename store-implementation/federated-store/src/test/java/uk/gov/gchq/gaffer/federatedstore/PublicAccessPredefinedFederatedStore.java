@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
@@ -40,10 +40,10 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     static {
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
     }
 
     @Override

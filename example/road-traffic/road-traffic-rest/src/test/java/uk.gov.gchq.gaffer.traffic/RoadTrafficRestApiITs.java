@@ -23,7 +23,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -55,7 +55,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final StoreProperties PROPERTIES =
             StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, STORE_TYPE_DEFAULT + StreamUtil.STORE_PROPERTIES));
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     @ClassRule
     public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -69,7 +69,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder in : " + TEST_FOLDER.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
 
         // Spin up the REST API
         CLIENT.startServer();
@@ -89,7 +89,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @AfterClass
     public static void after() {
         CLIENT.stopServer();
-        accumuloTestClusterManager.close();
+        miniAccumuloClusterManager.close();
     }
 
     @Override

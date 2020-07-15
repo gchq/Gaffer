@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -58,7 +58,7 @@ public class FederatedStoreCacheTest {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_MAP_STORE_PROPERTIES));
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -75,7 +75,7 @@ public class FederatedStoreCacheTest {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
 
         testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
                 .addStoreProperties(PROPERTIES)
@@ -85,7 +85,7 @@ public class FederatedStoreCacheTest {
 
     @AfterClass
     public static void tearDownStore() {
-        accumuloTestClusterManager.close();
+        miniAccumuloClusterManager.close();
     }
 
     @Before

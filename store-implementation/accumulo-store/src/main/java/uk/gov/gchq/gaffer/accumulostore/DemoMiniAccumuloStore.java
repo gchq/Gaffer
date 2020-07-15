@@ -28,7 +28,7 @@ import java.io.File;
 public class DemoMiniAccumuloStore extends AccumuloStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoMiniAccumuloStore.class);
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
 
     static {
@@ -46,7 +46,7 @@ public class DemoMiniAccumuloStore extends AccumuloStore {
             LOGGER.error(DemoMiniAccumuloStore.class + ": Could not create storeFolder directory");
         }
 
-        accumuloTestClusterManager = new AccumuloTestClusterManager(ACCUMULO_PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(ACCUMULO_PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @Override

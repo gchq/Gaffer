@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
@@ -90,7 +90,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private AccumuloStore store = new SingleUseAccumuloStore();
 
     @ClassRule
@@ -104,12 +104,12 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @AfterClass
     public static void tearDownStore() {
-        accumuloTestClusterManager.close();
+        miniAccumuloClusterManager.close();
     }
 
     @Before

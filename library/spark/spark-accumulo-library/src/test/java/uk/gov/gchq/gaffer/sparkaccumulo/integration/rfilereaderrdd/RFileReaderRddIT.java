@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -74,7 +74,7 @@ public class RFileReaderRddIT {
     private static int nextTableId;
     private static String tableName;
 
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(RFileReaderRddIT.class.getResourceAsStream("/store.properties"));
 
     @Rule
@@ -91,12 +91,12 @@ public class RFileReaderRddIT {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager = new AccumuloTestClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @AfterClass
     public static void tearDownStore() {
-        accumuloTestClusterManager.close();
+        miniAccumuloClusterManager.close();
     }
 
     @Before
@@ -195,7 +195,7 @@ public class RFileReaderRddIT {
         // Given
         final String user = "user2";
         loadAccumuloCluster(tableName, config, Arrays.asList("Bananas"));
-        accumuloTestClusterManager.getCluster().getConnector("root", accumuloTestClusterManager.ROOTPW).securityOperations()
+        miniAccumuloClusterManager.getCluster().getConnector("root", miniAccumuloClusterManager.ROOTPW).securityOperations()
                 .createLocalUser(user, new PasswordToken(PROPERTIES.getPassword()));
 
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),

@@ -33,14 +33,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-public class AccumuloTestClusterManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloTestClusterManager.class);
+public class MiniAccumuloClusterManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloClusterManager.class);
     private static final String BASE_DIRECTORY = "miniAccumuloStoreTest-";
     public static final String ROOTPW = "password";
     private MiniAccumuloCluster miniAccumuloCluster = null;
     private AccumuloProperties accumuloProperties = null;
 
-    public AccumuloTestClusterManager(final StoreProperties inputProperties, final String homeDirectory) {
+    public MiniAccumuloClusterManager(final StoreProperties inputProperties, final String homeDirectory) {
         // Check if we need a mini cluster set up from reading the properties
         final String storeClass = inputProperties.getStoreClass();
         if (null == storeClass) {
@@ -76,7 +76,7 @@ public class AccumuloTestClusterManager {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
-                    AccumuloTestClusterManager.this.close();
+                    MiniAccumuloClusterManager.this.close();
                 }
             });
             miniAccumuloCluster = new MiniAccumuloCluster(miniAccumuloConfig);

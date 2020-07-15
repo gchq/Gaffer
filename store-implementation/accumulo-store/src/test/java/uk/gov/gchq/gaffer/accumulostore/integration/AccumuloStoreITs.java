@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
@@ -35,7 +35,7 @@ import java.io.IOException;
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreITs.class);
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
-    protected static AccumuloTestClusterManager accumuloTestClusterManager = null;
+    protected static MiniAccumuloClusterManager miniAccumuloClusterManager = null;
 
     public AccumuloStoreITs() {
         this(STORE_PROPERTIES);
@@ -57,12 +57,12 @@ public class AccumuloStoreITs extends AbstractStoreITs {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager = new AccumuloTestClusterManager(STORE_PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(STORE_PROPERTIES, storeFolder.getAbsolutePath());
     }
 
     @AfterClass
     public static void tearDownStore() {
-        accumuloTestClusterManager.close();
+        miniAccumuloClusterManager.close();
     }
 
 }

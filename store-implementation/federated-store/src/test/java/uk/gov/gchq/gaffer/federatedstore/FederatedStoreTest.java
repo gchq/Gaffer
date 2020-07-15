@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -144,11 +144,11 @@ public class FederatedStoreTest {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_ACC_STORE_PROPERTIES_1));
-    private static AccumuloTestClusterManager accumuloTestClusterManager1;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager1;
     private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_ACC_STORE_PROPERTIES_2));
-    private static AccumuloTestClusterManager accumuloTestClusterManager2;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager2;
     private static final AccumuloProperties PROPERTIES_ALT = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_ACC_STORE_PROPERTIES_ALT));
-    private static AccumuloTestClusterManager accumuloTestClusterManagerAlt;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerAlt;
 
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -173,16 +173,16 @@ public class FederatedStoreTest {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder 3 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager1 = new AccumuloTestClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
-        accumuloTestClusterManager2 = new AccumuloTestClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
-        accumuloTestClusterManagerAlt = new AccumuloTestClusterManager(PROPERTIES_ALT, storeFolder3.getAbsolutePath());
+        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
+        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManagerAlt = new MiniAccumuloClusterManager(PROPERTIES_ALT, storeFolder3.getAbsolutePath());
     }
 
     @AfterClass
     public static void tearDownStore() {
-        accumuloTestClusterManager1.close();
-        accumuloTestClusterManager2.close();
-        accumuloTestClusterManagerAlt.close();
+        miniAccumuloClusterManager1.close();
+        miniAccumuloClusterManager2.close();
+        miniAccumuloClusterManagerAlt.close();
     }
 
     @Before

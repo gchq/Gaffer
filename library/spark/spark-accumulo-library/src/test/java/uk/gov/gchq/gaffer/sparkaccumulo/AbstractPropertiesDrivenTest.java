@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.io.IOException;
 public abstract class AbstractPropertiesDrivenTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPropertiesDrivenTest.class);
-    private static AccumuloTestClusterManager accumuloTestClusterManager;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     public static void setUpBeforeClass(String propertiesID, TemporaryFolder storeBaseFolder) {
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -41,15 +41,15 @@ public abstract class AbstractPropertiesDrivenTest {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager = new AccumuloTestClusterManager(suppliedProperties, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(suppliedProperties, storeFolder.getAbsolutePath());
     }
 
     public AccumuloProperties getStoreProperties() {
-        return accumuloTestClusterManager.getStoreProperties();
+        return miniAccumuloClusterManager.getStoreProperties();
     }
 
     public static void tearDownAfterClass() {
-        accumuloTestClusterManager.close();
+        miniAccumuloClusterManager.close();
     }
 
 }

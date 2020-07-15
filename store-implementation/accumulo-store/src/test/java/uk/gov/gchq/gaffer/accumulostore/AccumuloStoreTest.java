@@ -117,8 +117,8 @@ public class AccumuloStoreTest {
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
-    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity = null;
-    private static AccumuloTestClusterManager accumuloTestClusterManagerGaffer1Key = null;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity = null;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key = null;
 
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -142,8 +142,8 @@ public class AccumuloStoreTest {
         }
         byteEntityStore = new AccumuloStore();
         gaffer1KeyStore = new AccumuloStore();
-        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
-        accumuloTestClusterManagerGaffer1Key = new AccumuloTestClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
     }
 
     @Before
@@ -156,8 +156,8 @@ public class AccumuloStoreTest {
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
-        accumuloTestClusterManagerByteEntity.close();
-        accumuloTestClusterManagerGaffer1Key.close();
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test

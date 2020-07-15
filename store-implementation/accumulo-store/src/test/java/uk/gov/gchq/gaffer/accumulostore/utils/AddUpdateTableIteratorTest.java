@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -62,8 +62,8 @@ public class AddUpdateTableIteratorTest {
     private static final String EMPTY_STORE_PROPS_PATH = "src/test/resources/empty-store.properties";
     private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "target/graphLibrary";
 
-    private static AccumuloTestClusterManager accumuloTestClusterManager1;
-    private static AccumuloTestClusterManager accumuloTestClusterManager2;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager1;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager2;
     private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
     private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH);
 
@@ -87,16 +87,16 @@ public class AddUpdateTableIteratorTest {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManager1 = new AccumuloTestClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
-        accumuloTestClusterManager2 = new AccumuloTestClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
+        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
         createUpdatedPropertiesFile(PROPERTIES_1, STORE_PROPS_PATH_UPDATED);
         createUpdatedPropertiesFile(PROPERTIES_2, STORE_PROPS_2_PATH_UPDATED);
     }
 
     @AfterClass
     public static void tearDownStore() {
-        accumuloTestClusterManager1.close();
-        accumuloTestClusterManager2.close();
+        miniAccumuloClusterManager1.close();
+        miniAccumuloClusterManager2.close();
     }
 
     private static void createUpdatedPropertiesFile(AccumuloProperties accumuloProperties, String filename) {

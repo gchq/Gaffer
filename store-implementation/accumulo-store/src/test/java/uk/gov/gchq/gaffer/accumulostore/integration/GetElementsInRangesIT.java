@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloTestClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
@@ -60,9 +60,9 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetElementsInRangesIT.class);
-    private static AccumuloTestClusterManager accumuloTestClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
-    private static AccumuloTestClusterManager accumuloTestClusterManagerClassicKey;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerClassicKey;
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @ClassRule
@@ -82,14 +82,14 @@ public class GetElementsInRangesIT {
         } catch (IOException e) {
             LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
         }
-        accumuloTestClusterManagerByteEntity = new AccumuloTestClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
-        accumuloTestClusterManagerClassicKey = new AccumuloTestClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
+        miniAccumuloClusterManagerClassicKey = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
     }
 
     @AfterClass
     public static void storeTakeDown() {
-        accumuloTestClusterManagerByteEntity.close();
-        accumuloTestClusterManagerClassicKey.close();
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerClassicKey.close();
     }
 
     @Test
