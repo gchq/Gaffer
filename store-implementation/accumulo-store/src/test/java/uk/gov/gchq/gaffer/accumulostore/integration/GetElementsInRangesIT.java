@@ -23,8 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
@@ -47,8 +45,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -59,7 +55,6 @@ import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetElementsInRangesIT.class);
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerClassicKey;
@@ -70,20 +65,8 @@ public class GetElementsInRangesIT {
 
     @BeforeClass
     public static void storeSetup() {
-        File storeFolder1 = null;
-        File storeFolder2 = null;
-        try {
-            storeFolder1 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 1 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        try {
-            storeFolder2 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeFolder1.getAbsolutePath());
-        miniAccumuloClusterManagerClassicKey = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManagerClassicKey = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass

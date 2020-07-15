@@ -22,8 +22,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
@@ -35,8 +33,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -46,7 +42,6 @@ import static org.junit.Assert.assertTrue;
 
 public class AdminGetAllGraphInfoTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminGetAllGraphInfoTest.class);
     public static final String ADMIN_AUTH = "AdminAuth";
     private FederatedAccess access;
     private FederatedStore store;
@@ -61,13 +56,7 @@ public class AdminGetAllGraphInfoTest {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder = null;
-        try {
-            storeFolder = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass

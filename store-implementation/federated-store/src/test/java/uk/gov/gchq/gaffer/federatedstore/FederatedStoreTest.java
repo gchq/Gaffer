@@ -27,8 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
@@ -73,8 +71,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -107,7 +103,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreTest.class);
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
     public static final String ID_SCHEMA_EDGE = "basicEdgeSchema";
     public static final String ID_PROPS_ACC_1 = "miniAccProps1";
@@ -155,27 +150,9 @@ public class FederatedStoreTest {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder1 = null;
-        File storeFolder2 = null;
-        File storeFolder3 = null;
-        try {
-            storeFolder1 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 1 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        try {
-            storeFolder2 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        try {
-            storeFolder3 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 3 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
-        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
-        miniAccumuloClusterManagerAlt = new MiniAccumuloClusterManager(PROPERTIES_ALT, storeFolder3.getAbsolutePath());
+        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManagerAlt = new MiniAccumuloClusterManager(PROPERTIES_ALT, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass

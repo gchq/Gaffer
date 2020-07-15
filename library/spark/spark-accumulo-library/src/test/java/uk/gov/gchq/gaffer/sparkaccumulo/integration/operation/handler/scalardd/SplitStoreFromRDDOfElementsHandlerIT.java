@@ -25,8 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
@@ -48,8 +46,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -58,7 +54,6 @@ import static org.junit.Assert.assertEquals;
 
 public class SplitStoreFromRDDOfElementsHandlerIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SplitStoreFromRDDOfElementsHandlerIT.class);
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
     private static final String GRAPH_ID = "graphId";
 
@@ -76,13 +71,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
 
     @BeforeClass
     public static void setupCluster() {
-        File storeFolder = null;
-        try {
-            storeFolder = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass

@@ -18,19 +18,13 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 
-import java.io.File;
-import java.io.IOException;
-
 public class AccumuloStoreClassicKeysITs extends AccumuloStoreITs {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreClassicKeysITs.class);
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
 
     @ClassRule
@@ -38,13 +32,7 @@ public class AccumuloStoreClassicKeysITs extends AccumuloStoreITs {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder = null;
-        try {
-            storeFolder = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(STORE_PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(STORE_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     public AccumuloStoreClassicKeysITs() {

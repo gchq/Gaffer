@@ -23,8 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
@@ -38,7 +36,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.core.Response;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -47,7 +44,6 @@ import static uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationF
 
 public class OperationServiceV2IT extends AbstractRestApiIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2IT.class);
     private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
@@ -57,13 +53,7 @@ public class OperationServiceV2IT extends AbstractRestApiIT {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder = null;
-        try {
-            storeFolder = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass

@@ -23,8 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
@@ -41,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -49,8 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class RoadTrafficDataLoaderITs {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RoadTrafficDataLoaderITs.class);
 
     // Example lines taken from 2015 issue of GB Road Traffic Counts data set (raw count - major roads)
     private static final String CSV_HEADER_V_1 = "\"Region Name (GO)\",\"ONS LACode\",\"ONS LA Name\",\"CP\",\"S Ref E\",\"S Ref N\",\"Road\",\"A-Junction\",\"A Ref E\",\"A Ref N\",\"B-Junction\",\"B Ref E\",\"B Ref N\",\"RCat\",\"iDir\",\"Year\",\"dCount\",\"Hour\",\"PC\",\"2WMV\",\"CAR\",\"BUS\",\"LGV\",\"HGVR2\",\"HGVR3\",\"HGVR4\",\"HGVA3\",\"HGVA5\",\"HGVA6\",\"HGV\",\"AMV\"";
@@ -70,13 +65,7 @@ public class RoadTrafficDataLoaderITs {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder = null;
-        try {
-            storeFolder = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeFolder.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass

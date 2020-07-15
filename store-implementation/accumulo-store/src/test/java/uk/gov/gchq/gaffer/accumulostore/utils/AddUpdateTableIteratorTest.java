@@ -75,20 +75,8 @@ public class AddUpdateTableIteratorTest {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder1 = null;
-        File storeFolder2 = null;
-        try {
-            storeFolder1 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 1 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        try {
-            storeFolder2 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeFolder1.getAbsolutePath());
-        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeBaseFolder.getRoot().getAbsolutePath());
         createUpdatedPropertiesFile(PROPERTIES_1, STORE_PROPS_PATH_UPDATED);
         createUpdatedPropertiesFile(PROPERTIES_2, STORE_PROPS_2_PATH_UPDATED);
     }

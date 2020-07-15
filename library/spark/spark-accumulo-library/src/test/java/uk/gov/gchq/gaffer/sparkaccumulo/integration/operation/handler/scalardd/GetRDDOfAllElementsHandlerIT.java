@@ -41,8 +41,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -91,7 +89,6 @@ import static org.junit.Assert.fail;
 @RunWith(value = Enclosed.class)
 public final class GetRDDOfAllElementsHandlerIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetRDDOfAllElementsHandlerIT.class);
     private static final User USER = new User();
     private static final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
     private static final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
@@ -111,20 +108,8 @@ public final class GetRDDOfAllElementsHandlerIT {
 
     @BeforeClass
     public static void setUpStore() {
-        File storeFolder1 = null;
-        File storeFolder2 = null;
-        try {
-            storeFolder1 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 1 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        try {
-            storeFolder2 = storeBaseFolder.newFolder();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create sub folder 2 in : " + storeBaseFolder.getRoot().getAbsolutePath() + ": " + e.getMessage());
-        }
-        miniAccumuloClusterManagerA = new MiniAccumuloClusterManager(PROPERTIES_A, storeFolder1.getAbsolutePath());
-        miniAccumuloClusterManagerB = new MiniAccumuloClusterManager(PROPERTIES_B, storeFolder2.getAbsolutePath());
+        miniAccumuloClusterManagerA = new MiniAccumuloClusterManager(PROPERTIES_A, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManagerB = new MiniAccumuloClusterManager(PROPERTIES_B, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @AfterClass
