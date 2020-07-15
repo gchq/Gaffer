@@ -141,13 +141,11 @@ public class InputFormatTest {
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private static SingleUseAccumuloStore store;
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
 
     @BeforeClass
     public static void setup() {
-        store = new SingleUseAccumuloStore();
         miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
@@ -276,6 +274,7 @@ public class InputFormatTest {
                                                        final Set<String> expectedResults)
             throws Exception {
         AccumuloProperties properties = PROPERTIES.clone();
+        SingleUseAccumuloStore store = new SingleUseAccumuloStore();
         String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:

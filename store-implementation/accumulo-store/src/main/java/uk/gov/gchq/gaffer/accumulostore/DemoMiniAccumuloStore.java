@@ -33,7 +33,6 @@ public class DemoMiniAccumuloStore extends AccumuloStore {
 
     static {
         ACCUMULO_PROPERTIES.setStoreClass(MiniAccumuloStore.class);
-        ACCUMULO_PROPERTIES.setZookeepers("aZookeeper");
         ACCUMULO_PROPERTIES.setUser("user01");
         ACCUMULO_PROPERTIES.setPassword("password01");
         ACCUMULO_PROPERTIES.setInstance("instance01");
