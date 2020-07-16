@@ -15,16 +15,15 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
+import java.io.File;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
@@ -39,20 +38,18 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 
 public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobFactoryTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public String inputDir;
     public String outputDir;
     public String splitsDir;
     public String splitsFile;
 
-    @Before
-    public void setup() {
-        inputDir = testFolder.getRoot().getAbsolutePath() + "inputDir";
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
-        splitsFile = splitsDir + "/splits";
+    @BeforeEach
+    public void setup(@TempDir java.nio.file.Path tempDir) {
+        inputDir = new File(tempDir.toString(), "inputDir").getAbsolutePath();
+        outputDir = new File(tempDir.toString(), "/outputDir").getAbsolutePath();
+        splitsDir = new File(tempDir.toString(), "/splitsDir").getAbsolutePath();
+        splitsFile = new File(splitsDir.toString(), "/splits").getAbsolutePath();
     }
 
     @Override

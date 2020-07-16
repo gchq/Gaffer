@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.AfterEachClass;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -59,7 +59,7 @@ public class AccumuloRangeIDRetrieverTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloRangeIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws StoreException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
@@ -70,7 +70,7 @@ public class AccumuloRangeIDRetrieverTest {
         setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;

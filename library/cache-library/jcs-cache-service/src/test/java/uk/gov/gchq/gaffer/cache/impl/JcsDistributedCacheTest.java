@@ -37,7 +37,7 @@ public class JcsDistributedCacheTest {
     private static JcsCache<String, Integer> cache1;
     private static JcsCache<String, Integer> cache2;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         Properties cacheProperties = new Properties();
         cacheProperties.load(new FileInputStream("src/test/resources/distributed.ccf"));

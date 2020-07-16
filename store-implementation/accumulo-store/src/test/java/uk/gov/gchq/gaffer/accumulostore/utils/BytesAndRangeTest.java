@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.security.InvalidParameterException;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class BytesAndRangeTest {
 
     private byte[] emptyBytes = new byte[]{};
@@ -28,14 +30,16 @@ public class BytesAndRangeTest {
         new BytesAndRange(emptyBytes, 1, 1);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test
     public void shouldThrowExceptionForOffset() throws Exception {
-        new BytesAndRange(emptyBytes, -1, 1);
+        assertThrows(InvalidParameterException.class,
+                () -> new BytesAndRange(emptyBytes, -1, 1));
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test
     public void shouldThrowExceptionForLength() throws Exception {
-        new BytesAndRange(emptyBytes, 1, -1);
+        assertThrows(InvalidParameterException.class,
+                () -> new BytesAndRange(emptyBytes, 1, -1));
     }
 
 

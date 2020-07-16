@@ -42,10 +42,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ArgumentParserTest {
     private static final String NON_EXISTENT_PATH = "/not/existent/path";
 
-    @Rule
+    **@Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Rule
+    **@Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private final ArgumentParser argumentParser = new ArgumentParser();

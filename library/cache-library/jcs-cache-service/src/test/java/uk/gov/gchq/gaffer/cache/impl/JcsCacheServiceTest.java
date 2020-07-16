@@ -47,7 +47,7 @@ public class JcsCacheServiceTest {
     private static final String AGE_OFF_REGION = "ageOff";
     private Properties serviceProps = new Properties();
 
-    @Rule
+    **@Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Before

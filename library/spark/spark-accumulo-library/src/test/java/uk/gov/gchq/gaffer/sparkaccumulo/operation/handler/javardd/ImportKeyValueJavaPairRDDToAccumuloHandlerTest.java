@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test

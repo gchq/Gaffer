@@ -49,9 +49,9 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThat;
 
 public class AccumuloAggregationIT extends StandaloneIT {
     private static final String VERTEX = "vertex";

@@ -54,10 +54,10 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
 
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @Rule
+    **@Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
     private final User user = new User();

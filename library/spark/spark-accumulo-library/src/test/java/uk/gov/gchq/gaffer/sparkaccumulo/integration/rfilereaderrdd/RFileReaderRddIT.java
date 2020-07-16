@@ -62,7 +62,7 @@ public class RFileReaderRddIT {
     private static int nextTableId;
     private static String tableName;
 
-    @Rule
+    **@Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Before

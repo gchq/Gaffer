@@ -27,9 +27,9 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -69,7 +69,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
@@ -77,7 +77,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException, TableExistsException {
         byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
@@ -85,7 +85,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
         createTable(gaffer1KeyStore);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         gaffer1KeyStore = null;
         byteEntityStore = null;

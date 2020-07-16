@@ -52,7 +52,7 @@ public class ExampleGeneratorTest {
     private final GraphFactory graphFactory = new DefaultGraphFactory();
     private final Class<? extends Operation> opClass;
 
-    @Rule
+    **@Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public ExampleGeneratorTest(final Class<? extends Operation> opClass) {

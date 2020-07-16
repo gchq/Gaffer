@@ -34,7 +34,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class AddElementsFromFileHandlerIT extends FlinkTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;
 

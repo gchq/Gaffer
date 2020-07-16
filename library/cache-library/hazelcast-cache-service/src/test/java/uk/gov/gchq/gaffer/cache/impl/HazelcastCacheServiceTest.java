@@ -50,10 +50,10 @@ public class HazelcastCacheServiceTest {
     private Properties cacheProperties = new Properties();
     private static final String CACHE_NAME = "test";
 
-    @Rule
+    **@Rule
     public ExpectedException exception = ExpectedException.none();
 
-    @Rule
+    **@Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before

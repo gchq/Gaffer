@@ -49,7 +49,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graph1";
@@ -218,7 +220,7 @@ public class TableUtilsTest {
         assertEquals(0, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfTableNameIsNotSpecified() throws StoreException {
         // Given
         final Schema schema = new Schema.Builder()
@@ -236,13 +238,15 @@ public class TableUtilsTest {
         properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(null, schema, properties);
+        assertThrows(IllegalArgumentException.class,
+                () -> store.initialise(null, schema, properties));
 
         // When
-        TableUtils.ensureTableExists(store);
+        assertThrows(AccumuloRuntimeException.class,
+                () -> TableUtils.ensureTableExists(store));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfTableNameIsNotSpecifiedWhenCreatingTable() throws StoreException, TableExistsException {
         // Given
         final Schema schema = new Schema.Builder()
@@ -260,13 +264,15 @@ public class TableUtilsTest {
         properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(null, schema, properties);
+        assertThrows(IllegalArgumentException.class,
+                () -> store.initialise(null, schema, properties));
 
         // When
-        TableUtils.createTable(store);
+        assertThrows(AccumuloRuntimeException.class,
+                () -> TableUtils.createTable(store));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfTableNameIsNotSpecifiedWhenCreatingAGraph() {
         // Given
         final Schema schema = new Schema.Builder()
@@ -284,12 +290,13 @@ public class TableUtilsTest {
         properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
 
         // When
-        new Graph.Builder()
+        assertThrows(IllegalArgumentException.class,
+                () -> new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(null)
                         .build())
                 .addSchema(schema)
                 .storeProperties(properties)
-                .build();
+                .build());
     }
 }

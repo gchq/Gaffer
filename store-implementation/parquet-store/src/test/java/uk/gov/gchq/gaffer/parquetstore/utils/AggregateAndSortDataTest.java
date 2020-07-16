@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * TODO: Test that visibility is implicitly included as a group-by property?
  */
 public class AggregateAndSortDataTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before

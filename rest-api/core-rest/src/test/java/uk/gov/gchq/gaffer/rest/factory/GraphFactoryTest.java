@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class GraphFactoryTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before

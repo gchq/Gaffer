@@ -120,7 +120,7 @@ public class GetRDDOfAllElementsHandlerIT {
     @RunWith(value = Parameterized.class)
     public static class ParameterisedTests {
         private Entity entityRetainedAfterValidation;
-        @Rule
+        **@Rule
         public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
         private enum KeyPackage {

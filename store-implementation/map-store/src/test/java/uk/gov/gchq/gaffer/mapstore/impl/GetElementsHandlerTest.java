@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
 
-    @Rule
+    **@Rule
     public final ExpectedException exception = ExpectedException.none();
 
     @Test

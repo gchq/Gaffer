@@ -50,9 +50,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    @Rule
+    **@Rule
     public final RetryRule rule = new RetryRule();
 
     private KafkaProducer<Integer, String> producer;

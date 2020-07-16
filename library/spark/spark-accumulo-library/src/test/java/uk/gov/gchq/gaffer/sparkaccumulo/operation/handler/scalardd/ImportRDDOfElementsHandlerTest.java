@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class ImportRDDOfElementsHandlerTest {
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test

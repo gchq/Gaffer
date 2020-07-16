@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public abstract class DisableOperationsTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     protected final Class<? extends Operation>[] disabledOperations;
     protected File graphConfigPath;

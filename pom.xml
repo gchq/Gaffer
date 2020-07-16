@@ -54,6 +54,7 @@
 
         <!-- Dependency version properties -->
         <junit5.version>5.6.0</junit5.version>
+        <junit.platform.suite.version>1.6.2</junit.platform.suite.version>
         <mockito.version>3.3.3</mockito.version>
         <failsafe.version>3.0.0-M5</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
@@ -656,6 +657,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit5.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
             <version>${junit5.version}</version>
             <scope>test</scope>
         </dependency>

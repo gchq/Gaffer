@@ -60,7 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class HBaseAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private String inputDir;

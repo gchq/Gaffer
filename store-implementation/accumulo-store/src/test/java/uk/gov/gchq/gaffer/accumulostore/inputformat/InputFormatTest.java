@@ -29,16 +29,15 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
-import org.junit.Rule;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -131,15 +130,12 @@ public class InputFormatTest {
         }
     }
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     private static String getJsonString(final Object obj) throws SerialisationException {
         return new String(JSONSerialiser.serialise(obj));
     }
 
     @Test
-    public void shouldReturnCorrectDataToMapReduceJob() throws Exception {
+    public void shouldReturnCorrectDataToMapReduceJob(@TempDir java.nio.file.Path tempDir) throws Exception {
         final GetElements op = new GetElements.Builder()
                 .view(new View())
                 .build();
@@ -153,18 +149,20 @@ public class InputFormatTest {
                 op,
                 new User(),
                 "instance1",
-                expectedResults);
+                expectedResults,
+                tempDir);
         shouldReturnCorrectDataToMapReduceJob(getSchema(),
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA,
                 op,
                 new User(),
                 "instance2",
-                expectedResults);
+                expectedResults,
+                tempDir);
     }
 
     @Test
-    public void shouldReturnCorrectDataToMapReduceJobWithView() throws Exception {
+    public void shouldReturnCorrectDataToMapReduceJobWithView(@TempDir java.nio.file.Path tempDir) throws Exception {
         final Schema schema = getSchema();
         final GetElements op = new GetElements.Builder()
                 .view(new View.Builder()
@@ -183,18 +181,20 @@ public class InputFormatTest {
                 op,
                 new User(),
                 "instance3",
-                expectedResults);
+                expectedResults,
+                tempDir);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA,
                 op,
                 new User(),
                 "instance4",
-                expectedResults);
+                expectedResults,
+                tempDir);
     }
 
     @Test
-    public void shouldReturnCorrectDataToMapReduceJobRespectingAuthorizations() throws Exception {
+    public void shouldReturnCorrectDataToMapReduceJobRespectingAuthorizations(@TempDir java.nio.file.Path tempDir) throws Exception {
         final Schema schema = getSchemaWithVisibilities();
         final GetElements op = new GetElements.Builder()
                 .view(new View())
@@ -221,28 +221,32 @@ public class InputFormatTest {
                 op,
                 userWithPublicNotPrivate,
                 "instance5",
-                expectedResultsPublicNotPrivate);
+                expectedResultsPublicNotPrivate,
+                tempDir);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPrivate,
                 "instance6",
-                expectedResultsPrivate);
+                expectedResultsPrivate,
+                tempDir);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPublicNotPrivate,
                 "instance7",
-                expectedResultsPublicNotPrivate);
+                expectedResultsPublicNotPrivate,
+                tempDir);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPrivate,
                 "instance8",
-                expectedResultsPrivate);
+                expectedResultsPrivate,
+                tempDir);
     }
 
     private void shouldReturnCorrectDataToMapReduceJob(final Schema schema,
@@ -251,7 +255,8 @@ public class InputFormatTest {
                                                        final GraphFilters graphFilters,
                                                        final User user,
                                                        final String instanceName,
-                                                       final Set<String> expectedResults)
+                                                       final Set<String> expectedResults,
+                                                       final java.nio.file.Path tempDir)
             throws Exception {
         final AccumuloStore store = new SingleUseMockAccumuloStore();
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
@@ -284,7 +289,7 @@ public class InputFormatTest {
         store.updateConfiguration(conf, graphFilters, user);
 
         // Run Driver
-        final File outputFolder = testFolder.newFolder();
+        final File outputFolder = new File(tempDir.toString());
         FileUtils.deleteDirectory(outputFolder);
         final Driver driver = new Driver(outputFolder.getAbsolutePath());
         driver.setConf(conf);

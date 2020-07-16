@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RegistratorTest {
     private final Kryo kryo = new Kryo();
 
-    @Before
+    @BeforeEach
     public void setup() {
         new Registrator().registerClasses(kryo);
     }

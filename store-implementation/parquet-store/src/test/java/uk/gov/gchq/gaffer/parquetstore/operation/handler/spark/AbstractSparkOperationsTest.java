@@ -46,7 +46,7 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class AbstractSparkOperationsTest extends StandaloneIT {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     protected User user = getUser();

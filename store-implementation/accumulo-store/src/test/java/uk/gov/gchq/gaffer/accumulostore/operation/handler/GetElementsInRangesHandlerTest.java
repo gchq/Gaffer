@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -67,13 +67,13 @@ public class GetElementsInRangesHandlerTest {
     private static final Context CONTEXT = new Context();
     private OutputOperationHandler handler;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         handler = createHandler();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
@@ -84,7 +84,7 @@ public class GetElementsInRangesHandlerTest {
         setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;

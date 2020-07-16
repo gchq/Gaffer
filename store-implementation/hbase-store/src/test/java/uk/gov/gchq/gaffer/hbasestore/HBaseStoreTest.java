@@ -70,7 +70,7 @@ public class HBaseStoreTest {
     private static final String GRAPH_ID = "graphId";
     private static SingleUseMiniHBaseStore store;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws StoreException, IOException {
         store = new SingleUseMiniHBaseStore();
         store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);

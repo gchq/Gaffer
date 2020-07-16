@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 
 public class RFileReaderIteratorTest {
 
-    @Rule
+    **@Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Test

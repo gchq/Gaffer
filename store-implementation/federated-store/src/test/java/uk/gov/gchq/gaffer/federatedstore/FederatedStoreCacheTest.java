@@ -48,7 +48,7 @@ public class FederatedStoreCacheTest {
     private static FederatedStoreCache federatedStoreCache;
     private static Properties properties = new Properties();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);

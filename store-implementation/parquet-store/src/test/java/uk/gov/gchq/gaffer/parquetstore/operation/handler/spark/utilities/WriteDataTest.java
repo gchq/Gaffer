@@ -47,7 +47,7 @@ import java.util.stream.LongStream;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WriteDataTest {
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test

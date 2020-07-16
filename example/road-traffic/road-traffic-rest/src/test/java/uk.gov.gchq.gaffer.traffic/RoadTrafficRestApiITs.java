@@ -50,7 +50,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @ClassRule
     public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @BeforeClass
+    @BeforeAll
     public static void prepareRestApi() throws IOException {
         // Spin up the REST API
         CLIENT.startServer();

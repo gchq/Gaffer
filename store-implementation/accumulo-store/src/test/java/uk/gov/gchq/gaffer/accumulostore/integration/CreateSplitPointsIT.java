@@ -22,16 +22,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -58,14 +55,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.io.TempDir;
 
 public class CreateSplitPointsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    Path tempDir;
 
     private FileSystem fs;
 
@@ -73,14 +71,14 @@ public class CreateSplitPointsIT {
     private String outputDir;
     public String splitsFile;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
 
         fs = createFileSystem();
 
         final String root = fs.resolvePath(new Path("/")).toString()
                 .replaceFirst("/$", "")
-                + testFolder.getRoot().getAbsolutePath();
+                + tempDir.toString();
 
 
         LOGGER.info("using root dir: " + root);

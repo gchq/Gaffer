@@ -70,7 +70,7 @@ public class ProxyStoreBasicIT {
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public static final User USER = new User();
@@ -106,7 +106,7 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         CLIENT.startServer();
     }

@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;

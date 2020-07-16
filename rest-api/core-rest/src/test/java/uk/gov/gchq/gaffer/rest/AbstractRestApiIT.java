@@ -54,7 +54,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 3)
                     .build()};
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     protected final T client = getClient();
     private final String storePropertiesResourcePath;

@@ -22,9 +22,9 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -72,19 +72,19 @@ public class AggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws IOException, StoreException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);

@@ -82,10 +82,10 @@ public class WriteUnsortedDataTest {
         }
     }
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         fs = FileSystem.get(new Configuration());
         Logger.getRootLogger().setLevel(Level.WARN);

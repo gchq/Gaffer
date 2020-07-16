@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -63,13 +63,13 @@ public class AccumuloSingleIDRetrieverTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSingleIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
@@ -77,7 +77,7 @@ public class AccumuloSingleIDRetrieverTest {
         setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;

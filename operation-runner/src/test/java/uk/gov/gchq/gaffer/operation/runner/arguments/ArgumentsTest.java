@@ -31,7 +31,7 @@ import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.R
 import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Optional;
 
 public class ArgumentsTest {
-    @Rule
+    **@Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test

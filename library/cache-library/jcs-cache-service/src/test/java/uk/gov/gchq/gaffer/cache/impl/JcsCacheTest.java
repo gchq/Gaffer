@@ -35,7 +35,7 @@ public class JcsCacheTest {
 
     private static JcsCache<String, Integer> cache;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws CacheException {
         CompositeCacheManager manager = CompositeCacheManager.getInstance();
         cache = new JcsCache<>(manager.getCache("test"));

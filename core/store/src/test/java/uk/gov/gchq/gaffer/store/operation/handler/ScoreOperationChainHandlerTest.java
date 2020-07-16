@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -66,8 +64,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class ScoreOperationChainHandlerTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {

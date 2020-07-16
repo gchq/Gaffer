@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ArgumentValidatorTest {
     private static final String NON_EXISTENT_PATH = "/not/existent/path";
 
-    @Rule
+    **@Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private final ArgumentValidator argumentValidator = new ArgumentValidator();

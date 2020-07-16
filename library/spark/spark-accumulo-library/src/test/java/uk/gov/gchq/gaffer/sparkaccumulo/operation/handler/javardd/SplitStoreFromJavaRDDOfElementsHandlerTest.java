@@ -52,10 +52,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class SplitStoreFromJavaRDDOfElementsHandlerTest {
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @Rule
+    **@Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
     private final User user = new User();

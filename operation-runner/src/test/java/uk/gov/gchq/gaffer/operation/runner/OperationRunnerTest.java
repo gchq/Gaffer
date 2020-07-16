@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class OperationRunnerTest {
-    @Rule
+    **@Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private Graph.Builder graphBuilder;

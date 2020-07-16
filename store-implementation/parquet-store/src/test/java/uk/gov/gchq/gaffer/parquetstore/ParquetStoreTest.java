@@ -69,7 +69,7 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ParquetStoreTest {
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static final String VERTEX = "vertex";
     private final Schema schema = new Schema.Builder()

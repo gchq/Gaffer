@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -109,13 +109,13 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private User user = new User();
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
@@ -151,7 +151,7 @@ public class GetElementsBetweenSetsHandlerTest {
         setupGraph(gaffer1KeyStore);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;

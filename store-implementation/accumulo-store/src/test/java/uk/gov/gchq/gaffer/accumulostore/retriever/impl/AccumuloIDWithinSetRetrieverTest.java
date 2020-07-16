@@ -21,9 +21,9 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -53,8 +53,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccumuloIDWithinSetRetrieverTest {
@@ -66,14 +66,14 @@ public class AccumuloIDWithinSetRetrieverTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDWithinSetRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDWithinSetRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
@@ -81,7 +81,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         setupGraph(gaffer1KeyStore);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;

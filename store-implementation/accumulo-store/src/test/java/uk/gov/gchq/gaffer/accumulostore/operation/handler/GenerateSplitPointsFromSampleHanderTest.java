@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -42,7 +42,7 @@ public class GenerateSplitPointsFromSampleHanderTest extends AbstractGenerateSpl
 
     private AccumuloStore store;
 
-    @Before
+    @BeforeEach
     public void before() throws StoreException {
         store = mock(AccumuloStore.class);
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);

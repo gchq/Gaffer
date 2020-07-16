@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 public class GetAdjacentIdsIT extends AbstractStoreIT {
     private static final List<String> SEEDS = Arrays.asList(

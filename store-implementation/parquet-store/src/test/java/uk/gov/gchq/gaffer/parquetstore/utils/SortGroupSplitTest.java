@@ -59,7 +59,7 @@ public class SortGroupSplitTest {
         Logger.getRootLogger().setLevel(Level.WARN);
     }
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private void generateDate(final String inputDir) throws IOException {

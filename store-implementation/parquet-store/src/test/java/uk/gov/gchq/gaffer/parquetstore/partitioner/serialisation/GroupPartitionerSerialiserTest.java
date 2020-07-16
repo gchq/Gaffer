@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GroupPartitionerSerialiserTest {
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test

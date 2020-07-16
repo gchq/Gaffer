@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -50,10 +50,10 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class VisibilityIT extends AbstractStoreIT {

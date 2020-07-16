@@ -37,7 +37,7 @@ public class HazelcastCacheTest {
 
     private static HazelcastCache<String, Integer> cache;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         HazelcastInstance instance = Hazelcast.newHazelcastInstance();
         IMap<String, Integer> map = instance.getMap("test");

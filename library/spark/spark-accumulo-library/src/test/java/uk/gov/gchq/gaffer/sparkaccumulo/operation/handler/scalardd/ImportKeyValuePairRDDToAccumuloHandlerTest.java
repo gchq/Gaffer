@@ -58,7 +58,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
     private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test

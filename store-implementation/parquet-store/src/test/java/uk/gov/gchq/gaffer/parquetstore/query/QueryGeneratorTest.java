@@ -60,7 +60,7 @@ public class QueryGeneratorTest {
 
     private Schema schema = new LongVertexOperationsTest().createSchema();
 
-    @Rule
+    **@Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
