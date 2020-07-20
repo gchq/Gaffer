@@ -20,7 +20,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -54,7 +54,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     private List<Element> elements;
     private JavaRDD<Element> rdd;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         elements = createElements();

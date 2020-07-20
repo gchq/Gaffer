@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
 
 import org.graphframes.GraphFrame;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -48,7 +48,7 @@ public class GetGraphFrameOfElementsHandlerTest {
 
     private static final int NUM_ELEMENTS = 10;
 
-    @Before
+    @BeforeEach
     public void before() {
         SparkSessionProvider.getSparkSession();
     }

@@ -24,8 +24,8 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -59,12 +59,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -82,7 +82,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         inputDir = new File(tempDir.toString(), "inputDir").getAbsolutePath();
         outputDir = new File(tempDir.toString(), "/outputDir").getAbsolutePath();
         splitsDir = new File(tempDir.toString(), "/splitsDir").getAbsolutePath();
-        splitsFile = new File(splitsDir.toString(), "/splits").getAbsolutePath();
+        splitsFile = new File(splitsDir, "/splits").getAbsolutePath();
     }
 
     @Test

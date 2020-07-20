@@ -31,14 +31,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -46,7 +42,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -73,17 +68,18 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(value = Enclosed.class)
 public class GetRDDOfAllElementsHandlerIT {
 
     private static final User USER = new User();
@@ -91,9 +87,14 @@ public class GetRDDOfAllElementsHandlerIT {
     private static final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
     private static final String GRAPH_ID = "graphId";
 
-    public static class SingleTests {
+/*
+ * TODO: Workout why the nested fails
+ */
+//    @Nested
+//    class SingleTests {
+
         @Test
-        public void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
+        void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
             final Graph graph1 = new Graph.Builder()
                     .config(new GraphConfig.Builder()
                             .graphId("graphId")
@@ -115,28 +116,20 @@ public class GetRDDOfAllElementsHandlerIT {
             assertEquals(encodedConf, rddQuery.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY));
             assertEquals("A_VALUE", rdd.sparkContext().hadoopConfiguration().get("AN_OPTION"));
         }
+//    }
+
+    private enum KeyPackage {
+            BYTE_ENTITY, CLASSIC
     }
 
-    @RunWith(value = Parameterized.class)
-    public static class ParameterisedTests {
+//    @Nested
+//    class ParameterisedTests {
         private Entity entityRetainedAfterValidation;
-        **@Rule
-        public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-        private enum KeyPackage {
-            BYTE_ENTITY, CLASSIC
-        }
-
-        @Parameter
-        public KeyPackage keyPackage;
-
-        @Parameters(name = "Key Package {0}")
-        public static Iterable<KeyPackage> keyPackages() {
-            return Arrays.asList(KeyPackage.BYTE_ENTITY, KeyPackage.CLASSIC);
-        }
-
-        @Test
-        public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
+        @ParameterizedTest
+        @EnumSource(KeyPackage.class)
+        void testGetAllElementsInRDD(final KeyPackage keyPackage)
+                throws OperationException, IOException, InterruptedException,
                 AccumuloSecurityException, AccumuloException, TableNotFoundException {
             testGetAllElementsInRDD(getGraphForMockAccumulo(keyPackage), getOperation());
             testGetAllElementsInRDD(getGraphForMockAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
@@ -145,8 +138,9 @@ public class GetRDDOfAllElementsHandlerIT {
                     getOperationWithDirectRDDOption());
         }
 
-        @Test
-        public void testGetAllElementsInRDDWithView() throws OperationException, IOException, InterruptedException,
+        @ParameterizedTest
+        @EnumSource(KeyPackage.class)
+        void testGetAllElementsInRDDWithView(final KeyPackage keyPackage) throws OperationException, IOException, InterruptedException,
                 AccumuloSecurityException, AccumuloException, TableNotFoundException {
             testGetAllElementsInRDDWithView(getGraphForMockAccumulo(keyPackage), getOperation());
             testGetAllElementsInRDDWithView(getGraphForMockAccumulo(keyPackage), getOperationWithBatchScannerEnabled());
@@ -155,8 +149,9 @@ public class GetRDDOfAllElementsHandlerIT {
                     getOperationWithDirectRDDOption());
         }
 
-        @Test
-        public void testGetAllElementsInRDDWithVisibilityFilteringApplied() throws OperationException, IOException,
+        @ParameterizedTest
+        @EnumSource(KeyPackage.class)
+        void testGetAllElementsInRDDWithVisibilityFilteringApplied(final KeyPackage keyPackage) throws OperationException, IOException,
                 InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
             testGetAllElementsInRDDWithVisibilityFilteringApplied(
                     getGraphForMockAccumuloWithVisibility(keyPackage),
@@ -169,8 +164,9 @@ public class GetRDDOfAllElementsHandlerIT {
                     getOperationWithDirectRDDOption());
         }
 
-        @Test
-        public void testGetAllElementsInRDDWithValidationApplied() throws InterruptedException, IOException,
+        @ParameterizedTest
+        @EnumSource(KeyPackage.class)
+        void testGetAllElementsInRDDWithValidationApplied(final KeyPackage keyPackage) throws InterruptedException, IOException,
                 OperationException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
             testGetAllElementsInRDDWithValidationApplied(
                     getGraphForMockAccumuloForValidationChecking(keyPackage),
@@ -183,8 +179,10 @@ public class GetRDDOfAllElementsHandlerIT {
                     getOperationWithDirectRDDOption());
         }
 
-        @Test
-        public void testGetAllElementsInRDDWithIngestAggregationApplied() throws OperationException, IOException,
+        @ParameterizedTest
+        @EnumSource(KeyPackage.class)
+        void testGetAllElementsInRDDWithIngestAggregationApplied(final KeyPackage keyPackage,
+                @TempDir java.nio.file.Path tempDir) throws OperationException, IOException,
                 InterruptedException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
             testGetAllElementsInRDDWithIngestAggregationApplied(
                     getGraphForMockAccumuloForIngestAggregation(keyPackage),
@@ -192,8 +190,9 @@ public class GetRDDOfAllElementsHandlerIT {
             testGetAllElementsInRDDWithIngestAggregationApplied(
                     getGraphForMockAccumuloForIngestAggregation(keyPackage),
                     getOperationWithBatchScannerEnabled());
-            testGetAllElementsInRDDWithIngestAggregationApplied(
-                    getGraphForDirectRDDForIngestAggregation(keyPackage, "testGetAllElementsInRDDWithIngestAggregationApplied_" + keyPackage.name()),
+            testGetAllElementsInRDDWithIngestAggregationApplied(getGraphForDirectRDDForIngestAggregation(keyPackage,
+                            "testGetAllElementsInRDDWithIngestAggregationApplied_" + keyPackage.name(),
+                            tempDir),
                     getOperationWithDirectRDDOption());
         }
 
@@ -454,7 +453,8 @@ public class GetRDDOfAllElementsHandlerIT {
         }
 
         private Graph getGraphForDirectRDDForIngestAggregation(final KeyPackage keyPackage,
-                                                               final String tableName)
+                                                               final String tableName,
+                                                               final java.nio.file.Path tempDir)
                 throws InterruptedException, AccumuloException, AccumuloSecurityException,
                 IOException, OperationException, TableNotFoundException {
             final Graph graph = _getGraphForDirectRDD(keyPackage, tableName, getSchemaForIngestAggregationChecking(), null);
@@ -463,13 +463,14 @@ public class GetRDDOfAllElementsHandlerIT {
             // data from multiple Rfiles is combined, i.e. whether the ingest aggregation is applied at query time when
             // using the RFileReaderRDD
             for (int i = 0; i < 2; i++) {
-                final String dir = tempFolder.newFolder().getAbsolutePath();
-                final String file = dir + File.separator + "file" + i + ".rf";
-                final String failure = tempFolder.newFolder().getAbsolutePath();
+                final java.nio.file.Path dataDir = tempDir.resolve("data").toAbsolutePath();
+                final String file = dataDir.toString() + File.separator + "file" + i + ".rf";
+                final java.nio.file.Path failureDir = Files.createDirectories(tempDir.resolve(UUID.randomUUID().toString()));
+
                 writeFile(keyPackage, graph.getSchema(), file);
                 cluster.getConnector(MiniAccumuloClusterProvider.USER, MiniAccumuloClusterProvider.PASSWORD)
                         .tableOperations()
-                        .importDirectory(tableName, dir, failure, false);
+                        .importDirectory(tableName, dataDir.toString(), failureDir.toString(), false);
             }
             return graph;
         }
@@ -635,5 +636,5 @@ public class GetRDDOfAllElementsHandlerIT {
             op.addOption(AbstractGetRDDHandler.USE_BATCH_SCANNER_RDD, "true");
             return op;
         }
-    }
+//    }
 }

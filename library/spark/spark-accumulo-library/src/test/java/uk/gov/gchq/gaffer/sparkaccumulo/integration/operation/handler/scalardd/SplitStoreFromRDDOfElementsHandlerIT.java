@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.rdd.RDD;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
@@ -56,7 +56,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     private ArrayBuffer<Element> elements;
     private RDD<Element> rdd;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         elements = createElements();

@@ -21,11 +21,13 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -51,7 +53,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graph1";

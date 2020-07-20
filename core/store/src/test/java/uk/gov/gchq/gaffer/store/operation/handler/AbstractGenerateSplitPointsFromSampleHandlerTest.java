@@ -50,7 +50,7 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends
         OperationException actual = assertThrows(OperationException.class,
                 () -> handler.doOperation(operation, new Context(), createStore()));
 
-        assertTrue(actual.getMessage().endsWith("input is required"));
+        assertTrue(actual.getMessage().contains("input is required"));
     }
 
     @Test

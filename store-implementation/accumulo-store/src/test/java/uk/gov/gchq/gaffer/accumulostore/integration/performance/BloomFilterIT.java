@@ -27,10 +27,14 @@ import org.apache.accumulo.core.file.FileSKVIterator;
 import org.apache.accumulo.core.file.FileSKVWriter;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.util.CachedConfiguration;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +73,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
@@ -107,7 +110,7 @@ public class BloomFilterIT {
     public void testByteEntityElementConverter(@TempDir Path tempDir) throws RangeFactoryException, IOException {
         testFilter(byteEntityElementConverter, byteEntityRangeFactory, tempDir);
     }
-    
+
     @Test
     public void testGafferV1ElementConverter(@TempDir Path tempDir) throws RangeFactoryException, IOException {
         testFilter(gafferV1ElementConverter, gaffer1RangeFactory, tempDir);

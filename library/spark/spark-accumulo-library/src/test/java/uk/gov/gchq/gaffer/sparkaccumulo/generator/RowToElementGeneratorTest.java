@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.generator;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -45,7 +45,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RowToElementGeneratorTest {
-    @Before
+
+    @BeforeEach
     public void before() {
         SparkSessionProvider.getSparkSession();
     }

@@ -22,8 +22,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,15 +58,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.io.TempDir;
 
 public class CreateSplitPointsIT {
+
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
-
-    @TempDir
-    Path tempDir;
 
     private FileSystem fs;
 
@@ -72,7 +72,7 @@ public class CreateSplitPointsIT {
     public String splitsFile;
 
     @BeforeEach
-    public void setup() throws IOException {
+    public void setup(@TempDir java.nio.file.Path tempDir) throws IOException {
 
         fs = createFileSystem();
 

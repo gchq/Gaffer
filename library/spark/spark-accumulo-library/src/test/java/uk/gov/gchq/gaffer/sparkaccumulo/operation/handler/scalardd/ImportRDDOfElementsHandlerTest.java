@@ -18,13 +18,12 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
+
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -41,6 +40,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,11 +49,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class ImportRDDOfElementsHandlerTest {
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
-    **@Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
-    public void checkImportRDDOfElements() throws OperationException, IOException {
+    public void checkImportRDDOfElements(@TempDir Path tempDir) throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
@@ -99,8 +97,8 @@ public class ImportRDDOfElementsHandlerTest {
         final String configurationString = AbstractGetRDDHandler
                 .convertConfigurationToString(configuration);
 
-        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
-        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
+        final String outputPath = tempDir.resolve("output").toAbsolutePath().toString();
+        final String failurePath = tempDir.resolve("failure").toAbsolutePath().toString();
 
         final RDD<Element> elementRDD = sparkSession.sparkContext().parallelize(elements, 8, ELEMENT_CLASS_TAG);
         final ImportRDDOfElements addRdd = new ImportRDDOfElements.Builder()

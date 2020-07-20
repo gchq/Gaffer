@@ -22,12 +22,10 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -44,6 +42,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFun
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,11 +52,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
-    **@Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
-    public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
+    public void checkImportKeyValueJavaPairRDD(@TempDir Path tempDir) throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
@@ -103,8 +100,8 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final String configurationString = AbstractGetRDDHandler
                 .convertConfigurationToString(configuration);
 
-        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
-        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
+        final String outputPath = tempDir.resolve("output").toAbsolutePath().toString();
+        final String failurePath = tempDir.resolve("failure").toAbsolutePath().toString();
 
         final ElementConverterFunction func = new ElementConverterFunction(JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
         final JavaPairRDD<Key, Value> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).parallelize(elements).flatMapToPair(func);

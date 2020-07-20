@@ -15,12 +15,11 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
-import java.io.File;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -35,6 +34,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.File;
 import java.io.IOException;
 
 public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobFactoryTest {
@@ -49,7 +49,7 @@ public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobF
         inputDir = new File(tempDir.toString(), "inputDir").getAbsolutePath();
         outputDir = new File(tempDir.toString(), "/outputDir").getAbsolutePath();
         splitsDir = new File(tempDir.toString(), "/splitsDir").getAbsolutePath();
-        splitsFile = new File(splitsDir.toString(), "/splits").getAbsolutePath();
+        splitsFile = new File(splitsDir, "/splits").getAbsolutePath();
     }
 
     @Override
