@@ -89,6 +89,13 @@ public abstract class RestApiTestClient {
         );
     }
 
+    public void reinitialiseGraph(final File tempDir, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
+        reinitialiseGraph(tempDir,
+                Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
+        );
+    }
+
     public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
         FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
                 .toJson(true));

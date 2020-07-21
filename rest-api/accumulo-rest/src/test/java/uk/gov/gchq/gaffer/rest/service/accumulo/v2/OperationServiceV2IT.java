@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -29,28 +29,25 @@ import javax.ws.rs.core.Response;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationFieldPojo;
 
 public class OperationServiceV2IT extends AbstractRestApiIT {
 
     @Test
     public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
-        // Given
-
         // When
         Response response = client.getOperationDetails(GetElementsBetweenSets.class);
 
         // Then
         final byte[] json = response.readEntity(byte[].class);
         final OperationDetailPojo opDetails = JSONSerialiser.deserialise(json, OperationDetailPojo.class);
-        final Set<OperationFieldPojo> fields = makeOperationSet();
+        final Set<OperationFieldPojo> expectedFields = makeExpectedOperationSet();
 
-
-        assertEquals(fields, Sets.newHashSet(opDetails.getFields()));
+        assertEquals(expectedFields, Sets.newHashSet(opDetails.getFields()));
     }
 
-    private Set<OperationFieldPojo> makeOperationSet() {
+    private Set<OperationFieldPojo> makeExpectedOperationSet() {
         return Sets.newHashSet(
                     new OperationFieldPojo("input", "java.lang.Object[]", false, null, null),
                     new OperationFieldPojo("view", "uk.gov.gchq.gaffer.data.elementdefinition.view.View", false, null, null),

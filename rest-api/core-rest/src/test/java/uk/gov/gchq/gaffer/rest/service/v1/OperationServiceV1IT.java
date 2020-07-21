@@ -21,6 +21,9 @@ import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 
 public class OperationServiceV1IT extends OperationServiceIT {
 
+    // TODO - breaking test on mvn clean install
+    // Off tues-tues next week
+
     @Override
     protected RestApiTestClient getClient() {
         return new RestApiV1TestClient();
