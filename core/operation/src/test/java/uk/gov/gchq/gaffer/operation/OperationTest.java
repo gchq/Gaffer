@@ -109,7 +109,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
 
         // Then
         if (null == annotation || null == annotation.value()) {
-            throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
+            throw new AssumptionViolatedException("Missing Summary annotation on class " + instance.getClass().getName());
         }
         assertTrue(SummaryUtil.validateSummaryString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
