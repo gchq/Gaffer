@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
