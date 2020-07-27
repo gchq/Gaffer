@@ -16,29 +16,28 @@
 
 package uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.GraphPartitioner;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.GroupPartitioner;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GraphPartitionerSerialiserTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     @Test
     public void shouldGroupMultiplePartitionKeysAndSerialiseCorrectly() throws IOException {
@@ -74,7 +73,7 @@ public class GraphPartitionerSerialiserTest {
         final GraphPartitionerSerialiser serialiser = new GraphPartitionerSerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/test";
+        final String filename = testFolder.getAbsolutePath() + "/test";
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(graphPartitioner, dos);
         dos.close();

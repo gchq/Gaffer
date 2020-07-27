@@ -60,6 +60,21 @@ public final class TestUtils {
         return properties;
     }
 
+    public static ParquetStoreProperties getParquetStoreProperties(final File temporaryFile) throws IOException {
+        final ParquetStoreProperties properties = new ParquetStoreProperties();
+        File dataFolder = new File(temporaryFile.getAbsolutePath() + "/data");
+        File tmpDataFolder = new File(temporaryFile.getAbsolutePath() + "/tmpdata");
+        if (!dataFolder.exists()) {
+            dataFolder.mkdir();
+        }
+        if (!tmpDataFolder.exists()) {
+            tmpDataFolder.mkdir();
+        }
+        properties.setDataDir(dataFolder.getAbsolutePath());
+        properties.setTempFilesDir(tmpDataFolder.getAbsolutePath());
+        return properties;
+    }
+
     public static JavaSparkContext getJavaSparkContext() {
         return JavaSparkContext.fromSparkContext(SparkSessionProvider.getSparkSession().sparkContext());
     }

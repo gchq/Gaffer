@@ -24,11 +24,9 @@ import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -51,6 +49,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,19 +57,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ParquetStoreTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
+
     private static final String VERTEX = "vertex";
     private final Schema schema = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -177,7 +177,8 @@ public class ParquetStoreTest {
         final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
-        testFolder.newFolder("data", ParquetStore.getSnapshotPath(12345L));
+        File dataFolder = new File(testFolder.getAbsolutePath() + "/data/" + ParquetStore.getSnapshotPath(12345L));
+        dataFolder.mkdir();
 
         // When / Then
         try {

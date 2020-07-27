@@ -21,11 +21,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -39,18 +37,19 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CalculatePartitionerTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     private Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingLongVertexType");
@@ -155,7 +154,6 @@ public class CalculatePartitionerTest {
                 writer.close();
             }
         }
-
     }
 
     @Test
@@ -164,7 +162,7 @@ public class CalculatePartitionerTest {
         final FileSystem fs = FileSystem.get(new Configuration());
         final Schema schema = getSchema();
         final SchemaUtils schemaUtils = new SchemaUtils(schema);
-        final String topLevelFolder = testFolder.newFolder().toPath().toString();
+        final String topLevelFolder = testFolder.toPath().toString();
         writeData(topLevelFolder, schemaUtils);
 
         // When

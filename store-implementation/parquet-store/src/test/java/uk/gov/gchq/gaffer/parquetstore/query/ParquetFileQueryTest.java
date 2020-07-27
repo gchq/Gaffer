@@ -19,11 +19,11 @@ package uk.gov.gchq.gaffer.parquetstore.query;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.predicate.FilterApi;
 import org.apache.parquet.io.api.Binary;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.parquet.filter2.predicate.FilterApi.eq;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ParquetFileQueryTest {
 

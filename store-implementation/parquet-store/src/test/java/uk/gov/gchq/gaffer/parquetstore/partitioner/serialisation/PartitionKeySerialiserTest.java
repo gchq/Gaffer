@@ -16,28 +16,27 @@
 
 package uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.NegativeInfinityPartitionKey;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PositiveInfinityPartitionKey;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PartitionKeySerialiserTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     @Test
     public void shouldCreatePartitionKey() throws IOException {
@@ -47,7 +46,7 @@ public class PartitionKeySerialiserTest {
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/test";
+        final String filename = testFolder.getAbsolutePath() + "/test";
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(partitionKey, dos);
         dos.close();
@@ -67,7 +66,7 @@ public class PartitionKeySerialiserTest {
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/test";
+        final String filename = testFolder.getAbsolutePath() + "/test";
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(negativeInfinity, dos);
         serialiser.write(positiveInfinity, dos);
@@ -90,7 +89,7 @@ public class PartitionKeySerialiserTest {
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/testEmptyPartitionKey";
+        final String filename = testFolder.getAbsolutePath() + "/testEmptyPartitionKey";
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(partitionKey, dos);
         dos.close();

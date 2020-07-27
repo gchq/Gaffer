@@ -20,11 +20,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -44,11 +42,11 @@ import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.LongStream;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WriteDataTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     @Test
     public void testTwoWritesToSamePartitionDoesntThrowException() throws Exception {
@@ -75,9 +73,7 @@ public class WriteDataTest {
                         .build())
                 .vertexSerialiser(new StringParquetSerialiser())
                 .build();
-        testFolder.create();
-        final File tmpDir = testFolder.newFolder();
-        final Function<String, String> groupToDirectory = group -> tmpDir.getAbsolutePath() + "/" + group;
+        final Function<String, String> groupToDirectory = group -> testFolder.getAbsolutePath() + "/" + group;
         final List<Element> elements = new ArrayList<>();
         elements.add(new Entity.Builder()
                 .group("entity")

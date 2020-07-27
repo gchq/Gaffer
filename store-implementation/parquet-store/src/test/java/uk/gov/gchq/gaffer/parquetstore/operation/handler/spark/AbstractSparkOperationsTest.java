@@ -19,11 +19,9 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
@@ -42,12 +40,13 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 public abstract class AbstractSparkOperationsTest extends StandaloneIT {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     protected User user = getUser();
 

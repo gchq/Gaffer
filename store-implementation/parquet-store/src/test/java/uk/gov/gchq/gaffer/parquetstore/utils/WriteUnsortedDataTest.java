@@ -24,12 +24,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -45,6 +43,7 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,9 +57,9 @@ import java.util.TimeZone;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class WriteUnsortedDataTest {
     private static FileSystem fs;
@@ -82,10 +81,10 @@ public class WriteUnsortedDataTest {
         }
     }
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         fs = FileSystem.get(new Configuration());
         Logger.getRootLogger().setLevel(Level.WARN);
@@ -94,7 +93,7 @@ public class WriteUnsortedDataTest {
     @Test
     public void testNoSplitPointsCase() throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = testFolder.getAbsolutePath();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY, new GroupPartitioner(TestGroups.ENTITY, new ArrayList<>()));
@@ -158,7 +157,7 @@ public class WriteUnsortedDataTest {
     @Test
     public void testOneSplitPointCase() throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = testFolder.getAbsolutePath();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         final List<Element> elements = new ArrayList<>();
@@ -290,7 +289,7 @@ public class WriteUnsortedDataTest {
     @Test
     public void testMultipleSplitPointsCase() throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = testFolder.getAbsolutePath();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         final List<Element> elements = new ArrayList<>();

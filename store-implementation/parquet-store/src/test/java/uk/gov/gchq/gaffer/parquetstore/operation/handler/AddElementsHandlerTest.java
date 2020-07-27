@@ -23,14 +23,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -48,6 +46,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,15 +55,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddElementsHandlerTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger.getRootLogger().setLevel(Level.INFO);
     }
@@ -81,7 +80,7 @@ public class AddElementsHandlerTest {
         final Context context = new Context();
         final Schema schema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        final String testDir = testFolder.newFolder().getPath();
+        final String testDir = testFolder.getPath();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
@@ -159,7 +158,7 @@ public class AddElementsHandlerTest {
         final Context context = new Context();
         final Schema schema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        final String testDir = testFolder.newFolder().getPath();
+        final String testDir = testFolder.getPath();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
@@ -356,7 +355,7 @@ public class AddElementsHandlerTest {
         final Context context = new Context();
         final Schema schema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        final String testDir = testFolder.newFolder().getPath();
+        final String testDir = testFolder.getPath();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);

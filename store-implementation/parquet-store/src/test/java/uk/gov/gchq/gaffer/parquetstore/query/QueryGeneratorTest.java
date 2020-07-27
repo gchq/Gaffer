@@ -19,11 +19,9 @@ package uk.gov.gchq.gaffer.parquetstore.query;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.predicate.FilterApi;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -43,6 +41,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,21 +52,21 @@ import static org.apache.parquet.filter2.predicate.FilterApi.and;
 import static org.apache.parquet.filter2.predicate.FilterApi.eq;
 import static org.apache.parquet.filter2.predicate.FilterApi.gt;
 import static org.apache.parquet.filter2.predicate.FilterApi.or;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 public class QueryGeneratorTest {
 
     private Schema schema = new LongVertexOperationsTest().createSchema();
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     @Test
     public void testQueryGeneratorForGetAllElements() throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = "file:///" + testFolder.getAbsolutePath().toString();
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -175,7 +174,7 @@ public class QueryGeneratorTest {
     public void testQueryGeneratorForGetElementsWithEntitySeeds() throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = "file:///" + testFolder.getAbsolutePath().toString();
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -322,7 +321,7 @@ public class QueryGeneratorTest {
     public void testQueryGeneratorForGetElementsWithEdgeSeeds() throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = "file:///" + testFolder.getAbsolutePath().toString();
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
