@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -45,11 +45,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Copied and adapted from the AcummuloStore ElementConverterTests
@@ -57,7 +57,7 @@ import static org.junit.Assert.fail;
 public class ElementSerialisationTest {
     private ElementSerialisation serialisation;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SchemaException, IOException {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         serialisation = new ElementSerialisation(schema);
