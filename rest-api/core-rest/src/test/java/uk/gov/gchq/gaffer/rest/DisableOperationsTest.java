@@ -17,12 +17,10 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
@@ -30,14 +28,15 @@ import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public abstract class DisableOperationsTest {
-    **@Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     protected final Class<? extends Operation>[] disabledOperations;
     protected File graphConfigPath;
     protected File storePropsPath;
@@ -52,11 +51,11 @@ public abstract class DisableOperationsTest {
         this.disabledOperations = disabledOperations;
     }
 
-    @Before
-    public void before() throws IOException {
-        graphConfigPath = tempFolder.newFile("tmpGraphConfig.json");
-        storePropsPath = tempFolder.newFile("tmpStore.properties");
-        schemaPath = tempFolder.newFile("tmpSchema.json");
+    @BeforeEach
+    public void before(@TempDir Path tempDir) throws IOException {
+        graphConfigPath = Files.createFile(tempDir.resolve("tmpGraphConfig.json")).toFile();
+        storePropsPath = Files.createFile(tempDir.resolve("tmpStore.properties")).toFile();
+        schemaPath = Files.createFile(tempDir.resolve("tmpSchema.json")).toFile();
         FileUtils.copyURLToFile(getClass().getResource("/graphConfig.json"), graphConfigPath);
         FileUtils.copyURLToFile(getClass().getResource("/store.properties"), storePropsPath);
         FileUtils.copyURLToFile(getClass().getResource("/schema/schema.json"), schemaPath);
@@ -75,7 +74,8 @@ public abstract class DisableOperationsTest {
 
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
-            assertFalse(disabledOperation.getSimpleName() + " should not be supported", graph.isSupported(disabledOperation));
+            assertFalse(graph.isSupported(disabledOperation),
+                    disabledOperation.getSimpleName() + " should not be supported");
         }
     }
 
@@ -95,7 +95,8 @@ public abstract class DisableOperationsTest {
 
         // Then
         for (final Class<? extends Operation> disabledOperation : disabledOperations) {
-            assertTrue(disabledOperation.getSimpleName() + " should be supported", graph.isSupported(disabledOperation));
+            assertTrue(graph.isSupported(disabledOperation),
+                    disabledOperation.getSimpleName() + " should be supported");
         }
     }
 }

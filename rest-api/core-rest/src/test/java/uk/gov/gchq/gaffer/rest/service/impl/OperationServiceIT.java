@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.impl;
 
 import org.glassfish.jersey.client.ChunkedInput;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.GroupCounts;
@@ -40,9 +40,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public abstract class OperationServiceIT extends AbstractRestApiIT {
 

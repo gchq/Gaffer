@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserFactoryTest {
+
     @Test
     public void shouldCreateDefaultUserFactoryWhenNoSystemProperty() {
         // Given
@@ -49,15 +49,13 @@ public class UserFactoryTest {
         assertEquals(UserFactoryForTest.class, userFactory.getClass());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionFromInvalidSystemPropertyClassName() {
         // Given
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, "InvalidClassName");
 
         // When
-        final UserFactory userFactory = UserFactory.createUserFactory();
-
-        // Then
-        fail();
+        assertThrows(IllegalArgumentException.class,
+                () -> UserFactory.createUserFactory());
     }
 }

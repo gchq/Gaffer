@@ -15,12 +15,12 @@
  */
 package uk.gov.gchq.gaffer.rest.service.impl;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public abstract class StatusServiceIT extends AbstractRestApiIT {
 

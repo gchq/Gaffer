@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -32,10 +32,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
+
     protected static final Element[] DEFAULT_ELEMENTS = {
             new uk.gov.gchq.gaffer.data.element.Entity.Builder()
                     .group(TestGroups.ENTITY)
@@ -54,9 +55,11 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 3)
                     .build()};
-    **@Rule
+
+    @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    protected final T client = getClient();
+    protected T client;
+// = getClient();
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;
 
@@ -71,13 +74,18 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
 
     @Before
     public void before() throws IOException {
+        client = getClient();
         client.startServer();
         client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
     }
 
     @After
     public void after() {
-        client.stopServer();
+        try {
+            client.stopServer();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void verifyElements(final Element[] expected, final List<Element> actual) {

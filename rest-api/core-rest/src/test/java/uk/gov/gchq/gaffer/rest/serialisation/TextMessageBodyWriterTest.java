@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class TextMessageBodyWriterTest {
+
     @Test
     public void shouldHandleAllObjectTypes() {
         // Given
