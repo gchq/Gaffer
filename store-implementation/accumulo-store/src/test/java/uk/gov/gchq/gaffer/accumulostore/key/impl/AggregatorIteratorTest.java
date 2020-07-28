@@ -25,15 +25,19 @@ import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.MockAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -72,14 +76,24 @@ public class AggregatorIteratorTest {
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setup() throws IOException, StoreException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.newFolder().getAbsolutePath());
+        byteEntityStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore = new SingleUseAccumuloStore();
     }
 
     @AfterClass
     public static void tearDown() {
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
         byteEntityStore = null;
         gaffer1KeyStore = null;
     }

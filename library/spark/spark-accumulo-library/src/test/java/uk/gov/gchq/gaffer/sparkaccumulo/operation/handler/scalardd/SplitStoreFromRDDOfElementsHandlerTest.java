@@ -17,7 +17,10 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +43,7 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.SplitStoreFromRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -50,7 +54,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class SplitStoreFromRDDOfElementsHandlerTest {
+public class SplitStoreFromRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
 
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
 
@@ -68,6 +72,19 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
     private ArrayBuffer<Element> elements;
     private RDD<Element> rdd;
     private String configurationString;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setup() {
+        setUpBeforeClass("/store.properties", storeBaseFolder);
+    }
+
+    @AfterClass
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     @Before
     public void setUp() throws IOException {
@@ -89,7 +106,7 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
     }
 

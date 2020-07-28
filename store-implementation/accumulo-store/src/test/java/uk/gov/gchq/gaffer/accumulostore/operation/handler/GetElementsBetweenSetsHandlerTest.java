@@ -21,13 +21,17 @@ import com.google.common.collect.Sets;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -57,6 +61,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class GetElementsBetweenSetsHandlerTest {
+
     // Query for all edges between the set {A0} and the set {A23}
     private final List<EntityId> inputA = Collections.singletonList(new EntitySeed("A0"));
     private final List<EntityId> inputB = Collections.singletonList(new EntitySeed("A23"));
@@ -64,6 +69,8 @@ public class GetElementsBetweenSetsHandlerTest {
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsBetweenSetsHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -109,10 +116,15 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private User user = new User();
 
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        byteEntityStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore = new SingleUseAccumuloStore();
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
     }
 
     @Before
@@ -153,6 +165,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @AfterClass
     public static void tearDown() {
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;

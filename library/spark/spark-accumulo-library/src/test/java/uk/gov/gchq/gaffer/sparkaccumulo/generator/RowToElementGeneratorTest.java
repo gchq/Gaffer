@@ -18,9 +18,14 @@ package uk.gov.gchq.gaffer.sparkaccumulo.generator;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,13 +43,28 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RowToElementGeneratorTest {
+public class RowToElementGeneratorTest extends AbstractPropertiesDrivenTest {
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setup() {
+        setUpBeforeClass("/store.properties", storeBaseFolder);
+    }
+
+    @AfterClass
+    public static void teardown() {
+        tearDownAfterClass();
+    }
+
     @Before
     public void before() {
         SparkSessionProvider.getSparkSession();
@@ -114,7 +134,7 @@ public class RowToElementGeneratorTest {
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

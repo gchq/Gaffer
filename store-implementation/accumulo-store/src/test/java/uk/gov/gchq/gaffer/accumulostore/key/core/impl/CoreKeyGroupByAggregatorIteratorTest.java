@@ -30,17 +30,21 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -69,10 +73,18 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @BeforeClass
     public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        byteEntityStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore = new SingleUseAccumuloStore();
         gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
@@ -89,6 +101,8 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     public static void tearDown() {
         gaffer1KeyStore = null;
         byteEntityStore = null;
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test
