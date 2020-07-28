@@ -20,15 +20,15 @@ import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class JcsCacheTest {
@@ -41,7 +41,7 @@ public class JcsCacheTest {
         cache = new JcsCache<>(manager.getCache("test"));
     }
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cache.clear();
     }

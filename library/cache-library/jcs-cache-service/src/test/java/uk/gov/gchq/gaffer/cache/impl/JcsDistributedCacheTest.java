@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.cache.impl;
 import org.apache.commons.jcs.engine.control.CompositeCache;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -58,7 +58,7 @@ public class JcsDistributedCacheTest {
         cache2 = new JcsCache<>(tmp);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cache1.clear();
     }

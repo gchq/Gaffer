@@ -15,9 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -54,12 +52,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
-
-    **@Rule
-    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void testGetElementsByNonExistentEntityId() throws OperationException {
@@ -1135,8 +1131,8 @@ public class GetElementsHandlerTest {
                 .build();
 
         // Then
-        exception.expect(OperationException.class);
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        assertThrows(OperationException.class,
+                () -> graph.execute(getElements, new User()));
     }
 
     @Test

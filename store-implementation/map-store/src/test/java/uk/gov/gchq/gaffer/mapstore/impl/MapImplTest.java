@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -41,12 +41,12 @@ import static org.mockito.Mockito.verify;
 public class MapImplTest {
     private static MapFactory mockMapFactory;
 
-    @Before
+    @BeforeEach
     public void before() {
         mockMapFactory = mock(MapFactory.class);
     }
 
-    @After
+    @AfterEach
     public void after() {
         mockMapFactory = null;
     }

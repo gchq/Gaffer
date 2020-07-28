@@ -26,15 +26,12 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -52,16 +49,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * TODO: Tests for edges
  * TODO: Test that visibility is implicitly included as a group-by property?
  */
 public class AggregateAndSortDataTest {
-    **@Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger.getRootLogger().setLevel(Level.INFO);
     }
@@ -91,24 +87,25 @@ public class AggregateAndSortDataTest {
     }
 
     @Test
-    public void test() throws Exception {
+    public void test(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
         // Given
         final FileSystem fs = FileSystem.get(new Configuration());
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
-        final String file1 = testFolder.newFolder().getAbsolutePath() + "/inputdata1.parquet";
-        final String file2 = testFolder.newFolder().getAbsolutePath() + "/inputdata2.parquet";
+        final String file1 = tempDir.resolve("inputdata1.parquet").toString();
+        final String file2 = tempDir.resolve("inputdata2.parquet").toString();
         writeData(file1, schemaUtils);
         writeData(file2, schemaUtils);
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final List<String> inputFiles = new ArrayList<>(Sets.newHashSet(file1, file2));
-        final String outputFolder = testFolder.newFolder().getAbsolutePath() + "/aggregated";
+        final String outputFolder = tempDir.resolve("aggregated").toString();
 
         // When
         new AggregateAndSortData(schemaUtils, fs, inputFiles, outputFolder, TestGroups.ENTITY, "test", false, CompressionCodecName.GZIP, sparkSession)
                 .call();
 
         // Then
-        Assert.assertTrue(fs.exists(new Path(outputFolder)));
+        assertTrue(fs.exists(new Path(outputFolder)));
         final Row[] results = (Row[]) sparkSession
                 .read()
                 .parquet(outputFolder)

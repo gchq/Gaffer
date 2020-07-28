@@ -18,12 +18,9 @@ package uk.gov.gchq.gaffer.parquetstore;
 
 import com.fasterxml.jackson.databind.Module;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
@@ -32,12 +29,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ParquetStorePropertiesTest {
-    **@Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private ParquetStoreProperties props;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         props = new ParquetStoreProperties();
     }

@@ -21,16 +21,13 @@ import kafka.server.KafkaServer;
 import kafka.utils.MockTime;
 import kafka.utils.TestUtils;
 import org.apache.curator.test.TestingServer;
-import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestBytesGeneratorImpl;
@@ -44,28 +41,25 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
-    **@Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    **@Rule
-    public final RetryRule rule = new RetryRule();
 
     private KafkaProducer<Integer, String> producer;
     private KafkaServer kafkaServer;
     private TestingServer zkServer;
     private String bootstrapServers;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    public void before(@TempDir Path tempDir) throws Exception {
         bootstrapServers = "localhost:" + getOpenPort();
 
         // Create zookeeper server
-        zkServer = new TestingServer(-1, createZookeeperTmpDir());
+        zkServer = new TestingServer(-1, createZookeeperTmpDir(tempDir));
         zkServer.start();
 
         // Create kafka server
@@ -74,7 +68,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         MapStore.resetStaticMap();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         if (null != producer) {
             producer.close();
@@ -149,10 +143,9 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }
     }
 
-    private File createZookeeperTmpDir() throws IOException {
-        testFolder.delete();
-        testFolder.create();
-        return testFolder.newFolder("zkTmpDir");
+    private File createZookeeperTmpDir(final Path tempDir) throws IOException {
+        Path directory = java.nio.file.Files.createDirectory(tempDir.resolve("zkTmpDir"));
+        return directory.toFile();
     }
 
     private Properties producerProps() {

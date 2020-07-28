@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,13 +34,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SchemaUtilsTest {
     private SchemaUtils utils;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         utils = new SchemaUtils(schema);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         utils = null;
     }

@@ -24,12 +24,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.jupiter.api.BeforeAllClass;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -82,9 +80,6 @@ public class WriteUnsortedDataTest {
         }
     }
 
-    **@Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @BeforeAll
     public static void setUp() throws IOException {
         fs = FileSystem.get(new Configuration());
@@ -92,9 +87,9 @@ public class WriteUnsortedDataTest {
     }
 
     @Test
-    public void testNoSplitPointsCase() throws IOException, OperationException {
+    public void testNoSplitPointsCase(@TempDir java.nio.file.Path tempDir) throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = tempDir.toAbsolutePath().toString();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY, new GroupPartitioner(TestGroups.ENTITY, new ArrayList<>()));
@@ -156,9 +151,9 @@ public class WriteUnsortedDataTest {
     }
 
     @Test
-    public void testOneSplitPointCase() throws IOException, OperationException {
+    public void testOneSplitPointCase(@TempDir java.nio.file.Path tempDir) throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = tempDir.toAbsolutePath().toString();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         final List<Element> elements = new ArrayList<>();
@@ -288,9 +283,9 @@ public class WriteUnsortedDataTest {
     }
 
     @Test
-    public void testMultipleSplitPointsCase() throws IOException, OperationException {
+    public void testMultipleSplitPointsCase(@TempDir java.nio.file.Path tempDir) throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = tempDir.toAbsolutePath().toString();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         final List<Element> elements = new ArrayList<>();

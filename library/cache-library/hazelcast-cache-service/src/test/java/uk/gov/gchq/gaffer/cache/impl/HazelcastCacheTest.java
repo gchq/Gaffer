@@ -21,15 +21,15 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class HazelcastCacheTest {
@@ -45,7 +45,7 @@ public class HazelcastCacheTest {
         cache = new HazelcastCache<>(map);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cache.clear();
     }

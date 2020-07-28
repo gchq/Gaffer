@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.mapstore;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -40,7 +40,7 @@ public class MapStorePropertiesGraphSerialisableTest {
     private Properties properties;
     private GraphSerialisable expected;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
