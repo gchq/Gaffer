@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
 
 import java.io.IOException;
 
-
 public class AccumuloDisableOperationsTest extends DisableOperationsTest {
     public AccumuloDisableOperationsTest() throws IOException {
         super(

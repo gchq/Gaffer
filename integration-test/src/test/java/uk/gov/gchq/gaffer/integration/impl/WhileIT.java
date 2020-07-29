@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
+
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -32,7 +33,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class WhileIT extends AbstractStoreIT {
 

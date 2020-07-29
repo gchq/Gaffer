@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 

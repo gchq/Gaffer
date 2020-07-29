@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
+
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -50,8 +51,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AccumuloAggregationIT extends StandaloneIT {
     private static final String VERTEX = "vertex";

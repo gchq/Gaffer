@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Iterables;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;

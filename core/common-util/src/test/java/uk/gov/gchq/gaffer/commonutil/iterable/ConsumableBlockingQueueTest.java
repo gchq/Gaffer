@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

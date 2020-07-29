@@ -28,7 +28,7 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -57,7 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     protected static final String[] VERTICES = {"1", "2", "3"};

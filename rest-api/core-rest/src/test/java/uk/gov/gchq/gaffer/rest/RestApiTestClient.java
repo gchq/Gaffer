@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,12 +76,15 @@ public abstract class RestApiTestClient {
         if (null != server) {
             try {
                 GrizzlyFuture<HttpServer> shutdown = server.shutdown();
-                shutdown.get();
+                shutdown.get(60L, TimeUnit.SECONDS);
                 server = null;
             } catch (final InterruptedException ex) {
                 Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
             } catch (final ExecutionException ex) {
+                Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            } catch (TimeoutException ex) {
                 Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
             }

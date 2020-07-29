@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
+
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -29,7 +30,7 @@ import javax.ws.rs.core.Response;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationFieldPojo;
 
 public class OperationServiceV2IT extends AbstractRestApiIT {

@@ -59,7 +59,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     protected T client;
-// = getClient();
+
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;
 

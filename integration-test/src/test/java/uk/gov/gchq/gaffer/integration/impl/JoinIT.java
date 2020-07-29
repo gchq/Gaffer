@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
+
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -50,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class JoinIT extends AbstractStoreIT {
     private List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4), getJoinEntity(TestGroups.ENTITY_3, 6)));

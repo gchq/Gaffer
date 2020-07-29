@@ -27,14 +27,12 @@ import org.apache.accumulo.core.file.FileSKVIterator;
 import org.apache.accumulo.core.file.FileSKVWriter;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.util.CachedConfiguration;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +45,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloEle
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -65,14 +64,13 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
@@ -80,15 +78,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * This class is based on Accumulo's BloomFilterLayerLookupTest (org.apache.accumulo.core.file.BloomFilterLayerLookupTest).
  */
 public class BloomFilterIT {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
-
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory gaffer1RangeFactory;
     private AccumuloElementConverter gafferV1ElementConverter;
 
-    @BeforeEach
+    @Before
     public void setup() {
         Schema schema = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, Integer.class)
@@ -107,16 +105,12 @@ public class BloomFilterIT {
     }
 
     @Test
-    public void testByteEntityElementConverter(@TempDir Path tempDir) throws RangeFactoryException, IOException {
-        testFilter(byteEntityElementConverter, byteEntityRangeFactory, tempDir);
+    public void test() throws RangeFactoryException, IOException {
+        testFilter(byteEntityElementConverter, byteEntityRangeFactory);
+        testFilter(gafferV1ElementConverter, gaffer1RangeFactory);
     }
 
-    @Test
-    public void testGafferV1ElementConverter(@TempDir Path tempDir) throws RangeFactoryException, IOException {
-        testFilter(gafferV1ElementConverter, gaffer1RangeFactory, tempDir);
-    }
-
-    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory, Path tempDir) throws RangeFactoryException, IOException {
+    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws RangeFactoryException, IOException {
         // Create random data to insert, and sort it
         final Random random = new Random();
         final HashSet<Key> keysSet = new HashSet<>();
@@ -170,9 +164,9 @@ public class BloomFilterIT {
 
         // Open file
         final String suffix = FileOperations.getNewFileExtension(accumuloConf);
-        //final String filenameTemp = tempDir.;
-        final String filename = "." + suffix;
-        final File file = new File(tempDir.toFile(), filename);
+        final String filenameTemp = tempFolder.getRoot().getAbsolutePath();
+        final String filename = filenameTemp + "." + suffix;
+        final File file = new File(filename);
         if (file.exists()) {
             file.delete();
         }

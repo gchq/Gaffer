@@ -35,8 +35,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.sql.SparkSession;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
@@ -51,8 +51,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class RFileReaderRddIT {
 
@@ -61,7 +61,7 @@ public class RFileReaderRddIT {
     private static int nextTableId;
     private static String tableName;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         nextTableId++;
         tableName = "table" + nextTableId;
