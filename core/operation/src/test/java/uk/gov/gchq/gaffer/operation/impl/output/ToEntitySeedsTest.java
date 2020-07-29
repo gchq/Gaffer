@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-
 public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
 
     @Test

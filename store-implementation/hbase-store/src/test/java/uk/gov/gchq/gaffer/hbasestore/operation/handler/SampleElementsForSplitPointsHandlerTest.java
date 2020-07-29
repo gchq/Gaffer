@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -52,7 +52,7 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
     public static final int NUM_TABLE_REGIONS = 4;
     private HBaseStore store;
 
-    @Before
+    @BeforeEach
     public void before() throws StoreException, IOException {
         store = mock(HBaseStore.class);
         final Connection connection = mock(Connection.class);

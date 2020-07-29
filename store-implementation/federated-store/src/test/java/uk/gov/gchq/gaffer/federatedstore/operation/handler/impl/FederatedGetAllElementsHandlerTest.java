@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutputHandlerTest<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         o1 = new WrappedCloseableIterable<>(Lists.<Element>newArrayList(new Entity.Builder().group(TEST_ENTITY)

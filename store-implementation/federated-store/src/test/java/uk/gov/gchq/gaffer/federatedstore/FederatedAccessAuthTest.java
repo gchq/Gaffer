@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.User;
@@ -36,7 +36,7 @@ public class FederatedAccessAuthTest {
 
     User testUser;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testUser = testUser();
     }

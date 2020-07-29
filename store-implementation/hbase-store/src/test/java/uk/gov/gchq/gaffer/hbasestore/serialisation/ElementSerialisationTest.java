@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ElementSerialisationTest {
     private ElementSerialisation serialisation;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SchemaException, IOException {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         serialisation = new ElementSerialisation(schema);

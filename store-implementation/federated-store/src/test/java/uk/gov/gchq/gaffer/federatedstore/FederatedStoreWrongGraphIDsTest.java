@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -59,7 +59,7 @@ public class FederatedStoreWrongGraphIDsTest {
     private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
@@ -101,16 +101,16 @@ public class FederatedStoreWrongGraphIDsTest {
         CloseableIterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
                 .build(), blankContext);
 
-        assertNotNull(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL, execute);
-        assertEquals(THERE_SHOULD_BE_ONE_ELEMENT, expectedEntity, execute.iterator().next());
+        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
 
 
         execute = store.execute(new GetAllElements.Builder()
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
                 .build(), blankContext);
 
-        assertNotNull(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL, execute);
-        assertEquals(THERE_SHOULD_BE_ONE_ELEMENT, expectedEntity, execute.iterator().next());
+        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
 
         try {
             store.execute(new GetAllElements.Builder()
@@ -118,7 +118,8 @@ public class FederatedStoreWrongGraphIDsTest {
                     .build(), blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {
-            assertEquals(EXCEPTION_NOT_AS_EXPECTED, String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)), e.getMessage());
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
+                    e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
 
         try {
@@ -129,7 +130,8 @@ public class FederatedStoreWrongGraphIDsTest {
                     blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {
-            assertEquals(EXCEPTION_NOT_AS_EXPECTED, String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)), e.getMessage());
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
+                    e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
     }
 }

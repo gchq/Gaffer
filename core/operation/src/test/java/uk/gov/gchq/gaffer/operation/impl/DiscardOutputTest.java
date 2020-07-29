@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-
 public class DiscardOutputTest extends OperationTest<DiscardOutput> {
 
     @Test

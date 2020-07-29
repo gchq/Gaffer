@@ -17,11 +17,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -66,7 +66,7 @@ public class FederatedGetSchemaHandlerTest {
                     .build())
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() throws StoreException {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -79,7 +79,7 @@ public class FederatedGetSchemaHandlerTest {
 
         accProperties = new AccumuloProperties();
 
-        accProperties.setStoreClass(MockAccumuloStore.class);
+        accProperties.setStoreClass(SingleUseMockAccumuloStore.class);
         accProperties.setStorePropertiesClass(AccumuloProperties.class);
 
         fStore = new FederatedStore();
@@ -88,7 +88,7 @@ public class FederatedGetSchemaHandlerTest {
         library.clear();
     }
 
-    @After
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();

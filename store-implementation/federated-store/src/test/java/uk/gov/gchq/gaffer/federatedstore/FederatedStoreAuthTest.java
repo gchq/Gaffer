@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -60,7 +60,7 @@ public class FederatedStoreAuthTest {
     private Schema schema;
     private Operation ignore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testUser = testUser();
         authUser = authUser();
@@ -152,9 +152,9 @@ public class FederatedStoreAuthTest {
         } catch (final OperationException e) {
             assertEquals(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID), e.getCause().getMessage());
             String message = "error message should not contain details about schema";
-            assertFalse(message, e.getMessage().contains(unusualType));
-            assertFalse(message, e.getMessage().contains(groupEdge));
-            assertFalse(message, e.getMessage().contains(groupEnt));
+            assertFalse(e.getMessage().contains(unusualType), message);
+            assertFalse(e.getMessage().contains(groupEdge), message);
+            assertFalse(e.getMessage().contains(groupEnt), message);
         }
 
         assertTrue(federatedStore.getGraphs(testUser(), null, ignore).isEmpty());

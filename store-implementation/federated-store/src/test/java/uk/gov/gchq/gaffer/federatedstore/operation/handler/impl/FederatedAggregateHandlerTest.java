@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -83,7 +83,7 @@ public class FederatedAggregateHandlerTest {
                 .build();
 
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(MockAccumuloStore.class);
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         final Context context = new Context(new User());
         fed.execute(new OperationChain.Builder()

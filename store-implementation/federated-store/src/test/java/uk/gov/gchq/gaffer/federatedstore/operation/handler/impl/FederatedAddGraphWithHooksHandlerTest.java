@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -69,7 +69,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private GetAllElements ignore;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         this.store = new FederatedStore();

@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.proxystore.integration;
 
 import com.google.common.collect.Iterables;
-import org.junit.jupiter.api.AfterEachClass;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -61,16 +61,16 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class ProxyStoreBasicIT {
     private Graph graph;
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    **@Rule
+    @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public static final User USER = new User();
@@ -106,7 +106,7 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
-    @BeforeAll
+    @BeforeClass
     public static void beforeClass() throws Exception {
         CLIENT.startServer();
     }

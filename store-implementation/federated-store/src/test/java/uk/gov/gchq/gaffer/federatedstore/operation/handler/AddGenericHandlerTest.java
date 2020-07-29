@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -28,9 +28,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -41,7 +41,7 @@ public class AddGenericHandlerTest {
     private FederatedStore store;
     private Graph graph;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         store = mock(FederatedStore.class);
 

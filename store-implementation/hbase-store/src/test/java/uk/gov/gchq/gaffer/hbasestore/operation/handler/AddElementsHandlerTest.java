@@ -50,10 +50,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -194,7 +194,7 @@ public class AddElementsHandlerTest {
         handler.doOperation(addElements, context, store);
 
         // Then
-        verify(table, never()).put(anyListOf(Put.class));
+        verify(table, never()).put(any(Put.class));
     }
 
     private List<Element> createElements() {

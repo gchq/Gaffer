@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -39,9 +39,9 @@ import java.util.LinkedHashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -56,7 +56,7 @@ public class FederatedOperationHandlerTest {
     private User user;
     private Context context;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         user = testUser();
         context = new Context(user);

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -46,7 +46,7 @@ public class FederatedStorePublicAccessTest {
     private Context blankUserContext;
     private Context testUserContext;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();

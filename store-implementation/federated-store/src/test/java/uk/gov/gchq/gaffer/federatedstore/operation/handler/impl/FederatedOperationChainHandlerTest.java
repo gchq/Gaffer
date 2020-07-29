@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -86,8 +86,8 @@ public class FederatedOperationChainHandlerTest {
                     .build()
     };
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();

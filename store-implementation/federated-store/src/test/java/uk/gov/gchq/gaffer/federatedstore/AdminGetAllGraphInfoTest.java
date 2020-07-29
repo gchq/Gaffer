@@ -16,10 +16,10 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -38,25 +38,33 @@ public class AdminGetAllGraphInfoTest {
     public static final String ADMIN_AUTH = "AdminAuth";
     private FederatedAccess access;
     private FederatedStore store;
-    private User adminUser;
+    private User adminUser = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
     private StoreProperties properties;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         access = new FederatedAccess(Sets.newHashSet("authA"), "testuser1", false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
         store = new FederatedStore();
         final StoreProperties fedProps = new StoreProperties();
         fedProps.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
         store.initialise("testFedStore", null, fedProps);
-        adminUser = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
         this.properties = new StoreProperties();
-        this.properties.setStoreClass(MockAccumuloStore.class);
+        this.properties.setStoreClass(SingleUseMockAccumuloStore.class);
+
+        /*
+         * TODO: Using single use mock accumulo store so can't see why it will only work when run with other
+         *       tests if this this is included, otherwise it errors...
+         */
+        store.getAllGraphIds(adminUser, true).forEach(g -> {
+            store.remove(g, adminUser, true);
+        });
     }
 
     @Test
     public void shouldGetAllGraphsAndAuthsAsAdmin() throws Exception {
         final String graph1 = "graph1";
 
+        System.out.println(store.getAllGraphIds(adminUser, true));
         store.addGraphs(access, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graph1)
@@ -76,6 +84,7 @@ public class AdminGetAllGraphInfoTest {
     public void shouldNotGetAllGraphsAndAuthsAsAdmin() throws Exception {
         final String graph1 = "graph1";
 
+        System.out.println(store.getAllGraphIds(adminUser, true));
         store.addGraphs(access, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graph1)

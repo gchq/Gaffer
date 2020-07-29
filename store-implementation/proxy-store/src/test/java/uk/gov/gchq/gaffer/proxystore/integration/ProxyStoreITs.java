@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
-import org.junit.jupiter.api.AfterEachClass;
+import org.junit.AfterClass;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;

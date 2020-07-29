@@ -34,7 +34,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-
 public class ToMapTest extends OperationTest<ToMap> {
 
     @Override

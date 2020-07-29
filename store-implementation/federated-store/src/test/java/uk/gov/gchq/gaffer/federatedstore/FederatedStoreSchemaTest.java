@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -60,10 +60,10 @@ public class FederatedStoreSchemaTest {
     private static final FederatedStoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
-        ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class);
+        ACCUMULO_PROPERTIES.setStoreClass(SingleUseMockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
         FEDERATED_PROPERTIES.setCacheProperties(CACHE_SERVICE_CLASS_STRING);

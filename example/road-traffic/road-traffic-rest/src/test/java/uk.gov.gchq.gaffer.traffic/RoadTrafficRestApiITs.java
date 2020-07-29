@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.jupiter.api.AfterEachClass;
-import org.junit.jupiter.api.BeforeAllClass;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
@@ -50,7 +50,7 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @ClassRule
     public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @BeforeAll
+    @BeforeClass
     public static void prepareRestApi() throws IOException {
         // Spin up the REST API
         CLIENT.startServer();

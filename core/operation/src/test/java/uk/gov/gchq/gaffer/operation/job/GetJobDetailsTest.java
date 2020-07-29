@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-
 public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {

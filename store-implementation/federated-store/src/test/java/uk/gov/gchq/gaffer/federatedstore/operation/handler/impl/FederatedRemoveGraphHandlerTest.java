@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -46,7 +46,7 @@ public class FederatedRemoveGraphHandlerTest {
     private User testUser;
     private GetAllElements ignore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         testUser = testUser();

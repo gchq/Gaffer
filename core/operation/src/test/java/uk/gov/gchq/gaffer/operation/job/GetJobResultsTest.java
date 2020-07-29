@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-
 public class GetJobResultsTest extends OperationTest<GetJobResults> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {

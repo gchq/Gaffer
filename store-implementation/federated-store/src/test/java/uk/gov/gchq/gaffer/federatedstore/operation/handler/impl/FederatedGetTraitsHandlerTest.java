@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -62,7 +62,7 @@ public class FederatedGetTraitsHandlerTest {
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
         properties = new FederatedStoreProperties();
@@ -90,7 +90,8 @@ public class FederatedGetTraitsHandlerTest {
     public void shouldGetAllTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
-        assertEquals("graph is not starting empty", 0, federatedStore.getAllGraphIds(testUser()).size());
+        assertEquals(0, federatedStore.getAllGraphIds(testUser()).size(),
+                "graph is not starting empty");
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(new GetTraits.Builder()

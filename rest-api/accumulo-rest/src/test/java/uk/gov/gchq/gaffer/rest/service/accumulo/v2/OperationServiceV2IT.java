@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
