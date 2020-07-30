@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.flink.operation;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.lang.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;

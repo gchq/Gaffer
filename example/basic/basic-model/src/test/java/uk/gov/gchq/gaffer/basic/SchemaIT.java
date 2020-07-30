@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.basic;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;

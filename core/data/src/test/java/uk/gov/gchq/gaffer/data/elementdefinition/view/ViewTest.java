@@ -1480,6 +1480,43 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertEquals(view.isAllEntities(), clone.isAllEntities());
     }
 
+    @Test
+    public void shouldCopyAllEdgesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllEdgesEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
     private View createView() {
         return new View.Builder()
                 .globalElements(new GlobalViewElementDefinition.Builder()

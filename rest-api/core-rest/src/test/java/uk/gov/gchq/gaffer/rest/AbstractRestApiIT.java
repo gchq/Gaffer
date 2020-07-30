@@ -34,6 +34,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
 
@@ -74,9 +75,13 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
 
     @Before
     public void before() throws IOException {
-        client = getClient();
-        client.startServer();
-        client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        try {
+            client = getClient();
+            client.startServer();
+            client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        } catch (final Exception e) {
+            fail("failed to start server");
+        }
     }
 
     @After
@@ -84,7 +89,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
         try {
             client.stopServer();
         } catch (final Exception e) {
-            e.printStackTrace();
+            fail("failed to shutdown server");
         }
     }
 

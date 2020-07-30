@@ -58,8 +58,8 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = client.executeOperation(new GetAllNamedOperations());
-        final List<NamedOperationDetail> namedOperationDetails = response.readEntity(new GenericType<List<NamedOperationDetail>>() {
-        });
+        final List<NamedOperationDetail> namedOperationDetails =
+                response.readEntity(new GenericType<List<NamedOperationDetail>>() { });
 
         // Then
         final NamedOperationDetail expected = new NamedOperationDetail.Builder()
@@ -71,6 +71,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .readers(Arrays.asList())
                 .writers(Arrays.asList())
                 .build();
+
         assertEquals(expected, namedOperationDetails.iterator().next());
     }
 
@@ -83,8 +84,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         final Response response = client.executeOperation(new GetAllElements());
 
         // Then
-        final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
-        });
+        final List<Element> results = response.readEntity(new GenericType<List<Element>>() { });
 
         verifyElements(DEFAULT_ELEMENTS, results);
     }
@@ -101,8 +101,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .build());
 
         // Then
-        final GroupCounts groupCounts = response.readEntity(new GenericType<GroupCounts>() {
-        });
+        final GroupCounts groupCounts = response.readEntity(new GenericType<GroupCounts>() { });
 
         verifyGroupCounts(groupCounts);
     }
@@ -113,10 +112,12 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
+        final Response response =
+                client.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
+
         verifyElements(DEFAULT_ELEMENTS, results);
     }
 
@@ -130,6 +131,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // Then
         final List<Element> results = readChunkedElements(response);
+
         verifyElements(DEFAULT_ELEMENTS, results);
     }
 
@@ -145,10 +147,13 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .build());
 
         // Then
-        final List<GroupCounts> results = readChunkedResults(response, new GenericType<ChunkedInput<GroupCounts>>() {
-        });
+        final List<GroupCounts> results =
+                readChunkedResults(response, new GenericType<ChunkedInput<GroupCounts>>() { });
+
         assertEquals(1, results.size());
+
         final GroupCounts groupCounts = results.get(0);
+
         verifyGroupCounts(groupCounts);
     }
 
@@ -159,6 +164,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // Then
         final List<Element> results = readChunkedElements(response);
+
         assertEquals(0, results.size());
     }
 
@@ -169,6 +175,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // Then
         final List<Element> results = readChunkedElements(response);
+
         assertEquals(0, results.size());
     }
 
@@ -189,13 +196,12 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     public void shouldThrowErrorOnEmptyOperationChain() throws IOException {
         // When
         final Response response = client.executeOperationChain(new OperationChain());
+
         assertEquals(500, response.getStatus());
     }
 
-
     private List<Element> readChunkedElements(final Response response) {
-        return readChunkedResults(response, new GenericType<ChunkedInput<Element>>() {
-        });
+        return readChunkedResults(response, new GenericType<ChunkedInput<Element>>() { });
     }
 
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
@@ -216,8 +222,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     }
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
-        assertEquals(2, (int) groupCounts.getEntityGroups()
-                .get(TestGroups.ENTITY));
+        assertEquals(2, (int) groupCounts.getEntityGroups().get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -30,16 +33,16 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class AddElementsFromFileHandlerIT extends FlinkTest {
 
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;
 
-    @BeforeEach
-    public void before(@TempDir Path tempDir) throws IOException {
-        file = Files.createFile(tempDir.resolve("inputFile.txt")).toFile();
+    @Before
+    public void before() throws IOException {
+        file = testFolder.newFile("inputFile.txt");
         FileUtils.write(file, DATA);
         MapStore.resetStaticMap();
     }
