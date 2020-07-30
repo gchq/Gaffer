@@ -56,7 +56,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
                     .build()};
 
     @TempDir
-    File testFolder;
+    public File testFolder;
     protected final T client = getClient();
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;

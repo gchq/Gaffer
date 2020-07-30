@@ -66,9 +66,16 @@ public abstract class SchemaHidingIT {
             .build();
 
     protected final String storePropertiesPath;
+    protected final StoreProperties storeProperties;
 
     public SchemaHidingIT(final String storePropertiesPath) {
         this.storePropertiesPath = storePropertiesPath;
+        this.storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
+    }
+
+    public SchemaHidingIT(final StoreProperties storeProperties) {
+        this.storePropertiesPath = "";
+        this.storeProperties = storeProperties;
     }
 
     @BeforeEach

@@ -17,13 +17,19 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -61,13 +67,28 @@ public class FederatedAddGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String EXCEPTION_EXPECTED = "Exception expected";
-    private static final AccumuloProperties STORE_PROPERTIES = new AccumuloProperties();
     private User testUser;
     private User authUser;
     private FederatedStore store;
     private FederatedStoreProperties federatedStoreProperties;
     private GetAllElements ignore;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setUpStore() {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -75,8 +96,6 @@ public class FederatedAddGraphHandlerTest {
         this.store = new FederatedStore();
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-
-        STORE_PROPERTIES.setStoreClass(SingleUseMockAccumuloStore.class);
 
         testUser = testUser();
         authUser = authUser();
@@ -95,7 +114,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -111,7 +130,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID_2)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -140,7 +159,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .disabledByDefault(true)
                         .build(),
                 new Context(testUser),
@@ -161,18 +180,15 @@ public class FederatedAddGraphHandlerTest {
 
         Schema expectedSchema = new Schema.Builder().build();
 
-        STORE_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
-
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
-
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -185,7 +201,7 @@ public class FederatedAddGraphHandlerTest {
         assertEquals(expectedSchema, next.getSchema());
 
         final GraphLibrary library = new HashMapGraphLibrary();
-        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, STORE_PROPERTIES);
+        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, PROPERTIES);
         store.setGraphLibrary(library);
 
         federatedAddGraphHandler.doOperation(
@@ -227,7 +243,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -240,7 +256,7 @@ public class FederatedAddGraphHandlerTest {
                             .schema(new Schema.Builder()
                                     .type("unusual", String.class)
                                     .build())
-                            .storeProperties(STORE_PROPERTIES)
+                            .storeProperties(PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -264,7 +280,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -275,7 +291,7 @@ public class FederatedAddGraphHandlerTest {
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
                             .graphAuths("X")
-                            .storeProperties(STORE_PROPERTIES)
+                            .storeProperties(PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -302,20 +318,20 @@ public class FederatedAddGraphHandlerTest {
                     new AddGraph.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
-                            .storeProperties(STORE_PROPERTIES)
+                            .storeProperties(PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
             fail(EXCEPTION_EXPECTED);
         } catch (OperationException e) {
-            assertEquals(String.format(FederatedAddGraphHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore, gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties}"), e.getMessage());
+            assertTrue(e.getMessage().contains(String.format(FederatedAddGraphHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "")));
         }
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(authUser),
                 store);
@@ -340,15 +356,11 @@ public class FederatedAddGraphHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
-
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(PROPERTIES)
                         .graphAuths("testAuth")
                         .build(),
                 new Context(testUser),
@@ -375,7 +387,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);

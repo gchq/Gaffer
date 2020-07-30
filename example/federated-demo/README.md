@@ -85,7 +85,7 @@ And to add an Accumulo graph execute this (or run addAccumuloEntitiesGraph.sh):
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
     "graphId": "accEntities",
     "storeProperties": {
-         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore",
          "accumulo.instance":"someInstanceName",
          "accumulo.zookeepers":"aZookeeper",
          "accumulo.user":"user01",

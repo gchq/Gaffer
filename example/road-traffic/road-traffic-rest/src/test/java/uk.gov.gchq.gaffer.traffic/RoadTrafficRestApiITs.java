@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -50,8 +51,19 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @TempDir
     static File testFolder;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final StoreProperties PROPERTIES =
+            StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, STORE_TYPE_DEFAULT + StreamUtil.STORE_PROPERTIES));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @TempDir
+    public static File TEST_FOLDER;
+
     @BeforeAll
     public static void prepareRestApi() throws IOException {
+
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, TEST_FOLDER.getAbsolutePath());
+
         // Spin up the REST API
         CLIENT.startServer();
 
@@ -59,12 +71,18 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         CLIENT.reinitialiseGraph(
                 testFolder,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
+                PROPERTIES
         );
 
         // Load Road Traffic data into the store
         final DataLoader loader = new DataLoader();
         loader.contextInitialized(null);
+    }
+
+    @AfterAll
+    public static void after() {
+        CLIENT.stopServer();
+        miniAccumuloClusterManager.close();
     }
 
     @BeforeEach
@@ -88,8 +106,4 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         this.user = new User();
     }
 
-    @AfterAll
-    public static void after() {
-        CLIENT.stopServer();
-    }
 }

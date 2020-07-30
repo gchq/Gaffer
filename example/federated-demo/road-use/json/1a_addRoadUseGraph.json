@@ -33,7 +33,7 @@
     }
   },
   "storeProperties": {
-    "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+    "gaffer.store.class": "uk.gov.gchq.gaffer.mapstore.MapStore",
     "accumulo.instance": "someInstanceName",
     "accumulo.zookeepers": "aZookeeper",
     "accumulo.user": "user01",
