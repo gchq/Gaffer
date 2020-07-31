@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.integration;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -182,8 +182,8 @@ public abstract class AbstractStoreIT {
         // Override if required;
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         graph = null;
     }
 
