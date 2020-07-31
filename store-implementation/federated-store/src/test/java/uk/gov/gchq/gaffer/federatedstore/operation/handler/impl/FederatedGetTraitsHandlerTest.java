@@ -17,10 +17,17 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -43,6 +50,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,6 +69,20 @@ public class FederatedGetTraitsHandlerTest {
     public static final String ACC_STORE = "accStore";
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
+
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseMiniAccStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -169,7 +191,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(PROPERTIES)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -208,7 +230,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ACC_STORE)
-                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .storeProperties(PROPERTIES)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 

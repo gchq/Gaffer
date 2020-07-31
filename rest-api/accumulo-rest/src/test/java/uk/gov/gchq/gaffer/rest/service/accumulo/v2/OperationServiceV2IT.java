@@ -18,22 +18,56 @@ package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationDetailPojo;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.core.Response;
 
+import java.io.IOException;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationFieldPojo;
 
 public class OperationServiceV2IT extends AbstractRestApiIT {
+
+    private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setUpStore() {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
+
+    @Before
+    @Override
+    public void before() throws IOException {
+        client.startServer();
+        client.reinitialiseGraph(testFolder, new Schema(), PROPERTIES);
+    }
 
     @Test
     public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {

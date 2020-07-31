@@ -17,12 +17,17 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -41,6 +46,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,15 +65,28 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
+    private static final String EXPECTED_GRAPH_ID_3 = "testGraphID3";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String EXCEPTION_EXPECTED = "Exception expected";
-    private static final AccumuloProperties STORE_PROPERTIES = new AccumuloProperties();
     private User testUser;
     private User authUser;
     private FederatedStore store;
     private FederatedStoreProperties federatedStoreProperties;
     private GetAllElements ignore;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -75,8 +94,6 @@ public class FederatedAddGraphWithHooksHandlerTest {
         this.store = new FederatedStore();
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-
-        STORE_PROPERTIES.setStoreClass(SingleUseMockAccumuloStore.class);
 
         testUser = testUser();
         authUser = authUser();
@@ -95,7 +112,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -111,7 +128,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID_2)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -134,18 +151,15 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         Schema expectedSchema = new Schema.Builder().build();
 
-        STORE_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
-
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
-
 
         FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
         federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -158,12 +172,12 @@ public class FederatedAddGraphWithHooksHandlerTest {
         assertEquals(expectedSchema, next.getSchema());
 
         final GraphLibrary library = new HashMapGraphLibrary();
-        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, STORE_PROPERTIES);
+        library.add(EXPECTED_GRAPH_ID_3, expectedSchema, PROPERTIES);
         store.setGraphLibrary(library);
 
         federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
-                        .graphId(EXPECTED_GRAPH_ID_2)
+                        .graphId(EXPECTED_GRAPH_ID_3)
                         .build(),
                 new Context(testUser),
                 store);
@@ -178,7 +192,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         }
 
         assertTrue(set.contains(EXPECTED_GRAPH_ID));
-        assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
+        assertTrue(set.contains(EXPECTED_GRAPH_ID_3));
     }
 
     @Test
@@ -200,7 +214,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -213,7 +227,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                             .schema(new Schema.Builder()
                                     .type("unusual", String.class)
                                     .build())
-                            .storeProperties(STORE_PROPERTIES)
+                            .storeProperties(PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -237,7 +251,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(testUser),
                 store);
@@ -248,7 +262,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
                             .graphAuths("X")
-                            .storeProperties(STORE_PROPERTIES)
+                            .storeProperties(PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
@@ -275,20 +289,20 @@ public class FederatedAddGraphWithHooksHandlerTest {
                     new AddGraphWithHooks.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
-                            .storeProperties(STORE_PROPERTIES)
+                            .storeProperties(PROPERTIES)
                             .build(),
                     new Context(testUser),
                     store);
             fail(EXCEPTION_EXPECTED);
         } catch (OperationException e) {
-            assertEquals(String.format(FederatedAddGraphWithHooksHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore, gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties}"), e.getMessage());
+            assertTrue(e.getMessage().contains(String.format(FederatedAddGraphWithHooksHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "")));
         }
 
         federatedAddGraphWithHooksHandler.doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .build(),
                 new Context(authUser),
                 store);
@@ -313,15 +327,11 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
-        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
-
         new FederatedAddGraphWithHooksHandler().doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(PROPERTIES)
                         .graphAuths("testAuth")
                         .build(),
                 new Context(testUser),
@@ -347,7 +357,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(STORE_PROPERTIES)
+                        .storeProperties(PROPERTIES)
                         .hooks(new Log4jLogger())
                         .build(),
                 new Context(testUser),

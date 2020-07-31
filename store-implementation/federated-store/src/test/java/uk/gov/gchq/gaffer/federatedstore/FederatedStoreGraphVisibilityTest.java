@@ -17,12 +17,19 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import java.nio.file.Path;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -58,6 +65,20 @@ public class FederatedStoreGraphVisibilityTest {
     private FederatedStoreProperties fedProperties;
     private HashMapGraphLibrary library;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
@@ -82,11 +103,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
-
-        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
+        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, PROPERTIES);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
@@ -130,11 +147,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties(); // <- without ID
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
-
-        library.add(TEST_GRAPH_ID, aSchema, accProp);
+        library.add(TEST_GRAPH_ID, aSchema, PROPERTIES);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()

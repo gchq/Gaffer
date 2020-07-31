@@ -16,16 +16,23 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +46,20 @@ public class AdminGetAllGraphInfoTest {
     private FederatedAccess access;
     private FederatedStore store;
     private User adminUser = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
-    private StoreProperties properties;
+    
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -48,16 +68,6 @@ public class AdminGetAllGraphInfoTest {
         final StoreProperties fedProps = new StoreProperties();
         fedProps.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
         store.initialise("testFedStore", null, fedProps);
-        this.properties = new StoreProperties();
-        this.properties.setStoreClass(SingleUseMockAccumuloStore.class);
-
-        /*
-         * TODO: Using single use mock accumulo store so can't see why it will only work when run with other
-         *       tests if this this is included, otherwise it errors...
-         */
-        store.getAllGraphIds(adminUser, true).forEach(g -> {
-            store.remove(g, adminUser, true);
-        });
     }
 
     @Test
@@ -70,7 +80,7 @@ public class AdminGetAllGraphInfoTest {
                         .graphId(graph1)
                         .build())
                 .schema(new Schema())
-                .properties(properties)
+                .properties(PROPERTIES)
                 .build());
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(adminUser, null, true);
@@ -90,7 +100,7 @@ public class AdminGetAllGraphInfoTest {
                         .graphId(graph1)
                         .build())
                 .schema(new Schema())
-                .properties(properties)
+                .properties(PROPERTIES)
                 .build());
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, true);

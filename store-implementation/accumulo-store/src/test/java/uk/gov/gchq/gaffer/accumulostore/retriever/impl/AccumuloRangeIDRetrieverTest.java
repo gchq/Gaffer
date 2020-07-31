@@ -17,13 +17,16 @@
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Lists;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -41,6 +44,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,39 +56,43 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class AccumuloRangeIDRetrieverTest {
 
     private static final int NUM_ENTRIES = 1000;
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloRangeIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
+    private static View defaultView;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+
     @BeforeAll
-    public static void setup() throws StoreException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+    public static void setup(@TempDir Path tempDir) throws StoreException {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
+
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
-        setupGraph(byteEntityStore, NUM_ENTRIES);
-        setupGraph(gaffer1KeyStore, NUM_ENTRIES);
+
+        setupGraph(BYTE_ENTITY_STORE, NUM_ENTRIES);
+        setupGraph(GAFFER_1_KEY_STORE, NUM_ENTRIES);
     }
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test
     public void shouldRetrieveElementsInRangeBetweenSeedsByteEntityStore() throws Exception {
-        shouldRetrieveElementsInRangeBetweenSeeds(byteEntityStore);
+        shouldRetrieveElementsInRangeBetweenSeeds(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldRetrieveElementsInRangeBetweenSeedsGaffer1Store() throws Exception {
-        shouldRetrieveElementsInRangeBetweenSeeds(gaffer1KeyStore);
+        shouldRetrieveElementsInRangeBetweenSeeds(GAFFER_1_KEY_STORE);
     }
 
     private void shouldRetrieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws Exception {

@@ -11,7 +11,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <store.type>accumulo</store.type>
+        <store.type>map</store.type>
         <standalone-path>rest</standalone-path>
         <standalone-port>8080</standalone-port>
     </properties>
@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>accumulo-store</artifactId>
+            <artifactId>${store.type}-store</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

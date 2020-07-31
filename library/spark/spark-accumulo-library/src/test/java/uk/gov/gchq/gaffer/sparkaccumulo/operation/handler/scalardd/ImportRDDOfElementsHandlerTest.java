@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -36,22 +39,39 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.setUpBeforeClass;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tearDownAfterClass;
 
-public class ImportRDDOfElementsHandlerTest {
+public class ImportRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
 
+    @TempDir
+    static Path tempDir;
+
+    @BeforeAll
+    public static void setup() throws IOException {
+        setUpBeforeClass("/store.properties", Files.createDirectories(tempDir.resolve("accumulo_temp_dir")));
+    }
+
+    @AfterAll
+    public static void teardown() {
+        tearDownAfterClass();
+    }
+
     @Test
-    public void checkImportRDDOfElements(@TempDir Path tempDir) throws OperationException, IOException {
+    public void checkImportRDDOfElements() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
@@ -59,7 +79,7 @@ public class ImportRDDOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
 
         final ArrayBuffer<Element> elements = new ArrayBuffer<>();

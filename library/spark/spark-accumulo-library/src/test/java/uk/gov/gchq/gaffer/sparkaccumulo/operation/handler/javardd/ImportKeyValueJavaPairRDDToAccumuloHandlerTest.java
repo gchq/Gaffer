@@ -22,6 +22,9 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -36,12 +39,14 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,11 +55,26 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.setUpBeforeClass;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tearDownAfterClass;
 
-public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
+public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest extends AbstractPropertiesDrivenTest {
+
+    @TempDir
+    static Path tempDir;
+
+    @BeforeAll
+    public static void setup() throws IOException {
+        setUpBeforeClass("/store.properties", Files.createDirectories(tempDir.resolve("accumulo_temp_dir")));
+    }
+
+    @AfterAll
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     @Test
-    public void checkImportKeyValueJavaPairRDD(@TempDir Path tempDir) throws OperationException, IOException, InterruptedException {
+    public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
@@ -62,7 +82,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
 
         final List<Element> elements = new ArrayList<>();

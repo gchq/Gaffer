@@ -67,9 +67,16 @@ public abstract class SchemaHidingIT {
             .build();
 
     protected final String storePropertiesPath;
+    protected final StoreProperties storeProperties;
 
     public SchemaHidingIT(final String storePropertiesPath) {
         this.storePropertiesPath = storePropertiesPath;
+        this.storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
+    }
+
+    public SchemaHidingIT(final StoreProperties storeProperties) {
+        this.storePropertiesPath = "";
+        this.storeProperties = storeProperties;
     }
 
     @Before
@@ -85,7 +92,7 @@ public abstract class SchemaHidingIT {
     protected abstract void cleanUp();
 
     protected Store createStore(final Schema schema) throws IOException {
-        return Store.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        return Store.createStore("graphId", schema, storeProperties);
     }
 
     @SuppressWarnings("unchecked")

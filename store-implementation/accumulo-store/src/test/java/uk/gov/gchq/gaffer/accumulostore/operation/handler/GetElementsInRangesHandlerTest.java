@@ -17,14 +17,17 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Lists;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -47,6 +50,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -57,20 +61,23 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsInRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
-
     private static final Context CONTEXT = new Context();
+
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+    private static View defaultView;
+
     private OutputOperationHandler handler;
 
     @BeforeAll
-    public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    public static void setup(@TempDir Path tempDir) {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
     @BeforeEach
@@ -78,27 +85,26 @@ public class GetElementsInRangesHandlerTest {
         handler = createHandler();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        setupGraph(byteEntityStore, NUM_ENTRIES);
-        setupGraph(gaffer1KeyStore, NUM_ENTRIES);
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        setupGraph(BYTE_ENTITY_STORE, NUM_ENTRIES);
+        setupGraph(GAFFER_1_KEY_STORE, NUM_ENTRIES);
     }
 
     @AfterAll
     public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test
     public void testNoSummarisationByteEntityStore() throws OperationException {
-        shouldReturnElementsNoSummarisation(byteEntityStore);
+        shouldReturnElementsNoSummarisation(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void testNoSummarisationGaffer1Store() throws OperationException {
-        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
+        shouldReturnElementsNoSummarisation(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
@@ -126,12 +132,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldSummariseByteEntityStore() throws OperationException {
-        shouldSummarise(byteEntityStore);
+        shouldSummarise(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldSummariseGaffer2Store() throws OperationException {
-        shouldSummarise(gaffer1KeyStore);
+        shouldSummarise(GAFFER_1_KEY_STORE);
     }
 
     private void shouldSummarise(final AccumuloStore store) throws OperationException {
@@ -167,12 +173,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldSummariseOutGoingEdgesOnlyByteEntityStore() throws OperationException {
-        shouldSummariseOutGoingEdgesOnly(byteEntityStore);
+        shouldSummariseOutGoingEdgesOnly(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldSummariseOutGoingEdgesOnlyGaffer1Store() throws OperationException {
-        shouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+        shouldSummariseOutGoingEdgesOnly(GAFFER_1_KEY_STORE);
     }
 
     private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
@@ -209,12 +215,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldHaveNoIncomingEdgesByteEntityStore() throws OperationException {
-        shouldHaveNoIncomingEdges(byteEntityStore);
+        shouldHaveNoIncomingEdges(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldHaveNoIncomingEdgesGaffer1Store() throws OperationException {
-        shouldHaveNoIncomingEdges(gaffer1KeyStore);
+        shouldHaveNoIncomingEdges(GAFFER_1_KEY_STORE);
     }
 
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
@@ -241,12 +247,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldReturnNothingWhenNoEdgesSetByteEntityStore() throws OperationException {
-        shouldReturnNothingWhenNoEdgesSet(byteEntityStore);
+        shouldReturnNothingWhenNoEdgesSet(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnNothingWhenNoEdgesSetGaffer1Store() throws OperationException {
-        shouldReturnNothingWhenNoEdgesSet(gaffer1KeyStore);
+        shouldReturnNothingWhenNoEdgesSet(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {

@@ -16,12 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -34,6 +38,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,9 +61,22 @@ public class FederatedStoreAuthTest {
     private User authUser;
     private FederatedStore federatedStore;
     private FederatedStoreProperties federatedStoreProperties;
-    private AccumuloProperties graphStoreProperties;
     private Schema schema;
     private Operation ignore;
+
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -70,9 +88,6 @@ public class FederatedStoreAuthTest {
 
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-
-        graphStoreProperties = new AccumuloProperties();
-        graphStoreProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         schema = new Schema.Builder().build();
 
@@ -87,7 +102,7 @@ public class FederatedStoreAuthTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(schema)
-                        .storeProperties(graphStoreProperties)
+                        .storeProperties(PROPERTIES)
                         .graphAuths("auth1")
                         .build(),
                 new Context(testUser),
@@ -130,7 +145,7 @@ public class FederatedStoreAuthTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(schema)
-                        .storeProperties(graphStoreProperties)
+                        .storeProperties(PROPERTIES)
                         .graphAuths("auth1")
                         .build(),
                 new Context(authUser),
@@ -143,7 +158,7 @@ public class FederatedStoreAuthTest {
                     new AddGraph.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(schema)
-                            .storeProperties(graphStoreProperties)
+                            .storeProperties(PROPERTIES)
                             .graphAuths("nonMatchingAuth")
                             .build(),
                     new Context(testUser),

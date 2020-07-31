@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,10 +38,12 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.SplitStoreFromJavaRDDOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,8 +54,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.setUpBeforeClass;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tearDownAfterClass;
 
-public class SplitStoreFromJavaRDDOfElementsHandlerTest {
+public class SplitStoreFromJavaRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
 
     private final User user = new User();
 
@@ -61,9 +68,21 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest {
     private JavaRDD<Element> javaRDD;
     private String configurationString;
 
-    @BeforeEach
-    public void setUp(@TempDir Path tempDir) throws IOException {
+    @TempDir
+    static Path tempDir;
 
+    @BeforeAll
+    public static void setup() throws IOException {
+        setUpBeforeClass("/store.properties", Files.createDirectories(tempDir.resolve("accumulo_temp_dir")));
+    }
+
+    @AfterAll
+    public static void teardown() {
+        tearDownAfterClass();
+    }
+
+    @BeforeEach
+    public void setUp() throws IOException {
         graph = createGraph();
         elements = createElements();
         javaRDD = createJavaRDDContaining(elements);
@@ -81,7 +100,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
     }
 

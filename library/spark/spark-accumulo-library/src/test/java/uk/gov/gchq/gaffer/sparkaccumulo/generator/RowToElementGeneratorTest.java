@@ -18,8 +18,12 @@ package uk.gov.gchq.gaffer.sparkaccumulo.generator;
 
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Row;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -38,13 +42,25 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
+import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RowToElementGeneratorTest {
+public class RowToElementGeneratorTest extends AbstractPropertiesDrivenTest {
+
+    @BeforeAll
+    public static void setup(@TempDir Path tempDir) {
+        setUpBeforeClass("/store.properties", tempDir);
+    }
+
+    @AfterAll
+    public static void teardown() {
+        tearDownAfterClass();
+    }
 
     @BeforeEach
     public void before() {
@@ -115,7 +131,7 @@ public class RowToElementGeneratorTest {
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(getStoreProperties())
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

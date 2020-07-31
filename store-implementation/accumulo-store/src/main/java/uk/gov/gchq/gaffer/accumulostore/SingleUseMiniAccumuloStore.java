@@ -19,36 +19,35 @@ package uk.gov.gchq.gaffer.accumulostore;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-/**
- * An {@link AccumuloStore} that uses an Accumulo {@link org.apache.accumulo.core.client.mock.MockInstance} to
- * provide a {@link org.apache.accumulo.core.client.Connector}.
- * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
- * is deleted.
- */
-@Deprecated
-public class SingleUseMockAccumuloStore extends MockAccumuloStore {
+public class SingleUseMiniAccumuloStore extends MiniAccumuloStore {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseMiniAccumuloStore.class);
+
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        // Initialise is deliberately called both before and after the deletion of the table: the first creates
-        // the MockInstance and then creates the table. This ensures the getConnection() method works. The table is
-        // then deleted, and recreated in the following initialise call.
+        // Initialise is deliberately called both before and after the deletion of the table.
+        // The first call sets up a connection to the MiniAccumulo instance
+        // The second call is used to re-create the table
 
         try {
             super.preInitialise(graphId, schema, properties);
         } catch (final StoreException e) {
             // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
+            LOGGER.info("Invalid table: no action required as it is being deleted anyway: " + e.getMessage());
         }
 
         try {
             getConnection().tableOperations().delete(getTableName());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
-            // no action required
+            LOGGER.warn("Table deletion failed: " + e.getMessage());
         }
         super.preInitialise(graphId, schema, properties);
     }
