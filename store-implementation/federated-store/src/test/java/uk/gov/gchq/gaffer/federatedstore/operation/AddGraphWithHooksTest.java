@@ -21,6 +21,8 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks.Builder;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
@@ -30,6 +32,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -37,6 +41,8 @@ import static org.junit.Assert.assertTrue;
 public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new CustomAccessPredicate("creatorUserId", emptyMap(), asList("readAuth1", "readAuth2"));
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("creatorUserId", emptyMap(), asList("writeAuth1", "writeAuth2"));
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -54,6 +60,8 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
                 .schema(expectedSchema)
                 .storeProperties(storeProperties)
                 .hooks(log4jLogger)
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
@@ -62,6 +70,8 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
         assertEquals(1, op.getHooks().length);
         assertEquals(log4jLogger, op.getHooks()[0]);
+        assertEquals(READ_ACCESS_PREDICATE, op.getReadAccessPredicate());
+        assertEquals(WRITE_ACCESS_PREDICATE, op.getWriteAccessPredicate());
     }
 
     @Override
@@ -76,6 +86,8 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
                 .storeProperties(new StoreProperties())
                 .hooks(new Log4jLogger())
                 .disabledByDefault(true)
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
 
         final AddGraphWithHooks b = a.shallowClone();
@@ -86,6 +98,8 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         assertEquals(a.getGraphAuths(), b.getGraphAuths());
         Assert.assertArrayEquals(a.getHooks(), b.getHooks());
         assertTrue(b.isDisabledByDefault());
+        assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
+        assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
     }
 
     @Test
@@ -97,6 +111,8 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
                 .schema(null)
                 .graphAuths(null)
                 .storeProperties(null)
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
 
         final AddGraphWithHooks b = a.shallowClone();
@@ -105,6 +121,8 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         assertEquals(a.getStoreProperties(), b.getStoreProperties());
         assertEquals(a.getSchema(), b.getSchema());
         assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
+        assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
     }
 
     @Override

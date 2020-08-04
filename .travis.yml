@@ -16,7 +16,7 @@ if: (branch == master && type == push) || (branch == develop && type == push) ||
 env:
   matrix:
   - RELEASE=true
-  - MODULES=:gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+  - MODULES=:gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
   - MODULES=:accumulo-store,:accumulo-rest
   - MODULES=:hbase-store,:hbase-rest
   - MODULES=:parquet-store,:parquet-rest

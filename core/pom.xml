@@ -36,5 +36,6 @@
         <module>operation</module>
         <module>exception</module>
         <module>cache</module>
+        <module>access</module>
     </modules>
 </project>

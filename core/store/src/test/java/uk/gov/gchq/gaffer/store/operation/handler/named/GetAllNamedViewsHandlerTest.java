@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import org.junit.AfterClass;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -71,13 +72,24 @@ public class GetAllNamedViewsHandlerTest {
             .overwrite(false)
             .build();
 
+    private View viewWithNoAccess = new View.Builder()
+            .entity(TestGroups.ENTITY)
+            .build();
+
+    private AddNamedView addNamedViewWithNoAccess = new AddNamedView.Builder()
+            .name(testNamedViewName + "WithNoAccess")
+            .view(viewWithNoAccess)
+            .overwrite(false)
+            .readAccessPredicate(new NoAccessPredicate())
+            .build();
+
     @AfterClass
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
     @Test
-    public void shouldGetAllNamedViewsFromCache() throws OperationException {
+    public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException {
         // Given
         given(store.getProperties()).willReturn(new StoreProperties());
         StoreProperties properties = new StoreProperties();
@@ -95,6 +107,7 @@ public class GetAllNamedViewsHandlerTest {
                 .build();
         addNamedViewHandler.doOperation(addNamedView, context, store);
         addNamedViewHandler.doOperation(addNamedView2, context, store);
+        addNamedViewHandler.doOperation(addNamedViewWithNoAccess, context, store);
         GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
 
         // when

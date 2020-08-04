@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Lists;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -61,6 +62,7 @@ public class FederatedOperationChainValidatorTest {
     }
 
     @Test
+    @Ignore
     public void shouldNotErrorWithInvalidViewFromMissingGraph() throws OperationException {
         //given
         String missingGraph = "missingGraph";

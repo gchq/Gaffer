@@ -115,7 +115,7 @@
 
         <module name="ParameterNumber">
             <property name="id" value="parameterNumber"/>
-            <property name="max" value="11"/>
+            <property name="max" value="12"/>
         </module>
         <module name="EmptyForIteratorPad">
             <property name="id" value="emptyForIterator"/>

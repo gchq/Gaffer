@@ -19,10 +19,13 @@ package uk.gov.gchq.gaffer.named.operation;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.access.AccessControlledResource;
+import uk.gov.gchq.gaffer.access.ResourceType;
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -34,15 +37,21 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.util.Collections.emptyList;
+import static org.apache.commons.collections.ListUtils.unmodifiableList;
 
 /**
  * Simple POJO containing the details associated with a {@link NamedOperation}.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class NamedOperationDetail implements Serializable {
+public class NamedOperationDetail implements AccessControlledResource, Serializable {
 
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -56,6 +65,9 @@ public class NamedOperationDetail implements Serializable {
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
     private Integer score;
+    private AccessPredicate readAccessPredicate;
+    private AccessPredicate writeAccessPredicate;
+    private List<String> auths;
 
     public NamedOperationDetail() {
     }
@@ -79,6 +91,13 @@ public class NamedOperationDetail implements Serializable {
                                 final String userId, final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
                                 final Integer score) {
+        this(operationName, labels, inputType, description, userId, operations, readers, writers, parameters, score, null, null);
+    }
+
+    public NamedOperationDetail(final String operationName, final List<String> labels, final String inputType, final String description,
+                                final String userId, final String operations, final List<String> readers,
+                                final List<String> writers, final Map<String, ParameterDetail> parameters,
+                                final Integer score, final AccessPredicate readAccessPredicate, final AccessPredicate writeAccessPredicate) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -97,6 +116,18 @@ public class NamedOperationDetail implements Serializable {
         this.writeAccessRoles = writers;
         this.parameters = parameters;
         this.score = score;
+
+        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new DefaultAccessPredicate(userId, readers);
+        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new DefaultAccessPredicate(userId, writers);
+        this.auths = sortedAuths();
+    }
+
+    private List<String> sortedAuths() {
+        final Set<String> allAuths = new HashSet<>(readAccessPredicate.getAuths());
+        allAuths.addAll(writeAccessPredicate.getAuths());
+        final List<String> sortedAuths = new ArrayList<>(allAuths);
+        Collections.sort(sortedAuths);
+        return unmodifiableList(new ArrayList<>(sortedAuths));
     }
 
     public String getOperationName() {
@@ -255,6 +286,8 @@ public class NamedOperationDetail implements Serializable {
                 .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
                 .append(score, op.score)
+                .append(readAccessPredicate, op.readAccessPredicate)
+                .append(writeAccessPredicate, op.writeAccessPredicate)
                 .isEquals();
     }
 
@@ -269,6 +302,8 @@ public class NamedOperationDetail implements Serializable {
                 .append(writeAccessRoles)
                 .append(parameters)
                 .append(score)
+                .append(readAccessPredicate)
+                .append(writeAccessPredicate)
                 .hashCode();
     }
 
@@ -284,39 +319,35 @@ public class NamedOperationDetail implements Serializable {
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
                 .append("score", score)
+                .append("readAccessPredicate", readAccessPredicate)
+                .append("writeAccessPredicate", writeAccessPredicate)
                 .toString();
     }
 
-    public boolean hasReadAccess(final User user) {
-        return hasAccess(user, readAccessRoles, null);
+    @Override
+    public ResourceType getResourceType() {
+        return ResourceType.NamedOperation;
+    }
+
+    @Override
+    public List<String> getAuths() {
+        return auths != null ? auths : emptyList();
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {
-        return hasAccess(user, readAccessRoles, adminAuth);
-    }
-
-    public boolean hasWriteAccess(final User user) {
-        return hasAccess(user, writeAccessRoles, null);
+        return readAccessPredicate.test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
-        return hasAccess(user, writeAccessRoles, adminAuth);
+        return writeAccessPredicate.test(user, adminAuth);
     }
 
-    private boolean hasAccess(final User user, final List<String> roles, final String adminAuth) {
-        if (null != roles) {
-            for (final String role : roles) {
-                if (user.getOpAuths().contains(role)) {
-                    return true;
-                }
-            }
-        }
-        if (StringUtils.isNotBlank(adminAuth)) {
-            if (user.getOpAuths().contains(adminAuth)) {
-                return true;
-            }
-        }
-        return user.getUserId().equals(creatorId);
+    public AccessPredicate getReadAccessPredicate() {
+        return readAccessPredicate;
+    }
+
+    public AccessPredicate getWriteAccessPredicate() {
+        return writeAccessPredicate;
     }
 
     public static final class Builder {
@@ -330,6 +361,8 @@ public class NamedOperationDetail implements Serializable {
         private List<String> writers;
         private Map<String, ParameterDetail> parameters;
         private Integer score;
+        private AccessPredicate readAccessPredicate;
+        private AccessPredicate writeAccessPredicate;
 
         public Builder creatorId(final String creatorId) {
             this.creatorId = creatorId;
@@ -357,21 +390,14 @@ public class NamedOperationDetail implements Serializable {
         }
 
         public Builder operationChain(final String opChain) {
-
             this.opChain = opChain;
             return this;
         }
 
         public Builder operationChain(final OperationChain opChain) {
-            try {
-                this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
-            } catch (final SerialisationException se) {
-                throw new IllegalArgumentException(se.getMessage());
-            }
-
+            this.opChain = serialise(opChain);
             return this;
         }
-
 
         public Builder parameters(final Map<String, ParameterDetail> parameters) {
             this.parameters = parameters;
@@ -393,8 +419,26 @@ public class NamedOperationDetail implements Serializable {
             return this;
         }
 
+        public Builder readAccessPredicate(final AccessPredicate readAccessPredicate) {
+            this.readAccessPredicate = readAccessPredicate;
+            return this;
+        }
+
+        public Builder writeAccessPredicate(final AccessPredicate writeAccessPredicate) {
+            this.writeAccessPredicate = writeAccessPredicate;
+            return this;
+        }
+
         public NamedOperationDetail build() {
-            return new NamedOperationDetail(operationName, labels, inputType, description, creatorId, opChain, readers, writers, parameters, score);
+            return new NamedOperationDetail(operationName, labels, inputType, description, creatorId, opChain, readers, writers, parameters, score, readAccessPredicate, writeAccessPredicate);
+        }
+
+        private String serialise(final Object pojo) {
+            try {
+                return new String(JSONSerialiser.serialise(pojo), Charset.forName(CHARSET_NAME));
+            } catch (final SerialisationException se) {
+                throw new IllegalArgumentException(se.getMessage());
+            }
         }
     }
 }

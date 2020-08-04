@@ -43,7 +43,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths((Collection) null)
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths((String[]) null)
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths("")
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths(new String[0])
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths(Sets.newHashSet())
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
 
@@ -92,7 +92,7 @@ public class FederatedAccessNullEmptyTest {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
 }

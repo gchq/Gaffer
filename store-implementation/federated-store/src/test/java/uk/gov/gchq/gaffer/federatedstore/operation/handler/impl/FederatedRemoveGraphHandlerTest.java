@@ -23,6 +23,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -43,6 +44,10 @@ import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.gchq.gaffer.access.AccessControlledResource.DONT_CHECK_ADMIN_AUTH;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedRemoveGraphHandlerTest {
@@ -52,7 +57,8 @@ public class FederatedRemoveGraphHandlerTest {
     private User testUser;
     private GetAllElements ignore;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
@@ -132,6 +138,46 @@ public class FederatedRemoveGraphHandlerTest {
 
         assertEquals(1, graphs.size());
 
+    }
+
+    @Test
+    public void shouldNotRemoveGraphConfiguredWithNoAccessWritePredicate() throws Exception {
+        FederatedStore store = new FederatedStore();
+        final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+
+        final AccessPredicate noAccessPredicate = mock(AccessPredicate.class);
+        when(noAccessPredicate.test(testUser, DONT_CHECK_ADMIN_AUTH)).thenReturn(false);
+
+        store.addGraphs(
+                testUser.getOpAuths(),
+                "other",
+                false,
+                false,
+                null,
+                noAccessPredicate,
+                new GraphSerialisable.Builder()
+                        .config(new GraphConfig(EXPECTED_GRAPH_ID))
+                        .schema(new Schema.Builder().build())
+                        .properties(PROPERTIES)
+                        .build());
+
+        assertEquals(1, store.getGraphs(testUser, null, ignore).size());
+
+        new FederatedRemoveGraphHandler().doOperation(
+                new RemoveGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        Collection<Graph> graphs = store.getGraphs(testUser, null, ignore);
+
+        assertEquals(1, graphs.size());
+
+        verify(noAccessPredicate).test(testUser, DONT_CHECK_ADMIN_AUTH);
     }
 
     private class IgnoreOptions extends GetAllElements {

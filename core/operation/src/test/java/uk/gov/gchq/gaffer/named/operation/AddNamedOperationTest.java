@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,7 +33,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +41,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -50,11 +53,14 @@ import static org.mockito.Mockito.mock;
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("ReadKey", "ReadValue"), asList("CustomReadAuth1", "CustomReadAuth2"));
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("WriteKey", "WriteValue"), asList("CustomWriteAuth1", "CustomWriteAuth2"));
 
     @Override
+    @Test /* TODO - remove when gh-2270 complete */
     public void shouldJsonSerialiseAndDeserialise() {
         //Given
-        List options = Arrays.asList("option1", "option2", "option3");
+        List options = asList("option1", "option2", "option3");
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testOption", new ParameterDetail("Description", String.class, false, "On", options));
 
@@ -62,12 +68,14 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
-                .labels(Arrays.asList("Test label"))
+                .labels(asList("Test label"))
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
                 .parameters(parameters)
                 .score(0)
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
 
         // When
@@ -86,7 +94,23 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"overwriteFlag\" : true,%n" +
                 " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false, \"options\": [\"option1\", \"option2\", \"option3\"]}},%n" +
                 " \"readAccessRoles\" : [ \"User\" ],%n" +
-                " \"writeAccessRoles\" : [ \"User\" ]%n" +
+                " \"writeAccessRoles\" : [ \"User\" ],%n" +
+                " \"readAccessPredicate\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate\",%n" +
+                "    \"userId\" : \"CreatingUserId\",%n" +
+                "    \"map\" : {%n" +
+                "        \"ReadKey\": \"ReadValue\"%n" +
+                "    },%n" +
+                "    \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\" ]%n" +
+                "},%n" +
+                "\"writeAccessPredicate\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate\",%n" +
+                "    \"userId\" : \"CreatingUserId\",%n" +
+                "    \"map\" : {%n" +
+                "        \"WriteKey\": \"WriteValue\"%n" +
+                "    },%n" +
+                "    \"auths\" : [ \"CustomWriteAuth1\", \"CustomWriteAuth2\" ]%n" +
+                "}%n" +
                 "}"), new String(json));
         assertNotNull(deserialisedObj);
     }
@@ -101,7 +125,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
-                .labels(Arrays.asList("Test label"))
+                .labels(asList("Test label"))
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -136,10 +160,12 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
-                .labels(Arrays.asList("Test label"))
+                .labels(asList("Test label"))
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
         String opChain = null;
         try {
@@ -149,10 +175,12 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         }
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
         assertEquals("Test", addNamedOperation.getOperationName());
-        assertEquals(Arrays.asList("Test label"), addNamedOperation.getLabels());
+        assertEquals(asList("Test label"), addNamedOperation.getLabels());
         assertEquals("Test Named Operation", addNamedOperation.getDescription());
         assertEquals(Collections.singletonList(USER), addNamedOperation.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), addNamedOperation.getWriteAccessRoles());
+        assertEquals(READ_ACCESS_PREDICATE, addNamedOperation.getReadAccessPredicate());
+        assertEquals(WRITE_ACCESS_PREDICATE, addNamedOperation.getWriteAccessPredicate());
     }
 
     @Override
@@ -166,12 +194,14 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
                 .name("Test")
-                .labels(Arrays.asList("Test label"))
+                .labels(asList("Test label"))
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
                 .parameters(parameters)
                 .score(2)
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
         String opChain = null;
         try {
@@ -187,7 +217,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotSame(addNamedOperation, clone);
         assertEquals(opChain, clone.getOperationChainAsString());
         assertEquals("Test", clone.getOperationName());
-        assertEquals(Arrays.asList("Test label"), clone.getLabels());
+        assertEquals(asList("Test label"), clone.getLabels());
         assertEquals("Test Named Operation", clone.getDescription());
         assertEquals(2, (int) clone.getScore());
         assertFalse(clone.isOverwriteFlag());
@@ -195,6 +225,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
         assertNotNull(clone.getParameters().get("optionTestParameter").getOptions());
+        assertEquals(READ_ACCESS_PREDICATE, clone.getReadAccessPredicate());
+        assertEquals(WRITE_ACCESS_PREDICATE, clone.getWriteAccessPredicate());
     }
 
     @Test
@@ -204,7 +236,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
                 .description("Test Named Operation")
                 .name("Test")
-                .labels(Arrays.asList("Test label"))
+                .labels(asList("Test label"))
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
@@ -237,7 +269,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
                 .description("Test Named Operation")
                 .name("Test")
-                .labels(Arrays.asList("Test label"))
+                .labels(asList("Test label"))
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
