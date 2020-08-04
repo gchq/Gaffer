@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetJavaRDDOfElementsInRangesTest extends OperationTest<GetJavaRDDOfElementsInRanges> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given

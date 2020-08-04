@@ -181,7 +181,6 @@ public class FederatedStoreTest {
         userContext = new Context(blankUser());
         blankUser = blankUser();
 
-
         ignore = new IgnoreOptions();
     }
 
@@ -193,7 +192,7 @@ public class FederatedStoreTest {
                 "Library has changed: " + ID_PROPS_ACC_2);
         assertEquals(library.getProperties(ID_PROPS_ACC_ALT), PROPERTIES_ALT,
                 "Library has changed: " + ID_PROPS_ACC_ALT);
-        assertEquals(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8), 
+        assertEquals(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8),
                 new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8),
                 "Library has changed: " + ID_SCHEMA_EDGE);
         assertEquals(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8),

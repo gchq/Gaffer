@@ -114,7 +114,7 @@ public class MiniAccumuloClusterManager {
         if (null == miniAccumuloCluster) {
             return;
         }
-        for (int retries = 0; retries < 3; retries++) {
+        for (int retries = 0; retries < 15; retries++) {
             try {
                 // Try one more time.
                 miniAccumuloCluster.stop();
@@ -123,16 +123,16 @@ public class MiniAccumuloClusterManager {
                 LOGGER.error("Failed to stop test MiniAccumuloCluster: " + e.getMessage());
             }
         }
-        for (int retries = 0; retries < 3; retries++) {
-            try {
-                FileUtils.deleteDirectory(new File(miniAccumuloCluster.getConfig().getDir().getAbsolutePath()));
-                break;
-            } catch (final IOException e) {
-                LOGGER.error("Failed to delete test MiniAccumuloCluster directory: " +
-                        miniAccumuloCluster.getConfig().getDir().getAbsolutePath() +
-                        " : " + e.getMessage());
-            }
-        }
+//        for (int retries = 0; retries < 3; retries++) {
+//            try {
+//                FileUtils.deleteDirectory(new File(miniAccumuloCluster.getConfig().getDir().getAbsolutePath()));
+//                break;
+//            } catch (final IOException e) {
+//                LOGGER.error("Failed to delete test MiniAccumuloCluster directory: " +
+//                        miniAccumuloCluster.getConfig().getDir().getAbsolutePath() +
+//                        " : " + e.getMessage());
+//            }
+//        }
         miniAccumuloCluster = null;
     }
 

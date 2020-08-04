@@ -30,32 +30,26 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public abstract class DisableOperationsTest {
 
-    protected final Class<? extends Operation>[] disabledOperations;
+    @TempDir
+    protected static Path tempDir;
+
     protected File graphConfigPath;
     protected File storePropsPath;
     protected File schemaPath;
 
-    public DisableOperationsTest() throws IOException {
-        this(AddElementsFromFile.class);
-    }
-
-    @SafeVarargs
-    protected DisableOperationsTest(final Class<? extends Operation>... disabledOperations) throws IOException {
-        this.disabledOperations = disabledOperations;
-    }
-
     @BeforeEach
-    public void before(@TempDir Path tempDir) throws IOException {
-        graphConfigPath = Files.createFile(tempDir.resolve("tmpGraphConfig.json")).toFile();
-        storePropsPath = Files.createFile(tempDir.resolve("tmpStore.properties")).toFile();
-        schemaPath = Files.createFile(tempDir.resolve("tmpSchema.json")).toFile();
+    public void before() throws IOException {
+        Path temp = Files.createDirectories(tempDir.resolve(UUID.randomUUID().toString()));
+        graphConfigPath = Files.createFile(temp.resolve("tmpGraphConfig.json")).toFile();
+        storePropsPath = Files.createFile(temp.resolve("tmpStore.properties")).toFile();
+        schemaPath = Files.createFile(temp.resolve("tmpSchema.json")).toFile();
         FileUtils.copyURLToFile(getClass().getResource("/graphConfig.json"), graphConfigPath);
         FileUtils.copyURLToFile(getClass().getResource("/store.properties"), storePropsPath);
         FileUtils.copyURLToFile(getClass().getResource("/schema/schema.json"), schemaPath);
@@ -63,6 +57,7 @@ public abstract class DisableOperationsTest {
 
     @Test
     public void shouldDisableOperationsUsingOperationDeclarations() {
+        Class<? extends Operation>[] disabledOperations = getDisabledOperations();
         // Given
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
@@ -81,6 +76,7 @@ public abstract class DisableOperationsTest {
 
     @Test
     public void shouldNotDisableOperationsWhenNotUsingRestApi() {
+        Class<? extends Operation>[] disabledOperations = getDisabledOperations();
         // Given
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
@@ -98,5 +94,9 @@ public abstract class DisableOperationsTest {
             assertTrue(graph.isSupported(disabledOperation),
                     disabledOperation.getSimpleName() + " should be supported");
         }
+    }
+
+    protected Class<? extends Operation>[] getDisabledOperations() {
+        return new Class[] {AddElementsFromFile.class};
     }
 }

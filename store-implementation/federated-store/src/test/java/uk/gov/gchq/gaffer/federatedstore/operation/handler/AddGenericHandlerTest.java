@@ -61,7 +61,7 @@ public class AddGenericHandlerTest {
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
-    
+
     @BeforeEach
     public void setUp() throws Exception {
         store = mock(FederatedStore.class);

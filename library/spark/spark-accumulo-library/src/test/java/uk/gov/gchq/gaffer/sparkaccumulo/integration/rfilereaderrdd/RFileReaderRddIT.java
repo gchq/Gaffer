@@ -177,7 +177,7 @@ public class RFileReaderRddIT {
         RuntimeException actual = assertThrows(RuntimeException.class, () -> rdd.getPartitions());
 
         // Then
-        assertEquals("User user does not have access to table Invalid Table Name",
+        assertEquals("User " + PROPERTIES.getUser() + " does not have access to table Invalid Table Name",
                 actual.getMessage());
     }
 

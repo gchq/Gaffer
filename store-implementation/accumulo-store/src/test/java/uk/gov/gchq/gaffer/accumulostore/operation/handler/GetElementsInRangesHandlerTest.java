@@ -50,6 +50,8 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -61,23 +63,30 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
-    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
-    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsInRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
     private static final Context CONTEXT = new Context();
 
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
-    private static View defaultView;
+    private static AccumuloStore byteEntityStore = null;
+    private static AccumuloStore gaffer1KeyStore = null;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity = null;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key = null;
+    private static View defaultView = null;
+
+    @TempDir
+    static Path tempDir;
 
     private OutputOperationHandler handler;
 
     @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
+    public static void setup() throws IOException {
+        Path accumulo = Files.createDirectories(tempDir.resolve("accumulo"));
+        Path accumuloClassic = Files.createDirectories(tempDir.resolve("accumulo_classic"));
+        miniAccumuloClusterManagerByteEntity =
+                new MiniAccumuloClusterManager(PROPERTIES, accumulo.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key =
+                new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, accumuloClassic.toAbsolutePath().toString());
     }
 
     @BeforeEach
@@ -85,10 +94,14 @@ public class GetElementsInRangesHandlerTest {
         handler = createHandler();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        setupGraph(BYTE_ENTITY_STORE, NUM_ENTRIES);
-        setupGraph(GAFFER_1_KEY_STORE, NUM_ENTRIES);
+        byteEntityStore = new SingleUseAccumuloStore();
+        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+
+        gaffer1KeyStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+
+        setupGraph(byteEntityStore, NUM_ENTRIES);
+        setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
     @AfterAll
@@ -99,12 +112,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void testNoSummarisationByteEntityStore() throws OperationException {
-        shouldReturnElementsNoSummarisation(BYTE_ENTITY_STORE);
+        shouldReturnElementsNoSummarisation(byteEntityStore);
     }
 
     @Test
     public void testNoSummarisationGaffer1Store() throws OperationException {
-        shouldReturnElementsNoSummarisation(GAFFER_1_KEY_STORE);
+        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
@@ -132,12 +145,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldSummariseByteEntityStore() throws OperationException {
-        shouldSummarise(BYTE_ENTITY_STORE);
+        shouldSummarise(byteEntityStore);
     }
 
     @Test
     public void shouldSummariseGaffer2Store() throws OperationException {
-        shouldSummarise(GAFFER_1_KEY_STORE);
+        shouldSummarise(gaffer1KeyStore);
     }
 
     private void shouldSummarise(final AccumuloStore store) throws OperationException {
@@ -173,12 +186,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldSummariseOutGoingEdgesOnlyByteEntityStore() throws OperationException {
-        shouldSummariseOutGoingEdgesOnly(BYTE_ENTITY_STORE);
+        shouldSummariseOutGoingEdgesOnly(byteEntityStore);
     }
 
     @Test
     public void shouldSummariseOutGoingEdgesOnlyGaffer1Store() throws OperationException {
-        shouldSummariseOutGoingEdgesOnly(GAFFER_1_KEY_STORE);
+        shouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
     }
 
     private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
@@ -215,12 +228,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldHaveNoIncomingEdgesByteEntityStore() throws OperationException {
-        shouldHaveNoIncomingEdges(BYTE_ENTITY_STORE);
+        shouldHaveNoIncomingEdges(byteEntityStore);
     }
 
     @Test
     public void shouldHaveNoIncomingEdgesGaffer1Store() throws OperationException {
-        shouldHaveNoIncomingEdges(GAFFER_1_KEY_STORE);
+        shouldHaveNoIncomingEdges(gaffer1KeyStore);
     }
 
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
@@ -247,12 +260,12 @@ public class GetElementsInRangesHandlerTest {
 
     @Test
     public void shouldReturnNothingWhenNoEdgesSetByteEntityStore() throws OperationException {
-        shouldReturnNothingWhenNoEdgesSet(BYTE_ENTITY_STORE);
+        shouldReturnNothingWhenNoEdgesSet(byteEntityStore);
     }
 
     @Test
     public void shouldReturnNothingWhenNoEdgesSetGaffer1Store() throws OperationException {
-        shouldReturnNothingWhenNoEdgesSet(GAFFER_1_KEY_STORE);
+        shouldReturnNothingWhenNoEdgesSet(gaffer1KeyStore);
     }
 
     private void shouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {

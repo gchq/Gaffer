@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.User;
@@ -32,14 +31,8 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    public static final String AUTH_X = "X";
-
-    User testUser;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        testUser = testUser();
-    }
+    private static final String AUTH_X = "X";
+    private static final User TEST_USER = testUser();
 
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
@@ -47,7 +40,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.isValidToExecute(testUser));
+        assertTrue(access.isValidToExecute(TEST_USER));
     }
 
     @Test
@@ -56,7 +49,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS, AUTH_X)
                 .build();
 
-        assertTrue(access.isValidToExecute(testUser));
+        assertTrue(access.isValidToExecute(TEST_USER));
     }
 
     @Test
@@ -88,7 +81,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths("X")
                 .build();
 
-        assertFalse(access.isValidToExecute(testUser));
+        assertFalse(access.isValidToExecute(TEST_USER));
     }
 
     @Test
