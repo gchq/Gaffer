@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v1;
 
-import org.junit.Ignore;
+//import org.junit.Ignore;
 
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
  * TODO: look in to why this fails when run other integration tests but passes
  *       when run in isolation.
  */
-@Ignore
+//@Ignore
 public class OperationServiceV1IT extends OperationServiceIT {
 
     @Override
