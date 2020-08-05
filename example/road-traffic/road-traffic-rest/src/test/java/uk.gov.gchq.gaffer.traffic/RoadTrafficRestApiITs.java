@@ -57,12 +57,12 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     @TempDir
-    public static File TEST_FOLDER;
+    public static File staticTestFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
 
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, TEST_FOLDER.getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, staticTestFolder.getAbsolutePath());
 
         // Spin up the REST API
         CLIENT.startServer();
