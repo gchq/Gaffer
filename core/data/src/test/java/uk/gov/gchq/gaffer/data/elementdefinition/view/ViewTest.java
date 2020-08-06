@@ -33,6 +33,7 @@ import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -1515,6 +1516,87 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
         // Check that the objects are equal
         assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllEdgesEntitiesNotFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllConfigMapsEdgesEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        HashMap<String, String> config = new HashMap<>();
+        config.put("config.test", "config");
+
+        // When
+        final View view = new View.Builder()
+                .config(config)
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllConfigEdgesEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .config("config.test", "config")
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCloneUsingBuilderWithViewInJsonFormat() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .config("config.test", "config")
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        byte[] json = view.toJson(true);
+
+        // Check that the objects are equal
+        View clone = new View.Builder().json(json).build();
+        assertEquals(view, clone);
     }
 
     private View createView() {

@@ -385,7 +385,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        @JsonSetter("allEntities")
         public CHILD_CLASS allEntities(final boolean allEntites) {
             getThisView().allEntities = allEntites;
             return self();
@@ -410,7 +409,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        @JsonSetter("allEdges")
         public CHILD_CLASS allEdges(final boolean allEdges) {
             getThisView().allEdges = allEdges;
             return self();
@@ -421,7 +419,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        @JsonSetter("config")
         public CHILD_CLASS config(final Map<String, String> config) {
             if (null != config) {
                 getThisView().config.putAll(config);
@@ -429,7 +426,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        @JsonSetter("globalElements")
         public CHILD_CLASS globalElements(final GlobalViewElementDefinition... globalElements) {
             if (null != globalElements && globalElements.length > 0) {
                 if (null == getThisView().globalElements) {
@@ -440,7 +436,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        @JsonSetter("globalEntities")
         public CHILD_CLASS globalEntities(final GlobalViewElementDefinition... globalEntities) {
             if (null != globalEntities && globalEntities.length > 0) {
                 if (null == getThisView().globalEntities) {
@@ -451,7 +446,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return self();
         }
 
-        @JsonSetter("globalEdges")
         public CHILD_CLASS globalEdges(final GlobalViewElementDefinition... globalEdges) {
             if (null != globalEdges && globalEdges.length > 0) {
                 if (null == getThisView().globalEdges) {
