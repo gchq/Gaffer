@@ -54,6 +54,9 @@ public abstract class AbstractStoreITs {
         this.schema = schema;
         this.storeProperties = storeProperties;
         this.tests.addAll(extraTests);
+        System.out.println(storeProperties);
+        System.out.println(schema);
+        System.out.println(tests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
@@ -122,6 +125,7 @@ public abstract class AbstractStoreITs {
                 storeSchema = new Schema();
             }
 
+            System.out.println("store props: " + runner.getStoreProperties());
             AbstractStoreIT.setStoreSchema(storeSchema);
             AbstractStoreIT.setStoreProperties(runner.getStoreProperties());
             AbstractStoreIT.setSkipTests(runner.getSkipTests());

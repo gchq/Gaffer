@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -34,8 +34,8 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
@@ -68,7 +68,7 @@ public class SchemaOperationChainUtilTest {
             .then(new GetElements())
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() {
         storeProperties.setStoreClass(TestStore.class);
         graph = new Graph.Builder()

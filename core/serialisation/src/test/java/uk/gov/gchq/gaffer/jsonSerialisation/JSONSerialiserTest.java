@@ -23,9 +23,9 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -42,13 +42,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -71,8 +72,8 @@ public class JSONSerialiserTest {
         };
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -172,12 +173,12 @@ public class JSONSerialiserTest {
     }
 
 
-    @Test(expected = SerialisationException.class)
+    @Test
     public void testParameterisedDeserialisationOfComplexObjectToIncorrectType() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
         byte[] b = JSONSerialiser.serialise(test);
-        JSONSerialiser.deserialise(b, Integer.class);
+        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(b, Integer.class));
     }
 
     @Test
@@ -373,7 +374,7 @@ public class JSONSerialiserTest {
             JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class);
             fail("Exception expected");
         } catch (final SerialisationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Unrecognized field \"unknown\""));
+            assertTrue(e.getMessage().contains("Unrecognized field \"unknown\""), e.getMessage());
         }
     }
 

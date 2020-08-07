@@ -16,11 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.NegativeInfinityPartitionKey;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PositiveInfinityPartitionKey;
@@ -30,24 +28,23 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PartitionKeySerialiserTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @Test
-    public void shouldCreatePartitionKey() throws IOException {
+    public void shouldCreatePartitionKey(@TempDir Path tempDir)
+            throws IOException {
         // Given
         final Object[] key = new Object[]{true, 1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[]{(byte) 1, (byte) 2, (byte) 3}};
         final PartitionKey partitionKey = new PartitionKey(key);
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/test";
+        final String filename = tempDir.resolve("test").toString();
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(partitionKey, dos);
         dos.close();
@@ -60,14 +57,15 @@ public class PartitionKeySerialiserTest {
     }
 
     @Test
-    public void testWithInfinitePartitionKey() throws IOException {
+    public void testWithInfinitePartitionKey(@TempDir java.nio.file.Path tempDir)
+            throws IOException {
         // Given
         final PartitionKey negativeInfinity = new NegativeInfinityPartitionKey();
         final PartitionKey positiveInfinity = new PositiveInfinityPartitionKey();
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/test";
+        final String filename = tempDir.resolve("test").toString();
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(negativeInfinity, dos);
         serialiser.write(positiveInfinity, dos);
@@ -83,14 +81,15 @@ public class PartitionKeySerialiserTest {
     }
 
     @Test
-    public void testEmptyPartitionKey() throws IOException {
+    public void testEmptyPartitionKey(@TempDir java.nio.file.Path tempDir)
+            throws IOException {
         // Given
         final Object[] key = new Object[]{};
         final PartitionKey partitionKey = new PartitionKey(key);
         final PartitionKeySerialiser serialiser = new PartitionKeySerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/testEmptyPartitionKey";
+        final String filename = tempDir.resolve("testEmptyPartitionKey").toString();
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(partitionKey, dos);
         dos.close();

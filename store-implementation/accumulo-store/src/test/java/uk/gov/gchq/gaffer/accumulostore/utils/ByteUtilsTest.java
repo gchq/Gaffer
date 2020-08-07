@@ -15,11 +15,12 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ByteUtilsTest {
     private byte[] a;
@@ -31,7 +32,7 @@ public class ByteUtilsTest {
     private BytesAndRange br1;
     private BytesAndRange br2;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         a = new byte[]{11, 22, 33, 44, 55};
         b = new byte[]{11, 22, 33, 44, 55};
@@ -117,11 +118,12 @@ public class ByteUtilsTest {
         assertFalse(ByteUtils.areKeyBytesEqual(br1, br2));
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowExceptionFailWithCorrectBackingArraysButInvalidMatchingLength() throws Exception {
         br1 = new BytesAndRange(a, 0, 999);
         br2 = new BytesAndRange(d, 0, 999);
-        assertFalse(ByteUtils.areKeyBytesEqual(br1, br2));
+        assertThrows(ArrayIndexOutOfBoundsException.class,
+                () -> assertFalse(ByteUtils.areKeyBytesEqual(br1, br2)));
     }
 
     @Test
@@ -131,11 +133,12 @@ public class ByteUtilsTest {
         assertFalse(ByteUtils.areKeyBytesEqual(br1, br2));
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test
     public void shouldThrowExceptionEmptyArrayWithLength() throws Exception {
         br1 = new BytesAndRange(f, 0, 1);
         br2 = new BytesAndRange(f, 0, 1);
-        assertFalse(ByteUtils.areKeyBytesEqual(br1, br2));
+        assertThrows(ArrayIndexOutOfBoundsException.class,
+                () -> assertFalse(ByteUtils.areKeyBytesEqual(br1, br2)));
     }
 
     @Test

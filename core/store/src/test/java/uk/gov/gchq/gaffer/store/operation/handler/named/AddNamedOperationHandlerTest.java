@@ -17,11 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Maps;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
@@ -51,20 +50,25 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationHandlerTest {
+
     private static final String EMPTY_ADMIN_AUTH = "";
+
+    @Mock
     private final NamedOperationCache mockCache = mock(NamedOperationCache.class);
+
     private final AddNamedOperationHandler handler = new AddNamedOperationHandler(mockCache);
 
     private Context context = new Context(new User.Builder()
@@ -75,10 +79,12 @@ public class AddNamedOperationHandlerTest {
     private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
             .overwrite(false)
             .build();
+
     private static final String OPERATION_NAME = "test";
+
     private HashMap<String, NamedOperationDetail> storedOperations = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationFailedException {
         storedOperations.clear();
         addNamedOperation.setOperationName(OPERATION_NAME);
@@ -105,10 +111,7 @@ public class AddNamedOperationHandlerTest {
         given(store.getProperties()).willReturn(new StoreProperties());
     }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @After
+    @AfterEach
     public void after() throws CacheOperationFailedException {
         addNamedOperation.setOperationName(null);
         addNamedOperation.setOperationChain((String) null);
@@ -135,9 +138,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setOperationChain(parent);
         addNamedOperation.setOperationName("parent");
 
-        exception.expect(OperationException.class);
-
-        handler.doOperation(addNamedOperation, context, store);
+        assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
@@ -157,7 +158,6 @@ public class AddNamedOperationHandlerTest {
             addNamedOperation.setParameters(paramMap);
             handler.doOperation(addNamedOperation, context, store);
             assert cacheContains("namedop");
-
         } catch (final Exception e) {
             fail("Expected test to pass without error. Exception " + e.getMessage());
         }
@@ -182,8 +182,7 @@ public class AddNamedOperationHandlerTest {
         paramMap.put("param2", param);
         addNamedOperation.setParameters(paramMap);
 
-        exception.expect(OperationException.class);
-        handler.doOperation(addNamedOperation, context, store);
+        assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
@@ -216,8 +215,7 @@ public class AddNamedOperationHandlerTest {
                 "   ]" +
                 "}";
 
-        exception.expect(SerialisationException.class);
-        JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class);
+        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
     }
 
     @Test

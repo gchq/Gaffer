@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.hdfs.operation.hander.job.factory;
 
 import org.apache.hadoop.mapreduce.Job;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.JobFactory;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public abstract class AbstractJobFactoryTest {
     private static final Class<JSONSerialiser> JSON_SERIALISER_CLASS = JSONSerialiser.class;

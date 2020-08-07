@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate;
 
 import com.yahoo.sketches.hll.HllSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,20 +27,21 @@ import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HllSketchIsLessThanTest extends PredicateTest {
+
     private static final double DELTA = 0.00001D;
 
     private static HllSketch hllSketchWithCardinality5;
     private static HllSketch hllSketchWithCardinality18;
     private static HllSketch hllSketchWithCardinality32;
 
-    @Before
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         hllSketchWithCardinality5 = new HllSketch(10);
         for (int i = 1; i <= 5; i++) {
             hllSketchWithCardinality5.update(i);
@@ -117,15 +119,15 @@ public class HllSketchIsLessThanTest extends PredicateTest {
 
         // When 1
         final String json = new String(JSONSerialiser.serialise(filter, true));
+
         // Then 1
-        JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate.HllSketchIsLessThan\",%n" +
-                "  \"orEqualTo\" : false,%n" +
-                "  \"value\" : 15%n" +
-                "}"), json);
+        JsonAssert.assertEquals(String.format("{%n"
+                + "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate.HllSketchIsLessThan\",%n"
+                + "  \"orEqualTo\" : false,%n" + "  \"value\" : 15%n" + "}"), json);
 
         // When 2
-        final HllSketchIsLessThan deserialisedProperty = JSONSerialiser.deserialise(json.getBytes(), HllSketchIsLessThan.class);
+        final HllSketchIsLessThan deserialisedProperty = JSONSerialiser.deserialise(json.getBytes(),
+                HllSketchIsLessThan.class);
         // Then 2
         assertNotNull(deserialisedProperty);
         assertEquals(controlValue, deserialisedProperty.getControlValue(), DELTA);
@@ -139,5 +141,11 @@ public class HllSketchIsLessThanTest extends PredicateTest {
     @Override
     protected Predicate getInstance() {
         return new HllSketchIsLessThan(10);
+    }
+
+    @Override
+    public void shouldHaveSummaryAnnotation() {
+        /* TODO: look at why this is not passing unless we include the overriden method whereas with HyperLogLogPlusIsLessThanTest it is without the override */
+        super.shouldHaveSummaryAnnotation();
     }
 }

@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
@@ -46,8 +46,8 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -74,7 +74,7 @@ public class AddNamedViewHandlerTest {
 
     AddNamedView addNamedView;
 
-    @Before
+    @BeforeEach
     public void before() {
         testParameters.put("testParam", TEST_PARAM_VALUE);
 
@@ -95,7 +95,7 @@ public class AddNamedViewHandlerTest {
         given(store.getProperties()).willReturn(new StoreProperties());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }

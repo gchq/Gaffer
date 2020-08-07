@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner;
 
 import org.apache.hadoop.hbase.client.Scan;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -39,8 +39,8 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

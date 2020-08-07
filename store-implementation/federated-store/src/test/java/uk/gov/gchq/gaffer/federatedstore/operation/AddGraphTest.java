@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
@@ -33,6 +32,8 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
 
@@ -57,12 +58,12 @@ public class AddGraphTest extends OperationTest<AddGraph> {
                 .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
-        Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
-        Assert.assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
-        Assert.assertEquals(READ_ACCESS_PREDICATE, op.getReadAccessPredicate());
-        Assert.assertEquals(WRITE_ACCESS_PREDICATE, op.getWriteAccessPredicate());
+        assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertEquals(expectedSchema, op.getSchema());
+        assertNotNull(op.getStoreProperties().getStorePropertiesClassName());
+        assertEquals(AccumuloProperties.class, op.getStoreProperties().getStorePropertiesClass());
+        assertEquals(READ_ACCESS_PREDICATE, op.getReadAccessPredicate());
+        assertEquals(WRITE_ACCESS_PREDICATE, op.getWriteAccessPredicate());
     }
 
     @Override
@@ -81,12 +82,12 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
         final AddGraph b = a.shallowClone();
 
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
-        Assert.assertEquals(a.getSchema(), b.getSchema());
-        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
-        Assert.assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
-        Assert.assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
+        assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        assertEquals(a.getSchema(), b.getSchema());
+        assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
+        assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
     }
 
     @Test
@@ -104,12 +105,12 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
         final AddGraph b = a.shallowClone();
 
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
-        Assert.assertEquals(a.getSchema(), b.getSchema());
-        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
-        Assert.assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
-        Assert.assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
+        assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        assertEquals(a.getSchema(), b.getSchema());
+        assertEquals(a.getGraphAuths(), b.getGraphAuths());
+        assertEquals(a.getReadAccessPredicate(), b.getReadAccessPredicate());
+        assertEquals(a.getWriteAccessPredicate(), b.getWriteAccessPredicate());
     }
 
     @Override

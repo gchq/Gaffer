@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class ViaCalculatedArrayValueSerialiserTest<OUTPUT, VALUE> extends ViaCalculatedValueSerialiserTest<OUTPUT, VALUE[]> {
 
@@ -58,7 +58,8 @@ public abstract class ViaCalculatedArrayValueSerialiserTest<OUTPUT, VALUE> exten
             }
 
             assertArrayEquals(originalValue, deserialisedValue);
-            assertTrue("The values are equal, however one of them was assigned null via NullPointerException the other wasn't.", countOfNullPointer != 1);
+            assertNotEquals(1, countOfNullPointer,
+                    "The values are equal, however one of them was assigned null via NullPointerException the other wasn't.");
 
 
         } catch (final SerialisationException exception) {

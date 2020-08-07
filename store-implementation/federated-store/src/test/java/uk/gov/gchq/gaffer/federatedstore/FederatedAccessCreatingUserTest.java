@@ -17,15 +17,15 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.HashSet;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -41,7 +41,7 @@ public class FederatedAccessCreatingUserTest {
 
     User testUser;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testUser = testUser();
     }

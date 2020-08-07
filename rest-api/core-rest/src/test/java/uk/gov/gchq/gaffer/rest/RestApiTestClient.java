@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
+import org.glassfish.grizzly.GrizzlyFuture;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -43,6 +44,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class RestApiTestClient {
     protected final Client client = ClientBuilder.newClient();
@@ -68,13 +72,22 @@ public abstract class RestApiTestClient {
 
     public void stopServer() {
         if (null != server) {
-            server.shutdownNow();
-            server = null;
+            try {
+                GrizzlyFuture<HttpServer> shutdown = server.shutdown();
+                shutdown.get();
+                //server = null;
+            } catch (final InterruptedException ex) {
+                Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            } catch (final ExecutionException ex) {
+                Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            }
         }
     }
 
     public boolean isRunning() {
-        return null != server;
+        return (null == server) ? false : server.isStarted();
     }
 
     public void reinitialiseGraph(final TemporaryFolder testFolder) throws IOException {
@@ -119,7 +132,7 @@ public abstract class RestApiTestClient {
 
 
     public void reinitialiseGraph() throws IOException {
-        defaultGraphFactory.setGraph(null);
+        DefaultGraphFactory.setGraph(null);
 
         startServer();
 
@@ -149,13 +162,12 @@ public abstract class RestApiTestClient {
     public abstract Response getOperationDetails(final Class clazz) throws IOException;
 
     public void startServer() {
-        if (null == server) {
+        if (null == server || !server.isStarted()) {
             server = createHttpServer();
         }
     }
 
     private HttpServer createHttpServer() {
-
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString));
         final String webappContextName = "WebappContext";
         final WebappContext context = new WebappContext(webappContextName, "/".concat(fullPath));

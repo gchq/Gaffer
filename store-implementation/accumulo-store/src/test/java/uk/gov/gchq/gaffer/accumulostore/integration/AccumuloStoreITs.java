@@ -31,15 +31,6 @@ public class AccumuloStoreITs extends AbstractStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
     protected static MiniAccumuloClusterManager miniAccumuloClusterManager = null;
 
-    public AccumuloStoreITs() {
-        this(STORE_PROPERTIES);
-    }
-
-    protected AccumuloStoreITs(final AccumuloProperties storeProperties) {
-        super(storeProperties);
-        addExtraTest(AddElementsFromHdfsLoaderIT.class);
-    }
-
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -53,4 +44,12 @@ public class AccumuloStoreITs extends AbstractStoreITs {
         miniAccumuloClusterManager.close();
     }
 
+    public AccumuloStoreITs() {
+        this(STORE_PROPERTIES);
+    }
+
+    protected AccumuloStoreITs(final AccumuloProperties storeProperties) {
+        super(storeProperties);
+        addExtraTest(AddElementsFromHdfsLoaderIT.class);
+    }
 }

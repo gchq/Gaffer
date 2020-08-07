@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockserver.integration.ClientAndServer;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -34,10 +34,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -63,7 +63,7 @@ public class GetFromEndpointHandlerTest {
     private final GetFromEndpointHandler handler = new GetFromEndpointHandler();
     private ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
 
-    @After
+    @AfterEach
     public void tearDown() {
         mockServer.stop();
         assertFalse(mockServer.isRunning());

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.iterator;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.jupiter.api.Test;
-
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 
 import java.util.Iterator;
 

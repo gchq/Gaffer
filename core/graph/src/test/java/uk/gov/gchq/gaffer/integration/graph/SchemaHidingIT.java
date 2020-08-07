@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.integration.graph;
 
 import com.google.common.collect.Sets;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

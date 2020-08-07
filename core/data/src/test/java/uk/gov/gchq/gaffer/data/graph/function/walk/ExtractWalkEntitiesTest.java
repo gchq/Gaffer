@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
 import com.google.common.collect.Sets;
+
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 

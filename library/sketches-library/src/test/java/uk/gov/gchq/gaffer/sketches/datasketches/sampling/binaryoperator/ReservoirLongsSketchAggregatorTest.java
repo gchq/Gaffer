@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
+
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -30,48 +30,43 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReservoirLongsSketchAggregatorTest extends BinaryOperatorTest {
-    private ReservoirLongsSketch union1;
-    private ReservoirLongsSketch union2;
-
-    @Before
-    public void setup() {
-        union1 = ReservoirLongsSketch.newInstance(20);
-        union1.update(1L);
-        union1.update(2L);
-        union1.update(3L);
-
-        union2 = ReservoirLongsSketch.newInstance(20);
-        for (long l = 4L; l < 100; l++) {
-            union2.update(l);
-        }
-    }
 
     @Test
     public void testAggregate() {
         final ReservoirLongsSketchAggregator sketchAggregator = new ReservoirLongsSketchAggregator();
 
-        ReservoirLongsSketch currentState = union1;
-        assertEquals(3L, currentState.getN());
-        assertEquals(3, currentState.getNumSamples());
+        ReservoirLongsSketch currentSketch = ReservoirLongsSketch.newInstance(20);
+        currentSketch.update(1L);
+        currentSketch.update(2L);
+        currentSketch.update(3L);
+
+        assertEquals(3L, currentSketch.getN());
+        assertEquals(3, currentSketch.getNumSamples());
+
         // As less items have been added than the capacity, the sample should exactly match what was added.
-        Set<Long> samples = new HashSet<>(Arrays.asList(ArrayUtils.toObject(currentState.getSamples())));
+        Set<Long> samples = new HashSet<>(Arrays.asList(ArrayUtils.toObject(currentSketch.getSamples())));
         Set<Long> expectedSamples = new HashSet<>();
         expectedSamples.add(1L);
         expectedSamples.add(2L);
         expectedSamples.add(3L);
         assertEquals(expectedSamples, samples);
 
-        currentState = sketchAggregator.apply(currentState, union2);
-        assertEquals(99L, currentState.getN());
-        assertEquals(20L, currentState.getNumSamples());
+        ReservoirLongsSketch newSketch = ReservoirLongsSketch.newInstance(20);
+        for (long l = 4L; l < 100; l++) {
+            newSketch.update(l);
+        }
+
+        currentSketch = sketchAggregator.apply(currentSketch, newSketch);
+        assertEquals(99L, currentSketch.getN());
+        assertEquals(20L, currentSketch.getNumSamples());
         // As more items have been added than the capacity, we can't know exactly what items will be present
         // in the sample but we can check that they are all from the set of things we added.
-        samples = new HashSet<>(Arrays.asList(ArrayUtils.toObject(currentState.getSamples())));
+        samples = new HashSet<>(Arrays.asList(ArrayUtils.toObject(currentSketch.getSamples())));
         for (long l = 4L; l < 100; l++) {
             expectedSamples.add(l);
         }

@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,34 +27,31 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
+
     private static final double DELTA = 0.01D;
-    private UpdateDoublesSketch sketch1;
-    private UpdateDoublesSketch sketch2;
-
-    @Before
-    public void setup() {
-        sketch1 = DoublesSketch.builder().build();
-        sketch1.update(1.0D);
-        sketch1.update(2.0D);
-        sketch1.update(3.0D);
-
-        sketch2 = DoublesSketch.builder().build();
-        sketch2.update(4.0D);
-        sketch2.update(5.0D);
-        sketch2.update(6.0D);
-        sketch2.update(7.0D);
-    }
 
     @Test
     public void testAggregate() {
         final DoublesSketchAggregator sketchAggregator = new DoublesSketchAggregator();
+
+        UpdateDoublesSketch sketch1 = DoublesSketch.builder().build();
+        sketch1.update(1.0D);
+        sketch1.update(2.0D);
+        sketch1.update(3.0D);
+
         DoublesSketch currentState = sketch1;
         assertEquals(3L, currentState.getN());
         assertEquals(2.0D, currentState.getQuantile(0.5D), DELTA);
+
+        UpdateDoublesSketch sketch2 = DoublesSketch.builder().build();
+        sketch2.update(4.0D);
+        sketch2.update(5.0D);
+        sketch2.update(6.0D);
+        sketch2.update(7.0D);
 
         currentState = sketchAggregator.apply(currentState, sketch2);
         assertEquals(7L, currentState.getN());

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;

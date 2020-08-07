@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -30,10 +30,10 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetweenSets> {
 

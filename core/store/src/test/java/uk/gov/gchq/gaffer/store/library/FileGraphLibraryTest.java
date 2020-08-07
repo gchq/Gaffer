@@ -17,14 +17,14 @@
 package uk.gov.gchq.gaffer.store.library;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
@@ -36,7 +36,7 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
         return new FileGraphLibrary(TEST_FILE_PATH);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         if (new File(TEST_FILE_PATH).exists()) {
             FileUtils.forceDelete(new File(TEST_FILE_PATH));
@@ -45,7 +45,6 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidPath() {
-
         // When / Then
         try {
             new FileGraphLibrary(TEST_INVALID_FINAL_PATH);

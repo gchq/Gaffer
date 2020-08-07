@@ -16,20 +16,20 @@
 
 package uk.gov.gchq.gaffer.sparkaccumulo;
 
-import org.junit.rules.TemporaryFolder;
-
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+
+import java.nio.file.Path;
 
 public abstract class AbstractPropertiesDrivenTest {
 
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    public static void setUpBeforeClass(String propertiesID, TemporaryFolder storeBaseFolder) {
+    public static void setUpBeforeClass(String propertiesID, Path storeBaseFolder) {
         Class currentClass = new Object() { }.getClass().getEnclosingClass();
         AccumuloProperties suppliedProperties = AccumuloProperties
                 .loadStoreProperties(currentClass.getResourceAsStream(propertiesID));
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(suppliedProperties, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(suppliedProperties, storeBaseFolder.toAbsolutePath().toString());
     }
 
     public AccumuloProperties getStoreProperties() {

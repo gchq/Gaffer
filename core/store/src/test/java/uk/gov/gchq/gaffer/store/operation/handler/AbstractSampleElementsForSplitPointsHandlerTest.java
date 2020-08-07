@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -41,10 +41,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends Store> {
@@ -80,7 +80,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("input is required"));
+            assertTrue(e.getMessage().contains("input is required"), e.getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
         } catch (final LimitExceededException e) {
-            assertTrue(e.getMessage(), e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."));
+            assertTrue(e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."), e.getMessage());
         }
     }
 

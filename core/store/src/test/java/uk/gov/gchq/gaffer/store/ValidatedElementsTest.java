@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,42 +37,45 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ValidatedElementsTest {
+
     private List<Element> elements;
+
     private List<ElementFilter> filters;
+
+    @Mock
     private Schema schema;
 
-    @Before
+    @BeforeEach
     public void setup() {
         elements = new ArrayList<>();
         filters = new ArrayList<>();
-        schema = mock(Schema.class);
 
         for (int i = 0; i < 3; i++) {
             elements.add(mock(Element.class));
             filters.add(mock(ElementFilter.class));
 
             final String group = "group " + i;
-            given(elements.get(i).getGroup()).willReturn(group);
-            given(filters.get(i).test(elements.get(i))).willReturn(true);
-            given(filters.get(i).testWithValidationResult(elements.get(i))).willReturn(new ValidationResult());
+            lenient().when(elements.get(i).getGroup()).thenReturn(group);
+            lenient().when(filters.get(i).test(elements.get(i))).thenReturn(true);
+            lenient().when(filters.get(i).testWithValidationResult(elements.get(i))).thenReturn(new ValidationResult());
 
             final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-            given(schema.getElement(group)).willReturn(elementDef);
-            given(elementDef.getValidator(true)).willReturn(filters.get(i));
+            lenient().when(schema.getElement(group)).thenReturn(elementDef);
+            lenient().when(elementDef.getValidator(true)).thenReturn(filters.get(i));
         }
-        given(filters.get(1).test(elements.get(1))).willReturn(false);
-        given(filters.get(1).testWithValidationResult(elements.get(1))).willReturn(new ValidationResult("Some error"));
+        lenient().when(filters.get(1).test(elements.get(1))).thenReturn(false);
+        lenient().when(filters.get(1).testWithValidationResult(elements.get(1))).thenReturn(new ValidationResult("Some error"));
     }
 
     @Test

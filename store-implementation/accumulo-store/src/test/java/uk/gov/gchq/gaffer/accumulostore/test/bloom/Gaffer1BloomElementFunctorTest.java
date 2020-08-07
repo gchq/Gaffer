@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.accumulostore.test.bloom;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
@@ -36,11 +36,11 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class Gaffer1BloomElementFunctorTest {
 
@@ -49,7 +49,7 @@ public class Gaffer1BloomElementFunctorTest {
 
     private static final CoreKeyBloomFunctor ELEMENT_FUNCTOR = new CoreKeyBloomFunctor();
 
-    @Before
+    @BeforeEach
     public void setup() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new JavaSerialiser())

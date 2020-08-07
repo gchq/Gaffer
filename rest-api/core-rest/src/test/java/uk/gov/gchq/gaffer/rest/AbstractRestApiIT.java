@@ -34,8 +34,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
+
     protected static final Element[] DEFAULT_ELEMENTS = {
             new uk.gov.gchq.gaffer.data.element.Entity.Builder()
                     .group(TestGroups.ENTITY)
@@ -54,9 +56,11 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 3)
                     .build()};
+
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    protected final T client = getClient();
+    protected T client;
+
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;
 
@@ -71,13 +75,22 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
 
     @Before
     public void before() throws IOException {
-        client.startServer();
-        client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        try {
+            client = getClient();
+            client.startServer();
+            client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        } catch (final Exception e) {
+            fail("failed to start server");
+        }
     }
 
     @After
     public void after() {
-        client.stopServer();
+        try {
+            client.stopServer();
+        } catch (final Exception e) {
+            fail("failed to shutdown server");
+        }
     }
 
     protected void verifyElements(final Element[] expected, final List<Element> actual) {

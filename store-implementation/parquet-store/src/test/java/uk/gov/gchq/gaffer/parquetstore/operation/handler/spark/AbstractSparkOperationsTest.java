@@ -19,11 +19,9 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler.spark;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
@@ -43,11 +41,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 public abstract class AbstractSparkOperationsTest extends StandaloneIT {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     protected User user = getUser();
 
@@ -65,6 +62,9 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
 
     protected abstract List<Element> convertRowsToElements(List<Row> rows);
 
+    @TempDir
+    Path tempDir;
+
     @Override
     public User getUser() {
         return new User();
@@ -73,14 +73,15 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     @Override
     public StoreProperties createStoreProperties() {
         try {
-            return TestUtils.getParquetStoreProperties(testFolder);
+            return TestUtils.getParquetStoreProperties(tempDir);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected Graph createGraph(final int numOutputFiles) throws IOException {
-        final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties(testFolder);
+    protected Graph createGraph(final Path tempDir, final int numOutputFiles)
+            throws IOException {
+        final ParquetStoreProperties storeProperties = TestUtils.getParquetStoreProperties(tempDir);
         storeProperties.setAddElementsOutputFilesPerGroup(numOutputFiles);
         return createGraph(storeProperties);
     }
@@ -120,10 +121,11 @@ public abstract class AbstractSparkOperationsTest extends StandaloneIT {
     }
 
     @Test
-    public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTestWhenMoreFilesThanElements() throws IOException, OperationException {
+    public void getElementsWithSeedsRelatedAfterImportElementsFromRDDTestWhenMoreFilesThanElements(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         final int numFiles = 2 * getNumberOfItemsInInputDataForGetAllElementsTest();
-        final Graph graph = createGraph(numFiles);
+        final Graph graph = createGraph(tempDir, numFiles);
         final RDD<Element> elements = getInputDataForGetAllElementsTest();
         graph.execute(new ImportRDDOfElements.Builder().input(elements).build(), user);
 

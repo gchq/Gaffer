@@ -18,19 +18,18 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -50,18 +49,20 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccumuloSingleIDRetrieverTest {
+
     private static final int NUM_ENTRIES = 1000;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloSingleIDRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSingleIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -69,41 +70,34 @@ public class AccumuloSingleIDRetrieverTest {
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setup() {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        byteEntityStore = new SingleUseAccumuloStore();
-        gaffer1KeyStore = new SingleUseAccumuloStore();
+    @BeforeAll
+    public static void setup(@TempDir Path tempDir) throws StoreException {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        setupGraph(byteEntityStore, NUM_ENTRIES);
-        setupGraph(gaffer1KeyStore, NUM_ENTRIES);
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        setupGraph(BYTE_ENTITY_STORE, NUM_ENTRIES);
+        setupGraph(GAFFER_1_KEY_STORE, NUM_ENTRIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         miniAccumuloClusterManagerByteEntity.close();
         miniAccumuloClusterManagerGaffer1Key.close();
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
     }
 
     @Test
     public void testEntityIdQueryEdgesAndEntitiesByteEntityStore() throws AccumuloException, StoreException {
-        testEntityIdQueryEdgesAndEntities(byteEntityStore);
+        testEntityIdQueryEdgesAndEntities(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void testEntityIdQueryEdgesAndEntitiesGaffer1Store() throws AccumuloException, StoreException {
-        testEntityIdQueryEdgesAndEntities(gaffer1KeyStore);
+        testEntityIdQueryEdgesAndEntities(GAFFER_1_KEY_STORE);
     }
 
     private void testEntityIdQueryEdgesAndEntities(final AccumuloStore store) throws AccumuloException, StoreException {
@@ -129,8 +123,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Test
     public void testEntityIdQueryEdgesOnly() throws AccumuloException, StoreException {
-        testEntityIdQueryEdgesOnly(byteEntityStore);
-        testEntityIdQueryEdgesOnly(gaffer1KeyStore);
+        testEntityIdQueryEdgesOnly(BYTE_ENTITY_STORE);
+        testEntityIdQueryEdgesOnly(GAFFER_1_KEY_STORE);
     }
 
     private void testEntityIdQueryEdgesOnly(final AccumuloStore store) throws StoreException {
@@ -157,8 +151,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Test
     public void testEntityIdQueryEntitiesOnly() throws StoreException {
-        testEntityIdQueryEntitiesOnly(byteEntityStore);
-        testEntityIdQueryEntitiesOnly(gaffer1KeyStore);
+        testEntityIdQueryEntitiesOnly(BYTE_ENTITY_STORE);
+        testEntityIdQueryEntitiesOnly(GAFFER_1_KEY_STORE);
     }
 
     private void testEntityIdQueryEntitiesOnly(final AccumuloStore store) throws StoreException {
@@ -185,8 +179,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Test
     public void testUndirectedEdgeIdQueries() throws StoreException {
-        testUndirectedEdgeIdQueries(byteEntityStore);
-        testUndirectedEdgeIdQueries(gaffer1KeyStore);
+        testUndirectedEdgeIdQueries(BYTE_ENTITY_STORE);
+        testUndirectedEdgeIdQueries(GAFFER_1_KEY_STORE);
     }
 
     private void testUndirectedEdgeIdQueries(final AccumuloStore store) throws StoreException {
@@ -219,8 +213,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Test
     public void testDirectedEdgeIdQueries() throws StoreException {
-        testDirectedEdgeIdQueries(byteEntityStore);
-        testDirectedEdgeIdQueries(gaffer1KeyStore);
+        testDirectedEdgeIdQueries(BYTE_ENTITY_STORE);
+        testDirectedEdgeIdQueries(GAFFER_1_KEY_STORE);
     }
 
     private void testDirectedEdgeIdQueries(final AccumuloStore store) throws StoreException {
@@ -254,8 +248,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Test
     public void testEntityIdQueryIncomingEdgesOnly() throws StoreException {
-        testEntityIdQueryIncomingEdgesOnly(byteEntityStore);
-        testEntityIdQueryIncomingEdgesOnly(gaffer1KeyStore);
+        testEntityIdQueryIncomingEdgesOnly(BYTE_ENTITY_STORE);
+        testEntityIdQueryIncomingEdgesOnly(GAFFER_1_KEY_STORE);
     }
 
     private void testEntityIdQueryIncomingEdgesOnly(final AccumuloStore store) throws StoreException {
@@ -287,8 +281,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Test
     public void testEntityIdQueryOutgoingEdgesOnly() throws StoreException {
-        testEntityIdQueryOutgoingEdgesOnly(byteEntityStore);
-        testEntityIdQueryOutgoingEdgesOnly(gaffer1KeyStore);
+        testEntityIdQueryOutgoingEdgesOnly(BYTE_ENTITY_STORE);
+        testEntityIdQueryOutgoingEdgesOnly(GAFFER_1_KEY_STORE);
     }
 
     private void testEntityIdQueryOutgoingEdgesOnly(final AccumuloStore store) throws StoreException {

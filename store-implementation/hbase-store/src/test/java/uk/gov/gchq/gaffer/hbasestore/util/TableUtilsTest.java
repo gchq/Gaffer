@@ -20,9 +20,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -45,10 +45,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graphId";
@@ -58,8 +58,8 @@ public class TableUtilsTest {
     private static final String STORE_PROPS_2_PATH = "src/test/resources/store2.properties";
     private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "target/graphLibrary";
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() throws IOException {
         if (new File(FILE_GRAPH_LIBRARY_TEST_PATH).exists()) {
             FileUtils.forceDelete(new File(FILE_GRAPH_LIBRARY_TEST_PATH));
@@ -143,9 +143,9 @@ public class TableUtilsTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(HBaseProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
     }
@@ -161,9 +161,9 @@ public class TableUtilsTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(HBaseProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
     }
@@ -178,6 +178,6 @@ public class TableUtilsTest {
 
         // Then - no exceptions
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNull("Graph should not have been stored", pair);
+        assertNull(pair, "Graph should not have been stored");
     }
 }

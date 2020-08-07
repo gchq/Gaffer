@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.google.common.collect.Sets;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {

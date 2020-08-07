@@ -16,20 +16,19 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
@@ -46,21 +45,19 @@ public class AccumuloDisableOperationsTest extends DisableOperationsTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
+    @BeforeAll
     public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
 
-    @Before
-    public void resetPropertiesIntoTheTempFile() {
+    @BeforeEach
+    public void resetPropertiesIntoTheTempFile() throws IOException {
+        before();
         createUpdatedPropertiesFile(PROPERTIES, this.storePropsPath.getAbsolutePath());
     }
 
@@ -75,13 +72,12 @@ public class AccumuloDisableOperationsTest extends DisableOperationsTest {
         }
     }
 
-    public AccumuloDisableOperationsTest() throws IOException {
-        super(
-                SplitStore.class,
+    @Override
+    protected Class<? extends Operation>[] getDisabledOperations() {
+        return new Class[] {SplitStore.class,
                 GenerateSplitPointsFromSample.class,
                 AddElementsFromHdfs.class,
                 SampleDataForSplitPoints.class,
-                ImportAccumuloKeyValueFiles.class
-        );
+                ImportAccumuloKeyValueFiles.class};
     }
 }
