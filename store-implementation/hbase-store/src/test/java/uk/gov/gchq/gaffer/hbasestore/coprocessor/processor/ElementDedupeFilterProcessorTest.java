@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ElementDedupeFilterProcessorTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -97,10 +97,12 @@ public class ElementDedupeFilterProcessorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge;
             final Pair<LazyElementCell, LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
+            assertEquals(expectedResult, processor.test(cells.getFirst()),
+                    "Failed for element: " + element.toString());
             if (null != cells.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, processor.test(cells.getSecond()));
+                assertEquals(false, processor.test(cells.getSecond()),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -115,10 +117,12 @@ public class ElementDedupeFilterProcessorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             final Pair<LazyElementCell, LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
+            assertEquals(expectedResult, processor.test(cells.getFirst()),
+                    "Failed for element: " + element.toString());
             if (null != cells.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, processor.test(cells.getSecond()));
+                assertEquals(false, processor.test(cells.getSecond()),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -132,10 +136,12 @@ public class ElementDedupeFilterProcessorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
             final Pair<LazyElementCell, LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
+            assertEquals(expectedResult, processor.test(cells.getFirst()),
+                    "Failed for element: " + element.toString());
             if (null != cells.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, processor.test(cells.getSecond()));
+                assertEquals(false, processor.test(cells.getSecond()),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -149,10 +155,12 @@ public class ElementDedupeFilterProcessorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Entity;
             final Pair<LazyElementCell, LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
+            assertEquals(expectedResult, processor.test(cells.getFirst()),
+                    "Failed for element: " + element.toString());
             if (null != cells.getSecond()) {
                 // entities and self edges are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getSecond()));
+                assertEquals(expectedResult, processor.test(cells.getSecond()),
+                        "Failed for element: " + element.toString());
             }
         }
     }

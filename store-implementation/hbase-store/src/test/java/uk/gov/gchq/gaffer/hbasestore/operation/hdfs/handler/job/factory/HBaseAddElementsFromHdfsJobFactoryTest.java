@@ -24,12 +24,10 @@ import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -54,26 +52,24 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class HBaseAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private String inputDir;
     private String outputDir;
     private String stagingDir;
     private String failureDir;
 
-    @Before
-    public void setup() {
-        inputDir = testFolder.getRoot().getAbsolutePath() + "/inputDir";
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        failureDir = testFolder.getRoot().getAbsolutePath() + "/failureDir";
-        stagingDir = testFolder.getRoot().getAbsolutePath() + "/stagingDir";
+    @BeforeEach
+    public void setup(@TempDir java.nio.file.Path tempDir) {
+        inputDir = tempDir.resolve("inputDir").toAbsolutePath().toString();
+        outputDir = tempDir.resolve("outputDir").toAbsolutePath().toString();
+        failureDir = tempDir.resolve("failureDir").toAbsolutePath().toString();
+        stagingDir = tempDir.resolve("stagingDir").toAbsolutePath().toString();
     }
 
     @Test

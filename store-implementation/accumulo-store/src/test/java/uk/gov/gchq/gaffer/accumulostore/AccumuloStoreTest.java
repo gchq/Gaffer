@@ -17,18 +17,17 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Iterables;
+
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.TableNotFoundException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -42,7 +41,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -87,13 +85,16 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.nio.file.Path;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -105,58 +106,49 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class AccumuloStoreTest {
+
     private static final String BYTE_ENTITY_GRAPH = "byteEntityGraph";
     private static final String GAFFER_1_GRAPH = "gaffer1Graph";
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final AccumuloStore BYTE_ENTITY_STORE = new AccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new AccumuloStore();
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity = null;
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key = null;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @BeforeClass
-    public static void setup() {
-        byteEntityStore = new AccumuloStore();
-        gaffer1KeyStore = new AccumuloStore();
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    @BeforeAll
+    public static void setup(@TempDir Path tempDir) {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @Before
+    @BeforeEach
     public void beforeMethod() throws StoreException {
-        byteEntityStore.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise(GAFFER_1_GRAPH, SCHEMA, CLASSIC_PROPERTIES);
+        BYTE_ENTITY_STORE.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise(GAFFER_1_GRAPH, SCHEMA, CLASSIC_PROPERTIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
         miniAccumuloClusterManagerByteEntity.close();
         miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test
     public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        Connector connector = byteEntityStore.getConnection();
+        Connector connector = BYTE_ENTITY_STORE.getConnection();
 
-        connector.tableOperations().delete(byteEntityStore.getTableName());
-        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
+        connector.tableOperations().delete(BYTE_ENTITY_STORE.getTableName());
+        assertFalse(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
 
-        byteEntityStore.preInitialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
-        connector = byteEntityStore.getConnection();
-        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
+        BYTE_ENTITY_STORE.preInitialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
+        connector = BYTE_ENTITY_STORE.getConnection();
+        assertFalse(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
 
-        byteEntityStore.initialise(GAFFER_1_GRAPH, SCHEMA, PROPERTIES);
-        connector = byteEntityStore.getConnection();
-        assertTrue(connector.tableOperations().exists(byteEntityStore.getTableName()));
+        BYTE_ENTITY_STORE.initialise(GAFFER_1_GRAPH, SCHEMA, PROPERTIES);
+        connector = BYTE_ENTITY_STORE.getConnection();
+        assertTrue(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
     }
 
     @Test
@@ -220,7 +212,7 @@ public class AccumuloStoreTest {
         assertEquals("tableName", store.getTableName());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
@@ -228,12 +220,12 @@ public class AccumuloStoreTest {
         final AccumuloStore store = new AccumuloStore();
 
         // When
-        store.initialise("graphId", SCHEMA, properties);
+        IllegalArgumentException actual =
+                assertThrows(IllegalArgumentException.class, () -> store.initialise("graphId", SCHEMA, properties));
 
-        // Then
-        final String expected = "The table in store.properties should no longer be used. Please use a graphId instead " +
-                "or for now just set the graphId to be the same value as the store.properties table.";
-        thrown.expectMessage(expected);
+        assertEquals("The table in store.properties should no longer be used. Please use a graphId instead " +
+                "or for now just set the graphId to be the same value as the store.properties table.",
+                actual.getMessage());
     }
 
     @Test
@@ -252,8 +244,8 @@ public class AccumuloStoreTest {
 
     @Test
     public void shouldBeAnOrderedStore() {
-        assertTrue(byteEntityStore.hasTrait(StoreTrait.ORDERED));
-        assertTrue(gaffer1KeyStore.hasTrait(StoreTrait.ORDERED));
+        assertTrue(BYTE_ENTITY_STORE.hasTrait(StoreTrait.ORDERED));
+        assertTrue(GAFFER_1_KEY_STORE.hasTrait(StoreTrait.ORDERED));
     }
 
     @Test
@@ -299,12 +291,12 @@ public class AccumuloStoreTest {
 
     @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
-        testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(gaffer1KeyStore);
+        testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
-        testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
+        testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(BYTE_ENTITY_STORE);
     }
 
     private void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
@@ -328,10 +320,18 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        final CloseableIterable<? extends Element> results = store.execute(getBySeed, new Context(user));
 
-        assertEquals(1, Iterables.size(results));
-        assertTrue(Iterables.contains(results, e));
+        CloseableIterable<? extends Element> results = null;
+        try {
+            results = store.execute(getBySeed, new Context(user));
+
+            assertEquals(1, Iterables.size(results));
+            assertTrue(Iterables.contains(results, e));
+        } finally {
+            if (results != null) {
+                results.close();
+            }
+        }
 
         final GetElements getRelated = new GetElements.Builder()
                 .view(new View.Builder()
@@ -339,38 +339,46 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        CloseableIterable<? extends Element> relatedResults = store.execute(getRelated, store.createContext(user));
-        assertEquals(1, Iterables.size(relatedResults));
-        assertTrue(Iterables.contains(relatedResults, e));
 
-        final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.PROP_1)
-                                        .execute(new IsMoreThan(0))
-                                        .build())
-                                .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.COUNT)
-                                        .execute(new IsMoreThan(6))
-                                        .build())
-                                .build())
-                        .build())
-                .input(entityId1)
-                .build();
-        relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+        CloseableIterable<? extends Element> relatedResults = null;
+        try {
+            relatedResults = store.execute(getRelated, store.createContext(user));
+            assertEquals(1, Iterables.size(relatedResults));
+            assertTrue(Iterables.contains(relatedResults, e));
 
-        assertEquals(0, Iterables.size(relatedResults));
+            final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
+                    .view(new View.Builder()
+                            .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                    .preAggregationFilter(new ElementFilter.Builder()
+                                            .select(TestPropertyNames.PROP_1)
+                                            .execute(new IsMoreThan(0))
+                                            .build())
+                                    .postAggregationFilter(new ElementFilter.Builder()
+                                            .select(TestPropertyNames.COUNT)
+                                            .execute(new IsMoreThan(6))
+                                            .build())
+                                    .build())
+                            .build())
+                    .input(entityId1)
+                    .build();
+            relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+
+            assertEquals(0, Iterables.size(relatedResults));
+        } finally {
+            if (relatedResults != null) {
+                relatedResults.close();
+            }
+        }
     }
 
     @Test
     public void testStoreReturnsHandlersForRegisteredOperationsGaffer1() {
-        testStoreReturnsHandlersForRegisteredOperations(gaffer1KeyStore);
+        testStoreReturnsHandlersForRegisteredOperations(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void testStoreReturnsHandlersForRegisteredOperationsByteEntity() {
-        testStoreReturnsHandlersForRegisteredOperations(byteEntityStore);
+        testStoreReturnsHandlersForRegisteredOperations(BYTE_ENTITY_STORE);
     }
 
     public void testStoreReturnsHandlersForRegisteredOperations(final AccumuloStore store) {
@@ -399,12 +407,12 @@ public class AccumuloStoreTest {
 
     @Test
     public void testRequestForNullHandlerManagedGaffer1() {
-        testRequestForNullHandlerManaged(gaffer1KeyStore);
+        testRequestForNullHandlerManaged(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void testRequestForNullHandlerManagedByteEntity() {
-        testRequestForNullHandlerManaged(byteEntityStore);
+        testRequestForNullHandlerManaged(BYTE_ENTITY_STORE);
     }
 
     public void testRequestForNullHandlerManaged(final AccumuloStore store) {
@@ -414,30 +422,30 @@ public class AccumuloStoreTest {
 
     @Test
     public void testStoreTraitsGaffer1() {
-        testStoreTraits(gaffer1KeyStore);
+        testStoreTraits(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void testStoreTraitsByteEntity() {
-        testStoreTraits(byteEntityStore);
+        testStoreTraits(BYTE_ENTITY_STORE);
     }
 
     public void testStoreTraits(final AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 10", traits.size() == 10);
-        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION));
-        assertTrue("Collection should contain QUERY_AGGREGATION trait", traits.contains(QUERY_AGGREGATION));
-        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
-        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
-        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
-        assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
-        assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
+        assertEquals(traits.size(), 10, "Collection size should be 10");
+        assertTrue(traits.contains(INGEST_AGGREGATION), "Collection should contain INGEST_AGGREGATION trait");
+        assertTrue(traits.contains(QUERY_AGGREGATION), "Collection should contain QUERY_AGGREGATION trait");
+        assertTrue(traits.contains(PRE_AGGREGATION_FILTERING), "Collection should contain PRE_AGGREGATION_FILTERING trait");
+        assertTrue(traits.contains(POST_AGGREGATION_FILTERING), "Collection should contain POST_AGGREGATION_FILTERING trait");
+        assertTrue(traits.contains(TRANSFORMATION), "Collection should contain TRANSFORMATION trait");
+        assertTrue(traits.contains(POST_TRANSFORMATION_FILTERING), "Collection should contain POST_TRANSFORMATION_FILTERING trait");
+        assertTrue(traits.contains(STORE_VALIDATION), "Collection should contain STORE_VALIDATION trait");
+        assertTrue(traits.contains(ORDERED), "Collection should contain ORDERED trait");
+        assertTrue(traits.contains(VISIBILITY), "Collection should contain VISIBILITY trait");
     }
 
-    @Test(expected = SchemaException.class)
+    @Test
     public void shouldFindInconsistentVertexSerialiser() throws StoreException {
         final Schema inconsistentSchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -464,12 +472,15 @@ public class AccumuloStoreTest {
         final AccumuloStore store = new AccumuloStore();
 
         // When & Then
-        store.preInitialise("graphId", inconsistentSchema, PROPERTIES);
-        thrown.expectMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        SchemaException actual = assertThrows(SchemaException.class,
+                () -> store.preInitialise("graphId", inconsistentSchema, PROPERTIES));
+        assertEquals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.",
+                actual.getMessage());
 
         // When & Then
-        store.validateSchemas();
-        thrown.expectMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        actual = assertThrows(SchemaException.class, () -> store.validateSchemas());
+        assertEquals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.",
+                actual.getMessage());
     }
 
     @Test
@@ -544,7 +555,7 @@ public class AccumuloStoreTest {
         // Then - no validation exceptions
     }
 
-    @Test(expected = SchemaException.class)
+    @Test
     public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
         final AccumuloStore store = new AccumuloStore();
@@ -571,13 +582,13 @@ public class AccumuloStoreTest {
                 .build();
 
         // When
-        store.initialise("graphId", schema, PROPERTIES);
+        SchemaException actual = assertThrows(SchemaException.class,
+                () -> store.initialise("graphId", schema, PROPERTIES));
 
         // Then
-        final String expected = "Schema is not valid. Validation errors: \n" +
+        assertEquals("Schema is not valid. Validation errors: \n" +
                 "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max " +
                 "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property " +
-                "in the timestamp column.";
-        thrown.expectMessage(expected);
+                "in the timestamp column.", actual.getMessage());
     }
 }

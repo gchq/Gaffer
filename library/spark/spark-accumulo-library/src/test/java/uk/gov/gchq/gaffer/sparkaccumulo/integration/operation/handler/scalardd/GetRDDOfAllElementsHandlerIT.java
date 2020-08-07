@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -118,7 +119,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         miniAccumuloClusterManagerB.close();
     }
 
-    public static class SingleTests {
+    public static class SingleIT {
         @Test
         public void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
             final Graph graph1 = new Graph.Builder()
@@ -145,7 +146,7 @@ public final class GetRDDOfAllElementsHandlerIT {
     }
 
     @RunWith(value = Parameterized.class)
-    public static class ParameterisedTests {
+    public static class ParameterisedIT {
         private Entity entityRetainedAfterValidation;
         @Rule
         public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);

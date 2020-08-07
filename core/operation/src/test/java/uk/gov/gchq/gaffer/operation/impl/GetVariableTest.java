@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class GetVariableTest extends OperationTest<GetVariable> {
     private final String varName = "varName";

@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,7 +32,7 @@ import java.io.ByteArrayOutputStream;
 public abstract class KryoSerializerTest<T> {
     private Kryo kryo;
 
-    @Before
+    @BeforeEach
     public void setup() {
         kryo = new Kryo();
         new Registrator().registerClasses(kryo);

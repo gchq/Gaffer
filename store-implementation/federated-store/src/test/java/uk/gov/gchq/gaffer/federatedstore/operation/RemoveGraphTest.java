@@ -18,14 +18,15 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
@@ -41,7 +42,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
         byte[] serialise = toJson(op);
         RemoveGraph deserialise = fromJson(serialise);
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
+        assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
     }
 
     @Override
@@ -55,14 +56,14 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
                 .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         final RemoveGraph a = getTestObject();
         final RemoveGraph b = a.shallowClone();
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getGraphId(), b.getGraphId());
     }
 
     @Override

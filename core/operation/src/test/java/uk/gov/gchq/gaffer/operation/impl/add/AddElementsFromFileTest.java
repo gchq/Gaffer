@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> {
 

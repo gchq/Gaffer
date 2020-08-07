@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.join.match;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -37,7 +37,7 @@ import uk.gov.gchq.koryphe.impl.function.ToLong;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class KeyFunctionMatchTest {
 

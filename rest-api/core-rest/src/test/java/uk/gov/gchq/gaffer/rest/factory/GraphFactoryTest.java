@@ -18,13 +18,11 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
@@ -37,19 +35,18 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GraphFactoryTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() {
         System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
         System.clearProperty(SystemProperty.SCHEMA_PATHS);
@@ -80,24 +77,23 @@ public class GraphFactoryTest {
         assertEquals(GraphFactoryForTest.class, graphFactory.getClass());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionFromInvalidSystemPropertyClassName() {
         // Given
         System.setProperty(SystemProperty.GRAPH_FACTORY_CLASS, "InvalidClassName");
 
         // When
-        final GraphFactory graphFactory = GraphFactory.createGraphFactory();
-
-        // Then
-        fail();
+        assertThrows(IllegalArgumentException.class,
+                () -> GraphFactory.createGraphFactory());
     }
 
     @Test
-    public void shouldNotAddGraphConfigWhenSystemPropertyNotSet() throws IOException {
+    public void shouldNotAddGraphConfigWhenSystemPropertyNotSet(@TempDir Path tempDir)
+            throws IOException {
         // Given
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "store.properties");
 
-        final File schemaFile = testFolder.newFile("schema.json");
+        final File schemaFile = Files.createFile(tempDir.resolve("schema.json")).toFile();
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
@@ -113,17 +109,18 @@ public class GraphFactoryTest {
     }
 
     @Test
-    public void shouldAddGraphConfigHooksWhenSystemPropertySet() throws IOException {
+    public void shouldAddGraphConfigHooksWhenSystemPropertySet(@TempDir Path tempDir)
+            throws IOException {
         // Given
-        final File storePropertiesFile = testFolder.newFile("store.properties");
+        final File storePropertiesFile = Files.createFile(tempDir.resolve("store.properties")).toFile();
         FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "store.properties")));
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
 
-        final File schemaFile = testFolder.newFile("schema.json");
+        final File schemaFile = Files.createFile(tempDir.resolve("schema.json")).toFile();
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
-        final File graphConfigFile = testFolder.newFile("graphConfig.json");
+        final File graphConfigFile = Files.createFile(tempDir.resolve("graphConfig.json")).toFile();
         FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphConfigWithHooks.json")));
         System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 

@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -51,29 +50,31 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetElementsBetweenSetsHandlerTest {
 
     // Query for all edges between the set {A0} and the set {A23}
-    private final List<EntityId> inputA = Collections.singletonList(new EntitySeed("A0"));
-    private final List<EntityId> inputB = Collections.singletonList(new EntitySeed("A23"));
 
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsBetweenSetsHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsBetweenSetsHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+    private static View defaultView;
+
+    private final List<EntityId> inputA = Collections.singletonList(new EntitySeed("A0"));
+    private final List<EntityId> inputB = Collections.singletonList(new EntitySeed("A23"));
 
     private final Element expectedEdge1 =
             new Edge.Builder()
@@ -116,18 +117,13 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private User user = new User();
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setup() {
-        byteEntityStore = new SingleUseAccumuloStore();
-        gaffer1KeyStore = new SingleUseAccumuloStore();
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    @BeforeAll
+    public static void setup(@TempDir Path tempDir) {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
@@ -157,29 +153,26 @@ public class GetElementsBetweenSetsHandlerTest {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        setupGraph(BYTE_ENTITY_STORE);
+        setupGraph(GAFFER_1_KEY_STORE);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         miniAccumuloClusterManagerByteEntity.close();
         miniAccumuloClusterManagerGaffer1Key.close();
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
     }
 
     @Test
     public void shouldReturnElementsNoSummarisationByteEntityStore() throws OperationException {
-        shouldReturnElementsNoSummarisation(byteEntityStore);
+        shouldReturnElementsNoSummarisation(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnElementsNoSummarisationGaffer1Store() throws OperationException {
-        shouldReturnElementsNoSummarisation(gaffer1KeyStore);
+        shouldReturnElementsNoSummarisation(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
@@ -200,12 +193,12 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldReturnElementsNoSummarisationByteEntityStoreMatchedAsDestination() throws OperationException {
-        shouldReturnElementsNoSummarisationMatchedAsDestination(byteEntityStore);
+        shouldReturnElementsNoSummarisationMatchedAsDestination(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnElementsNoSummarisationGaffer1StoreMatchedAsDestination() throws OperationException {
-        shouldReturnElementsNoSummarisationMatchedAsDestination(gaffer1KeyStore);
+        shouldReturnElementsNoSummarisationMatchedAsDestination(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnElementsNoSummarisationMatchedAsDestination(final AccumuloStore store) throws OperationException {
@@ -226,12 +219,12 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldReturnSummarisedElementsByteEntityStore() throws OperationException {
-        shouldReturnSummarisedElements(byteEntityStore);
+        shouldReturnSummarisedElements(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnSummarisedElementsGaffer1Store() throws OperationException {
-        shouldReturnSummarisedElements(gaffer1KeyStore);
+        shouldReturnSummarisedElements(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnSummarisedElements(final AccumuloStore store) throws OperationException {
@@ -259,12 +252,12 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEdgesWhenViewContainsNoEntities(byteEntityStore);
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEdgesWhenViewContainsNoEntities(gaffer1KeyStore);
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnOnlyEdgesWhenViewContainsNoEntities(final AccumuloStore store) throws OperationException {
@@ -288,12 +281,12 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(byteEntityStore);
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(gaffer1KeyStore);
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(GAFFER_1_KEY_STORE);
     }
 
     private void shouldReturnOnlyEntitiesWhenViewContainsNoEdges(final AccumuloStore store) throws OperationException {
@@ -315,12 +308,12 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldSummariseOutGoingEdgesOnlyByteEntityStore() throws OperationException {
-        shouldSummariseOutGoingEdgesOnly(byteEntityStore);
+        shouldSummariseOutGoingEdgesOnly(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldSummariseOutGoingEdgesOnlyGaffer1Store() throws OperationException {
-        shouldSummariseOutGoingEdgesOnly(gaffer1KeyStore);
+        shouldSummariseOutGoingEdgesOnly(GAFFER_1_KEY_STORE);
     }
 
     private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
@@ -347,12 +340,12 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldHaveNoIncomingEdgesByteEntityStore() throws OperationException {
-        shouldHaveNoIncomingEdges(byteEntityStore);
+        shouldHaveNoIncomingEdges(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldHaveNoIncomingEdgesGaffer1Store() throws OperationException {
-        shouldHaveNoIncomingEdges(gaffer1KeyStore);
+        shouldHaveNoIncomingEdges(GAFFER_1_KEY_STORE);
     }
 
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.generate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.util.Iterator;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

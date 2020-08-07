@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -25,18 +25,18 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EdgeIdSerialiserTest {
 
-    private Schema schema;
-    private EdgeIdSerialiser serialiser;
+    private static Schema schema;
+    private static EdgeIdSerialiser serialiser;
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new StringSerialiser())
                 .build();
@@ -50,7 +50,7 @@ public class EdgeIdSerialiserTest {
 
         // When / Then
         try {
-            serialiser = new EdgeIdSerialiser(schema);
+            new EdgeIdSerialiser(schema);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));

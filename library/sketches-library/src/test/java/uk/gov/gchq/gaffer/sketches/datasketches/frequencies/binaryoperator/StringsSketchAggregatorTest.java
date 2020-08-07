@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 
 import com.yahoo.sketches.frequencies.ItemsSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,38 +26,32 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class StringsSketchAggregatorTest extends BinaryOperatorTest {
-    private ItemsSketch<String> sketch1;
-    private ItemsSketch<String> sketch2;
-
-    @Before
-    public void setup() {
-        sketch1 = new ItemsSketch<>(32);
-        sketch1.update("1");
-        sketch1.update("2");
-        sketch1.update("3");
-
-        sketch2 = new ItemsSketch<>(32);
-        sketch2.update("4");
-        sketch2.update("5");
-        sketch2.update("6");
-        sketch2.update("7");
-        sketch2.update("3");
-    }
 
     @Test
     public void testAggregate() {
         final StringsSketchAggregator sketchAggregator = new StringsSketchAggregator();
 
-        ItemsSketch<String> currentState = sketch1;
-        assertEquals(1L, currentState.getEstimate("1"));
+        ItemsSketch<String> currentSketch = new ItemsSketch<>(32);
+        currentSketch.update("1");
+        currentSketch.update("2");
+        currentSketch.update("3");
 
-        currentState = sketchAggregator.apply(currentState, sketch2);
-        assertEquals(1L, currentState.getEstimate("1"));
-        assertEquals(2L, currentState.getEstimate("3"));
+        assertEquals(1L, currentSketch.getEstimate("1"));
+
+        ItemsSketch<String> newSketch = new ItemsSketch<>(32);
+        newSketch.update("4");
+        newSketch.update("5");
+        newSketch.update("6");
+        newSketch.update("7");
+        newSketch.update("3");
+
+        currentSketch = sketchAggregator.apply(currentSketch, newSketch);
+        assertEquals(1L, currentSketch.getEstimate("1"));
+        assertEquals(2L, currentSketch.getEstimate("3"));
     }
 
     @Test

@@ -19,11 +19,9 @@ package uk.gov.gchq.gaffer.parquetstore.query;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.predicate.FilterApi;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -53,21 +51,19 @@ import static org.apache.parquet.filter2.predicate.FilterApi.and;
 import static org.apache.parquet.filter2.predicate.FilterApi.eq;
 import static org.apache.parquet.filter2.predicate.FilterApi.gt;
 import static org.apache.parquet.filter2.predicate.FilterApi.or;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 public class QueryGeneratorTest {
 
     private Schema schema = new LongVertexOperationsTest().createSchema();
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @Test
-    public void testQueryGeneratorForGetAllElements() throws IOException, OperationException {
+    public void testQueryGeneratorForGetAllElements(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = String.format("file:///%s", tempDir.toString());
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -172,10 +168,11 @@ public class QueryGeneratorTest {
     }
 
     @Test
-    public void testQueryGeneratorForGetElementsWithEntitySeeds() throws IOException, OperationException {
+    public void testQueryGeneratorForGetElementsWithEntitySeeds(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = String.format("file:///%s", tempDir.toString());
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -319,10 +316,11 @@ public class QueryGeneratorTest {
     }
 
     @Test
-    public void testQueryGeneratorForGetElementsWithEdgeSeeds() throws IOException, OperationException {
+    public void testQueryGeneratorForGetElementsWithEdgeSeeds(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = String.format("file:///%s", tempDir.toString());
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));

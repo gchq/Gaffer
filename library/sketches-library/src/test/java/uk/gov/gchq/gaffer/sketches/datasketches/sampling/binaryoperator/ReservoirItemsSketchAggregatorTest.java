@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,53 +26,46 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReservoirItemsSketchAggregatorTest extends BinaryOperatorTest {
-    private static final Random RANDOM = new Random();
-    private ReservoirItemsSketch<String> union1;
-    private ReservoirItemsSketch<String> union2;
-
-    @Before
-    public void setup() {
-        union1 = ReservoirItemsSketch.newInstance(20);
-        union1.update("1");
-        union1.update("2");
-        union1.update("3");
-
-        union2 = ReservoirItemsSketch.newInstance(20);
-        for (int i = 4; i < 100; i++) {
-            union2.update("" + i);
-        }
-    }
 
     @Test
     public void testAggregate() {
         final ReservoirItemsSketchAggregator<String> sketchAggregator = new ReservoirItemsSketchAggregator<>();
 
-        ReservoirItemsSketch<String> currentState = union1;
-        assertEquals(3L, currentState.getN());
-        assertEquals(3, currentState.getNumSamples());
+        ReservoirItemsSketch<String> currentSketch = ReservoirItemsSketch.newInstance(20);
+        currentSketch.update("1");
+        currentSketch.update("2");
+        currentSketch.update("3");
+
+        assertEquals(3L, currentSketch.getN());
+        assertEquals(3, currentSketch.getNumSamples());
+
         // As less items have been added than the capacity, the sample should exactly match what was added.
-        Set<String> samples = new HashSet<>(Arrays.asList(currentState.getSamples()));
+        Set<String> samples = new HashSet<>(Arrays.asList(currentSketch.getSamples()));
         Set<String> expectedSamples = new HashSet<>();
         expectedSamples.add("1");
         expectedSamples.add("2");
         expectedSamples.add("3");
         assertEquals(expectedSamples, samples);
 
-        currentState = sketchAggregator.apply(currentState, union2);
-        assertEquals(99L, currentState.getN());
-        assertEquals(20L, currentState.getNumSamples());
+        ReservoirItemsSketch<String> newSketch = ReservoirItemsSketch.newInstance(20);
+        for (int i = 4; i < 100; i++) {
+            newSketch.update("" + i);
+        }
+
+        currentSketch = sketchAggregator.apply(currentSketch, newSketch);
+        assertEquals(99L, currentSketch.getN());
+        assertEquals(20L, currentSketch.getNumSamples());
         // As more items have been added than the capacity, we can't know exactly what items will be present
         // in the sample but we can check that they are all from the set of things we added.
-        samples = new HashSet<>(Arrays.asList(currentState.getSamples()));
+        samples = new HashSet<>(Arrays.asList(currentSketch.getSamples()));
         for (long i = 4L; i < 100; i++) {
             expectedSamples.add("" + i);
         }

@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -26,9 +26,10 @@ import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonSerialisationUtilTest {
+
     @Test
     public void testGetWalks() {
         // Given

@@ -18,17 +18,16 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -42,6 +41,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -49,12 +49,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
@@ -93,20 +93,17 @@ public class FederatedGraphStorageTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
 
@@ -319,7 +316,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
         final Schema schema = graphStorage.getSchema((Map<String, String>) null, testUserContext);
-        assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
+        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
         assertEquals(e1, schema.getElement("e1"));
@@ -330,7 +327,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
         final Schema schema = graphStorage.getSchema((Map<String, String>) null, authUserContext);
-        assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
+        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
         assertEquals(e1, schema.getElement("e1"));
@@ -341,8 +338,8 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
         final Schema schema = graphStorage.getSchema((Map<String, String>) null, blankUserContext);
-        assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
-        assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
+        assertNotEquals(2, schema.getTypes().size(), "Revealing hidden schema");
+        assertEquals(0, schema.getTypes().size(), "Revealing hidden schema");
     }
 
     @Test
@@ -350,7 +347,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
-        assertNotEquals("Revealing hidden traits", 5, traits.size());
+        assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(10, traits.size());
     }
 
@@ -359,7 +356,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
-        assertNotEquals("Revealing hidden traits", 5, traits.size());
+        assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(10, traits.size());
     }
 
@@ -368,7 +365,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals("Revealing hidden traits", 0, traits.size());
+        assertEquals(0, traits.size(), "Revealing hidden traits");
     }
 
     @Test
@@ -505,7 +502,7 @@ public class FederatedGraphStorageTest {
     private void testNotLeakingContents(final StorageException e, final String... values) {
         String message = "error message should not contain details about schema";
         for (String value : values) {
-            assertFalse(message, e.getMessage().contains(value));
+            assertFalse(e.getMessage().contains(value), message);
         }
     }
 

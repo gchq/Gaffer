@@ -17,9 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.google.common.collect.Maps;
-import org.junit.Assert;
-import org.junit.AssumptionViolatedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.koryphe.Since;
@@ -34,8 +32,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected Set<String> getRequiredFields() {
@@ -59,13 +58,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // Then
         final Set<String> requiredFields = getRequiredFields();
         final Set<String> requiredFieldsErrors = requiredFields.stream()
-                .map(f -> f + " is required for: " + op.getClass().getSimpleName())
-                .collect(Collectors.toSet());
+                .map(f -> f + " is required for: " + op.getClass().getSimpleName()).collect(Collectors.toSet());
 
-        assertEquals(
-                requiredFieldsErrors,
-                validationResult.getErrors()
-        );
+        assertEquals(requiredFieldsErrors, validationResult.getErrors());
     }
 
     @Test
@@ -75,7 +70,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         expected.put("one", "two");
         testObject.setOptions(expected);
         final Map<String, String> actual = testObject.getOptions();
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         assertEquals("two", testObject.getOption("one"));
 
         testObject.addOption("three", "four");
@@ -91,11 +86,10 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         final Since annotation = instance.getClass().getAnnotation(Since.class);
 
         // Then
-        if (null == annotation || null == annotation.value()) {
-            throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
-        }
-        assumeTrue(annotation.value() + " is not a valid value string.",
-                VersionUtil.validateVersionString(annotation.value()));
+        assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
+        assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
+        assumeTrue(VersionUtil.validateVersionString(annotation.value()),
+                annotation.value() + " is not a valid value string.");
     }
 
     @Test
@@ -106,12 +100,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // When
         final Summary annotation = instance.getClass().getAnnotation(Summary.class);
 
-        // Then
-        if (null == annotation || null == annotation.value()) {
-            throw new AssumptionViolatedException("Missing Summary annotation on class " + instance.getClass().getName());
-        }
-        assumeTrue(annotation.value() + " is not a valid value string.",
-                SummaryUtil.validateSummaryString(annotation.value()));
+        assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
+        assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
+        assumeTrue(SummaryUtil.validateSummaryString(annotation.value()),
+                annotation.value() + " is not a valid value string.");
     }
 }
-

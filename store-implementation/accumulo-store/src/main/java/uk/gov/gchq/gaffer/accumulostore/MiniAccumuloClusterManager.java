@@ -114,7 +114,7 @@ public class MiniAccumuloClusterManager {
         if (null == miniAccumuloCluster) {
             return;
         }
-        for (int retries = 0; retries < 3; retries++) {
+        for (int retries = 0; retries < 5; retries++) {
             try {
                 // Try one more time.
                 miniAccumuloCluster.stop();

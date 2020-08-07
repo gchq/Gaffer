@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.serialisation.util;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiserStorage;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MultiSerialiserStorageTest {
 
@@ -38,7 +38,7 @@ public class MultiSerialiserStorageTest {
     private MultiSerialiserStorage mss;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mss = new MultiSerialiserStorage();
     }
@@ -58,13 +58,13 @@ public class MultiSerialiserStorageTest {
         mss.put(BYTE, SERIALISER_CLASS2, SUPPORTED_CLASS);
         //then
         assertNotNull(mss.getKeyFromValue(VALUE));
-        assertEquals("Wrong key for value", (Object) BYTE, mss.getKeyFromValue(VALUE));
+        assertEquals((Object) BYTE, mss.getKeyFromValue(VALUE), "Wrong key for value");
         ToBytesSerialiser actualClassFromByte = mss.getSerialiserFromKey(BYTE);
-        assertNotNull("Byte key not found", actualClassFromByte);
-        assertEquals("Wrong new SerialiserClass returned for key", SERIALISER_CLASS2, actualClassFromByte);
+        assertNotNull(actualClassFromByte, "Byte key not found");
+        assertEquals(SERIALISER_CLASS2, actualClassFromByte, "Wrong new SerialiserClass returned for key");
         ToBytesSerialiser actualClassFromValue = mss.getSerialiserFromValue(Integer.MAX_VALUE);
-        assertNotNull("Value class not found", actualClassFromValue);
-        assertEquals("Wrong new SerialiserClass returned for value class", SERIALISER_CLASS2, actualClassFromValue);
+        assertNotNull(actualClassFromValue, "Value class not found");
+        assertEquals(SERIALISER_CLASS2, actualClassFromValue, "Wrong new SerialiserClass returned for value class");
     }
 
 
@@ -80,22 +80,23 @@ public class MultiSerialiserStorageTest {
 
         assertEquals(BYTE, (byte) mss.getKeyFromValue(VALUE));
         ToBytesSerialiser actualClassFromByte2 = mss.getSerialiserFromKey(serialiserEncoding);
-        assertNotNull("Byte key not found", actualClassFromByte2);
-        assertEquals("Wrong SerialiserClass returned for key", SERIALISER_CLASS2, actualClassFromByte2);
+        assertNotNull(actualClassFromByte2, "Byte key not found");
+        assertEquals(SERIALISER_CLASS2, actualClassFromByte2, "Wrong SerialiserClass returned for key");
 
         ToBytesSerialiser actualClassFromValue2 = mss.getSerialiserFromValue(Integer.MAX_VALUE);
-        assertNotNull("Value class not found", actualClassFromValue2);
-        assertEquals("Wrong SerialiserClass, should have updated to newer SerialiserClass", SERIALISER_CLASS, actualClassFromValue2);
+        assertNotNull(actualClassFromValue2, "Value class not found");
+        assertEquals(SERIALISER_CLASS, actualClassFromValue2,
+                "Wrong SerialiserClass, should have updated to newer SerialiserClass");
     }
 
     private void checkBasicPut() throws GafferCheckedException {
         assertEquals((Object) BYTE, mss.getKeyFromValue(VALUE));
         ToBytesSerialiser actualClassFromByte = mss.getSerialiserFromKey(BYTE);
-        assertNotNull("Byte key not found", actualClassFromByte);
-        assertEquals("Wrong SerialiserClass returned for key", SERIALISER_CLASS, actualClassFromByte);
+        assertNotNull(actualClassFromByte, "Byte key not found");
+        assertEquals(SERIALISER_CLASS, actualClassFromByte, "Wrong SerialiserClass returned for key");
         ToBytesSerialiser actualClassFromValue = mss.getSerialiserFromValue(Integer.MAX_VALUE);
-        assertNotNull("Value class not found", actualClassFromValue);
-        assertEquals("Wrong SerialiserClass returned for value class", SERIALISER_CLASS, actualClassFromValue);
+        assertNotNull(actualClassFromValue, "Value class not found");
+        assertEquals(SERIALISER_CLASS, actualClassFromValue, "Wrong SerialiserClass returned for value class");
     }
 
 }

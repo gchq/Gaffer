@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -25,17 +25,17 @@ import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builde
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePropertiesToLibrary> {
 
     public static final String VALUE_1 = "value1";
     public static final String TEST_ID = "testId";
-    private AddStorePropertiesToLibrary op;
-    private StoreProperties storeProperties;
+    private static AddStorePropertiesToLibrary op;
+    private static StoreProperties storeProperties;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
 
         storeProperties = new StoreProperties();
 

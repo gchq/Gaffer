@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,37 +27,32 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class StringsSketchAggregatorTest extends BinaryOperatorTest {
-    private ItemsSketch<String> sketch1;
-    private ItemsSketch<String> sketch2;
-
-    @Before
-    public void setup() {
-        sketch1 = ItemsSketch.getInstance(Ordering.<String>natural());
-        sketch1.update("1");
-        sketch1.update("2");
-        sketch1.update("3");
-
-        sketch2 = ItemsSketch.getInstance(Ordering.<String>natural());
-        sketch2.update("4");
-        sketch2.update("5");
-        sketch2.update("6");
-        sketch2.update("7");
-    }
 
     @Test
     public void testAggregate() {
         final StringsSketchAggregator unionAggregator = new StringsSketchAggregator();
-        ItemsSketch<String> currentState = sketch1;
-        assertEquals(3L, currentState.getN());
-        assertEquals("2", currentState.getQuantile(0.5D));
 
-        currentState = unionAggregator.apply(currentState, sketch2);
-        assertEquals(7L, currentState.getN());
-        assertEquals("4", currentState.getQuantile(0.5D));
+        ItemsSketch<String> currentSketch = ItemsSketch.getInstance(Ordering.<String>natural());
+        currentSketch.update("1");
+        currentSketch.update("2");
+        currentSketch.update("3");
+
+        assertEquals(3L, currentSketch.getN());
+        assertEquals("2", currentSketch.getQuantile(0.5D));
+
+        ItemsSketch<String> newSketch = ItemsSketch.getInstance(Ordering.<String>natural());
+        newSketch.update("4");
+        newSketch.update("5");
+        newSketch.update("6");
+        newSketch.update("7");
+
+        currentSketch = unionAggregator.apply(currentSketch, newSketch);
+        assertEquals(7L, currentSketch.getN());
+        assertEquals("4", currentSketch.getQuantile(0.5D));
     }
 
     @Test

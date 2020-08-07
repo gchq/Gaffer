@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -27,31 +27,29 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SampleElementsForSplitPointsTest extends OperationTest<SampleElementsForSplitPoints> {
     @Test
     public void shouldFailValidationIfNumSplitsIsLessThan1() {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(0)
-                .build();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(0).build();
 
         // When
         final ValidationResult result = op.validate();
 
         // Then
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("numSplits must be null or greater than 0"));
+        assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"),
+                result.getErrorString());
     }
 
     @Test
     public void shouldFailValidationIfProportionToSampleIsNotIn0_1Range() {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .proportionToSample(1.1f)
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().proportionToSample(1.1f)
                 .build();
 
         // When
@@ -59,22 +57,21 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
 
         // Then
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("proportionToSample must within range: [0, 1]"));
+        assertTrue(result.getErrorString().contains("proportionToSample must within range: [0, 1]"),
+                result.getErrorString());
     }
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
+                .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
 
-        final SampleElementsForSplitPoints deserialisedOp = JSONSerialiser.deserialise(json, SampleElementsForSplitPoints.class);
+        final SampleElementsForSplitPoints deserialisedOp = JSONSerialiser.deserialise(json,
+                SampleElementsForSplitPoints.class);
 
         // Then
         assertEquals(10, (int) deserialisedOp.getNumSplits());
@@ -86,11 +83,8 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // When
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
+                .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
 
         // Then
         assertEquals(10, (int) op.getNumSplits());
@@ -101,11 +95,8 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
+                .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
 
         // When
         final SampleElementsForSplitPoints clone = op.shallowClone();

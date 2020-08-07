@@ -34,6 +34,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.sql.SparkSession;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -62,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class RFileReaderRddIT {
 
@@ -159,7 +161,7 @@ public class RFileReaderRddIT {
         assertEquals(1L, rdd.count());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRTX_whenGetPartitionsForFileReaderWithInvalidTableName() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException,
             StoreException, TableNotFoundException {
@@ -172,13 +174,14 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // When
-        rdd.getPartitions();
+        RuntimeException actual = assertThrows(RuntimeException.class, () -> rdd.getPartitions());
 
         // Then
-        thrown.expectMessage("User user does not have access to table Invalid Table Name");
+        assertEquals("User " + PROPERTIES.getUser() + " does not have access to table Invalid Table Name",
+                actual.getMessage());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRTX_whenRDDHasUserWithoutPermission() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException,
             StoreException, TableNotFoundException {
@@ -194,13 +197,14 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // When
-        rdd.getPartitions();
+        RuntimeException actual = assertThrows(RuntimeException.class, () -> rdd.getPartitions());
 
         // Then
-        thrown.expectMessage("User " + user + " does not have access to table " + tableName);
+        assertEquals("User " + user + " does not have access to table " + tableName,
+                actual.getMessage());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRTX_whenRDDHasIncorrectUser() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException,
             StoreException, TableNotFoundException {
@@ -212,10 +216,11 @@ public class RFileReaderRddIT {
                 "", tableName, new HashSet<>(), serialiseConfiguration(config));
 
         // When
-        rdd.getPartitions();
+        RuntimeException actual = assertThrows(RuntimeException.class, () -> rdd.getPartitions());
 
         // Then
-        thrown.expectMessage("Exception connecting to Accumulo");
+        assertEquals("Exception connecting to Accumulo",
+                actual.getMessage());
     }
 
     private void loadAccumuloCluster(final String tableName, final Configuration configuration, final List<String> data)

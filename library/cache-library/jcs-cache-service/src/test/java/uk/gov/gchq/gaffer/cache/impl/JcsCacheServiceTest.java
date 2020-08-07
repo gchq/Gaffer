@@ -18,12 +18,9 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -34,10 +31,11 @@ import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JcsCacheServiceTest {
 
@@ -47,15 +45,12 @@ public class JcsCacheServiceTest {
     private static final String AGE_OFF_REGION = "ageOff";
     private Properties serviceProps = new Properties();
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void before() {
         serviceProps.clear();
     }
 
-    @After
+    @AfterEach
     public void after() throws CacheOperationException {
         service.clearCache(TEST_REGION);
         service.clearCache(ALTERNATIVE_TEST_REGION);
@@ -74,13 +69,14 @@ public class JcsCacheServiceTest {
     @Test
     public void shouldThrowAnExceptionIfPathIsMisconfigured() {
         String badFileName = "/made/up/file/name";
-
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(badFileName);
+        String expected = String.format("Cannot create cache using config file %s", badFileName);
 
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, badFileName);
 
-        service.initialise(serviceProps);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> service.initialise(serviceProps));
+
+        assertEquals(expected, actual.getMessage());
     }
 
     @Test
@@ -141,7 +137,7 @@ public class JcsCacheServiceTest {
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
-        Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+        assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
     }
 
     @Test
@@ -153,12 +149,12 @@ public class JcsCacheServiceTest {
             service.putSafeInCache(TEST_REGION, "test", 2);
             fail("Expected an exception");
         } catch (final OverwritingException e) {
-            Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+            assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
         }
 
         service.putInCache(TEST_REGION, "test", 2);
 
-        Assert.assertEquals((Integer) 2, service.getFromCache(TEST_REGION, "test"));
+        assertEquals((Integer) 2, service.getFromCache(TEST_REGION, "test"));
     }
 
     @Test
@@ -167,7 +163,7 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test", 1);
 
         service.removeFromCache(TEST_REGION, "test");
-        Assert.assertEquals(0, service.sizeOfCache(TEST_REGION));
+        assertEquals(0, service.sizeOfCache(TEST_REGION));
     }
 
     @Test
@@ -180,7 +176,7 @@ public class JcsCacheServiceTest {
 
         service.clearCache(TEST_REGION);
 
-        Assert.assertEquals(0, service.sizeOfCache(TEST_REGION));
+        assertEquals(0, service.sizeOfCache(TEST_REGION));
     }
 
     @Test
@@ -190,7 +186,7 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
 
-        Assert.assertEquals(3, service.sizeOfCache(TEST_REGION));
+        assertEquals(3, service.sizeOfCache(TEST_REGION));
         assertThat(service.getAllKeysFromCache(TEST_REGION), IsCollectionContaining.hasItems("test1", "test2", "test3"));
     }
 
@@ -202,8 +198,8 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test3", 3);
         service.putInCache(TEST_REGION, "duplicate", 3);
 
-        Assert.assertEquals(4, service.sizeOfCache(TEST_REGION));
-        Assert.assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
+        assertEquals(4, service.sizeOfCache(TEST_REGION));
+        assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
 
         assertThat(service.getAllValuesFromCache(TEST_REGION), IsCollectionContaining.hasItems(1, 2, 3));
     }

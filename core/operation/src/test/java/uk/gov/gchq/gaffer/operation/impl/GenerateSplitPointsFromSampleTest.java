@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -25,9 +25,9 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSplitPointsFromSample> {
 
@@ -44,7 +44,7 @@ public class GenerateSplitPointsFromSampleTest extends OperationTest<GenerateSpl
         final ValidationResult result = op.validate();
 
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString(), result.getErrorString().contains("numSplits must be null or greater than 0"));
+        assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"), result.getErrorString());
     }
 
     @Test

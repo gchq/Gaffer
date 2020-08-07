@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
     private final String namedViewName = "testNamedViewName";

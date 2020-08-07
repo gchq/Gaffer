@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
+
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

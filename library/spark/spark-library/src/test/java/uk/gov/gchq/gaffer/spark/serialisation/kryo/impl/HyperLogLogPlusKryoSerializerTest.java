@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HyperLogLogPlusKryoSerializerTest extends KryoSerializerTest<HyperLogLogPlus> {
 

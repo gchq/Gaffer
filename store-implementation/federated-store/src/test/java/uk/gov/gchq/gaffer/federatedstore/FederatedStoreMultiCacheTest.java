@@ -16,19 +16,17 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.store.Context;
@@ -36,10 +34,11 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -64,20 +63,17 @@ public class FederatedStoreMultiCacheTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_ACC_STORE_PROPERTIES));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -102,7 +98,7 @@ public class FederatedStoreMultiCacheTest {
         blankUser = blankUser();
     }
 
-    @After
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -112,9 +108,11 @@ public class FederatedStoreMultiCacheTest {
     public void shouldInitialiseByCacheToContainSameGraphsForAddingUser() throws Exception {
         originalStoreIds = store.getAllGraphIds(testUser);
         final int firstStoreSize = originalStoreIds.size();
-        assertEquals("adding user should have visibility of first store graphs", 1, firstStoreSize);
+        assertEquals(1, firstStoreSize,
+                "adding user should have visibility of first store graphs");
         Collection<String> storeGetIds2 = store2.getAllGraphIds(testUser);
-        assertEquals("adding user should have same visibility of second store graphs", firstStoreSize, storeGetIds2.size());
+        assertEquals(firstStoreSize, storeGetIds2.size(),
+                "adding user should have same visibility of second store graphs");
         assertTrue(originalStoreIds.containsAll(storeGetIds2));
     }
 
@@ -123,9 +121,11 @@ public class FederatedStoreMultiCacheTest {
         originalStoreIds = store.getAllGraphIds(authUser);
         final int firstStoreSize = originalStoreIds.size();
 
-        assertEquals("auth user should have visibility of first store graphs", 1, firstStoreSize);
+        assertEquals(1, firstStoreSize,
+                "auth user should have visibility of first store graphs");
         Collection<String> storeGetIds2 = store2.getAllGraphIds(authUser);
-        assertEquals("auth user should have same visibility of second store graphs", firstStoreSize, storeGetIds2.size());
+        assertEquals(firstStoreSize, storeGetIds2.size(),
+                "auth user should have same visibility of second store graphs");
         assertTrue(originalStoreIds.containsAll(storeGetIds2));
     }
 
@@ -134,12 +134,16 @@ public class FederatedStoreMultiCacheTest {
         originalStoreIds = store.getAllGraphIds(blankUser);
         final int firstStoreSize = originalStoreIds.size();
 
-        assertEquals("There should be 1 graphs", 1, store.getAllGraphIds(testUser).size());
+        assertEquals(1, store.getAllGraphIds(testUser).size(),
+                "There should be 1 graphs");
 
-        assertEquals("blank user should not have visibility of first store graphs", 0, firstStoreSize);
+        assertEquals(0, firstStoreSize,
+                "blank user should not have visibility of first store graphs");
         Collection<String> storeGetIds2 = store2.getAllGraphIds(blankUser);
-        assertEquals("blank user should have same visibility of second store graphs", firstStoreSize, storeGetIds2.size());
-        assertEquals("blank user should have same visibility of second store graphs", firstStoreSize, storeGetIds2.size());
+        assertEquals(firstStoreSize, storeGetIds2.size(),
+                "blank user should have same visibility of second store graphs");
+        assertEquals(firstStoreSize, storeGetIds2.size(),
+                "blank user should have same visibility of second store graphs");
         assertTrue(originalStoreIds.containsAll(storeGetIds2));
     }
 
@@ -158,14 +162,17 @@ public class FederatedStoreMultiCacheTest {
         store2 = new FederatedStore();
         store2.initialise(FEDERATED_STORE_ID + 1, null, federatedStoreProperties);
 
-        assertEquals("There should be 2 graphs", 2, store.getAllGraphIds(testUser).size());
+        assertEquals(2, store.getAllGraphIds(testUser).size(),
+                "There should be 2 graphs");
 
         originalStoreIds = store.getAllGraphIds(blankUser);
         final int firstStoreSize = originalStoreIds.size();
 
-        assertEquals("blank user should have visibility of public graph", 1, firstStoreSize);
+        assertEquals(1, firstStoreSize,
+                "blank user should have visibility of public graph");
         Collection<String> storeGetIds2 = store2.getAllGraphIds(blankUser);
-        assertEquals("blank user should have same visibility of second store graphs", firstStoreSize, storeGetIds2.size());
+        assertEquals(firstStoreSize, storeGetIds2.size(),
+                "blank user should have same visibility of second store graphs");
         assertTrue(originalStoreIds.containsAll(storeGetIds2));
     }
 }

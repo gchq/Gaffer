@@ -18,17 +18,16 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -42,13 +41,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 
 public class FederatedStoreWrongGraphIDsTest {
-
 
     public static final String GRAPH_1 = "graph1";
     public static final String PROP_1 = "prop1";
@@ -70,20 +70,17 @@ public class FederatedStoreWrongGraphIDsTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
@@ -122,16 +119,16 @@ public class FederatedStoreWrongGraphIDsTest {
         CloseableIterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
                 .build(), blankContext);
 
-        assertNotNull(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL, execute);
-        assertEquals(THERE_SHOULD_BE_ONE_ELEMENT, expectedEntity, execute.iterator().next());
+        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
 
 
         execute = store.execute(new GetAllElements.Builder()
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
                 .build(), blankContext);
 
-        assertNotNull(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL, execute);
-        assertEquals(THERE_SHOULD_BE_ONE_ELEMENT, expectedEntity, execute.iterator().next());
+        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
 
         try {
             store.execute(new GetAllElements.Builder()
@@ -139,7 +136,8 @@ public class FederatedStoreWrongGraphIDsTest {
                     .build(), blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {
-            assertEquals(EXCEPTION_NOT_AS_EXPECTED, String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)), e.getMessage());
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
+                    e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
 
         try {
@@ -150,7 +148,8 @@ public class FederatedStoreWrongGraphIDsTest {
                     blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {
-            assertEquals(EXCEPTION_NOT_AS_EXPECTED, String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)), e.getMessage());
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
+                    e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
     }
 }

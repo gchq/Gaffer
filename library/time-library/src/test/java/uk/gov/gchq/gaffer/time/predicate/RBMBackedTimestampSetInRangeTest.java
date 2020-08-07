@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.time.predicate;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -28,17 +28,17 @@ import uk.gov.gchq.koryphe.util.TimeUnit;
 import java.io.IOException;
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RBMBackedTimestampSetInRangeTest {
 
     private RBMBackedTimestampSet timestamps;
     private RBMBackedTimestampSetInRange predicate;
 
-    @Before
+    @BeforeEach
     public void before() {
         timestamps = new RBMBackedTimestampSet.Builder()
                 .timestamps(Lists.newArrayList(

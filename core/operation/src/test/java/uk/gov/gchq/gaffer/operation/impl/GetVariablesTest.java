@@ -21,9 +21,9 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GetVariablesTest extends OperationTest<GetVariables> {
     final List<String> variableNames = Arrays.asList("var1", "var2", "var3");

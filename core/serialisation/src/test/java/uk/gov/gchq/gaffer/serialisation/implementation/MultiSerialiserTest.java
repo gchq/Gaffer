@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSeriali
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     private static final String PATH = "multiSerialiser.json";

@@ -27,12 +27,12 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloEle
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -55,17 +54,19 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 public class CoreKeyGroupByAggregatorIteratorTest {
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
@@ -76,43 +77,36 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
     private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setup() {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        byteEntityStore = new SingleUseAccumuloStore();
-        gaffer1KeyStore = new SingleUseAccumuloStore();
+    @BeforeAll
+    public static void setup(@TempDir Path tempDir) {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
         gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        createTable(byteEntityStore);
-        createTable(gaffer1KeyStore);
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        createTable(BYTE_ENTITY_STORE);
+        createTable(GAFFER_1_KEY_STORE);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        gaffer1KeyStore = null;
-        byteEntityStore = null;
         miniAccumuloClusterManagerByteEntity.close();
         miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test
     public void shouldMultiplePropertySetsAggregateInByteEntityStore() throws StoreException {
-        testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
+        testAggregatingMultiplePropertySets(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void shouldMultiplePropertySetsAggregateInGafferOneStore() throws StoreException {
-        testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
+        testAggregatingMultiplePropertySets(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     private void testAggregatingMultiplePropertySets(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
@@ -242,12 +236,12 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Test
     public void shouldSinglePropertySetAggregateInByteEntityStore() throws StoreException {
-        testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
+        testAggregatingSinglePropertySet(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void shouldSinglePropertySetAggregateInGafferOneStore() throws StoreException {
-        testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
+        testAggregatingSinglePropertySet(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     public void testAggregatingSinglePropertySet(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
@@ -327,12 +321,12 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Test
     public void shouldEmptyColumnQualifierAggregateInByteEntityStore() throws StoreException {
-        testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
+        testAggregatingEmptyColumnQualifier(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void shouldEmptyColumnQualifierAggregateInGafferOneStore() throws StoreException {
-        testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
+        testAggregatingEmptyColumnQualifier(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     public void testAggregatingEmptyColumnQualifier(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
@@ -458,12 +452,12 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Test
     public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInByteEntityStore() throws StoreException {
-        shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(byteEntityStore, byteEntityElementConverter);
+        shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInGafferOneStore() throws StoreException {
-        shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(gaffer1KeyStore, gaffer1ElementConverter);
+        shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
@@ -708,12 +702,12 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Test
     public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2InByteEntityStore() throws StoreException {
-        shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(byteEntityStore, byteEntityElementConverter);
+        shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2InGafferOneStore() throws StoreException {
-        shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(gaffer1KeyStore, gaffer1ElementConverter);
+        shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
@@ -937,12 +931,12 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Test
     public void shouldAggregateEverythingWhenGroupByIsSetToBlankInByteEntityStore() throws StoreException {
-        shouldAggregateEverythingWhenGroupByIsSetToBlank(byteEntityStore, byteEntityElementConverter);
+        shouldAggregateEverythingWhenGroupByIsSetToBlank(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void shouldAggregateEverythingWhenGroupByIsSetToBlankInGafferOneStore() throws StoreException {
-        shouldAggregateEverythingWhenGroupByIsSetToBlank(gaffer1KeyStore, gaffer1ElementConverter);
+        shouldAggregateEverythingWhenGroupByIsSetToBlank(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     public void shouldAggregateEverythingWhenGroupByIsSetToBlank(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
