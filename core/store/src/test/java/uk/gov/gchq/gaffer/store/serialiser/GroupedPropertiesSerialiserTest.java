@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -32,11 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GroupedPropertiesSerialiserTest {
 
-    private Schema schema;
-    private GroupedPropertiesSerialiser serialiser;
+    private static Schema schema;
+    private static GroupedPropertiesSerialiser serialiser;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
 
@@ -74,12 +74,12 @@ public class GroupedPropertiesSerialiserTest {
     }
 
     @Test
-    public void testCantSerialiseIntegerClass() {
+    public void testCantSerialiseIntegerClass() throws SerialisationException {
         assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseGroupedPropertiesClass() {
+    public void testCanSerialiseGroupedPropertiesClass() throws SerialisationException {
         assertTrue(serialiser.canHandle(GroupedProperties.class));
     }
 
@@ -89,7 +89,7 @@ public class GroupedPropertiesSerialiserTest {
     }
 
     @Test
-    public void testPreserveObjectOrdering() {
+    public void testPreserveObjectOrdering() throws SerialisationException {
         assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

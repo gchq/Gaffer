@@ -32,10 +32,10 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JcsCacheServiceTest {
 
@@ -58,72 +58,78 @@ public class JcsCacheServiceTest {
     }
 
     @Test
-    public void shouldUseDefaultConfigFileIfNoneIsSpecified() {
-        assertDoesNotThrow(() -> {
-            service.initialise(serviceProps);
-            ICache<String, Integer> cache = service.getCache(TEST_REGION);
-            cache.put("test", 1);
-            cache.clear();
-        });
+    public void shouldUseDefaultConfigFileIfNoneIsSpecified() throws CacheOperationException {
+        service.initialise(serviceProps);
+        ICache<String, Integer> cache = service.getCache(TEST_REGION);
+        cache.put("test", 1);
+        cache.clear();
+        // no exception thrown
     }
 
     @Test
     public void shouldThrowAnExceptionIfPathIsMisconfigured() {
-        final String badFileName = "/made/up/file/name";
+        String badFileName = "/made/up/file/name";
+        String expected = String.format("Cannot create cache using config file %s", badFileName);
 
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, badFileName);
 
-        assertThrows(IllegalArgumentException.class, () -> service.initialise(serviceProps));
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> service.initialise(serviceProps));
+
+        assertEquals(expected, actual.getMessage());
     }
 
     @Test
-    public void shouldUsePropertyToConfigureJCS() {
-        // Given
+    public void shouldUsePropertyToConfigureJCS() throws CacheOperationException {
+        // given
         String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
         service.initialise(serviceProps);
+        // when
+        ICache<String, Integer> cache = service.getCache(ALTERNATIVE_TEST_REGION);
+        cache.put("test", 1);
+        cache.clear();
 
-        // Then
-        assertDoesNotThrow(() -> {
-            ICache<String, Integer> cache = service.getCache(ALTERNATIVE_TEST_REGION);
-            cache.put("test", 1);
-            cache.clear();
-        });
+        // then no exception
     }
 
     @Test
     public void shouldReUseCacheIfOneExists() throws CacheOperationException {
-        // Given
+
+        // given
         service.initialise(serviceProps);
         ICache<String, Integer> cache = service.getCache(TEST_REGION);
         cache.put("key", 1);
 
-        // When
+        // when
         ICache<String, Integer> sameCache = service.getCache(TEST_REGION);
 
-        // Then
+        // then
         assertEquals(1, sameCache.size());
         assertEquals(new Integer(1), sameCache.get("key"));
 
         cache.clear();
+
     }
 
     @Test
     public void shouldShareCachesBetweenServices() throws CacheOperationException {
-        // Given
+
+        // given
         service.initialise(serviceProps);
         JcsCacheService service1 = new JcsCacheService();
         service1.initialise(serviceProps);
 
-        // When
+        // when
         ICache<String, Integer> cache = service1.getCache(TEST_REGION);
         cache.put("Test", 2);
 
-        // Then
+        // then
         assertEquals(1, service.getCache(TEST_REGION).size());
         assertEquals(2, service.getCache(TEST_REGION).get("Test"));
 
         cache.clear();
+
     }
 
     @Test
@@ -139,9 +145,12 @@ public class JcsCacheServiceTest {
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
-        assertThrows(OverwritingException.class, () -> service.putSafeInCache(TEST_REGION, "test", 2));
-
-        assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+        try {
+            service.putSafeInCache(TEST_REGION, "test", 2);
+            fail("Expected an exception");
+        } catch (final OverwritingException e) {
+            assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+        }
 
         service.putInCache(TEST_REGION, "test", 2);
 
@@ -150,55 +159,45 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
-        // Given
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
-        // When
         service.removeFromCache(TEST_REGION, "test");
-
-        // Then
         assertEquals(0, service.sizeOfCache(TEST_REGION));
     }
 
     @Test
     public void shouldBeAbleToClearCache() throws CacheOperationException {
-        // Given
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test1", 1);
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
 
-        // When
+
         service.clearCache(TEST_REGION);
 
-        // Then
         assertEquals(0, service.sizeOfCache(TEST_REGION));
     }
 
     @Test
     public void shouldGetAllKeysFromCache() throws CacheOperationException {
-        // Given
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test1", 1);
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
 
-        // Then
         assertEquals(3, service.sizeOfCache(TEST_REGION));
         assertThat(service.getAllKeysFromCache(TEST_REGION), IsCollectionContaining.hasItems("test1", "test2", "test3"));
     }
 
     @Test
     public void shouldGetAllValues() throws CacheOperationException {
-        // Given
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test1", 1);
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
         service.putInCache(TEST_REGION, "duplicate", 3);
 
-        // Then
         assertEquals(4, service.sizeOfCache(TEST_REGION));
         assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
 
@@ -207,32 +206,32 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldAgeOffValues() throws CacheOperationException {
-        // Given
+        // given
         String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
         service.initialise(serviceProps);
 
-        // When
+        // when
         service.putInCache(AGE_OFF_REGION, "test", 1);
         Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
 
-        // Then
+        // then
         assertNull(service.getFromCache(AGE_OFF_REGION, "test"));
     }
 
     @Test
     public void shouldAllowAgedOffValuesToBeReplaced() throws CacheOperationException {
-        // Given
+        // given
         String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
         service.initialise(serviceProps);
 
-        // When
+        // when
         service.putInCache(AGE_OFF_REGION, "test", 1);
         Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS); // aged off
         service.putInCache(AGE_OFF_REGION, "test", 1);
 
-        // Then
+        // then
         assertEquals((Integer) 1, service.getFromCache(AGE_OFF_REGION, "test"));
     }
 }

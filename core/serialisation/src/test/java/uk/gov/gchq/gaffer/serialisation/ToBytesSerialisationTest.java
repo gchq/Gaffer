@@ -30,11 +30,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
-    @Test
     @Override
-    public void shouldSerialiseNull() {
+    public void shouldSerialiseNull() throws SerialisationException {
+        // When
         final byte[] bytes = serialiser.serialiseNull();
 
+        // Then
         assertArrayEquals(new byte[0], bytes);
     }
 
@@ -52,11 +53,9 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
 
     @Test
     public void shouldHaveValidEqualsMethodForToByteSerialiser() {
-        // Given When
         final Serialiser<T, byte[]> serialiser2 = getSerialisation();
-
-        // Then
-        assertNotSame(this.serialiser, serialiser2, "The getSerialisation() shouldn't return the same instance each time it's called, required for this test.");
+        assertNotSame(this.serialiser, serialiser2,
+                "The getSerialisation() shouldn't return the same instance each time it's called, required for this test.");
         assertEquals(this.serialiser, serialiser2, "different instances that are the same should be equal");
     }
 }

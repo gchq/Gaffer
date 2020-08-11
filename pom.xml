@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -43,7 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests/>
+        <exclude.tests />
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -55,7 +54,9 @@
 
         <!-- Dependency version properties -->
         <junit5.version>5.6.0</junit5.version>
-        <mockito.version>1.9.5</mockito.version>
+        <junit.platform.suite.version>1.6.2</junit.platform.suite.version>
+        <mockito.version>3.3.3</mockito.version>
+        <failsafe.version>3.0.0-M5</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
 
         <koryphe.version>1.10.0</koryphe.version>
@@ -97,7 +98,7 @@
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
-        <compiler.plugin.verson>3.8.0</compiler.plugin.verson>
+        <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <findbugs.plugin.version>3.0.5</findbugs.plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
@@ -111,8 +112,7 @@
         <scm.plugin.version>1.1</scm.plugin.version>
         <shade.plugin.version>2.4.1</shade.plugin.version>
         <source.plugin.version>2.4</source.plugin.version>
-        <surefire.plugin.version>2.22.2</surefire.plugin.version>
-        <failsafe.version>2.22.2</failsafe.version>
+        <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
         <tomcat-maven-plugin.version>2.2</tomcat-maven-plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
@@ -680,7 +680,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>

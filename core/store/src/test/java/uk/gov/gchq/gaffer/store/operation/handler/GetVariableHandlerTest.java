@@ -26,12 +26,12 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetVariableHandlerTest {
-
     private final String varName = "varName";
     private final String varVal = "varVal";
     private final Store store = mock(Store.class);
@@ -69,15 +69,19 @@ public class GetVariableHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenVariableKeyIsNull() {
+    public void shouldThrowExceptionWhenVariableKeyIsNull() throws OperationException {
         // Given
         final Context context = mock(Context.class);
         final GetVariableHandler handler = new GetVariableHandler();
         final GetVariable op = new GetVariable.Builder().variableName(null).build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.doOperation(op, context, store));
-        assertEquals("Variable name cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Variable name cannot be null"));
+        }
     }
 
     @Test

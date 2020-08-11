@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class SetVariableTest extends OperationTest<SetVariable> {
 

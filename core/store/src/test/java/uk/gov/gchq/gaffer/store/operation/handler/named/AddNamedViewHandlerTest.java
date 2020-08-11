@@ -38,14 +38,12 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedViewHandlerTest {
-
     private final NamedViewCache namedViewCache = new NamedViewCache();
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
@@ -63,8 +61,9 @@ public class AddNamedViewHandlerTest {
 
     private Store store = mock(Store.class);
 
-    private View view;
-    private AddNamedView addNamedView;
+    View view;
+
+    AddNamedView addNamedView;
 
     @BeforeEach
     public void before() {
@@ -93,13 +92,10 @@ public class AddNamedViewHandlerTest {
 
     @Test
     public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
-        // Given
         handler.doOperation(addNamedView, context, store);
 
-        // When
         final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
 
-        // Then
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
@@ -107,33 +103,34 @@ public class AddNamedViewHandlerTest {
     }
 
     @Test
-    public void shouldNotAddNamedViewWithNoName() {
-        // Given
+    public void shouldNotAddNamedViewWithNoName() throws OperationException {
         addNamedView.setName(null);
 
-        // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.doOperation(addNamedView, context, store));
-        assertEquals("NamedView name must be set and not empty", exception.getMessage());
+        try {
+            handler.doOperation(addNamedView, context, store);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().equals("NamedView name must be set and not empty"));
+        }
     }
 
     @Test
-    public void shouldNotAddNestedNamedView() {
-        // Given
+    public void shouldNotAddNestedNamedView() throws OperationException {
         final NamedView nestedNamedView = new NamedView.Builder()
                 .name(testNamedViewName + 1)
                 .edge(TestGroups.EDGE)
                 .build();
 
-        // When
         addNamedView = new AddNamedView.Builder()
                 .name(testNamedViewName)
                 .view(nestedNamedView)
                 .overwrite(false)
                 .build();
 
-        // Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(addNamedView, context, store));
-        assertEquals("NamedView can not be nested within NamedView", exception.getMessage());
+        try {
+            handler.doOperation(addNamedView, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().equals("NamedView can not be nested within NamedView"));
+        }
     }
 
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {

@@ -44,17 +44,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
-
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
-    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
-        // Given
+        //Given
         List options = Arrays.asList("option1", "option2", "option3");
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testOption", new ParameterDetail("Description", String.class, false, "On", options));
@@ -131,10 +130,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotNull(deserialisedObj);
     }
 
-    @Test
     @Override
-    public void builderShouldCreatePopulatedOperation() throws SerialisationException {
-        // Given
+    public void builderShouldCreatePopulatedOperation() {
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
@@ -144,11 +141,12 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
                 .build();
-
-        // When
-        final String opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
-
-        // Then
+        String opChain = null;
+        try {
+            opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
+        } catch (final SerialisationException e) {
+            fail();
+        }
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
         assertEquals("Test", addNamedOperation.getOperationName());
         assertEquals(Arrays.asList("Test label"), addNamedOperation.getLabels());
@@ -157,9 +155,8 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(Collections.singletonList(USER), addNamedOperation.getWriteAccessRoles());
     }
 
-    @Test
     @Override
-    public void shouldShallowCloneOperation() throws SerialisationException {
+    public void shouldShallowCloneOperation() {
         // Given
         Map<String, ParameterDetail> parameters = new HashMap<>();
         parameters.put("testParameter", mock(ParameterDetail.class));
@@ -176,8 +173,12 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .parameters(parameters)
                 .score(2)
                 .build();
-
-        String opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
+        String opChain = null;
+        try {
+            opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
+        } catch (final SerialisationException e) {
+            fail();
+        }
 
         // When
         AddNamedOperation clone = addNamedOperation.shallowClone();

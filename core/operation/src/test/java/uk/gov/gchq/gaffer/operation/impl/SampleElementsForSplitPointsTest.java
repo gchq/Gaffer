@@ -32,27 +32,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SampleElementsForSplitPointsTest extends OperationTest<SampleElementsForSplitPoints> {
-
     @Test
     public void shouldFailValidationIfNumSplitsIsLessThan1() {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(0)
-                .build();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(0).build();
 
         // When
         final ValidationResult result = op.validate();
 
         // Then
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"), result.getErrorString());
+        assertTrue(result.getErrorString().contains("numSplits must be null or greater than 0"),
+                result.getErrorString());
     }
 
     @Test
     public void shouldFailValidationIfProportionToSampleIsNotIn0_1Range() {
         // Given
-        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>()
-                .proportionToSample(1.1f)
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().proportionToSample(1.1f)
                 .build();
 
         // When
@@ -60,18 +57,21 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
 
         // Then
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString().contains("proportionToSample must within range: [0, 1]"), result.getErrorString());
+        assertTrue(result.getErrorString().contains("proportionToSample must within range: [0, 1]"),
+                result.getErrorString());
     }
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final SampleElementsForSplitPoints op = makeSampleElementsForSplitPoints();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
+                .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
 
-        final SampleElementsForSplitPoints deserialisedOp = JSONSerialiser.deserialise(json, SampleElementsForSplitPoints.class);
+        final SampleElementsForSplitPoints deserialisedOp = JSONSerialiser.deserialise(json,
+                SampleElementsForSplitPoints.class);
 
         // Then
         assertEquals(10, (int) deserialisedOp.getNumSplits());
@@ -83,7 +83,8 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // When
-        final SampleElementsForSplitPoints op = makeSampleElementsForSplitPoints();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
+                .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
 
         // Then
         assertEquals(10, (int) op.getNumSplits());
@@ -91,11 +92,11 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
         assertEquals(Collections.singletonList(new Entity(TestGroups.ENTITY, "vertex")), op.getInput());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final SampleElementsForSplitPoints op = makeSampleElementsForSplitPoints();
+        final SampleElementsForSplitPoints op = new SampleElementsForSplitPoints.Builder<>().numSplits(10)
+                .proportionToSample(0.5f).input(new Entity(TestGroups.ENTITY, "vertex")).build();
 
         // When
         final SampleElementsForSplitPoints clone = op.shallowClone();
@@ -104,14 +105,6 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
         assertEquals(10, (int) clone.getNumSplits());
         assertEquals(0.5f, clone.getProportionToSample(), 0.1);
         assertEquals(Collections.singletonList(new Entity(TestGroups.ENTITY, "vertex")), clone.getInput());
-    }
-
-    private SampleElementsForSplitPoints makeSampleElementsForSplitPoints() {
-        return new SampleElementsForSplitPoints.Builder<>()
-                .numSplits(10)
-                .proportionToSample(0.5f)
-                .input(new Entity(TestGroups.ENTITY, "vertex"))
-                .build();
     }
 
     @Override

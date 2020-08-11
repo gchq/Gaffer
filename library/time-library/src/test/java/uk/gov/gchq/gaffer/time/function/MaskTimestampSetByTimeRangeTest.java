@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.time.function;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -31,15 +31,15 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
     private Instant instant;
     private MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange();
 
-    @Before
+    @BeforeEach
     public void setup() {
         instant = Instant.now();
     }

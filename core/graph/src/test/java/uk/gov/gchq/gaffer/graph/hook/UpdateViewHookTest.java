@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
@@ -100,8 +102,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
     //***** preExecute TESTS *****//
 
     @Test
-    public void shouldNotAddExtraGroupsToUsersView() {
-        // Given
+    public void shouldNotAddExtraGroupsToUsersView() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
@@ -116,19 +117,18 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
                 .build());
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertEquals(Sets.newHashSet("entity1"), opView.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet("entity1"), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldNotAddExtraGroupsToUsersViewInGetAdjacentIds() {
-        // Given
+    public void shouldNotAddExtraGroupsToUsersViewInGetAdjacentIds() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .view(new View.Builder()
@@ -142,19 +142,18 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
                 .build());
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
         Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldAddExtraGroupsToUsersView() {
-        // Given
+    public void shouldAddExtraGroupsToUsersView() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
@@ -170,19 +169,18 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setAddExtraGroups(true);
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertEquals(Sets.newHashSet("entity1", "entity2"), opView.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet("edge1", "edge2"), opView.getView().getEdgeGroups());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet("entity1", "entity2"), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet("edge1", "edge2"), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldNotAddExtraGroupsToEmptyUsersView() {
-        // Given
+    public void shouldNotAddExtraGroupsToEmptyUsersView() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View())
@@ -194,55 +192,50 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
                 .build());
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
-        assertEquals(Sets.newHashSet(), opView.getView().getEdgeGroups());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
+            assertEquals(Sets.newHashSet(), opView.getView().getEdgeGroups());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldNotMergeWithWrongUser() {
-        // Given
+    public void shouldNotMergeWithWrongUser() throws Exception {
         updateViewHook.setViewToMerge(viewToMerge);
         updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
 
         opChain = new OperationChain<>(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User()));
-
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertNull(opView.getView());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertNull(opView.getView());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldMergeWithUser() {
-        // Given
+    public void shouldMergeWithUser() throws Exception {
         updateViewHook.setViewToMerge(viewToMerge);
         updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
 
         opChain = new OperationChain(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
-
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertTrue(opView.getView().getGroups().contains("testGroup"));
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertTrue(opView.getView().getGroups().contains("testGroup"));
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldMergeAndApplyWhiteList() {
-        // Given
+    public void shouldMergeAndApplyWhiteList() throws Exception {
         updateViewHook.setViewToMerge(viewToMerge);
         updateViewHook.setWithOpAuth(Sets.newHashSet("opA"));
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1", "testGroup"));
@@ -263,35 +256,33 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
                         .build())
                 .build();
 
-        // When
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
-        final GetAllElements op = (GetAllElements) opChain.getOperations().get(0);
-
-        // Then
-        final byte[] expected = new View.Builder()
-                .entity("white1", new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select("prop1")
-                                .execute(new IsIn("value1", "value2"))
+        GetAllElements op = (GetAllElements) opChain.getOperations().get(0);
+        JsonAssert.assertEquals(
+                new View.Builder()
+                        .entity("white1", new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("prop1")
+                                        .execute(new IsIn("value1", "value2"))
+                                        .build())
                                 .build())
-                        .build())
-                .entity("white2")
-                .edge("testGroup", new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select("prop1")
-                                .execute(new Exists())
-                                .select("count")
-                                .execute(new IsMoreThan(10))
+                        .entity("white2")
+                        .edge("testGroup", new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("prop1")
+                                        .execute(new Exists())
+                                        .select("count")
+                                        .execute(new IsMoreThan(10))
+                                        .build())
                                 .build())
-                        .build())
-                .build().toJson(true);
-        JsonAssert.assertEquals(expected, op.getView().toJson(true));
+                        .build().toJson(true),
+                op.getView().toJson(true)
+        );
         assertTrue(op.getView().getGroups().contains("testGroup"));
     }
 
     @Test
-    public void shouldApplyWhiteAndBlackLists() {
-        // Given
+    public void shouldApplyWhiteAndBlackLists() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
@@ -305,19 +296,18 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setBlackListElementGroups(Sets.newHashSet("white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertTrue(opView.getView().getEntities().containsKey("white2"));
-        assertEquals(1, opView.getView().getEntities().keySet().size());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertTrue(opView.getView().getEntities().keySet().contains("white2"));
+            assertEquals(1, opView.getView().getEntities().keySet().size());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldApplyWhiteLists() {
-        // Given
+    public void shouldApplyWhiteLists() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
@@ -330,21 +320,20 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet("white2", "white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        final OperationView opView = (OperationView) op;
-        assertTrue(opView.getView().getEntities().containsKey("white2"));
-        assertTrue(opView.getView().getEntities().containsKey("white1"));
-        assertEquals(2, opView.getView().getEntities().keySet().size());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertTrue(opView.getView().getEntities().keySet().contains("white2"));
+            assertTrue(opView.getView().getEntities().keySet().contains("white1"));
+            assertEquals(2, opView.getView().getEntities().keySet().size());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
 
     @Test
-    public void shouldApplyBlackLists() {
-        // Given
+    public void shouldApplyBlackLists() throws Exception {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .view(new View.Builder()
@@ -356,187 +345,150 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         updateViewHook.setBlackListElementGroups(Sets.newHashSet("white1"));
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
-        // When
-        final Object op = opChain.getOperations().get(0);
-
-        // Then
-        assertTrue(op instanceof OperationView);
-        OperationView opView = (OperationView) op;
-        assertTrue(opView.getView().getEntities().containsKey("white2"));
-        assertEquals(1, opView.getView().getEntities().keySet().size());
+        Object op = opChain.getOperations().get(0);
+        if (op instanceof OperationView) {
+            OperationView opView = (OperationView) op;
+            assertTrue(opView.getView().getEntities().keySet().contains("white2"));
+            assertEquals(1, opView.getView().getEntities().keySet().size());
+        } else {
+            fail("unexpected operation found.");
+        }
     }
 
     @Test
-    public void shouldDoNothingWithNullMerge() {
-        // Given
-        final GetAllElements operationView = new GetAllElements();
+    public void shouldDoNothingWithNullMerge() throws Exception {
+        GetAllElements operationView = new GetAllElements();
         operationView.setView(new View());
-
-        // When
-        final View view = updateViewHook.mergeView(operationView, null).build();
-
-        // Then
+        View view = updateViewHook.mergeView(operationView, null).build();
         assertTrue(view.getGroups().isEmpty());
     }
 
     @Test
-    public void shouldMerge() {
-        // Given
-        final GetAllElements operationView = new GetAllElements();
+    public void shouldMerge() throws Exception {
+        GetAllElements operationView = new GetAllElements();
         operationView.setView(new View());
-
-        // When
-        final View view = updateViewHook.mergeView(operationView, viewToMerge).build();
-        final Set<String> groups = view.getGroups();
-
-        // Then
+        View view = updateViewHook.mergeView(operationView, viewToMerge).build();
+        Set<String> groups = view.getGroups();
         assertFalse(groups.isEmpty());
         assertTrue(groups.contains("testGroup"));
     }
 
     @Test
-    public void shouldDoNothingReturnResult() {
-        // Given
+    public void shouldDoNothingReturnResult() throws Exception {
         final String testString = "testString";
-
-        // When / Then
         assertEquals(testString, updateViewHook.postExecute(testString, null, null));
         assertEquals(testString, updateViewHook.onFailure(testString, null, null, null));
+
     }
 
     //***** ApplyToUserTests *****
 
     @Test
-    public void shouldPassWithOnlyOps() {
-        // Given
+    public void shouldPassWithOnlyOps() throws Exception {
         userOpAuths.add("oA");
         opAuths.add("oA");
 
-        // When
         userBuilder.opAuths(opAuths);
         updateViewHook.setWithOpAuth(opAuths);
 
-        // Then
         assertTrue(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldPassWithOnlyData() {
-        // Given
+    public void shouldPassWithOnlyData() throws Exception {
         updateViewHook.setWithOpAuth(null);
 
-        // When / Then
-        final String message = "updateViewHook.getWithOpAuth() needs to be empty for this test";
-        assertTrue(updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty(), message);
-
-        // When
+        assertTrue(updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty(),
+                "updateViewHook.getWithOpAuth() needs to be empty for this test");
         userDataAuths.add("dA");
         dataAuths.add("dA");
 
         userBuilder.dataAuths(userDataAuths);
         updateViewHook.setWithDataAuth(dataAuths);
 
-        // Then
         assertTrue(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldPassWithBoth() {
-        // Given
+    public void shouldPassWithBoth() throws Exception {
         userDataAuths.add("dA");
         dataAuths.add("dA");
         userOpAuths.add("oA");
         opAuths.add("oA");
 
-        // When
         userBuilder.dataAuths(userDataAuths);
         userBuilder.opAuths(userOpAuths);
         updateViewHook.setWithDataAuth(dataAuths);
         updateViewHook.setWithOpAuth(opAuths);
 
-        // Then
         assertTrue(updateViewHook.applyToUser(userBuilder.build()));
     }
 
+
     @Test
-    public void shouldFailWithWrongOps() {
-        // Given
+    public void shouldFailWithWrongOps() throws Exception {
         userOpAuths.add("oB");
         opAuths.add("oA");
 
-        // When
         userBuilder.opAuths(userOpAuths);
         updateViewHook.setWithOpAuth(opAuths);
 
-        // Then
         assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldFailWithWrongData() {
-        // Given
+    public void shouldFailWithWrongData() throws Exception {
         userDataAuths.add("dA");
         dataAuths.add("dB");
 
-        // When
         userBuilder.dataAuths(userDataAuths);
         updateViewHook.setWithDataAuth(dataAuths);
 
-        // Then
         assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldFailWithBothWrongOPsData() {
-        // Given
+    public void shouldFailWithBothWrongOPsData() throws Exception {
         userDataAuths.add("dB");
         dataAuths.add("dA");
         userOpAuths.add("oB");
         opAuths.add("oA");
 
-        // When
         userBuilder.dataAuths(userDataAuths);
         userBuilder.opAuths(userOpAuths);
         updateViewHook.setWithDataAuth(dataAuths);
         updateViewHook.setWithOpAuth(opAuths);
 
-        // Then
         assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldFailWithOneWrongOPs() {
-        // Given
+    public void shouldFailWithOneWrongOPs() throws Exception {
         userDataAuths.add("dA");
         dataAuths.add("dA");
         userOpAuths.add("oB");
         opAuths.add("oA");
 
-        // When
         userBuilder.dataAuths(userDataAuths);
         userBuilder.opAuths(userOpAuths);
         updateViewHook.setWithDataAuth(dataAuths);
         updateViewHook.setWithOpAuth(opAuths);
 
-        // Then
         assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
     @Test
-    public void shouldFailWithOneWrongData() {
-        // Given
+    public void shouldFailWithOneWrongData() throws Exception {
         userDataAuths.add("dB");
         dataAuths.add("dA");
         userOpAuths.add("oA");
         opAuths.add("oA");
 
-        // When
         userBuilder.dataAuths(userDataAuths);
         userBuilder.opAuths(userOpAuths);
         updateViewHook.setWithDataAuth(dataAuths);
         updateViewHook.setWithOpAuth(opAuths);
 
-        // Then
         assertFalse(updateViewHook.applyToUser(userBuilder.build()));
     }
 
@@ -544,17 +496,15 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
     @Test
     public void shouldSerialiseOpAuth() throws Exception {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
                 .withOpAuth(Sets.newHashSet(TEST_WITH_VALUE))
                 .withoutOpAuth(Sets.newHashSet(TEST_WITHOUT_VALUE))
                 .build();
-        final byte[] serialise = getBytes(updateViewHook);
 
-        // When
-        final UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        byte[] serialise = getBytes(updateViewHook);
 
-        // Then
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
         assertTrue(deserialise.getWithOpAuth().contains(TEST_WITH_VALUE));
         assertTrue(deserialise.getWithoutOpAuth().contains(TEST_WITHOUT_VALUE));
     }
@@ -567,54 +517,49 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
         return serialise;
     }
 
+
     @Test
     public void shouldSerialiseDataAuths() throws Exception {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
                 .withDataAuth(Sets.newHashSet(TEST_WITH_VALUE))
                 .withoutDataAuth(Sets.newHashSet(TEST_WITHOUT_VALUE))
                 .build();
-        final byte[] serialise = getBytes(updateViewHook);
 
-        // When
-        final UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        byte[] serialise = getBytes(updateViewHook);
 
-        // Then
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
         assertTrue(deserialise.getWithDataAuth().contains(TEST_WITH_VALUE));
         assertTrue(deserialise.getWithoutDataAuth().contains(TEST_WITHOUT_VALUE));
     }
 
     @Test
     public void shouldSerialiseElementGroups() throws Exception {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
                 .whiteListElementGroups(Sets.newHashSet(TEST_WITH_VALUE))
                 .blackListElementGroups(Sets.newHashSet(TEST_WITHOUT_VALUE))
                 .build();
-        final byte[] serialise = getBytes(updateViewHook);
 
-        // When
-        final UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        byte[] serialise = getBytes(updateViewHook);
 
-        // Then
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
         assertTrue(deserialise.getWhiteListElementGroups().contains(TEST_WITH_VALUE));
         assertTrue(deserialise.getBlackListElementGroups().contains(TEST_WITHOUT_VALUE));
     }
 
     @Test
     public void shouldSerialiseViewToMerge() throws Exception {
-        // Given
-        final View viewToMerge = new View.Builder().entity(TEST_EDGE).build();
-        final UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
+
+        View viewToMerge = new View.Builder().entity(TEST_EDGE).build();
+        UpdateViewHook updateViewHook = new UpdateViewHook.Builder()
                 .setViewToMerge(viewToMerge).build();
-        final byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
 
-        // When
-        final String serialisedString = new String(serialise);
-        assertTrue(serialisedString.contains(TEST_EDGE), serialisedString);
+        byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
+        String s = new String(serialise);
+        assertTrue(s.contains(TEST_EDGE), s);
 
-        // Then
-        final UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
+        UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
         assertEquals(deserialise.getViewToMerge(), viewToMerge);
     }
 
@@ -622,55 +567,46 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
     public static final String OTHER = "other";
 
     @Test
-    public void shouldRemoveBlackList() {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook();
+    public void shouldRemoveBlackList() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        // When / Then
         assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
-    public void shouldKeepWhiteList() {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook();
+    public void shouldKeepWhiteList() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        // When / Then
         assertFalse(updateViewHook.removeElementGroups(getEntry()));
     }
 
+
     @Test
-    public void shouldRemoveInBothLists() {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook();
+    public void shouldRemoveInBothLists() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        // When / Then
         assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
-    public void shouldKeepWhiteList2() {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook();
+    public void shouldKeepWhiteList2() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(OTHER));
 
-        // When / Then
         assertFalse(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
-    public void shouldRemoveBlackList2() {
-        // Given
-        final UpdateViewHook updateViewHook = new UpdateViewHook();
+    public void shouldRemoveBlackList2() throws Exception {
+        UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(OTHER));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        // When / Then
         assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
@@ -697,57 +633,48 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
     //***** VALIDATE AUTHS TESTS *****
 
     @Test
-    public void shouldPassExcessAuth() {
-        // Given
+    public void shouldPassExcessAuth() throws Exception {
         userAuths.add(A);
         userAuths.add(B);
         validAuths.add(A);
 
-        // When / Then
         assertTrue(updateViewHook.validateAuths(userAuths, validAuths, true));
     }
 
     @Test
-    public void shouldPassSubsetAuth() {
-        // Given
+    public void shouldPassSubsetAuth() throws Exception {
         userAuths.add(A);
         validAuths.add(A);
         validAuths.add(B);
 
-        // When / Then
         assertTrue(updateViewHook.validateAuths(userAuths, validAuths, true));
     }
 
     @Test
-    public void shouldFailMissingAuth() {
-        // Given
+    public void shouldFailMissingAuth() throws Exception {
         userAuths.add(B);
         validAuths.add(A);
 
-        // When / Then
         assertFalse(updateViewHook.validateAuths(userAuths, validAuths, true));
     }
 
     @Test
-    public void shouldFailEmptyUserAuths() {
-        // Given
+    public void shouldFailEmptyUserAuths() throws Exception {
         validAuths.add(A);
 
-        // When / Then
         assertFalse(updateViewHook.validateAuths(userAuths, validAuths, true));
     }
 
     @Test
-    public void shouldFailNullUserAuths() {
-        // Given
+    public void shouldFailNullUserAuths() throws Exception {
         validAuths.add(A);
 
-        // When / Then
         assertFalse(updateViewHook.validateAuths(null, validAuths, true));
     }
 
     @Test
-    public void shouldPassNullValid() {
+    public void shouldPassNullValid() throws Exception {
+
         assertTrue(updateViewHook.validateAuths(userAuths, null, true));
     }
 

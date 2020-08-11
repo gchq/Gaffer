@@ -20,9 +20,11 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -38,27 +40,30 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.deserialise;
 
 public class AddNamedOperationHandlerTest {
 
     private static final String EMPTY_ADMIN_AUTH = "";
+
+    @Mock
     private final NamedOperationCache mockCache = mock(NamedOperationCache.class);
+
     private final AddNamedOperationHandler handler = new AddNamedOperationHandler(mockCache);
 
     private Context context = new Context(new User.Builder()
@@ -69,7 +74,9 @@ public class AddNamedOperationHandlerTest {
     private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
             .overwrite(false)
             .build();
+
     private static final String OPERATION_NAME = "test";
+
     private HashMap<String, NamedOperationDetail> storedOperations = new HashMap<>();
 
     @BeforeEach
@@ -108,9 +115,9 @@ public class AddNamedOperationHandlerTest {
         mockCache.clear();
     }
 
+
     @Test
     public void shouldNotAllowForNonRecursiveNamedOperationsToBeNested() throws OperationException {
-        // Given
         OperationChain child = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(child);
         addNamedOperation.setOperationName("child");
@@ -121,40 +128,37 @@ public class AddNamedOperationHandlerTest {
                 .then(new GetElements())
                 .build();
 
-        // When
         addNamedOperation.setOperationChain(parent);
         addNamedOperation.setOperationName("parent");
 
-        // Then
         assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
     public void shouldAllowForOperationChainJSONWithParameter() {
-        // Given
-        final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }";
+        try {
+            final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }";
 
-        addNamedOperation.setOperationChain(opChainJSON);
-        addNamedOperation.setOperationName("namedop");
+            addNamedOperation.setOperationChain(opChainJSON);
+            addNamedOperation.setOperationName("namedop");
+            ParameterDetail param = new ParameterDetail.Builder()
+                    .defaultValue(1L)
+                    .description("Limit param")
+                    .valueClass(Long.class)
+                    .build();
+            Map<String, ParameterDetail> paramMap = Maps.newHashMap();
+            paramMap.put("param1", param);
+            addNamedOperation.setParameters(paramMap);
+            handler.doOperation(addNamedOperation, context, store);
+            assert cacheContains("namedop");
+        } catch (final Exception e) {
+            fail("Expected test to pass without error. Exception " + e.getMessage());
+        }
 
-        // When
-        final ParameterDetail param = new ParameterDetail.Builder()
-                .defaultValue(1L)
-                .description("Limit param")
-                .valueClass(Long.class)
-                .build();
-        Map<String, ParameterDetail> paramMap = Maps.newHashMap();
-        paramMap.put("param1", param);
-        addNamedOperation.setParameters(paramMap);
-
-        // Then
-        assertDoesNotThrow(() -> handler.doOperation(addNamedOperation, context, store));
-        assert cacheContains("namedop");
     }
 
     @Test
-    public void shouldNotAllowForOperationChainWithParameterNotInOperationString() {
-        // Given
+    public void shouldNotAllowForOperationChainWithParameterNotInOperationString() throws OperationException {
         final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\", \"key\": \"${param1}\" } ] }";
 
         addNamedOperation.setOperationChain(opChainJSON);
@@ -162,25 +166,21 @@ public class AddNamedOperationHandlerTest {
 
         // Note the param is String class to get past type checking which will also catch a param
         // with an unknown name if its not a string.
-        final ParameterDetail param = new ParameterDetail.Builder()
+        ParameterDetail param = new ParameterDetail.Builder()
                 .defaultValue("setKey")
                 .description("key param")
                 .valueClass(String.class)
                 .build();
-        final Map<String, ParameterDetail> paramMap = Maps.newHashMap();
+        Map<String, ParameterDetail> paramMap = Maps.newHashMap();
         paramMap.put("param2", param);
-
-        // When
         addNamedOperation.setParameters(paramMap);
 
-        // Then
         assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
-    public void shouldNotAllowForOperationChainJSONWithInvalidParameter() {
-        // Given
-        final String opChainJSON = "{" +
+    public void shouldNotAllowForOperationChainJSONWithInvalidParameter() throws UnsupportedEncodingException, SerialisationException {
+        String opChainJSON = "{" +
                 "  \"operations\": [" +
                 "      {" +
                 "          \"class\": \"uk.gov.gchq.gaffer.named.operation.AddNamedOperation\"," +
@@ -208,27 +208,22 @@ public class AddNamedOperationHandlerTest {
                 "   ]" +
                 "}";
 
-        // When / Then
-        assertThrows(SerialisationException.class, () -> deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
+        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
     }
 
     @Test
-    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws CacheOperationFailedException {
-        // Given
+    public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
-
-        // When
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
         addNamedOperation.setLabels(Arrays.asList("test label"));
 
-        // Then
-        assertDoesNotThrow(() -> handler.doOperation(addNamedOperation, context, store));
+        handler.doOperation(addNamedOperation, context, store);
 
         final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
 
-        assertTrue(cacheContains("testOp"));
+        assert cacheContains("testOp");
         assertTrue(result.getScore() == 2);
         assertEquals(Arrays.asList("test label"), result.getLabels());
     }
@@ -241,5 +236,6 @@ public class AddNamedOperationHandlerTest {
             }
         }
         return false;
+
     }
 }

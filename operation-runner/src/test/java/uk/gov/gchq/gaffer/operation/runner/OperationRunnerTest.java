@@ -15,10 +15,9 @@
  */
 package uk.gov.gchq.gaffer.operation.runner;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -43,28 +42,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class OperationRunnerTest {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private Graph.Builder graphBuilder;
-    private String operationChainPath;
-    private String storePropertiesPath;
-    private String schemaPath;
-    private String userPath;
-    private OperationRunner operationRunner;
-    private Operation operation;
-
-    private final String graphId = "graphId";
-    private final User unknownUser = new User();
-    private final User user = new User.Builder()
+    private static final String GRAPH_ID = "graphId";
+    private static final User UNKNOWN_USER = new User();
+    private static final User USER = new User.Builder()
             .userId("userId")
             .dataAuth("dataAuth")
             .opAuth("opAuth")
@@ -81,82 +70,94 @@ public class OperationRunnerTest {
             .jobInitialiser(new TextJobInitialiser())
             .build();
 
-    @Before
+    @TempDir
+    Path tempDir;
+
+    private Graph.Builder graphBuilder;
+    private String operationChainPath;
+
+    private String storePropertiesPath;
+    private String schemaPath;
+    private String userPath;
+    private OperationRunner operationRunner;
+    private Operation operation;
+
+    @BeforeEach
     public void setUp() throws IOException {
         graphBuilder = mock(Graph.Builder.class);
 
-        storePropertiesPath = temporaryFolder.newFile().getPath();
-        schemaPath = temporaryFolder.newFile().getPath();
-        userPath = createFileContaining(JSONSerialiser.serialise(user)).getPath();
+        storePropertiesPath = Files.createTempFile(tempDir, null, null).toString();
+        schemaPath = Files.createTempFile(tempDir, null, null).toString();
+        userPath = createFileContaining(tempDir, JSONSerialiser.serialise(USER)).getPath();
 
-        when(graphBuilder.storeProperties(storePropertiesPath)).thenReturn(graphBuilder);
-        when(graphBuilder.addSchemas(any(Path.class))).thenReturn(graphBuilder);
-        when(graphBuilder.config(any(GraphConfig.class))).thenReturn(graphBuilder);
+        lenient().when(graphBuilder.storeProperties(storePropertiesPath)).thenReturn(graphBuilder);
+        lenient().when(graphBuilder.addSchemas(any(Path.class))).thenReturn(graphBuilder);
+        lenient().when(graphBuilder.config(any(GraphConfig.class))).thenReturn(graphBuilder);
 
         operationRunner = new TestOperationRunner(graphBuilder);
     }
 
-    private void setUpOperation(final Operation operation) throws IOException {
+    private void setUpOperation(final Path tempDir, final Operation operation) throws IOException {
         this.operation = operation;
-        this.operationChainPath = createFileContaining(JSONSerialiser.serialise(operation)).getPath();
+        this.operationChainPath = createFileContaining(tempDir, JSONSerialiser.serialise(operation)).getPath();
     }
 
-    private File createFileContaining(final byte[] content) throws IOException {
-        return createFileContaining(new ByteArrayInputStream(content));
+    private File createFileContaining(final Path tempDir, final byte[] content) throws IOException {
+        return createFileContaining(tempDir, new ByteArrayInputStream(content));
     }
 
-    private File createFileContaining(final InputStream contentStream) throws IOException {
-        final File contentFile = temporaryFolder.newFile();
+    private File createFileContaining(final Path tempDir, final InputStream contentStream) throws IOException {
+        final File contentFile = Files.createTempFile(tempDir, null, null).toFile();
         Files.copy(contentStream, contentFile.toPath(), REPLACE_EXISTING);
         return contentFile;
     }
 
     @Test
     public void shouldRunOperationUsingSuppliedParametersAndUser() throws IOException {
-        setUpOperation(GET_ALL_ELEMENTS_OPERATION);
+        setUpOperation(tempDir, GET_ALL_ELEMENTS_OPERATION);
 
         final String[] args = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
                 "--schema", schemaPath,
                 "--user", userPath,
-                "--graph-id", graphId
+                "--graph-id", GRAPH_ID
         };
 
         OperationRunner.run(operationRunner, args);
 
         checkGraphBuilderCreation();
-        checkExpectedUser(user);
+        checkExpectedUser(USER);
         checkExpectedOperation();
     }
 
     @Test
     public void shouldRunOperationUsingSuppliedParametersAndDefaultUser() throws IOException {
-        setUpOperation(GET_ALL_ELEMENTS_OPERATION);
+        setUpOperation(tempDir, GET_ALL_ELEMENTS_OPERATION);
 
         final String[] args = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
                 "--schema", schemaPath,
-                "--graph-id", graphId
+                "--graph-id", GRAPH_ID
         };
 
         OperationRunner.run(operationRunner, args);
 
         checkGraphBuilderCreation();
-        checkExpectedUser(unknownUser);
+        checkExpectedUser(UNKNOWN_USER);
         checkExpectedOperation();
     }
 
     @Test
     public void shouldConfigureCommandLineArgsForMapReduceOperations() throws IOException {
-        setUpOperation(ADD_ELEMENTS_FROM_HDFS_OPERATION);
+        setUpOperation(tempDir, ADD_ELEMENTS_FROM_HDFS_OPERATION);
 
         final String[] expectedArgs = new String[]{
                 "--operation-chain", operationChainPath,
                 "--store-properties", storePropertiesPath,
                 "--schema", schemaPath,
-                "--graph-id", graphId
+                "--graph-id", GRAPH_ID
         };
 
         final String[] args = new String[expectedArgs.length + 1];
@@ -166,7 +167,7 @@ public class OperationRunnerTest {
         OperationRunner.run(operationRunner, args);
 
         checkGraphBuilderCreation();
-        checkExpectedUser(unknownUser);
+        checkExpectedUser(UNKNOWN_USER);
         MapReduce.class.cast(operation).setCommandLineArgs(expectedArgs);
         checkExpectedOperation();
         checkExpectedArgs(expectedArgs);
@@ -199,7 +200,7 @@ public class OperationRunnerTest {
         verify(graphBuilder).addSchemas(schemaPathArgumentCaptor.capture());
         verify(graphBuilder).config(graphConfigArgumentCaptor.capture());
 
-        assertEquals(graphId, graphConfigArgumentCaptor.getValue().getGraphId());
+        assertEquals(GRAPH_ID, graphConfigArgumentCaptor.getValue().getGraphId());
         assertEquals(schemaPath, schemaPathArgumentCaptor.getValue().toString());
     }
 

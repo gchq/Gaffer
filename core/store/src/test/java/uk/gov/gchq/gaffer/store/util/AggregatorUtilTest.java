@@ -52,23 +52,29 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class AggregatorUtilTest {
-
     @Test
     public void shouldThrowExceptionWhenIngestAggregatedIfSchemaIsNull() {
-        // Given
+        // given
         final Schema schema = null;
 
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.ingestAggregate(Collections.emptyList(), schema));
+        try {
+            AggregatorUtil.ingestAggregate(Collections.emptyList(), schema);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void shouldIngestAggregateElementsWhenProvidedIterableCanOnlyBeConsumedOnce() {
-        // Given
+        // given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
 
         final List<Element> elements = Arrays.asList(
@@ -99,16 +105,16 @@ public class AggregatorUtilTest {
             }
         };
 
-        // When
+        // when
         final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(onlyConsumingOnceIterable, schema);
 
-        // Then
+        // then
         assertElementEquals(elements, aggregatedElements);
     }
 
     @Test
     public void shouldIngestAggregateElementsWithNoGroupBy() {
-        // Given
+        // given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
 
         final List<Element> elements = Arrays.asList(
@@ -180,16 +186,16 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        // When
+        // when
         final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
 
-        // Then
+        // then
         assertElementEquals(expected, aggregatedElements);
     }
 
     @Test
     public void shouldIngestAggregateElementsWithGroupBy() {
-        // Given
+        // given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
         final List<Element> elements = Arrays.asList(
                 new Entity.Builder()
@@ -363,29 +369,37 @@ public class AggregatorUtilTest {
 
     @Test
     public void shouldThrowExceptionWhenQueryAggregatedIfSchemaIsNull() {
-        // Given
+        // given
         final Schema schema = null;
         final View view = new View();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view));
-        assertEquals("Schema is required", exception.getMessage());
+        try {
+            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Schema"));
+        }
     }
 
     @Test
     public void shouldThrowExceptionWhenQueryAggregatedIfViewIsNull() {
-        // Given
+        // given
         final Schema schema = new Schema();
         final View view = null;
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view));
-        assertEquals("View is required", exception.getMessage());
+        try {
+            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("View"));
+        }
     }
 
     @Test
     public void shouldQueryAggregateElementsWithGroupBy() {
-        // Given
+        // given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -491,16 +505,16 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        // When
+        // when
         final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
 
-        // Then
+        // then
         assertElementEquals(expected, aggregatedElements);
     }
 
     @Test
     public void shouldQueryAggregateElementsWithGroupByAndViewAggregator() {
-        // Given
+        // given
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -861,7 +875,12 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
-        assertThrows(RuntimeException.class, () -> fn.apply(element));
+        try {
+            fn.apply(element);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -878,7 +897,12 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToQueryElementKey(schema, new View());
 
         // then
-        assertThrows(RuntimeException.class, () -> fn.apply(element));
+        try {
+            fn.apply(element);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test

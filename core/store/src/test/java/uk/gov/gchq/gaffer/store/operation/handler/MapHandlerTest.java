@@ -50,18 +50,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 public class MapHandlerTest {
-
     private Context context;
     private Store store;
     private Function<Integer, Integer> function;
@@ -111,12 +111,15 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Integer, Integer> handler = new MapHandler<>();
 
-        // When
         final Map<Integer, Integer> operation = null;
 
-        // Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
-        assertEquals("Operation cannot be null", exception.getMessage());
+        // When / Then
+
+        try {
+            handler.doOperation(operation, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Operation cannot be null"));
+        }
     }
 
     @Test
@@ -130,8 +133,11 @@ public class MapHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
-        assertEquals("Input cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(operation, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Input cannot be null"));
+        }
     }
 
     @Test
@@ -147,8 +153,11 @@ public class MapHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
-        assertEquals("Function cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(operation, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Function cannot be null"));
+        }
     }
 
     @Test
@@ -417,7 +426,11 @@ public class MapHandlerTest {
         final MapHandler handler = new MapHandler();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(map, context, store));
-        assertEquals("The input/output types of the functions were incompatible", exception.getMessage());
+        try {
+            final Object result = handler.doOperation(map, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("The input/output types of the functions were incompatible"));
+        }
     }
 }

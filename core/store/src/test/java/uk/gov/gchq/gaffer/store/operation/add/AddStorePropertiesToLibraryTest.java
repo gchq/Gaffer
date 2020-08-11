@@ -17,8 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -32,11 +31,11 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
 
     public static final String VALUE_1 = "value1";
     public static final String TEST_ID = "testId";
-    private AddStorePropertiesToLibrary op;
-    private StoreProperties storeProperties;
+    private static AddStorePropertiesToLibrary op;
+    private static StoreProperties storeProperties;
 
-    @BeforeEach
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
 
         storeProperties = new StoreProperties();
 
@@ -57,22 +56,20 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
         return new AddStorePropertiesToLibrary();
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        // Then
+        //then
         assertEquals(storeProperties, op.getStoreProperties());
         assertEquals(VALUE_1, op.getParentPropertiesId());
         assertEquals(TEST_ID, op.getId());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
-        // When
+        //when
         AddStorePropertiesToLibrary clone = op.shallowClone();
 
-        // Then
+        //then
         assertEquals(op.getStoreProperties(), clone.getStoreProperties());
         assertEquals(op.getParentPropertiesId(), clone.getParentPropertiesId());
         assertEquals(op.getId(), clone.getId());

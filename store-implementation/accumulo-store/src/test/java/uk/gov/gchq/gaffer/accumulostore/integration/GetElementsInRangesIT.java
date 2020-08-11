@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;

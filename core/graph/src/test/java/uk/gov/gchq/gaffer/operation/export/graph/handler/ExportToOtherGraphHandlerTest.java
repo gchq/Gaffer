@@ -45,16 +45,26 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.PARENT_STORE_PROPERTIES_ID;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_STRING;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_STRING;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ExportToOtherGraphHandlerTest {
@@ -63,23 +73,23 @@ public class ExportToOtherGraphHandlerTest {
     private static final String STORE_PROPS_ID = "storePropsId";
     public static final String STORE_PROPS_ID_1 = STORE_PROPS_ID + 1;
     private static final String SCHEMA_ID = "schemaId";
+    private static final String EXCEPTION_EXPECTED = "Exception expected";
     public static final String SCHEMA_ID_2 = SCHEMA_ID + 2;
     public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
-
-    @TempDir
-    File testFolder;
-
     private final Store store = mock(Store.class);
     private final Schema schema = new Schema.Builder().build();
     private GraphLibrary graphLibrary;
     private StoreProperties storeProperties;
 
+    @TempDir
+    Path tempDir;
+
     @BeforeEach
-    public void before() {
+    public void before() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
 
-        final File graphLibraryFolder = new File(testFolder, "graphLibraryTest/");
+        final File graphLibraryFolder = tempDir.resolve("graphLibrary").toFile();
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
 
         given(store.getGraphLibrary()).willReturn(graphLibrary);
@@ -88,10 +98,8 @@ public class ExportToOtherGraphHandlerTest {
 
     @Test
     public void shouldGetExporterClass() {
-        // Given
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
 
-        // When / Then
         assertEquals(OtherGraphExporter.class, handler.getExporterClass());
     }
 
@@ -104,11 +112,12 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Cannot export to the same Graph: graphId";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals(getErrorMessage(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, GRAPH_ID), e.getMessage());
+        }
     }
 
     @Test
@@ -138,9 +147,12 @@ public class ExportToOtherGraphHandlerTest {
         assertEquals(1, ops.size());
         assertSame(elements, ((AddElements) ops.get(0)).getInput());
 
-        final Exception exception = assertThrows(UnsupportedOperationException.class, () -> exporter.get("key"));
-
-        assertEquals("Getting export from another Graph is not supported", exception.getMessage());
+        try {
+            exporter.get("key");
+            fail("exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -337,11 +349,12 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Cannot export to the same Graph: graphId";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals(getErrorMessage(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, "graphId"), e.getMessage());
+        }
     }
 
     @Test
@@ -354,11 +367,12 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                " parentStorePropertiesId cannot be used without a GraphLibrary";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals(getErrorMessage(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentStorePropertiesId"), e.getMessage());
+        }
     }
 
     @Test
@@ -372,12 +386,21 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n"
+                            + String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentSchemaIds")
+                            + '\n'
+                            + String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_STORE_PROPERTIES_ID),
+                    e.getMessage());
+        }
+    }
 
-        final String expected = "Validation errors: \n" +
-                " parentSchemaIds cannot be used without a GraphLibrary\n" +
-                " parentStorePropertiesId cannot be used without a GraphLibrary";
-        assertEquals(expected, exception.getMessage());
+    private String getErrorMessage(final String format, final String... s) {
+        return "Validation errors: \n" +
+                String.format(format, s);
     }
 
     @Test
@@ -391,11 +414,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then`
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Graph: graphId1 already exists so you cannot use a different Schema. Do not set the parentSchemaIds field";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", SCHEMA_STRING, "parentSchemaIds"), e.getMessage());
+        }
     }
 
     @Test
@@ -409,7 +434,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then`
-        assertDoesNotThrow(() -> validate(export));
+        validate(export);
     }
 
     @Test
@@ -422,11 +447,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Graph: graphId1 already exists so you cannot use a different Schema. Do not set the Schema field";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", SCHEMA_STRING, SCHEMA_STRING), e.getMessage());
+        }
     }
 
     @Test
@@ -440,7 +467,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        assertDoesNotThrow(() -> validate(export));
+        validate(export);
     }
 
     @Test
@@ -455,11 +482,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Graph: graphId1 already exists so you cannot use a different StoreProperties. Do not set the parentStorePropertiesId field";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", "StoreProperties", "parentStorePropertiesId"), e.getMessage());
+        }
     }
 
 
@@ -473,7 +502,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        assertDoesNotThrow(() -> validate(export));
+        validate(export);
     }
 
     @Test
@@ -488,11 +517,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Graph: graphId1 already exists so you cannot use a different StoreProperties. Do not set the StoreProperties field";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", STORE_PROPERTIES_STRING, STORE_PROPERTIES_STRING), e.getMessage());
+        }
     }
 
     @Test
@@ -520,11 +551,12 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "Schema could not be found in the graphLibrary with id: [schemaId]";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals(getErrorMessage(SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, "[schemaId]"), e.getMessage());
+        }
     }
 
     @Test
@@ -537,11 +569,12 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "StoreProperties could not be found in the graphLibrary with id: storePropsId";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals(getErrorMessage(STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, STORE_PROPS_ID), e.getMessage());
+        }
     }
 
     @Test
@@ -553,11 +586,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "GraphId graphId1 cannot be created without defined/known StoreProperties";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, "StoreProperties"), e.getMessage());
+        }
     }
 
     @Test
@@ -569,11 +604,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> createGraph(export));
-
-        final String expected = "Validation errors: \n" +
-                "GraphId graphId1 cannot be created without defined/known Schema";
-        assertEquals(expected, exception.getMessage());
+        try {
+            createGraph(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, SCHEMA_STRING), e.getMessage());
+        }
     }
 
     @Test
@@ -586,7 +623,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When
-        assertDoesNotThrow(() -> validate(export));
+        validate(export);
 
         // Then - no exceptions
     }

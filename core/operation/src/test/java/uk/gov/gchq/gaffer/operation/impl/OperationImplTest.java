@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,14 +27,12 @@ import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class OperationImplTest extends OperationTest<OperationImpl> {
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -81,7 +80,6 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
         assertEquals(optionalField2, op.getOptionalField2());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -108,7 +106,7 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
     }
 
     @Test
-    public void shouldValidateASingleMissingRequiredField() {
+    public void shouldValidateASingleMissingRequiredField() throws SerialisationException {
         // Given
         final String requiredField1 = "value1";
         final Date optionalField1 = new Date(1L);
@@ -123,8 +121,10 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
         final ValidationResult validationResult = op.validate();
 
         // Then
-        final HashSet<String> expected = Sets.newHashSet("requiredField2 is required for: " + op.getClass().getSimpleName());
-        assertEquals(expected, validationResult.getErrors());
+        assertEquals(
+                Sets.newHashSet("requiredField2 is required for: " + op.getClass().getSimpleName()),
+                validationResult.getErrors()
+        );
     }
 
     @Override

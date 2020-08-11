@@ -27,51 +27,28 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
+public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Object>> {
 
     @Test
     public void shouldSerialiseAndDeSerialiseSet() throws SerialisationException {
-        // Given
-        final Set<String> exampleSet = getExampleValue();
 
-        // When
-        final byte[] b = serialiser.serialise(exampleSet);
-        final Set actual = serialiser.deserialise(b);
+        Set<String> set = getExampleValue();
 
-        // Then
-        assertDeserialisedObjectEquals(exampleSet, actual);
-    }
+        byte[] b = serialiser.serialise(set);
+        Set o = serialiser.deserialise(b);
 
-    @Test
-    public void setSerialiserWithOverlappingValuesTest() throws SerialisationException {
-        // Given
-        final Set<Integer> set = new LinkedHashSet<>();
-        set.add(1);
-        set.add(3);
-        set.add(2);
-        set.add(7);
-        set.add(3);
-        set.add(11);
-
-        ((SetSerialiser) serialiser).setObjectSerialiser(new IntegerSerialiser());
-        ((SetSerialiser) serialiser).setSetClass(LinkedHashSet.class);
-
-        // When
-        final byte[] b = serialiser.serialise(set);
-        final Set o = serialiser.deserialise(b);
-
-        // Then
-        assertEquals(LinkedHashSet.class, o.getClass());
-        assertEquals(5, o.size());
-        assertTrue(o.contains(1));
-        assertTrue(o.contains(3));
-        assertTrue(o.contains(2));
-        assertTrue(o.contains(7));
-        assertTrue(o.contains(11));
+        assertEquals(HashSet.class, o.getClass());
+        assertEquals(6, o.size());
+        assertEquals(set, o);
+        assertTrue(o.contains("one"));
+        assertTrue(o.contains("two"));
+        assertTrue(o.contains("three"));
+        assertTrue(o.contains("four"));
+        assertTrue(o.contains("five"));
+        assertTrue(o.contains("six"));
     }
 
     private Set<String> getExampleValue() {
@@ -85,36 +62,34 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
         return set;
     }
 
-    private void assertDeserialisedObjectEquals(Set<String> set, Set o) {
-        assertEquals(HashSet.class, o.getClass());
-        assertEquals(6, o.size());
-        assertEquals(set, o);
-        assertTrue(o.contains("one"));
-        assertTrue(o.contains("two"));
-        assertTrue(o.contains("three"));
-        assertTrue(o.contains("four"));
-        assertTrue(o.contains("five"));
-        assertTrue(o.contains("six"));
-    }
-
     @Test
-    @Override
-    public void shouldDeserialiseEmpty() throws SerialisationException {
-        assertEquals(new HashSet(), serialiser.deserialiseEmpty());
+    public void setSerialiserWithOverlappingValuesTest() throws SerialisationException {
+
+        Set<Integer> set = new LinkedHashSet<>();
+        set.add(1);
+        set.add(3);
+        set.add(2);
+        set.add(7);
+        set.add(3);
+        set.add(11);
+
+        ((SetSerialiser) serialiser).setObjectSerialiser(new IntegerSerialiser());
+        ((SetSerialiser) serialiser).setSetClass(LinkedHashSet.class);
+
+        byte[] b = serialiser.serialise(set);
+        Set o = serialiser.deserialise(b);
+
+        assertEquals(LinkedHashSet.class, o.getClass());
+        assertEquals(5, o.size());
+        assertTrue(o.contains(1));
+        assertTrue(o.contains(3));
+        assertTrue(o.contains(2));
+        assertTrue(o.contains(7));
+        assertTrue(o.contains(11));
     }
 
-    @Test
     @Override
-    public void shouldSerialiseNull() {
-        // Given
-        final SetSerialiser setSerialiser = new SetSerialiser();
-
-        // Then
-        assertArrayEquals(new byte[0], setSerialiser.serialiseNull());
-    }
-
-    @Override
-    public Serialiser<Set<?>, byte[]> getSerialisation() {
+    public Serialiser<Set<? extends Object>, byte[]> getSerialisation() {
         SetSerialiser serialiser = new SetSerialiser();
         serialiser.setObjectSerialiser(new StringSerialiser());
         return serialiser;
@@ -122,7 +97,13 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<?>> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Pair<Set<?>, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[] {new Pair<>(getExampleValue(), new byte[] {3, 115, 105, 120, 4, 102, 111, 117, 114, 3, 111, 110, 101, 3, 116, 119, 111, 5, 116, 104, 114, 101, 101, 4, 102, 105, 118, 101})};
+    public Pair<Set<? extends Object>, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 4, 102, 111, 117, 114, 3, 111, 110, 101, 3, 116, 119, 111, 5, 116, 104, 114, 101, 101, 4, 102, 105, 118, 101})};
+    }
+
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertEquals(new HashSet(), serialiser.deserialiseEmpty());
     }
 }

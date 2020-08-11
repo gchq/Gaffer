@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.time;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
@@ -31,11 +31,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
@@ -43,7 +43,7 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     private Instant instant1;
     private Instant instant2;
 
-    @Before
+    @BeforeEach
     public void setup() {
         instant1 = Instant.now();
         instant2 = instant1.plus(Duration.ofDays(100L));

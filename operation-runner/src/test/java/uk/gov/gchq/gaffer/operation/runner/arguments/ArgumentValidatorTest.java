@@ -15,20 +15,18 @@
  */
 package uk.gov.gchq.gaffer.operation.runner.arguments;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ArgumentValidatorTest {
     private static final String NON_EXISTENT_PATH = "/not/existent/path";
-
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private final ArgumentValidator argumentValidator = new ArgumentValidator();
 
@@ -48,18 +46,18 @@ public class ArgumentValidatorTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenPathIsValidFile() throws IOException {
-        assertTrue(argumentValidator.isValidFile(temporaryFolder.newFile().getPath()));
+    public void shouldReturnTrueWhenPathIsValidFile(@TempDir Path tempDir) throws IOException {
+        assertTrue(argumentValidator.isValidFile(Files.createTempFile(tempDir, null, null).toAbsolutePath().toString()));
     }
 
     @Test
-    public void shouldReturnTrueWhenPathIsValidDirectory() {
-        assertTrue(argumentValidator.isValidDirectory(temporaryFolder.getRoot().getPath()));
+    public void shouldReturnTrueWhenPathIsValidDirectory(@TempDir Path tempDir) {
+        assertTrue(argumentValidator.isValidDirectory(tempDir.toAbsolutePath().toString()));
     }
 
     @Test
-    public void shouldReturnTrueWhenPathIsValidFileOrDirectory() throws IOException {
-        assertTrue(argumentValidator.isValidFileOrDirectory(temporaryFolder.newFile().getPath()));
-        assertTrue(argumentValidator.isValidFileOrDirectory(temporaryFolder.getRoot().getPath()));
+    public void shouldReturnTrueWhenPathIsValidFileOrDirectory(@TempDir Path tempDir) throws IOException {
+        assertTrue(argumentValidator.isValidFile(Files.createTempFile(tempDir, null, null).toAbsolutePath().toString()));
+        assertTrue(argumentValidator.isValidDirectory(tempDir.toAbsolutePath().toString()));
     }
 }

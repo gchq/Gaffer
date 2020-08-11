@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -28,17 +28,16 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EntitySerialiserTest {
 
-    private Schema schema;
-    private EntitySerialiser serialiser;
+    private static Schema schema;
+    private static EntitySerialiser serialiser;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
                 .build();
 
@@ -56,8 +55,12 @@ public class EntitySerialiserTest {
         schema = new Schema.Builder().build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new EntitySerialiser(schema));
-        assertEquals("Vertex serialiser is required", exception.getMessage());
+        try {
+            new EntitySerialiser(schema);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Vertex serialiser is required"));
+        }
     }
 
     @Test
@@ -74,22 +77,22 @@ public class EntitySerialiserTest {
     }
 
     @Test
-    public void testCantSerialiseIntegerClass() {
+    public void testCantSerialiseIntegerClass() throws SerialisationException {
         assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseElementClass() {
+    public void testCanSerialiseElementClass() throws SerialisationException {
         assertTrue(serialiser.canHandle(Entity.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertNull(serialiser.deserialiseEmpty());
+        assertEquals(null, serialiser.deserialiseEmpty());
     }
 
     @Test
-    public void testPreserveObjectOrdering() {
-        assertFalse(serialiser.preservesObjectOrdering());
+    public void testPreserveObjectOrdering() throws SerialisationException {
+        assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

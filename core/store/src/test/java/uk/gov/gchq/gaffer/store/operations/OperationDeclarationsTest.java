@@ -29,11 +29,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandl
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class OperationDeclarationsTest {
-
     @Test
     public void testSerialiseDeserialise() throws SerialisationException {
         // Given
@@ -55,7 +54,7 @@ public class OperationDeclarationsTest {
     }
 
     @Test
-    public void testDeserialiseFile() {
+    public void testDeserialiseFile() throws SerialisationException {
         // Given
         final String paths = "operationDeclarations1.json,operationDeclarations2.json";
 
@@ -76,12 +75,18 @@ public class OperationDeclarationsTest {
     }
 
     @Test
-    public void testMissingFile() {
+    public void testMissingFile() throws SerialisationException {
         // Given
         final String paths = "missingFile.json,operationDeclarations2.json";
 
         // When
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> OperationDeclarations.fromPaths(paths));
-        assertTrue(exception.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
+        try {
+            OperationDeclarations.fromPaths(paths);
+        } catch (final IllegalArgumentException e) {
+            // Then
+            assertTrue(e.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
+            return;
+        }
+        fail("Exception wasn't thrown");
     }
 }

@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GraphConfigTest {
 

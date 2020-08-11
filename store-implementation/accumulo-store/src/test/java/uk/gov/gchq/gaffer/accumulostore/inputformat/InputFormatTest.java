@@ -29,12 +29,11 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -42,7 +41,6 @@ import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -62,13 +60,15 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class InputFormatTest {
 
@@ -80,6 +80,22 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
+
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
+
+    @TempDir
+    static java.nio.file.Path tempDir;
+
+    @BeforeAll
+    public static void setUpStore() throws IOException {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
@@ -135,25 +151,6 @@ public class InputFormatTest {
         }
     }
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
-
-    @BeforeClass
-    public static void setup() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        miniAccumuloClusterManager.close();
-    }
-
     private static String getJsonString(final Object obj) throws SerialisationException {
         return new String(JSONSerialiser.serialise(obj));
     }
@@ -173,14 +170,16 @@ public class InputFormatTest {
                 op,
                 new User(),
                 "instance1",
-                expectedResults);
+                expectedResults,
+                tempDir.resolve(UUID.randomUUID().toString()));
         shouldReturnCorrectDataToMapReduceJob(getSchema(),
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA,
                 op,
                 new User(),
                 "instance2",
-                expectedResults);
+                expectedResults,
+                tempDir.resolve(UUID.randomUUID().toString()));
     }
 
     @Test
@@ -203,14 +202,16 @@ public class InputFormatTest {
                 op,
                 new User(),
                 "instance3",
-                expectedResults);
+                expectedResults,
+                tempDir.resolve(UUID.randomUUID().toString()));
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA,
                 op,
                 new User(),
                 "instance4",
-                expectedResults);
+                expectedResults,
+                tempDir.resolve(UUID.randomUUID().toString()));
     }
 
     @Test
@@ -241,28 +242,32 @@ public class InputFormatTest {
                 op,
                 userWithPublicNotPrivate,
                 "instance5",
-                expectedResultsPublicNotPrivate);
+                expectedResultsPublicNotPrivate,
+                tempDir.resolve(UUID.randomUUID().toString()));
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPrivate,
                 "instance6",
-                expectedResultsPrivate);
+                expectedResultsPrivate,
+                tempDir.resolve(UUID.randomUUID().toString()));
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPublicNotPrivate,
                 "instance7",
-                expectedResultsPublicNotPrivate);
+                expectedResultsPublicNotPrivate,
+                tempDir.resolve(UUID.randomUUID().toString()));
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
                 op,
                 userWithPrivate,
                 "instance8",
-                expectedResultsPrivate);
+                expectedResultsPrivate,
+                tempDir.resolve(UUID.randomUUID().toString()));
     }
 
     private void shouldReturnCorrectDataToMapReduceJob(final Schema schema,
@@ -271,7 +276,8 @@ public class InputFormatTest {
                                                        final GraphFilters graphFilters,
                                                        final User user,
                                                        final String instanceName,
-                                                       final Set<String> expectedResults)
+                                                       final Set<String> expectedResults,
+                                                       final java.nio.file.Path tempDir)
             throws Exception {
         AccumuloProperties properties = PROPERTIES.clone();
         SingleUseAccumuloStore store = new SingleUseAccumuloStore();
@@ -302,7 +308,8 @@ public class InputFormatTest {
         store.updateConfiguration(conf, graphFilters, user);
 
         // Run Driver
-        final File outputFolder = testFolder.newFolder();
+        final File outputFolder = Files.createDirectories(tempDir).toFile();
+
         FileUtils.deleteDirectory(outputFolder);
         final Driver driver = new Driver(outputFolder.getAbsolutePath());
         driver.setConf(conf);

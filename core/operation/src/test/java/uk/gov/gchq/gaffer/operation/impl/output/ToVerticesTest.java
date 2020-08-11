@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -37,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ToVerticesTest extends OperationTest<ToVertices> {
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
@@ -85,7 +85,6 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
         assertThat(toVertices.getEdgeVertices(), is(EdgeVertices.BOTH));
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

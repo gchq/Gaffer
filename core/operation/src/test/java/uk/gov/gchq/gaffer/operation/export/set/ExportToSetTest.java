@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class ExportToSetTest extends OperationTest<ExportToSet> {
 
+public class ExportToSetTest extends OperationTest<ExportToSet> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -56,7 +56,6 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
         assertEquals("key", op.getKey());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

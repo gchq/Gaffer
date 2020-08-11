@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -54,19 +55,15 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
         assertEquals(validateOperationChain.getOperationChain(), deserialisedOp.getOperationChain());
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        // When
         final ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder()
                 .operationChain(operationChain)
                 .build();
 
-        // Then
         assertEquals(operationChain, validateOperationChain.getOperationChain());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -17,11 +17,9 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.google.common.collect.Maps;
-import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -35,22 +33,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
-
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
     }
 
     @Test
-    public abstract void builderShouldCreatePopulatedOperation() throws SerialisationException;
+    public abstract void builderShouldCreatePopulatedOperation();
 
     @Test
-    public abstract void shouldShallowCloneOperation() throws SerialisationException;
+    public abstract void shouldShallowCloneOperation();
 
     @Test
-    public void shouldValidateRequiredFields() {
+    public void shouldValidateRequiredFields() throws Exception {
         // Given
         final Operation op = getTestObject();
 
@@ -60,17 +58,13 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // Then
         final Set<String> requiredFields = getRequiredFields();
         final Set<String> requiredFieldsErrors = requiredFields.stream()
-                .map(f -> f + " is required for: " + op.getClass().getSimpleName())
-                .collect(Collectors.toSet());
+                .map(f -> f + " is required for: " + op.getClass().getSimpleName()).collect(Collectors.toSet());
 
-        assertEquals(
-                requiredFieldsErrors,
-                validationResult.getErrors()
-        );
+        assertEquals(requiredFieldsErrors, validationResult.getErrors());
     }
 
     @Test
-    public void shouldSetGetOption() {
+    public void shouldSetGetOption() throws Exception {
         final Operation testObject = getTestObject();
         final HashMap<String, String> expected = Maps.newHashMap();
         expected.put("one", "two");
@@ -92,10 +86,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         final Since annotation = instance.getClass().getAnnotation(Since.class);
 
         // Then
-        if (null == annotation || null == annotation.value()) {
-            throw new AssumptionViolatedException("Missing Since annotation on class " + instance.getClass().getName());
-        }
-        assertTrue(VersionUtil.validateVersionString(annotation.value()),
+        assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
+        assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
+        assumeTrue(VersionUtil.validateVersionString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
     }
 
@@ -107,12 +100,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // When
         final Summary annotation = instance.getClass().getAnnotation(Summary.class);
 
-        // Then
-        if (null == annotation || null == annotation.value()) {
-            throw new AssumptionViolatedException("Missing Summary annotation on class " + instance.getClass().getName());
-        }
-        assertTrue(SummaryUtil.validateSummaryString(annotation.value()),
+        assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
+        assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
+        assumeTrue(SummaryUtil.validateSummaryString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
     }
 }
-

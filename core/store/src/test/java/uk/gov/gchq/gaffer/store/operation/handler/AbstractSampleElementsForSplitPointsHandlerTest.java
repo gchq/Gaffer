@@ -41,11 +41,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends Store> {
@@ -68,7 +67,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             .build();
 
     @Test
-    public void shouldThrowExceptionForNullInput() {
+    public void shouldThrowExceptionForNullInput() throws OperationException {
         // Given
         final AbstractSampleElementsForSplitPointsHandler<?, S> handler = createHandler();
         final SampleElementsForSplitPoints operation = new SampleElementsForSplitPoints.Builder<>()
@@ -76,12 +75,17 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(), createStore()));
-        assertEquals("Operation input is required.", exception.getMessage());
+        try {
+
+            handler.doOperation(operation, new Context(), createStore());
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("input is required"), e.getMessage());
+        }
     }
 
     @Test
-    public void shouldThrowExceptionIfNumberOfSampledElementsIsMoreThanMaxAllowed() {
+    public void shouldThrowExceptionIfNumberOfSampledElementsIsMoreThanMaxAllowed() throws OperationException {
         // Given
         int maxSampledElements = 5;
         final AbstractSampleElementsForSplitPointsHandler<?, ?> handler = createHandler();
@@ -96,12 +100,16 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(LimitExceededException.class, () -> handler.doOperation(operation, new Context(), createStore()));
-        assertEquals("Limit of " + maxSampledElements + " exceeded.", exception.getMessage());
+        try {
+            handler.doOperation(operation, new Context(), createStore());
+            fail("Exception expected");
+        } catch (final LimitExceededException e) {
+            assertTrue(e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."), e.getMessage());
+        }
     }
 
     @Test
-    public void shouldNotThrowExceptionIfNumberOfSampledElementsIsLessThanMaxAllowed() {
+    public void shouldNotThrowExceptionIfNumberOfSampledElementsIsLessThanMaxAllowed() throws OperationException {
         // Given
         int maxSampledElements = 5;
         final AbstractSampleElementsForSplitPointsHandler<?, ?> handler = createHandler();
@@ -118,7 +126,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .build();
 
         // When
-        assertDoesNotThrow(() -> handler.doOperation(operation, new Context(), createStore()));
+        handler.doOperation(operation, new Context(), createStore());
+
+        // Then - no exception
     }
 
     @Test

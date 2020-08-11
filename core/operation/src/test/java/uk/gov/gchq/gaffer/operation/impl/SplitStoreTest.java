@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -29,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class SplitStoreTest extends OperationTest<SplitStore> {
-
     private static final String INPUT_DIRECTORY = "/input";
     private static final String TEST_OPTION_KEY = "testOption";
 
@@ -57,15 +57,11 @@ public class SplitStoreTest extends OperationTest<SplitStore> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        // When
         final SplitStore splitTable = new SplitStore.Builder().inputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
-
-        // Then
         assertEquals(INPUT_DIRECTORY, splitTable.getInputPath());
         assertEquals("true", splitTable.getOption(TEST_OPTION_KEY));
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

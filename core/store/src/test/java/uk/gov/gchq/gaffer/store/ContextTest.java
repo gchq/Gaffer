@@ -29,13 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ContextTest {
-
     @Test
     public void shouldConstructContextsWithTheSameUserAndGenerateDifferentJobIds() {
         // Given
@@ -84,8 +83,12 @@ public class ContextTest {
         final User user = null;
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new Context(user));
-        assertEquals("User is required", exception.getMessage());
+        try {
+            new Context(user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("User is required", e.getMessage());
+        }
     }
 
     @Test

@@ -18,16 +18,13 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -46,21 +43,21 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.setUpBeforeClass;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tearDownAfterClass;
 
 public class SplitStoreFromJavaRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
-
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
 
     private final User user = new User();
 
@@ -71,28 +68,27 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest extends AbstractProperti
     private JavaRDD<Element> javaRDD;
     private String configurationString;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    static Path tempDir;
 
-    @BeforeClass
-    public static void setup() {
-        setUpBeforeClass("/store.properties", storeBaseFolder);
+    @BeforeAll
+    public static void setup() throws IOException {
+        setUpBeforeClass("/store.properties", Files.createDirectories(tempDir.resolve("accumulo_temp_dir")));
     }
 
-    @AfterClass
+    @AfterAll
     public static void teardown() {
         tearDownAfterClass();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
-
         graph = createGraph();
         elements = createElements();
         javaRDD = createJavaRDDContaining(elements);
         configurationString = createConfigurationString();
-        outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
-        failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
+        outputPath = tempDir.resolve("output").toAbsolutePath().toString();
+        failurePath = tempDir.resolve("failure").toAbsolutePath().toString();
     }
 
     private Graph createGraph() {
@@ -155,67 +151,57 @@ public class SplitStoreFromJavaRDDOfElementsHandlerTest extends AbstractProperti
 
     @Test
     public void throwsExceptionWhenNumSplitPointsIsLessThanOne() throws OperationException {
-
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("numSplits must be null or greater than 0");
-
         final SplitStoreFromJavaRDDOfElements splitStoreHandler = new SplitStoreFromJavaRDDOfElements.Builder()
                 .input(javaRDD)
                 .numSplits(-1)
                 .build();
-        graph.execute(splitStoreHandler, user);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> graph.execute(splitStoreHandler, user));
+        assertTrue(actual.getMessage().contains("numSplits must be null or greater than 0"));
     }
 
     @Test
     public void throwsExceptionWhenMaxSampleSizeIsLessThanOne() throws OperationException {
-
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("maxSampleSize must be null or greater than 0");
-
         final SplitStoreFromJavaRDDOfElements splitStoreHandler = new SplitStoreFromJavaRDDOfElements.Builder()
                 .input(javaRDD)
                 .maxSampleSize(-1)
                 .build();
-        graph.execute(splitStoreHandler, user);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> graph.execute(splitStoreHandler, user));
+        assertTrue(actual.getMessage().contains("maxSampleSize must be null or greater than 0"));
     }
 
     @Test
     public void throwsExceptionWhenFractionToSampleIsGreaterThanOne() throws OperationException {
-
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("fractionToSample must be null or between 0 exclusive and 1 inclusive");
-
         final SplitStoreFromJavaRDDOfElements splitStoreHandler = new SplitStoreFromJavaRDDOfElements.Builder()
                 .input(javaRDD)
                 .fractionToSample(1.000000001d)
                 .build();
-        graph.execute(splitStoreHandler, user);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> graph.execute(splitStoreHandler, user));
+        assertTrue(actual.getMessage().contains("fractionToSample must be null or between 0 exclusive and 1 inclusive"));
     }
 
     @Test
     public void throwsExceptionWhenFractionToSampleIsZero() throws OperationException {
-
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("fractionToSample must be null or between 0 exclusive and 1 inclusive");
-
         final SplitStoreFromJavaRDDOfElements splitStoreHandler = new SplitStoreFromJavaRDDOfElements.Builder()
                 .input(javaRDD)
                 .fractionToSample(0d)
                 .build();
-        graph.execute(splitStoreHandler, user);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> graph.execute(splitStoreHandler, user));
+        assertTrue(actual.getMessage().contains("fractionToSample must be null or between 0 exclusive and 1 inclusive"));
     }
 
     @Test
     public void throwsExceptionWhenFractionToSampleLessThanZero() throws OperationException {
-
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("fractionToSample must be null or between 0 exclusive and 1 inclusive");
-
         final SplitStoreFromJavaRDDOfElements splitStoreHandler = new SplitStoreFromJavaRDDOfElements.Builder()
                 .input(javaRDD)
                 .fractionToSample(-0.00000001d)
                 .build();
-        graph.execute(splitStoreHandler, user);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> graph.execute(splitStoreHandler, user));
+        assertTrue(actual.getMessage().contains("fractionToSample must be null or between 0 exclusive and 1 inclusive"));
     }
 
     @Test

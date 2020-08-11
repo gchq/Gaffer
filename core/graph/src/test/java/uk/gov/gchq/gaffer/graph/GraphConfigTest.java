@@ -34,8 +34,9 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,9 +44,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
-
-    @TempDir
-    File tempDir;
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
@@ -62,17 +60,16 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals(obj.getDescription(), deserialisedObj.getDescription());
-        assertEquals(obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
     @Test
-    public void shouldJsonDeserialiseFromHookPaths() throws IOException {
+    public void shouldJsonDeserialiseFromHookPaths(@TempDir Path tmpDir) throws IOException {
         // Given
-        final File hook1Path = new File(tempDir, "hook1Path.tmp");
-        FileUtils.writeLines(hook1Path, Collections.singletonList("{\"class\": \"" + Log4jLogger.class.getName() + "\"}"));
-        final File hook2Path = new File(tempDir, "hook2Path.tmp");
-        FileUtils.writeLines(hook2Path, Collections.singletonList("{\"class\": \"" + AddOperationsToChain.class.getName() + "\"}"));
-
+        final File hook1Path = tmpDir.resolve("hook1Path").toFile();
+        final File hook2Path = tmpDir.resolve("hook2Path").toFile();
+        FileUtils.write(hook1Path, "{\"class\": \"" + Log4jLogger.class.getName() + "\"}");
+        FileUtils.write(hook2Path, "{\"class\": \"" + AddOperationsToChain.class.getName() + "\"}");
         final String json = "{" +
                 "  \"graphId\": \"graphId1\"," +
                 "  \"hooks\": [" +
@@ -95,11 +92,11 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
         // Then
         assertNotNull(deserialisedObj);
-        assertEquals(Arrays.asList(Log4jLogger.class, AddOperationsToChain.class, NamedOperationResolver.class), deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
+        assertEquals(Arrays.asList(Log4jLogger.class, AddOperationsToChain.class, NamedOperationResolver.class), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
     @Test
-    public void shouldReturnClonedView() {
+    public void shouldReturnClonedView() throws Exception {
         // Given
         final String graphId = "graphId";
         final View view = new View.Builder().entity(TestGroups.ENTITY).build();

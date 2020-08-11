@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +56,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
 
@@ -243,7 +245,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         hook.preExecute(opChain, new Context(new User()));
 
         // Then
-        final OperationChain<Void> expectedOpChain = new OperationChain.Builder()
+        final OperationChain expectedOpChain = new OperationChain.Builder()
                 .first(discardOutput)
                 .then(splitStore)
                 .then(validate)
@@ -261,33 +263,45 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddingNullExtraOperation() {
+    public void shouldThrowExceptionWhenAddingNullExtraOperation() throws IOException {
+        // Given
         final String nullTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": null}]}";
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> fromJson(nullTestJson.getBytes()));
-        final String expected = "uk.gov.gchq.gaffer.exception.SerialisationException: Invalid type id 'null' (for id type 'Id.class'): " +
-                "no such class found (through reference chain: uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain[\"start\"]->java.util.ArrayList[0])";
-        assertEquals(expected, exception.getMessage());
+        //When / Then
+        try {
+            fromJson(nullTestJson.getBytes());
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assertTrue(e.getMessage().contains("'null'"), e.getMessage());
+        }
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddingEmptyExtraOperation() {
+    public void shouldThrowExceptionWhenAddingEmptyExtraOperation() throws IOException {
+        // Given
         final String emptyTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"\"}]}";
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> fromJson(emptyTestJson.getBytes()));
-        final String expected = "uk.gov.gchq.gaffer.exception.SerialisationException: Invalid type id '' (for id type 'Id.class'): " +
-                "no such class found (through reference chain: uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain[\"start\"]->java.util.ArrayList[0])";
-        assertEquals(expected, exception.getMessage());
+        //When / Then
+        try {
+            fromJson(emptyTestJson.getBytes());
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assertTrue(e.getMessage().contains("''"), e.getMessage());
+        }
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddingFalseExtraOperation() {
+    public void shouldThrowExceptionWhenAddingFalseExtraOperation() throws IOException {
+        // Given
         final String falseOperationTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> fromJson(falseOperationTestJson.getBytes()));
-        final String expected = "uk.gov.gchq.gaffer.exception.SerialisationException: Invalid type id 'this.Operation.Doesnt.Exist' (for id type 'Id.class'): " +
-                "no such class found (through reference chain: uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain[\"start\"]->java.util.ArrayList[0])";
-        assertEquals(expected, exception.getMessage());
+        //When / Then
+        try {
+            fromJson(falseOperationTestJson.getBytes());
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assertTrue(e.getMessage().contains("'this.Operation.Doesnt.Exist'"), e.getMessage());
+        }
     }
 
     @Test
@@ -310,7 +324,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         hook.preExecute(opChain, new Context(new User()));
 
         // Then
-        final OperationChain<Void> expectedOpChain = new OperationChain.Builder()
+        final OperationChain expectedOpChain = new OperationChain.Builder()
                 .first(discardOutput)
                 .then(splitStore)
                 .then(getElements)
@@ -497,7 +511,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     @Test
-    public void shouldReturnClonedOperations() {
+    public void shouldReturnClonedOperations() throws IOException {
         // Given
         final AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 

@@ -18,17 +18,16 @@ package uk.gov.gchq.gaffer.user;
 
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class UserTest {
-
     @Test
     public void shouldBuildUser() {
         // Given
@@ -59,21 +58,42 @@ public class UserTest {
         ));
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    public void shouldReplaceNullIdWithUnknownIdWhenBuildingUser(String userId) {
+    @Test
+    public void shouldReplaceNullIdWithUnknownIdWhenBuildingUser() {
+        // Given
+        final String userId = null;
+
+        // When
         final User user = new User.Builder()
                 .userId(userId)
                 .build();
 
+        // Then
+        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+    }
+
+    @Test
+    public void shouldReplaceEmptyIdWithUnknownIdWhenBuildingUser() {
+        // Given
+        final String userId = "";
+
+        // When
+        final User user = new User.Builder()
+                .userId(userId)
+                .build();
+
+        // Then
         assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
     }
 
     @Test
     public void shouldSetUnknownIdWhenBuildingUser() {
+        // Given
+        // When
         final User user = new User.Builder()
                 .build();
 
+        // Then
         assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
     }
 
@@ -91,7 +111,12 @@ public class UserTest {
                 .build();
 
         // When
-        assertThrows(UnsupportedOperationException.class, () -> user.getDataAuths().add(newDataAuth));
+        try {
+            user.getDataAuths().add(newDataAuth);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
 
         // Then
         assertFalse(user.getDataAuths().contains(newDataAuth));
@@ -111,7 +136,12 @@ public class UserTest {
                 .build();
 
         // When
-        assertThrows(UnsupportedOperationException.class, () -> user.getOpAuths().add(newOpAuth));
+        try {
+            user.getOpAuths().add(newOpAuth);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
 
         // Then
         assertFalse(user.getOpAuths().contains(newOpAuth));
@@ -126,7 +156,7 @@ public class UserTest {
         final String opAuth1 = "opAuth 1";
         final String opAuth2 = "opAuth 2";
 
-        final User user1 = new User.Builder()
+        final User userLocked = new User.Builder()
                 .userId(userId)
                 .dataAuth(dataAuth1)
                 .dataAuth(dataAuth2)
@@ -134,17 +164,20 @@ public class UserTest {
                 .opAuth(opAuth2)
                 .build();
 
-        final User user1Clone = new User.Builder()
+        final User userUnlocked = new User.Builder()
                 .userId(userId)
                 .dataAuth(dataAuth1)
                 .dataAuth(dataAuth2)
                 .opAuth(opAuth1)
                 .opAuth(opAuth2)
                 .build();
+
+        // When
+        final boolean isEqual = userLocked.equals(userUnlocked);
 
         // Then
-        assertEquals(user1, user1Clone);
-        assertEquals(user1.hashCode(), user1Clone.hashCode());
+        assertTrue(isEqual);
+        assertEquals(userLocked.hashCode(), userUnlocked.hashCode());
     }
 
     @Test
@@ -173,8 +206,11 @@ public class UserTest {
                 .opAuth(opAuth2)
                 .build();
 
+        // When
+        final boolean isEqual = user1.equals(user2);
+
         // Then
-        assertNotEquals(user1, user2);
+        assertFalse(isEqual);
         assertNotEquals(user1.hashCode(), user2.hashCode());
     }
 
@@ -197,8 +233,11 @@ public class UserTest {
                 .dataAuth(dataAuth2b)
                 .build();
 
+        // When
+        final boolean isEqual = user1.equals(user2);
+
         // Then
-        assertNotEquals(user1, user2);
+        assertFalse(isEqual);
         assertNotEquals(user1.hashCode(), user2.hashCode());
     }
 
@@ -209,21 +248,23 @@ public class UserTest {
         final String opAuth1 = "opAuth 1";
         final String opAuth2a = "opAuth 2a";
         final String opAuth2b = "opAuth 2b";
-
-        // When
         final User user1 = new User.Builder()
                 .userId(userId)
                 .opAuth(opAuth1)
                 .opAuth(opAuth2a)
                 .build();
+
         final User user2 = new User.Builder()
                 .userId(userId)
                 .opAuth(opAuth1)
                 .opAuth(opAuth2b)
                 .build();
 
+        // When
+        final boolean isEqual = user1.equals(user2);
+
         // Then
-        assertNotEquals(user1, user2);
+        assertFalse(isEqual);
         assertNotEquals(user1.hashCode(), user2.hashCode());
     }
 }

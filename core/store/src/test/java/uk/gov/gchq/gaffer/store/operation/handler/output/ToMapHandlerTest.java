@@ -31,8 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -42,8 +43,8 @@ public class ToMapHandlerTest {
     public void shouldConvertElementToMap() throws OperationException {
         // Given
         final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
-                .vertex(1)
-                .build();
+                                                  .vertex(1)
+                                                  .build();
 
         final Map<String, Object> originalMap = new HashMap<>(1);
         originalMap.put("group", TestGroups.ENTITY);
@@ -82,6 +83,6 @@ public class ToMapHandlerTest {
         final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertNull(results);
+        assertThat(results, is(nullValue()));
     }
 }

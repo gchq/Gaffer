@@ -31,7 +31,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,8 +51,12 @@ public class ForEachHandlerTest {
         final ForEachHandler handler = new ForEachHandler();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(op, context, store));
-        assertEquals("Operation cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Operation cannot be null"));
+        }
     }
 
     @Test
@@ -65,8 +70,12 @@ public class ForEachHandlerTest {
         final ForEachHandler handler = new ForEachHandler();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(op, context, store));
-        assertEquals("Inputs cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Inputs cannot be null"));
+        }
     }
 
     @Test

@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -51,58 +50,64 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsInRangesHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsInRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
-
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
-
     private static final Context CONTEXT = new Context();
+
+    private static AccumuloStore byteEntityStore = null;
+    private static AccumuloStore gaffer1KeyStore = null;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity = null;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key = null;
+    private static View defaultView = null;
+
+    @TempDir
+    static Path tempDir;
+
     private OutputOperationHandler handler;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setup() {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-        byteEntityStore = new SingleUseAccumuloStore();
-        gaffer1KeyStore = new SingleUseAccumuloStore();
+    @BeforeAll
+    public static void setup() throws IOException {
+        Path accumulo = Files.createDirectories(tempDir.resolve("accumulo"));
+        Path accumuloClassic = Files.createDirectories(tempDir.resolve("accumulo_classic"));
+        miniAccumuloClusterManagerByteEntity =
+                new MiniAccumuloClusterManager(PROPERTIES, accumulo.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key =
+                new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, accumuloClassic.toAbsolutePath().toString());
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
         handler = createHandler();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
+        byteEntityStore = new SingleUseAccumuloStore();
         byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+
+        gaffer1KeyStore = new SingleUseAccumuloStore();
         gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+
         setupGraph(byteEntityStore, NUM_ENTRIES);
         setupGraph(gaffer1KeyStore, NUM_ENTRIES);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         miniAccumuloClusterManagerByteEntity.close();
         miniAccumuloClusterManagerGaffer1Key.close();
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
     }
 
     @Test

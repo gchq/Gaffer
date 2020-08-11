@@ -15,33 +15,27 @@
  */
 package uk.gov.gchq.gaffer.operation.runner.arguments;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument;
 
 import java.util.Map;
 
-import static java.lang.String.format;
 import static java.util.function.Function.identity;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Mandatory;
 import static uk.gov.gchq.gaffer.operation.runner.arguments.Arguments.Argument.Requirement.Optional;
 
 public class ArgumentsTest {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldThrowExceptionWhenDuplicateArgumentOptionsSupplied() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage(format("Duplicate option %s configured.", "-b"));
-
-        new Arguments(
-                new Argument(Mandatory, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
-                new Argument(Mandatory, new String[]{"-b", "-c"}, string -> true, identity(), "An argument"));
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> new Arguments(new Argument(Mandatory, new String[]{"-a", "-b"}, string -> true, identity(), "An argument"),
+                        new Argument(Mandatory, new String[]{"-b", "-c"}, string -> true, identity(), "An argument")));
+        assertEquals(String.format("Duplicate option %s configured.", "-b"), actual.getMessage());
     }
 
     @Test
@@ -62,9 +56,9 @@ public class ArgumentsTest {
     }
 
     private void shouldThrowExceptionWhenMandatoryArgumentsMissing(final String[] args, final Argument... arguments) {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Not all mandatory arguments have been supplied.");
-        new Arguments(arguments).parse(args);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> new Arguments(arguments).parse(args));
+        assertEquals("Not all mandatory arguments have been supplied.", actual.getMessage());
     }
 
     @Test

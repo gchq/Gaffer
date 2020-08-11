@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.serialisation.util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiserStorage;
@@ -34,71 +35,66 @@ public class MultiSerialiserStorageTest {
     public static final int VALUE = 1;
     public static final ToBytesSerialiser SERIALISER_CLASS2 = new RawIntegerSerialiser();
     public static final Class SUPPORTED_CLASS = Integer.class;
+    private MultiSerialiserStorage mss;
 
-    private MultiSerialiserStorage multiSerialiserStorage;
 
     @BeforeEach
     public void setUp() throws Exception {
-        multiSerialiserStorage = new MultiSerialiserStorage();
+        mss = new MultiSerialiserStorage();
     }
 
     @Test
     public void shouldPutAndGet() throws Exception {
-        // Given When
-        multiSerialiserStorage.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
-
-        // Then
-        assertPutInvoked();
+        //when
+        mss.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
+        //then
+        checkBasicPut();
     }
 
     @Test
     public void shouldNotRetainOldSerialiserWhenKeyIsOverWritten() throws Exception {
-        // When
-        multiSerialiserStorage.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
-        multiSerialiserStorage.put(BYTE, SERIALISER_CLASS2, SUPPORTED_CLASS);
-
-        // Then
-        assertNotNull(multiSerialiserStorage.getKeyFromValue(VALUE));
-        assertEquals((Object) BYTE, multiSerialiserStorage.getKeyFromValue(VALUE), "Wrong key for value");
-
-        ToBytesSerialiser actualClassFromByte = multiSerialiserStorage.getSerialiserFromKey(BYTE);
+        //when
+        mss.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
+        mss.put(BYTE, SERIALISER_CLASS2, SUPPORTED_CLASS);
+        //then
+        assertNotNull(mss.getKeyFromValue(VALUE));
+        assertEquals((Object) BYTE, mss.getKeyFromValue(VALUE), "Wrong key for value");
+        ToBytesSerialiser actualClassFromByte = mss.getSerialiserFromKey(BYTE);
         assertNotNull(actualClassFromByte, "Byte key not found");
         assertEquals(SERIALISER_CLASS2, actualClassFromByte, "Wrong new SerialiserClass returned for key");
-
-        ToBytesSerialiser actualClassFromValue = multiSerialiserStorage.getSerialiserFromValue(Integer.MAX_VALUE);
+        ToBytesSerialiser actualClassFromValue = mss.getSerialiserFromValue(Integer.MAX_VALUE);
         assertNotNull(actualClassFromValue, "Value class not found");
         assertEquals(SERIALISER_CLASS2, actualClassFromValue, "Wrong new SerialiserClass returned for value class");
     }
 
+
     @Test
     public void shouldUpdateToNewerValueToSerialiser() throws Exception {
-        // Given
-        final byte serialiserEncoding = BYTE + 1;
+        //give
+        byte serialiserEncoding = BYTE + 1;
+        //when
+        mss.put(serialiserEncoding, SERIALISER_CLASS2, SUPPORTED_CLASS);
+        mss.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
+        //then
+        checkBasicPut();
 
-        multiSerialiserStorage.put(serialiserEncoding, SERIALISER_CLASS2, SUPPORTED_CLASS);
-        multiSerialiserStorage.put(BYTE, SERIALISER_CLASS, SUPPORTED_CLASS);
-
-        // Then
-        assertPutInvoked();
-        assertEquals(BYTE, (byte) multiSerialiserStorage.getKeyFromValue(VALUE));
-
-        ToBytesSerialiser actualClassFromByte2 = multiSerialiserStorage.getSerialiserFromKey(serialiserEncoding);
+        assertEquals(BYTE, (byte) mss.getKeyFromValue(VALUE));
+        ToBytesSerialiser actualClassFromByte2 = mss.getSerialiserFromKey(serialiserEncoding);
         assertNotNull(actualClassFromByte2, "Byte key not found");
         assertEquals(SERIALISER_CLASS2, actualClassFromByte2, "Wrong SerialiserClass returned for key");
 
-        ToBytesSerialiser actualClassFromValue2 = multiSerialiserStorage.getSerialiserFromValue(Integer.MAX_VALUE);
+        ToBytesSerialiser actualClassFromValue2 = mss.getSerialiserFromValue(Integer.MAX_VALUE);
         assertNotNull(actualClassFromValue2, "Value class not found");
-        assertEquals(SERIALISER_CLASS, actualClassFromValue2, "Wrong SerialiserClass, should have updated to newer SerialiserClass");
+        assertEquals(SERIALISER_CLASS, actualClassFromValue2,
+                "Wrong SerialiserClass, should have updated to newer SerialiserClass");
     }
 
-    private void assertPutInvoked() {
-        assertEquals((Object) BYTE, multiSerialiserStorage.getKeyFromValue(VALUE));
-
-        ToBytesSerialiser actualClassFromByte = multiSerialiserStorage.getSerialiserFromKey(BYTE);
+    private void checkBasicPut() throws GafferCheckedException {
+        assertEquals((Object) BYTE, mss.getKeyFromValue(VALUE));
+        ToBytesSerialiser actualClassFromByte = mss.getSerialiserFromKey(BYTE);
         assertNotNull(actualClassFromByte, "Byte key not found");
         assertEquals(SERIALISER_CLASS, actualClassFromByte, "Wrong SerialiserClass returned for key");
-
-        ToBytesSerialiser actualClassFromValue = multiSerialiserStorage.getSerialiserFromValue(Integer.MAX_VALUE);
+        ToBytesSerialiser actualClassFromValue = mss.getSerialiserFromValue(Integer.MAX_VALUE);
         assertNotNull(actualClassFromValue, "Value class not found");
         assertEquals(SERIALISER_CLASS, actualClassFromValue, "Wrong SerialiserClass returned for value class");
     }

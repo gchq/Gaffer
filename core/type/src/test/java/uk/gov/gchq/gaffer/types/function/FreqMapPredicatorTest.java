@@ -30,7 +30,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
 public class FreqMapPredicatorTest {
+
     private FreqMap freqMap;
 
     @BeforeEach
@@ -51,14 +53,14 @@ public class FreqMapPredicatorTest {
 
     @Test
     public void shouldFilterMapWithMultipleResults() {
-        // Given
+        //given
         final Regex predicate = new Regex("^\\wo\\w$");
         final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
 
-        // When
+        //when
         final FreqMap fRegex = fRegexPredicator.apply(freqMap);
 
-        // Then
+        //then
         assertEquals(fRegex.size(), 2);
         assertTrue(fRegex.containsKey("cow"));
         assertTrue(fRegex.containsKey("dog"));
@@ -66,40 +68,40 @@ public class FreqMapPredicatorTest {
 
     @Test
     public void shouldFilterMapWithSingleResult() {
-        // Given
+        //given
         final Regex predicate = new Regex("^c.*o.*g$");
         final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
 
-        // When
+        //when
         final FreqMap fRegex = fRegexPredicator.apply(freqMap);
 
-        // Then
+        //then
         assertEquals(fRegex.size(), 1);
         assertTrue(fRegex.containsKey("catdog"));
     }
 
     @Test
     public void shouldHandleNulls() {
-        // Given
+        //given
         final FreqMapPredicator nullRegPredicator = new FreqMapPredicator(null);
 
-        // When
+        //when
         final FreqMap map = nullRegPredicator.apply(freqMap);
 
-        // Then
+        //then
         assertThat(map, is(freqMap));
     }
 
     @Test
     public void shouldNotMutateOriginalValue() {
-        // Given
+        //given
         final Regex predicate = new Regex("^\\wo\\w$");
         final FreqMapPredicator fRegexPredicator = new FreqMapPredicator(predicate);
 
-        // When
+        //when
         final FreqMap fRegex = fRegexPredicator.apply(freqMap);
 
-        // Then
+        //then
         assertEquals(fRegex.size(), 2);
         assertTrue(fRegex.containsKey("cow"));
         assertTrue(fRegex.containsKey("dog"));
@@ -113,15 +115,15 @@ public class FreqMapPredicatorTest {
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        // Given
+        //given
         final FreqMapPredicator nullPredicator = new FreqMapPredicator();
         final FreqMapPredicator regexPredicator = new FreqMapPredicator(new Regex("^\\wo\\w$"));
 
-        // When
+        //when
         final String json = new String(JSONSerialiser.serialise(nullPredicator, true));
         final String json2 = new String(JSONSerialiser.serialise(regexPredicator, false));
 
-        // Then
+        //then
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.FreqMapPredicator\"%n" +
                 "}"), json);

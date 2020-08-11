@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.parquetstore.testutils;
 
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -29,8 +28,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.TreeSet;
 
@@ -45,18 +45,14 @@ public final class TestUtils {
         // private to prevent instantiation
     }
 
-    public static ParquetStoreProperties getParquetStoreProperties(final TemporaryFolder temporaryFolder) throws IOException {
+    public static ParquetStoreProperties getParquetStoreProperties(final Path temporaryFolder)
+            throws IOException {
         final ParquetStoreProperties properties = new ParquetStoreProperties();
-        File dataFolder = new File(temporaryFolder.getRoot() + "/data");
-        File tmpDataFolder = new File(temporaryFolder.getRoot() + "/tmpdata");
-        if (!dataFolder.exists()) {
-            dataFolder = temporaryFolder.newFolder("data");
-        }
-        if (!tmpDataFolder.exists()) {
-            tmpDataFolder = temporaryFolder.newFolder("tmpdata");
-        }
-        properties.setDataDir(dataFolder.getAbsolutePath());
-        properties.setTempFilesDir(tmpDataFolder.getAbsolutePath());
+        Path dataFolder = Files.createDirectories(temporaryFolder.resolve("data"));
+        Path tmpDataFolder = Files.createDirectories(temporaryFolder.resolve("tmpdata"));
+
+        properties.setDataDir(dataFolder.toAbsolutePath().toString());
+        properties.setTempFilesDir(tmpDataFolder.toAbsolutePath().toString());
         return properties;
     }
 

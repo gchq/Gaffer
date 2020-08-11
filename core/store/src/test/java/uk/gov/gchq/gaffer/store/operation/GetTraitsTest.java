@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
-import org.junit.jupiter.api.Test;
-
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
@@ -30,40 +28,26 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         return new GetTraits();
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        // Given
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new Builder().currentTraits(false).build();
 
-        // When / Then
         assertEquals(false, op.isCurrentTraits());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
-        // Given
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new Builder().currentTraits(false).build();
 
-        // When
         GetTraits clone = op.shallowClone();
 
-        // Then
         assertEquals(op.isCurrentTraits(), clone.isCurrentTraits());
     }
 
-    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final GetTraits obj = new GetTraits.Builder()
-                .currentTraits(true)
-                .build();
+        final GetTraits obj = new GetTraits.Builder().currentTraits(true).build();
 
         // When
         final byte[] json = toJson(obj);
@@ -71,5 +55,17 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
         // Then
         assertEquals(obj.isCurrentTraits(), deserialisedObj.isCurrentTraits());
+    }
+
+    @Override
+    public void shouldHaveSinceAnnotation() {
+        // TODO Auto-generated method stub
+        super.shouldHaveSinceAnnotation();
+    }
+
+    @Override
+    public void shouldHaveSummaryAnnotation() {
+        // TODO Auto-generated method stub
+        super.shouldHaveSummaryAnnotation();
     }
 }

@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
+
 public class ToArrayTest extends OperationTest<ToArray> {
 
     @Test
@@ -42,7 +43,6 @@ public class ToArrayTest extends OperationTest<ToArray> {
         assertThat(toArray.getInput(), containsInAnyOrder("1", "2"));
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

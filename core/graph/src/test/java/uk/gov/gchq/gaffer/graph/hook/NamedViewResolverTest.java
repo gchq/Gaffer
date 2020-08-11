@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Maps;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -42,10 +44,8 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -197,7 +197,6 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     @Test
     public void shouldResolveNamedViewWithParameter() throws CacheOperationFailedException {
-        // Given
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put(EDGE_NAME_PARAM_KEY, TestGroups.EDGE_2);
 
@@ -239,8 +238,8 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertNotNull(getElements.getView().getEdge(TestGroups.EDGE));
-        assertNull(getElements.getView().getEdge(TestGroups.EDGE_2));
+        assertTrue(getElements.getView().getEdge(TestGroups.EDGE) != null);
+        assertTrue(getElements.getView().getEdge(TestGroups.EDGE_2) == null);
 
         final OperationChain<?> opChain1 = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -256,7 +255,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         GetElements getElements1 = (GetElements) opChain1.getOperations().get(0);
 
         // Then
-        assertNotNull(getElements1.getView().getEdge(TestGroups.EDGE_2));
+        assertTrue(getElements1.getView().getEdge(TestGroups.EDGE_2) != null);
     }
 
     @Test
@@ -458,7 +457,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     }
 
     @Test
-    public void shouldBuildFullViewWhenANamedViewNeedingToBeResolvedAndMergedIsSupplied() throws CacheOperationFailedException {
+    public void shouldBuildFullViewWhenANamedViewNeedingToBeResolvedAndMergedIsSupplied() throws CacheOperationFailedException, SerialisationException {
         // Given
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
         final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(NAMED_VIEW_NAME + 2).view(viewToMerge).build();
@@ -488,6 +487,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
 
     @Test
     public void shouldThrowExceptionWhenNamedViewToBeMergedIsNotInCache() throws CacheOperationFailedException {
+        // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willThrow(new CacheOperationFailedException("No NamedView with the name namedViewName1 exists in the cache"));
 
@@ -500,11 +500,13 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
                         .build())
                 .build();
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> RESOLVER.preExecute(opChain, CONTEXT));
-
-        final String expected = "uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException: " +
-                "No NamedView with the name namedViewName1 exists in the cache";
-        assertEquals(expected, exception.getMessage());
+        // When / Then
+        try {
+            RESOLVER.preExecute(opChain, CONTEXT);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            assert e.getMessage().contains("No NamedView with the name namedViewName1 exists in the cache");
+        }
     }
 
     @Override

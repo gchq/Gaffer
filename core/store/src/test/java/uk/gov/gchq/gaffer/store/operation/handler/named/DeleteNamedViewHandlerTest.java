@@ -39,13 +39,12 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class DeleteNamedViewHandlerTest {
-
     private static final String WRITE_ACCESS_ROLE = "writeRole";
     private final NamedViewCache namedViewCache = new NamedViewCache();
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
@@ -60,12 +59,11 @@ public class DeleteNamedViewHandlerTest {
             .opAuth(WRITE_ACCESS_ROLE)
             .build());
     private final Store store = mock(Store.class);
-
     private View view;
     private AddNamedView addNamedView;
 
     @BeforeEach
-    public void before() throws OperationException, CacheOperationFailedException {
+    public void before() throws OperationException {
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
 
@@ -85,7 +83,6 @@ public class DeleteNamedViewHandlerTest {
                 .build();
 
         addNamedViewHandler.doOperation(addNamedView, context, store);
-        assertTrue(cacheContains(testNamedViewName));
     }
 
     @AfterEach
@@ -100,7 +97,9 @@ public class DeleteNamedViewHandlerTest {
 
     @Test
     public void shouldDeleteNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
+        assertTrue(cacheContains(testNamedViewName));
         // Given
+
         final DeleteNamedView deleteNamedView = new DeleteNamedView.Builder().name(testNamedViewName).build();
 
         // When
@@ -112,6 +111,8 @@ public class DeleteNamedViewHandlerTest {
 
     @Test
     public void shouldNotThrowExceptionWhenNoNamedViewToDelete() throws CacheOperationFailedException, OperationException {
+        assertTrue(cacheContains(testNamedViewName));
+
         // Given
         final DeleteNamedView deleteInvalidNamedView = new DeleteNamedView.Builder().name(invalidNamedViewName).build();
 

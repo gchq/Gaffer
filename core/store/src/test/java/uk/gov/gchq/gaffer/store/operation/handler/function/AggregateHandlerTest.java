@@ -45,12 +45,12 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class AggregateHandlerTest {
-
     private final Store store = mock(Store.class);
     private final Context context = new Context();
     private final AggregateHandler handler = new AggregateHandler();
@@ -134,7 +134,7 @@ public class AggregateHandlerTest {
         input.add(entity2);
 
         final AggregatePair pair = new AggregatePair(
-                new String[] {"timestamp"},
+                new String[]{"timestamp"},
                 new ElementAggregator.Builder()
                         .select("count")
                         .execute(new Sum())
@@ -273,7 +273,7 @@ public class AggregateHandlerTest {
         input1.add(localEdge2);
 
         final AggregatePair pair = new AggregatePair(
-                new String[] {"timestamp"},
+                new String[]{"timestamp"},
                 new ElementAggregator.Builder()
                         .select("count")
                         .execute(new Sum())
@@ -350,11 +350,11 @@ public class AggregateHandlerTest {
         input.add(entity3);
 
         final AggregatePair edgePair = new AggregatePair(
-                new String[] {"timestamp"}
+                new String[]{"timestamp"}
         );
 
         final AggregatePair entityPair = new AggregatePair(
-                new String[] {"timestamp"}
+                new String[]{"timestamp"}
         );
 
         edges.put(TestGroups.EDGE, edgePair);
@@ -494,10 +494,11 @@ public class AggregateHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(aggregate, context, store));
-        final String expected = "Aggregate operation is invalid. Validation errors: \n" +
-                "Edge group: BasicEdge does not exist in the schema.";
-        assertEquals(expected, exception.getMessage());
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Edge group: " + TestGroups.EDGE + " does not exist in the schema."));
+        }
     }
 
     @Test
@@ -526,10 +527,12 @@ public class AggregateHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(aggregate, context, store));
-        final String expected = "Aggregate operation is invalid. Validation errors: \n" +
-                "Schema contains an ElementAggregator with a null function.";
-        assertEquals(expected, exception.getMessage());
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Schema contains an ElementAggregator with a null function."));
+        }
     }
 
     @Test
@@ -558,9 +561,11 @@ public class AggregateHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(aggregate, context, store));
-        final String expected = "Aggregate operation is invalid. Validation errors: \n" +
-                "Incompatible types. uk.gov.gchq.koryphe.impl.binaryoperator.Or: [class java.lang.Boolean], arguments: [class java.lang.Long]";
-        assertEquals(expected, exception.getMessage());
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Incompatible types."));
+        }
     }
 }

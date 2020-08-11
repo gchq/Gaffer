@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -32,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> {
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
@@ -46,7 +46,6 @@ public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> 
         assertNotNull(deserialisedOp);
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -59,7 +58,6 @@ public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> 
         assertThat(scoreOperationChain.getOperationChain(), is(notNullValue()));
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

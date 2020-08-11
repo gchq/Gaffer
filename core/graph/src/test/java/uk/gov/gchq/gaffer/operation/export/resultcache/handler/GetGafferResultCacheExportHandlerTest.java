@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Iterables;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -53,7 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class GetGafferResultCacheExportHandlerTest {
-
     private final Edge validEdge = new Edge.Builder()
             .group("result")
             .source("jobId")
@@ -140,7 +140,7 @@ public class GetGafferResultCacheExportHandlerTest {
     }
 
     @Test
-    public void shouldCreateCacheGraph() {
+    public void shouldCreateCacheGraph() throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final long timeToLive = 10000L;

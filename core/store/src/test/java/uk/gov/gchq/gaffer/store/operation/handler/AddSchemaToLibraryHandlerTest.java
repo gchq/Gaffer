@@ -19,10 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
@@ -33,14 +31,13 @@ import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddSchemaToLibraryHandlerTest {
 
-    private static final String TEST_SCHEMA_ID = "testSchemaId";
-    private static final String TEST_STORE_ID = "testStoreId";
-
+    public static final String TEST_SCHEMA_ID = "testSchemaId";
+    public static final String TEST_STORE_ID = "testStoreId";
     private Store store;
     private Schema schema;
 
@@ -52,67 +49,61 @@ public class AddSchemaToLibraryHandlerTest {
     }
 
     @Test
-    public void shouldThrowWithNoGraphLibrary() throws StoreException {
-        // Given
+    public void shouldThrowWithNoGraphLibrary() throws Exception {
+        //given
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-
-        // When
-        final Exception exception = assertThrows(UnsupportedOperationException.class, () ->
-                store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser())));
-
-        // Then
-        final String expected = String.format("Operation class %s is not supported by the %s.", AddSchemaToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName());
-        assertEquals(expected, exception.getMessage());
+        try {
+            //when
+            store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
+            fail("Exception expected");
+        } catch (final Exception e) {
+            //then
+            assertEquals(String.format("Operation class %s is not supported by the %s.", AddSchemaToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()), e.getMessage());
+        }
     }
 
     @Test
-    public void shouldAddSchemaWithGraphLibrary() throws StoreException, OperationException {
-        // Given
+    public void shouldAddSchemaWithGraphLibrary() throws Exception {
+        //given
         HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
-        // When
+        //when
         store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
-
-        // Then
+        //then
         Schema actualSchema = library.getSchema(TEST_SCHEMA_ID);
         assertEquals(schema, actualSchema);
     }
 
     @Test
-    public void shouldSupportAddToGraphLibrary() throws StoreException {
-        // Given
-        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+    public void shouldSupportAddToGraphLibrary() throws Exception {
+        //given
+        HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
-
-        // When
+        //when
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-
-        // Then
+        //then
         assertTrue(store.isSupported(AddSchemaToLibrary.class));
     }
 
     @Test
-    public void shouldNotSupportAddToGraphLibraryI() throws StoreException {
-        // Given - GraphLibrary has not been set
-
-        // When
+    public void shouldNotSupportAddToGraphLibraryI() throws Exception {
+        //given
+        //GraphLibrary has not been set
+        //when
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-
-        // Then
+        //then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
 
     @Test
-    public void shouldNotSupportAddToGraphLibraryII() throws StoreException {
-        // Given
+    public void shouldNotSupportAddToGraphLibraryII() throws Exception {
+        //given
         store.setGraphLibrary(new NoGraphLibrary());
-
-        // When
+        //when
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-
-        // Then
+        //then
         assertFalse(store.isSupported(AddSchemaToLibrary.class));
     }
 }

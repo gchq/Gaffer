@@ -37,13 +37,12 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
-
     @Test
     public void shouldBeRelatedToEntityIdWhenSourceEqualsVertex() {
         // Given
@@ -91,8 +90,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
         given(relatedSeed.getVertex()).willReturn(source);
 
+        // When
+        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
+
         // Then
-        assertTrue(seed.isRelated((ElementId) relatedSeed).isMatch());
+        assertTrue(isRelated);
     }
 
     @Test
@@ -106,8 +108,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
         given(relatedSeed.getVertex()).willReturn(source);
 
+        // When
+        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
+
         // Then
-        assertTrue(seed.isRelated((ElementId) relatedSeed).isMatch());
+        assertTrue(isRelated);
     }
 
     @Test
@@ -121,8 +126,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
         given(unrelatedSeed.getVertex()).willReturn("other identifier");
 
+        // When
+        final boolean isRelated = seed.isRelated((ElementId) unrelatedSeed).isMatch();
+
         // Then
-        assertFalse(seed.isRelated((ElementId) unrelatedSeed).isMatch());
+        assertFalse(isRelated);
     }
 
     @Test
@@ -134,8 +142,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeId seed1 = new EdgeSeed(source, destination, directed);
         final EdgeId seed2 = new EdgeSeed(source, destination, directed);
 
+        // When
+        final boolean isRelated = seed1.isRelated(seed2).isMatch();
+
         // Then
-        assertTrue(seed1.isRelated(seed2).isMatch());
+        assertTrue(isRelated);
     }
 
     @Test
@@ -147,8 +158,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeId seed1 = new EdgeSeed(source, destination, directed);
         final EdgeId seed2 = new EdgeSeed(source, destination, directed);
 
+        // When
+        final boolean isEqual = seed1.equals(seed2);
+
         // Then
-        assertEquals(seed1, seed2);
+        assertTrue(isEqual);
         assertEquals(seed1.hashCode(), seed2.hashCode());
     }
 
@@ -161,8 +175,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeId seed1 = new EdgeSeed(source, destination, directed);
         final EdgeId seed2 = new EdgeSeed("different source", destination, directed);
 
+        // When
+        final boolean isEqual = seed1.equals(seed2);
+
         // Then
-        assertNotEquals(seed1, seed2);
+        assertFalse(isEqual);
         assertNotEquals(seed1.hashCode(), seed2.hashCode());
     }
 
@@ -175,8 +192,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeId seed1 = new EdgeSeed(source, destination, directed);
         final EdgeId seed2 = new EdgeSeed(source, "different destination", directed);
 
+        // When
+        final boolean isEqual = seed1.equals(seed2);
+
         // Then
-        assertNotEquals(seed1, seed2);
+        assertFalse(isEqual);
     }
 
     @Test
@@ -188,8 +208,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeId seed1 = new EdgeSeed(source, destination, directed);
         final EdgeId seed2 = new EdgeSeed(source, destination, false);
 
+        // When
+        final boolean isEqual = seed1.equals(seed2);
+
         // Then
-        assertNotEquals(seed1, seed2);
+        assertFalse(isEqual);
     }
 
     @Test
@@ -200,8 +223,11 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeId seed1 = new EdgeSeed(source, destination, false);
         final EdgeId seed2 = new EdgeSeed(destination, source, false);
 
+        // When
+        final boolean isEqual = seed1.equals(seed2);
+
         // Then
-        assertEquals(seed1, seed2);
+        assertTrue(isEqual);
         assertEquals(seed1.hashCode(), seed2.hashCode());
     }
 
@@ -319,7 +345,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
     @Test
     public void shouldNotFailToConsistentlySwapVerticesWithStringImplementation() {
-        // Opposite to shouldFailToConsistentlySwapVerticesWithNoToStringImplementation(),
+        // Opposite to
+        // shouldFailToConsistentlySwapVerticesWithNoToStringImplementation(),
         // showing that EdgeSeeds which implement toString, equals and hashCode are
         // consistently created with source and destination the correct way round
 
@@ -430,18 +457,18 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         assertEquals(DirectedType.EITHER, deserialisedEdgeSeed.getDirectedType());
     }
 
-
     @Test
     public void shouldThrowExceptionWhenDeserialiseFromJsonUsingDirectedAndDirectedType() {
         // Given
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        final Exception exception = assertThrows(RuntimeException.class, () -> fromJson(json.getBytes()));
-        final String expected = "uk.gov.gchq.gaffer.exception.SerialisationException: Instantiation of " +
-                "[simple type, class uk.gov.gchq.gaffer.operation.data.EdgeSeed] value failed: " +
-                "Use either 'directed' or 'directedType' - not both.";
-        assertEquals(expected, exception.getMessage());
+        try {
+            fromJson(json.getBytes());
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getMessage().contains("not both"));
+        }
     }
 
     @Override
@@ -449,7 +476,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         return new EdgeSeed();
     }
 
-    private static class Vertex {
+    private class Vertex {
         private final String property;
 
         Vertex(final String property) {
@@ -472,16 +499,12 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
             final Vertex vertex = (Vertex) obj;
 
-            return new EqualsBuilder()
-                    .append(property, vertex.property)
-                    .isEquals();
+            return new EqualsBuilder().append(property, vertex.property).isEquals();
         }
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(53, 41)
-                    .append(property)
-                    .toHashCode();
+            return new HashCodeBuilder(53, 41).append(property).toHashCode();
         }
 
         @Override
@@ -490,7 +513,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         }
     }
 
-    private static class Vertex2 {
+    private class Vertex2 {
         private final String property;
 
         Vertex2(final String property) {

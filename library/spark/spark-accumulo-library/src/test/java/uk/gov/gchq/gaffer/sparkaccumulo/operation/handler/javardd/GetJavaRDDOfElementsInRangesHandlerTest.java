@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.GetJavaRDDOfElementsInRanges;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -35,16 +36,6 @@ import java.util.List;
 import java.util.Set;
 
 public class GetJavaRDDOfElementsInRangesHandlerTest extends GetElementsInRangesHandlerTest {
-    private final String configurationString;
-
-    public GetJavaRDDOfElementsInRangesHandlerTest() {
-        final Configuration configuration = new Configuration();
-        try {
-            configurationString = AbstractGetRDDHandler.convertConfigurationToString(configuration);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     protected OutputOperationHandler createHandler() {
@@ -52,18 +43,27 @@ public class GetJavaRDDOfElementsInRangesHandlerTest extends GetElementsInRanges
     }
 
     @Override
-    protected GetJavaRDDOfElementsInRanges createOperation(final Set<Pair<ElementId, ElementId>> simpleEntityRanges, final View view, final IncludeIncomingOutgoingType inOutType, final DirectedType directedType) {
+    protected Output createOperation(final Set<Pair<ElementId, ElementId>> simpleEntityRanges, final View view, final IncludeIncomingOutgoingType inOutType, final DirectedType directedType) {
         return new GetJavaRDDOfElementsInRanges.Builder()
                 .input(simpleEntityRanges)
                 .view(view)
                 .directedType(directedType)
                 .inOutType(inOutType)
-                .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
+                .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, getConfigurationString())
                 .build();
     }
 
     @Override
     protected List<Element> parseResults(final Object results) {
         return new ArrayList<>(((JavaRDD<Element>) results).collect());
+    }
+
+    private static String getConfigurationString() {
+        final Configuration configuration = new Configuration();
+        try {
+            return AbstractGetRDDHandler.convertConfigurationToString(configuration);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

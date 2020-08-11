@@ -16,31 +16,30 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FederatedStoreCacheTest {
     private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMiniAccStore.properties";
@@ -55,16 +54,13 @@ public class FederatedStoreCacheTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_MAP_STORE_PROPERTIES));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    public static void setUp(@TempDir Path tempDir) {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
         federatedStoreCache = new FederatedStoreCache();
 
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
 
         testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
                 .addStoreProperties(PROPERTIES)
@@ -72,12 +68,12 @@ public class FederatedStoreCacheTest {
                 .build();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationException {
         federatedStoreCache.clearCache();
     }

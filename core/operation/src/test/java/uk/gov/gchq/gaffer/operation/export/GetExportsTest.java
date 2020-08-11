@@ -29,8 +29,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class GetExportsTest extends OperationTest<GetExports> {
 
+public class GetExportsTest extends OperationTest<GetExports> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -70,7 +70,6 @@ public class GetExportsTest extends OperationTest<GetExports> {
         assertEquals("key2", op.getGetExports().get(1).getKey());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

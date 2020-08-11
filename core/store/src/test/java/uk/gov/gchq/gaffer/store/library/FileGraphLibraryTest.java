@@ -23,7 +23,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
@@ -44,6 +45,12 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidPath() {
-        assertThrows(IllegalArgumentException.class, () -> new FileGraphLibrary(TEST_INVALID_FINAL_PATH));
+        // When / Then
+        try {
+            new FileGraphLibrary(TEST_INVALID_FINAL_PATH);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 }

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
 
@@ -31,10 +32,10 @@ import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JoinTest extends OperationTest<Join> {
 
@@ -42,15 +43,9 @@ public class JoinTest extends OperationTest<Join> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final Join op = new Join.Builder<>()
-                .input(Arrays.asList(1, 2, 3))
-                .operation(new GetAllElements.Builder().build())
-                .matchMethod(new TestMatchImpl())
-                .matchKey(MatchKey.LEFT)
-                .joinType(JoinType.INNER)
-                .flatten(false)
-                .collectionLimit(10)
-                .build();
+        final Join op = new Join.Builder<>().input(Arrays.asList(1, 2, 3))
+                .operation(new GetAllElements.Builder().build()).matchMethod(new TestMatchImpl())
+                .matchKey(MatchKey.LEFT).joinType(JoinType.INNER).flatten(false).collectionLimit(10).build();
 
         // Then
         assertEquals(Arrays.asList(1, 2, 3), op.getInput());
@@ -66,15 +61,9 @@ public class JoinTest extends OperationTest<Join> {
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final Join op = new Join.Builder<>()
-                .input(Arrays.asList(1, 2, 3))
-                .operation(new GetAllElements.Builder().build())
-                .matchMethod(new TestMatchImpl())
-                .matchKey(MatchKey.LEFT)
-                .joinType(JoinType.INNER)
-                .flatten(false)
-                .collectionLimit(10)
-                .build();
+        final Join op = new Join.Builder<>().input(Arrays.asList(1, 2, 3))
+                .operation(new GetAllElements.Builder().build()).matchMethod(new TestMatchImpl())
+                .matchKey(MatchKey.LEFT).joinType(JoinType.INNER).flatten(false).collectionLimit(10).build();
 
         // When
         final Join clone = op.shallowClone();
@@ -90,15 +79,9 @@ public class JoinTest extends OperationTest<Join> {
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final Join op = new Join.Builder<>()
-                .input(new Entity.Builder().build(), new Entity.Builder().build())
-                .operation(new GetAllElements.Builder().build())
-                .matchMethod(new TestMatchImpl())
-                .matchKey(MatchKey.LEFT)
-                .joinType(JoinType.INNER)
-                .flatten(false)
-                .collectionLimit(10)
-                .build();
+        final Join op = new Join.Builder<>().input(new Entity.Builder().build(), new Entity.Builder().build())
+                .operation(new GetAllElements.Builder().build()).matchMethod(new TestMatchImpl())
+                .matchKey(MatchKey.LEFT).joinType(JoinType.INNER).flatten(false).collectionLimit(10).build();
 
         // When
         final byte[] json = toJson(op);
@@ -107,7 +90,8 @@ public class JoinTest extends OperationTest<Join> {
 
         // Then
         assertSame(deserialisedObj.getClass(), op.getClass());
-        assertEquals("Should be the same amount of classes as inputs given after deserialisation", 2, StringUtils.countMatches(jsonString, "\"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\""));
+        assertEquals(2, StringUtils.countMatches(jsonString, "\"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\""),
+                "Should be the same amount of classes as inputs given after deserialisation");
     }
 
     @Override

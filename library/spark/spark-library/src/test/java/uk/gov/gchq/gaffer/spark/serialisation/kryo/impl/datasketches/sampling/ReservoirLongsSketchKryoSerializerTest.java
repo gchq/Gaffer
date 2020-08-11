@@ -19,7 +19,7 @@ import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class ReservoirLongsSketchKryoSerializerTest extends KryoSerializerTest<ReservoirLongsSketch> {
 

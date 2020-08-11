@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -52,7 +53,6 @@ public class LimitTest extends OperationTest<Limit> {
         assertThat(limit.getInput(), containsInAnyOrder("1", "2"));
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

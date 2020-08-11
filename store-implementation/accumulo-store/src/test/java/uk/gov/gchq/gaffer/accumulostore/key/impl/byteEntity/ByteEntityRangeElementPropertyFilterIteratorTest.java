@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl.byteEntity;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityRangeElementPropertyFilterIterator;
@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ByteEntityRangeElementPropertyFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -116,10 +116,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         for (final Element element : ELEMENTS) {
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only edges should be excepted
-            assertEquals("Failed for element: " + element.toString(), element instanceof Edge, filter.accept(keys.getFirst(), value));
+            assertEquals(element instanceof Edge, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getSecond(), value));
+                assertEquals(false, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -145,10 +147,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only directed edges should be excepted
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
-            assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getSecond(), value));
+                assertEquals(false, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -174,10 +178,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only undirected edges should be excepted
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
-            assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getSecond(), value));
+                assertEquals(false, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -200,10 +206,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -227,10 +235,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -253,11 +263,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
-            assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getFirst(), value));
+            assertEquals(false, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
                 final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
-                assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -281,10 +293,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         for (final Element element : ELEMENTS) {
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
-            assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getSecond(), value));
+                assertEquals(false, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }
@@ -307,10 +321,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Entity;
             final Pair<Key, Key> keys = converter.getKeysFromElement(element);
-            assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for element: " + element.toString());
             if (null != keys.getSecond()) {
                 // entities and self edges are not added the other way round
-                assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for element: " + element.toString());
             }
         }
     }

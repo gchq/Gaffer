@@ -27,8 +27,8 @@ import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -44,7 +44,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -68,7 +68,7 @@ public class GafferCoprocessorTest {
 
     private GafferCoprocessor coprocessor;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         coprocessor = new GafferCoprocessor();
         final CoprocessorEnvironment coEnv = mock(CoprocessorEnvironment.class);

@@ -22,15 +22,13 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -48,27 +46,29 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFun
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.setUpBeforeClass;
+import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tearDownAfterClass;
 
 public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest extends AbstractPropertiesDrivenTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    static Path tempDir;
 
-    @BeforeClass
-    public static void setup() {
-        setUpBeforeClass("/store.properties", storeBaseFolder);
+    @BeforeAll
+    public static void setup() throws IOException {
+        setUpBeforeClass("/store.properties", Files.createDirectories(tempDir.resolve("accumulo_temp_dir")));
     }
 
-    @AfterClass
+    @AfterAll
     public static void teardown() {
         tearDownAfterClass();
     }
@@ -120,8 +120,8 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest extends AbstractProp
         final String configurationString = AbstractGetRDDHandler
                 .convertConfigurationToString(configuration);
 
-        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
-        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
+        final String outputPath = tempDir.resolve("output").toAbsolutePath().toString();
+        final String failurePath = tempDir.resolve("failure").toAbsolutePath().toString();
 
         final ElementConverterFunction func = new ElementConverterFunction(JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
         final JavaPairRDD<Key, Value> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).parallelize(elements).flatMapToPair(func);

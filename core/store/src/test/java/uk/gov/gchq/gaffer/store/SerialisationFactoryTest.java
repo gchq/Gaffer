@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.store;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
@@ -27,13 +28,13 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SerialisationFactoryTest {
-
     @Test
-    public void shouldReturnSerialiserForAString() {
+    public void shouldReturnSerialiserForAString() throws SerialisationException {
         // Given
         final SerialisationFactory factory = new SerialisationFactory();
         final Class<?> clazz = String.class;
@@ -47,7 +48,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnOrderedSerialiserForAString() {
+    public void shouldReturnOrderedSerialiserForAString() throws SerialisationException {
         // Given
         final SerialisationFactory factory = new SerialisationFactory();
         final Class<?> clazz = String.class;
@@ -62,7 +63,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnSerialiserForAnInteger() {
+    public void shouldReturnSerialiserForAnInteger() throws SerialisationException {
         // Given
         final SerialisationFactory factory = new SerialisationFactory();
         final Class<?> clazz = Integer.class;
@@ -76,7 +77,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnOrderedSerialiserForAnInteger() {
+    public void shouldReturnOrderedSerialiserForAnInteger() throws SerialisationException {
         // Given
         final SerialisationFactory factory = new SerialisationFactory();
         final Class<?> clazz = Integer.class;
@@ -91,29 +92,39 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfClassIsNull() {
+    public void shouldThrowExceptionIfClassIsNull() throws SerialisationException {
         // Given
         final SerialisationFactory factory = new SerialisationFactory();
         final Class<?> clazz = null;
 
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> factory.getSerialiser(clazz));
+        try {
+            factory.getSerialiser(clazz);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
-    public void shouldThrowExceptionIfNoSerialiserFound() {
+    public void shouldThrowExceptionIfNoSerialiserFound() throws SerialisationException {
         // Given
         final SerialisationFactory factory = new SerialisationFactory();
         final Class<?> clazz = Object.class;
 
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> factory.getSerialiser(clazz));
+        try {
+            factory.getSerialiser(clazz);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
-    public void shouldReturnCustomSerialiserIfCustomSerialiserFound() {
+    public void shouldReturnCustomSerialiserIfCustomSerialiserFound() throws SerialisationException {
         // Given
-        final Serialiser[] serialisers = new Serialiser[] {
+        final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
                 new RawDoubleSerialiser(),
                 new RawFloatSerialiser()
@@ -124,15 +135,16 @@ public class SerialisationFactoryTest {
         // When
         final Serialiser serialiser = factory.getSerialiser(clazz);
 
+
         // Then
         assertTrue(serialiser.canHandle(clazz));
         assertEquals(RawDoubleSerialiser.class, serialiser.getClass());
     }
 
     @Test
-    public void shouldReturnJavaSerialiserIfNoCustomSerialiserFound() {
+    public void shouldReturnJavaSerialiserIfNoCustomSerialiserFound() throws SerialisationException {
         // Given
-        final Serialiser[] serialisers = new Serialiser[] {
+        final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
                 new RawDoubleSerialiser(),
                 new RawFloatSerialiser()
@@ -143,21 +155,23 @@ public class SerialisationFactoryTest {
         // When
         final Serialiser serialiser = factory.getSerialiser(clazz);
 
+
         // Then
         assertTrue(serialiser.canHandle(clazz));
         assertEquals(JavaSerialiser.class, serialiser.getClass());
     }
 
     @Test
-    public void testAddSerialisers() {
+    public void testAddSerialisers() throws SerialisationException {
         // Given
-        final Serialiser[] serialisers = new Serialiser[] {
+        final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
                 new RawDoubleSerialiser(),
                 new RawFloatSerialiser()
         };
         final SerialisationFactory factory = new SerialisationFactory(serialisers);
         final Class<?> clazz = String.class;
+
 
         // When
         factory.addSerialisers(new StringSerialiser());
@@ -169,9 +183,9 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldNotReAddClassToFactory() {
+    public void shouldNotReAddClassToFactory() throws SerialisationException {
         // Given / new factory created with only 1 element
-        final Serialiser[] serialisers = new Serialiser[] {
+        final Serialiser[] serialisers = new Serialiser[]{
                 new BooleanSerialiser()
         };
         final SerialisationFactory factory = new SerialisationFactory(serialisers);

@@ -54,7 +54,7 @@ public abstract class JSONSerialisationTest<T> {
 
         // Then
         assumeTrue(null != annotation && annotation.alphabetic(),
-                "Missing JsonPropertyOrder annotation on class. It should de defined and set to alphabetical. " + op.getClass().getName());
+                "Missing JsonPropertyOrder annotation on class. It should de defined and set to alphabetical." + op.getClass().getName());
     }
 
     /**

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -32,18 +33,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class IfTest extends OperationTest<If> {
-
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -61,7 +60,6 @@ public class IfTest extends OperationTest<If> {
         assertTrue(ifOp.getOtherwise() instanceof GetAllElements);
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -149,8 +147,12 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Collections.emptyList();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ifOp.updateOperations(opList));
-        assertEquals("Unable to update operations - exactly 3 operations are required. Received 0 operations", exception.getMessage());
+        try {
+            ifOp.updateOperations(opList);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Unable to update operations - exactly 3 operations are required. Received 0 operations", e.getMessage());
+        }
     }
 
     @Test
@@ -167,8 +169,12 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Lists.newArrayList(getElements);
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ifOp.updateOperations(opList));
-        assertEquals("Unable to update operations - exactly 3 operations are required. Received 1 operations", exception.getMessage());
+        try {
+            ifOp.updateOperations(opList);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Unable to update operations - exactly 3 operations are required. Received 1 operations", e.getMessage());
+        }
     }
 
     @Test
@@ -188,8 +194,12 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Lists.newArrayList(getElements, getAllElements, limit, limit);
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> ifOp.updateOperations(opList));
-        assertEquals("Unable to update operations - exactly 3 operations are required. Received 4 operations", exception.getMessage());
+        try {
+            ifOp.updateOperations(opList);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Unable to update operations - exactly 3 operations are required. Received 4 operations", e.getMessage());
+        }
     }
 
     @Test

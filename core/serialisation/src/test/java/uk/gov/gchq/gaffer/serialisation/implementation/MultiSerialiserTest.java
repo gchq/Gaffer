@@ -29,53 +29,13 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSeri
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
-
     private static final String PATH = "multiSerialiser.json";
-
-    @Test
-    public void shouldAcceptSupportedSerialisers() throws Exception {
-        MultiSerialiser multiSerialiser = new MultiSerialiser();
-        multiSerialiser.setSerialisers(null);
-    }
-
-    @Test
-    public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
-        // Given
-        final String fromDisk = String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), PATH)));
-
-        final MultiSerialiser multiSerialiser = new MultiSerialiser()
-                .addSerialiser((byte) 0, new StringSerialiser(), String.class)
-                .addSerialiser((byte) 1, new CompactRawLongSerialiser(), Long.class)
-                .addSerialiser((byte) 2, new CompactRawIntegerSerialiser(), Integer.class);
-
-        // When
-        final String fromCode = new String(JSONSerialiser.serialise(multiSerialiser, true));
-
-        // Then
-        assertEquals(fromDisk, fromCode);
-    }
-
-    @Test
-    public void shouldNotAddMultiSerialiser() {
-        // Given When
-        final Exception exception = assertThrows(GafferCheckedException.class, () -> new MultiSerialiser().addSerialiser((byte) 0, new MultiSerialiser(), Object.class));
-
-        // Then
-        assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER, exception.getMessage());
-    }
-
-    @Override
-    public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[] {
-                new Pair<>("hello world", new byte[] {0, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100}),
-                new Pair<>(420L, new byte[] {1, -114, 1, -92}),
-        };
-    }
 
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
@@ -88,4 +48,45 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
         return multiSerialiser;
     }
 
+    @Override
+    public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
+        Pair[] pairs = new Pair[]{
+                new Pair("hello world", new byte[]{0, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100}),
+                new Pair(420L, new byte[]{1, -114, 1, -92}),
+        };
+
+        return pairs;
+    }
+
+    @Test
+    public void shouldAcceptSupportedSerialisers() throws Exception {
+        MultiSerialiser multiSerialiser = new MultiSerialiser();
+        multiSerialiser.setSerialisers(null);
+    }
+
+    @Test
+    public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
+        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), PATH))
+                .stream()
+                .collect(Collectors.joining("\n"));
+
+        final MultiSerialiser multiSerialiser = new MultiSerialiser()
+                .addSerialiser((byte) 0, new StringSerialiser(), String.class)
+                .addSerialiser((byte) 1, new CompactRawLongSerialiser(), Long.class)
+                .addSerialiser((byte) 2, new CompactRawIntegerSerialiser(), Integer.class);
+
+        final String fromCode = new String(JSONSerialiser.serialise(multiSerialiser, true));
+
+        assertEquals(fromDisk, fromCode);
+    }
+
+    @Test
+    public void shouldNotAddMultiSerialiser() {
+        try {
+            new MultiSerialiser().addSerialiser((byte) 0, new MultiSerialiser(), Object.class);
+            fail("exception not thrown");
+        } catch (GafferCheckedException e) {
+            assertEquals(MultiSerialiserStorage.ERROR_ADDING_MULTI_SERIALISER, e.getMessage());
+        }
+    }
 }

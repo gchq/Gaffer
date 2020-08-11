@@ -29,8 +29,8 @@ import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
 
+public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -66,7 +66,6 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
         assertEquals(opAuths, op.getOpAuths());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -74,8 +73,8 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
         final String input = "input";
         final ExportToGafferResultCache exportToGafferResultCache = new ExportToGafferResultCache.Builder<>()
-                .opAuths(opAuths)
                 .key(key)
+                .opAuths(opAuths)
                 .input(input)
                 .build();
 

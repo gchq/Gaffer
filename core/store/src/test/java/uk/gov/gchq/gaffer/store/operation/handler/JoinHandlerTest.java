@@ -34,8 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class JoinHandlerTest {
@@ -76,9 +76,12 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(joinOp, context, store));
-        final String expected = "Join exceeded the collectionLimit, a solution is to increasing collectionLimit value in the join operation.";
-        assertEquals(expected, exception.getMessage());
+        try {
+            handler.doOperation(joinOp, context, store);
+            fail("exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getCause().getMessage().contains("exceeded"));
+        }
     }
 
     @Test
@@ -94,7 +97,11 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(joinOp, context, store));
-        assertEquals("A match method must be supplied", exception.getMessage());
+        try {
+            handler.doOperation(joinOp, context, store);
+            fail("exception expected");
+        } catch (final OperationException e) {
+            assertEquals("A match method must be supplied", e.getMessage());
+        }
     }
 }

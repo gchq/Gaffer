@@ -27,13 +27,14 @@ import uk.gov.gchq.gaffer.operation.impl.Limit;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LimitHandlerTest {
-
     @Test
     public void shouldLimitResults() throws Exception {
         // Given
@@ -90,6 +91,6 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertNull(result);
+        assertThat(result, is(nullValue()));
     }
 }

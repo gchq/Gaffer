@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -28,17 +28,16 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EdgeSerialiserTest {
 
-    private Schema schema;
-    private EdgeSerialiser serialiser;
+    private static Schema schema;
+    private static EdgeSerialiser serialiser;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
 
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
@@ -56,8 +55,12 @@ public class EdgeSerialiserTest {
         schema = new Schema.Builder().build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new EdgeSerialiser(schema));
-        assertEquals("Vertex serialiser is required", exception.getMessage());
+        try {
+            new EdgeSerialiser(schema);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Vertex serialiser is required"));
+        }
     }
 
     @Test
@@ -78,22 +81,22 @@ public class EdgeSerialiserTest {
     }
 
     @Test
-    public void testCantSerialiseIntegerClass() {
+    public void testCantSerialiseIntegerClass() throws SerialisationException {
         assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseEdgeClass() {
+    public void testCanSerialiseEdgeClass() throws SerialisationException {
         assertTrue(serialiser.canHandle(Edge.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertNull(serialiser.deserialiseEmpty());
+        assertEquals(null, serialiser.deserialiseEmpty());
     }
 
     @Test
-    public void testPreserveObjectOrdering() {
-        assertFalse(serialiser.preservesObjectOrdering());
+    public void testPreserveObjectOrdering() throws SerialisationException {
+        assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

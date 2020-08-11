@@ -37,8 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
 
+public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
@@ -113,7 +113,6 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
         assertEquals(ObjectGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

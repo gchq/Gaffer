@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OperationChainTest {
 

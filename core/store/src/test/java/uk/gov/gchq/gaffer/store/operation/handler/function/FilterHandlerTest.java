@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
@@ -45,13 +46,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class FilterHandlerTest {
-
     private static final Schema SCHEMA = new Schema.Builder()
             .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
             .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
@@ -456,8 +456,12 @@ public class FilterHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(filter, context, store));
-        assertEquals("Filter operation has null iterable of elements", exception.getMessage());
+        try {
+            handler.doOperation(filter, context, store);
+            fail("Exception expected");
+        } catch (OperationException e) {
+            assertEquals("Filter operation has null iterable of elements", e.getMessage());
+        }
     }
 
     @Test
@@ -561,10 +565,12 @@ public class FilterHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(filter, context, store));
-        final String expected = "Filter operation is invalid. Validation errors: \n" +
-                "Edge group: BasicEdge does not exist in the schema.";
-        assertEquals(expected, exception.getMessage());
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Edge group: " + TestGroups.EDGE + " does not exist in the schema"));
+        }
     }
 
     @Test
@@ -599,10 +605,12 @@ public class FilterHandlerTest {
                         .build())
                 .build();
 
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(filter, context, store));
-        final String expected = "Filter operation is invalid. Validation errors: \n" +
-                "ElementFilter contains a null function.";
-        assertEquals(expected, exception.getMessage());
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains(filter.getClass().getSimpleName() + " contains a null function."));
+        }
     }
 
     @Test
@@ -649,10 +657,12 @@ public class FilterHandlerTest {
                         .build())
                 .build();
 
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(filter, context, store));
-        final String expected = "Filter operation is invalid. Validation errors: \n" +
-                "Control value class java.lang.String is not compatible with the input type: class java.lang.Long";
-        assertEquals(expected, exception.getMessage());
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("is not compatible with the input type:"));
+        }
     }
 
     @Test
@@ -706,19 +716,20 @@ public class FilterHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
 
         // Then
-        final List<Edge> expected = Arrays.asList(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("srcVal1")
-                        .dest("destVal1")
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .build(),
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("srcVal3")
-                        .dest("destVal3")
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .build());
-        assertElementEquals(expected, results);
+        ElementUtil.assertElementEquals(
+                Arrays.asList(new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal1")
+                                .dest("destVal1")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal3")
+                                .dest("destVal3")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build()),
+                results);
     }
 
     @Test
@@ -772,18 +783,19 @@ public class FilterHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
 
         // Then
-        final List<Edge> expected = Arrays.asList(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("srcVal1")
-                        .dest("destVal1")
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .build(),
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("srcVal3")
-                        .dest("destVal3")
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .build());
-        assertElementEquals(expected, results);
+        ElementUtil.assertElementEquals(
+                Arrays.asList(new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal1")
+                                .dest("destVal1")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("srcVal3")
+                                .dest("destVal3")
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .build()),
+                results);
     }
 }

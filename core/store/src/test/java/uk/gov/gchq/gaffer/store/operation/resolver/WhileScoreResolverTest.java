@@ -33,7 +33,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -139,7 +140,11 @@ public class WhileScoreResolverTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(UnsupportedOperationException.class, () -> resolver.getScore(operation));
-        assertEquals("Default Score Resolver has not been provided.", exception.getMessage());
+        try {
+            resolver.getScore(operation);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertTrue(e.getMessage().contains("Default Score Resolver has not been provided."));
+        }
     }
 }

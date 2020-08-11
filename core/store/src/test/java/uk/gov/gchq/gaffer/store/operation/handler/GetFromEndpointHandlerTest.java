@@ -36,14 +36,13 @@ import java.net.MalformedURLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 public class GetFromEndpointHandlerTest {
-
     private static final String ENDPOINT_BASE_PATH = "http://127.0.0.1:";
     private static final String ENDPOINT_PATH = "/jsonEndpoint";
     private static final String RESPONSE = String.format("[%n" +
@@ -73,10 +72,10 @@ public class GetFromEndpointHandlerTest {
     @Test
     public void shouldLoadOperationDeclarations() throws IOException {
         // When
-        final InputStream stream = StreamUtil.openStream(GetFromEndpointHandler.class, "GetFromEndpointOperationDeclarations.json");
+        InputStream stream = StreamUtil.openStream(GetFromEndpointHandler.class, "GetFromEndpointOperationDeclarations.json");
 
         // Given
-        final OperationDeclarations opDeclarations = JSONSerialiser.deserialise(IOUtils.toByteArray(stream), OperationDeclarations.class);
+        OperationDeclarations opDeclarations = JSONSerialiser.deserialise(IOUtils.toByteArray(stream), OperationDeclarations.class);
 
         // Then
         assertEquals(1, opDeclarations.getOperations().size());
@@ -94,12 +93,12 @@ public class GetFromEndpointHandlerTest {
                         .withStatusCode(200)
                         .withBody(RESPONSE));
         final String endpointString = ENDPOINT_BASE_PATH + port + ENDPOINT_PATH;
-        final GetFromEndpoint op = new GetFromEndpoint.Builder()
+        GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint(endpointString)
                 .build();
 
         // When
-        final String result = handler.doOperation(op, context, store);
+        String result = handler.doOperation(op, context, store);
 
         // Then
         assertEquals(RESPONSE, result);
@@ -113,7 +112,11 @@ public class GetFromEndpointHandlerTest {
                 .build();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(op, context, store));
-        assertTrue(exception.getCause().getClass().equals(MalformedURLException.class));
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getCause().getClass().equals(MalformedURLException.class));
+        }
     }
 }

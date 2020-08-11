@@ -17,21 +17,18 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -42,12 +39,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AddUpdateTableIteratorTest {
 
@@ -67,21 +66,15 @@ public class AddUpdateTableIteratorTest {
     private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
     private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH);
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @BeforeClass
-    public static void setUpStore() {
-        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, storeBaseFolder.getRoot().getAbsolutePath());
-        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, storeBaseFolder.getRoot().getAbsolutePath());
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, tempDir.toAbsolutePath().toString());
         createUpdatedPropertiesFile(PROPERTIES_1, STORE_PROPS_PATH_UPDATED);
         createUpdatedPropertiesFile(PROPERTIES_2, STORE_PROPS_2_PATH_UPDATED);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager1.close();
         miniAccumuloClusterManager2.close();
@@ -99,8 +92,8 @@ public class AddUpdateTableIteratorTest {
         }
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void setUpAndTearDown() throws IOException {
         if (new File(FILE_GRAPH_LIBRARY_TEST_PATH).exists()) {
             FileUtils.forceDelete(new File(FILE_GRAPH_LIBRARY_TEST_PATH));
@@ -117,9 +110,9 @@ public class AddUpdateTableIteratorTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH_UPDATED).getProperties(), pair.getSecond().getProperties());
     }
@@ -135,9 +128,9 @@ public class AddUpdateTableIteratorTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH_UPDATED).getProperties(), pair.getSecond().getProperties());
     }
@@ -152,45 +145,47 @@ public class AddUpdateTableIteratorTest {
 
         // Then - no exceptions
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNull("Graph should not have been stored", pair);
+        assertNull(pair, "Graph should not have been stored");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowKeyErrorWhenInvalidModifyKeyGiven() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH_UPDATED, "invalid key", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
-        AddUpdateTableIterator.main(args);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> AddUpdateTableIterator.main(args));
 
         // Then
-        final String expected = "Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.";
-        thrown.expectMessage(expected);
+        assertEquals("Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.",
+                actual.getMessage());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldReturnStoreClassNameNotFoundWhenStorePropsIsEmpty() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, EMPTY_STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
-        AddUpdateTableIterator.main(args);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> AddUpdateTableIterator.main(args));
 
         // Then
-        final String expected = "The Store class name was not found in the store properties for key: gaffer.store.class";
-        thrown.expectMessage(expected);
+        assertEquals("The Store class name was not found in the store properties for key: gaffer.store.class",
+                actual.getMessage());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
-        AddUpdateTableIterator.main(args);
+        RuntimeException actual = assertThrows(RuntimeException.class, () -> AddUpdateTableIterator.main(args));
 
         // Then
-        final String expected = "Failed to load store properties file : invalid/file/path";
-        thrown.expectMessage(expected);
+        assertEquals("Failed to load store properties file : invalid/file/path",
+                actual.getMessage());
     }
 }

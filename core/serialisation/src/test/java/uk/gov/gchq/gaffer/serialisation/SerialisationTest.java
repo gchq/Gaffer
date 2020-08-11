@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class SerialisationTest<INPUT, OUTPUT> {
-
     protected final Serialiser<INPUT, OUTPUT> serialiser;
     protected final Pair<INPUT, OUTPUT>[] historicSerialisationPairs;
 
@@ -37,10 +36,8 @@ public abstract class SerialisationTest<INPUT, OUTPUT> {
 
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
-        // Then
         assertNotNull(historicSerialisationPairs, "historicSerialisationPairs should not be null.");
         assertNotEquals(0, historicSerialisationPairs.length, "historicSerialisationPairs should not be empty.");
-
         for (final Pair<INPUT, OUTPUT> pair : historicSerialisationPairs) {
             assertNotNull(pair.getFirst(), "historicSerialisationPairs first value should not be null");
             serialiseFirst(pair);

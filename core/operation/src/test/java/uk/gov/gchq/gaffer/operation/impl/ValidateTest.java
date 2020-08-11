@@ -34,9 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class ValidateTest extends OperationTest<Validate> {
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -98,7 +96,6 @@ public class ValidateTest extends OperationTest<Validate> {
         assertEquals(edge, validate.getInput().iterator().next());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

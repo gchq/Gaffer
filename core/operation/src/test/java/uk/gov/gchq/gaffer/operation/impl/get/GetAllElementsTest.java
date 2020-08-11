@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
+
 public class GetAllElementsTest extends OperationTest<GetAllElements> {
 
     @Test
@@ -77,7 +78,6 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

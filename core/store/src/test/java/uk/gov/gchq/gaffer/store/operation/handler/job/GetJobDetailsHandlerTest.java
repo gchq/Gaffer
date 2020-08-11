@@ -26,8 +26,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -44,7 +45,12 @@ public class GetJobDetailsHandlerTest {
         given(store.getJobTracker()).willReturn(null);
 
         // When / Then
-        assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(user), store));
+        try {
+            handler.doOperation(operation, new Context(user), store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test

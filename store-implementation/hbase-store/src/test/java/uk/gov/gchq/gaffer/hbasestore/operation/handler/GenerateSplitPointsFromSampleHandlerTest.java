@@ -19,8 +19,8 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -43,7 +43,7 @@ public class GenerateSplitPointsFromSampleHandlerTest extends AbstractGenerateSp
     public static final int NUM_TABLE_REGIONS = 4;
     private HBaseStore store;
 
-    @Before
+    @BeforeEach
     public void before() throws StoreException, IOException {
         store = mock(HBaseStore.class);
         final Connection connection = mock(Connection.class);

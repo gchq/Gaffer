@@ -36,18 +36,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends Store> {
 
+
     protected Schema schema = new Schema.Builder().build();
 
     @Test
-    public void shouldThrowExceptionForNullInput() {
+    public void shouldThrowExceptionForNullInput() throws OperationException {
         // Given
         final AbstractGenerateSplitPointsFromSampleHandler<?, S> handler = createHandler();
         final GenerateSplitPointsFromSample operation = new GenerateSplitPointsFromSample.Builder<>()
                 .numSplits(1)
                 .build();
 
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(), createStore()));
-        assertEquals("Operation input is required.", exception.getMessage());
+        OperationException actual = assertThrows(OperationException.class,
+                () -> handler.doOperation(operation, new Context(), createStore()));
+
+        assertTrue(actual.getMessage().contains("input is required"));
     }
 
     @Test

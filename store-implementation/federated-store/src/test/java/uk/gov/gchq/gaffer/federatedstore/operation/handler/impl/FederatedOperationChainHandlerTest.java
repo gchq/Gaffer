@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -53,8 +53,8 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedOperationChainHandlerTest {
@@ -86,8 +86,8 @@ public class FederatedOperationChainHandlerTest {
                     .build()
     };
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();

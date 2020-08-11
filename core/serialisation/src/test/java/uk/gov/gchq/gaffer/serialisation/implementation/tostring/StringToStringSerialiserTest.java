@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
@@ -30,25 +31,21 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
 
     @Test
     public void shouldSerialiseAndDeserialise() throws Exception {
-        // Given When
         final String serialised = serialiser.serialise(STRING_VALUE_1);
         final String deserialise = serialiser.deserialise(serialised);
-
-        // Then
         assertEquals(STRING_VALUE_1, serialised);
         assertEquals(STRING_VALUE_1, deserialise);
         assertEquals(serialised, deserialise);
     }
 
-    @Test
+
     @Override
-    public void shouldSerialiseNull() {
+    public void shouldSerialiseNull() throws SerialisationException {
         assertNull(serialiser.serialiseNull());
     }
 
-    @Test
     @Override
-    public void shouldDeserialiseEmpty() {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         assertNull(serialiser.serialiseNull());
     }
 
@@ -61,7 +58,7 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
     @SuppressWarnings("unchecked")
     public Pair<String, String>[] getHistoricSerialisationPairs() {
         String s = "this is a string to be used for checking the serialisation.";
-        return new Pair[] {
+        return new Pair[]{
                 new Pair<>(s, s)};
     }
 }

@@ -19,29 +19,29 @@ package uk.gov.gchq.gaffer.cache.impl;
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JcsCacheTest {
 
     private static JcsCache<String, Integer> cache;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws CacheException {
         CompositeCacheManager manager = CompositeCacheManager.getInstance();
         cache = new JcsCache<>(manager.getCache("test"));
     }
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cache.clear();
     }

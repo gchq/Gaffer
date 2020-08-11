@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -45,8 +46,12 @@ public class CancelScheduledJobHandlerTest {
         given(store.getJobTracker()).willReturn(new JobTracker());
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(user), store));
-        assertEquals("job id must be specified", exception.getMessage());
+        try {
+            handler.doOperation(operation, new Context(user), store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("job id must be specified"));
+        }
     }
 
     @Test
@@ -60,7 +65,11 @@ public class CancelScheduledJobHandlerTest {
         given(store.getJobTracker()).willReturn(null);
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, new Context(user), store));
-        assertEquals("JobTracker not enabled", exception.getMessage());
+        try {
+            handler.doOperation(operation, new Context(user), store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertEquals("JobTracker not enabled", e.getMessage());
+        }
     }
 }

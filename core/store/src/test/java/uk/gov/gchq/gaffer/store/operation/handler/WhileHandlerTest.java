@@ -44,8 +44,8 @@ import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -105,9 +105,9 @@ public class WhileHandlerTest {
         final Object result = handler.doOperation(operation, context, store);
 
         // Then
-        verify(delegateClone1).setInput(input);
-        verify(delegateClone2).setInput(result1);
-        verify(delegateClone3).setInput(result2);
+        verify(delegateClone1, times(1)).getInput();
+        verify(delegateClone2, times(1)).getInput();
+        verify(delegateClone3, times(1)).getInput();
         verify(store).execute((Output) delegateClone1, context);
         verify(store).execute((Output) delegateClone2, context);
         verify(store).execute((Output) delegateClone3, context);
@@ -149,9 +149,9 @@ public class WhileHandlerTest {
         final Object result = handler.doOperation(operation, context, store);
 
         // Then
-        verify(delegateClone1).setInput(input);
-        verify(delegateClone2).setInput(result1);
-        verify(delegateClone3).setInput(result2);
+        verify(delegateClone1, times(1)).getInput();
+        verify(delegateClone2, times(1)).getInput();
+        verify(delegateClone3, times(1)).getInput();
         verify(store).execute((Output) delegateClone1, context);
         verify(store).execute((Output) delegateClone2, context);
         verify(store).execute((Output) delegateClone3, context);
@@ -185,7 +185,7 @@ public class WhileHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenMaxConfiguredNumberOfRepeatsExceeded() {
+    public void shouldThrowExceptionWhenMaxConfiguredNumberOfRepeatsExceeded() throws OperationException {
         // Given
         final EntitySeed input = mock(EntitySeed.class);
         final int maxRepeats = 2500;
@@ -202,9 +202,13 @@ public class WhileHandlerTest {
         final WhileHandler handler = new WhileHandler();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
-        assertTrue(exception.getMessage().contains("Max repeats of the While operation is too large: "
-                + maxRepeats + " > " + While.MAX_REPEATS));
+        try {
+            handler.doOperation(operation, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Max repeats of the While operation is too large: "
+                    + maxRepeats + " > " + While.MAX_REPEATS));
+        }
     }
 
     @Test
@@ -225,9 +229,13 @@ public class WhileHandlerTest {
         final WhileHandler handler = new WhileHandler();
 
         // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(operation, context, store));
-        assertTrue(exception.getMessage().contains("The predicate '" + predicate.getClass().getSimpleName() +
-                "' cannot accept an input of type '" + input.getClass().getSimpleName() + "'"));
+        try {
+            handler.doOperation(operation, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("The predicate '" + predicate.getClass().getSimpleName() +
+                    "' cannot accept an input of type '" + input.getClass().getSimpleName() + "'"));
+        }
     }
 
     @Test

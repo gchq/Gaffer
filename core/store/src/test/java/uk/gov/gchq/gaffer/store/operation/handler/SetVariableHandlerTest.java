@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class SetVariableHandlerTest {
@@ -46,12 +47,12 @@ public class SetVariableHandlerTest {
         handler.doOperation(op, context, store);
 
         // Then
-        assertEquals(testVarValue, context.getVariable(testVarName));
-        assertEquals(ImmutableMap.of(testVarName, testVarValue), context.getVariables());
+        assertTrue(context.getVariable(testVarName).equals(testVarValue));
+        assertTrue(context.getVariables().equals(ImmutableMap.of(testVarName, testVarValue)));
     }
 
     @Test
-    public void shouldThrowExceptionWithNullVariableKey() {
+    public void shouldThrowExceptionWithNullVariableKey() throws OperationException {
         // Given
         final Context context = new Context(new User());
         final Store store = mock(Store.class);
@@ -60,12 +61,16 @@ public class SetVariableHandlerTest {
         SetVariable op = new SetVariable();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.doOperation(op, context, store));
-        assertEquals("Variable name cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Variable name cannot be null"));
+        }
     }
 
     @Test
-    public void shouldNotAllowNullInputVariableToBeAdded() {
+    public void shouldNotAllowNullInputVariableToBeAdded() throws OperationException {
         // Given
         final Context context = new Context(new User());
         final Store store = mock(Store.class);
@@ -76,8 +81,12 @@ public class SetVariableHandlerTest {
         SetVariable op = new SetVariable.Builder().variableName(testVarName).input(testVarValue).build();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> handler.doOperation(op, context, store));
-        assertEquals("Variable input value cannot be null", exception.getMessage());
+        try {
+            handler.doOperation(op, context, store);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Variable input value cannot be null"));
+        }
     }
 
     @Test

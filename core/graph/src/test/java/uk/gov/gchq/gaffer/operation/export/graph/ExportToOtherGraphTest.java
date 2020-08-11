@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -36,9 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
-
     @Test
-    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
@@ -64,7 +65,6 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals(storeProperties, deserialisedOp.getStoreProperties());
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -90,7 +90,6 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals(storeProperties, op.getStoreProperties());
     }
 
-    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

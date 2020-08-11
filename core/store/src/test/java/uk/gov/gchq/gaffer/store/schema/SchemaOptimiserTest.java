@@ -30,8 +30,9 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import java.io.Serializable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -136,6 +137,11 @@ public class SchemaOptimiserTest {
                 .build();
 
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> optimiser.optimise(schema, isOrdered));
+        try {
+            optimiser.optimise(schema, isOrdered);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 }

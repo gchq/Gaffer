@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation.Builder;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -39,15 +40,14 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class DefaultScoreResolverTest {
-
     @Test
-    public void shouldGetDefaultScoreWhenNoOperationScores() {
+    public void shouldGetDefaultScoreWhenNoOperationScores() throws OperationException {
         // Given
         final DefaultScoreResolver resolver = new DefaultScoreResolver(new LinkedHashMap<>());
 
@@ -134,7 +134,7 @@ public class DefaultScoreResolverTest {
 
 
     @Test
-    public void shouldGetOperationChainScore() {
+    public void shouldGetOperationChainScore() throws OperationException {
         // Given
         final DefaultScoreResolver scoreResolver = new DefaultScoreResolver();
         final OperationChain opChain = new OperationChain.Builder()
@@ -150,7 +150,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreForOperationChainWithNestedOperationChain() {
+    public void shouldGetScoreForOperationChainWithNestedOperationChain() throws OperationException {
         // Given
         final DefaultScoreResolver scoreResolver = new DefaultScoreResolver();
 
@@ -170,7 +170,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreForOperationChainContainingNamedOperation() {
+    public void shouldGetScoreForOperationChainContainingNamedOperation() throws OperationException {
         // Given
         final ScoreResolver mockResolver = mock(NamedOperationScoreResolver.class);
 
@@ -208,7 +208,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldPreventInfiniteRecusion() {
+    public void shouldPreventInfiniteRecusion() throws OperationException {
         // Given
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
         resolvers.put(GetElements.class, new ScoreResolver() {
@@ -240,8 +240,9 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreForOperationChainWhenNamedOperationScoreIsNull() {
+    public void shouldGetScoreForOperationChainWhenNamedOperationScoreIsNull() throws OperationException {
         // Given
+
         final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
         opScores.put(Operation.class, 1);
         opScores.put(GetAdjacentIds.class, 2);
@@ -276,7 +277,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreForOperationChainWithMultipleScoreResolvers() {
+    public void shouldGetScoreForOperationChainWithMultipleScoreResolvers() throws OperationException {
         // Given
         final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
 
@@ -314,7 +315,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScoreForNestedOperationWithNullOperationList() {
+    public void shouldGetScoreForNestedOperationWithNullOperationList() throws OperationException {
         // Given
         final GetElements op1 = mock(GetElements.class);
         final AddElements op2 = mock(AddElements.class);
@@ -334,9 +335,10 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldReturnZeroForANullOperationChain() {
+    public void shouldReturnZeroForANullOperationChain() throws OperationException {
         // Given
         final DefaultScoreResolver scoreResolver = new DefaultScoreResolver();
+
         final OperationChain opChain = null;
 
         // When

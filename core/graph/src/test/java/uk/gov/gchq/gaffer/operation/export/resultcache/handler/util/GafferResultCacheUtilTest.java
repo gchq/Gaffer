@@ -28,12 +28,12 @@ import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GafferResultCacheUtilTest {
-
     private final Edge validEdge = new Edge.Builder()
             .group("result")
             .source("jobId")
@@ -60,10 +60,12 @@ public class GafferResultCacheUtilTest {
     @Test
     public void shouldThrowExceptionIfStorePropertiesAreNull() {
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE));
-
-        assertEquals("Gaffer result cache Store properties are required", exception.getMessage());
+        try {
+            GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -75,6 +77,7 @@ public class GafferResultCacheUtilTest {
 
         // When
         final boolean isValid = schema.validate().isValid();
+
 
         // Then
         assertTrue(isValid);

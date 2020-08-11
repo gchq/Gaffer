@@ -65,7 +65,7 @@ public class GetTraitsHandlerTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws Exception {
         final Set<StoreTrait> temp = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         temp.remove(StoreTrait.ORDERED);
         assertEquals(temp, this.expectedTraits);

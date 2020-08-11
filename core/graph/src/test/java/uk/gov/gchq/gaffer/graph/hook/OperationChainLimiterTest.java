@@ -32,14 +32,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimiter> {
-
     private static final String OP_CHAIN_LIMITER_PATH = "opChainLimiter.json";
 
     public OperationChainLimiterTest() {
@@ -57,8 +56,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("User")
                 .build();
 
-        // When Then
-        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
+        // When
+        hook.preExecute(opChain, new Context(user));
+
+        // Then - no exceptions
     }
 
     @Test
@@ -74,8 +75,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("User")
                 .build();
 
-        // When Then
-        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
+        // When
+        hook.preExecute(opChain, new Context(user));
+
+        // Then - no exceptions
     }
 
     @Test
@@ -93,8 +96,14 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("User")
                 .build();
 
-        // When / Then
-        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
+        // When/Then
+
+        try {
+            hook.preExecute(opChain, new Context(user));
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -111,8 +120,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("SuperUser", "User")
                 .build();
 
-        // When / Then
-        assertDoesNotThrow(() -> hook.preExecute(opChain, new Context(user)));
+        // When
+        hook.preExecute(opChain, new Context(user));
+
+        // Then - no exceptions
     }
 
     @Test
@@ -128,8 +139,13 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("SuperUser", "User")
                 .build();
 
-        // When / Then
-        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
+        // When/Then
+        try {
+            hook.preExecute(opChain, new Context(user));
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -143,8 +159,13 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .opAuths("NoScore")
                 .build();
 
-        // When / Then
-        assertThrows(UnauthorisedException.class, () -> hook.preExecute(opChain, new Context(user)));
+        // When/Then
+        try {
+            hook.preExecute(opChain, new Context(user));
+            fail("Exception expected");
+        } catch (final UnauthorisedException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test

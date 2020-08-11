@@ -17,9 +17,10 @@
 package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -44,20 +45,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class NamedOperationCacheIT {
-
     private static final String CACHE_NAME = "NamedOperation";
     private final Properties cacheProps = new Properties();
     private final Store store = mock(Store.class);
     private final String adminAuth = "admin auth";
     private final StoreProperties properties = new StoreProperties();
 
-    private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+    private AddNamedOperation add = new AddNamedOperation.Builder()
             .name("op")
             .description("test operation")
             .operationChain(new OperationChain.Builder()
@@ -78,185 +79,247 @@ public class NamedOperationCacheIT {
     private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler();
     private GetAllNamedOperations get = new GetAllNamedOperations();
 
-    @BeforeEach
+    @Before
     public void before() throws CacheOperationException {
         cacheProps.clear();
         properties.setAdminAuth(adminAuth);
         given(store.getProperties()).willReturn(properties);
-        initialiseHashMapCacheService();
     }
 
-    @AfterEach
+    @After
     public void after() throws CacheOperationException {
         CacheServiceLoader.getService().clearCache(CACHE_NAME);
     }
 
     @Test
-    public void shouldWorkUsingHashMapServiceClass() throws CacheOperationException {
-        initialiseHashMapCacheService();
+    public void shouldWorkUsingHashMapServiceClass() throws OperationException, CacheOperationException {
+        reInitialiseCacheService(HashMapCacheService.class);
+        runTests();
     }
 
-    @Test
-    public void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
-        // Given
+    private void reInitialiseCacheService(final Class clazz) throws CacheOperationException {
+        cacheProps.setProperty(CacheProperties.CACHE_SERVICE_CLASS, clazz.getCanonicalName());
+        CacheServiceLoader.initialise(cacheProps);
+        CacheServiceLoader.getService().clearCache(CACHE_NAME);
+    }
+
+    private void runTests() throws OperationException, CacheOperationException {
+        shouldAllowUpdatingOfNamedOperations();
+        after();
+        shouldAllowUpdatingOfNamedOperationsWithAllowedUsers();
+        after();
+        shouldAllowReadingOfNamedOperationsUsingAdminAuth();
+        after();
+        shouldAllowUpdatingOfNamedOperationsUsingAdminAuth();
+        after();
+        shouldBeAbleToAddNamedOperationToCache();
+        after();
+        shouldBeAbleToDeleteNamedOperationFromCache();
+    }
+
+
+    private void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
+        // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
 
-        // When
-        addNamedOperationHandler.doOperation(addNamedOperation, context, store);
+        // when
+        addNamedOperationHandler.doOperation(add, context, store);
 
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(add.getOperationName())
+                .operationChain(add.getOperationChainAsString())
+                .creatorId(user.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
+                .description(add.getDescription())
+                .score(0)
+                .build();
+
+        List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
         List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler().doOperation(get, context, store));
 
-        // Then
-        final NamedOperationDetail expectedNamedOp = makeNamedOperationDetail(addNamedOperation, user);
-        final List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+        // then
         assertEquals(1, results.size());
         assertEquals(expected, results);
     }
 
-    @Test
-    public void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
-        // Given
+
+    private void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
+        // given
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(properties);
-        new AddNamedOperationHandler().doOperation(addNamedOperation, context, store);
 
-        final DeleteNamedOperation deleteNamedOperation = new DeleteNamedOperation.Builder()
+        new AddNamedOperationHandler().doOperation(add, context, store);
+
+        DeleteNamedOperation del = new DeleteNamedOperation.Builder()
                 .name("op")
                 .build();
 
-        // When
-        deleteNamedOperationHandler.doOperation(deleteNamedOperation, context, store);
+        GetAllNamedOperations get = new GetAllNamedOperations();
 
-        final GetAllNamedOperations getAllNamedOperations = new GetAllNamedOperations();
-        final List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler1.doOperation(getAllNamedOperations, context, store));
+        // when
+        deleteNamedOperationHandler.doOperation(del, context, store);
 
-        // Then
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler1.doOperation(get, context, store));
+
+        // then
         assertEquals(0, results.size());
+
     }
 
-    @Test
-    public void shouldAllowUpdatingOfNamedOperations() throws OperationException {
-        // Given
+    private void shouldAllowUpdatingOfNamedOperations() throws OperationException {
+        // given
         final Store store = mock(Store.class);
         final StoreProperties storeProps = mock(StoreProperties.class);
         given(store.getProperties()).willReturn(storeProps);
 
-        new AddNamedOperationHandler().doOperation(addNamedOperation, context, store);
+        new AddNamedOperationHandler().doOperation(add, context, store);
+
+        AddNamedOperation update = new AddNamedOperation.Builder()
+                .name(add.getOperationName())
+                .description("a different operation")
+                .operationChain(add.getOperationChainAsString())
+                .overwrite()
+                .score(0)
+                .build();
 
         GetAllNamedOperations get = new GetAllNamedOperations();
 
-        // When
-        new AddNamedOperationHandler().doOperation(addNamedOperation, context, store);
-        final List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
-
-        // Then
-        final AddNamedOperation updatedNamedOperation = makeUpdatedAddNamedOperation();
-        final NamedOperationDetail expectedNamedOp = makeNamedOperationDetail(updatedNamedOperation, user);
-        final ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        assertEquals(expected.size(), results.size());
-        assertEquals(expected, results);
-    }
-
-    @Test
-    public void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
-        // Given
-        final Store store = mock(Store.class);
-        given(store.getProperties()).willReturn(properties);
-
-        new AddNamedOperationHandler().doOperation(addNamedOperation, context, store);
-
-        AddNamedOperation update = makeUpdatedAddNamedOperation();
-
-        GetAllNamedOperations get = new GetAllNamedOperations();
-
-        // When
-        new AddNamedOperationHandler().doOperation(addNamedOperation, context, store);
+        // when
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
-        // Then
-        final NamedOperationDetail expectedNamedOp = makeNamedOperationDetail(update, user);
-        final ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        assertEquals(expected.size(), results.size());
-        assertEquals(expected, results);
-    }
-
-    @Test
-    public void shouldAllowReadingOfNamedOperationsUsingAdminAuth() throws OperationException {
-        // Given
-        Context contextWithAuthorisedUser = new Context(authorisedUser);
-        Context contextWithAdminUser = new Context(adminAuthUser);
-        NamedOperationDetail expectedNamedOp = makeNamedOperationDetail(addNamedOperation, authorisedUser);
-
-        addNamedOperationHandler.doOperation(addNamedOperation, contextWithAuthorisedUser, store);
-
-        // When
-        List<NamedOperationDetail> resultsWithNoAdminRole = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
-
-        // Then
-        assertEquals(0, resultsWithNoAdminRole.size());
-
-        // When
-        List<NamedOperationDetail> resultsWithAdminRole = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store));
-
-        // Then
-        final ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        assertEquals(1, resultsWithAdminRole.size());
-        assertEquals(expected, resultsWithAdminRole);
-    }
-
-    @Test
-    public void shouldAllowUpdatingOfNamedOperationsUsingAdminAuth() throws OperationException {
-        // Given
-        Context contextWithAuthorisedUser = new Context(authorisedUser);
-        Context contextWithAdminUser = new Context(adminAuthUser);
-        addNamedOperationHandler.doOperation(addNamedOperation, contextWithAuthorisedUser, store);
-
-        AddNamedOperation updatedNamedOperation = makeUpdatedAddNamedOperation();
-
-        // When / Then
-        final Exception exception = assertThrows(OperationException.class, () -> addNamedOperationHandler.doOperation(updatedNamedOperation, context, store));
-        assertEquals("User UNKNOWN does not have permission to overwrite", exception.getMessage());
-
-        // When
-        addNamedOperationHandler.doOperation(updatedNamedOperation, contextWithAdminUser, store);
-
-        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store));
-
-        // Then
-        final NamedOperationDetail expectedNamedOp = makeNamedOperationDetail(updatedNamedOperation, adminAuthUser);
-        final ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        assertEquals(expected.size(), results.size());
-        assertEquals(expected, results);
-    }
-
-    private NamedOperationDetail makeNamedOperationDetail(final AddNamedOperation addNamedOperation, final User user) {
-        return new NamedOperationDetail.Builder()
-                .operationName(addNamedOperation.getOperationName())
-                .operationChain(addNamedOperation.getOperationChainAsString())
-                .description(addNamedOperation.getDescription())
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(update.getOperationName())
+                .operationChain(update.getOperationChainAsString())
+                .description(update.getDescription())
                 .creatorId(user.getUserId())
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .score(0)
                 .build();
+
+        ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+
+        // then
+        assertEquals(expected.size(), results.size());
+        assertEquals(expected, results);
     }
 
-    private AddNamedOperation makeUpdatedAddNamedOperation() {
-        return new AddNamedOperation.Builder()
-                .name(addNamedOperation.getOperationName())
+    private void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
+        // given
+        final Store store = mock(Store.class);
+        given(store.getProperties()).willReturn(properties);
+
+        new AddNamedOperationHandler().doOperation(add, context, store);
+
+        AddNamedOperation update = new AddNamedOperation.Builder()
+                .name(add.getOperationName())
                 .description("a different operation")
-                .operationChain(addNamedOperation.getOperationChainAsString())
+                .operationChain(add.getOperationChainAsString())
                 .overwrite()
                 .score(0)
                 .build();
+
+        GetAllNamedOperations get = new GetAllNamedOperations();
+
+        // when
+        new AddNamedOperationHandler().doOperation(add, context, store);
+
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
+
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(update.getOperationName())
+                .operationChain(update.getOperationChainAsString())
+                .description(update.getDescription())
+                .creatorId(user.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
+                .score(0)
+                .build();
+
+        ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+
+        // then
+        assertEquals(expected.size(), results.size());
+        assertEquals(expected, results);
     }
 
-    private void initialiseHashMapCacheService() throws CacheOperationException {
-        cacheProps.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getCanonicalName());
-        CacheServiceLoader.initialise(cacheProps);
-        CacheServiceLoader.getService().clearCache(CACHE_NAME);
+    private void shouldAllowReadingOfNamedOperationsUsingAdminAuth() throws OperationException {
+        // given
+        Context contextWithAuthorisedUser = new Context(authorisedUser);
+        Context contextWithAdminUser = new Context(adminAuthUser);
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(add.getOperationName())
+                .operationChain(add.getOperationChainAsString())
+                .description(add.getDescription())
+                .creatorId(authorisedUser.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
+                .score(0)
+                .build();
+        ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+
+        addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, store);
+
+        // when
+        List<NamedOperationDetail> resultsWithNoAdminRole = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
+
+        // then
+        assertEquals(0, resultsWithNoAdminRole.size());
+
+        // when
+        List<NamedOperationDetail> resultsWithAdminRole = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store));
+
+        // then
+        assertEquals(1, resultsWithAdminRole.size());
+        assertEquals(expected, resultsWithAdminRole);
+    }
+
+    private void shouldAllowUpdatingOfNamedOperationsUsingAdminAuth() throws OperationException {
+        // given
+        Context contextWithAuthorisedUser = new Context(authorisedUser);
+        Context contextWithAdminUser = new Context(adminAuthUser);
+        addNamedOperationHandler.doOperation(add, contextWithAuthorisedUser, store);
+
+        AddNamedOperation update = new AddNamedOperation.Builder()
+                .name(add.getOperationName())
+                .description("a different operation")
+                .operationChain(add.getOperationChainAsString())
+                .overwrite()
+                .score(0)
+                .build();
+
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(update.getOperationName())
+                .operationChain(update.getOperationChainAsString())
+                .description(update.getDescription())
+                .creatorId(adminAuthUser.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
+                .score(0)
+                .build();
+
+        ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+
+        // when / then
+        try {
+            addNamedOperationHandler.doOperation(update, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("User UNKNOWN does not have permission to overwrite"));
+        }
+
+        // when
+        addNamedOperationHandler.doOperation(update, contextWithAdminUser, store);
+
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store));
+
+        // then
+        assertEquals(expected.size(), results.size());
+        assertEquals(expected, results);
     }
 }

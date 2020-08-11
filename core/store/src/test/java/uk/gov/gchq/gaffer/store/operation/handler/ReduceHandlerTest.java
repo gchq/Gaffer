@@ -26,15 +26,17 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReduceHandlerTest {
-
     @Test
     public void shouldAggregateResults() throws Exception {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
+        final Integer expectedResult = 15;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .aggregateFunction(new Sum())
@@ -46,13 +48,16 @@ public class ReduceHandlerTest {
         final Integer result = handler.doOperation(reduce, null, null);
 
         // Then
-        assertEquals(Integer.valueOf(15), result);
+        assertTrue(result instanceof Integer);
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void shouldAggregateResultsWithIdentity() throws Exception {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
+        final Integer identity = 10;
+        final Integer expectedResult = 10;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(10)
@@ -65,13 +70,15 @@ public class ReduceHandlerTest {
         final Integer result = handler.doOperation(reduce, null, null);
 
         // Then
-        assertEquals(Integer.valueOf(10), result);
+        assertTrue(result instanceof Integer);
+        assertEquals(expectedResult, result);
     }
 
     @Test
     public void shouldAggregateResultsWithNullIdentity() throws Exception {
         // Given
         final List<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
+        final Integer expectedResult = 5;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
                 .input(input)
                 .identity(null)
@@ -84,11 +91,12 @@ public class ReduceHandlerTest {
         final Integer result = handler.doOperation(reduce, null, null);
 
         // Then
-        assertEquals(Integer.valueOf(5), result);
+        assertTrue(result instanceof Integer);
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    public void shouldHandleNullInput() {
+    public void shouldHandleNullInput() throws Exception {
         // Given
         final Iterable<Integer> input = null;
         final Reduce<Integer> reduce = new Reduce.Builder<Integer>()
@@ -98,17 +106,27 @@ public class ReduceHandlerTest {
         final ReduceHandler<Integer> handler = new ReduceHandler<>();
 
         // When
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(reduce, null, null));
-        assertEquals("Input cannot be null", exception.getMessage());
+        try {
+            final Integer result = handler.doOperation(reduce, null, null);
+        } catch (final OperationException oe) {
+
+            // Then
+            assertThat(oe.getMessage(), is("Input cannot be null"));
+        }
     }
 
     @Test
-    public void shouldHandleNullOperation() {
+    public void shouldHandleNullOperation() throws Exception {
         // Given
         final ReduceHandler<Integer> handler = new ReduceHandler<>();
 
         // When
-        final Exception exception = assertThrows(OperationException.class, () -> handler.doOperation(null, null, null));
-        assertEquals("Operation cannot be null", exception.getMessage());
+        try {
+            final Integer result = handler.doOperation(null, null, null);
+        } catch (final OperationException oe) {
+
+            // Then
+            assertThat(oe.getMessage(), is("Operation cannot be null"));
+        }
     }
 }
