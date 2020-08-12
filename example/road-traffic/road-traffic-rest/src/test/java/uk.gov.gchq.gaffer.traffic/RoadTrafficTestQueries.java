@@ -298,6 +298,7 @@ public abstract class RoadTrafficTestQueries {
         Set<String> resultSet = new HashSet<>();
 
         final Iterable<? extends String> results = this.graph.execute(opChain, this.user);
+
         for (final String r : results) {
             resultSet.add(r);
         }
