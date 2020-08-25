@@ -84,6 +84,7 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
         assertNotNull(getElementsBetweenSets.getView());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

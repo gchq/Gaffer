@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
-import org.glassfish.grizzly.GrizzlyFuture;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -40,13 +39,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public abstract class RestApiTestClient {
     protected final Client client = ClientBuilder.newClient();
@@ -72,22 +69,13 @@ public abstract class RestApiTestClient {
 
     public void stopServer() {
         if (null != server) {
-            try {
-                GrizzlyFuture<HttpServer> shutdown = server.shutdown();
-                shutdown.get();
-                //server = null;
-            } catch (final InterruptedException ex) {
-                Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
-                throw new RuntimeException(ex);
-            } catch (final ExecutionException ex) {
-                Logger.getLogger(RestApiTestClient.class.getName()).log(Level.SEVERE, null, ex);
-                throw new RuntimeException(ex);
-            }
+            server.shutdownNow();
+            server = null;
         }
     }
 
     public boolean isRunning() {
-        return (null == server) ? false : server.isStarted();
+        return null != server;
     }
 
     public void reinitialiseGraph(final TemporaryFolder testFolder) throws IOException {
@@ -96,6 +84,13 @@ public abstract class RestApiTestClient {
 
     public void reinitialiseGraph(final TemporaryFolder testFolder, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
         reinitialiseGraph(testFolder,
+                Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
+        );
+    }
+
+    public void reinitialiseGraph(final File tempDir, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
+        reinitialiseGraph(tempDir,
                 Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
         );
@@ -111,11 +106,27 @@ public abstract class RestApiTestClient {
         }
 
         // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
-
+        setSystemProperties(testFolder.getRoot() + "/store.properties", testFolder.getRoot() + "/schema.json");
         reinitialiseGraph();
+    }
+
+    public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
+        FileUtils.writeByteArrayToFile(new File(testFolder, "/schema.json"), schema.toJson(true));
+
+        try (OutputStream out = new FileOutputStream(new File(testFolder, "/store.properties"))) {
+            storeProperties.getProperties()
+                    .store(out, "This is an optional header comment string");
+        }
+
+        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json");
+        reinitialiseGraph();
+    }
+
+    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
+        // set properties for REST service
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
     }
 
     public void reinitialiseGraph(final Graph graph) {
@@ -130,9 +141,8 @@ public abstract class RestApiTestClient {
         }
     }
 
-
-    public void reinitialiseGraph() throws IOException {
-        DefaultGraphFactory.setGraph(null);
+    public void reinitialiseGraph() {
+        defaultGraphFactory.setGraph(null);
 
         startServer();
 
@@ -162,12 +172,13 @@ public abstract class RestApiTestClient {
     public abstract Response getOperationDetails(final Class clazz) throws IOException;
 
     public void startServer() {
-        if (null == server || !server.isStarted()) {
+        if (null == server) {
             server = createHttpServer();
         }
     }
 
     private HttpServer createHttpServer() {
+
         final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString));
         final String webappContextName = "WebappContext";
         final WebappContext context = new WebappContext(webappContextName, "/".concat(fullPath));

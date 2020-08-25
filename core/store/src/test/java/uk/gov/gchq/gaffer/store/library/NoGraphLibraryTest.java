@@ -34,7 +34,6 @@ public class NoGraphLibraryTest {
 
     @Test
     public void shouldReturnNullWhenGettingIds() {
-
         // When / Then
         noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getIds(GRAPH_ID));
@@ -42,7 +41,6 @@ public class NoGraphLibraryTest {
 
     @Test
     public void shouldReturnNullWhenGettingSchema() {
-
         // When / Then
         noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getSchema(SCHEMA_ID));
@@ -50,7 +48,6 @@ public class NoGraphLibraryTest {
 
     @Test
     public void shouldReturnNullWhenGettingProperties() {
-
         // When / Then
         noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getProperties(PROPERTIES_ID));

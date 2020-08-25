@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CountTest extends OperationTest<Count> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -38,6 +40,7 @@ public class CountTest extends OperationTest<Count> {
         assertThat(count.getInput(), is(notNullValue()));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

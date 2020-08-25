@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.service.impl;
+
+package uk.gov.gchq.gaffer.graph;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
-import uk.gov.gchq.gaffer.rest.SystemStatus;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public abstract class StatusServiceIT extends AbstractRestApiIT {
+public class GraphRequestTest {
 
     @Test
-    public void shouldReturnUpStatus() {
+    public void graphRequestEqualsCoverage() {
+        // Given
+        final GetAllElements operation = new GetAllElements();
+        final Context context = new Context();
+
         // When
-        final SystemStatus status = client.getRestServiceStatus();
+        final GraphRequest<Operation> request = new GraphRequest<Operation>(operation, context);
+        final GraphRequest<Operation> expected = new GraphRequest<Operation>(operation, context);
 
         // Then
-        assertEquals(SystemStatus.UP, status);
+        assertEquals(expected, request);
     }
 }

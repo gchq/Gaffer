@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddElementsTest extends OperationTest<AddElements> {
+
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
             "  \"validate\" : true,%n" +
@@ -63,6 +64,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
             "  } ]%n" +
             "}");
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -140,10 +142,8 @@ public class AddElementsTest extends OperationTest<AddElements> {
 
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
-        // Given
-
-        // When
-        AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
+        // Given / When
+        final AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
 
         // Then
         final Iterator<? extends Element> itr = addElements.getInput().iterator();
@@ -166,14 +166,18 @@ public class AddElementsTest extends OperationTest<AddElements> {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element element = new Edge.Builder().group("testEdgeGroup").build();
-        AddElements addElements = new AddElements.Builder()
+        // Given
+        final Element element = new Edge.Builder().group("testEdgeGroup").build();
+
+        // When
+        final AddElements addElements = new AddElements.Builder()
                 .input(element)
                 .skipInvalidElements(true)
                 .option("testOption", "true")
                 .validate(false)
                 .build();
 
+        // Then
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());
         assertFalse(addElements.isValidate());

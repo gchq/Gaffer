@@ -70,6 +70,7 @@ public class SortTest extends OperationTest<Sort> {
                 .collect(toList()), containsInAnyOrder(1, 2));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

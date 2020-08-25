@@ -35,6 +35,7 @@ public class RawDateSerialiserTest extends ToBytesSerialisationTest<Date> {
         for (long i = 1000000L; i < 1001000L; i++) {
             final byte[] b = serialiser.serialise(new Date(i));
             final Object o = serialiser.deserialise(b);
+
             assertEquals(Date.class, o.getClass());
             assertEquals(new Date(i), o);
         }
@@ -44,17 +45,18 @@ public class RawDateSerialiserTest extends ToBytesSerialisationTest<Date> {
     public void canSerialiseEpoch() throws SerialisationException {
         final byte[] b = serialiser.serialise(new Date(0));
         final Object o = serialiser.deserialise(b);
+
         assertEquals(Date.class, o.getClass());
         assertEquals(new Date(0), o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseDateClass() throws SerialisationException {
+    public void canSerialiseDateClass() {
         assertTrue(serialiser.canHandle(Date.class));
     }
 
@@ -84,10 +86,10 @@ public class RawDateSerialiserTest extends ToBytesSerialisationTest<Date> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(new Date(60460074000000L), new byte[]{0, 0, 54, -4, -11, 59, -34, -128}),
-                new Pair<>(new Date(61406234880000L), new byte[]{0, 0, 55, -39, 64, -47, 40, 0}),
-                new Pair<>(new Date(59514676680000L), new byte[]{0, 0, 54, 32, -41, 41, -107, 64})
+        return new Pair[] {
+                new Pair<>(new Date(60460074000000L), new byte[] {0, 0, 54, -4, -11, 59, -34, -128}),
+                new Pair<>(new Date(61406234880000L), new byte[] {0, 0, 55, -39, 64, -47, 40, 0}),
+                new Pair<>(new Date(59514676680000L), new byte[] {0, 0, 54, 32, -41, 41, -107, 64})
         };
     }
 }

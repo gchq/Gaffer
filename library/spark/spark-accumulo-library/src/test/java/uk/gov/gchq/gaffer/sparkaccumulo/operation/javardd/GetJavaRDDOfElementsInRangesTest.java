@@ -81,6 +81,7 @@ public class GetJavaRDDOfElementsInRangesTest extends OperationTest<GetJavaRDDOf
         assertNotNull(GetJavaRDDOfElementsInRanges.getView());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

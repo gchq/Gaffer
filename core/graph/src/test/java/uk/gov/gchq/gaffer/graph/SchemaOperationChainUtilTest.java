@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
+
     Graph graph;
     final StoreProperties storeProperties = new StoreProperties();
     final Schema schema = new Schema.Builder()
@@ -84,7 +85,7 @@ public class SchemaOperationChainUtilTest {
     @Test
     public void shouldValidateValidOperationChainAgainstSchema() {
         // When
-        ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain);
+        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain);
 
         // Then
         assertTrue(validationResult.isValid());
@@ -93,7 +94,7 @@ public class SchemaOperationChainUtilTest {
     @Test
     public void shouldValidateInvalidOperationChainAgainstSchema() {
         // When
-        ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain);
+        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain);
 
         // Then
         assertFalse(validationResult.isValid());

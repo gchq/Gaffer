@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.function;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
@@ -30,6 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ReduceTest extends OperationTest<Reduce> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -45,6 +48,7 @@ public class ReduceTest extends OperationTest<Reduce> {
         assertNotNull(reduce.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

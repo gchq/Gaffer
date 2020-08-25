@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {
+
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"inputMapperPairs\" : {%n    \"TestInput\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n  } ,%n" +
@@ -68,7 +69,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .reducers(10)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
-                .commandLineArgs(new String[]{"-libjars", "libjar1,libjar2"})
+                .commandLineArgs(new String[] {"-libjars", "libjar1,libjar2"})
                 .build();
 
         // When
@@ -114,6 +115,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(MapperGenerator.class.getName(), addElements.getInputMapperPairs().get("inputPath"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

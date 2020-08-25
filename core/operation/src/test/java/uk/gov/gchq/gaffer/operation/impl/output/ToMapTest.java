@@ -56,6 +56,7 @@ public class ToMapTest extends OperationTest<ToMap> {
         assertThat(toMap.getElementGenerator(), is(notNullValue()));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

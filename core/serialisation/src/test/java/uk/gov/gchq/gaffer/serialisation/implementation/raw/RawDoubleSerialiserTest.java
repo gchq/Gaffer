@@ -30,9 +30,13 @@ public class RawDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (double i = 0; i < 1000; i += 1.1) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -40,27 +44,33 @@ public class RawDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
     @Test
     public void canSerialiseDoubleMinValue() throws SerialisationException {
+        // Given
         byte[] b = serialiser.serialise(Double.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseDoubleMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Double.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseDoubleClass() throws SerialisationException {
+    public void canSerialiseDoubleClass() {
         assertTrue(serialiser.canHandle(Double.class));
     }
 
@@ -72,11 +82,11 @@ public class RawDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Double.MAX_VALUE, new byte[]{-1, -1, -1, -1, -1, -1, -17, 127}),
-                new Pair<>(Double.MIN_VALUE, new byte[]{1, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(0.0, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(1.00, new byte[]{0, 0, 0, 0, 0, 0, -16, 63}),
+        return new Pair[] {
+                new Pair<>(Double.MAX_VALUE, new byte[] {-1, -1, -1, -1, -1, -1, -17, 127}),
+                new Pair<>(Double.MIN_VALUE, new byte[] {1, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(0.0, new byte[] {0, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1.00, new byte[] {0, 0, 0, 0, 0, 0, -16, 63}),
         };
     }
 }

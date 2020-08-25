@@ -77,6 +77,7 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         assertArrayEquals(servers, deserialisedOp.getBootstrapServers());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -109,6 +110,7 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         assertArrayEquals(servers, op.getBootstrapServers());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -16,17 +16,13 @@
 
 package uk.gov.gchq.gaffer.traffic.generator;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,11 +35,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RoadTrafficDataLoaderITs {
 
@@ -60,21 +57,18 @@ public class RoadTrafficDataLoaderITs {
             AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public static File storeBaseFolder;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getAbsolutePath());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
-
-    @Rule
-    public final TestName testName = new TestName();
 
     @Test
     public void shouldLoadCsvV1Line() throws IOException, OperationException {
@@ -83,7 +77,7 @@ public class RoadTrafficDataLoaderITs {
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(this.testName.getMethodName())
+                        .graphId("shouldLoadCsvV1Line")
                         .build())
                 .storeProperties(PROPERTIES)
                 .addSchemas(schema)
@@ -119,7 +113,7 @@ public class RoadTrafficDataLoaderITs {
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(this.testName.getMethodName())
+                        .graphId("shouldLoadCsvV2Line")
                         .build())
                 .storeProperties(PROPERTIES)
                 .addSchemas(schema)
@@ -147,5 +141,4 @@ public class RoadTrafficDataLoaderITs {
         assertEquals(15, entityCount);
         assertEquals(7, edgeCount);
     }
-
 }

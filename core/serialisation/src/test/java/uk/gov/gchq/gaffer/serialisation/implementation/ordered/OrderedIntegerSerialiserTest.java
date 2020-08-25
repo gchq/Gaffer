@@ -31,9 +31,13 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (int i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
@@ -41,25 +45,35 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Integer.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Integer.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
+        // Given
         byte[] startBytes = serialiser.serialise(0);
         for (Integer test = 1; test >= 10; test++) {
+            // When
             byte[] newTestBytes = serialiser.serialise(test);
+
+            // Then
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }
@@ -94,11 +108,11 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{8}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{0}),
-                new Pair<>(0, new byte[]{4, -128, 0, 0, 0}),
-                new Pair<>(1, new byte[]{4, -128, 0, 0, 1}),
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {8}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {0}),
+                new Pair<>(0, new byte[] {4, -128, 0, 0, 0}),
+                new Pair<>(1, new byte[] {4, -128, 0, 0, 1}),
         };
     }
 }

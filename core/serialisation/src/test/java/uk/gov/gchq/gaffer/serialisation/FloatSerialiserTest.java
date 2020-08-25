@@ -28,9 +28,13 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (float i = 0; i < 1000; i += 1.1f) {
-            byte[] b = serialiser.serialise(i);
-            Object o = serialiser.deserialise(b);
+            // When
+            final byte[] b = serialiser.serialise(i);
+            final Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,27 +42,33 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void canSerialiseFloatMinValue() throws SerialisationException {
-        byte[] b = serialiser.serialise(Float.MIN_VALUE);
-        Object o = serialiser.deserialise(b);
+        // Given When
+        final byte[] b = serialiser.serialise(Float.MIN_VALUE);
+        final Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseFloatMaxValue() throws SerialisationException {
-        byte[] b = serialiser.serialise(Float.MAX_VALUE);
-        Object o = serialiser.deserialise(b);
+        // Given When
+        final byte[] b = serialiser.serialise(Float.MAX_VALUE);
+        final Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MAX_VALUE, o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseFloatClass() throws SerialisationException {
+    public void canSerialiseFloatClass() {
         assertTrue(serialiser.canHandle(Float.class));
     }
 
@@ -70,11 +80,11 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Float.MAX_VALUE, new byte[]{51, 46, 52, 48, 50, 56, 50, 51, 53, 69, 51, 56}),
-                new Pair<>(Float.MIN_VALUE, new byte[]{49, 46, 52, 69, 45, 52, 53}),
-                new Pair<>(0f, new byte[]{48, 46, 48}),
-                new Pair<>(1f, new byte[]{49, 46, 48})
+        return new Pair[] {
+                new Pair<>(Float.MAX_VALUE, new byte[] {51, 46, 52, 48, 50, 56, 50, 51, 53, 69, 51, 56}),
+                new Pair<>(Float.MIN_VALUE, new byte[] {49, 46, 52, 69, 45, 52, 53}),
+                new Pair<>(0f, new byte[] {48, 46, 48}),
+                new Pair<>(1f, new byte[] {49, 46, 48})
         };
     }
 }

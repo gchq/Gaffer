@@ -49,6 +49,7 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
         assertThat(countGroups.getInput(), containsInAnyOrder(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2)));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -70,10 +71,8 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
 
     @Test
     public void shouldGetOutputClass() {
-        // When
         final Class<?> outputClass = getTestObject().getOutputClass();
 
-        // Then
         assertEquals(GroupCounts.class, outputClass);
     }
 

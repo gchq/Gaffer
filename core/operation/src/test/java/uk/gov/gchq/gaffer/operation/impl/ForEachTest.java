@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -36,6 +38,7 @@ public class ForEachTest extends OperationTest<ForEach> {
     final Iterable<EntitySeed> inputIterable = Arrays.asList(new EntitySeed("1"), new EntitySeed("2"));
     final Operation op = new GetElements();
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -51,6 +54,7 @@ public class ForEachTest extends OperationTest<ForEach> {
         assertEquals(op, forEachOp.getOperation());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -65,6 +69,7 @@ public class ForEachTest extends OperationTest<ForEach> {
         assertEquals(forEachOp.getOperation(), clone.getOperation());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
@@ -78,7 +83,7 @@ public class ForEachTest extends OperationTest<ForEach> {
         final ForEach deserialisedObj = fromJson(json);
 
         // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.ForEach\",%n" +
                 "  \"input\" : [ {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.data.EntitySeed\",%n" +
@@ -90,7 +95,8 @@ public class ForEachTest extends OperationTest<ForEach> {
                 "  \"operation\" : {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"%n" +
                 "  }%n" +
-                "}"), new String(json));
+                "}");
+        JsonAssert.assertEquals(expected, new String(json));
         assertNotNull(deserialisedObj);
     }
 

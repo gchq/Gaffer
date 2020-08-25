@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
+
     @Override
     protected AggregatePair getTestObject() {
         return new AggregatePair();
@@ -39,7 +40,7 @@ public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
         pair.setElementAggregator(new ElementAggregator());
 
         // When / Then
-        assertArrayEquals(new String[]{"timestamp"}, pair.getGroupBy());
+        assertArrayEquals(new String[] {"timestamp"}, pair.getGroupBy());
         assertNotNull(pair.getElementAggregator());
     }
 

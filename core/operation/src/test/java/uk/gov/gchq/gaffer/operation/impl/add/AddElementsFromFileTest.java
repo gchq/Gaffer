@@ -70,6 +70,7 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
         assertEquals(skipInvalid, deserialisedOp.isSkipInvalidElements());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -96,6 +97,7 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
         assertEquals(skipInvalid, op.isSkipInvalidElements());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

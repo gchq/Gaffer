@@ -78,6 +78,7 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
         assertEquals(delimiter, deserialisedOp.getDelimiter());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -111,6 +112,7 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
         assertEquals(delimiter, op.getDelimiter());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ToCsvTest extends OperationTest<ToCsv> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
@@ -52,6 +53,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertNotNull(deserialisedOp);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -70,6 +72,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertEquals(generator, toCsv.getElementGenerator());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

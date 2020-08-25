@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<SchemaEntityDefinition> {
+
     @Override
     protected SchemaEntityDefinition.Builder createBuilder() {
         return new SchemaEntityDefinition.Builder()
@@ -76,7 +77,7 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
                 .vertex("vertex.string")
                 .build();
 
-        final Schema schema = new Schema.Builder()
+        new Schema.Builder()
                 .entity(TestGroups.ENTITY, elementDef)
                 .type("vertex.string", String.class)
                 .build();

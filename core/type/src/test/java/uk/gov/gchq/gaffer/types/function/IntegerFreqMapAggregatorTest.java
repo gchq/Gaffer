@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
+
     @Test
     public void shouldMergeFreqMaps() {
         // Given

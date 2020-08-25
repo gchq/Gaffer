@@ -55,6 +55,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class GafferResultCacheExporterTest {
+
     private final User user = new User.Builder()
             .userId("user01")
             .opAuths("1", "2", "3")
@@ -64,7 +65,7 @@ public class GafferResultCacheExporterTest {
     private final String key = "key";
     private final Store store = mock(Store.class);
     private final String visibility = "visibility value";
-    private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[]{"1", "2"});
+    private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[] {"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
     private Graph resultCache;
@@ -110,7 +111,7 @@ public class GafferResultCacheExporterTest {
     }
 
     @Test
-    public void shouldAddNotErrorWhenAddingANullResult() throws OperationException, SerialisationException {
+    public void shouldAddNotErrorWhenAddingANullResult() throws OperationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
                 context, jobId, resultCache, visibility, requiredOpAuths
@@ -124,7 +125,7 @@ public class GafferResultCacheExporterTest {
     }
 
     @Test
-    public void shouldGetResults() throws OperationException, SerialisationException {
+    public void shouldGetResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         long timestamp = System.currentTimeMillis();
@@ -143,7 +144,7 @@ public class GafferResultCacheExporterTest {
     }
 
     @Test
-    public void shouldGetEmptyResults() throws OperationException, SerialisationException {
+    public void shouldGetEmptyResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         given(store.execute(opChain.capture(), Mockito.any(Context.class))).willReturn(null);

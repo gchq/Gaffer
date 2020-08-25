@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetElementsTest extends OperationTest<GetElements> {
+
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
@@ -208,6 +209,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         builderShouldCreatePopulatedOperationIncoming();
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

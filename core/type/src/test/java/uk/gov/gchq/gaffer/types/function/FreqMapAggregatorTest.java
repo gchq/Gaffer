@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class FreqMapAggregatorTest extends BinaryOperatorTest {
+
     @Test
     public void shouldMergeFreqMaps() {
         // Given
@@ -59,9 +60,10 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
 
         // Then 1
-        JsonAssert.assertEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.FreqMapAggregator\"%n" +
-                "}"), json);
+                "}");
+        JsonAssert.assertEquals(expected, json);
 
         // When 2
         final FreqMapAggregator deserialisedAggregator = JSONSerialiser.deserialise(json.getBytes(), getFunctionClass());

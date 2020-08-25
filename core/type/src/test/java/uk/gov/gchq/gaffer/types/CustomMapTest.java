@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -143,8 +142,6 @@ public class CustomMapTest {
     }
 
     protected String jsonFromFile(final String path) throws IOException {
-        return IOUtils.readLines(StreamUtil.openStream(getClass(), path))
-                .stream()
-                .collect(Collectors.joining("\n"));
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
     }
 }

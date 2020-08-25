@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
+
     @Test
     public void shouldSetDirectedTypeToBoth() {
         // Given
@@ -144,6 +145,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         builderShouldCreatePopulatedOperationIncoming();
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

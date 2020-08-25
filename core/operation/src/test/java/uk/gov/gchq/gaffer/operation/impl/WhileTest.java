@@ -34,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WhileTest extends OperationTest<While> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -64,6 +66,7 @@ public class WhileTest extends OperationTest<While> {
         }
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

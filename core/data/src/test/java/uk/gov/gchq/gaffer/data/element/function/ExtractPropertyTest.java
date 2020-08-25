@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.util.function.Function;
 
@@ -28,9 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.commonutil.JsonAssert.assertEquals;
 
-public class ExtractPropertyTest extends GafferFunctionTest {
+public class ExtractPropertyTest extends FunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {

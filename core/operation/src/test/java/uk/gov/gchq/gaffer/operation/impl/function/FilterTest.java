@@ -32,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class FilterTest extends OperationTest<Filter> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -51,6 +53,7 @@ public class FilterTest extends OperationTest<Filter> {
         assertNotNull(filter.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

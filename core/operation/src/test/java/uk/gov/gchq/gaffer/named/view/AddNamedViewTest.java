@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.named.view;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
+
     private static final String TEST_NAMED_VIEW_NAME = "testNamedViewName";
     private static final String TEST_DESCRIPTION = "testDescription";
     private static final View VIEW = new View.Builder()
@@ -42,12 +44,13 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
             .build();
     Map<String, ViewParameterDetail> parameters = new HashMap<>();
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)
@@ -62,12 +65,13 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         assertEquals(TEST_DESCRIPTION, addNamedView.getDescription());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)

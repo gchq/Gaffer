@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetJobResultsTest extends OperationTest<GetJobResults> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -59,7 +60,6 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         assertThat(jobResults.getKey(), is(nullValue()));
     }
 
-
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
@@ -72,6 +72,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         assertEquals("jobId", op.getJobId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

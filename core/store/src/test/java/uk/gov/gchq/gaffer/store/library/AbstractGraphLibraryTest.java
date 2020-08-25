@@ -109,7 +109,7 @@ public abstract class AbstractGraphLibraryTest {
         try {
             graphLibrary.addSchema(null, null);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Id is invalid: null"));
+            assertTrue(e.getMessage().contains("Schema cannot be null"));
         }
     }
 
@@ -159,7 +159,7 @@ public abstract class AbstractGraphLibraryTest {
         try {
             graphLibrary.addProperties(null, null);
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Id is invalid: null"));
+            assertTrue(e.getMessage().contains("Store properties cannot be null"));
         }
     }
 

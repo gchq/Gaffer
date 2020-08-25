@@ -78,13 +78,18 @@ public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long>
     }
 
     private void test(final long value) throws SerialisationException {
+        // Given When
         final byte[] b = serialiser.serialise(value);
         final Object o = ((ToBytesSerialiser) serialiser).deserialise(b, 0, b.length);
+
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(value, o);
+
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         CompactRawSerialisationUtils.write(value, new DataOutputStream(stream));
         final long result = CompactRawSerialisationUtils.read(new DataInputStream(new ByteArrayInputStream(stream.toByteArray())));
+
         assertEquals(result, value);
     }
 
@@ -96,11 +101,11 @@ public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long>
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Long.MAX_VALUE, new byte[]{-120, 127, -1, -1, -1, -1, -1, -1, -1}),
-                new Pair<>(Long.MIN_VALUE, new byte[]{-128, 127, -1, -1, -1, -1, -1, -1, -1}),
-                new Pair<>(0L, new byte[]{0}),
-                new Pair<>(1L, new byte[]{1})
+        return new Pair[] {
+                new Pair<>(Long.MAX_VALUE, new byte[] {-120, 127, -1, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(Long.MIN_VALUE, new byte[] {-128, 127, -1, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(0L, new byte[] {0}),
+                new Pair<>(1L, new byte[] {1})
         };
     }
 }
