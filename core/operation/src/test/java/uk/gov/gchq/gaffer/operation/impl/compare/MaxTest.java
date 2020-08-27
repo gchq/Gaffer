@@ -68,6 +68,7 @@ public class MaxTest extends OperationTest<Max> {
                 .collect(toList()), containsInAnyOrder(1, 2));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

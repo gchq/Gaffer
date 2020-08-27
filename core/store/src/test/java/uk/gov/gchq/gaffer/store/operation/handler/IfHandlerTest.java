@@ -65,7 +65,7 @@ public class IfHandlerTest {
         given(predicate.test(input)).willReturn(true);
 
         // When
-        final Object result = handler.doOperation(filter, context, store);
+        handler.doOperation(filter, context, store);
 
         // Then
         verify(predicate).test(input);
@@ -95,7 +95,7 @@ public class IfHandlerTest {
         given(predicate.test(input)).willReturn(false);
 
         // When
-        final Object result = handler.doOperation(filter, context, store);
+        handler.doOperation(filter, context, store);
 
         // Then
         verify(predicate).test(input);
@@ -151,7 +151,7 @@ public class IfHandlerTest {
         final IfHandler handler = new IfHandler();
 
         // When
-        final Object result = handler.doOperation(filter, context, store);
+        handler.doOperation(filter, context, store);
 
         // Then
         verify(store).execute(then, context);

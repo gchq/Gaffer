@@ -69,6 +69,7 @@ public class MinTest extends OperationTest<Min> {
                 .collect(toList()), containsInAnyOrder(1, 2));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

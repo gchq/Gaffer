@@ -15,20 +15,21 @@
  */
 package uk.gov.gchq.gaffer.basic;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
+import java.io.File;
 import java.io.InputStream;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class SchemaIT {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
@@ -36,15 +37,15 @@ public class SchemaIT {
             AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public static File storeBaseFolder;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getAbsolutePath());
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownStore() {
         miniAccumuloClusterManager.close();
     }
@@ -54,15 +55,13 @@ public class SchemaIT {
         // Given
         final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);
 
-        // When
-        new Graph.Builder()
+        // When / Then
+        assertDoesNotThrow(() -> new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("basicGraph")
                         .build())
                 .storeProperties(PROPERTIES)
                 .addSchemas(schema)
-                .build();
-
-        // Then - no exceptions thrown
+                .build());
     }
 }

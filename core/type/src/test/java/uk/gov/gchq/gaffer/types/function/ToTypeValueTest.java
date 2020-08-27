@@ -28,25 +28,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ToTypeValueTest extends FunctionTest {
+
     @Test
     public void shouldConvertStringToTypeValue() {
         // Given
         final ToTypeValue function = new ToTypeValue();
-
-        final Object value = "value1";
+        final String value = "value1";
 
         // When
         final TypeValue result = function.apply(value);
 
         // Then
-        assertEquals(new TypeValue(null, value.toString()), result);
+        assertEquals(new TypeValue(null, value), result);
     }
 
     @Test
     public void shouldConvertObjectToTypeValue() {
         // Given
         final ToTypeValue function = new ToTypeValue();
-
         final Object value = 1L;
 
         // When
@@ -61,15 +60,14 @@ public class ToTypeValueTest extends FunctionTest {
         // Given
         final ToTypeValue function = new ToTypeValue();
 
-        final Object value = null;
-
         // When
-        final TypeValue result = function.apply(value);
+        final TypeValue result = function.apply(null);
 
         // Then
         assertEquals(new TypeValue(null, null), result);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

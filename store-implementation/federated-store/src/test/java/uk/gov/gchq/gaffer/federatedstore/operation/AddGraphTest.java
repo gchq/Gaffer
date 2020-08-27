@@ -46,6 +46,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         return Sets.newHashSet("graphId");
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
@@ -66,6 +67,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         assertEquals(WRITE_ACCESS_PREDICATE, op.getWriteAccessPredicate());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final AddGraph a = new Builder()

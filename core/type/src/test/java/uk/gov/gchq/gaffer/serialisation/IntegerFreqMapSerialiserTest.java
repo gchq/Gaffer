@@ -30,20 +30,30 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
+        // Given
         byte[] b = serialiser.serialise(new IntegerFreqMap());
-        Object o = serialiser.deserialise(b);
+
+        // When
+        final Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertEquals(0, ((IntegerFreqMap) o).size());
     }
 
     @Test
     public void canSerialiseDeSerialiseFreqMapWithValues() throws SerialisationException {
+        // Given
         IntegerFreqMap freqMap = new IntegerFreqMap();
         freqMap.put("x", 10);
         freqMap.put("y", 5);
         freqMap.put("z", 20);
+
+        // When
         byte[] b = serialiser.serialise(freqMap);
-        IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
+
+        // Then
+        IntegerFreqMap o = serialiser.deserialise(b);
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertEquals((Integer) 10, o.get("x"));
         assertEquals((Integer) 5, o.get("y"));
@@ -52,12 +62,17 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void testSerialiserWillSkipEntryWithNullValue() throws SerialisationException {
+        // Given
         IntegerFreqMap freqMap = new IntegerFreqMap();
         freqMap.put("x", null);
         freqMap.put("y", 5);
         freqMap.put("z", 20);
-        byte[] b = serialiser.serialise(freqMap);
-        IntegerFreqMap o = (IntegerFreqMap) serialiser.deserialise(b);
+
+        // When
+        final byte[] b = serialiser.serialise(freqMap);
+        final IntegerFreqMap o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(IntegerFreqMap.class, o.getClass());
         assertNull(o.get("x"));
         assertEquals((Integer) 5, o.get("y"));
@@ -65,12 +80,12 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseFreqMap() throws SerialisationException {
+    public void canSerialiseFreqMap() {
         assertTrue(serialiser.canHandle(IntegerFreqMap.class));
     }
 
@@ -87,11 +102,12 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         freqMap.put("y", 5);
         freqMap.put("z", 20);
 
-        return new Pair[]{
-                new Pair(freqMap, new byte[]{120, 92, 44, 49, 48, 92, 44, 121, 92, 44, 53, 92, 44, 122, 92, 44, 50, 48})
+        return new Pair[] {
+                new Pair(freqMap, new byte[] {120, 92, 44, 49, 48, 92, 44, 121, 92, 44, 53, 92, 44, 122, 92, 44, 50, 48})
         };
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         assertEquals(new IntegerFreqMap(), serialiser.deserialiseEmpty());

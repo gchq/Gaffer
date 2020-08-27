@@ -42,6 +42,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
         assertThat(toEntitySeeds.getInput(), containsInAnyOrder("1", "2"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

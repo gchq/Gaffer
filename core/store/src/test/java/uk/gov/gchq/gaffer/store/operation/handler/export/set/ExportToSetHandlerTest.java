@@ -34,7 +34,6 @@ public class ExportToSetHandlerTest {
                 .input(null)
                 .key("elements")
                 .build();
-
         final Context context = new Context();
         context.addExporter(new SetExporter());
 

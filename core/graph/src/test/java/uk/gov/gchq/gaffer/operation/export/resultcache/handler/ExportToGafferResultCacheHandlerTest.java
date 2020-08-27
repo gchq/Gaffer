@@ -50,6 +50,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class ExportToGafferResultCacheHandlerTest {
+
     private final Edge validEdge = new Edge.Builder()
             .group("result")
             .source("jobId")
@@ -138,7 +139,7 @@ public class ExportToGafferResultCacheHandlerTest {
     }
 
     @Test
-    public void shouldCreateCacheGraph() throws OperationException {
+    public void shouldCreateCacheGraph() {
         // Given
         final Store store = mock(Store.class);
 

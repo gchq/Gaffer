@@ -102,6 +102,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
         assertTrue(validationResult.isValid());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -118,6 +119,7 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
         assertThat(op.getView().getEntityGroups(), hasItem(TestGroups.ENTITY));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

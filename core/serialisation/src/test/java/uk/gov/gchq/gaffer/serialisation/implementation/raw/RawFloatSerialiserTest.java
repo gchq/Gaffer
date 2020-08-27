@@ -30,9 +30,13 @@ public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (float i = 0; i < 1000; i += 1.1) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
@@ -40,27 +44,33 @@ public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void canSerialiseFloatMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Float.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseFloatMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Float.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MAX_VALUE, o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseFloatClass() throws SerialisationException {
+    public void canSerialiseFloatClass() {
         assertTrue(serialiser.canHandle(Float.class));
     }
 
@@ -72,11 +82,11 @@ public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Float.MAX_VALUE, new byte[]{-1, -1, 127, 127}),
-                new Pair<>(Float.MIN_VALUE, new byte[]{1, 0, 0, 0}),
-                new Pair<>(0f, new byte[]{0, 0, 0, 0}),
-                new Pair<>(1f, new byte[]{0, 0, -128, 63})
+        return new Pair[] {
+                new Pair<>(Float.MAX_VALUE, new byte[] {-1, -1, 127, 127}),
+                new Pair<>(Float.MIN_VALUE, new byte[] {1, 0, 0, 0}),
+                new Pair<>(0f, new byte[] {0, 0, 0, 0}),
+                new Pair<>(1f, new byte[] {0, 0, -128, 63})
         };
     }
 }

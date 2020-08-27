@@ -187,10 +187,8 @@ public class StorePropertiesTest {
         props.setJsonSerialiserModules(modules);
 
         // Then
-        assertEquals(
-                TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(),
-                props.getJsonSerialiserModules()
-        );
+        final String expected = TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName();
+        assertEquals(expected, props.getJsonSerialiserModules());
     }
 
     @Test

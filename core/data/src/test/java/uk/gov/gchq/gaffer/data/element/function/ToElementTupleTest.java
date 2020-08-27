@@ -25,12 +25,13 @@ import uk.gov.gchq.gaffer.data.element.ElementTuple;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ToElementTupleTest extends GafferFunctionTest {
+public class ToElementTupleTest extends FunctionTest {
 
     @Test
     public void shouldReturnNullForNullValue() {
@@ -67,14 +68,15 @@ public class ToElementTupleTest extends GafferFunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Element.class};
+        return new Class[] {Element.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{ElementTuple.class};
+        return new Class[] {ElementTuple.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToElementTuple function = getInstance();

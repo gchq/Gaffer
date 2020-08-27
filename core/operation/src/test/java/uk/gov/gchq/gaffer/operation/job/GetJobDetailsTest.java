@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -55,6 +56,7 @@ public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
         assertEquals("jobId", op.getJobId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

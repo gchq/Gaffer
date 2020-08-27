@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.impl.io;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -36,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class InputImplTest extends OperationTest<InputImpl> {
 
     @Test
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldSerialiseAndDeserialiseOperation() {
         // Given
         final String requiredField1 = "value1";
         final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
@@ -89,7 +88,7 @@ public class InputImplTest extends OperationTest<InputImpl> {
     }
 
     @Test
-    public void shouldValidateASingleMissingRequiredField() throws SerialisationException {
+    public void shouldValidateASingleMissingRequiredField() {
         // Given
         final String requiredField1 = "value1";
         final Date optionalField1 = new Date(1L);

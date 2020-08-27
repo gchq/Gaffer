@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.function;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.Map;
@@ -28,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class MapTest extends OperationTest<Map> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -42,6 +45,7 @@ public class MapTest extends OperationTest<Map> {
         assertNotNull(map.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

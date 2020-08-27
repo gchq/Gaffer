@@ -40,9 +40,6 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
                 .build();
-        final User user = new User.Builder()
-                .opAuths("NoScore")
-                .build();
 
         // When
         final Object returnedResult = hook.postExecute(result, opChain, new Context(new User()));

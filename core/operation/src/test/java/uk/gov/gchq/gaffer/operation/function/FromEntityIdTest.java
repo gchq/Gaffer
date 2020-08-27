@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class FromEntityIdTest {
+
     @Test
     public void shouldReturnNullIfTheInputIsNull() {
         // Given

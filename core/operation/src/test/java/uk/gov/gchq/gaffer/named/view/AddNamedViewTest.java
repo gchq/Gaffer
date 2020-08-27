@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.named.view;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
@@ -46,12 +47,13 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
             .build();
     Map<String, ViewParameterDetail> parameters = new HashMap<>();
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)
@@ -70,12 +72,13 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         assertEquals(CUSTOM_WRITE_ACCESS_PREDICATE, addNamedView.getWriteAccessPredicate());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
         parameters.put("testParameter", mock(ViewParameterDetail.class));
 
-        AddNamedView addNamedView = new AddNamedView.Builder()
+        final AddNamedView addNamedView = new AddNamedView.Builder()
                 .name(TEST_NAMED_VIEW_NAME)
                 .view(VIEW)
                 .description(TEST_DESCRIPTION)

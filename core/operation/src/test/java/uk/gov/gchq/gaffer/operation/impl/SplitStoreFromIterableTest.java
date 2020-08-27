@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class SplitStoreFromIterableTest extends OperationTest<SplitStoreFromIterable> {
+
     private static final String TEST_OPTION_KEY = "testOption";
 
     @Test
@@ -51,15 +52,18 @@ public class SplitStoreFromIterableTest extends OperationTest<SplitStoreFromIter
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // When
         final SplitStoreFromIterable<String> op = new SplitStoreFromIterable.Builder<String>()
                 .input("1", "2", "3")
                 .option(TEST_OPTION_KEY, "false")
                 .build();
 
+        // Then
         assertEquals(Arrays.asList("1", "2", "3"), op.getInput());
         assertEquals("false", op.getOptions().get(TEST_OPTION_KEY));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

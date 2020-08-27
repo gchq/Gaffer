@@ -62,18 +62,20 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseIntegerClass() throws SerialisationException {
+    public void canSerialiseIntegerClass() {
         assertTrue(serialiser.canHandle(Integer.class));
     }
 
     private void test(final int value) throws SerialisationException {
+        // When
         final byte[] b = serialiser.serialise(value);
         final Object o = serialiser.deserialise(b);
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(value, o);
     }
@@ -86,11 +88,11 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{-116, 127, -1, -1, -1}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{-124, 127, -1, -1, -1}),
-                new Pair<>(0, new byte[]{0}),
-                new Pair<>(1, new byte[]{1})
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {-116, 127, -1, -1, -1}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {-124, 127, -1, -1, -1}),
+                new Pair<>(0, new byte[] {0}),
+                new Pair<>(1, new byte[] {1})
         };
     }
 }

@@ -67,7 +67,7 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
     }
 
     @Test
-    public void shouldBeAbleToHandleATreeSet() throws SerialisationException {
+    public void shouldBeAbleToHandleATreeSet() {
         // Given
         final Class testClass = TreeSet.class;
 
@@ -79,7 +79,7 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
     }
 
     @Test
-    public void shouldNotBeAbleToHandleAHashSet() throws SerialisationException {
+    public void shouldNotBeAbleToHandleAHashSet() {
         // Given
         final Class testClass = HashSet.class;
 
@@ -90,24 +90,29 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
         assertFalse(canHandle);
     }
 
+
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        // Given When
+        final TreeSet<String> tree = serialiser.deserialiseEmpty();
+
+        // Then
+        assertNotNull(tree);
+        assertTrue(tree.isEmpty());
+    }
+
     @Override
     public Serialiser<TreeSet<String>, byte[]> getSerialisation() {
         return new TreeSetStringSerialiser();
     }
 
     @Override
-    public void shouldDeserialiseEmpty() throws SerialisationException {
-        final TreeSet<String> tree = serialiser.deserialiseEmpty();
-        assertNotNull(tree);
-        assertTrue(tree.isEmpty());
-    }
-
-    @Override
     public Pair<TreeSet<String>, byte[]>[] getHistoricSerialisationPairs() {
-        TreeSet<String> set = Sets.newTreeSet();
+        final TreeSet<String> set = Sets.newTreeSet();
         set.add("this");
         set.add("is");
         set.add("S P A R T A!!!!!");
-        return new Pair[]{new Pair(set, new byte[]{123, 83, 32, 80, 32, 65, 32, 82, 32, 84, 32, 65, 33, 33, 33, 33, 33, 92, 44, 105, 115, 92, 44, 116, 104, 105, 115, 125})};
+        return new Pair[] {new Pair<>(set, new byte[] {123, 83, 32, 80, 32, 65, 32, 82, 32, 84, 32, 65, 33, 33, 33, 33, 33, 92, 44, 105, 115, 92, 44, 116, 104, 105, 115, 125})};
     }
 }

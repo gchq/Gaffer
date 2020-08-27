@@ -38,11 +38,6 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         assertNotNull(op);
     }
 
-    @Override
-    protected GetAllJobDetails getTestObject() {
-        return new GetAllJobDetails();
-    }
-
     @Test
     public void shouldGetOutputClass() {
         // When
@@ -52,6 +47,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         assertEquals(CloseableIterable.class, outputClass);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -64,5 +60,10 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         // Then
         assertNotSame(getAllJobDetails, clone);
         assertNotNull(clone);
+    }
+
+    @Override
+    protected GetAllJobDetails getTestObject() {
+        return new GetAllJobDetails();
     }
 }

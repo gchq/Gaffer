@@ -29,6 +29,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class CustomMapAggregatorTest {
+
     @Test
     public void testMapAggregation() {
         int inA = 1;

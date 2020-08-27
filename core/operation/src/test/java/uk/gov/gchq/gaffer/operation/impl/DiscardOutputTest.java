@@ -33,10 +33,11 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
         // Given
         final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
 
-        // Then
+        // When / Then
         assertThat(discardOutput.getInput(), is(nullValue()));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

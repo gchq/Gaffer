@@ -27,6 +27,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NullSerialiserTest extends ToBytesSerialisationTest<Object> {
 
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertNull(serialiser.deserialiseEmpty());
+    }
+
+    @Test
+    public void shouldHandleAnyClass() {
+        assertTrue(serialiser.canHandle(String.class));
+        assertTrue(serialiser.canHandle(Object.class));
+        assertTrue(serialiser.canHandle(Integer.class));
+    }
+
+    @Test
+    public void shouldBeConsistent() {
+        assertTrue(serialiser.isConsistent());
+    }
+
+    @Test
+    public void shouldPreserveOrdering() {
+        assertTrue(serialiser.preservesObjectOrdering());
+    }
+
+    @Test
+    @Override
+    public void shouldSerialiseWithHistoricValues() throws Exception {
+        for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
+            serialiseFirst(pair);
+
+            assertNull(serialiser.deserialise(pair.getSecond()));
+        }
+    }
+
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
         return new NullSerialiser();
@@ -35,45 +68,14 @@ public class NullSerialiserTest extends ToBytesSerialisationTest<Object> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair("", new byte[]{}),
-                new Pair(null, new byte[]{}),
-                new Pair("some string", new byte[]{}),
-                new Pair(1L, new byte[]{}),
-                new Pair(0, new byte[]{}),
-                new Pair(true, new byte[]{}),
-                new Pair(false, new byte[]{})
+        return new Pair[] {
+                new Pair<>("", new byte[] {}),
+                new Pair<>(null, new byte[] {}),
+                new Pair<>("some string", new byte[] {}),
+                new Pair<>(1L, new byte[] {}),
+                new Pair<>(0, new byte[] {}),
+                new Pair<>(true, new byte[] {}),
+                new Pair<>(false, new byte[] {})
         };
-    }
-
-    @Test
-    @Override
-    public void shouldDeserialiseEmpty() throws SerialisationException {
-        assertNull(serialiser.deserialiseEmpty());
-    }
-
-    @Test
-    public void shouldHandleAnyClass() throws SerialisationException {
-        assertTrue(serialiser.canHandle(String.class));
-        assertTrue(serialiser.canHandle(Object.class));
-        assertTrue(serialiser.canHandle(Integer.class));
-    }
-
-    @Test
-    public void shouldBeConsistent() throws SerialisationException {
-        assertTrue(serialiser.isConsistent());
-    }
-
-    @Test
-    public void shouldPreserveOrdering() throws SerialisationException {
-        assertTrue(serialiser.preservesObjectOrdering());
-    }
-
-    @Override
-    public void shouldSerialiseWithHistoricValues() throws Exception {
-        for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
-            serialiseFirst(pair);
-            assertNull(serialiser.deserialise(pair.getSecond()));
-        }
     }
 }

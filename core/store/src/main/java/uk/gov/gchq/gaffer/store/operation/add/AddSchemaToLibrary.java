@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.add;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -33,6 +34,7 @@ import java.util.Map;
  *
  * @see Schema
  */
+@JsonPropertyOrder(alphabetic = true)
 @Since("1.5.0")
 @Summary("Adds a Schema to the GraphLibrary")
 public class AddSchemaToLibrary implements Operation {

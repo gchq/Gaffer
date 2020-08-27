@@ -30,9 +30,13 @@ public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> 
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (int i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
@@ -40,27 +44,33 @@ public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> 
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Integer.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Integer.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseIntegerClass() throws SerialisationException {
+    public void canSerialiseIntegerClass() {
         assertTrue(serialiser.canHandle(Integer.class));
     }
 
@@ -72,11 +82,11 @@ public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{-1, -1, -1, 127}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{0, 0, 0, -128}),
-                new Pair<>(0, new byte[]{0, 0, 0, 0}),
-                new Pair<>(1, new byte[]{1, 0, 0, 0})
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {-1, -1, -1, 127}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {0, 0, 0, -128}),
+                new Pair<>(0, new byte[] {0, 0, 0, 0}),
+                new Pair<>(1, new byte[] {1, 0, 0, 0})
         };
     }
 }

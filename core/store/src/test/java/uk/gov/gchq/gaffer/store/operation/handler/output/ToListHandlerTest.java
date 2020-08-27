@@ -67,5 +67,4 @@ public class ToListHandlerTest {
         //Then
         assertThat(results, is(nullValue()));
     }
-
 }

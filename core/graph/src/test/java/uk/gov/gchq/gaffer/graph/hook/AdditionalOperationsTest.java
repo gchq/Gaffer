@@ -46,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations> {
+
     private static final String ADDITIONAL_OPERATIONS_RESOURCE_PATH = "additionalOperations.json";
 
     public AdditionalOperationsTest() {
@@ -54,14 +55,14 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
 
     @Test
     public void shouldReturnClonedOperations() {
-        //Given
+        // Given When
         final AdditionalOperations additionalOperations = fromJson(ADDITIONAL_OPERATIONS_RESOURCE_PATH);
 
-        // When / Then
-        assertClonedOperations(additionalOperations.getStart(), additionalOperations.getStart());
-        assertClonedOperations(additionalOperations.getBefore(), additionalOperations.getBefore());
-        assertClonedOperations(additionalOperations.getAfter(), additionalOperations.getAfter());
-        assertClonedOperations(additionalOperations.getEnd(), additionalOperations.getEnd());
+        // Then
+        assertClonedOperationsEquals(additionalOperations.getStart(), additionalOperations.getStart());
+        assertClonedOperationsEquals(additionalOperations.getBefore(), additionalOperations.getBefore());
+        assertClonedOperationsEquals(additionalOperations.getAfter(), additionalOperations.getAfter());
+        assertClonedOperationsEquals(additionalOperations.getEnd(), additionalOperations.getEnd());
     }
 
     @Test
@@ -85,21 +86,21 @@ public class AdditionalOperationsTest extends GraphHookTest<AdditionalOperations
         final AdditionalOperations cloned = JSONSerialiser.deserialise(json, AdditionalOperations.class);
 
         // Then
-        assertClonedOperations(original.getStart(), cloned.getStart());
-        assertClonedOperations(original.getBefore(), cloned.getBefore());
-        assertClonedOperations(original.getAfter(), cloned.getAfter());
-        assertClonedOperations(original.getEnd(), cloned.getEnd());
+        assertClonedOperationsEquals(original.getStart(), cloned.getStart());
+        assertClonedOperationsEquals(original.getBefore(), cloned.getBefore());
+        assertClonedOperationsEquals(original.getAfter(), cloned.getAfter());
+        assertClonedOperationsEquals(original.getEnd(), cloned.getEnd());
     }
 
-    public void assertClonedOperations(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
+    public void assertClonedOperationsEquals(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
         for (final Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
             final List<Operation> ops1 = entry1.getValue();
             final List<Operation> ops2 = after2.get(entry1.getKey());
-            assertClonedOperations(ops1, ops2);
+            assertClonedOperationsEquals(ops1, ops2);
         }
     }
 
-    public void assertClonedOperations(final List<Operation> ops1, final List<Operation> ops2) {
+    public void assertClonedOperationsEquals(final List<Operation> ops1, final List<Operation> ops2) {
         assertEquals(ops1.size(), ops2.size());
         for (int i = 0; i < ops1.size(); i++) {
             assertEquals(ops1.get(i).getClass(), ops2.get(i).getClass());

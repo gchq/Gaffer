@@ -28,12 +28,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
-
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (long i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Long.class, o.getClass());
             assertEquals(i, o);
         }
@@ -41,27 +44,33 @@ public class RawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     @Test
     public void canSerialiseLongMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Long.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseLongMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Long.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MAX_VALUE, o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
+    public void canSerialiseLongClass() {
         assertTrue(serialiser.canHandle(Long.class));
     }
 
@@ -75,11 +84,11 @@ public class RawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Long.MAX_VALUE, new byte[]{-1, -1, -1, -1, -1, -1, -1, 127}),
-                new Pair<>(Long.MIN_VALUE, new byte[]{0, 0, 0, 0, 0, 0, 0, -128}),
-                new Pair<>(0L, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
-                new Pair<>(1L, new byte[]{1, 0, 0, 0, 0, 0, 0, 0})
+        return new Pair[] {
+                new Pair<>(Long.MAX_VALUE, new byte[] {-1, -1, -1, -1, -1, -1, -1, 127}),
+                new Pair<>(Long.MIN_VALUE, new byte[] {0, 0, 0, 0, 0, 0, 0, -128}),
+                new Pair<>(0L, new byte[] {0, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1L, new byte[] {1, 0, 0, 0, 0, 0, 0, 0})
         };
     }
 }

@@ -91,24 +91,22 @@ public class GetAllNamedViewsHandlerTest {
     @Test
     public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException {
         // Given
-        given(store.getProperties()).willReturn(new StoreProperties());
-        StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
-        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
+        initialiseCache();
+        final NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
                 .name(testNamedViewName)
                 .view(view)
                 .creatorId(context.getUser().getUserId())
                 .build();
-        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder()
+        addNamedViewHandler.doOperation(addNamedView, context, store);
+
+        final NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder()
                 .name(testNamedViewName + 2)
                 .view(view2)
                 .creatorId(context.getUser().getUserId())
                 .build();
-        addNamedViewHandler.doOperation(addNamedView, context, store);
         addNamedViewHandler.doOperation(addNamedView2, context, store);
         addNamedViewHandler.doOperation(addNamedViewWithNoAccess, context, store);
-        GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
+        final GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
 
         // when
         GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
@@ -118,5 +116,12 @@ public class GetAllNamedViewsHandlerTest {
         assertEquals(2, Iterables.size(namedViewList));
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail));
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail2));
+    }
+
+    private void initialiseCache() {
+        given(store.getProperties()).willReturn(new StoreProperties());
+        StoreProperties properties = new StoreProperties();
+        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        CacheServiceLoader.initialise(properties.getProperties());
     }
 }
