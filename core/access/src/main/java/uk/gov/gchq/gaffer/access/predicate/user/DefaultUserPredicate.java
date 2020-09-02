@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.access.predicate;
+package uk.gov.gchq.gaffer.access.predicate.user;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-public class DefaultAccessPredicate extends AccessPredicate {
+public class DefaultUserPredicate implements Predicate<User>, Serializable {
     private final String creatingUserId;
     private final List<String> auths;
 
     @JsonCreator
-    public DefaultAccessPredicate(
+    public DefaultUserPredicate(
             @JsonProperty("creatingUserId") final String creatingUserId,
             @JsonProperty("auths") final List<String> auths) {
         this.creatingUserId = creatingUserId;
@@ -48,45 +48,22 @@ public class DefaultAccessPredicate extends AccessPredicate {
         }
     }
 
-    public DefaultAccessPredicate(
-            final User creatingUser,
-            final List<String> auths) {
-        this(creatingUser.getUserId(), auths);
-    }
-
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("creatingUserId", creatingUserId)
-                .append("auths", auths)
-                .toString();
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
-
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        final DefaultAccessPredicate that = (DefaultAccessPredicate) o;
-
-        return new EqualsBuilder()
-                .append(creatingUserId, that.creatingUserId)
-                .append(auths, that.auths)
-                .isEquals();
+        final DefaultUserPredicate that = (DefaultUserPredicate) o;
+        return Objects.equals(creatingUserId, that.creatingUserId) &&
+                Objects.equals(auths, that.auths);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(creatingUserId)
-                .append(auths)
-                .toHashCode();
+        return Objects.hash(creatingUserId, auths);
     }
 
     public String getCreatingUserId() {
@@ -98,24 +75,18 @@ public class DefaultAccessPredicate extends AccessPredicate {
     }
 
     @Override
-    public boolean test(final User user, final String adminAuth) {
-        return isResourceCreator(user) || isAdministrator(user, adminAuth) || hasPermission(user);
+    public boolean test(final User user) {
+        return isResourceCreator(user) || hasPermission(user);
     }
 
-    protected boolean isResourceCreator(final User user) {
+    public boolean isResourceCreator(final User user) {
         return (!isNull(user)
                 && isNotEmpty(user.getUserId())
                 && isNotEmpty(this.getCreatingUserId())
                 && this.getCreatingUserId().equals(user.getUserId()));
     }
 
-    protected boolean isAdministrator(final User user, final String adminAuth) {
-        return (!isNull(user)
-                && isNotEmpty(adminAuth)
-                && user.getOpAuths().contains(adminAuth));
-    }
-
-    protected boolean hasPermission(final User user) {
+    public boolean hasPermission(final User user) {
         return (!isNull(user)
                 && !user.getOpAuths().isEmpty()
                 && this.getAuths().stream().anyMatch(user.getOpAuths()::contains));

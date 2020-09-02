@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.access.predicate;
 
 public interface AccessPredicateTest {
     void canBeJsonSerialisedAndDeserialised() throws Exception;
+
     void shouldReturnTrueForEqualObjectComparisonWhenEqual();
+
     void shouldReturnFalseForEqualObjectComparisonWhenNotEqual();
 }

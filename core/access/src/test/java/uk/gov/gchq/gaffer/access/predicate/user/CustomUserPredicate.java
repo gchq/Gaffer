@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.access.predicate;
+package uk.gov.gchq.gaffer.access.predicate.user;
 
-import uk.gov.gchq.gaffer.access.predicate.user.UnrestrictedAccessUserPredicate;
+import uk.gov.gchq.gaffer.user.User;
 
-public class UnrestrictedAccessPredicate extends AccessPredicate {
-    public UnrestrictedAccessPredicate() {
-        super(new UnrestrictedAccessUserPredicate());
+import java.util.function.Predicate;
+
+public class CustomUserPredicate implements Predicate<User> {
+    @Override
+    public boolean test(final User user) {
+        return true;
     }
 }

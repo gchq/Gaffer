@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +53,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -390,17 +388,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate() {
-            @Override
-            public List<String> getAuths() {
-                return emptyList();
-            }
-
-            @Override
-            public boolean test(final User user, final String s) {
-                return user.getUserId().equals(blankUser.getUserId()) || user.getUserId().equals(testUser.getUserId());
-            }
-        };
+        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate((user) -> {
+            return user.getUserId().equals(blankUser.getUserId()) || user.getUserId().equals(testUser.getUserId());
+        });
 
         new FederatedAddGraphWithHooksHandler().doOperation(
                 new AddGraphWithHooks.Builder()

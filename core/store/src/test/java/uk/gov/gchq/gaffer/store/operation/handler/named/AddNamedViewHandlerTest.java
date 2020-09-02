@@ -21,8 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -118,9 +117,9 @@ public class AddNamedViewHandlerTest {
     @Test
     public void shouldAddNamedViewContainingCustomAccessPredicatesCorrectly() throws OperationException, CacheOperationFailedException {
         final List<String> readAuths = asList("customReadAuth1", "customReadAuth2");
-        final AccessPredicate readAccessPredicate = new CustomAccessPredicate(context.getUser().getUserId(), emptyMap(), readAuths);
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate(), readAuths);
         final List<String> writeAuths = asList("customWriteAuth1", "customWriteAuth2");
-        final AccessPredicate writeAccessPredicate = new CustomAccessPredicate(context.getUser().getUserId(), emptyMap(), writeAuths);
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate(), writeAuths);
         addNamedView.setReadAccessPredicate(readAccessPredicate);
         addNamedView.setWriteAccessPredicate(writeAccessPredicate);
 

@@ -19,15 +19,13 @@ package uk.gov.gchq.gaffer.named.operation;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.ResourceType;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NamedOperationDetailTest {
@@ -41,7 +39,7 @@ public class NamedOperationDetailTest {
     public void shouldDefaultReadAccessPredicateIfNoneSpecified() {
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder().build();
         assertEquals(
-                new DefaultAccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("readerAuth1", "readerAuth2")),
+                new AccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("readerAuth1", "readerAuth2")),
                 namedOperationDetail.getReadAccessPredicate());
         assertEquals(
                 asList("readerAuth1", "readerAuth2", "writerAuth1", "writerAuth2"),
@@ -52,7 +50,7 @@ public class NamedOperationDetailTest {
     public void shouldDefaultWriteAccessPredicateIfNoneSpecified() {
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder().build();
         assertEquals(
-                new DefaultAccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("writerAuth1", "writerAuth2")),
+                new AccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("writerAuth1", "writerAuth2")),
                 namedOperationDetail.getWriteAccessPredicate());
         assertEquals(
                 asList("readerAuth1", "readerAuth2", "writerAuth1", "writerAuth2"),
@@ -61,7 +59,7 @@ public class NamedOperationDetailTest {
 
     @Test
     public void shouldConfigureCustomReadAccessPredicateWhenSpecified() {
-        final CustomAccessPredicate customAccessPredicate = new CustomAccessPredicate("userId", singletonMap("key", "value"), asList("customAuth1", "customAuth2"));
+        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate(), asList("customAuth1", "customAuth2"));
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
                 .readAccessPredicate(customAccessPredicate)
                 .build();
@@ -73,7 +71,7 @@ public class NamedOperationDetailTest {
 
     @Test
     public void shouldConfigureCustomWriteAccessPredicateWhenSpecified() {
-        final CustomAccessPredicate customAccessPredicate = new CustomAccessPredicate("userId", singletonMap("key", "value"), asList("customAuth1", "customAuth2"));
+        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate(), asList("customAuth1", "customAuth2"));
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
                 .writeAccessPredicate(customAccessPredicate)
                 .build();
@@ -86,8 +84,8 @@ public class NamedOperationDetailTest {
     @Test
     public void shouldReturnSortedAndDeduplicatedAuthListBuiltFromPredicates() {
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
-                .readAccessPredicate(new CustomAccessPredicate("userId", emptyMap(), asList("z1", "x2")))
-                .writeAccessPredicate(new CustomAccessPredicate("userId", emptyMap(), asList("b2", "a1", "z1", "x2", "b1")))
+                .readAccessPredicate(new AccessPredicate(new CustomUserPredicate(), asList("z1", "x2")))
+                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate(), asList("b2", "a1", "z1", "x2", "b1")))
                 .build();
         assertEquals(
                 asList("a1", "b1", "b2", "x2", "z1"),

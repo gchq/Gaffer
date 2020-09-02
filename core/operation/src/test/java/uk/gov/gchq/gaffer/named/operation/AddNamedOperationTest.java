@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,8 +52,8 @@ import static org.mockito.Mockito.mock;
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     public static final String USER = "User";
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
-    private static final AccessPredicate READ_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("ReadKey", "ReadValue"), asList("CustomReadAuth1", "CustomReadAuth2"));
-    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("WriteKey", "WriteValue"), asList("CustomWriteAuth1", "CustomWriteAuth2"));
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("CustomReadAuth1", "CustomReadAuth2"));
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("CustomWriteAuth1", "CustomWriteAuth2"));
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {

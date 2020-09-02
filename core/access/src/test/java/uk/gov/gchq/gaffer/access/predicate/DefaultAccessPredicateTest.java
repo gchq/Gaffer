@@ -69,11 +69,11 @@ public class DefaultAccessPredicateTest implements AccessPredicateTest {
         final AccessPredicate predicate = createAccessPredicate(TEST_USER, asList("auth1", "auth2"));
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
-                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate\"," +
-                "\"creatingUserId\":\"TestUser\"," +
+                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\",\"creatingUserId\":\"TestUser\",\"auths\":[\"auth1\",\"auth2\"]}," +
                 "\"auths\":[\"auth1\",\"auth2\"]" +
                 "}", new String(bytes, CommonConstants.UTF_8));
-        assertEquals(predicate, JSONSerialiser.deserialise(bytes, DefaultAccessPredicate.class));
+        assertEquals(predicate, JSONSerialiser.deserialise(bytes, AccessPredicate.class));
     }
 
     @Test
@@ -96,6 +96,6 @@ public class DefaultAccessPredicateTest implements AccessPredicateTest {
     }
 
     protected AccessPredicate createAccessPredicate(final User user, final List<String> auths) {
-        return new DefaultAccessPredicate(user, auths);
+        return new AccessPredicate(user, auths);
     }
 }

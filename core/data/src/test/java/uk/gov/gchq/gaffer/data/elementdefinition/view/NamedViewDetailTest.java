@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,8 +39,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class NamedViewDetailTest {
-    private static final AccessPredicate READ_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("ReadKey", "ReadValue"), asList("CustomReadAuth1", "CustomReadAuth2"));
-    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("WriteKey", "WriteValue"), asList("CustomWriteAuth1", "CustomWriteAuth2"));
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("CustomReadAuth1", "CustomReadAuth2"));
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("CustomWriteAuth1", "CustomWriteAuth2"));
 
     @Test
     public void shouldJsonSerialise() throws SerialisationException {
@@ -69,24 +68,22 @@ public class NamedViewDetailTest {
                 "    }%n" +
                 "  },%n" +
                 "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\",%n" +
+                "  \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\", \"CustomWriteAuth1\", \"CustomWriteAuth2\" ],%n" +
                 "  \"readAccessPredicate\" : {%n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate\",%n" +
-                "    \"userId\" : \"CreatingUserId\",%n" +
-                "    \"map\" : {%n" +
-                "        \"ReadKey\": \"ReadValue\"%n" +
-                "    },%n" +
-                "    \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\" ]%n" +
-                "  },%n" +
-                "  \"writeAccessPredicate\" : {%n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate\",%n" +
-                "    \"userId\" : \"CreatingUserId\",%n" +
-                "    \"map\" : {%n" +
-                "        \"WriteKey\": \"WriteValue\"%n" +
-                "    },%n" +
-                "    \"auths\" : [ \"CustomWriteAuth1\", \"CustomWriteAuth2\" ]%n" +
-                "  },%n" +
-                "  \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\", \"CustomWriteAuth1\", \"CustomWriteAuth2\" ]%n" +
-                "}");
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       },%n" +
+                "       \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\" ]%n" +
+                "   },%n" +
+                "   \"writeAccessPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       },%n " +
+                "       \"auths\" : [ \"CustomWriteAuth1\", \"CustomWriteAuth2\" ]%n" +
+                "   }%n" +
+                "},%n");
         JsonAssert.assertEquals(expected, new String(json));
     }
 

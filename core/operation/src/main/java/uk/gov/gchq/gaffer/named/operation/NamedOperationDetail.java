@@ -25,7 +25,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.access.AccessControlledResource;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -117,8 +116,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this.parameters = parameters;
         this.score = score;
 
-        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new DefaultAccessPredicate(userId, readers);
-        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new DefaultAccessPredicate(userId, writers);
+        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new AccessPredicate(userId, readers);
+        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new AccessPredicate(userId, writers);
         this.auths = sortedAuths();
     }
 

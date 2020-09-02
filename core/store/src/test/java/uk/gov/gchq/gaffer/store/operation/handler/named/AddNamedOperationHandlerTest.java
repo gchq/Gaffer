@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -49,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -237,18 +235,18 @@ public class AddNamedOperationHandlerTest {
         assert cacheContains("testOp");
         assertTrue(result.getScore() == 2);
         assertEquals(asList("test label"), result.getLabels());
-        final AccessPredicate expectedReadAccessPredicate = new DefaultAccessPredicate(context.getUser(), readAuths);
+        final AccessPredicate expectedReadAccessPredicate = new AccessPredicate(context.getUser(), readAuths);
         assertEquals(expectedReadAccessPredicate, result.getReadAccessPredicate());
-        final AccessPredicate expectedWriteAccessPredicate = new DefaultAccessPredicate(context.getUser(), writeAuths);
+        final AccessPredicate expectedWriteAccessPredicate = new AccessPredicate(context.getUser(), writeAuths);
         assertEquals(expectedWriteAccessPredicate, result.getWriteAccessPredicate());
     }
 
     @Test
     public void shouldCustomAccessPredicateAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
         final List<String> readAuths = asList("customReadAuth1", "customReadAuth2");
-        final AccessPredicate readAccessPredicate = new CustomAccessPredicate(context.getUser().getUserId(), emptyMap(), readAuths);
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate(), readAuths);
         final List<String> writeAuths = asList("customWriteAuth1", "customWriteAuth2");
-        final AccessPredicate writeAccessPredicate = new CustomAccessPredicate(context.getUser().getUserId(), emptyMap(), writeAuths);
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate(), writeAuths);
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);

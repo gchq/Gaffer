@@ -18,22 +18,13 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.user.NamedViewWriteUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
 
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-
-public class NamedViewWriteAccessPredicate extends DefaultAccessPredicate {
-
-    @JsonCreator
-    public NamedViewWriteAccessPredicate(
-            @JsonProperty("creatingUserId") final String creatingUserId,
-            @JsonProperty("auths") final List<String> auths) {
-        super(creatingUserId, auths);
-    }
+public class NamedViewWriteAccessPredicate extends AccessPredicate {
 
     public NamedViewWriteAccessPredicate(
             final User creatingUser,
@@ -41,9 +32,10 @@ public class NamedViewWriteAccessPredicate extends DefaultAccessPredicate {
         this(creatingUser.getUserId(), auths);
     }
 
-    protected boolean isResourceCreator(final User user) {
-        return (!isNull(user)
-                && isNotEmpty(user.getUserId())
-                && (isNull(this.getCreatingUserId()) || this.getCreatingUserId().equals(user.getUserId())));
+    @JsonCreator
+    public NamedViewWriteAccessPredicate(
+            @JsonProperty("creatingUserId") final String creatingUserId,
+            @JsonProperty("auths") final List<String> auths) {
+        super(new NamedViewWriteUserPredicate(creatingUserId, auths), auths);
     }
 }

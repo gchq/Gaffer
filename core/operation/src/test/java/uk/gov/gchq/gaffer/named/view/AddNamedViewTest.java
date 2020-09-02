@@ -20,7 +20,6 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -38,8 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
-    private static final AccessPredicate CUSTOM_READ_ACCESS_PREDICATE = new CustomAccessPredicate("reader");
-    private static final AccessPredicate CUSTOM_WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("writer");
+    private static final AccessPredicate CUSTOM_READ_ACCESS_PREDICATE = new AccessPredicate(user -> true);
+    private static final AccessPredicate CUSTOM_WRITE_ACCESS_PREDICATE = new AccessPredicate(user -> true);
     private static final String TEST_NAMED_VIEW_NAME = "testNamedViewName";
     private static final String TEST_DESCRIPTION = "testDescription";
     private static final View VIEW = new View.Builder()

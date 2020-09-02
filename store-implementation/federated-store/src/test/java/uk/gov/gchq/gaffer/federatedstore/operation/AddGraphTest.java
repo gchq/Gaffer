@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -31,15 +31,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
-    private static final AccessPredicate READ_ACCESS_PREDICATE = new CustomAccessPredicate("creatorUserId", emptyMap(), asList("readAuth1", "readAuth2"));
-    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("creatorUserId", emptyMap(), asList("writeAuth1", "writeAuth2"));
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("readAuth1", "readAuth2"));
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("writeAuth1", "writeAuth2"));
 
     @Override
     protected Set<String> getRequiredFields() {

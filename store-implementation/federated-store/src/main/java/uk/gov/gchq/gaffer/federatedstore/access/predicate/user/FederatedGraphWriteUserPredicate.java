@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.access.predicate;
+package uk.gov.gchq.gaffer.federatedstore.access.predicate.user;
 
-import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
-public class NoAccessPredicate extends AccessPredicate {
-    private static final boolean NOT_ADMINISTRATOR = false;
+import static java.util.Collections.emptyList;
 
-    public NoAccessPredicate() {
-        super(new NoAccessUserPredicate());
+public class FederatedGraphWriteUserPredicate extends DefaultUserPredicate {
+
+    @JsonCreator
+    public FederatedGraphWriteUserPredicate(@JsonProperty("creatingUserId") final String creatingUserId) {
+        super(creatingUserId, emptyList());
     }
 
     @Override
-    protected boolean isAdministrator(final User user, final String adminAuth) {
-        return NOT_ADMINISTRATOR;
+    public boolean test(final User user) {
+        return super.isResourceCreator(user);
     }
 }

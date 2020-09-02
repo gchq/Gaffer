@@ -20,15 +20,13 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,8 +35,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessResourceAccessPredicateTest {
 
-    private static final AccessPredicate READ_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("ReadKey", "ReadValue"), asList("CustomReadAuth1", "CustomReadAuth2"));
-    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new CustomAccessPredicate("CreatingUserId", singletonMap("WriteKey", "WriteValue"), asList("CustomWriteAuth1", "CustomWriteAuth2"));
     private final User testUser = testUser();
 
     @Test
@@ -99,7 +95,7 @@ public class FederatedAccessResourceAccessPredicateTest {
     public void shouldReturnDeduplicatedSortedListOfAuths() {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths("a", "z", "b", "c")
-                .writeAccessPredicate(new CustomAccessPredicate("CreatingUserId", emptyMap(), asList("z", "x", "a", "b")))
+                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate(), asList("z", "x", "a", "b")))
                 .build();
         assertEquals(asList("a", "b", "c", "x", "z"), access.getAuths());
     }

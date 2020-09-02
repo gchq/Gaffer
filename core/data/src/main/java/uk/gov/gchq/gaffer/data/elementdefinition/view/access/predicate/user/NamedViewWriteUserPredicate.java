@@ -13,30 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.user;
 
-package uk.gov.gchq.gaffer.federatedstore.access.predicate;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-public abstract class FederatedGraphAccessPredicate extends AccessPredicate {
+public class NamedViewWriteUserPredicate extends DefaultUserPredicate {
 
-    public FederatedGraphAccessPredicate(final Predicate<User> userPredicate, final List<String> auths) {
-        super(userPredicate, auths);
+    @JsonCreator
+    public NamedViewWriteUserPredicate(
+            @JsonProperty("creatingUserId") final String creatingUserId,
+            @JsonProperty("auths") final List<String> auths) {
+        super(creatingUserId, auths);
     }
 
     @Override
-    protected boolean isAdministrator(final User user, final String adminAuth) {
+    public boolean isResourceCreator(final User user) {
         return (!isNull(user)
-                && isNotEmpty(adminAuth)
-                && Stream.of(adminAuth.split(Pattern.quote(","))).anyMatch(user.getOpAuths()::contains));
+                && isNotEmpty(user.getUserId())
+                && (isNull(this.getCreatingUserId()) || this.getCreatingUserId().equals(user.getUserId())));
     }
 }

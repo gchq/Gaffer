@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.DefaultAccessPredicateTest;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -40,10 +39,14 @@ public class NamedViewWriteAccessPredicateTest extends DefaultAccessPredicateTes
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
                 "\"class\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate\"," +
+                "\"auths\":[\"auth1\",\"auth2\"]," +
+                "\"userPredicate\":{" +
+                "\"class\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.user.NamedViewWriteUserPredicate\"," +
                 "\"creatingUserId\":\"TestUser\"," +
                 "\"auths\":[\"auth1\",\"auth2\"]" +
+                "}" +
                 "}", new String(bytes, CommonConstants.UTF_8));
-        assertEquals(predicate, JSONSerialiser.deserialise(bytes, DefaultAccessPredicate.class));
+        assertEquals(predicate, JSONSerialiser.deserialise(bytes, NamedViewWriteAccessPredicate.class));
     }
 
     @Test

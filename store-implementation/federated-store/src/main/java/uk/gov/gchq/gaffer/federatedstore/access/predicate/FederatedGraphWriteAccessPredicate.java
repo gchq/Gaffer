@@ -18,19 +18,14 @@ package uk.gov.gchq.gaffer.federatedstore.access.predicate;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphWriteUserPredicate;
 
 import static java.util.Collections.emptyList;
 
 public class FederatedGraphWriteAccessPredicate extends FederatedGraphAccessPredicate {
-    @JsonCreator
-    public FederatedGraphWriteAccessPredicate(
-            @JsonProperty("creatingUserId") final String creatingUserId) {
-        super(creatingUserId, emptyList());
-    }
 
-    @Override
-    public boolean test(final User user, final String adminAuth) {
-        return super.isResourceCreator(user) || super.isAdministrator(user, adminAuth);
+    @JsonCreator
+    public FederatedGraphWriteAccessPredicate(@JsonProperty("creatingUserId") final String creatingUserId) {
+        super(new FederatedGraphWriteUserPredicate(creatingUserId), emptyList());
     }
 }

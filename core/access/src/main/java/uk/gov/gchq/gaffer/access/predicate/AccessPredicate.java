@@ -16,15 +16,95 @@
 
 package uk.gov.gchq.gaffer.access.predicate;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-public abstract class AccessPredicate implements BiPredicate<User, String>, Serializable {
-    public abstract List<String> getAuths();
+public class AccessPredicate implements BiPredicate<User, String>, Serializable {
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+    private final Predicate<User> userPredicate;
+    private final List<String> auths;
+
+    public AccessPredicate(
+            final User creatingUser,
+            final List<String> auths) {
+        this(creatingUser.getUserId(), auths);
+    }
+
+    public AccessPredicate(
+            final String creatingUserId,
+            final List<String> auths) {
+        this(new DefaultUserPredicate(creatingUserId, auths), auths);
+    }
+
+    public AccessPredicate(final Predicate<User> userPredicate) {
+        this(userPredicate, emptyList());
+    }
+
+    @JsonCreator
+    public AccessPredicate(
+            @JsonProperty("userPredicate") final Predicate<User> userPredicate,
+            @JsonProperty("auths") final List<String> auths) {
+        this.userPredicate = userPredicate;
+        if (auths != null) {
+            sort(auths);
+            this.auths = unmodifiableList(auths);
+        } else {
+            this.auths = emptyList();
+        }
+    }
+
+    public List<String> getAuths() {
+        return auths;
+    }
+
+    @Override
+    public boolean test(final User user, final String adminAuth) {
+        return isAdministrator(user, adminAuth) || this.userPredicate.test(user);
+    }
+
+    protected boolean isAdministrator(final User user, final String adminAuth) {
+        return (!isNull(user)
+                && isNotEmpty(adminAuth)
+                && user.getOpAuths().contains(adminAuth));
+    }
+
+    public Predicate<User> getUserPredicate() {
+        return userPredicate;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final AccessPredicate predicate = (AccessPredicate) o;
+        return Objects.equals(userPredicate, predicate.userPredicate) &&
+                Objects.equals(auths, predicate.auths);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userPredicate, auths);
+    }
 }

@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphReadUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -29,9 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static java.util.Objects.isNull;
 
 public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredicate {
+
     private final boolean isPublic;
 
     public FederatedGraphReadAccessPredicate(final String creatingUserId, final Set<String> auths, final boolean isPublic) {
@@ -43,7 +44,7 @@ public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredi
             @JsonProperty("creatingUserId") final String creatingUserId,
             @JsonProperty("auths") final List<String> auths,
             @JsonProperty("public") final boolean isPublic) {
-        super(creatingUserId, auths);
+        super(new FederatedGraphReadUserPredicate(creatingUserId, auths, isPublic), auths);
         this.isPublic = isPublic;
     }
 
@@ -88,13 +89,5 @@ public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredi
     @Override
     public boolean test(final User user, final String adminAuth) {
         return isPublic || super.test(user, adminAuth);
-    }
-
-    @Override
-    protected boolean hasPermission(final User user) {
-        return (!isNull(user)
-                && !user.getOpAuths().isEmpty()
-                && !this.getAuths().isEmpty()
-                && user.getOpAuths().stream().anyMatch(this.getAuths()::contains));
     }
 }
