@@ -36,15 +36,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static java.util.Collections.emptyList;
-import static org.apache.commons.collections.ListUtils.unmodifiableList;
 
 /**
  * Simple POJO containing the details associated with a {@link NamedOperation}.
@@ -66,7 +60,6 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     private Integer score;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-    private List<String> auths;
 
     public NamedOperationDetail() {
     }
@@ -118,15 +111,6 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
         this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new AccessPredicate(userId, readers);
         this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new AccessPredicate(userId, writers);
-        this.auths = sortedAuths();
-    }
-
-    private List<String> sortedAuths() {
-        final Set<String> allAuths = new HashSet<>(readAccessPredicate.getAuths());
-        allAuths.addAll(writeAccessPredicate.getAuths());
-        final List<String> sortedAuths = new ArrayList<>(allAuths);
-        Collections.sort(sortedAuths);
-        return unmodifiableList(new ArrayList<>(sortedAuths));
     }
 
     public String getOperationName() {
@@ -326,11 +310,6 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     @Override
     public ResourceType getResourceType() {
         return ResourceType.NamedOperation;
-    }
-
-    @Override
-    public List<String> getAuths() {
-        return auths != null ? auths : emptyList();
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {

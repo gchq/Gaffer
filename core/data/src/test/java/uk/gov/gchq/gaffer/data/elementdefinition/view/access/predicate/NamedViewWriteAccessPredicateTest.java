@@ -39,7 +39,6 @@ public class NamedViewWriteAccessPredicateTest extends DefaultAccessPredicateTes
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
                 "\"class\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate\"," +
-                "\"auths\":[\"auth1\",\"auth2\"]," +
                 "\"userPredicate\":{" +
                 "\"class\":\"uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.user.NamedViewWriteUserPredicate\"," +
                 "\"creatingUserId\":\"TestUser\"," +

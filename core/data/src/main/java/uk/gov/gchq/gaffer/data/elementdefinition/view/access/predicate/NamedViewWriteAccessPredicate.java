@@ -36,6 +36,6 @@ public class NamedViewWriteAccessPredicate extends AccessPredicate {
     public NamedViewWriteAccessPredicate(
             @JsonProperty("creatingUserId") final String creatingUserId,
             @JsonProperty("auths") final List<String> auths) {
-        super(new NamedViewWriteUserPredicate(creatingUserId, auths), auths);
+        super(new NamedViewWriteUserPredicate(creatingUserId, auths));
     }
 }

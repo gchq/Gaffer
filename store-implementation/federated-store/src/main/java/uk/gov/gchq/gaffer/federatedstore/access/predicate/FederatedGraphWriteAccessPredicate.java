@@ -20,12 +20,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphWriteUserPredicate;
 
-import static java.util.Collections.emptyList;
-
 public class FederatedGraphWriteAccessPredicate extends FederatedGraphAccessPredicate {
 
     @JsonCreator
     public FederatedGraphWriteAccessPredicate(@JsonProperty("creatingUserId") final String creatingUserId) {
-        super(new FederatedGraphWriteUserPredicate(creatingUserId), emptyList());
+        super(new FederatedGraphWriteUserPredicate(creatingUserId));
     }
 }

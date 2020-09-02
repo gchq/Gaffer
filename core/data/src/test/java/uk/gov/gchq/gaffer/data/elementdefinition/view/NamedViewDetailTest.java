@@ -39,8 +39,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class NamedViewDetailTest {
-    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("CustomReadAuth1", "CustomReadAuth2"));
-    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("CustomWriteAuth1", "CustomWriteAuth2"));
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
 
     @Test
     public void shouldJsonSerialise() throws SerialisationException {
@@ -68,20 +68,17 @@ public class NamedViewDetailTest {
                 "    }%n" +
                 "  },%n" +
                 "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\",%n" +
-                "  \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\", \"CustomWriteAuth1\", \"CustomWriteAuth2\" ],%n" +
                 "  \"readAccessPredicate\" : {%n" +
                 "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
                 "       \"userPredicate\" : {%n" +
                 "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
-                "       },%n" +
-                "       \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\" ]%n" +
+                "       }%n" +
                 "   },%n" +
                 "   \"writeAccessPredicate\" : {%n" +
                 "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
                 "       \"userPredicate\" : {%n" +
                 "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
-                "       },%n " +
-                "       \"auths\" : [ \"CustomWriteAuth1\", \"CustomWriteAuth2\" ]%n" +
+                "       }%n " +
                 "   }%n" +
                 "},%n");
         JsonAssert.assertEquals(expected, new String(json));
@@ -95,10 +92,7 @@ public class NamedViewDetailTest {
         final AccessPredicate writeAccessPredicate = mock(AccessPredicate.class);
 
         when(readAccessPredicate.test(testUser, adminAuth)).thenReturn(true);
-        when(readAccessPredicate.getAuths()).thenReturn(asList("c1", "b1", "a1"));
-
         when(writeAccessPredicate.test(testUser, adminAuth)).thenReturn(false);
-        when(writeAccessPredicate.getAuths()).thenReturn(asList("a1", "z1", "c1", "x1"));
 
         final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder()
                 .readAccessPredicate(readAccessPredicate)
@@ -107,7 +101,6 @@ public class NamedViewDetailTest {
 
         assertTrue(namedViewDetail.hasReadAccess(testUser, adminAuth));
         assertFalse(namedViewDetail.hasWriteAccess(testUser, adminAuth));
-        assertEquals(asList("a1", "b1", "c1", "x1", "z1"), namedViewDetail.getAuths());
 
         verify(readAccessPredicate).test(testUser, adminAuth);
         verify(writeAccessPredicate).test(testUser, adminAuth);
@@ -119,7 +112,6 @@ public class NamedViewDetailTest {
         assertEquals(
                 new UnrestrictedAccessPredicate(),
                 namedViewDetail.getReadAccessPredicate());
-        assertTrue(namedViewDetail.getAuths().containsAll(asList("writeAuth1", "writeAuth2")));
     }
 
     @Test
@@ -128,7 +120,6 @@ public class NamedViewDetailTest {
         assertEquals(
                 new NamedViewWriteAccessPredicate(new User.Builder().userId("creator").build(), asList("writeAuth1", "writeAuth2")),
                 namedViewDetail.getWriteAccessPredicate());
-        assertTrue(namedViewDetail.getAuths().containsAll(asList("writeAuth1", "writeAuth2")));
     }
 
     private NamedViewDetail.Builder createNamedViewDetailBuilder() {

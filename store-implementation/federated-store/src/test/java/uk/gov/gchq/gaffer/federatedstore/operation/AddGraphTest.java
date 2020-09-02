@@ -30,15 +30,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
-    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("readAuth1", "readAuth2"));
-    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate(), asList("writeAuth1", "writeAuth2"));
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
 
     @Override
     protected Set<String> getRequiredFields() {

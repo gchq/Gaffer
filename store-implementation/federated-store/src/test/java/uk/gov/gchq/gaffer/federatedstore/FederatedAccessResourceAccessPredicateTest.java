@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
-import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate;
 import uk.gov.gchq.gaffer.user.User;
@@ -89,14 +88,5 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldBeFederatedStoreGraphResourceType() {
         assertEquals(ResourceType.FederatedStoreGraph, new FederatedAccess.Builder().build().getResourceType());
-    }
-
-    @Test
-    public void shouldReturnDeduplicatedSortedListOfAuths() {
-        final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths("a", "z", "b", "c")
-                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate(), asList("z", "x", "a", "b")))
-                .build();
-        assertEquals(asList("a", "b", "c", "x", "z"), access.getAuths());
     }
 }

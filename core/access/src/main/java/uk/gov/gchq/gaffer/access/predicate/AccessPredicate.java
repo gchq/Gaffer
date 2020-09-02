@@ -29,9 +29,6 @@ import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.sort;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -40,7 +37,6 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private final Predicate<User> userPredicate;
-    private final List<String> auths;
 
     public AccessPredicate(
             final User creatingUser,
@@ -51,28 +47,12 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
     public AccessPredicate(
             final String creatingUserId,
             final List<String> auths) {
-        this(new DefaultUserPredicate(creatingUserId, auths), auths);
-    }
-
-    public AccessPredicate(final Predicate<User> userPredicate) {
-        this(userPredicate, emptyList());
+        this(new DefaultUserPredicate(creatingUserId, auths));
     }
 
     @JsonCreator
-    public AccessPredicate(
-            @JsonProperty("userPredicate") final Predicate<User> userPredicate,
-            @JsonProperty("auths") final List<String> auths) {
+    public AccessPredicate(@JsonProperty("userPredicate") final Predicate<User> userPredicate) {
         this.userPredicate = userPredicate;
-        if (auths != null) {
-            sort(auths);
-            this.auths = unmodifiableList(auths);
-        } else {
-            this.auths = emptyList();
-        }
-    }
-
-    public List<String> getAuths() {
-        return auths;
     }
 
     @Override
@@ -99,12 +79,11 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
             return false;
         }
         final AccessPredicate predicate = (AccessPredicate) o;
-        return Objects.equals(userPredicate, predicate.userPredicate) &&
-                Objects.equals(auths, predicate.auths);
+        return Objects.equals(userPredicate, predicate.userPredicate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userPredicate, auths);
+        return Objects.hash(userPredicate);
     }
 }

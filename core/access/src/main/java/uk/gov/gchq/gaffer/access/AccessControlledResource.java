@@ -18,14 +18,10 @@ package uk.gov.gchq.gaffer.access;
 
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.List;
-
 public interface AccessControlledResource {
     String DONT_CHECK_ADMIN_AUTH = null;
 
     ResourceType getResourceType();
-
-    List<String> getAuths();
 
     default boolean hasReadAccess(final User user) {
         return hasReadAccess(user, DONT_CHECK_ADMIN_AUTH);

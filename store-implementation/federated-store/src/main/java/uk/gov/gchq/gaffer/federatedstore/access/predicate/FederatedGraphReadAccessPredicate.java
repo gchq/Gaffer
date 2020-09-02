@@ -44,7 +44,7 @@ public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredi
             @JsonProperty("creatingUserId") final String creatingUserId,
             @JsonProperty("auths") final List<String> auths,
             @JsonProperty("public") final boolean isPublic) {
-        super(new FederatedGraphReadUserPredicate(creatingUserId, auths, isPublic), auths);
+        super(new FederatedGraphReadUserPredicate(creatingUserId, auths, isPublic));
         this.isPublic = isPublic;
     }
 

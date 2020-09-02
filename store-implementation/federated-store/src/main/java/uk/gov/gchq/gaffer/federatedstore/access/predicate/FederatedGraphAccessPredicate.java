@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.access.predicate;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -29,8 +28,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public abstract class FederatedGraphAccessPredicate extends AccessPredicate {
 
-    public FederatedGraphAccessPredicate(final Predicate<User> userPredicate, final List<String> auths) {
-        super(userPredicate, auths);
+    public FederatedGraphAccessPredicate(final Predicate<User> userPredicate) {
+        super(userPredicate);
     }
 
     @Override

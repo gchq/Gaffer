@@ -243,10 +243,8 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldCustomAccessPredicateAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
-        final List<String> readAuths = asList("customReadAuth1", "customReadAuth2");
-        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate(), readAuths);
-        final List<String> writeAuths = asList("customWriteAuth1", "customWriteAuth2");
-        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate(), writeAuths);
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);

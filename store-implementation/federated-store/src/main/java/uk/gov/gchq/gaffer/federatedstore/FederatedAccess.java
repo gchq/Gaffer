@@ -29,16 +29,12 @@ import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAcc
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import static java.util.Collections.emptyList;
-import static org.apache.commons.collections.ListUtils.unmodifiableList;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_VALUE_IS_PUBLIC;
 
 /**
@@ -78,7 +74,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private final boolean disabledByDefault;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-    private final List<String> auths;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         this(graphAuths, addingUserId, Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC));
@@ -106,15 +101,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
 
         this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new FederatedGraphReadAccessPredicate(addingUserId, graphAuths, isPublic);
         this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new FederatedGraphWriteAccessPredicate(addingUserId);
-        this.auths = sortedAuths();
-    }
-
-    private List<String> sortedAuths() {
-        final Set<String> allAuths = new HashSet<>(readAccessPredicate.getAuths());
-        allAuths.addAll(writeAccessPredicate.getAuths());
-        final List<String> sortedAuths = new ArrayList<>(allAuths);
-        Collections.sort(sortedAuths);
-        return unmodifiableList(new ArrayList<>(sortedAuths));
     }
 
     public String getAddingUserId() {
@@ -126,6 +112,8 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     /**
+     * @param user User request permission.
+     * @return boolean permission for user.
      * @Deprecated see {@link FederatedAccess#hasReadAccess(User, String)}
      *
      * <table summary="isValidToExecute truth table">
@@ -142,9 +130,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
      * <tr><td>  F              </td><td> F           </td><td> F
      * </td><td> F   </td></tr>
      * </table>
-     *
-     * @param user User request permission.
-     * @return boolean permission for user.
      */
     protected boolean isValidToExecute(final User user) {
         return isPublic || (null != user && (isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user))));
@@ -199,11 +184,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     @Override
     public ResourceType getResourceType() {
         return ResourceType.FederatedStoreGraph;
-    }
-
-    @Override
-    public List<String> getAuths() {
-        return auths != null ? auths : emptyList();
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {

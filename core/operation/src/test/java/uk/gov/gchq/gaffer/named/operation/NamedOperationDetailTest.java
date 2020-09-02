@@ -41,9 +41,6 @@ public class NamedOperationDetailTest {
         assertEquals(
                 new AccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("readerAuth1", "readerAuth2")),
                 namedOperationDetail.getReadAccessPredicate());
-        assertEquals(
-                asList("readerAuth1", "readerAuth2", "writerAuth1", "writerAuth2"),
-                namedOperationDetail.getAuths());
     }
 
     @Test
@@ -52,44 +49,24 @@ public class NamedOperationDetailTest {
         assertEquals(
                 new AccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("writerAuth1", "writerAuth2")),
                 namedOperationDetail.getWriteAccessPredicate());
-        assertEquals(
-                asList("readerAuth1", "readerAuth2", "writerAuth1", "writerAuth2"),
-                namedOperationDetail.getAuths());
     }
 
     @Test
     public void shouldConfigureCustomReadAccessPredicateWhenSpecified() {
-        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate(), asList("customAuth1", "customAuth2"));
+        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
                 .readAccessPredicate(customAccessPredicate)
                 .build();
         assertEquals(customAccessPredicate, namedOperationDetail.getReadAccessPredicate());
-        assertEquals(
-                asList("customAuth1", "customAuth2", "writerAuth1", "writerAuth2"),
-                namedOperationDetail.getAuths());
     }
 
     @Test
     public void shouldConfigureCustomWriteAccessPredicateWhenSpecified() {
-        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate(), asList("customAuth1", "customAuth2"));
+        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
                 .writeAccessPredicate(customAccessPredicate)
                 .build();
         assertEquals(customAccessPredicate, namedOperationDetail.getWriteAccessPredicate());
-        assertEquals(
-                asList("customAuth1", "customAuth2", "readerAuth1", "readerAuth2"),
-                namedOperationDetail.getAuths());
-    }
-
-    @Test
-    public void shouldReturnSortedAndDeduplicatedAuthListBuiltFromPredicates() {
-        final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
-                .readAccessPredicate(new AccessPredicate(new CustomUserPredicate(), asList("z1", "x2")))
-                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate(), asList("b2", "a1", "z1", "x2", "b1")))
-                .build();
-        assertEquals(
-                asList("a1", "b1", "b2", "x2", "z1"),
-                namedOperationDetail.getAuths());
     }
 
     private NamedOperationDetail.Builder getBaseNamedOperationDetailBuilder() {

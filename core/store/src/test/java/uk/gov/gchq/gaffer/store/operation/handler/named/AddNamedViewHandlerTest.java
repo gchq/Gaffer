@@ -41,10 +41,8 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -116,10 +114,8 @@ public class AddNamedViewHandlerTest {
 
     @Test
     public void shouldAddNamedViewContainingCustomAccessPredicatesCorrectly() throws OperationException, CacheOperationFailedException {
-        final List<String> readAuths = asList("customReadAuth1", "customReadAuth2");
-        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate(), readAuths);
-        final List<String> writeAuths = asList("customWriteAuth1", "customWriteAuth2");
-        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate(), writeAuths);
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         addNamedView.setReadAccessPredicate(readAccessPredicate);
         addNamedView.setWriteAccessPredicate(writeAccessPredicate);
 
