@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.hbasestore;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -48,12 +48,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -70,13 +70,13 @@ public class HBaseStoreTest {
     private static final String GRAPH_ID = "graphId";
     private static SingleUseMiniHBaseStore store;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws StoreException, IOException {
         store = new SingleUseMiniHBaseStore();
         store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
     }
 
-    @Before
+    @BeforeEach
     public void beforeMethod() throws StoreException, IOException {
         try (final Admin admin = store.getConnection().getAdmin()) {
             if (!admin.tableExists(store.getTableName())) {
@@ -85,7 +85,7 @@ public class HBaseStoreTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         store = null;
     }
@@ -223,16 +223,25 @@ public class HBaseStoreTest {
     public void testStoreTraits() {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 10", traits.size() == 10);
-        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION));
-        assertTrue("Collection should contain QUERY_AGGREGATION trait", traits.contains(QUERY_AGGREGATION));
-        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
-        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
-        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
-        assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
-        assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
+        assertEquals(traits.size(), 10, "Collection size should be 10");
+        assertTrue(traits.contains(INGEST_AGGREGATION),
+                "Collection should contain INGEST_AGGREGATION trait");
+        assertTrue(traits.contains(QUERY_AGGREGATION),
+                "Collection should contain QUERY_AGGREGATION trait");
+        assertTrue(traits.contains(PRE_AGGREGATION_FILTERING),
+                "Collection should contain PRE_AGGREGATION_FILTERING trait");
+        assertTrue(traits.contains(POST_AGGREGATION_FILTERING),
+                "Collection should contain POST_AGGREGATION_FILTERING trait");
+        assertTrue(traits.contains(TRANSFORMATION),
+                "Collection should contain TRANSFORMATION trait");
+        assertTrue(traits.contains(POST_TRANSFORMATION_FILTERING),
+                "Collection should contain POST_TRANSFORMATION_FILTERING trait");
+        assertTrue(traits.contains(STORE_VALIDATION),
+                "Collection should contain STORE_VALIDATION trait");
+        assertTrue(traits.contains(ORDERED),
+                "Collection should contain ORDERED trait");
+        assertTrue(traits.contains(VISIBILITY),
+                "Collection should contain VISIBILITY trait");
     }
 
 }

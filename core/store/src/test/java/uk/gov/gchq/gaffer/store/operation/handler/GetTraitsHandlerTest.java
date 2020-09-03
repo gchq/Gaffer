@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -36,9 +36,9 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class GetTraitsHandlerTest {
@@ -49,7 +49,7 @@ public class GetTraitsHandlerTest {
     private Set<StoreTrait> expectedTraits;
     private Schema string;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         expectedTraits = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         expectedTraits.remove(StoreTrait.ORDERED);
@@ -64,7 +64,7 @@ public class GetTraitsHandlerTest {
         string = new Schema.Builder().type(STRING, String.class).build();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         final Set<StoreTrait> temp = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         temp.remove(StoreTrait.ORDERED);

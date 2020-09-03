@@ -16,9 +16,14 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -35,22 +40,37 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class FederatedAggregateHandlerTest {
+
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
+
     @Test
     public void shouldDelegateToHandler() throws OperationException {
         // Given
@@ -76,14 +96,13 @@ public class FederatedAggregateHandlerTest {
 
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
+        FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
+                StreamUtil.openStream(currentClass, "predefinedFederatedStore.properties"));
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
                 .addSchema(new Schema())
-                .storeProperties(new FederatedStoreProperties())
+                .storeProperties(federatedStoreProperties)
                 .build();
-
-        final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(MockAccumuloStore.class);
 
         final Context context = new Context(new User());
         fed.execute(new OperationChain.Builder()
@@ -96,7 +115,7 @@ public class FederatedAggregateHandlerTest {
                                         .build())
                                 .type("string", String.class)
                                 .build())
-                        .storeProperties(storeProperties)
+                        .storeProperties(PROPERTIES)
                         .build())
                 .then(new AddGraph.Builder()
                         .graphId("b")
@@ -107,7 +126,7 @@ public class FederatedAggregateHandlerTest {
                                         .build())
                                 .type("string", String.class)
                                 .build())
-                        .storeProperties(storeProperties)
+                        .storeProperties(PROPERTIES)
                         .build())
                 .build(), context);
 

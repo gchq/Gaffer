@@ -16,15 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -48,12 +46,13 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -77,19 +76,20 @@ public class ExportToOtherGraphHandlerTest {
     private static final String EXCEPTION_EXPECTED = "Exception expected";
     public static final String SCHEMA_ID_2 = SCHEMA_ID + 2;
     public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private final Store store = mock(Store.class);
     private final Schema schema = new Schema.Builder().build();
     private GraphLibrary graphLibrary;
     private StoreProperties storeProperties;
 
-    @Before
+    @TempDir
+    Path tempDir;
+
+    @BeforeEach
     public void before() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
 
-        final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
+        final File graphLibraryFolder = tempDir.resolve("graphLibrary").toFile();
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
 
         given(store.getGraphLibrary()).willReturn(graphLibrary);

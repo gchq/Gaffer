@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.types.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -24,29 +24,28 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ToTypeSubTypeValueTest extends FunctionTest {
+
     @Test
     public void shouldConvertStringToTypeSubTypeValue() {
         // Given
         final ToTypeSubTypeValue function = new ToTypeSubTypeValue();
-
-        final Object value = "value1";
+        final String value = "value1";
 
         // When
         final TypeSubTypeValue result = function.apply(value);
 
         // Then
-        assertEquals(new TypeSubTypeValue(null, null, value.toString()), result);
+        assertEquals(new TypeSubTypeValue(null, null, value), result);
     }
 
     @Test
     public void shouldConvertObjectToTypeSubTypeValue() {
         // Given
         final ToTypeSubTypeValue function = new ToTypeSubTypeValue();
-
         final Object value = 1L;
 
         // When
@@ -61,15 +60,14 @@ public class ToTypeSubTypeValueTest extends FunctionTest {
         // Given
         final ToTypeSubTypeValue function = new ToTypeSubTypeValue();
 
-        final Object value = null;
-
         // When
-        final TypeSubTypeValue result = function.apply(value);
+        final TypeSubTypeValue result = function.apply(null);
 
         // Then
         assertEquals(new TypeSubTypeValue(null, null, null), result);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
 import org.apache.commons.io.FileUtils;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class AddElementsFromFileHandlerIT extends FlinkTest {
+
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;

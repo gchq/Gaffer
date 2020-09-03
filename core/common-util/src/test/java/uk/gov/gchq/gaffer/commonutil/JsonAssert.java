@@ -17,14 +17,13 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public final class JsonAssert {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -60,7 +59,7 @@ public final class JsonAssert {
         try {
             final Map firstSchemaMap = null != firstJson ? OBJECT_MAPPER.readValue(firstJson, Map.class) : Collections.emptyMap();
             final Map secondSchemaMap = null != secondJson ? OBJECT_MAPPER.readValue(secondJson, Map.class) : Collections.emptyMap();
-            assertNotEquals(firstSchemaMap, secondSchemaMap);
+            Assertions.assertNotEquals(firstSchemaMap, secondSchemaMap);
         } catch (final IOException e) {
             // ignore
         }

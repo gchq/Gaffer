@@ -19,9 +19,10 @@ package uk.gov.gchq.gaffer.store;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -145,17 +146,17 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -182,7 +183,7 @@ public class StoreTest {
     private StoreImpl store;
     private OperationChainValidator operationChainValidator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -234,7 +235,7 @@ public class StoreTest {
                 .build();
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -886,7 +887,7 @@ public class StoreTest {
     }
 
 
-    @Test(expected = SchemaException.class)
+    @Test
     public void shouldFindInvalidSerialiser() throws Exception {
         final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
         Schema invalidSchema = new Schema.Builder()
@@ -919,11 +920,10 @@ public class StoreTest {
                     return validSerialiserInterface;
                 }
             }.initialise("graphId", invalidSchema, properties);
+            fail("Should have thrown exception");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
-            throw e;
         }
-        fail("Exception wasn't caught");
     }
 
     @Test

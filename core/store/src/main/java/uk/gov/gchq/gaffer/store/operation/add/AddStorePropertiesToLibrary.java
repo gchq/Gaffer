@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -35,6 +36,7 @@ import java.util.Properties;
  *
  * @see StoreProperties
  */
+@JsonPropertyOrder(alphabetic = true)
 @Since("1.5.0")
 @Summary("Adds StoreProperties to the GraphLibrary")
 public class AddStorePropertiesToLibrary implements Operation {

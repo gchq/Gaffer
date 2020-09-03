@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
@@ -35,9 +35,10 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GraphConfigTest {
+
     private static final int RESULT_LIMIT = 100000;
 
     @Test
@@ -50,6 +51,7 @@ public class GraphConfigTest {
         assertEquals(HashMapGraphLibrary.class, config.getLibrary().getClass());
         final List<GraphHook> graphHooks = config.getHooks();
         assertEquals(1, graphHooks.size());
+
         final AddOperationsToChain addOperationsToChain = (AddOperationsToChain) graphHooks.get(0);
         for (final Class op : new Class[]{ToSet.class, ToArray.class, ToList.class, ExportToSet.class}) {
             assertEquals(RESULT_LIMIT, (int) ((Limit) addOperationsToChain.getBefore().get(op.getName()).get(0)).getResultLimit());

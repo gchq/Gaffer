@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,32 +27,29 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class UnionAggregatorTest extends BinaryOperatorTest {
+
     private static final double DELTA = 0.01D;
-    private Union union1;
-    private Union union2;
-
-    @Before
-    public void setup() {
-        union1 = Sketches.setOperationBuilder().buildUnion();
-        union1.update("A");
-        union1.update("B");
-
-        union2 = Sketches.setOperationBuilder().buildUnion();
-        union2.update("C");
-        union2.update("D");
-    }
 
     @Test
     public void testAggregate() {
         final UnionAggregator unionAggregator = new UnionAggregator();
-        Union currentState = union1;
-        assertEquals(2.0D, currentState.getResult().getEstimate(), DELTA);
-        currentState = unionAggregator.apply(currentState, union2);
-        assertEquals(4.0D, currentState.getResult().getEstimate(), DELTA);
+
+        Union currentUnion = Sketches.setOperationBuilder().buildUnion();
+        currentUnion.update("A");
+        currentUnion.update("B");
+
+        assertEquals(2.0D, currentUnion.getResult().getEstimate(), DELTA);
+
+        Union newUnion = Sketches.setOperationBuilder().buildUnion();
+        newUnion.update("C");
+        newUnion.update("D");
+
+        currentUnion = unionAggregator.apply(currentUnion, newUnion);
+        assertEquals(4.0D, currentUnion.getResult().getEstimate(), DELTA);
     }
 
     @Test

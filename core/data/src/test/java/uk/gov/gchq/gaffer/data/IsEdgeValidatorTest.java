@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class IsEdgeValidatorTest {
 
     @Test

@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import java.util.Comparator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
 

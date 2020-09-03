@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
 import com.google.common.collect.Sets;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;

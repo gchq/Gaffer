@@ -15,14 +15,14 @@
  */
 package uk.gov.gchq.gaffer.time.binaryoperator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.time.LongTimeSeries;
 
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LongTimeSeriesAggregatorTest {
     private static final LongTimeSeriesAggregator LONG_TIME_SERIES_AGGREGATOR

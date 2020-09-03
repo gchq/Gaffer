@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks.Builder;
@@ -30,9 +29,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
 
@@ -43,6 +43,7 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         return Sets.newHashSet("graphId");
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
@@ -64,6 +65,7 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         assertEquals(log4jLogger, op.getHooks()[0]);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final AddGraphWithHooks a = new Builder()
@@ -84,7 +86,7 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
         assertEquals(a.getStoreProperties(), b.getStoreProperties());
         assertEquals(a.getSchema(), b.getSchema());
         assertEquals(a.getGraphAuths(), b.getGraphAuths());
-        Assert.assertArrayEquals(a.getHooks(), b.getHooks());
+        assertArrayEquals(a.getHooks(), b.getHooks());
         assertTrue(b.isDisabledByDefault());
     }
 
@@ -111,5 +113,4 @@ public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
     protected AddGraphWithHooks getTestObject() {
         return new AddGraphWithHooks();
     }
-
 }

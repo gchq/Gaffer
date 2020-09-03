@@ -27,14 +27,17 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -55,63 +58,67 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 
 public class RowIdAggregatorTest {
 
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
 
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
+    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
+
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;
 
-    @BeforeClass
-    public static void setup() {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    @BeforeAll
+    public static void setup(@TempDir Path tempDir) {
+        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
         gaffer1ElementConverter = new ClassicAccumuloElementConverter(SCHEMA);
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(SCHEMA);
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        createTable(byteEntityStore);
-        createTable(gaffer1KeyStore);
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        createTable(BYTE_ENTITY_STORE);
+        createTable(GAFFER_1_KEY_STORE);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        gaffer1KeyStore = null;
-        byteEntityStore = null;
+        miniAccumuloClusterManagerByteEntity.close();
+        miniAccumuloClusterManagerGaffer1Key.close();
     }
-
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, RangeFactoryException {
-        testAggregatingMultiplePropertySetsAcrossRowIDRange(byteEntityStore, byteEntityElementConverter);
+        testAggregatingMultiplePropertySetsAcrossRowIDRange(BYTE_ENTITY_STORE, byteEntityElementConverter);
     }
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInGafferOneStore() throws StoreException, RangeFactoryException {
-        testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter);
+        testAggregatingMultiplePropertySetsAcrossRowIDRange(GAFFER_1_KEY_STORE, gaffer1ElementConverter);
     }
 
     private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, RangeFactoryException {
         String visibilityString = "public";
+        BatchScanner scanner = null;
         try {
             // Create table
             // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator).
@@ -266,7 +273,7 @@ public class RowIdAggregatorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(), authorizations, 1000);
+            scanner = store.getConnection().createBatchScanner(store.getTableName(), authorizations, 1000);
             try {
                 scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
             } catch (final IteratorSettingException e) {
@@ -317,6 +324,10 @@ public class RowIdAggregatorTest {
             }
         } catch (final AccumuloException | TableExistsException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
+        } finally {
+            if (scanner != null) {
+                scanner.close();
+            }
         }
     }
 

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -23,10 +24,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NamedOperationTest extends OperationTest<NamedOperation> {
 
+    @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
         final String testOpName = "testOpName";
@@ -40,25 +42,33 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
         final byte[] json = toJson(op);
         final NamedOperation deserialisedOp = fromJson(json);
 
+        // Then
         assertEquals(testOpName, deserialisedOp.getOperationName());
         assertEquals(testParamsMap, deserialisedOp.getParameters());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         final String testOpName = "testOpName";
         final Map testParamsMap = Collections.singletonMap("test", "testVal");
+
+        // When
         NamedOperation op = (NamedOperation) new NamedOperation.Builder()
                 .name(testOpName)
                 .parameters(testParamsMap)
                 .build();
 
+        // Then
         assertEquals(testOpName, op.getOperationName());
         assertEquals(testParamsMap, op.getParameters());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final String testOpName = "testOpName";
         final Map testParamsMap = Collections.singletonMap("test", "testVal");
         NamedOperation op = (NamedOperation) new NamedOperation.Builder()
@@ -66,8 +76,10 @@ public class NamedOperationTest extends OperationTest<NamedOperation> {
                 .parameters(testParamsMap)
                 .build();
 
+        // When
         NamedOperation clonedOp = op.shallowClone();
 
+        // Then
         assertEquals(testOpName, clonedOp.getOperationName());
         assertEquals(testParamsMap, clonedOp.getParameters());
     }

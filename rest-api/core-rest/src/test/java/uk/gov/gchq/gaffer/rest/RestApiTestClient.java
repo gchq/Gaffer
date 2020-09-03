@@ -39,6 +39,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -88,6 +89,13 @@ public abstract class RestApiTestClient {
         );
     }
 
+    public void reinitialiseGraph(final File tempDir, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
+        reinitialiseGraph(tempDir,
+                Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
+        );
+    }
+
     public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
         FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
                 .toJson(true));
@@ -98,11 +106,27 @@ public abstract class RestApiTestClient {
         }
 
         // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
-
+        setSystemProperties(testFolder.getRoot() + "/store.properties", testFolder.getRoot() + "/schema.json");
         reinitialiseGraph();
+    }
+
+    public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
+        FileUtils.writeByteArrayToFile(new File(testFolder, "/schema.json"), schema.toJson(true));
+
+        try (OutputStream out = new FileOutputStream(new File(testFolder, "/store.properties"))) {
+            storeProperties.getProperties()
+                    .store(out, "This is an optional header comment string");
+        }
+
+        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json");
+        reinitialiseGraph();
+    }
+
+    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
+        // set properties for REST service
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
     }
 
     public void reinitialiseGraph(final Graph graph) {
@@ -117,8 +141,7 @@ public abstract class RestApiTestClient {
         }
     }
 
-
-    public void reinitialiseGraph() throws IOException {
+    public void reinitialiseGraph() {
         defaultGraphFactory.setGraph(null);
 
         startServer();

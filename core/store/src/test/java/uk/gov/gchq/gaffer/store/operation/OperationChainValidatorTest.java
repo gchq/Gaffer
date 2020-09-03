@@ -17,13 +17,12 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
@@ -43,9 +42,9 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -188,10 +187,12 @@ public class OperationChainValidatorTest {
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
         final Store store = mock(Store.class);
         final User user = mock(User.class);
+        final Schema schema = mock(Schema.class);
 
+        given(store.getSchema()).willReturn(schema);
 
-        given(viewValidator.validate(any(View.class), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
-
+        // TODO: wouldn't work as statndard as the schema was null...
+        given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
 
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);

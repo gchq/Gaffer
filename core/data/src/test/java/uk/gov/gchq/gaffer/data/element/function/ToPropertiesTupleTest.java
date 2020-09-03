@@ -22,12 +22,13 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ToPropertiesTupleTest extends GafferFunctionTest {
+public class ToPropertiesTupleTest extends FunctionTest {
 
     @Test
     public void shouldReturnNullForNullValue() {
@@ -69,6 +70,7 @@ public class ToPropertiesTupleTest extends GafferFunctionTest {
         return new Class[]{PropertiesTuple.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ToPropertiesTuple function = getInstance();

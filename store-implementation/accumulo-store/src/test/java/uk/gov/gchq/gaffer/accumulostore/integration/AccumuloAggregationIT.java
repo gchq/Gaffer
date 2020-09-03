@@ -16,11 +16,18 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
+
 import org.hamcrest.core.IsCollectionContaining;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -59,6 +66,22 @@ public class AccumuloAggregationIT extends StandaloneIT {
     private static final String PRIVATE_VISIBILITY = "privateVisibility";
 
     private final User user = getUser();
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setUpStore() {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    }
+
+    @AfterClass
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
 
     @Test
     public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
@@ -691,6 +714,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Override
     public StoreProperties createStoreProperties() {
-        return AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+        return PROPERTIES;
     }
 }

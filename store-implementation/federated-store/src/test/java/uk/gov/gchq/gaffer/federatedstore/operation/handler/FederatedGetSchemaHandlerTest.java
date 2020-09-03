@@ -16,15 +16,20 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -42,8 +47,10 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedGetSchemaHandlerTest {
@@ -52,7 +59,6 @@ public class FederatedGetSchemaHandlerTest {
     private Context context;
     private User user;
     private StoreProperties properties;
-    private AccumuloProperties accProperties;
     private static final String ACC_PROP_ID = "accProp";
     private static final String EDGE_SCHEMA_ID = "edgeSchema";
 
@@ -66,7 +72,21 @@ public class FederatedGetSchemaHandlerTest {
                     .build())
             .build();
 
-    @Before
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
+
+    @BeforeEach
     public void setup() throws StoreException {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -77,18 +97,13 @@ public class FederatedGetSchemaHandlerTest {
         properties = new FederatedStoreProperties();
         properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
-        accProperties = new AccumuloProperties();
-
-        accProperties.setStoreClass(MockAccumuloStore.class);
-        accProperties.setStorePropertiesClass(AccumuloProperties.class);
-
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, properties);
 
         library.clear();
     }
 
-    @After
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -96,7 +111,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldReturnSchema() throws OperationException {
-        library.addProperties(ACC_PROP_ID, accProperties);
+        library.addProperties(ACC_PROP_ID, PROPERTIES);
         fStore.setGraphLibrary(library);
 
         final Schema edgeSchema = new Schema.Builder()
@@ -134,7 +149,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldReturnSchemaOnlyForEnabledGraphs() throws OperationException {
-        library.addProperties(ACC_PROP_ID, accProperties);
+        library.addProperties(ACC_PROP_ID, PROPERTIES);
         fStore.setGraphLibrary(library);
 
         final Schema edgeSchema1 = new Schema.Builder()
@@ -195,7 +210,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldThrowExceptionForANullOperation() throws OperationException {
-        library.addProperties(ACC_PROP_ID, accProperties);
+        library.addProperties(ACC_PROP_ID, PROPERTIES);
         fStore.setGraphLibrary(library);
 
         final GetSchema operation = null;

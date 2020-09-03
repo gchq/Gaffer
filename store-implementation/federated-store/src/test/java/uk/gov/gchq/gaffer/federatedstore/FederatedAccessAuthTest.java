@@ -16,14 +16,13 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.User;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
@@ -32,14 +31,8 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    public static final String AUTH_X = "X";
-
-    User testUser;
-
-    @Before
-    public void setUp() throws Exception {
-        testUser = testUser();
-    }
+    private static final String AUTH_X = "X";
+    private static final User TEST_USER = testUser();
 
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
@@ -47,7 +40,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.isValidToExecute(testUser));
+        assertTrue(access.isValidToExecute(TEST_USER));
     }
 
     @Test
@@ -56,7 +49,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS, AUTH_X)
                 .build();
 
-        assertTrue(access.isValidToExecute(testUser));
+        assertTrue(access.isValidToExecute(TEST_USER));
     }
 
     @Test
@@ -88,7 +81,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths("X")
                 .build();
 
-        assertFalse(access.isValidToExecute(testUser));
+        assertFalse(access.isValidToExecute(TEST_USER));
     }
 
     @Test

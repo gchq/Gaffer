@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.operation.impl.io;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -35,14 +34,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.runners.Parameterized.Parameters;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(Parameterized.class)
 public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
-    @Parameters(name = "{0}")
     public static Collection<Object[]> instancesToTest() {
         return Arrays.asList(new Object[][]{
                 // Single values
@@ -85,21 +81,17 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
         });
     }
 
-    @Parameterized.Parameter(0)
-    public String description;
-    @Parameterized.Parameter(1)
-    public Object inputData;
-    @Parameterized.Parameter(2)
-    public String expectedJson;
-
-    @Test
-    public void shouldHandleGenericInputType() {
+    @ParameterizedTest
+    @MethodSource("instancesToTest")
+    public void shouldHandleGenericInputType(String description, Object inputData, String expected) {
         // Given
         final GenericInput input = new GenericInputImpl(inputData);
 
+        byte[] expectedJson = expected.getBytes();
+
         // When / Then
         final byte[] json = toJson(input);
-        JsonAssert.assertEquals(getExpectedJson(), json);
+        JsonAssert.assertEquals(expectedJson, json);
 
         // When / Then
         final GenericInput inputFromJson = fromJson(json);
@@ -107,15 +99,11 @@ public class GenericInputTest extends JSONSerialisationTest<GenericInput> {
 
         // When / Then
         final byte[] json2 = toJson(inputFromJson);
-        JsonAssert.assertEquals(getExpectedJson(), json2);
+        JsonAssert.assertEquals(expectedJson, json2);
 
         // When / Then
         final GenericInput inputFromJson2 = fromJson(json2);
         assertInputEquals(input.getInput(), inputFromJson2.getInput());
-    }
-
-    public byte[] getExpectedJson() {
-        return expectedJson.getBytes();
     }
 
     @Override

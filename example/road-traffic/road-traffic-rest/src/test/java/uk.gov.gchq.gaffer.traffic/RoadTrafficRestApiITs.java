@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -47,19 +48,30 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
     protected static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @ClassRule
-    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    static File testFolder;
 
-    @BeforeClass
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final StoreProperties PROPERTIES =
+            StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, STORE_TYPE_DEFAULT + StreamUtil.STORE_PROPERTIES));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @TempDir
+    public static File staticTestFolder;
+
+    @BeforeAll
     public static void prepareRestApi() throws IOException {
+
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, staticTestFolder.getAbsolutePath());
+
         // Spin up the REST API
         CLIENT.startServer();
 
         // Connect it to a Gaffer store, as specified in the 'store.type' property
         CLIENT.reinitialiseGraph(
-                TEST_FOLDER,
+                testFolder,
                 Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
+                PROPERTIES
         );
 
         // Load Road Traffic data into the store
@@ -67,11 +79,13 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
         loader.contextInitialized(null);
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         CLIENT.stopServer();
+        miniAccumuloClusterManager.close();
     }
 
+    @BeforeEach
     @Override
     public void prepareProxy() throws IOException {
         // Create a proxy store that will proxy all queries to the REST API that has been spun up

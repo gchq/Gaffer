@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 import org.apache.commons.jcs.engine.control.CompositeCache;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
@@ -30,14 +30,14 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JcsDistributedCacheTest {
 
     private static JcsCache<String, Integer> cache1;
     private static JcsCache<String, Integer> cache2;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         Properties cacheProperties = new Properties();
         cacheProperties.load(new FileInputStream("src/test/resources/distributed.ccf"));
@@ -58,7 +58,7 @@ public class JcsDistributedCacheTest {
         cache2 = new JcsCache<>(tmp);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cache1.clear();
     }

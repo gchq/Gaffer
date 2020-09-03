@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.sparkaccumulo;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -56,7 +56,7 @@ import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SparkOperationDeclarationsTest {
     public static final String ACCUMULO_OP_DECLARATIONS_JSON_PATH = "sparkAccumuloOperationsDeclarations.json";

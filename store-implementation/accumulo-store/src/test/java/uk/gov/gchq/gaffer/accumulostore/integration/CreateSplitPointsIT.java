@@ -17,12 +17,16 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,7 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -73,6 +78,23 @@ public class CreateSplitPointsIT {
     private String outputDir;
     public String splitsFile;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @ClassRule
+    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @BeforeClass
+    public static void setupCluster() {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
+    }
+
+    @AfterClass
+    public static void takeDownCluster() {
+        miniAccumuloClusterManager.close();
+    }
+
     @Before
     public void setup() throws IOException {
 
@@ -95,11 +117,11 @@ public class CreateSplitPointsIT {
         // Given
         createInputFile();
 
-        final SingleUseMockAccumuloStoreWithTabletServers store = new SingleUseMockAccumuloStoreWithTabletServers();
+        final SingleUseAccumuloStoreWithTabletServers store = new SingleUseAccumuloStoreWithTabletServers();
         store.initialise(
                 "graphId1",
                 Schema.fromJson(StreamUtil.schemas(getClass())),
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
+                PROPERTIES
         );
 
         final Graph graph = new Graph.Builder()
@@ -168,7 +190,7 @@ public class CreateSplitPointsIT {
         }
     }
 
-    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
+    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
         @Override
         public List<String> getTabletServers() throws StoreException {
             return Arrays.asList("1", "2", "3");

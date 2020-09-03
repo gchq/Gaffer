@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
 import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.UpdateSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,31 +27,29 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SketchAggregatorTest extends BinaryOperatorTest {
+
     private static final double DELTA = 0.01D;
-    private UpdateSketch sketch1;
-    private UpdateSketch sketch2;
-
-    @Before
-    public void setup() {
-        sketch1 = UpdateSketch.builder().build();
-        sketch1.update("A");
-        sketch1.update("B");
-
-        sketch2 = UpdateSketch.builder().build();
-        sketch2.update("C");
-        sketch2.update("D");
-    }
 
     @Test
     public void testAggregate() {
         final SketchAggregator unionAggregator = new SketchAggregator();
-        Sketch currentState = sketch1;
+
+        UpdateSketch sketch = UpdateSketch.builder().build();
+        sketch.update("A");
+        sketch.update("B");
+
+        Sketch currentState = sketch;
         assertEquals(2.0D, currentState.getEstimate(), DELTA);
-        currentState = unionAggregator.apply(currentState, sketch2);
+
+        UpdateSketch newSketch = UpdateSketch.builder().build();
+        newSketch.update("C");
+        newSketch.update("D");
+
+        currentState = unionAggregator.apply(currentState, newSketch);
         assertEquals(4.0D, currentState.getEstimate(), DELTA);
     }
 

@@ -17,8 +17,9 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -53,12 +54,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
+
     private static final String ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH = "addOperationsToChain.json";
 
     public AddOperationsToChainTest() {
@@ -270,7 +272,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
             fromJson(nullTestJson.getBytes());
             fail("Exception expected");
         } catch (final RuntimeException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("'null'"));
+            assertTrue(e.getMessage().contains("'null'"), e.getMessage());
         }
     }
 
@@ -284,7 +286,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
             fromJson(emptyTestJson.getBytes());
             fail("Exception expected");
         } catch (final RuntimeException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("''"));
+            assertTrue(e.getMessage().contains("''"), e.getMessage());
         }
     }
 
@@ -298,7 +300,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
             fromJson(falseOperationTestJson.getBytes());
             fail("Exception expected");
         } catch (final RuntimeException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("'this.Operation.Doesnt.Exist'"));
+            assertTrue(e.getMessage().contains("'this.Operation.Doesnt.Exist'"), e.getMessage());
         }
     }
 

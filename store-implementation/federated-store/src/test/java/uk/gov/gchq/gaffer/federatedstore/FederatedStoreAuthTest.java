@@ -16,12 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -34,13 +38,14 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -56,11 +61,24 @@ public class FederatedStoreAuthTest {
     private User authUser;
     private FederatedStore federatedStore;
     private FederatedStoreProperties federatedStoreProperties;
-    private AccumuloProperties graphStoreProperties;
     private Schema schema;
     private Operation ignore;
 
-    @Before
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+
+    @BeforeAll
+    public static void setUpStore(@TempDir Path tempDir) {
+        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
+    }
+
+    @AfterAll
+    public static void tearDownStore() {
+        miniAccumuloClusterManager.close();
+    }
+
+    @BeforeEach
     public void setUp() throws Exception {
         testUser = testUser();
         authUser = authUser();
@@ -70,9 +88,6 @@ public class FederatedStoreAuthTest {
 
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-
-        graphStoreProperties = new AccumuloProperties();
-        graphStoreProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         schema = new Schema.Builder().build();
 
@@ -87,7 +102,7 @@ public class FederatedStoreAuthTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(schema)
-                        .storeProperties(graphStoreProperties)
+                        .storeProperties(PROPERTIES)
                         .graphAuths("auth1")
                         .build(),
                 new Context(testUser),
@@ -130,7 +145,7 @@ public class FederatedStoreAuthTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(schema)
-                        .storeProperties(graphStoreProperties)
+                        .storeProperties(PROPERTIES)
                         .graphAuths("auth1")
                         .build(),
                 new Context(authUser),
@@ -143,7 +158,7 @@ public class FederatedStoreAuthTest {
                     new AddGraph.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(schema)
-                            .storeProperties(graphStoreProperties)
+                            .storeProperties(PROPERTIES)
                             .graphAuths("nonMatchingAuth")
                             .build(),
                     new Context(testUser),
@@ -152,9 +167,9 @@ public class FederatedStoreAuthTest {
         } catch (final OperationException e) {
             assertEquals(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID), e.getCause().getMessage());
             String message = "error message should not contain details about schema";
-            assertFalse(message, e.getMessage().contains(unusualType));
-            assertFalse(message, e.getMessage().contains(groupEdge));
-            assertFalse(message, e.getMessage().contains(groupEnt));
+            assertFalse(e.getMessage().contains(unusualType), message);
+            assertFalse(e.getMessage().contains(groupEdge), message);
+            assertFalse(e.getMessage().contains(groupEnt), message);
         }
 
         assertTrue(federatedStore.getGraphs(testUser(), null, ignore).isEmpty());

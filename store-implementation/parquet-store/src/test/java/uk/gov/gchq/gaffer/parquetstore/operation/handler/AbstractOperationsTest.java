@@ -16,11 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -49,19 +47,18 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractOperationsTest extends StandaloneIT {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     protected User user = getUser();
 
@@ -93,6 +90,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
     protected abstract Edge getEdgeWithIdenticalSrcAndDst();
 
+    @TempDir
+    Path tempDir;
+
     @Override
     public User getUser() {
         return new User();
@@ -101,7 +101,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Override
     public StoreProperties createStoreProperties() {
         try {
-            return TestUtils.getParquetStoreProperties(testFolder);
+            return TestUtils.getParquetStoreProperties(tempDir);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

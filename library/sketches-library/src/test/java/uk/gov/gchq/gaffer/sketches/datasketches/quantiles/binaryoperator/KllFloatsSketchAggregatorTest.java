@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.yahoo.sketches.kll.KllFloatsSketch;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,38 +26,34 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest {
+
     private static final double DELTA = 0.01D;
-    private KllFloatsSketch sketch1;
-    private KllFloatsSketch sketch2;
-
-    @Before
-    public void setup() {
-        sketch1 = new KllFloatsSketch();
-        sketch1.update(1.0F);
-        sketch1.update(2.0F);
-        sketch1.update(3.0F);
-
-        sketch2 = new KllFloatsSketch();
-        sketch2.update(4.0F);
-        sketch2.update(5.0F);
-        sketch2.update(6.0F);
-        sketch2.update(7.0F);
-    }
 
     @Test
     public void testAggregate() {
         final KllFloatsSketchAggregator sketchAggregator = new KllFloatsSketchAggregator();
-        KllFloatsSketch currentState = sketch1;
-        assertEquals(3L, currentState.getN());
-        assertEquals(2.0D, currentState.getQuantile(0.5D), DELTA);
 
-        currentState = sketchAggregator.apply(currentState, sketch2);
-        assertEquals(7L, currentState.getN());
-        assertEquals(4.0D, currentState.getQuantile(0.5D), DELTA);
+        KllFloatsSketch currentSketch = new KllFloatsSketch();
+        currentSketch.update(1.0F);
+        currentSketch.update(2.0F);
+        currentSketch.update(3.0F);
+
+        assertEquals(3L, currentSketch.getN());
+        assertEquals(2.0D, currentSketch.getQuantile(0.5D), DELTA);
+
+        KllFloatsSketch newSketch = new KllFloatsSketch();
+        newSketch.update(4.0F);
+        newSketch.update(5.0F);
+        newSketch.update(6.0F);
+        newSketch.update(7.0F);
+
+        currentSketch = sketchAggregator.apply(currentSketch, newSketch);
+        assertEquals(7L, currentSketch.getN());
+        assertEquals(4.0D, currentSketch.getQuantile(0.5D), DELTA);
     }
 
     @Test

@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
@@ -30,10 +30,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
 
@@ -249,7 +249,8 @@ public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
             fromJson(json);
             fail("Exception expected");
         } catch (final Exception e) {
-            assertTrue("Error message was: " + e.getMessage(), e.getMessage().contains("A TimeBucket of null is not supported"));
+            assertTrue(e.getMessage().contains("A TimeBucket of null is not supported"),
+                    "Error message was: " + e.getMessage());
         }
     }
 

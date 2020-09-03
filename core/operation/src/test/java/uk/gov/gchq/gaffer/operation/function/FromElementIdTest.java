@@ -16,25 +16,24 @@
 
 package uk.gov.gchq.gaffer.operation.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class FromElementIdTest {
+
     @Test
     public void shouldReturnNullIfTheInputIsNull() {
         // Given
-        final ElementId input = null;
         final FromElementId function = new FromElementId();
 
         // When
-        final Object output = function.apply(input);
+        final Object output = function.apply(null);
 
         // Then
         assertNull(output);
