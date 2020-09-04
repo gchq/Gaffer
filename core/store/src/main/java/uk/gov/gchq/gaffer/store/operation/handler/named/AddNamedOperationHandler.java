@@ -70,6 +70,8 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
                     .score(operation.getScore())
+                    .readAccessPredicate(operation.getReadAccessPredicate())
+                    .writeAccessPredicate(operation.getWriteAccessPredicate())
                     .build();
 
             validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);

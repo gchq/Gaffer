@@ -21,6 +21,11 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.access.AccessControlledResource;
+import uk.gov.gchq.gaffer.access.ResourceType;
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate;
+import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -60,35 +65,46 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
  *
  * @see #isValidToExecute(User)
  */
-public class FederatedAccess implements Serializable {
+public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
-
-    private boolean isPublic = Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC);
-    private Set<String> graphAuths = new HashSet<>();
+    private static final boolean NOT_DISABLED_BY_DEFAULT = false;
+    private final boolean isPublic;
+    private Set<String> graphAuths;
     private String addingUserId;
-    private boolean disabledByDefault;
+    private final boolean disabledByDefault;
+    private AccessPredicate readAccessPredicate;
+    private AccessPredicate writeAccessPredicate;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
-        setGraphAuths(graphAuths);
-        setAddingUserId(addingUserId);
+        this(graphAuths, addingUserId, Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC));
     }
 
-    public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic) {
-        this(graphAuths, addingUser);
+    public FederatedAccess(final Set<String> graphAuths, final String addingUserId, final boolean isPublic) {
+        this(graphAuths, addingUserId, isPublic, NOT_DISABLED_BY_DEFAULT);
+    }
+
+    public FederatedAccess(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final boolean disabledByDefault) {
+        this(graphAuths, addingUserId, isPublic, disabledByDefault, null, null);
+    }
+
+    public FederatedAccess(
+            final Set<String> graphAuths,
+            final String addingUserId,
+            final boolean isPublic,
+            final boolean disabledByDefault,
+            final AccessPredicate readAccessPredicate,
+            final AccessPredicate writeAccessPredicate) {
+        this.graphAuths = graphAuths;
+        this.addingUserId = addingUserId;
         this.isPublic = isPublic;
-    }
-
-    public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic, final boolean disabledByDefault) {
-        this(graphAuths, addingUser, isPublic);
         this.disabledByDefault = disabledByDefault;
+
+        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new FederatedGraphReadAccessPredicate(addingUserId, graphAuths, isPublic);
+        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new FederatedGraphWriteAccessPredicate(addingUserId);
     }
 
     public String getAddingUserId() {
         return addingUserId;
-    }
-
-    public void setAddingUserId(final String creatorUserId) {
-        this.addingUserId = creatorUserId;
     }
 
     public boolean isDisabledByDefault() {
@@ -96,6 +112,10 @@ public class FederatedAccess implements Serializable {
     }
 
     /**
+     * @param user User request permission.
+     * @return boolean permission for user.
+     * @Deprecated see {@link FederatedAccess#hasReadAccess(User, String)}
+     *
      * <table summary="isValidToExecute truth table">
      * <tr><td> hookAuthsEmpty  </td><td> isAddingUser</td><td>
      * userHasASharedAuth</td><td> isValid?</td></tr>
@@ -110,9 +130,6 @@ public class FederatedAccess implements Serializable {
      * <tr><td>  F              </td><td> F           </td><td> F
      * </td><td> F   </td></tr>
      * </table>
-     *
-     * @param user User request permission.
-     * @return boolean permission for user.
      */
     protected boolean isValidToExecute(final User user) {
         return isPublic || (null != user && (isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user))));
@@ -128,10 +145,6 @@ public class FederatedAccess implements Serializable {
 
     private boolean isAuthsNullOrEmpty() {
         return (null == this.graphAuths || this.graphAuths.isEmpty());
-    }
-
-    public void setGraphAuths(final Set<String> graphAuths) {
-        this.graphAuths = graphAuths;
     }
 
     @Override
@@ -151,6 +164,8 @@ public class FederatedAccess implements Serializable {
                 .append(graphAuths, that.graphAuths)
                 .append(addingUserId, that.addingUserId)
                 .append(disabledByDefault, that.disabledByDefault)
+                .append(readAccessPredicate, that.readAccessPredicate)
+                .append(writeAccessPredicate, that.writeAccessPredicate)
                 .isEquals();
     }
 
@@ -161,7 +176,30 @@ public class FederatedAccess implements Serializable {
                 .append(graphAuths)
                 .append(addingUserId)
                 .append(disabledByDefault)
+                .append(readAccessPredicate)
+                .append(writeAccessPredicate)
                 .toHashCode();
+    }
+
+    @Override
+    public ResourceType getResourceType() {
+        return ResourceType.FederatedStoreGraph;
+    }
+
+    public boolean hasReadAccess(final User user, final String adminAuth) {
+        return readAccessPredicate.test(user, adminAuth);
+    }
+
+    public boolean hasWriteAccess(final User user, final String adminAuth) {
+        return writeAccessPredicate.test(user, adminAuth);
+    }
+
+    public AccessPredicate getReadAccessPredicate() {
+        return readAccessPredicate;
+    }
+
+    public AccessPredicate getWriteAccessPredicate() {
+        return writeAccessPredicate;
     }
 
     public static class Builder {
@@ -170,6 +208,8 @@ public class FederatedAccess implements Serializable {
         private final Builder self = this;
         private boolean isPublic = false;
         private boolean disabledByDefault;
+        private AccessPredicate readAccessPredicate;
+        private AccessPredicate writeAccessPredicate;
 
         public Builder graphAuths(final String... opAuth) {
             if (null == opAuth) {
@@ -214,8 +254,18 @@ public class FederatedAccess implements Serializable {
             return self;
         }
 
+        public Builder readAccessPredicate(final AccessPredicate readAccessPredicate) {
+            this.readAccessPredicate = readAccessPredicate;
+            return self;
+        }
+
+        public Builder writeAccessPredicate(final AccessPredicate writeAccessPredicate) {
+            this.writeAccessPredicate = writeAccessPredicate;
+            return self;
+        }
+
         public FederatedAccess build() {
-            return new FederatedAccess(graphAuths, addingUserId, isPublic, disabledByDefault);
+            return new FederatedAccess(graphAuths, addingUserId, isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
         }
 
         public Builder makePublic() {
@@ -233,6 +283,8 @@ public class FederatedAccess implements Serializable {
             this.addingUserId = that.addingUserId;
             this.isPublic = that.isPublic;
             this.disabledByDefault = that.disabledByDefault;
+            this.readAccessPredicate = that.readAccessPredicate;
+            this.writeAccessPredicate = that.writeAccessPredicate;
             return self;
         }
     }

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -41,6 +42,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NamedOperationCacheTest {
@@ -188,6 +190,21 @@ public class NamedOperationCacheTest {
     }
 
     @Test
+    public void shouldThrowExceptionTryingToDeleteOperationConfiguredWithWriteNoAccessPredicate() throws CacheOperationFailedException {
+        final NamedOperationDetail noWriteAccess = new NamedOperationDetail.Builder()
+                .creatorId(standardUser.getUserId())
+                .description("an operation that does no allow read access")
+                .operationName("test")
+                .readers(readers)
+                .writers(writers)
+                .operationChain(standardOpChain)
+                .writeAccessPredicate(new NoAccessPredicate())
+                .build();
+        cache.addNamedOperation(noWriteAccess, false, standardUser);
+        assertThrows(CacheOperationFailedException.class, () -> cache.deleteNamedOperation("test", standardUser));
+    }
+
+    @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() {
         CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(standardUser);
         assert Iterables.size(ops) == 0;
@@ -232,6 +249,22 @@ public class NamedOperationCacheTest {
 
         assert actual.contains(standard);
         assert actual.size() == 1;
+    }
+
+    @Test
+    public void shouldNotReturnNamedOperationConfiguredWithReadNoAccessPredicate() throws CacheOperationFailedException {
+        final NamedOperationDetail noReadAccess = new NamedOperationDetail.Builder()
+                .creatorId(standardUser.getUserId())
+                .description("an operation that does no allow read access")
+                .operationName("test")
+                .readers(readers)
+                .writers(writers)
+                .operationChain(standardOpChain)
+                .readAccessPredicate(new NoAccessPredicate())
+                .build();
+        cache.addNamedOperation(noReadAccess, false, standardUser);
+
+        assertFalse(cache.getAllNamedOperations(standardUser).iterator().hasNext());
     }
 
     @Test

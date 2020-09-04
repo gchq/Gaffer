@@ -18,33 +18,36 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class NamedViewDetailTest {
+    private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
+    private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
 
     @Test
     public void shouldJsonSerialise() throws SerialisationException {
         // Given
-        final Map<String, ViewParameterDetail> params = new HashMap<>();
-        params.put("entityGroup", new ViewParameterDetail.Builder()
-                .description("some description")
-                .defaultValue("red")
-                .valueClass(String.class)
-                .build());
-        final NamedViewDetail namedViewDetail = new NamedViewDetail.Builder()
-                .name("view1")
-                .creatorId("creator")
-                .description("description")
-                .parameters(params)
-                .view("{\"entities\": {" +
-                        "\"${entityGroup}\":{}" +
-                        "}" +
-                        "}")
+        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder()
+                .readAccessPredicate(READ_ACCESS_PREDICATE)
+                .writeAccessPredicate(WRITE_ACCESS_PREDICATE)
                 .build();
 
         // When
@@ -55,7 +58,7 @@ public class NamedViewDetailTest {
                 "  \"name\" : \"view1\",%n" +
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +
-                "  \"writeAccessRoles\" : [ ],%n" +
+                "  \"writeAccessRoles\" : [ \"writeAuth1\", \"writeAuth2\" ],%n" +
                 "  \"parameters\" : {%n" +
                 "    \"entityGroup\" : {%n" +
                 "      \"description\" : \"some description\",%n" +
@@ -64,8 +67,77 @@ public class NamedViewDetailTest {
                 "      \"required\" : false%n" +
                 "    }%n" +
                 "  },%n" +
-                "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\"%n" +
-                "}");
+                "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\",%n" +
+                "  \"readAccessPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       }%n" +
+                "   },%n" +
+                "   \"writeAccessPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       }%n " +
+                "   }%n" +
+                "},%n");
         JsonAssert.assertEquals(expected, new String(json));
+    }
+
+    @Test
+    public void shouldTestAccessUsingCustomAccessPredicatesWhenConfigured() {
+        final User testUser = new User.Builder().userId("testUserId").build();
+        final String adminAuth = "adminAuth";
+        final AccessPredicate readAccessPredicate = mock(AccessPredicate.class);
+        final AccessPredicate writeAccessPredicate = mock(AccessPredicate.class);
+
+        when(readAccessPredicate.test(testUser, adminAuth)).thenReturn(true);
+        when(writeAccessPredicate.test(testUser, adminAuth)).thenReturn(false);
+
+        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder()
+                .readAccessPredicate(readAccessPredicate)
+                .writeAccessPredicate(writeAccessPredicate)
+                .build();
+
+        assertTrue(namedViewDetail.hasReadAccess(testUser, adminAuth));
+        assertFalse(namedViewDetail.hasWriteAccess(testUser, adminAuth));
+
+        verify(readAccessPredicate).test(testUser, adminAuth);
+        verify(writeAccessPredicate).test(testUser, adminAuth);
+    }
+
+    @Test
+    public void shouldConfigureUnrestrictedAccessPredicateForReadAccessTestByDefault() {
+        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder().build();
+        assertEquals(
+                new UnrestrictedAccessPredicate(),
+                namedViewDetail.getReadAccessPredicate());
+    }
+
+    @Test
+    public void shouldConfigureDefaultAccessPredicateForWriteAccessTestByDefault() {
+        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder().build();
+        assertEquals(
+                new NamedViewWriteAccessPredicate(new User.Builder().userId("creator").build(), asList("writeAuth1", "writeAuth2")),
+                namedViewDetail.getWriteAccessPredicate());
+    }
+
+    private NamedViewDetail.Builder createNamedViewDetailBuilder() {
+        final Map<String, ViewParameterDetail> params = new HashMap<>();
+        params.put("entityGroup", new ViewParameterDetail.Builder()
+                .description("some description")
+                .defaultValue("red")
+                .valueClass(String.class)
+                .build());
+        return new NamedViewDetail.Builder()
+                .name("view1")
+                .creatorId("creator")
+                .writers(asList("writeAuth1", "writeAuth2"))
+                .description("description")
+                .parameters(params)
+                .view("{\"entities\": {" +
+                        "\"${entityGroup}\":{}" +
+                        "}" +
+                        "}");
     }
 }
