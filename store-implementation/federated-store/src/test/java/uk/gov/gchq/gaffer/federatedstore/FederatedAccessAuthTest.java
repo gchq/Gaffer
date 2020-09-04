@@ -40,7 +40,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.isValidToExecute(TEST_USER));
+        assertTrue(access.hasReadAccess(TEST_USER));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS, AUTH_X)
                 .build();
 
-        assertTrue(access.isValidToExecute(TEST_USER));
+        assertTrue(access.hasReadAccess(TEST_USER));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.hasReadAccess(user));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertFalse(access.isValidToExecute(blankUser()));
+        assertFalse(access.hasReadAccess(blankUser()));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths("X")
                 .build();
 
-        assertFalse(access.isValidToExecute(TEST_USER));
+        assertFalse(access.hasReadAccess(TEST_USER));
     }
 
     @Test
@@ -92,7 +92,6 @@ public class FederatedAccessAuthTest {
                 .addGraphAuths(asList("X"))
                 .build();
 
-        assertTrue(access.isValidToExecute(authUser()));
-
+        assertTrue(access.hasReadAccess(authUser()));
     }
 }

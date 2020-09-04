@@ -37,7 +37,7 @@ public class FederatedAccessPublicAccessTest {
                 .makePublic()
                 .build();
 
-        assertTrue(access.isValidToExecute(blankUser));
+        assertTrue(access.hasReadAccess(blankUser));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class FederatedAccessPublicAccessTest {
                 .makePrivate()
                 .build();
 
-        assertFalse(access.isValidToExecute(blankUser));
+        assertFalse(access.hasReadAccess(blankUser));
     }
 
 }

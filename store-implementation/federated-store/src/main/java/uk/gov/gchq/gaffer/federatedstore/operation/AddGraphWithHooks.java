@@ -43,6 +43,8 @@ public class AddGraphWithHooks extends AddGraph {
                 .options(getOptions())
                 .disabledByDefault(isDisabledByDefault())
                 .isPublic(getIsPublic())
+                .readAccessPredicate(getReadAccessPredicate())
+                .writeAccessPredicate(getWriteAccessPredicate())
                 .hooks(hooks);
 
         if (null != getGraphAuths()) {

@@ -17,13 +17,13 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
@@ -59,6 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAddGraphHandlerTest {
@@ -69,11 +70,13 @@ public class FederatedAddGraphHandlerTest {
     private static final String EXCEPTION_EXPECTED = "Exception expected";
     private User testUser;
     private User authUser;
+    private User blankUser;
     private FederatedStore store;
     private FederatedStoreProperties federatedStoreProperties;
     private GetAllElements ignore;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
@@ -96,6 +99,7 @@ public class FederatedAddGraphHandlerTest {
 
         testUser = testUser();
         authUser = authUser();
+        blankUser = blankUser();
         ignore = new IgnoreOptions();
     }
 
@@ -403,4 +407,32 @@ public class FederatedAddGraphHandlerTest {
             //ignore
         }
     }
+
+    @Test
+    public void shouldAddGraphWithCustomReadAccessPredicate() throws Exception {
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
+
+        final Schema expectedSchema = new Schema.Builder().build();
+
+        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
+
+        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate((user) -> {
+            return user.getUserId().equals(blankUser.getUserId()) || user.getUserId().equals(testUser.getUserId());
+        });
+
+        new FederatedAddGraphHandler().doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(PROPERTIES)
+                        .graphAuths("testAuth")
+                        .readAccessPredicate(allowBlankUserAndTestUserReadAccess)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        assertEquals(1, store.getGraphs(blankUser, null, ignore).size());
+        assertEquals(1, store.getGraphs(testUser, null, ignore).size());
+    }
+
 }

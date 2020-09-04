@@ -106,7 +106,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException {
         try {
-            cache.deleteNamedView(null);
+            cache.deleteNamedView(null, standardUser);
             fail(EXCEPTION_EXPECTED);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
@@ -116,7 +116,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationFailedException {
         try {
-            cache.getNamedView(null);
+            cache.getNamedView(null, standardUser);
             fail(EXCEPTION_EXPECTED);
         } catch (CacheOperationFailedException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
@@ -126,12 +126,12 @@ public class NamedViewCacheTest {
     @Test
     public void shouldRemoveNamedView() throws CacheOperationFailedException {
         cache.addNamedView(standard, false);
-        cache.deleteNamedView(standard.getName());
+        cache.deleteNamedView(standard.getName(), standardUser);
     }
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() throws CacheOperationFailedException {
-        CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews();
+        CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews(standardUser);
         assertEquals(0, Iterables.size(views));
     }
 

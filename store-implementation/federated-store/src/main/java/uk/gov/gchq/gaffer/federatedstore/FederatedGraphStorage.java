@@ -144,9 +144,14 @@ public class FederatedGraphStorage {
      * @return visible graphIds.
      */
     public Collection<String> getAllIds(final User user) {
-        return getIdsFrom(getUserGraphStream(user));
+        return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user)));
     }
 
+    public Collection<String> getAllIds(final User user, final String adminAuth) {
+        return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user, adminAuth)));
+    }
+
+    @Deprecated
     protected Collection<String> getAllIdsAsAdmin() {
         final Stream<Graph> allGraphsAsStream = storage.entrySet().stream()
                 .flatMap(entry -> entry.getValue().stream());
@@ -169,7 +174,7 @@ public class FederatedGraphStorage {
      * @return visible graphs
      */
     public Collection<Graph> getAll(final User user) {
-        final Set<Graph> rtn = getUserGraphStream(user)
+        final Set<Graph> rtn = getUserGraphStream(entry -> entry.getKey().hasReadAccess(user))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
     }
@@ -185,11 +190,16 @@ public class FederatedGraphStorage {
      * @see #isValidToView(User, FederatedAccess)
      */
     public boolean remove(final String graphId, final User user) {
-        return remove(graphId, entry -> nonNull(user) && entry.getKey().isAddingUser(user));
+        return remove(graphId, entry -> entry.getKey().hasWriteAccess(user));
     }
 
-    protected boolean removeAsAdmin(final String graphId) {
+    @Deprecated
+    protected boolean remove(final String graphId) {
         return remove(graphId, entry -> true);
+    }
+
+    protected boolean remove(final String graphId, final User user, final String adminAuth) {
+        return remove(graphId, entry -> entry.getKey().hasWriteAccess(user, adminAuth));
     }
 
     private boolean remove(final String graphId, final Predicate<Entry<FederatedAccess, Set<Graph>>> entryPredicateForGraphRemoval) {
@@ -391,7 +401,7 @@ public class FederatedGraphStorage {
      * @return the boolean access
      */
     private boolean isValidToView(final User user, final FederatedAccess access) {
-        return null != access && access.isValidToExecute(user);
+        return null != access && access.hasReadAccess(user);
     }
 
     /**
@@ -417,21 +427,13 @@ public class FederatedGraphStorage {
     }
 
     /**
-     * @param user to match visibility against
-     * @return graphs that are enabled by default and the user has visibility of.
-     */
-    private Stream<Graph> getStream(final User user) {
-        return getStream(user, null);
-    }
-
-    /**
-     * @param user to match visibility against.
+     * @param readAccessPredicate to filter graphs.
      * @return a stream of graphs the user has visibility for.
      */
-    private Stream<Graph> getUserGraphStream(final User user) {
+    private Stream<Graph> getUserGraphStream(final Predicate<Entry<FederatedAccess, Set<Graph>>> readAccessPredicate) {
         return storage.entrySet()
                 .stream()
-                .filter(entry -> isValidToView(user, entry.getKey()))
+                .filter(readAccessPredicate)
                 .flatMap(entry -> entry.getValue().stream());
     }
 
@@ -517,9 +519,14 @@ public class FederatedGraphStorage {
     }
 
     protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds) {
-        return getAllGraphsAndAccess(graphIds, access -> isValidToView(user, access));
+        return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user));
     }
 
+    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds, final String adminAuth) {
+        return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user, adminAuth));
+    }
+
+    @Deprecated
     protected Map<String, Object> getAllGraphAndAccessAsAdmin(final List<String> graphIds) {
         return getAllGraphsAndAccess(graphIds, entry -> true);
     }
@@ -542,9 +549,14 @@ public class FederatedGraphStorage {
 
 
     public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser) throws StorageException {
-        return changeGraphAccess(graphId, newFederatedAccess, access -> access.isAddingUser(requestingUser));
+        return changeGraphAccess(graphId, newFederatedAccess, access -> access.hasWriteAccess(requestingUser));
     }
 
+    public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser, final String adminAuth) throws StorageException {
+        return changeGraphAccess(graphId, newFederatedAccess, access -> access.hasWriteAccess(requestingUser, adminAuth));
+    }
+
+    @Deprecated
     public boolean changeGraphAccessAsAdmin(final String graphId, final FederatedAccess newFederatedAccess) throws StorageException {
         return changeGraphAccess(graphId, newFederatedAccess, access -> true);
     }
@@ -569,10 +581,17 @@ public class FederatedGraphStorage {
     }
 
     public boolean changeGraphId(final String graphId, final String newGraphId, final User requestingUser) throws StorageException {
-        final Graph graphToMove = getGraphToMove(graphId, access -> access.isAddingUser(requestingUser));
+        final Graph graphToMove = getGraphToMove(graphId, access -> access.hasWriteAccess(requestingUser));
         return changeGraphId(graphId, newGraphId, graphToMove);
     }
 
+    public boolean changeGraphId(final String graphId, final String newGraphId, final User requestingUser, final String adminAuth) throws StorageException {
+        final Graph graphToMove = getGraphToMove(graphId, access -> access.hasWriteAccess(requestingUser, adminAuth));
+        return changeGraphId(graphId, newGraphId, graphToMove);
+    }
+
+
+    @Deprecated
     public boolean changeGraphIdAsAdmin(final String graphId, final String newGraphId) throws StorageException {
         final Graph graphToMove = getGraphToMove(graphId, access -> true);
         return changeGraphId(graphId, newGraphId, graphToMove);

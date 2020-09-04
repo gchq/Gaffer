@@ -20,12 +20,16 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -35,6 +39,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +53,7 @@ public class AddNamedViewHandlerTest {
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
+    private final String[] writeAccessRoles = new String[]{"writeAuth1", "writeAuth2"};
     private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
     private static final ViewParameterDetail TEST_PARAM_VALUE = new ViewParameterDetail.Builder()
             .defaultValue(1L)
@@ -77,6 +83,7 @@ public class AddNamedViewHandlerTest {
                 .name(testNamedViewName)
                 .view(view)
                 .overwrite(false)
+                .writeAccessRoles(writeAccessRoles)
                 .build();
 
         StoreProperties properties = new StoreProperties();
@@ -100,6 +107,28 @@ public class AddNamedViewHandlerTest {
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
         assertEquals(context.getUser().getUserId(), result.getCreatorId());
+        assertEquals(new UnrestrictedAccessPredicate(), result.getReadAccessPredicate());
+        final AccessPredicate expectedWriteAccessPredicate = new NamedViewWriteAccessPredicate(context.getUser(), Arrays.asList(writeAccessRoles));
+        assertEquals(expectedWriteAccessPredicate, result.getWriteAccessPredicate());
+    }
+
+    @Test
+    public void shouldAddNamedViewContainingCustomAccessPredicatesCorrectly() throws OperationException, CacheOperationFailedException {
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        addNamedView.setReadAccessPredicate(readAccessPredicate);
+        addNamedView.setWriteAccessPredicate(writeAccessPredicate);
+
+        handler.doOperation(addNamedView, context, store);
+
+        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
+
+        assertTrue(cacheContains(testNamedViewName));
+        assertEquals(addNamedView.getName(), result.getName());
+        assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
+        assertEquals(context.getUser().getUserId(), result.getCreatorId());
+        assertEquals(readAccessPredicate, result.getReadAccessPredicate());
+        assertEquals(writeAccessPredicate, result.getWriteAccessPredicate());
     }
 
     @Test

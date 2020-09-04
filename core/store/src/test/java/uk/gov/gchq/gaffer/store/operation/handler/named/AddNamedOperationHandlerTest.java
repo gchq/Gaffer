@@ -22,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -41,10 +43,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -112,6 +115,8 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setOperationChain((String) null);
         addNamedOperation.setDescription(null);
         addNamedOperation.setOverwriteFlag(false);
+        addNamedOperation.setReadAccessPredicate(null);
+        addNamedOperation.setWriteAccessPredicate(null);
         mockCache.clear();
     }
 
@@ -213,11 +218,15 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+        final List<String> readAuths = asList("readAuth1", "readAuth2");
+        final List<String> writeAuths = asList("writeAuth1", "writeAuth2");
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
-        addNamedOperation.setLabels(Arrays.asList("test label"));
+        addNamedOperation.setLabels(asList("test label"));
+        addNamedOperation.setReadAccessRoles(readAuths);
+        addNamedOperation.setWriteAccessRoles(writeAuths);
 
         handler.doOperation(addNamedOperation, context, store);
 
@@ -225,7 +234,34 @@ public class AddNamedOperationHandlerTest {
 
         assert cacheContains("testOp");
         assertTrue(result.getScore() == 2);
-        assertEquals(Arrays.asList("test label"), result.getLabels());
+        assertEquals(asList("test label"), result.getLabels());
+        final AccessPredicate expectedReadAccessPredicate = new AccessPredicate(context.getUser(), readAuths);
+        assertEquals(expectedReadAccessPredicate, result.getReadAccessPredicate());
+        final AccessPredicate expectedWriteAccessPredicate = new AccessPredicate(context.getUser(), writeAuths);
+        assertEquals(expectedWriteAccessPredicate, result.getWriteAccessPredicate());
+    }
+
+    @Test
+    public void shouldCustomAccessPredicateAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
+        addNamedOperation.setOperationChain(opChain);
+        addNamedOperation.setScore(2);
+        addNamedOperation.setOperationName("testOp");
+        addNamedOperation.setLabels(asList("test label"));
+        addNamedOperation.setReadAccessPredicate(readAccessPredicate);
+        addNamedOperation.setWriteAccessPredicate(writeAccessPredicate);
+
+        handler.doOperation(addNamedOperation, context, store);
+
+        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
+
+        assert cacheContains("testOp");
+        assertTrue(result.getScore() == 2);
+        assertEquals(asList("test label"), result.getLabels());
+        assertEquals(readAccessPredicate, result.getReadAccessPredicate());
+        assertEquals(writeAccessPredicate, result.getWriteAccessPredicate());
     }
 
     private boolean cacheContains(final String operationName) {
