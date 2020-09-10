@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -53,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -80,6 +82,26 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertEquals(403, response.getStatus());
+    }
+
+    @Test
+    public void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() throws IOException {
+        // Given
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.STORE_PROPERTIES);
+        storeProperties.set(StoreProperties.JOB_TRACKER_ENABLED, Boolean.FALSE.toString());
+
+        final Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(storeProperties)
+                .addSchema(new Schema())
+                .build();
+        client.reinitialiseGraph(graph);
+
+        // When
+        final Response response = client.executeOperation(new GetAllJobDetails());
+
+        // Then
+        assertEquals(SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
     }
 
     @Test
