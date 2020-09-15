@@ -16,10 +16,21 @@
 
 package uk.gov.gchq.gaffer.access.predicate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.access.predicate.user.UnrestrictedAccessUserPredicate;
+import uk.gov.gchq.gaffer.user.User;
+
+import java.util.function.Predicate;
 
 public class UnrestrictedAccessPredicate extends AccessPredicate {
     public UnrestrictedAccessPredicate() {
         super(new UnrestrictedAccessUserPredicate());
+    }
+
+    @Override
+    @JsonIgnore
+    public Predicate<User> getUserPredicate() {
+        return super.getUserPredicate();
     }
 }

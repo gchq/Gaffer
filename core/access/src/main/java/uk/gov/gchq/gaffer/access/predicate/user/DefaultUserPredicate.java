@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.access.predicate.user;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.Since;
@@ -28,7 +27,6 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;

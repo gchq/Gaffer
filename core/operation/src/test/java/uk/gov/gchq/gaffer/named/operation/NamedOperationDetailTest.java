@@ -21,6 +21,13 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.ByteArrayInputStream;
@@ -28,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Arrays.asList;
@@ -75,7 +83,95 @@ public class NamedOperationDetailTest {
     }
 
     @Test
-    public void shouldBeSerialisable() throws IOException, ClassNotFoundException {
+    public void shouldDeserialiseStringOpChain() throws SerialisationException {
+        // Given
+        String json = "{" +
+                "   \"operationName\": \"operationName\"," +
+                "   \"creatorId\": \"creatorUserId\"," +
+                "   \"operations\": \"{\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.store.operation.GetSchema\\\",\\\"compact\\\":false}]}\"" +
+                "}";
+        // When
+        NamedOperationDetail deserialised = JSONSerialiser.deserialise(json, NamedOperationDetail.class);
+
+        // Then
+        assertEquals("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.store.operation.GetSchema\",\"compact\":false}]}", deserialised.getOperations());
+    }
+
+    @Test
+    public void shouldDeserialiseNormalOpChain() throws SerialisationException {
+        // Given
+        String json = "{" +
+                "   \"operationName\": \"operationName\"," +
+                "   \"creatorId\": \"creatorUserId\"," +
+                "   \"operationChain\": {\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"}]}" +
+                "}";
+        // When
+        NamedOperationDetail deserialised = JSONSerialiser.deserialise(json, NamedOperationDetail.class);
+
+        // Then
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.operation.OperationChain\",\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"}]}", deserialised.getOperations());
+    }
+
+    @Test
+    public void shouldSerialiseToStringOpChain() throws SerialisationException {
+        // Given
+        NamedOperationDetail nop = new NamedOperationDetail.Builder()
+                .operationName("test")
+                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .build();
+
+        // When
+        String serialised = new String(JSONSerialiser.serialise(nop));
+
+        // Then
+        String expected = "{" +
+                "   \"operationName\": \"test\"," +
+                "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"," +
+                "   \"readAccessPredicate\" : {\"class\":\"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                "       \"userPredicate\":{" +
+                "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
+                "           \"auths\":[]" +
+                "       }" +
+                "   }," +
+                "   \"writeAccessPredicate\": {" +
+                "       \"class\":\"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                "       \"userPredicate\": {" +
+                "           \"class\":\"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
+                "           \"auths\":[]" +
+                "       }" +
+                "   }" +
+                "}";
+
+
+        JsonAssert.assertEquals(expected, serialised);
+    }
+
+    @Test
+    public void shouldDeserialiseCustomAccessPredicate() throws SerialisationException {
+        // Given
+        String json = "{" +
+                "   \"operationName\": \"operationName\"," +
+                "   \"creatorId\": \"creatorUserId\"," +
+                "   \"operationChain\": {\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\"}]}," +
+                "   \"readAccessPredicate\": {" +
+                "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                "       \"userPredicate\": {" +
+                "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"" +
+                "       }" +
+                "   }" +
+                "}";
+
+        // When
+        NamedOperationDetail deserialised = JSONSerialiser.deserialise(json, NamedOperationDetail.class);
+
+        // Then
+        AccessPredicate expected = new AccessPredicate(new CustomUserPredicate());
+        assertEquals(expected, deserialised.getReadAccessPredicate());
+    }
+
+
+    @Test
+    public void shouldBeJavaSerialisable() throws IOException, ClassNotFoundException {
         // Given
         final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()

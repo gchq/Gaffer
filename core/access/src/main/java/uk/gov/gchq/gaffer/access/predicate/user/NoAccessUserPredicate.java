@@ -21,9 +21,6 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-
 @Since("1.13.1")
 @Summary("Predicate which never allows user access")
 public class NoAccessUserPredicate extends KoryphePredicate<User> {
