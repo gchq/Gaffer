@@ -58,8 +58,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
     private Integer score;
-    private AccessPredicate readAccessPredicate;
-    private AccessPredicate writeAccessPredicate;
+    private String readAccessPredicate;
+    private String writeAccessPredicate;
 
     public NamedOperationDetail() {
     }
@@ -109,8 +109,12 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this.parameters = parameters;
         this.score = score;
 
-        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new AccessPredicate(userId, readers);
-        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new AccessPredicate(userId, writers);
+        try {
+            this.readAccessPredicate = new String(JSONSerialiser.serialise(readAccessPredicate != null ? readAccessPredicate : new AccessPredicate(userId, readers)));
+            this.writeAccessPredicate = new String(JSONSerialiser.serialise(writeAccessPredicate != null ? writeAccessPredicate : new AccessPredicate(userId, writers)));
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Read and Write Access predicates must be json serialisable", e);
+        }
     }
 
     public String getOperationName() {
@@ -313,19 +317,35 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {
+        AccessPredicate readAccessPredicate = getReadAccessPredicate();
+        if (readAccessPredicate == null) {
+            throw new IllegalArgumentException("Unable to determine whether user has READ access. No readAccessPredicate was provided");
+        }
         return readAccessPredicate.test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
+        AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
+        if (writeAccessPredicate == null) {
+            throw new IllegalArgumentException("Unable to determine whether user has WRITE access. No writeAccessPredicate was provided");
+        }
         return writeAccessPredicate.test(user, adminAuth);
     }
 
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate;
+        try {
+            return readAccessPredicate != null ? JSONSerialiser.deserialise(readAccessPredicate, AccessPredicate.class) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("readAccessPredicate was not JsonSerialisable", e);
+        }
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate;
+        try {
+            return writeAccessPredicate != null ? JSONSerialiser.deserialise(writeAccessPredicate, AccessPredicate.class) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("writeAccessPredicate was not JsonSerialisable", e);
+        }
     }
 
     public static final class Builder {

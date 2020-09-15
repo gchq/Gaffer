@@ -23,6 +23,11 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collections;
 
 import static java.util.Arrays.asList;
@@ -67,6 +72,33 @@ public class NamedOperationDetailTest {
                 .writeAccessPredicate(customAccessPredicate)
                 .build();
         assertEquals(customAccessPredicate, namedOperationDetail.getWriteAccessPredicate());
+    }
+
+    @Test
+    public void shouldBeSerialisable() throws IOException, ClassNotFoundException {
+        // Given
+        final AccessPredicate customAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
+                .readAccessPredicate(customAccessPredicate)
+                .build();
+        // When
+        NamedOperationDetail deserialised = (NamedOperationDetail) deserialise(serialise(namedOperationDetail));
+
+        // Then
+        assertEquals(namedOperationDetail, deserialised);
+    }
+
+    private static byte[] serialise(Object obj) throws IOException {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        ObjectOutputStream o = new ObjectOutputStream(b);
+        o.writeObject(obj);
+        return b.toByteArray();
+    }
+
+    private static Object deserialise(byte[] bytes) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream b = new ByteArrayInputStream(bytes);
+        ObjectInputStream o = new ObjectInputStream(b);
+        return o.readObject();
     }
 
     private NamedOperationDetail.Builder getBaseNamedOperationDetailBuilder() {

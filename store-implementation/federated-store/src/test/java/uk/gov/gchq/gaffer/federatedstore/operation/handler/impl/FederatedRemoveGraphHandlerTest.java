@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -144,8 +145,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
-        final AccessPredicate noAccessPredicate = mock(AccessPredicate.class);
-        when(noAccessPredicate.test(testUser, DONT_CHECK_ADMIN_AUTH)).thenReturn(false);
+        final AccessPredicate noAccessPredicate = new NoAccessPredicate();
 
         store.addGraphs(
                 testUser.getOpAuths(),
@@ -172,8 +172,6 @@ public class FederatedRemoveGraphHandlerTest {
         Collection<Graph> graphs = store.getGraphs(testUser, null, ignore);
 
         assertEquals(1, graphs.size());
-
-        verify(noAccessPredicate).test(testUser, DONT_CHECK_ADMIN_AUTH);
     }
 
     private class IgnoreOptions extends GetAllElements {

@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.access.predicate;
 import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * An {@link AccessPredicate} which never allows user access even if they are an administrator
+ */
 public class NoAccessPredicate extends AccessPredicate {
     private static final boolean NOT_ADMINISTRATOR = false;
 

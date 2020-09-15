@@ -44,6 +44,10 @@ public class FederatedGraphReadUserPredicate extends DefaultUserPredicate {
         return isPublic || super.test(user);
     }
 
+    public boolean isPublic() {
+        return isPublic;
+    }
+
     @Override
     public boolean hasPermission(final User user) {
         return (!isNull(user)

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -45,6 +47,10 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.CallMethod;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.Or;
+import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -52,6 +58,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -388,10 +395,12 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate((user) -> {
-            return user.getUserId().equals(blankUser.getUserId()) || user.getUserId().equals(testUser.getUserId());
-        });
+        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate(new AdaptedPredicate(
+                new CallMethod("getUserId"),
+                new Or<>(new IsEqual(testUser.getUserId()), new IsEqual(blankUser.getUserId()))
+        ));
 
+        System.out.println(new String(JSONSerialiser.serialise(allowBlankUserAndTestUserReadAccess, true)));
         new FederatedAddGraphWithHooksHandler().doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
@@ -406,5 +415,4 @@ public class FederatedAddGraphWithHooksHandlerTest {
         assertEquals(1, store.getGraphs(blankUser, null, ignore).size());
         assertEquals(1, store.getGraphs(testUser, null, ignore).size());
     }
-
 }

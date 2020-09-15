@@ -18,8 +18,12 @@ package uk.gov.gchq.gaffer.access.predicate.user;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.io.Serializable;
 import java.util.List;
@@ -31,7 +35,9 @@ import static java.util.Collections.sort;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-public class DefaultUserPredicate implements Predicate<User>, Serializable {
+@Since("1.13.1")
+@Summary("A predicate which returns true if the user is the creatingUser or has a role in the auths list")
+public class DefaultUserPredicate extends KoryphePredicate<User> implements Serializable {
     private final String creatingUserId;
     private final List<String> auths;
 

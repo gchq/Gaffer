@@ -58,8 +58,8 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     private String creatorId;
     private List<String> writeAccessRoles;
     private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
-    private AccessPredicate readAccessPredicate;
-    private AccessPredicate writeAccessPredicate;
+    private String readAccessPredicate;
+    private String writeAccessPredicate;
 
     public NamedViewDetail() {
     }
@@ -80,8 +80,12 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         this.writeAccessRoles = writers;
         setParameters(parameters);
 
-        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new UnrestrictedAccessPredicate();
-        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new NamedViewWriteAccessPredicate(userId, writers);
+        try {
+            this.readAccessPredicate = new String(JSONSerialiser.serialise(readAccessPredicate != null ? readAccessPredicate : new UnrestrictedAccessPredicate()));
+            this.writeAccessPredicate = new String(JSONSerialiser.serialise(writeAccessPredicate != null ? writeAccessPredicate : new NamedViewWriteAccessPredicate(userId, writers)));
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Access Predicates must be json serialisable", e);
+        }
     }
 
     public String getName() {
@@ -146,11 +150,27 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         return ResourceType.NamedView;
     }
 
+    private AccessPredicate deserialise(final String predicateJson) {
+        try {
+            return JSONSerialiser.deserialise(predicateJson, AccessPredicate.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Access Predicate must be JsonSerialisable", e);
+        }
+    }
+
     public boolean hasReadAccess(final User user, final String adminAuth) {
+        AccessPredicate readAccessPredicate = getReadAccessPredicate();
+        if (readAccessPredicate == null) {
+            throw new IllegalArgumentException("Unable to determine if this user has READ access. Predicate was null");
+        }
         return readAccessPredicate.test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
+        AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
+        if (writeAccessPredicate == null) {
+            throw new IllegalArgumentException("Unable to determine if this user has WRITE access. Predicate was null");
+        }
         return writeAccessPredicate.test(user, adminAuth);
     }
 
@@ -303,12 +323,13 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         return "\"${" + paramKey + "}\"";
     }
 
+
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate;
+        return readAccessPredicate != null ? deserialise(readAccessPredicate) : null;
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate;
+        return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : null;
     }
 
     public static final class Builder {
