@@ -44,10 +44,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.gchq.gaffer.access.AccessControlledResource.DONT_CHECK_ADMIN_AUTH;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedRemoveGraphHandlerTest {

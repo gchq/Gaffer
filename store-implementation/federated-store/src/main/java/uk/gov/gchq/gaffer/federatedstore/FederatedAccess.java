@@ -17,9 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
@@ -111,7 +109,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
         try {
             this.readAccessPredicate = new String(JSONSerialiser.serialise(readAccessPredicate != null ? readAccessPredicate : new FederatedGraphReadAccessPredicate(addingUserId, graphAuths, isPublic)));
             this.writeAccessPredicate = new String(JSONSerialiser.serialise(writeAccessPredicate != null ? writeAccessPredicate : new FederatedGraphWriteAccessPredicate(addingUserId)));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Read and write accessPredicates must be JsonSerialisable", e);
         }
     }
@@ -223,7 +221,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private AccessPredicate deserialisePredicate(final String predicateJson) {
         try {
             return JSONSerialiser.deserialise(predicateJson, AccessPredicate.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException(e);
         }
     }

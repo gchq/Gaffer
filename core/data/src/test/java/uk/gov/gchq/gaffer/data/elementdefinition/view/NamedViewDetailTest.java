@@ -16,13 +16,11 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
-import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -39,7 +37,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

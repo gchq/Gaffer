@@ -21,12 +21,10 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
-import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -35,7 +33,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Arrays.asList;
