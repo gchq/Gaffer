@@ -18,7 +18,10 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -49,6 +52,7 @@ import static java.util.Collections.emptyList;
  */
 @JsonPropertyOrder(value = {"name", "description", "creatorId", "writeAccessRoles", "parameters", "view"}, alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonDeserialize(builder = NamedViewDetail.Builder.class)
 public class NamedViewDetail implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -332,13 +336,14 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : null;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private String name;
         private String view;
         private String description;
         private String creatorId;
         private List<String> writers = new ArrayList<>();
-        private Map<String, ViewParameterDetail> parameters;
+        private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
         private AccessPredicate readAccessPredicate;
         private AccessPredicate writeAccessPredicate;
 
@@ -347,6 +352,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             return this;
         }
 
+        @JsonProperty("view")
         public Builder view(final String view) {
             if (null != view) {
                 this.view = view;
@@ -356,6 +362,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             }
         }
 
+        @JsonProperty("unParameterisedView")
         public Builder view(final View view) {
             if (null != view) {
                 try {
@@ -379,6 +386,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             return this;
         }
 
+        @JsonProperty("writeAccessRoles")
         public Builder writers(final List<String> writers) {
             this.writers = writers;
             return this;

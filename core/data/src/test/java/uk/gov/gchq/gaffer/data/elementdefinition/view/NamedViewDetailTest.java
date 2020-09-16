@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.NamedViewWriteAccessPredicate;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -30,12 +32,14 @@ import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
+import uk.gov.gchq.koryphe.util.JsonSerialiser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +51,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class NamedViewDetailTest {
     private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
     private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
+
+    @Test
+    public void shouldCreatePredicatesIfNotSpecifiedInJson() throws IOException {
+        // Given
+        final String json = String.format("{%n" +
+                "  \"name\" : \"view1\",%n" +
+                "  \"description\" : \"description\",%n" +
+                "  \"creatorId\" : \"creator\",%n" +
+                "  \"writeAccessRoles\" : [ \"writeAuth1\", \"writeAuth2\" ],%n" +
+                "  \"parameters\" : {%n" +
+                "    \"entityGroup\" : {%n" +
+                "      \"description\" : \"some description\",%n" +
+                "      \"defaultValue\" : \"red\",%n" +
+                "      \"valueClass\" : \"java.lang.String\",%n" +
+                "      \"required\" : false%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\",%n" +
+                "  \"readAccessPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       }%n" +
+                "   }%n" +
+                "}%n");
+
+        // When
+        NamedViewDetail deserialised = JsonSerialiser.deserialise(json, NamedViewDetail.class);
+
+        // Then
+        AccessPredicate expected = new NamedViewWriteAccessPredicate("creator", asList("writeAuth1", "writeAuth2"));
+        assertEquals(expected, deserialised.getWriteAccessPredicate());
+    }
 
     @Test
     public void shouldJsonSerialise() throws SerialisationException {
