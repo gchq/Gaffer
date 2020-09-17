@@ -398,7 +398,6 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new Or<>(new IsEqual(testUser.getUserId()), new IsEqual(blankUser.getUserId()))
         ));
 
-        System.out.println(new String(JSONSerialiser.serialise(allowBlankUserAndTestUserReadAccess, true)));
         new FederatedAddGraphWithHooksHandler().doOperation(
                 new AddGraphWithHooks.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
