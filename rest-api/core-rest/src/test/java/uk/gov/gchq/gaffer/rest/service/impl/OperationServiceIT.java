@@ -70,6 +70,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .creatorId("UNKNOWN")
                 .readers(Arrays.asList())
                 .writers(Arrays.asList())
+                .parameters(null)
                 .build();
 
         assertEquals(expected, namedOperationDetails.iterator().next());
