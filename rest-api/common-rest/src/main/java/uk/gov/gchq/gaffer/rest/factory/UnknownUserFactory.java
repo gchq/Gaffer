@@ -27,7 +27,7 @@ public class UnknownUserFactory implements UserFactory {
 
     public UnknownUserFactory() {
         // User factories should be constructed via the createGraphFactory static method,
-        // public constructor is required only by HK2
+        // public constructor is required only by HK2 todo find more appropriate comment
     }
 
     @Override
