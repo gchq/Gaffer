@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -40,7 +39,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
  * use {@link uk.gov.gchq.gaffer.rest.factory.ExamplesFactory} instead
  */
 @Deprecated
-public interface ExamplesFactory {
+public interface ExamplesFactory extends uk.gov.gchq.gaffer.rest.factory.ExamplesFactory {
 
     /**
      * Generates an example for the {@link GetAdjacentIds} operation.
@@ -83,16 +82,6 @@ public interface ExamplesFactory {
      * @return the example class for GenerateElements
      */
     GenerateElements generateElements();
-
-    /**
-     * Generates an example for any {@link Operation} class.
-     *
-     * @param opClass the operation to create an example for
-     * @return the example class
-     * @throws IllegalAccessException if the operation could not be created
-     * @throws InstantiationException if the operation could not be created
-     */
-    Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
 
     /**
      * Generates an example for the {@link Sort} operation.

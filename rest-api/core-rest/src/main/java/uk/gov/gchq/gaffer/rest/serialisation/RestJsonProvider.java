@@ -18,16 +18,14 @@ package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
  * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide the
- * {@link ObjectMapper} from {@link JSONSerialiser}. The JSONSerialiser and
- * ObjectMapper can be configured by System Properties, see {@link JSONSerialiser}
+ * {@link ObjectMapper} from JSONSerialiser. The JSONSerialiser and
+ * ObjectMapper can be configured by System Properties, see JSONSerialiser
  */
 @Provider
 public class RestJsonProvider extends ObjectMapperProvider implements ContextResolver<ObjectMapper> {

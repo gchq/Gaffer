@@ -23,23 +23,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
-import uk.gov.gchq.gaffer.core.exception.Status;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphRequest;
-import uk.gov.gchq.gaffer.graph.GraphResult;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
-import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.rest.service.v2.AbstractOperationService;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
@@ -48,7 +40,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 @RestController
 @RequestMapping("/graph/operations")
-public class OperationController implements IOperationController {
+public class OperationController extends AbstractOperationService implements IOperationController {
 
     private GraphFactory graphFactory;
     private UserFactory userFactory;
@@ -73,26 +65,14 @@ public class OperationController implements IOperationController {
     public ResponseEntity<Set<Class<? extends Operation>>> getOperations() {
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(graphFactory.getGraph().getSupportedOperations());
+                .body(getSupportedOperations());
     }
 
     @Override
     public ResponseEntity<Set<OperationDetail>> getAllOperationDetails() {
-        Graph graph = graphFactory.getGraph();
-        Set<Class<? extends Operation>> supportedOperationClasses = graph.getSupportedOperations();
-        Set<OperationDetail> operationDetails = new HashSet<>();
-
-        for (final Class<? extends Operation> clazz : supportedOperationClasses) {
-            try {
-                operationDetails.add(new OperationDetail(clazz, graph.getNextOperations(clazz), examplesFactory.generateExample(clazz)));
-            } catch (final IllegalAccessException | InstantiationException e) {
-                throw new GafferRuntimeException("Could not get operation details for class: " + clazz, e, Status.BAD_REQUEST);
-            }
-        }
-
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(operationDetails);
+                .body(getSupportedOperationDetails());
     }
 
     @Override
@@ -114,7 +94,7 @@ public class OperationController implements IOperationController {
 
     @Override
     public ResponseEntity<Object> execute(final Operation operation) {
-        Pair<Object, String> resultAndGraphId = _execute(OperationChain.wrap(operation), userFactory.createContext());
+        Pair<Object, String> resultAndGraphId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndGraphId.getSecond())
@@ -122,28 +102,19 @@ public class OperationController implements IOperationController {
 
     }
 
-    public Pair<Object, String> _execute(final OperationChain chain, final Context context) {
-        Graph graph = this.graphFactory.createGraph();
-        try {
-            GraphResult result = graph.execute(new GraphRequest(chain, context));
-            return new Pair<>(result.getResult(), result.getContext().getJobId());
-        } catch (final OperationException e) {
-            CloseableUtil.close(chain);
-            final String message = null != e.getMessage() ? "Error executing opChain: " + e.getMessage() : "Error executing opChain";
-            throw new GafferRuntimeException(message, e, e.getStatus());
-        }
+    @Override
+    protected UserFactory getUserFactory() {
+        return userFactory;
     }
 
-    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
-        return examplesFactory.generateExample(opClass);
+    @Override
+    protected ExamplesFactory getExamplesFactory() {
+        return examplesFactory;
     }
 
-    private Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> opClass) {
-        return graphFactory.getGraph().getNextOperations(opClass);
-    }
-
-    private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
-        return Class.forName(className).asSubclass(Operation.class);
+    @Override
+    protected GraphFactory getGraphFactory() {
+        return graphFactory;
     }
 
 }
