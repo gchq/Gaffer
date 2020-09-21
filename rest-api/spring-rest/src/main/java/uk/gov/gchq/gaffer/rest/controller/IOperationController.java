@@ -74,7 +74,8 @@ public interface IOperationController {
     )
     @ApiOperation(
             value = "Gets the operations that can be chained after a given operation",
-            response = OperationDetail.class
+            response = Operation.class,
+            responseContainer = "Set"
     )
     ResponseEntity<Set<Class<? extends Operation>>> getNextOperations(final String className);
 
@@ -85,7 +86,7 @@ public interface IOperationController {
     )
     @ApiOperation(
             value = "Gets an example of an operation class",
-            response = OperationDetail.class
+            response = Operation.class
     )
     ResponseEntity<Operation> getOperationExample(final String className);
 
