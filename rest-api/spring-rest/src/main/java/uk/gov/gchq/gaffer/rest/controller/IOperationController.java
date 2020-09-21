@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.rest.controller;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -68,6 +67,28 @@ public interface IOperationController {
     )
     ResponseEntity<OperationDetail> getOperationDetails(final String className);
 
+    @RequestMapping(
+            method = GET,
+            value = "{className}/next",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+            value = "Gets the operations that can be chained after a given operation",
+            response = OperationDetail.class
+    )
+    ResponseEntity<Set<Class<? extends Operation>>> getNextOperations(final String className);
+
+    @RequestMapping(
+            method = GET,
+            value = "{className}/example",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+            value = "Gets an example of an operation class",
+            response = OperationDetail.class
+    )
+    ResponseEntity<Operation> getOperationExample(final String className);
+
 
     @RequestMapping(
             method = POST,
@@ -76,5 +97,5 @@ public interface IOperationController {
             produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
     )
     @ApiOperation("Executes an operation against a Store")
-    ResponseEntity<Object> execute(@RequestBody final Operation operation);
+    ResponseEntity<Object> execute(final Operation operation);
 }

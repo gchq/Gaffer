@@ -25,4 +25,5 @@
     <suppress files="[\\/]src[\\/]test[\\/].*" id="missingSwitchDefault"/>
     <suppress files="[\\/]src[\\/]test[\\/].*" id="methodLengthMax"/>
     <suppress files="[\\/]src[\\/]test[\\/].*" id="parameterNumber"/>
+    <suppress files=".*Application.java" id="hideUtilityClassConstructor"/>
 </suppressions>

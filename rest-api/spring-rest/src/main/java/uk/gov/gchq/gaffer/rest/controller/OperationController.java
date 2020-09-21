@@ -20,11 +20,13 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
@@ -76,7 +78,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public ResponseEntity<OperationDetail> getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The fully qualified Operation class") final String className) {
+    public ResponseEntity<OperationDetail> getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
         try {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
@@ -93,13 +95,45 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public ResponseEntity<Object> execute(final Operation operation) {
+    public ResponseEntity<Set<Class<? extends Operation>>> getNextOperations(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+        Class<? extends Operation> opClass;
+        try {
+            opClass = getOperationClass(className);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Operation class was not found: " + className, e);
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException(className + " does not extend Operation", e);
+        }
+
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(getNextOperations(opClass));
+    }
+
+    @Override
+    public ResponseEntity<Operation> getOperationExample(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+        Class<? extends Operation> operationClass;
+        try {
+            operationClass = getOperationClass(className);
+        } catch (final ClassNotFoundException e) {
+            throw new GafferRuntimeException("Unable to find operation class " + className + " on the classpath", e, Status.NOT_FOUND);
+        }
+        try {
+            return ResponseEntity.ok()
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .body(generateExampleJson(operationClass));
+        } catch (final InstantiationException | IllegalAccessException e) {
+            throw new GafferRuntimeException("Unable to create example for class " + className, e, Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> execute(@RequestBody final Operation operation) {
         Pair<Object, String> resultAndGraphId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndGraphId.getSecond())
                 .body(resultAndGraphId.getFirst());
-
     }
 
     @Override
