@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -41,7 +40,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 @RestController
-@RequestMapping("/graph/operations")
 public class OperationController extends AbstractOperationService implements IOperationController {
 
     private GraphFactory graphFactory;

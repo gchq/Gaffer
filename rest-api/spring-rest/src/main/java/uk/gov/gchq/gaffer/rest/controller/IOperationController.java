@@ -30,6 +30,8 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+
+@RequestMapping("/graph/operations")
 public interface IOperationController {
 
     @RequestMapping(
