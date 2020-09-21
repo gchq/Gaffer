@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.service.v2.example;
 
-import uk.gov.gchq.gaffer.rest.factory.AbstractExamplesFactory;
-import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+package uk.gov.gchq.gaffer.rest.factory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import javax.inject.Inject;
-
-/**
- * Default implementation of the {@link uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory}
- * interface. Required to be registered with HK2 to allow the correct {@link
- * uk.gov.gchq.gaffer.rest.factory.GraphFactory} object to be injected.
- */
 public class DefaultExamplesFactory extends AbstractExamplesFactory {
 
-    @Inject
     private GraphFactory graphFactory;
+
+    @Autowired
+    public void setGraphFactory(final GraphFactory graphFactory) {
+        this.graphFactory = graphFactory;
+    }
 
     @Override
     protected Schema getSchema() {
-        return graphFactory.createGraph().getSchema();
+        return graphFactory.getGraph().getSchema();
     }
 }

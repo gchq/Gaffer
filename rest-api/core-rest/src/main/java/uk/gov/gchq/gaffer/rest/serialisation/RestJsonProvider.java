@@ -30,14 +30,10 @@ import javax.ws.rs.ext.Provider;
  * ObjectMapper can be configured by System Properties, see {@link JSONSerialiser}
  */
 @Provider
-public class RestJsonProvider implements ContextResolver<ObjectMapper> {
-    public RestJsonProvider() {
-        SimpleClassNameCache.initialise();
-        JSONSerialiser.update();
-    }
+public class RestJsonProvider extends ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
     @Override
     public ObjectMapper getContext(final Class<?> aClass) {
-        return JSONSerialiser.getMapper();
+        return super.getObjectMapper();
     }
 }

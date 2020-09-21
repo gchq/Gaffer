@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-/**
- * Factory implementations for the Gaffer REST API. These are used by HK2 to create
- * factory instances at runtime which are capable of creating Graph instances
- * and user objects.
- */
-package uk.gov.gchq.gaffer.rest.factory;
+package uk.gov.gchq.gaffer.rest.serialisation;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
+
+public class ObjectMapperProvider {
+
+    public ObjectMapperProvider() {
+        SimpleClassNameCache.initialise();
+        JSONSerialiser.update();
+    }
+
+    protected ObjectMapper getObjectMapper() {
+        return JSONSerialiser.getMapper();
+    }
+}

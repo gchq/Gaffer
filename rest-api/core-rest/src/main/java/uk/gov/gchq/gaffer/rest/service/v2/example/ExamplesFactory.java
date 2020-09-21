@@ -36,7 +36,10 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 /**
  * An {@code ExamplesFactory} creates example operations for use with Gaffer's
  * REST API.
+ *
+ * use {@link uk.gov.gchq.gaffer.rest.factory.ExamplesFactory} instead
  */
+@Deprecated
 public interface ExamplesFactory {
 
     /**

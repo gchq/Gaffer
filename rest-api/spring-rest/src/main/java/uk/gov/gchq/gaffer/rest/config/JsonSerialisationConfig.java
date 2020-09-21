@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
-public class Application {
+import uk.gov.gchq.gaffer.rest.serialisation.ObjectMapperProvider;
 
-    public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
+@Configuration
+public class JsonSerialisationConfig extends ObjectMapperProvider {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return super.getObjectMapper();
     }
-
-    private void method() {
-        // I do nothing but appease checkstyle gods
-    }
-
 }

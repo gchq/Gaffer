@@ -12,8 +12,8 @@
   <artifactId>spring-rest</artifactId>
 
   <properties>
-    <spring.boot.version>2.3.3.RELEASE</spring.boot.version>
-    <swagger.version>2.9.2</swagger.version>
+    <spring.boot.version>1.3.2.RELEASE</spring.boot.version>
+    <swagger.version>2.6.0</swagger.version>
   </properties>
 
   <dependencies>
@@ -28,11 +28,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency> <!-- todo See if we can exclude these from other dependencies -->
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
@@ -87,12 +82,19 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <version>${spring.boot.version}</version>
             <configuration>
-              <systemPropertyVariables>
-                <gaffer.storeProperties>${project.build.outputDirectory}/map/store.properties</gaffer.storeProperties>
-                <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>
-                <gaffer.schemas>${project.build.outputDirectory}/schemas</gaffer.schemas>
-              </systemPropertyVariables>
+              <jvmArguments>
+                -Dgaffer.storeProperties=${project.build.outputDirectory}/map/store.properties
+                -Dgaffer.graph.config=${project.build.outputDirectory}/graphConfig.json
+                -Dgaffer.schemas=${project.build.outputDirectory}/schemas
+              </jvmArguments>
             </configuration>
+<!--            <configuration>-->
+<!--              <systemPropertyVariables>-->
+<!--                <gaffer.storeProperties>${project.build.outputDirectory}/map/store.properties</gaffer.storeProperties>-->
+<!--                <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>-->
+<!--                <gaffer.schemas>${project.build.outputDirectory}/schemas</gaffer.schemas>-->
+<!--              </systemPropertyVariables>-->
+<!--            </configuration>-->
           </plugin>
         </plugins>
       </build>

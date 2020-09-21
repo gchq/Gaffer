@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.rest.factory.DefaultExamplesFactory;
+import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
@@ -34,6 +36,11 @@ public class FactoryConfig {
     @Bean
     public UserFactory createUserFactory() throws IllegalAccessException, InstantiationException {
         return getDefaultUserFactory().newInstance();
+    }
+
+    @Bean
+    public ExamplesFactory createExamplesFactory() {
+        return new DefaultExamplesFactory();
     }
 
     private Class<? extends GraphFactory> getDefaultGraphFactory() {

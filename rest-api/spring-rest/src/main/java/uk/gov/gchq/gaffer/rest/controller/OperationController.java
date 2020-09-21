@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,31 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphRequest;
 import uk.gov.gchq.gaffer.graph.GraphResult;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.store.Context;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
@@ -42,10 +48,11 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 
 @RestController
 @RequestMapping("/graph/operations")
-public class OperationController {
+public class OperationController implements IOperationController {
 
     private GraphFactory graphFactory;
     private UserFactory userFactory;
+    private ExamplesFactory examplesFactory;
 
     @Autowired
     public void setGraphFactory(final GraphFactory graphFactory) {
@@ -57,13 +64,56 @@ public class OperationController {
         this.userFactory = userFactory;
     }
 
-    @RequestMapping(value = "/execute",
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = { "text/plain", "application/json" }
+    @Autowired
+    public void setExamplesFactory(final ExamplesFactory examplesFactory) {
+        this.examplesFactory = examplesFactory;
+    }
 
-    )
-    public ResponseEntity<Object> execute(@RequestBody final Operation operation) {
+    @Override
+    public ResponseEntity<Set<Class<? extends Operation>>> getOperations() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(graphFactory.getGraph().getSupportedOperations());
+    }
+
+    @Override
+    public ResponseEntity<Set<OperationDetail>> getAllOperationDetails() {
+        Graph graph = graphFactory.getGraph();
+        Set<Class<? extends Operation>> supportedOperationClasses = graph.getSupportedOperations();
+        Set<OperationDetail> operationDetails = new HashSet<>();
+
+        for (final Class<? extends Operation> clazz : supportedOperationClasses) {
+            try {
+                operationDetails.add(new OperationDetail(clazz, graph.getNextOperations(clazz), examplesFactory.generateExample(clazz)));
+            } catch (final IllegalAccessException | InstantiationException e) {
+                throw new GafferRuntimeException("Could not get operation details for class: " + clazz, e, Status.BAD_REQUEST);
+            }
+        }
+
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(operationDetails);
+    }
+
+    @Override
+    public ResponseEntity<OperationDetail> getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The fully qualified Operation class") final String className) {
+        try {
+            final Class<? extends Operation> operationClass = getOperationClass(className);
+
+            if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
+                return ResponseEntity.ok()
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .body(new OperationDetail(operationClass, getNextOperations(operationClass), generateExampleJson(operationClass)));
+            } else {
+                throw new GafferRuntimeException("Class: " + className + " is not supported by the current store.");
+            }
+        } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new GafferRuntimeException("Class: " + className + " was not found on the classpath.", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> execute(final Operation operation) {
         Pair<Object, String> resultAndGraphId = _execute(OperationChain.wrap(operation), userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
@@ -83,4 +133,17 @@ public class OperationController {
             throw new GafferRuntimeException(message, e, e.getStatus());
         }
     }
+
+    private Operation generateExampleJson(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException {
+        return examplesFactory.generateExample(opClass);
+    }
+
+    private Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> opClass) {
+        return graphFactory.getGraph().getNextOperations(opClass);
+    }
+
+    private Class<? extends Operation> getOperationClass(final String className) throws ClassNotFoundException {
+        return Class.forName(className).asSubclass(Operation.class);
+    }
+
 }
