@@ -87,7 +87,6 @@ public class GraphConfigurationController implements IGraphConfigurationControll
 
     @Override
     public ResponseEntity<Set<Class>> getFilterFunctions(@PathVariable("inputClass") final String inputClass) {
-        // todo improve this it's a bit buggy
         if (StringUtils.isEmpty(inputClass)) {
             return getFilterFunctions();
         }

@@ -59,7 +59,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("uk.gov.gchq.gaffer.rest"))
-                .paths(regex("/graph.*"))
+                .paths(regex("/.*"))
                 .build()
                 .apiInfo(apiInfo())
                 .alternateTypeRules(
