@@ -16,67 +16,145 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import org.springframework.http.RequestEntity;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
+import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+
+@RestController
 public class GraphConfigurationController implements IGraphConfigurationController {
-    // todo this
-    @Override
-    public RequestEntity<Schema> getSchema() {
-        return null;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphConfigurationController.class);
+
+    private GraphFactory graphFactory;
+
+    @Autowired
+    public void setGraphFactory(final GraphFactory graphFactory) {
+        this.graphFactory = graphFactory;
     }
 
     @Override
-    public RequestEntity<String> getDescription() {
-        return null;
+    public ResponseEntity<Schema> getSchema() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(graphFactory.getGraph().getSchema());
     }
 
     @Override
-    public RequestEntity<Set<? extends Predicate>> getFilterFunctions() {
-        return null;
+    public ResponseEntity<String> getDescription() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(graphFactory.getGraph().getDescription());
     }
 
     @Override
-    public RequestEntity<Set<? extends ElementGenerator>> getElementGenerators() {
-        return null;
+    public ResponseEntity<Set<Class>> getFilterFunctions() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(ReflectionUtil.getSubTypes(Predicate.class));
     }
 
     @Override
-    public RequestEntity<Set<? extends Predicate>> getFilterFunctions(final String inputClass) {
-        return null;
+    public ResponseEntity<Set<Class>> getElementGenerators() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(ReflectionUtil.getSubTypes(ElementGenerator.class));
     }
 
     @Override
-    public RequestEntity<Set<? extends ObjectGenerator>> getObjectGenerators() {
-        return null;
+    public ResponseEntity<Set<Class>> getFilterFunctions(@PathVariable("inputClass") final String inputClass) {
+        if (StringUtils.isEmpty(inputClass)) {
+            return getFilterFunctions();
+        }
+
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(SimpleClassNameIdResolver.getClassName(inputClass));
+        } catch (final ClassNotFoundException e) {
+            throw new GafferRuntimeException("Could not find class on the classpath:" + inputClass, e, Status.NOT_FOUND);
+        }
+
+        final Set<Class> applicablePredicates = new HashSet<>();
+
+        for (final Class predicateClass : ReflectionUtil.getSubTypes(Predicate.class)) {
+            Predicate predicate;
+            try {
+                predicate = (Predicate) predicateClass.newInstance();
+            } catch (final IllegalAccessException | InstantiationException e) {
+                LOGGER.warn("Failed to create new instance of " + predicateClass, e);
+                LOGGER.warn("Skipping");
+                continue;
+            }
+
+            Signature inputSignature = Signature.getInputSignature(predicate);
+            if (inputSignature.assignable(clazz).isValid()) {
+                applicablePredicates.add(predicateClass);
+            }
+        }
+
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(applicablePredicates);
     }
 
     @Override
-    public RequestEntity<Set<String>> getSerialisedFields(final String className) {
-        return null;
+    public ResponseEntity<Set<Class>> getObjectGenerators() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(ReflectionUtil.getSubTypes(ObjectGenerator.class));
+    }
+
+
+    @Override
+    public ResponseEntity<Set<String>> getSerialisedFields(@PathVariable("className") final String className) {
+        Map<String, String> serialisedFieldClasses = JsonSerialisationUtil.getSerialisedFieldClasses(className);
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(serialisedFieldClasses.keySet());
     }
 
     @Override
-    public RequestEntity<Map<String, String>> getSerialisedFieldClasses(final String className) {
-        return null;
+    public ResponseEntity<Map<String, String>> getSerialisedFieldClasses(@PathVariable("className") final String className) {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(JsonSerialisationUtil.getSerialisedFieldClasses(className));
     }
 
     @Override
-    public RequestEntity<Set<StoreTrait>> getStoreTraits() {
-        return null;
+    public ResponseEntity<Set<StoreTrait>> getStoreTraits() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(graphFactory.getGraph().getStoreTraits());
     }
 
     @Override
-    public RequestEntity<Set<? extends Function>> getTransformFunctions() {
-        return null;
+    public ResponseEntity<Set<Class>> getTransformFunctions() {
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .body(ReflectionUtil.getSubTypes(Function.class));
     }
 }

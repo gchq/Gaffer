@@ -17,18 +17,14 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
-import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
@@ -46,7 +42,7 @@ public interface IGraphConfigurationController {
             value = "Gets the schema",
             response = Schema.class
     )
-    RequestEntity<Schema> getSchema();
+    ResponseEntity<Schema> getSchema();
 
     @RequestMapping(
             path = "/description",
@@ -57,7 +53,7 @@ public interface IGraphConfigurationController {
             value = "Gets the graph description",
             response = String.class
     )
-    RequestEntity<String> getDescription();
+    ResponseEntity<String> getDescription();
 
     @RequestMapping(
             path = "/filterFunctions",
@@ -66,10 +62,10 @@ public interface IGraphConfigurationController {
     )
     @ApiOperation(
             value = "Gets the available filter functions",
-            response = Predicate.class,
+            response = Class.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<? extends Predicate>> getFilterFunctions();
+    ResponseEntity<Set<Class>> getFilterFunctions();
 
     @RequestMapping(
             path = "/elementGenerators",
@@ -78,22 +74,22 @@ public interface IGraphConfigurationController {
     )
     @ApiOperation(
             value = "Gets the available element generators",
-            response = ElementGenerator.class,
+            response = Class.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<? extends ElementGenerator>> getElementGenerators();
+    ResponseEntity<Set<Class>> getElementGenerators();
 
     @RequestMapping(
-            path = "/filterFunctions/{inputClass}",
+            path = "/filterFunctions/{inputClass:.+}",
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(
             value = "Gets the available filter functions for a given input class",
-            response = Predicate.class,
+            response = Class.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<? extends Predicate>> getFilterFunctions(final String inputClass);
+    ResponseEntity<Set<Class>> getFilterFunctions(final String inputClass);
 
     @RequestMapping(
             path = "/objectGenerators",
@@ -102,10 +98,10 @@ public interface IGraphConfigurationController {
     )
     @ApiOperation(
             value = "Gets the available object generators",
-            response = ObjectGenerator.class,
+            response = Class.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<? extends ObjectGenerator>> getObjectGenerators();
+    ResponseEntity<Set<Class>> getObjectGenerators();
 
     @RequestMapping(
             path = "/serialisedFields/{className:.+}",
@@ -117,7 +113,7 @@ public interface IGraphConfigurationController {
             response = String.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<String>> getSerialisedFields(final String className);
+    ResponseEntity<Set<String>> getSerialisedFields(final String className);
 
     @RequestMapping(
             path = "/serialisedFields/{className}/classes",
@@ -129,7 +125,7 @@ public interface IGraphConfigurationController {
             response = String.class,
             responseContainer = "Map"
     )
-    RequestEntity<Map<String, String>> getSerialisedFieldClasses(final String className);
+    ResponseEntity<Map<String, String>> getSerialisedFieldClasses(final String className);
 
     @RequestMapping(
             path = "/storeTraits",
@@ -141,7 +137,7 @@ public interface IGraphConfigurationController {
             response = StoreTrait.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<StoreTrait>> getStoreTraits();
+    ResponseEntity<Set<StoreTrait>> getStoreTraits();
 
     @RequestMapping(
             path = "/transformFunctions",
@@ -150,8 +146,8 @@ public interface IGraphConfigurationController {
     )
     @ApiOperation(
             value = "Gets the available transform functions",
-            response = Function.class,
+            response = Class.class,
             responseContainer = "Set"
     )
-    RequestEntity<Set<? extends Function>> getTransformFunctions();
+    ResponseEntity<Set<Class>> getTransformFunctions();
 }
