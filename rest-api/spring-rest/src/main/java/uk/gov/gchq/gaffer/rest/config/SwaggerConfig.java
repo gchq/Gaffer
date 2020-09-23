@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
@@ -32,7 +33,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Set;
 
-import static springfox.documentation.builders.PathSelectors.regex;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE;
@@ -50,6 +50,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title(System.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
                 .description(System.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
+                .license("Apache Licence 2.0")
                 .version("2.0-alpha")
                 .build();
     }
@@ -59,7 +60,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("uk.gov.gchq.gaffer.rest"))
-                .paths(regex("/.*"))
+                .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo())
                 .alternateTypeRules(

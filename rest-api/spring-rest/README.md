@@ -49,3 +49,5 @@ java \
 -Dloader.path=/path/to/external/libs
 -jar target/spring-rest-1.13.1-SNAPSHOT.jar \
 ```
+
+Once running, open the browser to http://localhost:8080/api/swagger-ui.html
