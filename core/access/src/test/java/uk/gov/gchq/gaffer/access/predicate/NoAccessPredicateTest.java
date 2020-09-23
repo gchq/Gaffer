@@ -39,8 +39,7 @@ public class NoAccessPredicateTest implements AccessPredicateTest {
         final AccessPredicate predicate = new NoAccessPredicate();
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
-                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate\"," +
-                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate\"}" +
+                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate\"" +
                 "}", new String(bytes, CommonConstants.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, NoAccessPredicate.class));
     }

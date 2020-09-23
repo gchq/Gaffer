@@ -32,6 +32,10 @@ import java.util.function.Predicate;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
+/**
+ * A {@link BiPredicate} which will first check if the user is an admin according to the provided
+ * admin role. If not it uses a predicate to determine if the user can access a resource.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class AccessPredicate implements BiPredicate<User, String>, Serializable {
 

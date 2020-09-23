@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.access.predicate;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.user.FederatedGraphReadUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
@@ -33,8 +30,6 @@ import static java.util.Collections.emptyList;
 
 public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredicate {
 
-    private final boolean isPublic;
-
     public FederatedGraphReadAccessPredicate(final String creatingUserId, final Set<String> auths, final boolean isPublic) {
         this(creatingUserId, auths != null ? new ArrayList<>(auths) : emptyList(), isPublic);
     }
@@ -45,49 +40,11 @@ public class FederatedGraphReadAccessPredicate extends FederatedGraphAccessPredi
             @JsonProperty("auths") final List<String> auths,
             @JsonProperty("public") final boolean isPublic) {
         super(new FederatedGraphReadUserPredicate(creatingUserId, auths, isPublic));
-        this.isPublic = isPublic;
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final FederatedGraphReadAccessPredicate that = (FederatedGraphReadAccessPredicate) o;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(isPublic, that.isPublic)
-                .isEquals();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .appendSuper(super.toString())
-                .append("isPublic", isPublic)
-                .toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(isPublic)
-                .toHashCode();
-    }
-
-    public boolean isPublic() {
-        return isPublic;
-    }
 
     @Override
     public boolean test(final User user, final String adminAuth) {
-        return isPublic || super.test(user, adminAuth);
+        return super.test(user, adminAuth);
     }
 }
