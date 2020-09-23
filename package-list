@@ -1,3 +1,6 @@
+uk.gov.gchq.gaffer.access
+uk.gov.gchq.gaffer.access.predicate
+uk.gov.gchq.gaffer.access.predicate.user
 uk.gov.gchq.gaffer.accumulostore
 uk.gov.gchq.gaffer.accumulostore.data.element
 uk.gov.gchq.gaffer.accumulostore.inputformat
@@ -48,6 +51,8 @@ uk.gov.gchq.gaffer.data.element.id
 uk.gov.gchq.gaffer.data.elementdefinition
 uk.gov.gchq.gaffer.data.elementdefinition.exception
 uk.gov.gchq.gaffer.data.elementdefinition.view
+uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate
+uk.gov.gchq.gaffer.data.elementdefinition.view.access.predicate.user
 uk.gov.gchq.gaffer.data.generator
 uk.gov.gchq.gaffer.data.graph
 uk.gov.gchq.gaffer.data.graph.adjacency
@@ -56,6 +61,8 @@ uk.gov.gchq.gaffer.data.graph.function.walk
 uk.gov.gchq.gaffer.exception
 uk.gov.gchq.gaffer.federated
 uk.gov.gchq.gaffer.federatedstore
+uk.gov.gchq.gaffer.federatedstore.access.predicate
+uk.gov.gchq.gaffer.federatedstore.access.predicate.user
 uk.gov.gchq.gaffer.federatedstore.exception
 uk.gov.gchq.gaffer.federatedstore.operation
 uk.gov.gchq.gaffer.federatedstore.operation.handler
