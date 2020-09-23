@@ -50,7 +50,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title(System.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
                 .description(System.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
-                .version("3.0-alpha")
+                .version("2.0-alpha")
                 .build();
     }
 

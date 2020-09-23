@@ -60,6 +60,26 @@
     </dependencies>
   </dependencyManagement>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <layout>ZIP</layout>
+          <executable>true</executable>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <profiles>
     <profile>
       <id>map-store</id>
@@ -88,13 +108,6 @@
                 -Dgaffer.schemas=${project.build.outputDirectory}/schemas
               </jvmArguments>
             </configuration>
-<!--            <configuration>-->
-<!--              <systemPropertyVariables>-->
-<!--                <gaffer.storeProperties>${project.build.outputDirectory}/map/store.properties</gaffer.storeProperties>-->
-<!--                <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>-->
-<!--                <gaffer.schemas>${project.build.outputDirectory}/schemas</gaffer.schemas>-->
-<!--              </systemPropertyVariables>-->
-<!--            </configuration>-->
           </plugin>
         </plugins>
       </build>
