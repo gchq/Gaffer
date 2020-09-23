@@ -15,14 +15,27 @@
  */
 package uk.gov.gchq.gaffer.access.predicate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.access.predicate.user.NoAccessUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.function.Predicate;
+
+/**
+ * An {@link AccessPredicate} which never allows user access even if they are an administrator
+ */
 public class NoAccessPredicate extends AccessPredicate {
     private static final boolean NOT_ADMINISTRATOR = false;
 
     public NoAccessPredicate() {
         super(new NoAccessUserPredicate());
+    }
+
+    @Override
+    @JsonIgnore
+    public Predicate<User> getUserPredicate() {
+        return super.getUserPredicate();
     }
 
     @Override

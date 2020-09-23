@@ -279,11 +279,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             result = graphFactory.getGraph().execute(new GraphRequest<>(opChain, context));
         } catch (final OperationException e) {
             CloseableUtil.close(operation);
-            if (null != e.getMessage()) {
-                throw new RuntimeException("Error executing opChain: " + e.getMessage(), e);
-            } else {
-                throw new RuntimeException("Error executing opChain", e);
-            }
+            final String message = null != e.getMessage() ? "Error executing opChain: " + e.getMessage() : "Error executing opChain";
+            throw new GafferRuntimeException(message, e, e.getStatus());
         } finally {
             try {
                 postOperationHook(opChain, context);

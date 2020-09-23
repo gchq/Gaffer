@@ -17,10 +17,9 @@
 package uk.gov.gchq.gaffer.access.predicate.user;
 
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
-import java.util.function.Predicate;
-
-public class CustomUserPredicate implements Predicate<User> {
+public class CustomUserPredicate extends KoryphePredicate<User> { // extending to make use of the equals/hashcode
     @Override
     public boolean test(final User user) {
         return true;

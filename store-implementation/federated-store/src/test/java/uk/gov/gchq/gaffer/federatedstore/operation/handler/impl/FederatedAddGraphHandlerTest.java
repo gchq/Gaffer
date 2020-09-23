@@ -45,6 +45,10 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.CallMethod;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.Or;
+import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -416,9 +420,10 @@ public class FederatedAddGraphHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate((user) -> {
-            return user.getUserId().equals(blankUser.getUserId()) || user.getUserId().equals(testUser.getUserId());
-        });
+        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate(new AdaptedPredicate(
+                new CallMethod("getUserId"),
+                new Or<>(new IsEqual(testUser.getUserId()), new IsEqual(blankUser.getUserId()))
+        ));
 
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()

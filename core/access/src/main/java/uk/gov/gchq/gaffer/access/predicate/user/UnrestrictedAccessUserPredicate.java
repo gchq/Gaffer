@@ -16,32 +16,15 @@
 package uk.gov.gchq.gaffer.access.predicate.user;
 
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-
-public class UnrestrictedAccessUserPredicate implements Predicate<User> {
-    private final boolean unrestrictedAccess = true;
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final UnrestrictedAccessUserPredicate that = (UnrestrictedAccessUserPredicate) o;
-        return unrestrictedAccess == that.unrestrictedAccess;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(unrestrictedAccess);
-    }
-
+@Since("1.13.1")
+@Summary("A predicate which always allows a user access")
+public class UnrestrictedAccessUserPredicate extends KoryphePredicate<User> {
     @Override
     public boolean test(final User user) {
-        return unrestrictedAccess;
+        return true;
     }
 }
