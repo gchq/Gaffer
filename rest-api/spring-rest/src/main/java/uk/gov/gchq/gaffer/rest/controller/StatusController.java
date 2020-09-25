@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -25,34 +24,26 @@ import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
-
 @RestController
 public class StatusController implements IStatusController {
 
     private GraphFactory graphFactory;
 
     @Autowired
-    public void setGraphFactory(final GraphFactory graphFactory) {
+    public StatusController(final GraphFactory graphFactory) {
         this.graphFactory = graphFactory;
     }
 
     @Override
-    public ResponseEntity<SystemStatus> getStatus() {
+    public SystemStatus getStatus() {
         try {
             if (graphFactory.getGraph() != null) {
-                return ResponseEntity.ok()
-                        .header(GAFFER_MEDIA_TYPE_HEADER)
-                        .body(SystemStatus.UP);
+                return SystemStatus.UP;
             }
         } catch (final Exception e) {
             throw new GafferRuntimeException("Unable to create graph.", e, Status.INTERNAL_SERVER_ERROR);
         }
 
-        return ResponseEntity
-                .status(503)
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(SystemStatus.DOWN);
+        return SystemStatus.DOWN;
     }
 }

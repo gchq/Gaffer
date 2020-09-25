@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.serialisation;
+package uk.gov.gchq.gaffer.rest.factory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import uk.gov.gchq.gaffer.graph.Graph;
 
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
+import static org.mockito.Mockito.mock;
 
-public class ObjectMapperProvider {
+/**
+ * A Wrapper for a mock instance of a GraphFactory
+ */
+public class MockGraphFactory implements GraphFactory {
 
-    public ObjectMapperProvider() {
-        SimpleClassNameCache.initialise();
-        JSONSerialiser.update();
+    private final GraphFactory graphFactory = mock(GraphFactory.class);
+
+    @Override
+    public Graph.Builder createGraphBuilder() {
+        return graphFactory.createGraphBuilder();
     }
 
-    public ObjectMapper getObjectMapper() {
-        return JSONSerialiser.getMapper();
+    @Override
+    public Graph getGraph() {
+        return graphFactory.getGraph();
+    }
+
+    public GraphFactory getMock() {
+        return graphFactory;
     }
 }

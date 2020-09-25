@@ -32,6 +32,6 @@
         <module>parquet-rest</module>
         <module>map-rest</module>
         <module>spring-rest</module>
-      <module>common-rest</module>
+        <module>common-rest</module>
     </modules>
 </project>
