@@ -62,6 +62,11 @@ public class ToElementTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ToElementTuple> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends ToElementTuple> getFunctionClass() {
         return ToElementTuple.class;
     }

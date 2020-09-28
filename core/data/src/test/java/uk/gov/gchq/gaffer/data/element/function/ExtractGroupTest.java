@@ -86,6 +86,11 @@ public class ExtractGroupTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ExtractGroup> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends Function> getFunctionClass() {
         return ExtractGroup.class;
     }

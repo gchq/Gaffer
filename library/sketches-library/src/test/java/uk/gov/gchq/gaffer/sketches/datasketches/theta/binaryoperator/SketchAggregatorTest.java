@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
 import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.UpdateSketch;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -85,5 +84,10 @@ public class SketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected SketchAggregator getInstance() {
         return new SketchAggregator();
+    }
+
+    @Override
+    protected Iterable<SketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

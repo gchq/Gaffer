@@ -29,6 +29,7 @@ import uk.gov.gchq.koryphe.util.TimeUnit;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -137,6 +138,14 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     @Override
     protected Function getInstance() {
         return maskTimestampSetByTimeRange;
+    }
+
+    @Override
+    protected Iterable<Function> getDifferentInstancesOrNull() {
+        return Arrays.asList(
+                new MaskTimestampSetByTimeRange(10L, 20L),
+                new MaskTimestampSetByTimeRange(10L, 20L, TimeUnit.SECOND)
+        );
     }
 
     @Override

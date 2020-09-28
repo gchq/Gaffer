@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 
@@ -105,5 +104,10 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
     @Override
     protected ReservoirLongsUnionAggregator getInstance() {
         return new ReservoirLongsUnionAggregator();
+    }
+
+    @Override
+    protected Iterable<ReservoirLongsUnionAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

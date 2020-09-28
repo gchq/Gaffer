@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,6 +83,11 @@ public class ExtractPropertyTest extends FunctionTest {
     @Override
     protected ExtractProperty getInstance() {
         return new ExtractProperty("count");
+    }
+
+    @Override
+    protected Iterable<ExtractProperty> getDifferentInstancesOrNull() {
+        return Collections.singletonList(new ExtractProperty("property"));
     }
 
     @Override

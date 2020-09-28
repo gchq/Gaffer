@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -90,5 +89,10 @@ public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected DoublesSketchAggregator getInstance() {
         return new DoublesSketchAggregator();
+    }
+
+    @Override
+    protected Iterable<DoublesSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

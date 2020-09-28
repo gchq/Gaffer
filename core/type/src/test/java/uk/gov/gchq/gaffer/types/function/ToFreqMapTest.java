@@ -94,6 +94,11 @@ public class ToFreqMapTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ToFreqMap> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<ToFreqMap> getFunctionClass() {
         return ToFreqMap.class;
     }

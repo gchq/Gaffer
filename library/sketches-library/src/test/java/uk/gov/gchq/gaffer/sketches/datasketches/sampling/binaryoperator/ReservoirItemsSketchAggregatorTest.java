@@ -105,4 +105,9 @@ public class ReservoirItemsSketchAggregatorTest extends BinaryOperatorTest {
     protected ReservoirItemsSketchAggregator getInstance() {
         return new ReservoirItemsSketchAggregator();
     }
+
+    @Override
+    protected Iterable<ReservoirItemsSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
+    }
 }
