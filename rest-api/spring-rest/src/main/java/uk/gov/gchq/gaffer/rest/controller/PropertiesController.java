@@ -16,31 +16,30 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.PropertiesUtil;
 
 import java.util.Map;
-
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
-import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 @RestController
 public class PropertiesController implements IPropertiesController {
 
     @Override
-    public ResponseEntity<Map<String, String>> getProperties() {
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(PropertiesUtil.getProperties());
+    public Map<String, String> getProperties() {
+        return PropertiesUtil.getProperties();
     }
 
     @Override
-    public ResponseEntity<String> getProperty(@PathVariable("property") final String property) {
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(PropertiesUtil.getProperty(property));
+    public String getProperty(@PathVariable("property") final String property) {
+        String resolvedPropertyValue = PropertiesUtil.getProperty(property);
+        if (resolvedPropertyValue != null) {
+            return resolvedPropertyValue;
+        }
+
+        throw new GafferRuntimeException("Property: " + property + " could not be found.", Status.NOT_FOUND);
     }
 }
