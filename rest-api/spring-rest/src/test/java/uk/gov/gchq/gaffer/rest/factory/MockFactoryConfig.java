@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import static org.mockito.Mockito.when;
 
 /**
- * Configuration which loads in our Mock backed factories
+ * Configration which loads in our Mock backed factoruies
  */
 @Configuration
 public class MockFactoryConfig {

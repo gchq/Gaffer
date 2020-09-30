@@ -31,8 +31,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Gaffer uses system properties across the system to provide configuration.
- * This class escalates gaffer properties to system properties that may be passed to the
+ * Gaffer uses system properties across the app to provide configuration.
+ * This class escalates any gaffer properties to system properties that may be passed to the
  * app via Command line args eg:
  *
  * {@code java -jar spring-rest.jar --gaffer.app.name=MyAppName}

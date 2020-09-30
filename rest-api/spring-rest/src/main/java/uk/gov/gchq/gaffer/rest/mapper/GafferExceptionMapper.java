@@ -22,14 +22,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 
 import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
-public class GafferRuntimeExceptionMapper extends ResponseEntityExceptionHandler {
+public class GafferExceptionMapper extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(GafferRuntimeException.class)
     @ResponseBody
@@ -39,4 +41,34 @@ public class GafferRuntimeExceptionMapper extends ResponseEntityExceptionHandler
         return ResponseEntity.status(error.getStatusCode())
                 .body(error);
     }
+
+    @ExceptionHandler(UnauthorisedException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleUnauthorisedException(final HttpServletRequest request, final UnauthorisedException e) {
+        final Error error = ErrorFactory.from(e);
+
+        return ResponseEntity.status(error.getStatusCode())
+                .body(error);
+    }
+
+    @ExceptionHandler(GafferWrappedErrorRuntimeException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleUnauthorisedException(final HttpServletRequest request, final GafferWrappedErrorRuntimeException e) {
+        final Error error = ErrorFactory.from(e);
+
+        return ResponseEntity.status(error.getStatusCode())
+                .body(error);
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    public ResponseEntity<?> handleAllOtherTypesOfException(final HttpServletRequest request, final Exception e) {
+        final Error error = ErrorFactory.from(e);
+
+        return ResponseEntity.status(error.getStatusCode())
+                .body(error);
+    }
+
+
+
 }

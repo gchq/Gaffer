@@ -38,7 +38,7 @@ public interface IPropertiesController {
     Map<String, String> getProperties();
 
     @RequestMapping(
-            value = "/{property:.+}",
+            value = "/{property}",
             method = GET,
             produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
     )

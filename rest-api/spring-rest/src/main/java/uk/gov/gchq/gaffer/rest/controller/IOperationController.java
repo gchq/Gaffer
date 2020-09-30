@@ -60,7 +60,7 @@ public interface IOperationController {
 
     @RequestMapping(
             method = GET,
-            value = "{className:.+}",
+            value = "{className}",
             produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(

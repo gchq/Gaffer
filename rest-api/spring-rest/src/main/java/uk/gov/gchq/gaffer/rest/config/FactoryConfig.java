@@ -43,7 +43,7 @@ public class FactoryConfig {
         return new DefaultExamplesFactory();
     }
 
-    private Class<? extends GraphFactory> getDefaultGraphFactory() {
+    private Class<? extends GraphFactory> getDefaultGraphFactory() { // todo improve so that we can use properties files
         final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
                 SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
 

@@ -34,6 +34,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
+/**
+ * Base class for Integration Tests.
+ *
+ * The AbstractRestApiIT starts the application with spring boot and provides {@code get()} and {@code post()} methods
+ * for easy access, as well as a {@code checkResponse()} method which asserts that the correct status code is returned
+ * and that the Gaffer Media type header was added.
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(Application.class)
 @WebIntegrationTest(randomPort = true)
@@ -54,7 +61,7 @@ public abstract class AbstractRestApiIT {
         try {
             return restTemplate.getForEntity(new URI(getBaseURl() + path), responseBodyClass);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Unable to constuctu URI from " + getBaseURl() + path, e);
+            throw new IllegalArgumentException("Unable to constuct URI from " + getBaseURl() + path, e);
         }
     }
 
@@ -62,7 +69,7 @@ public abstract class AbstractRestApiIT {
         try {
             return restTemplate.postForEntity(new URI(getBaseURl() + path), body, responseBodyClass);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Unable to constuctu URI from " + getBaseURl() + path, e);
+            throw new IllegalArgumentException("Unable to constuct URI from " + getBaseURl() + path, e);
         }
     }
 
