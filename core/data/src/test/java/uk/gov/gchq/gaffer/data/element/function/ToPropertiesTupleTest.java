@@ -56,6 +56,11 @@ public class ToPropertiesTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ToPropertiesTuple> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends ToPropertiesTuple> getFunctionClass() {
         return ToPropertiesTuple.class;
     }

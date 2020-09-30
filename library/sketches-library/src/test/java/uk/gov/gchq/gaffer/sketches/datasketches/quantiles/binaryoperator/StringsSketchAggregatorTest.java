@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsSketch;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -87,5 +86,10 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected StringsSketchAggregator getInstance() {
         return new StringsSketchAggregator();
+    }
+
+    @Override
+    protected Iterable<StringsSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

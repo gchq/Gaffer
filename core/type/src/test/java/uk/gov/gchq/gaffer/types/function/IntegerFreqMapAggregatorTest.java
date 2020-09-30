@@ -77,6 +77,11 @@ public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
+    protected Iterable<IntegerFreqMapAggregator> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<IntegerFreqMapAggregator> getFunctionClass() {
         return IntegerFreqMapAggregator.class;
     }

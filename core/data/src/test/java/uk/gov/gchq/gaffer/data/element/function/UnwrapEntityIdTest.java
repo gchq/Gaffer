@@ -76,6 +76,11 @@ public class UnwrapEntityIdTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<UnwrapEntityId> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends UnwrapEntityId> getFunctionClass() {
         return UnwrapEntityId.class;
     }

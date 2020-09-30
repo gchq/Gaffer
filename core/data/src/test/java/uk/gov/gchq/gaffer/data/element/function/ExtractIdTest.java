@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
@@ -80,6 +82,11 @@ public class ExtractIdTest extends FunctionTest {
     @Override
     protected ExtractId getInstance() {
         return new ExtractId(IdentifierType.SOURCE);
+    }
+
+    @Override
+    protected Iterable<ExtractId> getDifferentInstancesOrNull() {
+        return Collections.singletonList(new ExtractId(IdentifierType.DESTINATION));
     }
 
     @Override

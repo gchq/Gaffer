@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 
 import com.yahoo.sketches.frequencies.LongsSketch;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -84,5 +83,10 @@ public class LongsSketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected LongsSketchAggregator getInstance() {
         return new LongsSketchAggregator();
+    }
+
+    @Override
+    protected Iterable<LongsSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

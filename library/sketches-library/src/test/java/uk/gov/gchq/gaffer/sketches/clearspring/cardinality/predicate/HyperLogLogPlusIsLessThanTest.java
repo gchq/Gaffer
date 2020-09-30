@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -140,5 +140,13 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
     @Override
     protected Predicate getInstance() {
         return new HyperLogLogPlusIsLessThan(10);
+    }
+
+    @Override
+    protected Iterable<HyperLogLogPlusIsLessThan> getDifferentInstancesOrNull() {
+        return Arrays.asList(
+                new HyperLogLogPlusIsLessThan(20),
+                new HyperLogLogPlusIsLessThan(20, true)
+        );
     }
 }

@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -84,5 +83,10 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
     @Override
     protected UnionAggregator getInstance() {
         return new UnionAggregator();
+    }
+
+    @Override
+    protected Iterable<UnionAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

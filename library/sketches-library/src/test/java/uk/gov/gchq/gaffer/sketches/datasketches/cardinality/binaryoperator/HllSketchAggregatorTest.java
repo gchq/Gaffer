@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 
 import com.yahoo.sketches.hll.HllSketch;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -81,5 +80,10 @@ public class HllSketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected HllSketchAggregator getInstance() {
         return new HllSketchAggregator();
+    }
+
+    @Override
+    protected Iterable<HllSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }
