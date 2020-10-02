@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
@@ -60,6 +62,14 @@ public abstract class AbstractRestApiIT {
     protected <T> ResponseEntity<T> get(final String path, final Class<T> responseBodyClass) {
         try {
             return restTemplate.getForEntity(new URI(getBaseURl() + path), responseBodyClass);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Unable to constuct URI from " + getBaseURl() + path, e);
+        }
+    }
+
+    protected <T> ResponseEntity<T> request(final String path, final HttpMethod method, final HttpEntity entity, final Class<T> responseBodyClass) {
+        try {
+            return restTemplate.exchange(new URI(getBaseURl() + path), method, entity, responseBodyClass);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Unable to constuct URI from " + getBaseURl() + path, e);
         }
