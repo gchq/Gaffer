@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.controller.integration;
 
-import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
