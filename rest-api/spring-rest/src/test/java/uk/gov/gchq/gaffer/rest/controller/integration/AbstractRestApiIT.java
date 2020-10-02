@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
@@ -75,7 +76,6 @@ public abstract class AbstractRestApiIT {
 
     protected void checkResponse(final ResponseEntity<?> response, final int expectedCode) {
         assertEquals(expectedCode, response.getStatusCode().value());
-        // Then check Gaffer header
         assertTrue("Gaffer header was not present", response.getHeaders().containsKey(GAFFER_MEDIA_TYPE_HEADER));
     }
 }

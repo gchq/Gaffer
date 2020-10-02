@@ -53,7 +53,7 @@ public class GafferExceptionMapper extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(GafferWrappedErrorRuntimeException.class)
     @ResponseBody
-    public ResponseEntity<?> handleUnauthorisedException(final HttpServletRequest request, final GafferWrappedErrorRuntimeException e) {
+    public ResponseEntity<?> handleGafferWrappedErrorRuntimeException(final HttpServletRequest request, final GafferWrappedErrorRuntimeException e) {
         final Error error = ErrorFactory.from(e);
 
         return ResponseEntity.status(error.getStatusCode())
@@ -68,7 +68,4 @@ public class GafferExceptionMapper extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(error.getStatusCode())
                 .body(error);
     }
-
-
-
 }
