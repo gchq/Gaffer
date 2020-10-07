@@ -23,8 +23,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -43,6 +47,7 @@ import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.GraphFrameToIterableRow;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandlerTest;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.file.Path;
@@ -50,17 +55,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RowToElementGeneratorTest extends AbstractPropertiesDrivenTest {
+@ExtendWith(MiniAccumuloSetup.class)
+public class RowToElementGeneratorTest {
 
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        setUpBeforeClass("/store.properties", tempDir);
-    }
-
-    @AfterAll
-    public static void teardown() {
-        tearDownAfterClass();
-    }
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
 
     @BeforeEach
     public void before() {
@@ -131,7 +129,7 @@ public class RowToElementGeneratorTest extends AbstractPropertiesDrivenTest {
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

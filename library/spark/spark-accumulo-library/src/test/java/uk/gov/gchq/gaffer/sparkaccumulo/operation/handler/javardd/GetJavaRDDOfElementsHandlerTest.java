@@ -21,8 +21,12 @@ import org.apache.spark.api.java.JavaRDD;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,6 +42,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandlerTest;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -51,20 +57,13 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class GetJavaRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
+@ExtendWith(MiniAccumuloSetup.class)
+public class GetJavaRDDOfElementsHandlerTest {
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
 
     private static final String ENTITY_GROUP = "BasicEntity";
     private static final String EDGE_GROUP = "BasicEdge";
-
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        setUpBeforeClass("/store.properties", tempDir);
-    }
-
-    @AfterAll
-    public static void teardown() {
-        tearDownAfterClass();
-    }
 
     @Test
     public void checkGetCorrectElementsInJavaRDDForEntityId() throws OperationException, IOException {
@@ -75,7 +74,7 @@ public class GetJavaRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTes
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -227,7 +226,7 @@ public class GetJavaRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTes
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
 
         final List<Element> elements = new ArrayList<>();

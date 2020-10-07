@@ -46,6 +46,7 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -70,8 +71,7 @@ public class RFileReaderRddIT {
     private final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
     private static int nextTableId;
     private static String tableName;
-
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(RFileReaderRddIT.class.getResourceAsStream("/store.properties"));
 
     @Rule
@@ -81,13 +81,8 @@ public class RFileReaderRddIT {
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @BeforeClass
-    public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-    }
-
-    @AfterClass
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
+    public static void setupCluster() throws Exception {
+        MINI_ACCUMULO_SETUP.beforeAll();
     }
 
     @Before
@@ -187,8 +182,6 @@ public class RFileReaderRddIT {
         // Given
         final String user = "user2";
         loadAccumuloCluster(tableName, config, Arrays.asList("Bananas"));
-        miniAccumuloClusterManager.getCluster().getConnector("root", miniAccumuloClusterManager.ROOTPW).securityOperations()
-                .createLocalUser(user, new PasswordToken(PROPERTIES.getPassword()));
 
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
                 PROPERTIES.getInstance(), PROPERTIES.getZookeepers(), "user2",

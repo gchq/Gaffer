@@ -21,8 +21,12 @@ import org.apache.spark.rdd.RDD;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -51,22 +55,12 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class GetRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
+@ExtendWith(MiniAccumuloSetup.class)
+public class GetRDDOfElementsHandlerTest {
     private static final String ENTITY_GROUP = "BasicEntity";
     private static final String EDGE_GROUP = "BasicEdge";
 
-    @TempDir
-    static Path tempDir;
-
-    @BeforeAll
-    public static void setup() throws IOException {
-        setUpBeforeClass("/store.properties", Files.createDirectories(tempDir.resolve("accumulo_temp_dir")));
-    }
-
-    @AfterAll
-    public static void teardown() {
-        tearDownAfterClass();
-    }
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
 
     @Test
     public void checkGetCorrectElementsInRDDForEntityId() throws OperationException, IOException {
@@ -77,7 +71,7 @@ public class GetRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -254,7 +248,7 @@ public class GetRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -409,7 +403,7 @@ public class GetRDDOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
         final User user = new User();
         final Configuration conf = new Configuration();

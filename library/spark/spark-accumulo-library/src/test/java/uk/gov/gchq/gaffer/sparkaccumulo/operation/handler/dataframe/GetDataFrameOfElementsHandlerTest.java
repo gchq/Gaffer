@@ -26,12 +26,16 @@ import org.apache.spark.sql.types.DataTypes;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
 import scala.collection.mutable.MutableList;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -47,6 +51,7 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandlerTest;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -69,22 +74,14 @@ import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tear
  * {@link AccumuloStoreRelation} ensure that the RDD that is returned has already had the correct filtering
  * applied in Accumulo.
  */
-public class GetDataFrameOfElementsHandlerTest extends AbstractPropertiesDrivenTest {
+@ExtendWith(MiniAccumuloSetup.class)
+public class GetDataFrameOfElementsHandlerTest {
 
     static final String ENTITY_GROUP = "BasicEntity";
     static final String EDGE_GROUP = "BasicEdge";
     static final String EDGE_GROUP2 = "BasicEdge2";
     private static final int NUM_ELEMENTS = 10;
-
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        setUpBeforeClass("/store.properties", tempDir);
-    }
-
-    @AfterAll
-    public static void teardown() {
-        tearDownAfterClass();
-    }
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
@@ -513,7 +510,7 @@ public class GetDataFrameOfElementsHandlerTest extends AbstractPropertiesDrivenT
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;

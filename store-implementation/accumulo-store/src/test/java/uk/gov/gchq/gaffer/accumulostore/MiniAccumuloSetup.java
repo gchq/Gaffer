@@ -20,7 +20,9 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.io.Files;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -35,11 +37,19 @@ import java.io.IOException;
  * MiniAccumuloSetup sets up an accumulo cluster. It sets the cluster once per test session, so multiple test classes
  * can use the same Accumulo cluster without the need to restart it manually.
  *
- * To use this, you must use the following store properties:
+ * To use this, you should use the following store properties:
  * accumulo.instance=accumuloInstance
  * accumulo.zookeepers=localhost
- * accumulo.user=root
+ * accumulo.user=user
  * accumulo.password=password
+ *
+ * Accumulo Users:
+ * This setup class creates three accumulo users which you may use to connect to Accumulo:
+ * root - the root user
+ * user2 - a user with no permissions or visibilities.
+ * user - A user with the CREATE_TABLE permissions and all of the following visibilities:
+ * "vis1", "vis2", "publicVisibility", "privateVisibility", "public", "private".
+ * user2 - a user with no permissions or visibilities.
  *
  * For Junit 5 tests you can annotate your test class with:
  * {@code @ExtendsWith(MiniAccumuloSetup.class) }
@@ -54,14 +64,16 @@ public class MiniAccumuloSetup implements BeforeAllCallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloSetup.class);
     private static final int ZOOKEEPER_PORT = 2181;
     private static final String ROOT_USER = "root";
-    private static final String DEFAULT_PASSWORD = "password";
-    public static final String INSTANCE = "accumuloInstance";
+    public static final String USER = "user";
+    public static final String USER_NO_GRANTED_PERMISSION = "user2";
+    private static final String PASSWORD = "password";
+    private static final String INSTANCE = "accumuloInstance";
     private static MiniAccumuloCluster mac;
     private File tempDir = Files.createTempDir();
 
     private synchronized void setupAccumuloCluster() throws AccumuloSecurityException, AccumuloException {
         if (mac == null) {
-            MiniAccumuloConfig config = new MiniAccumuloConfig(tempDir, DEFAULT_PASSWORD);
+            MiniAccumuloConfig config = new MiniAccumuloConfig(tempDir, PASSWORD);
             config.setZooKeeperPort(ZOOKEEPER_PORT);
             config.setInstanceName(INSTANCE);
 
@@ -86,10 +98,20 @@ public class MiniAccumuloSetup implements BeforeAllCallback {
                 }
             }));
 
-            Authorizations testAuths = new Authorizations("vis1", "vis2", "publicVisibility", "privateVisibility", "public", "private");
-            mac.getConnector(ROOT_USER, DEFAULT_PASSWORD).securityOperations()
-                    .changeUserAuthorizations(ROOT_USER, testAuths);
+            addUsers();
         }
+    }
+
+    private void addUsers() throws AccumuloSecurityException, AccumuloException {
+        Authorizations testAuths = new Authorizations("vis1", "vis2", "publicVisibility", "privateVisibility", "public", "private");
+
+        mac.getConnector(ROOT_USER, PASSWORD).securityOperations().createLocalUser(USER, new PasswordToken(PASSWORD));
+        mac.getConnector(ROOT_USER, PASSWORD).securityOperations().createLocalUser(USER_NO_GRANTED_PERMISSION, new PasswordToken(PASSWORD));
+
+        mac.getConnector(ROOT_USER, PASSWORD).securityOperations()
+                .changeUserAuthorizations(USER, testAuths);
+
+        mac.getConnector(ROOT_USER, PASSWORD).securityOperations().grantSystemPermission(USER, SystemPermission.CREATE_TABLE);
     }
 
 

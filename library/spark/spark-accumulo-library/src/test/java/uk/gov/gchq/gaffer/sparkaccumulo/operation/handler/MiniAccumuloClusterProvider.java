@@ -30,6 +30,10 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * @deprecated Use the {@link uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup} class
+ */
+@Deprecated
 public final class MiniAccumuloClusterProvider {
     public static final String ROOT = "root";
     public static final String USER = "user";

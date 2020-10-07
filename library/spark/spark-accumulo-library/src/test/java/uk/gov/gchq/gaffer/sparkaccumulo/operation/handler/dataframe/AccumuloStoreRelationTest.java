@@ -25,9 +25,13 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -41,6 +45,7 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandlerTest;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -67,17 +72,10 @@ import static uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest.tear
 /**
  * Contains unit tests for {@link AccumuloStoreRelation}.
  */
-public class AccumuloStoreRelationTest extends AbstractPropertiesDrivenTest {
+@ExtendWith(MiniAccumuloSetup.class)
+public class AccumuloStoreRelationTest {
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
 
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        setUpBeforeClass("/store.properties", tempDir);
-    }
-
-    @AfterAll
-    public static void teardown() {
-        tearDownAfterClass();
-    }
 
     @Test
     public void testBuildScanFullView() throws OperationException, StoreException {
@@ -120,7 +118,7 @@ public class AccumuloStoreRelationTest extends AbstractPropertiesDrivenTest {
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
         final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
-        store.initialise("graphId", schema, getStoreProperties());
+        store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
 
         // When
@@ -164,7 +162,7 @@ public class AccumuloStoreRelationTest extends AbstractPropertiesDrivenTest {
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
         final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
-        store.initialise("graphId", schema, getStoreProperties());
+        store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
 
         // When
@@ -216,7 +214,7 @@ public class AccumuloStoreRelationTest extends AbstractPropertiesDrivenTest {
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
         final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
-        store.initialise("graphId", schema, getStoreProperties());
+        store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
 
         // When
@@ -250,7 +248,7 @@ public class AccumuloStoreRelationTest extends AbstractPropertiesDrivenTest {
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
         final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
-        store.initialise("graphId", schema, getStoreProperties());
+        store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
         final String[] requiredColumns = new String[1];
         requiredColumns[0] = "property1";
