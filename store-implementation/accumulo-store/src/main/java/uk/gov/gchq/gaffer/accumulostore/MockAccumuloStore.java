@@ -22,7 +22,6 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.mock.MockInstance;
-
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -37,6 +36,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 /**
  * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
  * provide a {@link Connector}.
+ *
+ * Use the MapStore for in memory graphs
  */
 @Deprecated
 public class MockAccumuloStore extends AccumuloStore {

@@ -16,16 +16,14 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
-
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -68,19 +66,14 @@ public class AccumuloAggregationIT extends StandaloneIT {
     private final User user = getUser();
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
+    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
 
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @BeforeClass
-    public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-    }
-
-    @AfterClass
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
+    public static void setUpCluster() throws Exception {
+        MINI_ACCUMULO_SETUP.beforeAll();
     }
 
     @Test

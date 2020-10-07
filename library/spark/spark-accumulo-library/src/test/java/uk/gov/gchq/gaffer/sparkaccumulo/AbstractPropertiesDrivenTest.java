@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.sparkaccumulo;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 
 import java.nio.file.Path;
 

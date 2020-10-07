@@ -20,16 +20,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.hamcrest.core.IsCollectionContaining;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -52,7 +49,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,6 +61,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@ExtendWith(MiniAccumuloSetup.class)
 public class GetElementsWithinSetHandlerTest {
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
@@ -75,8 +72,6 @@ public class GetElementsWithinSetHandlerTest {
     private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
 
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
     private static View defaultView;
 
     private static Edge expectedEdge1 = new Edge.Builder()
@@ -115,11 +110,6 @@ public class GetElementsWithinSetHandlerTest {
 
     private User user = new User();
 
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
 
     @BeforeEach
     public void reInitialise() throws StoreException {
@@ -164,12 +154,6 @@ public class GetElementsWithinSetHandlerTest {
         GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(BYTE_ENTITY_STORE);
         setupGraph(GAFFER_1_KEY_STORE);
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        miniAccumuloClusterManagerByteEntity.close();
-        miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test

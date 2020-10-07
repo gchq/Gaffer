@@ -18,16 +18,13 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -49,7 +46,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +54,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@ExtendWith(MiniAccumuloSetup.class)
 public class AccumuloSingleIDRetrieverTest {
 
     private static final int NUM_ENTRIES = 1000;
@@ -67,27 +64,12 @@ public class AccumuloSingleIDRetrieverTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSingleIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key;
-
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) throws StoreException {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
-
     @BeforeEach
     public void reInitialise() throws StoreException {
         BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         setupGraph(BYTE_ENTITY_STORE, NUM_ENTRIES);
         setupGraph(GAFFER_1_KEY_STORE, NUM_ENTRIES);
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        miniAccumuloClusterManagerByteEntity.close();
-        miniAccumuloClusterManagerGaffer1Key.close();
     }
 
     @Test
