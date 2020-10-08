@@ -521,10 +521,6 @@ Update the following store properties files in src/test/resources/ to point to t
 - [src/test/resources/store2.properties](src/test/resources/store2.properties)
 - [src/test/resources/accumuloStoreClassicKeys.properties](src/test/resources/accumuloStoreClassicKeys.properties)
 
-Ensure that one of the following classes is being used for the `gaffer.store.class` property:
-- uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore *(for testing against a temporary `MiniAccumuloCluster` Accumulo instance typically created with an `AccumuloTestClusterManager`)*
-- uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore *(for testing against a pre-existing Mini Accumulo cluster running locally)*
-
 If you are running an Accumulo cluster locally, here is what an example test store.properties file should look like:
 ```text
 gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore
@@ -532,7 +528,6 @@ gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloPropertie
 accumulo.instance=instance
 accumulo.user=root
 accumulo.password=password
-
 accumulo.zookeepers=localhost:58630
 
 gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService

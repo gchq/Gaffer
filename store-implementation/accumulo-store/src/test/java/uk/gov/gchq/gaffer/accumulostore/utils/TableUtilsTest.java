@@ -63,18 +63,6 @@ public class TableUtilsTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
 
-//    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-//
-//    @BeforeAll
-//    public static void setUpStore(@TempDir Path tempDir) {
-//        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-//    }
-//
-//    @AfterAll
-//    public static void tearDownStore() {
-//        miniAccumuloClusterManager.close();
-//    }
-
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given

@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.traffic;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -40,6 +42,7 @@ import java.net.URL;
  * Spins up the Gaffer REST API and loads the example Road Traffic data set into the store specified by the 'store.type'
  * property and then runs the {@link RoadTrafficTestQueries} against it.
  */
+@ExtendWith(MiniAccumuloSetup.class)
 public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
     public static final String STORE_TYPE_PROPERTY = "store.type";
@@ -53,15 +56,9 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final StoreProperties PROPERTIES =
             StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, STORE_TYPE_DEFAULT + StreamUtil.STORE_PROPERTIES));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    @TempDir
-    public static File staticTestFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
-
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, staticTestFolder.getAbsolutePath());
 
         // Spin up the REST API
         CLIENT.startServer();
@@ -81,7 +78,6 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @AfterAll
     public static void after() {
         CLIENT.stopServer();
-        miniAccumuloClusterManager.close();
     }
 
     @BeforeEach
