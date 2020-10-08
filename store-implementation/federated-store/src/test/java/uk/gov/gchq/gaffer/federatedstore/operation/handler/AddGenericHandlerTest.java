@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
@@ -32,8 +31,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.nio.file.Path;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -42,6 +39,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MiniAccumuloSetup.class)
 public class AddGenericHandlerTest {
 
     private FederatedStore store;
@@ -49,17 +47,6 @@ public class AddGenericHandlerTest {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseMiniAccStore.properties"));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    @BeforeAll
-    public static void setUpStore(@TempDir Path tempDir) {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
-    }
 
     @BeforeEach
     public void setUp() throws Exception {

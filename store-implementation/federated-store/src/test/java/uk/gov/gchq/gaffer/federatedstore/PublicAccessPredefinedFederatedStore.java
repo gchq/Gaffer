@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -39,11 +38,6 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    static {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
-    }
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {

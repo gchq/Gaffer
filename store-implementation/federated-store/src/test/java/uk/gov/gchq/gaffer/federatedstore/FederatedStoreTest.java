@@ -19,16 +19,14 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -69,7 +67,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,6 +98,7 @@ import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
+@ExtendWith(MiniAccumuloSetup.class)
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
     public static final String ID_SCHEMA_EDGE = "basicEdgeSchema";
@@ -138,26 +136,8 @@ public class FederatedStoreTest {
 
     private static final Class CURRENT_CLASS = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, PATH_ACC_STORE_PROPERTIES_1));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager1;
     private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, PATH_ACC_STORE_PROPERTIES_2));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager2;
     private static final AccumuloProperties PROPERTIES_ALT = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, PATH_ACC_STORE_PROPERTIES_ALT));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerAlt;
-
-    @BeforeAll
-    public static void setUpStore(@TempDir Path tempDir) {
-        String path = tempDir.toAbsolutePath().toString();
-        miniAccumuloClusterManager1 = new MiniAccumuloClusterManager(PROPERTIES_1, path);
-        miniAccumuloClusterManager2 = new MiniAccumuloClusterManager(PROPERTIES_2, path);
-        miniAccumuloClusterManagerAlt = new MiniAccumuloClusterManager(PROPERTIES_ALT, path);
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager1.close();
-        miniAccumuloClusterManager2.close();
-        miniAccumuloClusterManagerAlt.close();
-    }
 
     @BeforeEach
     public void setUp() throws Exception {

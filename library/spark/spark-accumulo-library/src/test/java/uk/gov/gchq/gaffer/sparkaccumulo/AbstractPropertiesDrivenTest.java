@@ -21,6 +21,10 @@ import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 
 import java.nio.file.Path;
 
+/**
+ * @deprecated use the {@link uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup}
+ */
+@Deprecated
 public abstract class AbstractPropertiesDrivenTest {
 
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;

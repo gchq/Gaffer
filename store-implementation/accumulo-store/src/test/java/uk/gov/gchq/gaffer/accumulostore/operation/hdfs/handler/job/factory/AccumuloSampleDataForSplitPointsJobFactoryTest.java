@@ -61,7 +61,7 @@ public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobF
     @Override
     protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
         final AccumuloStore store = new SingleUseAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloSampleDataForSplitPointsJobFactoryTest.class));
 
         super.configureStoreProperties(PROPERTIES, jsonSerialiserClass, jsonSerialiserModules, strictJson);
 
