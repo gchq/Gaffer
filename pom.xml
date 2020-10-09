@@ -1264,8 +1264,6 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>${surefire.plugin.version}</version>
                         <configuration>
-                            <forkCount>1</forkCount>
-                            <reuseForks>false</reuseForks>
                             <argLine>${surefireArgLine}</argLine>
                         </configuration>
                     </plugin>
@@ -1274,8 +1272,6 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${failsafe.version}</version>
                         <configuration>
-                            <forkCount>1</forkCount>
-                            <reuseForks>false</reuseForks>
                             <argLine>${failsafeArgLine}</argLine>
                         </configuration>
                     </plugin>
