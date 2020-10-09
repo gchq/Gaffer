@@ -19,12 +19,10 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -55,7 +53,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsInRangesHandlerTest.class));
@@ -75,10 +73,10 @@ public class GetElementsInRangesHandlerTest {
         handler = createHandler();
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        byteEntityStore = new SingleUseAccumuloStore();
+        byteEntityStore = new SingleUseMiniAccumuloStore();
         byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
 
-        gaffer1KeyStore = new SingleUseAccumuloStore();
+        gaffer1KeyStore = new SingleUseMiniAccumuloStore();
         gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
 
         setupGraph(byteEntityStore, NUM_ENTRIES);

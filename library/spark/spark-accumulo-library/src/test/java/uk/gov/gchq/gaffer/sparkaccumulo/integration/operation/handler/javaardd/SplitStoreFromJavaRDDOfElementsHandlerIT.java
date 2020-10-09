@@ -21,15 +21,10 @@ import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -61,15 +56,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
-    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setupCluster() throws Exception {
-        MINI_ACCUMULO_SETUP.beforeAll();
-    }
 
     @Before
     public void setUp() {

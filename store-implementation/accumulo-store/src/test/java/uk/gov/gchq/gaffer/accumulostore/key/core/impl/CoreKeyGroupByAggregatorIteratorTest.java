@@ -30,12 +30,10 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
@@ -60,11 +58,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class CoreKeyGroupByAggregatorIteratorTest {
 
-    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseAccumuloStore();
-    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseAccumuloStore();
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));

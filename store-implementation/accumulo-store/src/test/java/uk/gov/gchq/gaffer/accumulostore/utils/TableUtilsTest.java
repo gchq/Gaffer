@@ -22,12 +22,11 @@ import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
@@ -55,7 +54,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@ExtendWith(MiniAccumuloSetup.class)
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graph1";
     private static final String LOCALITY_GRAPH_ID = "localityTest";
@@ -66,7 +64,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
@@ -91,7 +89,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldFailTableValidationWhenMissingValidatorIterator() throws Exception {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
 
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -122,7 +120,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldFailTableValidationWhenMissingAggregatorIterator() throws Exception {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
 
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -183,7 +181,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldCreateTableWithCorrectLocalityGroups() throws Exception {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, String.class)
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
@@ -209,7 +207,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableCorrectlyIfSchemaContainsNoAggregators() throws Exception {
         // Given
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -274,7 +272,7 @@ public class TableUtilsTest {
         properties.setStoreClass(PROPERTIES.getStoreClass());
         properties.setZookeepers(PROPERTIES.getZookeepers());
 
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         assertThrows(IllegalArgumentException.class,
                 () -> store.initialise(null, schema, properties));
 
@@ -301,7 +299,7 @@ public class TableUtilsTest {
         properties.setStoreClass(PROPERTIES.getStoreClass());
         properties.setZookeepers((PROPERTIES.getZookeepers()));
 
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         assertThrows(IllegalArgumentException.class,
                 () -> store.initialise(null, schema, properties));
 

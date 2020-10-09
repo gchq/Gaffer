@@ -19,13 +19,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
@@ -40,7 +38,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
 import java.io.IOException;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobFactoryTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSampleDataForSplitPointsJobFactoryTest.class));
@@ -60,7 +58,7 @@ public class AccumuloSampleDataForSplitPointsJobFactoryTest extends AbstractJobF
 
     @Override
     protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloSampleDataForSplitPointsJobFactoryTest.class));
 
         super.configureStoreProperties(PROPERTIES, jsonSerialiserClass, jsonSerialiserModules, strictJson);

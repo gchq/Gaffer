@@ -34,7 +34,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.sql.SparkSession;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +42,7 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -68,7 +67,6 @@ public class RFileReaderRddIT {
     private final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
     private static int nextTableId;
     private static String tableName;
-    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(RFileReaderRddIT.class.getResourceAsStream("/store.properties"));
 
     @Rule
@@ -76,11 +74,6 @@ public class RFileReaderRddIT {
 
     @ClassRule
     public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setupCluster() throws Exception {
-        MINI_ACCUMULO_SETUP.beforeAll();
-    }
 
     @Before
     public void setUp() {
@@ -215,9 +208,20 @@ public class RFileReaderRddIT {
     private void loadAccumuloCluster(final String tableName, final Configuration configuration, final List<String> data)
             throws InterruptedException, AccumuloException, AccumuloSecurityException, StoreException, TableNotFoundException {
 
-        AccumuloStore accumuloStore = new AccumuloStore();
+        AccumuloStore accumuloStore = new MiniAccumuloStore();
+
+        // Create MiniAccumuloCluster with MiniAccumuloStore
         accumuloStore.initialise(tableName, new Schema(), PROPERTIES);
+
+        AccumuloProperties user2Properties = PROPERTIES.clone();
+        user2Properties.setUser("user2");
+
+        // Create table with different user
+        AccumuloStore store = new MiniAccumuloStore();
+        store.initialise(tableName + "Different", new Schema(), user2Properties);
+
         final Connector connector = accumuloStore.getConnection();
+
 
         // Add data
         final BatchWriter bw = connector.createBatchWriter(tableName, new BatchWriterConfig());

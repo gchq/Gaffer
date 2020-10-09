@@ -30,7 +30,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -91,7 +89,6 @@ public final class GetRDDOfAllElementsHandlerIT {
 
     private static final AccumuloProperties PROPERTIES_A = AccumuloProperties.loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
     private static final AccumuloProperties PROPERTIES_B = AccumuloProperties.loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
-    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
 
     private Entity entityRetainedAfterValidation;
 
@@ -104,11 +101,6 @@ public final class GetRDDOfAllElementsHandlerIT {
 
     private enum KeyPackage {
         BYTE_ENTITY, CLASSIC
-    }
-
-    @BeforeClass
-    public static void setupCluster() throws Exception {
-        MINI_ACCUMULO_SETUP.beforeAll();
     }
 
     @Test

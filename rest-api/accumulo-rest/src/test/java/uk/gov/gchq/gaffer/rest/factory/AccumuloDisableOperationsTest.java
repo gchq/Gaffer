@@ -17,12 +17,10 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Properties;
 
-@ExtendWith(MiniAccumuloSetup.class)
 public class AccumuloDisableOperationsTest extends DisableOperationsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloDisableOperationsTest.class);
 

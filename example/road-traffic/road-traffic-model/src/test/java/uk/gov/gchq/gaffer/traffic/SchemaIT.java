@@ -17,21 +17,16 @@
 package uk.gov.gchq.gaffer.traffic;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
-import java.io.File;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@ExtendWith(MiniAccumuloSetup.class)
 public class SchemaIT {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();

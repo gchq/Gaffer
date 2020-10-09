@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
 import org.apache.commons.io.FileUtils;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

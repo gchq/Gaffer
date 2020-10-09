@@ -17,14 +17,9 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -61,16 +56,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
-            StreamUtil.openStream(currentClass, "properties/singleUseMiniAccStore.properties"));
-    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
-
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setUpStore() throws Exception {
-        MINI_ACCUMULO_SETUP.beforeAll();
-    }
+            StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @Override
     protected Schema createSchema() {

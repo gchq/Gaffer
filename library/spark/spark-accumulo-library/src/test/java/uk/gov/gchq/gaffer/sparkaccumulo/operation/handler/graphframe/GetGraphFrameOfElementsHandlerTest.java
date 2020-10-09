@@ -19,10 +19,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
 import org.graphframes.GraphFrame;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -49,7 +47,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class GetGraphFrameOfElementsHandlerTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));

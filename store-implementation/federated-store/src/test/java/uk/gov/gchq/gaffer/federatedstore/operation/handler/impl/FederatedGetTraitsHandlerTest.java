@@ -19,10 +19,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -59,7 +57,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class FederatedGetTraitsHandlerTest {
     public static final String ALT_STORE = "altStore";
     public static final String FED_STORE_ID = "fedStoreId";
@@ -68,7 +66,7 @@ public class FederatedGetTraitsHandlerTest {
     private FederatedStoreProperties properties;
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseMiniAccStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {

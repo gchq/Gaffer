@@ -15,9 +15,6 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-import org.junit.BeforeClass;
-
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
@@ -27,24 +24,16 @@ public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
-    private static final MiniAccumuloSetup MINI_ACCUMULO_SETUP = new MiniAccumuloSetup();
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        MINI_ACCUMULO_SETUP.beforeAll();
-    }
-
     public FederatedStoreITs() {
         this(STORE_PROPERTIES);
     }
 
     protected FederatedStoreITs(final FederatedStoreProperties storeProperties) {
         super(storeProperties);
-//        skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
-//        addExtraTest(FederatedViewsIT.class);
-//        addExtraTest(FederatedAdminIT.class);
-//        addExtraTest(FederatedStoreRecursionIT.class);
-        singleTest(FederatedStoreRecursionIT.class);
+        skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
+        addExtraTest(FederatedViewsIT.class);
+        addExtraTest(FederatedAdminIT.class);
+        addExtraTest(FederatedStoreRecursionIT.class);
 
     }
 }

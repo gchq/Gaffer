@@ -6,7 +6,7 @@
         "class": "uk.gov.gchq.gaffer.operation.export.resultcache.handler.ExportToGafferResultCacheHandler",
         "graphId": "resultCacheGraph",
         "timeToLive": 86400000,
-        "storePropertiesPath": "accumulo/cache-store.properties"
+        "storePropertiesPath": "cache-store.properties"
       }
     },
     {
@@ -15,7 +15,7 @@
         "class": "uk.gov.gchq.gaffer.operation.export.resultcache.handler.GetGafferResultCacheExportHandler",
         "graphId": "resultCacheGraph",
         "timeToLive": 86400000,
-        "storePropertiesPath": "accumulo/cache-store.properties"
+        "storePropertiesPath": "cache-store.properties"
       }
     }
   ]

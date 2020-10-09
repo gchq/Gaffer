@@ -19,10 +19,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -41,12 +39,12 @@ import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class FederatedStoreMultiCacheTest {
 
     public static final String FEDERATED_STORE_ID = "testFederatedStoreId";
     public static final String ACC_ID_1 = "miniAccGraphId1";
-    public static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMiniAccStore.properties";
+    public static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseAccumuloStore.properties";
     public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     public static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     public static User authUser = authUser();

@@ -22,13 +22,11 @@ import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
 import scala.collection.mutable.MutableList;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -64,7 +62,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * {@link AccumuloStoreRelation} ensure that the RDD that is returned has already had the correct filtering
  * applied in Accumulo.
  */
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class GetDataFrameOfElementsHandlerTest {
 
     static final String ENTITY_GROUP = "BasicEntity";

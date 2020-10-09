@@ -19,10 +19,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -43,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class FederatedStoreSchemaTest {
     private static final String STRING = "string";
     private static final Schema STRING_SCHEMA = new Schema.Builder()

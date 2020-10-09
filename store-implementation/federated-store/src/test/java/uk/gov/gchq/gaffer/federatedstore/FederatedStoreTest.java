@@ -22,11 +22,9 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -98,7 +96,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-@ExtendWith(MiniAccumuloSetup.class)
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
     public static final String ID_SCHEMA_EDGE = "basicEdgeSchema";
@@ -110,9 +107,9 @@ public class FederatedStoreTest {
     private static final String ACC_ID_1 = "miniAccGraphId1";
     private static final String ACC_ID_2 = "miniAccGraphId2";
     private static final String MAP_ID_1 = "miniMapGraphId1";
-    private static final String PATH_ACC_STORE_PROPERTIES_1 = "properties/singleUseMiniAccStore.properties";
-    private static final String PATH_ACC_STORE_PROPERTIES_2 = "properties/singleUseMiniAccStore.properties";
-    private static final String PATH_ACC_STORE_PROPERTIES_ALT = "properties/singleUseMiniAccStoreAlt.properties";
+    private static final String PATH_ACC_STORE_PROPERTIES_1 = "properties/singleUseAccumuloStore.properties";
+    private static final String PATH_ACC_STORE_PROPERTIES_2 = "properties/singleUseAccumuloStore.properties";
+    private static final String PATH_ACC_STORE_PROPERTIES_ALT = "properties/singleUseAccumuloStoreAlt.properties";
     private static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     private static final String PATH_ENTITY_A_SCHEMA_JSON = "schema/entityASchema.json";
     private static final String PATH_ENTITY_B_SCHEMA_JSON = "schema/entityBSchema.json";

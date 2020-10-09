@@ -19,10 +19,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -34,7 +32,7 @@ import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class FederatedStorePublicAccessTest {
 
     private static final String GRAPH_1 = "graph1";

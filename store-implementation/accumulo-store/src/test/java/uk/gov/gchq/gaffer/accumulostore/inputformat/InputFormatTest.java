@@ -30,13 +30,11 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -68,7 +66,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class InputFormatTest {
 
     private enum KeyPackage {
@@ -268,7 +266,7 @@ public class InputFormatTest {
                                                        final java.nio.file.Path tempDir)
             throws Exception {
         AccumuloProperties properties = PROPERTIES.clone();
-        SingleUseAccumuloStore store = new SingleUseAccumuloStore();
+        SingleUseMiniAccumuloStore store = new SingleUseMiniAccumuloStore();
         String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:

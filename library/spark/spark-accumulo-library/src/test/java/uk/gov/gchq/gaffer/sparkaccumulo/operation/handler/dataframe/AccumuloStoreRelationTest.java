@@ -22,11 +22,10 @@ import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloSetup;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -64,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Contains unit tests for {@link AccumuloStoreRelation}.
  */
-@ExtendWith(MiniAccumuloSetup.class)
+
 public class AccumuloStoreRelationTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
 
@@ -109,7 +108,7 @@ public class AccumuloStoreRelationTest {
         // Given
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
-        final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
 
@@ -153,7 +152,7 @@ public class AccumuloStoreRelationTest {
         // Given
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
-        final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
 
@@ -205,7 +204,7 @@ public class AccumuloStoreRelationTest {
         // Given
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
-        final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
 
@@ -239,7 +238,7 @@ public class AccumuloStoreRelationTest {
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Schema schema = getSchema();
         final View view = getViewFromSchema(schema);
-        final SingleUseAccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         store.initialise("graphId", schema, PROPERTIES);
         addElements(store);
         final String[] requiredColumns = new String[1];
