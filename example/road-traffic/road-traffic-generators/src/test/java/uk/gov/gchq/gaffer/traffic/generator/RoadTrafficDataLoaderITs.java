@@ -53,10 +53,6 @@ public class RoadTrafficDataLoaderITs {
     private static final AccumuloProperties PROPERTIES =
             AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
 
-
-    @TempDir
-    public static File storeBaseFolder;
-
     @Test
     public void shouldLoadCsvV1Line() throws IOException, OperationException {
         final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);

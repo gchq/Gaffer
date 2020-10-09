@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
  *
- * Use the SingleUseMapStore for in memory graphs.
+ * @deprecated Use the SingleUseMapStore for in memory graphs.
  */
 @Deprecated
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {

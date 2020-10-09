@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -171,7 +171,7 @@ public class CreateSplitPointsIT {
         }
     }
 
-    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
+    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
         @Override
         public List<String> getTabletServers() throws StoreException {
             return Arrays.asList("1", "2", "3");

@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
  * provide a {@link Connector}.
  *
- * Use the MapStore for in memory graphs
+ * @deprecated Use the MapStore for in memory graphs
  */
 @Deprecated
 public class MockAccumuloStore extends AccumuloStore {
