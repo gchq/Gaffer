@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandlerTest;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class GetJavaRDDOfAllElementsHandlerTest {
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetJavaRDDOfAllElementsHandlerTest.class));
 
     @Test
     public void checkGetAllElementsInJavaRDD() throws OperationException, IOException {

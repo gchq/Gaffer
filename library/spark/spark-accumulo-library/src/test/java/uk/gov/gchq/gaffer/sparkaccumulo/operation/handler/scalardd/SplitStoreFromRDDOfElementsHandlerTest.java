@@ -56,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class SplitStoreFromRDDOfElementsHandlerTest {
 
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetRDDOfElementsHandlerTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(SplitStoreFromRDDOfElementsHandlerTest.class));
 
 
     private final User user = new User();
