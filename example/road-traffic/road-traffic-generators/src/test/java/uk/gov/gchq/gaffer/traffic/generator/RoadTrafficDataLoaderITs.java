@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.traffic.generator;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -32,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
