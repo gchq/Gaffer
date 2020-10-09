@@ -503,9 +503,26 @@ Accumulo's ability to have a large number of different column families allows Ga
 
 ## Tests
 
+By default all our tests use the MiniAccumuloStore. The MiniAccumuloStore automatically sets up or uses an existing
+MiniAccumuloCluster according to your store properties.
+
+Alongside the standard Accumulo properties, you also have the opportunity to add some extra ones for a MiniAccumuloStore:
+
+```
+accumulo.mini.directory=/path/to/directory
+accumulo.mini.root.password=password
+accumulo.mini.visibilities=vis1,vis2,publicVisibility,privateVisibility,public,private
+```
+These properties are optional. By default the MiniAccumuloStore creates the cluster in a temporary directory, uses
+"password" as the root password and adds no extra visibilities to a user.
+
+Because the MiniAccumulo re-uses clusters to be efficient, if two tests use the same user with different visibilities,
+the second one will overwrite the first. Therefore it's advisable to use different users if you want a user with
+different visibilities.
+
 ### Running the integration tests
 
-#### Running a Mini Accumulo Cluster locally
+#### Running a Mini Accumulo Cluster manually
 
 Follow this [README.md](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) in gaffer-tools on how 
 to run a Mini Accumulo Cluster (with a shell) on your local machine.
@@ -534,9 +551,8 @@ gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
 gaffer.store.job.tracker.enabled=true
 gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,ResultCacheExportOperations.json
 ```
-Also replace the these same properties for the values in [accumuloStoreClassicKeys.properties](src/test/resources/accumuloStoreClassicKeys.properties)
 
-Ensure that when running an Accumulo instance, the user specified by the `accumulo.user` property has the `System.CREATE_TABLE` permission ('root' user has this set by default) and the following scan authorisations:
+Ensure that when running an Accumulo instance, the user specified by the `accumulo.user` property has the `System.CREATE_TABLE` and `System.CREATE_NAMESPACE` permissions ('root' user has these set by default) and the following scan authorisations:
 
 | Authorisation     | Required by |
 | ----------------- | ----------- |
