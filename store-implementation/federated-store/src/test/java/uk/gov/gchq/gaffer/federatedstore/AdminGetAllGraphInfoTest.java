@@ -53,6 +53,7 @@ public class AdminGetAllGraphInfoTest {
         final StoreProperties fedProps = new StoreProperties();
         fedProps.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
         store.initialise("testFedStore", null, fedProps);
+        store.remove("graph1", ADMIN_USER, true);
     }
 
     @Test
