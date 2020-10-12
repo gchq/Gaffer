@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
@@ -38,11 +39,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NamedViewDetailTest {
@@ -83,7 +86,7 @@ public class NamedViewDetailTest {
     }
 
     @Test
-    public void shouldJsonSerialise() throws SerialisationException {
+    public void shouldJsonSerialiseUsingAccessPredicates() throws SerialisationException {
         // Given
         final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder()
                 .readAccessPredicate(READ_ACCESS_PREDICATE)
@@ -98,7 +101,47 @@ public class NamedViewDetailTest {
                 "  \"name\" : \"view1\",%n" +
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +
-                "  \"writeAccessRoles\" : [ \"writeAuth1\", \"writeAuth2\" ],%n" +
+                "  \"parameters\" : {%n" +
+                "    \"entityGroup\" : {%n" +
+                "      \"description\" : \"some description\",%n" +
+                "      \"defaultValue\" : \"red\",%n" +
+                "      \"valueClass\" : \"java.lang.String\",%n" +
+                "      \"required\" : false%n" +
+                "    }%n" +
+                "  },%n" +
+                "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\",%n" +
+                "  \"readAccessPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       }%n" +
+                "   },%n" +
+                "   \"writeAccessPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "       \"userPredicate\" : {%n" +
+                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "       }%n " +
+                "   }%n" +
+                "},%n");
+        JsonAssert.assertEquals(expected, new String(json));
+    }
+
+    @Test
+    public void shouldJsonSerialiseUsingWriters() throws SerialisationException {
+        // Given
+        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder()
+                .writers(asList("writeAuth1", "writeAuth2"))
+                .build();
+
+        // When
+        final byte[] json = JSONSerialiser.serialise(namedViewDetail, true);
+
+        // Then
+        final String expected = String.format("{%n" +
+                "  \"name\" : \"view1\",%n" +
+                "  \"description\" : \"description\",%n" +
+                "  \"creatorId\" : \"creator\",%n" +
+                "  \"writeAccessRoles\" : [\"writeAuth1\", \"writeAuth2\"],%n" +
                 "  \"parameters\" : {%n" +
                 "    \"entityGroup\" : {%n" +
                 "      \"description\" : \"some description\",%n" +
@@ -156,9 +199,12 @@ public class NamedViewDetailTest {
 
     @Test
     public void shouldConfigureDefaultAccessPredicateForWriteAccessTestByDefault() {
-        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder().build();
+        final List<String> writers = asList("writeAuth1", "writeAuth2");
+        final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder()
+                .writers(writers)
+                .build();
         assertEquals(
-                new NamedViewWriteAccessPredicate(new User.Builder().userId("creator").build(), asList("writeAuth1", "writeAuth2")),
+                new NamedViewWriteAccessPredicate(new User.Builder().userId("creator").build(), writers),
                 namedViewDetail.getWriteAccessPredicate());
     }
 
@@ -172,7 +218,6 @@ public class NamedViewDetailTest {
         return new NamedViewDetail.Builder()
                 .name("view1")
                 .creatorId("creator")
-                .writers(asList("writeAuth1", "writeAuth2"))
                 .description("description")
                 .parameters(params)
                 .view("{\"entities\": {" +
@@ -238,5 +283,21 @@ public class NamedViewDetailTest {
         ByteArrayInputStream b = new ByteArrayInputStream(bytes);
         ObjectInputStream o = new ObjectInputStream(b);
         return o.readObject();
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionIfBothWritersAndWriteAccessPredicateAreSupplied() {
+        final Executable executable = () -> new NamedViewDetail.Builder()
+                .creatorId("creator")
+                .name("test")
+                .view(new View.Builder()
+                        .globalElements(new GlobalViewElementDefinition.Builder()
+                                .groupBy()
+                                .build())
+                        .build())
+                .writers(asList("a", "b", "c"))
+                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
+                .build();
+        assertThrows(IllegalArgumentException.class, executable, "Only one of writers or writeAccessPredicate should be supplied.");
     }
 }

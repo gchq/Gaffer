@@ -117,6 +117,7 @@ public class AddNamedViewHandlerTest {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         addNamedView.setReadAccessPredicate(readAccessPredicate);
+        addNamedView.setWriteAccessRoles(null);
         addNamedView.setWriteAccessPredicate(writeAccessPredicate);
 
         handler.doOperation(addNamedView, context, store);

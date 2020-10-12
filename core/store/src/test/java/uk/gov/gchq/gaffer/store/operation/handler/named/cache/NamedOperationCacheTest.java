@@ -196,7 +196,6 @@ public class NamedOperationCacheTest {
                 .description("an operation that does no allow read access")
                 .operationName("test")
                 .readers(readers)
-                .writers(writers)
                 .operationChain(standardOpChain)
                 .writeAccessPredicate(new NoAccessPredicate())
                 .build();
@@ -257,7 +256,6 @@ public class NamedOperationCacheTest {
                 .creatorId(standardUser.getUserId())
                 .description("an operation that does no allow read access")
                 .operationName("test")
-                .readers(readers)
                 .writers(writers)
                 .operationChain(standardOpChain)
                 .readAccessPredicate(new NoAccessPredicate())

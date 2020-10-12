@@ -242,7 +242,7 @@ public class AddNamedOperationHandlerTest {
     }
 
     @Test
-    public void shouldCustomAccessPredicateAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddCustomAccessPredicateFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
@@ -250,7 +250,9 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
         addNamedOperation.setLabels(asList("test label"));
+        addNamedOperation.setReadAccessRoles(null);
         addNamedOperation.setReadAccessPredicate(readAccessPredicate);
+        addNamedOperation.setWriteAccessRoles(null);
         addNamedOperation.setWriteAccessPredicate(writeAccessPredicate);
 
         handler.doOperation(addNamedOperation, context, store);
