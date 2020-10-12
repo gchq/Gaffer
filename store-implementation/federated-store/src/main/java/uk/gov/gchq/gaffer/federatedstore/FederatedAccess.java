@@ -196,19 +196,11 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {
-        AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        if (readAccessPredicate == null) {
-            throw new IllegalArgumentException("Unable to tell if user has READ access as readAccessPredicate was null");
-        }
-        return readAccessPredicate.test(user, adminAuth);
+        return getReadAccessPredicate().test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
-        AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        if (writeAccessPredicate == null) {
-            throw new IllegalArgumentException("Unable to tell if user has WRITE access as writeAccessPredicate was null");
-        }
-        return writeAccessPredicate.test(user, adminAuth);
+        return getWriteAccessPredicate().test(user, adminAuth);
     }
 
     private AccessPredicate deserialisePredicate(final String predicateJson) {

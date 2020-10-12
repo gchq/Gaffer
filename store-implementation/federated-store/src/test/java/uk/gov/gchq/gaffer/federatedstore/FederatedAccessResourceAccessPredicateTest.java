@@ -72,7 +72,6 @@ public class FederatedAccessResourceAccessPredicateTest {
     public void shouldNotAllowReadAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addingUserId(testUser.getUserId())
-                .graphAuths(ALL_USERS)
                 .readAccessPredicate(new NoAccessPredicate())
                 .build();
 
