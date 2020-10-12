@@ -50,7 +50,8 @@ public class FederatedStoreCacheTest {
     private static FederatedStoreCache federatedStoreCache;
     private static Properties properties = new Properties();
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_MAP_STORE_PROPERTIES));
     private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
