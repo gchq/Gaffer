@@ -24,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -42,7 +43,6 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
 
     private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMiniAccStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.JcsCacheService";
     private static final String MAP_ID_1 = "mockMapGraphId1";
     private static FederatedStoreCache federatedStoreCache;
     private static Properties properties = new Properties();
@@ -53,7 +53,7 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
 
     @BeforeAll
     public static void setUp(@TempDir Path tempDir) {
-        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
 
         CacheServiceLoader.initialise(properties);
