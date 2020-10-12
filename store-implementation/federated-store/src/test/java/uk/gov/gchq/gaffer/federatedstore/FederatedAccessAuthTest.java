@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -30,9 +31,12 @@ import uk.gov.gchq.koryphe.impl.function.CallMethod;
 import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
+import java.util.Collections;
+
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
@@ -167,6 +171,14 @@ public class FederatedAccessAuthTest {
                 "}";
 
         JsonAssert.assertEquals(expected, serialised);
+    }
 
+    @Test
+    public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSupplied() {
+        final Executable executable = () -> new FederatedAccess.Builder()
+                .graphAuths("X")
+                .readAccessPredicate(new AccessPredicate("user1", Collections.singletonList("auth1")))
+                .build();
+        assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
     }
 }

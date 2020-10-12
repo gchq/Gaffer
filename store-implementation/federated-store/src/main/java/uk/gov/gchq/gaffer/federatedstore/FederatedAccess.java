@@ -68,7 +68,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
  * <tr><td> n/a     </td><td> {@code empty} </td><td> F
  * </td><td> F         </td></tr>
  * </table>
- *
  */
 @JsonDeserialize(builder = FederatedAccess.Builder.class)
 public class FederatedAccess implements AccessControlledResource, Serializable {
@@ -101,6 +100,11 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             final boolean disabledByDefault,
             final AccessPredicate readAccessPredicate,
             final AccessPredicate writeAccessPredicate) {
+
+        if (graphAuths != null && readAccessPredicate != NO_ACCESS_PREDICATE) {
+            throw new IllegalArgumentException("Only one of graphAuths or readAccessPredicate should be supplied.");
+        }
+
         this.graphAuths = graphAuths;
         this.addingUserId = addingUserId;
         this.isPublic = isPublic;
