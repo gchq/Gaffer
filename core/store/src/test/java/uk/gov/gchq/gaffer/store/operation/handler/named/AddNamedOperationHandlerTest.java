@@ -236,9 +236,9 @@ public class AddNamedOperationHandlerTest {
         assertTrue(result.getScore() == 2);
         assertEquals(asList("test label"), result.getLabels());
         final AccessPredicate expectedReadAccessPredicate = new AccessPredicate(context.getUser(), readAuths);
-        assertEquals(expectedReadAccessPredicate, result.getReadAccessPredicate());
+        assertEquals(expectedReadAccessPredicate, result.getOrDefaultReadAccessPredicate());
         final AccessPredicate expectedWriteAccessPredicate = new AccessPredicate(context.getUser(), writeAuths);
-        assertEquals(expectedWriteAccessPredicate, result.getWriteAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, result.getOrDefaultWriteAccessPredicate());
     }
 
     @Test

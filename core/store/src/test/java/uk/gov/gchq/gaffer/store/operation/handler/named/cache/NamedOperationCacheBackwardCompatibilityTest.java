@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
