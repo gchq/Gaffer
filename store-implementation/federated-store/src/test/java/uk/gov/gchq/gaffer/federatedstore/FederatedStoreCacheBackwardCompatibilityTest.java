@@ -80,7 +80,7 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
         final FederatedAccess access = new FederatedAccess(graphAuths, addingUser.getUserId());
         final FederatedAccess accessFromCacheVersion1_12 = federatedStoreCache.getAccessFromCache(MAP_ID_1);
 
-        assertEquals(access.getReadAccessPredicate(), accessFromCacheVersion1_12.getReadAccessPredicate());
-        assertEquals(access.getWriteAccessPredicate(), accessFromCacheVersion1_12.getWriteAccessPredicate());
+        assertEquals(access.getOrDefaultReadAccessPredicate(), accessFromCacheVersion1_12.getOrDefaultReadAccessPredicate());
+        assertEquals(access.getOrDefaultWriteAccessPredicate(), accessFromCacheVersion1_12.getOrDefaultWriteAccessPredicate());
     }
 }

@@ -52,7 +52,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
-    private static final AccessPredicate NO_ACCESS_PREDICATE = null;
+    private static final AccessPredicate NULL_ACCESS_PREDICATE = null;
     private String operationName;
     private List<String> labels;
     private String inputType;
@@ -101,10 +101,10 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         if (null == operationName || operationName.isEmpty()) {
             throw new IllegalArgumentException("Operation Name must not be empty");
         }
-        if (readers != null && readAccessPredicate != NO_ACCESS_PREDICATE) {
+        if (readers != null && readAccessPredicate != NULL_ACCESS_PREDICATE) {
             throw new IllegalArgumentException("Only one of readers or readAccessPredicate should be supplied.");
         }
-        if (writers != null && writeAccessPredicate != NO_ACCESS_PREDICATE) {
+        if (writers != null && writeAccessPredicate != NULL_ACCESS_PREDICATE) {
             throw new IllegalArgumentException("Only one of writers or writeAccessPredicate should be supplied.");
         }
 
@@ -121,8 +121,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this.score = score;
 
         try {
-            this.readAccessPredicateJson = new String(JSONSerialiser.serialise(readAccessPredicate != NO_ACCESS_PREDICATE ? readAccessPredicate : getDefaultReadAccessPredicate()));
-            this.writeAccessPredicateJson = new String(JSONSerialiser.serialise(writeAccessPredicate != NO_ACCESS_PREDICATE ? writeAccessPredicate : getDefaultWriteAccessPredicate()));
+            this.readAccessPredicateJson = readAccessPredicate != NULL_ACCESS_PREDICATE ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
+            this.writeAccessPredicateJson = writeAccessPredicate != NULL_ACCESS_PREDICATE ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Read and Write Access predicates must be json serialisable", e);
         }
@@ -328,16 +328,16 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {
-        return getReadAccessPredicate().test(user, adminAuth);
+        return getOrDefaultReadAccessPredicate().test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
-        return getWriteAccessPredicate().test(user, adminAuth);
+        return getOrDefaultWriteAccessPredicate().test(user, adminAuth);
     }
 
     public AccessPredicate getReadAccessPredicate() {
         try {
-            return readAccessPredicateJson != null ? JSONSerialiser.deserialise(readAccessPredicateJson, AccessPredicate.class) : getDefaultReadAccessPredicate();
+            return readAccessPredicateJson != null ? JSONSerialiser.deserialise(readAccessPredicateJson, AccessPredicate.class) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("readAccessPredicate was not JsonSerialisable", e);
         }
@@ -345,10 +345,22 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
     public AccessPredicate getWriteAccessPredicate() {
         try {
-            return writeAccessPredicateJson != null ? JSONSerialiser.deserialise(writeAccessPredicateJson, AccessPredicate.class) : getDefaultWriteAccessPredicate();
+            return writeAccessPredicateJson != null ? JSONSerialiser.deserialise(writeAccessPredicateJson, AccessPredicate.class) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("writeAccessPredicate was not JsonSerialisable", e);
         }
+    }
+
+    @JsonIgnore
+    public AccessPredicate getOrDefaultReadAccessPredicate() {
+        final AccessPredicate readAccessPredicate = getReadAccessPredicate();
+        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+    }
+
+    @JsonIgnore
+    public AccessPredicate getOrDefaultWriteAccessPredicate() {
+        final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
+        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {

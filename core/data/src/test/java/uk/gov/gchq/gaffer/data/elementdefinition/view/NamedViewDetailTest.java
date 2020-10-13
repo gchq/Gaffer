@@ -82,7 +82,7 @@ public class NamedViewDetailTest {
 
         // Then
         AccessPredicate expected = new NamedViewWriteAccessPredicate("creator", asList("writeAuth1", "writeAuth2"));
-        assertEquals(expected, deserialised.getWriteAccessPredicate());
+        assertEquals(expected, deserialised.getOrDefaultWriteAccessPredicate());
     }
 
     @Test
@@ -124,6 +124,10 @@ public class NamedViewDetailTest {
                 "   }%n" +
                 "},%n");
         JsonAssert.assertEquals(expected, new String(json));
+
+        final NamedViewDetail deserialisedNamedViewDetail = JSONSerialiser.deserialise(new String(json), NamedViewDetail.class);
+
+        assertEquals(namedViewDetail, deserialisedNamedViewDetail);
     }
 
     @Test
@@ -150,21 +154,13 @@ public class NamedViewDetailTest {
                 "      \"required\" : false%n" +
                 "    }%n" +
                 "  },%n" +
-                "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\",%n" +
-                "  \"readAccessPredicate\" : {%n" +
-                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
-                "       \"userPredicate\" : {%n" +
-                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
-                "       }%n" +
-                "   },%n" +
-                "   \"writeAccessPredicate\" : {%n" +
-                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
-                "       \"userPredicate\" : {%n" +
-                "           \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
-                "       }%n " +
-                "   }%n" +
-                "},%n");
+                "  \"view\" : \"{\\\"entities\\\": {\\\"${entityGroup}\\\":{}}}\"%n" +
+                "}%n");
         JsonAssert.assertEquals(expected, new String(json));
+
+        final NamedViewDetail deserialisedNamedViewDetail = JSONSerialiser.deserialise(new String(json), NamedViewDetail.class);
+
+        assertEquals(namedViewDetail, deserialisedNamedViewDetail);
     }
 
     @Test
@@ -194,7 +190,7 @@ public class NamedViewDetailTest {
         final NamedViewDetail namedViewDetail = createNamedViewDetailBuilder().build();
         assertEquals(
                 new UnrestrictedAccessPredicate(),
-                namedViewDetail.getReadAccessPredicate());
+                namedViewDetail.getOrDefaultReadAccessPredicate());
     }
 
     @Test
@@ -205,7 +201,7 @@ public class NamedViewDetailTest {
                 .build();
         assertEquals(
                 new NamedViewWriteAccessPredicate(new User.Builder().userId("creator").build(), writers),
-                namedViewDetail.getWriteAccessPredicate());
+                namedViewDetail.getOrDefaultWriteAccessPredicate());
     }
 
     private NamedViewDetail.Builder createNamedViewDetailBuilder() {
