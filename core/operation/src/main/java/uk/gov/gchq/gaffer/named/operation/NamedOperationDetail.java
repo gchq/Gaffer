@@ -337,7 +337,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
     public AccessPredicate getReadAccessPredicate() {
         try {
-            return readAccessPredicateJson != null ? JSONSerialiser.deserialise(readAccessPredicateJson, AccessPredicate.class) : null;
+            return readAccessPredicateJson != null ? JSONSerialiser.deserialise(readAccessPredicateJson, AccessPredicate.class) : NULL_ACCESS_PREDICATE;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("readAccessPredicate was not JsonSerialisable", e);
         }
@@ -345,7 +345,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
     public AccessPredicate getWriteAccessPredicate() {
         try {
-            return writeAccessPredicateJson != null ? JSONSerialiser.deserialise(writeAccessPredicateJson, AccessPredicate.class) : null;
+            return writeAccessPredicateJson != null ? JSONSerialiser.deserialise(writeAccessPredicateJson, AccessPredicate.class) : NULL_ACCESS_PREDICATE;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("writeAccessPredicate was not JsonSerialisable", e);
         }
@@ -354,13 +354,13 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     @JsonIgnore
     public AccessPredicate getOrDefaultReadAccessPredicate() {
         final AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+        return readAccessPredicate != NULL_ACCESS_PREDICATE ? readAccessPredicate : getDefaultReadAccessPredicate();
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultWriteAccessPredicate() {
         final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+        return writeAccessPredicate != NULL_ACCESS_PREDICATE ? writeAccessPredicate : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {

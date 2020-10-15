@@ -325,23 +325,23 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
 
 
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate != null ? deserialise(readAccessPredicate) : null;
+        return readAccessPredicate != null ? deserialise(readAccessPredicate) : NULL_ACCESS_PREDICATE;
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : null;
+        return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : NULL_ACCESS_PREDICATE;
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultReadAccessPredicate() {
         final AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+        return readAccessPredicate != NULL_ACCESS_PREDICATE ? readAccessPredicate : getDefaultReadAccessPredicate();
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultWriteAccessPredicate() {
         final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+        return writeAccessPredicate != NULL_ACCESS_PREDICATE ? writeAccessPredicate : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {

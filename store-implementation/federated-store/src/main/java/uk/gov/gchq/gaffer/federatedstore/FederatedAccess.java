@@ -229,23 +229,23 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate != null ? deserialisePredicate(readAccessPredicate) : null;
+        return readAccessPredicate != null ? deserialisePredicate(readAccessPredicate) : NULL_ACCESS_PREDICATE;
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate != null ? deserialisePredicate(writeAccessPredicate) : null;
+        return writeAccessPredicate != null ? deserialisePredicate(writeAccessPredicate) : NULL_ACCESS_PREDICATE;
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultReadAccessPredicate() {
         final AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+        return readAccessPredicate != NULL_ACCESS_PREDICATE ? readAccessPredicate : getDefaultReadAccessPredicate();
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultWriteAccessPredicate() {
         final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+        return writeAccessPredicate != NULL_ACCESS_PREDICATE ? writeAccessPredicate : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {
