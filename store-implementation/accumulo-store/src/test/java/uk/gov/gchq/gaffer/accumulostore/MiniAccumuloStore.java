@@ -116,14 +116,12 @@ public class MiniAccumuloStore extends AccumuloStore {
             }
         }
 
-
         // Add Auths
         String auths = getProperties().get(VISIBILITIES_PROPERTY);
         if (auths != null) {
             mac.getConnector(ROOT_USER, rootPassword).securityOperations()
                     .changeUserAuthorizations(userName, new Authorizations(auths.split(",")));
         }
-
     }
 
     @Override
