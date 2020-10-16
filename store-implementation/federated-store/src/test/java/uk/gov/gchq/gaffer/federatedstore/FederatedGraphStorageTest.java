@@ -94,6 +94,7 @@ public class FederatedGraphStorageTest {
     private static final String UNUSUAL_TYPE = "unusualType";
     private static final String GROUP_ENT = "ent";
     private static final String GROUP_EDGE = "edg";
+    private static final Set<String> NULL_GRAPH_AUTHS = null;
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
@@ -143,12 +144,12 @@ public class FederatedGraphStorageTest {
         disabledByDefaultAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, true);
 
         blockingAccessPredicate = new NoAccessPredicate();
-        blockingReadAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, false, blockingAccessPredicate, null);
-        blockingWriteAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, false, null, blockingAccessPredicate);
+        blockingReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, blockingAccessPredicate, null);
+        blockingWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, null, blockingAccessPredicate);
 
         permissiveAccessPredicate = new UnrestrictedAccessPredicate();
-        permissiveReadAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, false, permissiveAccessPredicate, null);
-        permissiveWriteAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, false, null, permissiveAccessPredicate);
+        permissiveReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, permissiveAccessPredicate, null);
+        permissiveWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, null, permissiveAccessPredicate);
     }
 
     @Test

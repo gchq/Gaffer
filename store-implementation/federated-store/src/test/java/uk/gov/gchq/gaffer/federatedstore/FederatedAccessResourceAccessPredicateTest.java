@@ -53,8 +53,8 @@ public class FederatedAccessResourceAccessPredicateTest {
         final AccessPredicate expectedNonPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), false);
         final AccessPredicate expectedWriteAccessPredicate = new FederatedGraphWriteAccessPredicate(testUser.getUserId());
 
-        assertEquals(expectedNonPublicReadAccessPredicate, access.getReadAccessPredicate());
-        assertEquals(expectedWriteAccessPredicate, access.getWriteAccessPredicate());
+        assertEquals(expectedNonPublicReadAccessPredicate, access.getOrDefaultReadAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, access.getOrDefaultWriteAccessPredicate());
 
         final FederatedAccess publicAccess = new FederatedAccess.Builder()
                 .addingUserId(testUser.getUserId())
@@ -64,15 +64,14 @@ public class FederatedAccessResourceAccessPredicateTest {
 
         final AccessPredicate expectedPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), true);
 
-        assertEquals(expectedPublicReadAccessPredicate, publicAccess.getReadAccessPredicate());
-        assertEquals(expectedWriteAccessPredicate, publicAccess.getWriteAccessPredicate());
+        assertEquals(expectedPublicReadAccessPredicate, publicAccess.getOrDefaultReadAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, publicAccess.getOrDefaultWriteAccessPredicate());
     }
 
     @Test
     public void shouldNotAllowReadAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addingUserId(testUser.getUserId())
-                .graphAuths(ALL_USERS)
                 .readAccessPredicate(new NoAccessPredicate())
                 .build();
 

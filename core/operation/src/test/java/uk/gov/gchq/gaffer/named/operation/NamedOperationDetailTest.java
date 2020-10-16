@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -34,9 +35,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NamedOperationDetailTest {
 
@@ -47,18 +50,24 @@ public class NamedOperationDetailTest {
 
     @Test
     public void shouldDefaultReadAccessPredicateIfNoneSpecified() {
-        final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder().build();
+        final List<String> readers = asList("readerAuth1", "readerAuth2");
+        final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
+                .readers(readers)
+                .build();
         assertEquals(
-                new AccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("readerAuth1", "readerAuth2")),
-                namedOperationDetail.getReadAccessPredicate());
+                new AccessPredicate(new User.Builder().userId("creatorUserId").build(), readers),
+                namedOperationDetail.getOrDefaultReadAccessPredicate());
     }
 
     @Test
     public void shouldDefaultWriteAccessPredicateIfNoneSpecified() {
-        final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder().build();
+        final List<String> writers = asList("writerAuth1", "writerAuth2");
+        final NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder()
+                .writers(writers)
+                .build();
         assertEquals(
-                new AccessPredicate(new User.Builder().userId("creatorUserId").build(), asList("writerAuth1", "writerAuth2")),
-                namedOperationDetail.getWriteAccessPredicate());
+                new AccessPredicate(new User.Builder().userId("creatorUserId").build(), writers),
+                namedOperationDetail.getOrDefaultWriteAccessPredicate());
     }
 
     @Test
@@ -121,26 +130,79 @@ public class NamedOperationDetailTest {
         String serialised = new String(JSONSerialiser.serialise(nop));
 
         // Then
-        String expected = "{" +
+        String expected =
+                "{" +
+                "   \"operationName\": \"test\"," +
+                "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"" +
+                "}";
+
+        JsonAssert.assertEquals(expected, serialised);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseAccessPredicates() throws SerialisationException {
+        NamedOperationDetail nop = new NamedOperationDetail.Builder()
+                .operationName("test")
+                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .readAccessPredicate(new AccessPredicate("a", asList("b", "c")))
+                .writeAccessPredicate(new AccessPredicate("x", asList("y", "z")))
+                .build();
+
+        // When
+        String serialised = new String(JSONSerialiser.serialise(nop));
+
+        // Then
+        String expected =
+                "{" +
                 "   \"operationName\": \"test\"," +
                 "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"," +
-                "   \"readAccessPredicate\" : {\"class\":\"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
-                "       \"userPredicate\":{" +
+                "   \"readAccessPredicate\": {" +
+                "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                "       \"userPredicate\": {" +
                 "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
-                "           \"auths\":[]" +
+                "           \"creatingUserId\": \"a\"," +
+                "           \"auths\": [\"b\", \"c\"]" +
                 "       }" +
                 "   }," +
                 "   \"writeAccessPredicate\": {" +
-                "       \"class\":\"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
                 "       \"userPredicate\": {" +
-                "           \"class\":\"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
-                "           \"auths\":[]" +
+                "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
+                "           \"creatingUserId\": \"x\"," +
+                "           \"auths\": [\"y\", \"z\"]" +
                 "       }" +
                 "   }" +
                 "}";
 
+        JsonAssert.assertEquals(expected, serialised);
+        final NamedOperationDetail deserialised = JSONSerialiser.deserialise(serialised, NamedOperationDetail.class);
+        assertEquals(nop, deserialised);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseReadersAndWriters() throws SerialisationException {
+        NamedOperationDetail nop = new NamedOperationDetail.Builder()
+                .operationName("test")
+                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .readers(asList("b", "c"))
+                .writers(asList("y", "z"))
+                .build();
+
+        // When
+        String serialised = new String(JSONSerialiser.serialise(nop));
+
+        // Then
+        String expected =
+                "{" +
+                        "   \"operationName\": \"test\"," +
+                        "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"," +
+                        "   \"readAccessRoles\": [\"b\", \"c\"]," +
+                        "   \"writeAccessRoles\": [\"y\", \"z\"]" +
+                        "}";
 
         JsonAssert.assertEquals(expected, serialised);
+        final NamedOperationDetail deserialised = JSONSerialiser.deserialise(serialised, NamedOperationDetail.class);
+        assertEquals(nop, deserialised);
     }
 
     @Test
@@ -201,10 +263,26 @@ public class NamedOperationDetailTest {
                 .inputType("inputType")
                 .description("description")
                 .creatorId("creatorUserId")
-                .readers(asList("readerAuth1", "readerAuth2"))
-                .writers(asList("writerAuth1", "writerAuth2"))
                 .parameters(Collections.emptyMap())
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.store.operation.GetSchema\",\"compact\":false}]}")
                 .score(1);
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionIfBothReadAccessRolesAndReadAccessPredicateAreSupplied() {
+        final Executable executable = () -> getBaseNamedOperationDetailBuilder()
+                .readers(asList("readerAuth1", "readerAuth2"))
+                .readAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
+                .build();
+        assertThrows(IllegalArgumentException.class, executable, "Only one of readers or readAccessPredicate should be supplied.");
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionIfBothWriteAccessRolesAndWriteAccessPredicateAreSupplied() {
+        final Executable executable = () -> getBaseNamedOperationDetailBuilder()
+                .writers(asList("writerAuth1", "writerAuth2"))
+                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
+                .build();
+        assertThrows(IllegalArgumentException.class, executable, "Only one of writers or writeAccessPredicate should be supplied.");
     }
 }

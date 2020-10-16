@@ -387,7 +387,6 @@ public class FederatedAddGraphWithHooksHandlerTest {
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
                         .storeProperties(PROPERTIES)
-                        .graphAuths("testAuth")
                         .readAccessPredicate(allowBlankUserAndTestUserReadAccess)
                         .build(),
                 new Context(testUser),
