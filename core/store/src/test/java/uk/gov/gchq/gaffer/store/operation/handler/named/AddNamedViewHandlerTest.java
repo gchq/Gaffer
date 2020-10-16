@@ -107,9 +107,9 @@ public class AddNamedViewHandlerTest {
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
         assertEquals(context.getUser().getUserId(), result.getCreatorId());
-        assertEquals(new UnrestrictedAccessPredicate(), result.getReadAccessPredicate());
+        assertEquals(new UnrestrictedAccessPredicate(), result.getOrDefaultReadAccessPredicate());
         final AccessPredicate expectedWriteAccessPredicate = new NamedViewWriteAccessPredicate(context.getUser(), Arrays.asList(writeAccessRoles));
-        assertEquals(expectedWriteAccessPredicate, result.getWriteAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, result.getOrDefaultWriteAccessPredicate());
     }
 
     @Test
@@ -117,6 +117,7 @@ public class AddNamedViewHandlerTest {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         addNamedView.setReadAccessPredicate(readAccessPredicate);
+        addNamedView.setWriteAccessRoles(null);
         addNamedView.setWriteAccessPredicate(writeAccessPredicate);
 
         handler.doOperation(addNamedView, context, store);
@@ -127,8 +128,8 @@ public class AddNamedViewHandlerTest {
         assertEquals(addNamedView.getName(), result.getName());
         assertEquals(new String(addNamedView.getView().toCompactJson()), result.getView());
         assertEquals(context.getUser().getUserId(), result.getCreatorId());
-        assertEquals(readAccessPredicate, result.getReadAccessPredicate());
-        assertEquals(writeAccessPredicate, result.getWriteAccessPredicate());
+        assertEquals(readAccessPredicate, result.getOrDefaultReadAccessPredicate());
+        assertEquals(writeAccessPredicate, result.getOrDefaultWriteAccessPredicate());
     }
 
     @Test

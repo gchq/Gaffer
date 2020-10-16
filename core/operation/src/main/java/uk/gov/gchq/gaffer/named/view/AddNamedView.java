@@ -58,7 +58,7 @@ public class AddNamedView implements Operation {
     private String view;
 
     private String description;
-    private List<String> writeAccessRoles = new ArrayList<>();
+    private List<String> writeAccessRoles;
     private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
@@ -179,7 +179,7 @@ public class AddNamedView implements Operation {
                 .name(name)
                 .view(view)
                 .description(description)
-                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .writeAccessRoles(writeAccessRoles != null ? writeAccessRoles.toArray(new String[writeAccessRoles.size()]) : null)
                 .parameters(parameters)
                 .overwrite(overwriteFlag)
                 .options(options)
@@ -214,7 +214,12 @@ public class AddNamedView implements Operation {
         }
 
         public Builder writeAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            if (roles != null) {
+                if (_getOp().getWriteAccessRoles() == null) {
+                    _getOp().setWriteAccessRoles(new ArrayList<>());
+                }
+                Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            }
             return _self();
         }
 

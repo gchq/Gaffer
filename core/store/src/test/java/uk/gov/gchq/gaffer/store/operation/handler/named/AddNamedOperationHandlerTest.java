@@ -236,13 +236,13 @@ public class AddNamedOperationHandlerTest {
         assertTrue(result.getScore() == 2);
         assertEquals(asList("test label"), result.getLabels());
         final AccessPredicate expectedReadAccessPredicate = new AccessPredicate(context.getUser(), readAuths);
-        assertEquals(expectedReadAccessPredicate, result.getReadAccessPredicate());
+        assertEquals(expectedReadAccessPredicate, result.getOrDefaultReadAccessPredicate());
         final AccessPredicate expectedWriteAccessPredicate = new AccessPredicate(context.getUser(), writeAuths);
-        assertEquals(expectedWriteAccessPredicate, result.getWriteAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, result.getOrDefaultWriteAccessPredicate());
     }
 
     @Test
-    public void shouldCustomAccessPredicateAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+    public void shouldAddCustomAccessPredicateFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
         final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
@@ -250,7 +250,9 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
         addNamedOperation.setLabels(asList("test label"));
+        addNamedOperation.setReadAccessRoles(null);
         addNamedOperation.setReadAccessPredicate(readAccessPredicate);
+        addNamedOperation.setWriteAccessRoles(null);
         addNamedOperation.setWriteAccessPredicate(writeAccessPredicate);
 
         handler.doOperation(addNamedOperation, context, store);
