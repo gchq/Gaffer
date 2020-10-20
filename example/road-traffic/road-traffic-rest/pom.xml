@@ -27,7 +27,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <store.type>accumulo</store.type>
+        <store.type>map</store.type>
         <!-- Test Properties -->
         <gaffer.rest.host>localhost</gaffer.rest.host>
         <gaffer.rest.port>8080</gaffer.rest.port>
@@ -92,11 +92,30 @@
             <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-store</artifactId>
             <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>hdfs-library</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-minicluster</artifactId>
+            <version>${accumulo.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

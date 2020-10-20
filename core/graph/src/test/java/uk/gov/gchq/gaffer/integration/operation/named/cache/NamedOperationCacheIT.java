@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
 import com.google.common.collect.Lists;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

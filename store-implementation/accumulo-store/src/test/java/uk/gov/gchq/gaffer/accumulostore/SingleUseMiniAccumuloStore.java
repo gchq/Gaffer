@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,30 +26,29 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+/**
+ * A {@link MiniAccumuloStore} which deletes the table on initialisation.
+ */
 public class SingleUseMiniAccumuloStore extends MiniAccumuloStore {
-
+    // Initialise is deliberately called both before and after the deletion of the table.
+    // The first call sets up a connection to the Accumulo instance
+    // The second call is used to re-create the table
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseMiniAccumuloStore.class);
 
-    @Override
-    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
-            throws StoreException {
-        // Initialise is deliberately called both before and after the deletion of the table.
-        // The first call sets up a connection to the MiniAccumulo instance
-        // The second call is used to re-create the table
 
+    @Override
+    public synchronized void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         try {
             super.preInitialise(graphId, schema, properties);
         } catch (final StoreException e) {
-            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
-            LOGGER.info("Invalid table: no action required as it is being deleted anyway: " + e.getMessage());
+            LOGGER.info("Table may be invalid. Will be deleted now anyway", e);
         }
 
         try {
             getConnection().tableOperations().delete(getTableName());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
-            LOGGER.warn("Table deletion failed: " + e.getMessage());
+            LOGGER.info("Failed to delete the table", e);
         }
         super.preInitialise(graphId, schema, properties);
     }
-
 }

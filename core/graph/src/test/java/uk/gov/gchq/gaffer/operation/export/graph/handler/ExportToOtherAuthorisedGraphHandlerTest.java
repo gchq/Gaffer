@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import com.google.common.collect.Lists;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

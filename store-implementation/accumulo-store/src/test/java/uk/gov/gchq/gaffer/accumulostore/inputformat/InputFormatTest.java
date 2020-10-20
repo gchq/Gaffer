@@ -29,16 +29,12 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -70,6 +66,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+
 public class InputFormatTest {
 
     private enum KeyPackage {
@@ -81,21 +78,10 @@ public class InputFormatTest {
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
 
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(InputFormatTest.class));
 
     @TempDir
     static java.nio.file.Path tempDir;
-
-    @BeforeAll
-    public static void setUpStore() throws IOException {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
-    }
 
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
@@ -280,7 +266,7 @@ public class InputFormatTest {
                                                        final java.nio.file.Path tempDir)
             throws Exception {
         AccumuloProperties properties = PROPERTIES.clone();
-        SingleUseAccumuloStore store = new SingleUseAccumuloStore();
+        SingleUseMiniAccumuloStore store = new SingleUseMiniAccumuloStore();
         String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:

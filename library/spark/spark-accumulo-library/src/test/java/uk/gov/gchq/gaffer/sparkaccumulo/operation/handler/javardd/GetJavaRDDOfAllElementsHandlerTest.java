@@ -17,12 +17,10 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -33,12 +31,10 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.AbstractPropertiesDrivenTest;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,17 +44,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class GetJavaRDDOfAllElementsHandlerTest extends AbstractPropertiesDrivenTest {
 
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        setUpBeforeClass("/store.properties", tempDir);
-    }
-
-    @AfterAll
-    public static void teardown() {
-        tearDownAfterClass();
-    }
+public class GetJavaRDDOfAllElementsHandlerTest {
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetJavaRDDOfAllElementsHandlerTest.class));
 
     @Test
     public void checkGetAllElementsInJavaRDD() throws OperationException, IOException {
@@ -69,7 +57,7 @@ public class GetJavaRDDOfAllElementsHandlerTest extends AbstractPropertiesDriven
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
 
         final List<Element> elements = new ArrayList<>();
@@ -135,7 +123,7 @@ public class GetJavaRDDOfAllElementsHandlerTest extends AbstractPropertiesDriven
                 .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getStoreProperties())
+                .storeProperties(PROPERTIES)
                 .build();
 
         final List<Element> elements = new ArrayList<>();

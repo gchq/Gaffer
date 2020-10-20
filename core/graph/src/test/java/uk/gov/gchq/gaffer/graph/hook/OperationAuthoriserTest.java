@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Sets;
-
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
 

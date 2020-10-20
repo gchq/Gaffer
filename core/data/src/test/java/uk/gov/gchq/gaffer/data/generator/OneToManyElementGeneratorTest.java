@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.generator;
 
 import com.google.common.collect.Lists;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

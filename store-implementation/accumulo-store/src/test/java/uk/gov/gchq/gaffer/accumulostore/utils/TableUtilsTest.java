@@ -21,16 +21,12 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
@@ -47,7 +43,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
-import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,22 +61,10 @@ public class TableUtilsTest {
 
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
 
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    @BeforeAll
-    public static void setUpStore(@TempDir Path tempDir) {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
-    }
-
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
@@ -106,7 +89,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldFailTableValidationWhenMissingValidatorIterator() throws Exception {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
 
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -137,7 +120,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldFailTableValidationWhenMissingAggregatorIterator() throws Exception {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
 
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -198,7 +181,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldCreateTableWithCorrectLocalityGroups() throws Exception {
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, String.class)
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
@@ -224,7 +207,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableCorrectlyIfSchemaContainsNoAggregators() throws Exception {
         // Given
-        final AccumuloStore store = new SingleUseAccumuloStore();
+        final AccumuloStore store = new SingleUseMiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -289,7 +272,7 @@ public class TableUtilsTest {
         properties.setStoreClass(PROPERTIES.getStoreClass());
         properties.setZookeepers(PROPERTIES.getZookeepers());
 
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         assertThrows(IllegalArgumentException.class,
                 () -> store.initialise(null, schema, properties));
 
@@ -316,7 +299,7 @@ public class TableUtilsTest {
         properties.setStoreClass(PROPERTIES.getStoreClass());
         properties.setZookeepers((PROPERTIES.getZookeepers()));
 
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         assertThrows(IllegalArgumentException.class,
                 () -> store.initialise(null, schema, properties));
 
