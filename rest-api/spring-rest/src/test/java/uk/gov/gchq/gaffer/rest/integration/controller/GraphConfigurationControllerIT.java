@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.controller.integration;
+package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import org.junit.Before;
 import org.junit.Test;

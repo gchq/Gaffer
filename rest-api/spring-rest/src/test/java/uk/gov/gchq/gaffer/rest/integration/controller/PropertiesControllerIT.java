@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.controller.integration;
+package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import uk.gov.gchq.gaffer.core.exception.Error;
 
@@ -49,7 +49,7 @@ import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_IMAGE_URL_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_LINK;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_LINK_DEFAULT;
 
-@TestPropertySource("/application-propertiesIT.properties")
+@ActiveProfiles("propertiesIT")
 public class PropertiesControllerIT extends AbstractRestApiIT {
 
     private static final Map<String, String> DEFAULT_PROPERTIES;

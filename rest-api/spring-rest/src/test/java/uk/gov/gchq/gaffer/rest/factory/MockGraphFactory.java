@@ -17,8 +17,12 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * A Wrapper for a mock instance of a GraphFactory
@@ -26,6 +30,19 @@ import static org.mockito.Mockito.mock;
 public class MockGraphFactory implements GraphFactory {
 
     private final GraphFactory graphFactory = mock(GraphFactory.class);
+
+    public MockGraphFactory() {
+        // By default we set this to get the REST API to build
+        Graph emptyGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("id")
+                        .build())
+                .storeProperties(new MapStoreProperties())
+                .addSchema(new Schema())
+                .build();
+
+        when(graphFactory.getGraph()).thenReturn(emptyGraph);
+    }
 
     @Override
     public Graph.Builder createGraphBuilder() {

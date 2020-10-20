@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.controller.integration;
+package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +24,7 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,6 +47,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(Application.class)
 @WebIntegrationTest(randomPort = true)
+@ActiveProfiles("test")
 public abstract class AbstractRestApiIT {
     private RestTemplate restTemplate = new TestRestTemplate();
 
