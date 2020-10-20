@@ -16,13 +16,10 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -31,7 +28,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -41,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FederatedStoreCacheBackwardCompatibilityTest {
 
-    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMiniAccStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseAccumuloStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String MAP_ID_1 = "mockMapGraphId1";
     private static FederatedStoreCache federatedStoreCache;
@@ -50,27 +46,19 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_MAP_STORE_PROPERTIES));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
 
     @BeforeAll
-    public static void setUp(@TempDir Path tempDir) {
+    public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());
         properties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "src/test/resources/gaffer-1.12.0-cache/cache.ccf");
 
         CacheServiceLoader.initialise(properties);
         federatedStoreCache = new FederatedStoreCache();
 
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-
         new Graph.Builder().config(new GraphConfig(MAP_ID_1))
                 .addStoreProperties(PROPERTIES)
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
     }
 
     @Test
