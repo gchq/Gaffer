@@ -140,7 +140,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }).start();
 
         // Then
-        Thread.sleep(20000);
+        Thread.sleep(30000);
         try {
             verifyElements(graph);
         } catch (final AssertionError e) {
