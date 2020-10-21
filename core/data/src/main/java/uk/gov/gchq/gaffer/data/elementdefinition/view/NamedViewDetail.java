@@ -55,7 +55,6 @@ import static java.util.Collections.emptyList;
 public class NamedViewDetail implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
-    private static final AccessPredicate NULL_ACCESS_PREDICATE = null;
     private String name;
     private String view;
     private String description;
@@ -77,7 +76,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     }
 
     public NamedViewDetail(final String name, final String view, final String description, final String userId, final List<String> writers, final Map<String, ViewParameterDetail> parameters, final AccessPredicate readAccessPredicate, final AccessPredicate writeAccessPredicate) {
-        if (writers != null && writeAccessPredicate != NULL_ACCESS_PREDICATE) {
+        if (writers != null && writeAccessPredicate != null) {
             throw new IllegalArgumentException("Only one of writers or writeAccessPredicate should be supplied.");
         }
 
@@ -89,8 +88,8 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         setParameters(parameters);
 
         try {
-            this.readAccessPredicate = readAccessPredicate != NULL_ACCESS_PREDICATE ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
-            this.writeAccessPredicate = writeAccessPredicate != NULL_ACCESS_PREDICATE ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
+            this.readAccessPredicate = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
+            this.writeAccessPredicate = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Access Predicates must be json serialisable", e);
         }
@@ -325,23 +324,23 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
 
 
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate != null ? deserialise(readAccessPredicate) : NULL_ACCESS_PREDICATE;
+        return readAccessPredicate != null ? deserialise(readAccessPredicate) : null;
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : NULL_ACCESS_PREDICATE;
+        return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : null;
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultReadAccessPredicate() {
         final AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        return readAccessPredicate != NULL_ACCESS_PREDICATE ? readAccessPredicate : getDefaultReadAccessPredicate();
+        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultWriteAccessPredicate() {
         final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        return writeAccessPredicate != NULL_ACCESS_PREDICATE ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {
