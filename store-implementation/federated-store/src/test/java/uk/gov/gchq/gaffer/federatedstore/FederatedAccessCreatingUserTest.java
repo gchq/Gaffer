@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 /**
@@ -49,7 +49,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithWrongAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(A)
                 .build();
 
@@ -59,7 +59,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithNoAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(A)
                 .build();
 
@@ -69,7 +69,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithNullHookAuthCollection() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths((Collection) null)
                 .build();
 
@@ -79,7 +79,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithNullHookAuthStringArray() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths((String[]) null)
                 .build();
 
@@ -89,7 +89,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithEmptyHookAuthCollection() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(new HashSet<>())
                 .build();
 
@@ -99,7 +99,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithEmptyHookAuthStringArray() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(new String[0])
                 .build();
 
@@ -109,7 +109,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithEmptyHookAuthCollectionII() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths(Sets.newHashSet(""))
                 .build();
 
@@ -119,7 +119,7 @@ public class FederatedAccessCreatingUserTest {
     @Test
     public void shouldValidateWithEmptyHookAuthStringArrayII() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .addingUserId(TEST_USER)
+                .addingUserId(TEST_USER_ID)
                 .graphAuths("")
                 .build();
 
