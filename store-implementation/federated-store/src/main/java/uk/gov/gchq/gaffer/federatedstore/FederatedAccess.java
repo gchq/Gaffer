@@ -74,7 +74,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
     private static final boolean NOT_DISABLED_BY_DEFAULT = false;
-    private static final AccessPredicate NULL_ACCESS_PREDICATE = null;
     private final boolean isPublic;
     private Set<String> graphAuths;
     private String addingUserId;
@@ -91,7 +90,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final boolean disabledByDefault) {
-        this(graphAuths, addingUserId, isPublic, disabledByDefault, NULL_ACCESS_PREDICATE, NULL_ACCESS_PREDICATE);
+        this(graphAuths, addingUserId, isPublic, disabledByDefault, null, null);
     }
 
     public FederatedAccess(
@@ -102,7 +101,7 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
             final AccessPredicate readAccessPredicate,
             final AccessPredicate writeAccessPredicate) {
 
-        if (graphAuths != null && readAccessPredicate != NULL_ACCESS_PREDICATE) {
+        if (graphAuths != null && readAccessPredicate != null) {
             throw new IllegalArgumentException("Only one of graphAuths or readAccessPredicate should be supplied.");
         }
 
@@ -112,8 +111,8 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
         this.disabledByDefault = disabledByDefault;
 
         try {
-            this.readAccessPredicate = readAccessPredicate != NULL_ACCESS_PREDICATE ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
-            this.writeAccessPredicate = writeAccessPredicate != NULL_ACCESS_PREDICATE ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
+            this.readAccessPredicate = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
+            this.writeAccessPredicate = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Read and write accessPredicates must be JsonSerialisable", e);
         }
@@ -229,23 +228,23 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     }
 
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate != null ? deserialisePredicate(readAccessPredicate) : NULL_ACCESS_PREDICATE;
+        return readAccessPredicate != null ? deserialisePredicate(readAccessPredicate) : null;
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate != null ? deserialisePredicate(writeAccessPredicate) : NULL_ACCESS_PREDICATE;
+        return writeAccessPredicate != null ? deserialisePredicate(writeAccessPredicate) : null;
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultReadAccessPredicate() {
         final AccessPredicate readAccessPredicate = getReadAccessPredicate();
-        return readAccessPredicate != NULL_ACCESS_PREDICATE ? readAccessPredicate : getDefaultReadAccessPredicate();
+        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
     }
 
     @JsonIgnore
     public AccessPredicate getOrDefaultWriteAccessPredicate() {
         final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
-        return writeAccessPredicate != NULL_ACCESS_PREDICATE ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
     }
 
     private AccessPredicate getDefaultReadAccessPredicate() {

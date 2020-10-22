@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -77,6 +78,19 @@ public class NamedOperationDetailTest {
                 .readAccessPredicate(customAccessPredicate)
                 .build();
         assertEquals(customAccessPredicate, namedOperationDetail.getReadAccessPredicate());
+    }
+
+    @Test
+    public void shouldMaintainOrderingAfterBeingEvaluated() {
+        // Given
+        NamedOperationDetail namedOperationDetail = getBaseNamedOperationDetailBuilder().writers(Arrays.asList("c", "b", "a"))
+                .build();
+        // When
+        // Don't actually care about the result
+        namedOperationDetail.hasWriteAccess(new User());
+
+        // Then
+        assertEquals(Arrays.asList("c", "b", "a"), namedOperationDetail.getWriteAccessRoles());
     }
 
     @Test

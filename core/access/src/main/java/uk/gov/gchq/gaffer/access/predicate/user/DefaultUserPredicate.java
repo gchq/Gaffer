@@ -27,9 +27,9 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.sort;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -45,8 +45,7 @@ public class DefaultUserPredicate extends KoryphePredicate<User> implements Seri
             @JsonProperty("auths") final List<String> auths) {
         this.creatingUserId = creatingUserId;
         if (auths != null) {
-            sort(auths);
-            this.auths = auths;
+            this.auths = auths.stream().sorted().collect(Collectors.toList());
         } else {
             this.auths = emptyList();
         }
@@ -61,6 +60,7 @@ public class DefaultUserPredicate extends KoryphePredicate<User> implements Seri
             return false;
         }
         final DefaultUserPredicate that = (DefaultUserPredicate) o;
+
         return Objects.equals(creatingUserId, that.creatingUserId) &&
                 Objects.equals(auths, that.auths);
     }

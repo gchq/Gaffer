@@ -38,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -242,6 +243,23 @@ public class NamedViewDetailTest {
 
         // Then
         assertEquals(namedView, deserialized);
+    }
+
+
+    @Test
+    public void shouldMaintainOrderingAfterBeingEvaluated() {
+        // Given
+        NamedViewDetail namedViewDetail = new NamedViewDetail.Builder()
+                .name("view")
+                .view(new View())
+                .writers(Arrays.asList("c", "b", "a"))
+                .build();
+        // When
+        // Don't actually care about the result
+        namedViewDetail.hasWriteAccess(new User());
+
+        // Then
+        assertEquals(Arrays.asList("c", "b", "a"), namedViewDetail.getWriteAccessRoles());
     }
 
     @Test
