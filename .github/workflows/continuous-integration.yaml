@@ -9,6 +9,13 @@ on:
     - develop
 
 jobs:
+  check-all-modules-are-tested:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Check all modules are tested
+      run: ./cd/check_modules.sh
+
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -40,5 +47,3 @@ jobs:
       run: mvn test -P coverage,${{matrix.test-type}} -pl ${{matrix.modules}}
     - name: Upload Coverage
       uses: codecov/codecov-action@v1
-      with:
-        verbose: true
