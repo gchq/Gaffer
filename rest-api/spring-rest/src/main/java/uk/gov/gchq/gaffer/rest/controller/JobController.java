@@ -48,13 +48,10 @@ public class JobController implements IJobController {
     private GraphFactory graphFactory;
     private UserFactory userFactory;
 
-    @Autowired
-    public void setGraphFactory(final GraphFactory graphFactory) {
-        this.graphFactory = graphFactory;
-    }
 
     @Autowired
-    public void setUserFactory(final UserFactory userFactory) {
+    public JobController(final GraphFactory graphFactory, final UserFactory userFactory) {
+        this.graphFactory = graphFactory;
         this.userFactory = userFactory;
     }
 
@@ -79,37 +76,27 @@ public class JobController implements IJobController {
     }
 
     @Override
-    public ResponseEntity<JobDetail> getDetails(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
+    public JobDetail getDetails(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
         JobDetail jobDetail = graphFactory.getGraph().execute(new GetJobDetails.Builder()
                         .jobId(id)
                         .build(),
                 userFactory.createContext()
         );
 
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(jobDetail);
+        return jobDetail;
     }
 
     @Override
-    public ResponseEntity<Iterable<JobDetail>> getAllDetails() throws OperationException {
-        CloseableIterable<JobDetail> jobDetails = graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createContext());
-
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(jobDetails);
+    public Iterable<JobDetail> getAllDetails() throws OperationException {
+        return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createContext());
     }
 
     @Override
-    public ResponseEntity<Object> getResults(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
-        CloseableIterable<?> results = graphFactory.getGraph().execute(new GetJobResults.Builder()
+    public Object getResults(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
+        return graphFactory.getGraph().execute(new GetJobResults.Builder()
                         .jobId(id)
                         .build(),
                 userFactory.createContext()
         );
-
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(results);
     }
 }

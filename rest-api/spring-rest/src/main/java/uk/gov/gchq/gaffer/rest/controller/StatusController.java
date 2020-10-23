@@ -29,7 +29,7 @@ public class StatusController implements IStatusController {
 
     private GraphFactory graphFactory;
 
-    @Autowired // todo try removing
+    @Autowired
     public StatusController(final GraphFactory graphFactory) {
         this.graphFactory = graphFactory;
     }

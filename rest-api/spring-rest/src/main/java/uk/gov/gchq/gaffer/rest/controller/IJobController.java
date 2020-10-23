@@ -65,7 +65,7 @@ public interface IJobController {
             value = "Retrieves the details of an asynchronous job",
             response = JobDetail.class
     )
-    ResponseEntity<JobDetail> getDetails(final String id) throws OperationException;
+    JobDetail getDetails(final String id) throws OperationException;
 
     @RequestMapping(
             path = "/",
@@ -77,7 +77,7 @@ public interface IJobController {
             response = JobDetail.class,
             responseContainer = "List"
     )
-    ResponseEntity<Iterable<JobDetail>> getAllDetails() throws OperationException;
+    Iterable<JobDetail> getAllDetails() throws OperationException;
 
     @RequestMapping(
             path = "/{id}/results",
@@ -85,5 +85,5 @@ public interface IJobController {
             method = GET
     )
     @ApiOperation("Retrieves the results of an asynchronous job")
-    ResponseEntity<Object> getResults(final String id) throws OperationException;
+    Object getResults(final String id) throws OperationException;
 }

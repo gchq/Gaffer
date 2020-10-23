@@ -13,8 +13,6 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.integration.controller.AbstractRestApiIT;
 
 import static org.junit.Assert.assertEquals;
-
-@ActiveProfiles("factoryIT")
 public class FactoryConfigIT extends AbstractRestApiIT {
 
     @Autowired
