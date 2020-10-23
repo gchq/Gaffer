@@ -37,7 +37,7 @@ jobs:
     - name: Install
       run: mvn clean install -P quick,coverage -pl ${{matrix.modules}} -am
     - name: Test
-      run: mvn test -P${{matrix.test-type}} -pl ${{matrix.modules}}
+      run: mvn test -P coverage,${{matrix.test-type}} -pl ${{matrix.modules}}
     - name: Upload Coverage
       uses: codecov/codecov-action@v1
       with:
