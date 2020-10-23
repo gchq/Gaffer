@@ -55,6 +55,7 @@ public class GetAllNamedOperationsHandlerTest {
             .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
             .readers(new ArrayList<>())
             .writers(new ArrayList<>())
+            .parameters(null)
             .build();
 
     private final NamedOperationDetail expectedOperationDetailWithoutInputType = new NamedOperationDetail.Builder()
@@ -64,6 +65,7 @@ public class GetAllNamedOperationsHandlerTest {
             .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.store.operation.GetSchema\",\"compact\":false}]}")
             .readers(new ArrayList<>())
             .writers(new ArrayList<>())
+            .parameters(null)
             .build();
 
     private Store store = mock(Store.class);

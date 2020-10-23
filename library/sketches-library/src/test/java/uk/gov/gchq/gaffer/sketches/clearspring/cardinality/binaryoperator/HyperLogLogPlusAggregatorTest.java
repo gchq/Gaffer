@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -86,6 +85,11 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     @Override
     protected HyperLogLogPlusAggregator getInstance() {
         return new HyperLogLogPlusAggregator();
+    }
+
+    @Override
+    protected Iterable<HyperLogLogPlusAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 
     private void setupHllp(final int p, final int sp) {

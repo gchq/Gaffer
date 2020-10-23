@@ -17,17 +17,12 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Iterables;
-
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.TableNotFoundException;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
@@ -85,7 +80,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
-import java.nio.file.Path;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -94,7 +88,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -112,16 +105,9 @@ public class AccumuloStoreTest {
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
-    private static final AccumuloStore BYTE_ENTITY_STORE = new AccumuloStore();
-    private static final AccumuloStore GAFFER_1_KEY_STORE = new AccumuloStore();
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity = null;
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerGaffer1Key = null;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 
-    @BeforeAll
-    public static void setup(@TempDir Path tempDir) {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-        miniAccumuloClusterManagerGaffer1Key = new MiniAccumuloClusterManager(CLASSIC_PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
 
     @BeforeEach
     public void beforeMethod() throws StoreException {
@@ -129,11 +115,6 @@ public class AccumuloStoreTest {
         GAFFER_1_KEY_STORE.initialise(GAFFER_1_GRAPH, SCHEMA, CLASSIC_PROPERTIES);
     }
 
-    @AfterAll
-    public static void tearDown() {
-        miniAccumuloClusterManagerByteEntity.close();
-        miniAccumuloClusterManagerGaffer1Key.close();
-    }
 
     @Test
     public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
@@ -146,7 +127,7 @@ public class AccumuloStoreTest {
         connector = BYTE_ENTITY_STORE.getConnection();
         assertFalse(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
 
-        BYTE_ENTITY_STORE.initialise(GAFFER_1_GRAPH, SCHEMA, PROPERTIES);
+        BYTE_ENTITY_STORE.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
         connector = BYTE_ENTITY_STORE.getConnection();
         assertTrue(connector.tableOperations().exists(BYTE_ENTITY_STORE.getTableName()));
     }
@@ -156,7 +137,7 @@ public class AccumuloStoreTest {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         properties.setTable("tableName");
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
 
         // When
         store.initialise(null, SCHEMA, properties);
@@ -172,7 +153,7 @@ public class AccumuloStoreTest {
         final AccumuloProperties properties = PROPERTIES.clone();
         properties.setNamespace("namespaceName");
 
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
 
         // When
         store.initialise("graphId", SCHEMA, properties);
@@ -203,7 +184,7 @@ public class AccumuloStoreTest {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         properties.setTable("tableName");
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
 
         // When
         store.initialise("tableName", SCHEMA, properties);
@@ -232,7 +213,7 @@ public class AccumuloStoreTest {
     public void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
 
         // When
         store.initialise("graphId", SCHEMA, properties);
@@ -486,7 +467,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldValidateTimestampPropertyHasMaxAggregator() throws Exception {
         // Given
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -522,7 +503,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldPassSchemaValidationWhenTimestampPropertyDoesNotHaveAnAggregator() throws Exception {
         // Given
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -558,7 +539,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldFailSchemaValidationWhenTimestampPropertyDoesNotHaveMaxAggregator() throws StoreException {
         // Given
-        final AccumuloStore store = new AccumuloStore();
+        final AccumuloStore store = new MiniAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)

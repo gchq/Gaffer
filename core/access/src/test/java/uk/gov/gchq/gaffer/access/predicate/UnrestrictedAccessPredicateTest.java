@@ -39,8 +39,7 @@ public class UnrestrictedAccessPredicateTest implements AccessPredicateTest {
         final AccessPredicate predicate = new UnrestrictedAccessPredicate();
         final byte[] bytes = JSONSerialiser.serialise(predicate);
         assertEquals("{" +
-                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate\"," +
-                "\"userPredicate\":{\"class\":\"uk.gov.gchq.gaffer.access.predicate.user.UnrestrictedAccessUserPredicate\"}" +
+                "\"class\":\"uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate\"" +
                 "}", new String(bytes, CommonConstants.UTF_8));
         assertEquals(predicate, JSONSerialiser.deserialise(bytes, UnrestrictedAccessPredicate.class));
     }

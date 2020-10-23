@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;

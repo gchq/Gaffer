@@ -17,15 +17,12 @@
 package uk.gov.gchq.gaffer.rest.service.accumulo.v2;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationDetailPojo;
@@ -34,7 +31,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.core.Response;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -43,22 +39,7 @@ import static uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2IT.OperationF
 
 public class OperationServiceV2IT extends AbstractRestApiIT {
 
-    private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    @TempDir
-    public static File storeBaseFolder;
-
-    @BeforeAll
-    public static void setUpStore() {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getAbsolutePath());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
-    }
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(OperationServiceV2IT.class));
 
     @BeforeEach
     @Override

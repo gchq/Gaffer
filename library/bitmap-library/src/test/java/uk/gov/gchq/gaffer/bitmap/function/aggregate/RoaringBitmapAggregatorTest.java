@@ -109,6 +109,11 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
+    protected Iterable<RoaringBitmapAggregator> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends BinaryOperator> getFunctionClass() {
         return RoaringBitmapAggregator.class;
     }

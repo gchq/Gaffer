@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;

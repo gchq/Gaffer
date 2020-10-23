@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -44,6 +47,7 @@ import java.util.Set;
  * Simple POJO containing the details associated with a {@link NamedOperation}.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonDeserialize(builder = NamedOperationDetail.Builder.class)
 public class NamedOperationDetail implements AccessControlledResource, Serializable {
 
     private static final long serialVersionUID = -8831783492657131469L;
@@ -58,8 +62,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
     private Integer score;
-    private AccessPredicate readAccessPredicate;
-    private AccessPredicate writeAccessPredicate;
+    private String readAccessPredicateJson;
+    private String writeAccessPredicateJson;
 
     public NamedOperationDetail() {
     }
@@ -96,6 +100,12 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         if (null == operationName || operationName.isEmpty()) {
             throw new IllegalArgumentException("Operation Name must not be empty");
         }
+        if (readers != null && readAccessPredicate != null) {
+            throw new IllegalArgumentException("Only one of readers or readAccessPredicate should be supplied.");
+        }
+        if (writers != null && writeAccessPredicate != null) {
+            throw new IllegalArgumentException("Only one of writers or writeAccessPredicate should be supplied.");
+        }
 
         this.operationName = operationName;
         this.labels = labels;
@@ -109,8 +119,12 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         this.parameters = parameters;
         this.score = score;
 
-        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new AccessPredicate(userId, readers);
-        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new AccessPredicate(userId, writers);
+        try {
+            this.readAccessPredicateJson = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
+            this.writeAccessPredicateJson = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Read and Write Access predicates must be json serialisable", e);
+        }
     }
 
     public String getOperationName() {
@@ -269,8 +283,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                 .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
                 .append(score, op.score)
-                .append(readAccessPredicate, op.readAccessPredicate)
-                .append(writeAccessPredicate, op.writeAccessPredicate)
+                .append(readAccessPredicateJson, op.readAccessPredicateJson)
+                .append(writeAccessPredicateJson, op.writeAccessPredicateJson)
                 .isEquals();
     }
 
@@ -285,8 +299,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                 .append(writeAccessRoles)
                 .append(parameters)
                 .append(score)
-                .append(readAccessPredicate)
-                .append(writeAccessPredicate)
+                .append(readAccessPredicateJson)
+                .append(writeAccessPredicateJson)
                 .hashCode();
     }
 
@@ -302,8 +316,8 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
                 .append("score", score)
-                .append("readAccessPredicate", readAccessPredicate)
-                .append("writeAccessPredicate", writeAccessPredicate)
+                .append("readAccessPredicate", readAccessPredicateJson)
+                .append("writeAccessPredicate", writeAccessPredicateJson)
                 .toString();
     }
 
@@ -313,21 +327,50 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     }
 
     public boolean hasReadAccess(final User user, final String adminAuth) {
-        return readAccessPredicate.test(user, adminAuth);
+        return getOrDefaultReadAccessPredicate().test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
-        return writeAccessPredicate.test(user, adminAuth);
+        return getOrDefaultWriteAccessPredicate().test(user, adminAuth);
     }
 
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate;
+        try {
+            return readAccessPredicateJson != null ? JSONSerialiser.deserialise(readAccessPredicateJson, AccessPredicate.class) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("readAccessPredicate was not JsonSerialisable", e);
+        }
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate;
+        try {
+            return writeAccessPredicateJson != null ? JSONSerialiser.deserialise(writeAccessPredicateJson, AccessPredicate.class) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("writeAccessPredicate was not JsonSerialisable", e);
+        }
     }
 
+    @JsonIgnore
+    public AccessPredicate getOrDefaultReadAccessPredicate() {
+        final AccessPredicate readAccessPredicate = getReadAccessPredicate();
+        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+    }
+
+    @JsonIgnore
+    public AccessPredicate getOrDefaultWriteAccessPredicate() {
+        final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
+        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+    }
+
+    private AccessPredicate getDefaultReadAccessPredicate() {
+        return new AccessPredicate(this.creatorId, this.readAccessRoles);
+    }
+
+    private AccessPredicate getDefaultWriteAccessPredicate() {
+        return new AccessPredicate(this.creatorId, this.writeAccessRoles);
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private String operationName;
         private List<String> labels;
@@ -337,7 +380,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         private String opChain;
         private List<String> readers;
         private List<String> writers;
-        private Map<String, ParameterDetail> parameters;
+        private Map<String, ParameterDetail> parameters = Maps.newHashMap();
         private Integer score;
         private AccessPredicate readAccessPredicate;
         private AccessPredicate writeAccessPredicate;
@@ -367,11 +410,13 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
             return this;
         }
 
+        @JsonProperty("operations")
         public Builder operationChain(final String opChain) {
             this.opChain = opChain;
             return this;
         }
 
+        @JsonProperty("operationChain")
         public Builder operationChain(final OperationChain opChain) {
             this.opChain = serialise(opChain);
             return this;
@@ -382,11 +427,13 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
             return this;
         }
 
+        @JsonProperty("readAccessRoles")
         public Builder readers(final List<String> readers) {
             this.readers = readers;
             return this;
         }
 
+        @JsonProperty("writeAccessRoles")
         public Builder writers(final List<String> writers) {
             this.writers = writers;
             return this;

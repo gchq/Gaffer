@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -54,15 +53,9 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final StoreProperties PROPERTIES =
             StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, STORE_TYPE_DEFAULT + StreamUtil.STORE_PROPERTIES));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    @TempDir
-    public static File staticTestFolder;
 
     @BeforeAll
     public static void prepareRestApi() throws IOException {
-
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, staticTestFolder.getAbsolutePath());
 
         // Spin up the REST API
         CLIENT.startServer();
@@ -82,7 +75,6 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
     @AfterAll
     public static void after() {
         CLIENT.stopServer();
-        miniAccumuloClusterManager.close();
     }
 
     @BeforeEach

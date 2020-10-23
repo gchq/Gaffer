@@ -19,19 +19,13 @@ import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.rdd.RDD;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -64,20 +58,6 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerByteEntity;
-
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
-    public static void setupCluster() {
-        miniAccumuloClusterManagerByteEntity = new MiniAccumuloClusterManager(PROPERTIES, storeBaseFolder.getRoot().getAbsolutePath());
-    }
-
-    @AfterClass
-    public static void takedownCluster() {
-        miniAccumuloClusterManagerByteEntity.close();
-    }
 
     @Before
     public void setUp() {

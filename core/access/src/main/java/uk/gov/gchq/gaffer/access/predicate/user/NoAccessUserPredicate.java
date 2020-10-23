@@ -17,32 +17,15 @@
 package uk.gov.gchq.gaffer.access.predicate.user;
 
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-
-public class NoAccessUserPredicate implements Predicate<User> {
-    private final boolean noAccess = false;
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final NoAccessUserPredicate that = (NoAccessUserPredicate) o;
-        return noAccess == that.noAccess;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(noAccess);
-    }
-
+@Since("1.13.1")
+@Summary("Predicate which never allows user access")
+public class NoAccessUserPredicate extends KoryphePredicate<User> {
     @Override
     public boolean test(final User user) {
-        return noAccess;
+        return false;
     }
 }

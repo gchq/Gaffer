@@ -17,15 +17,11 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -45,8 +41,11 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.CallMethod;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.Or;
+import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +60,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_AT
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
+
 
 public class FederatedAddGraphHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
@@ -78,17 +78,6 @@ public class FederatedAddGraphHandlerTest {
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-
-    @BeforeAll
-    public static void setUpStore(@TempDir Path tempDir) {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
-    }
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -416,16 +405,16 @@ public class FederatedAddGraphHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate((user) -> {
-            return user.getUserId().equals(blankUser.getUserId()) || user.getUserId().equals(testUser.getUserId());
-        });
+        final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate(new AdaptedPredicate(
+                new CallMethod("getUserId"),
+                new Or<>(new IsEqual(testUser.getUserId()), new IsEqual(blankUser.getUserId()))
+        ));
 
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
                         .storeProperties(PROPERTIES)
-                        .graphAuths("testAuth")
                         .readAccessPredicate(allowBlankUserAndTestUserReadAccess)
                         .build(),
                 new Context(testUser),

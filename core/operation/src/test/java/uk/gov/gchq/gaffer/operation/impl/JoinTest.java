@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
 

@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.yahoo.sketches.kll.KllFloatsSketch;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -88,5 +87,10 @@ public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected KllFloatsSketchAggregator getInstance() {
         return new KllFloatsSketchAggregator();
+    }
+
+    @Override
+    protected Iterable<KllFloatsSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

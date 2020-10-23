@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
 import com.yahoo.sketches.quantiles.DoublesUnion;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -88,5 +87,10 @@ public class DoublesUnionAggregatorTest extends BinaryOperatorTest {
     @Override
     protected DoublesUnionAggregator getInstance() {
         return new DoublesUnionAggregator();
+    }
+
+    @Override
+    protected Iterable<DoublesUnionAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

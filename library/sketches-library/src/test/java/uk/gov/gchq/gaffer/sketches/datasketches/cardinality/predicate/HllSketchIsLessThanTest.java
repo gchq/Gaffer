@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate;
 
 import com.yahoo.sketches.hll.HllSketch;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -141,6 +141,14 @@ public class HllSketchIsLessThanTest extends PredicateTest {
     @Override
     protected Predicate getInstance() {
         return new HllSketchIsLessThan(10);
+    }
+
+    @Override
+    protected Iterable<HllSketchIsLessThan> getDifferentInstancesOrNull() {
+        return Arrays.asList(
+                new HllSketchIsLessThan(20),
+                new HllSketchIsLessThan(20, true)
+        );
     }
 
     @Override

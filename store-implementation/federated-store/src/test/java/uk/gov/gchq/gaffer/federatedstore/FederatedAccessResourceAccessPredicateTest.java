@@ -21,9 +21,16 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphReadAccessPredicate;
 import uk.gov.gchq.gaffer.federatedstore.access.predicate.FederatedGraphWriteAccessPredicate;
 import uk.gov.gchq.gaffer.user.User;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,8 +53,8 @@ public class FederatedAccessResourceAccessPredicateTest {
         final AccessPredicate expectedNonPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), false);
         final AccessPredicate expectedWriteAccessPredicate = new FederatedGraphWriteAccessPredicate(testUser.getUserId());
 
-        assertEquals(expectedNonPublicReadAccessPredicate, access.getReadAccessPredicate());
-        assertEquals(expectedWriteAccessPredicate, access.getWriteAccessPredicate());
+        assertEquals(expectedNonPublicReadAccessPredicate, access.getOrDefaultReadAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, access.getOrDefaultWriteAccessPredicate());
 
         final FederatedAccess publicAccess = new FederatedAccess.Builder()
                 .addingUserId(testUser.getUserId())
@@ -57,15 +64,14 @@ public class FederatedAccessResourceAccessPredicateTest {
 
         final AccessPredicate expectedPublicReadAccessPredicate = new FederatedGraphReadAccessPredicate(testUser.getUserId(), asList(ALL_USERS), true);
 
-        assertEquals(expectedPublicReadAccessPredicate, publicAccess.getReadAccessPredicate());
-        assertEquals(expectedWriteAccessPredicate, publicAccess.getWriteAccessPredicate());
+        assertEquals(expectedPublicReadAccessPredicate, publicAccess.getOrDefaultReadAccessPredicate());
+        assertEquals(expectedWriteAccessPredicate, publicAccess.getOrDefaultWriteAccessPredicate());
     }
 
     @Test
     public void shouldNotAllowReadAccessWhenNoAccessPredicateConfigured() {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addingUserId(testUser.getUserId())
-                .graphAuths(ALL_USERS)
                 .readAccessPredicate(new NoAccessPredicate())
                 .build();
 
@@ -88,5 +94,34 @@ public class FederatedAccessResourceAccessPredicateTest {
     @Test
     public void shouldBeFederatedStoreGraphResourceType() {
         assertEquals(ResourceType.FederatedStoreGraph, new FederatedAccess.Builder().build().getResourceType());
+    }
+
+    @Test
+    public void shouldBeSerialisableWhenUsingCustomPredicate() throws IOException, ClassNotFoundException {
+        // Given
+        FederatedAccess access = new FederatedAccess.Builder()
+                .addingUserId(testUser.getUserId())
+                .graphAuths(ALL_USERS)
+                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
+                .build();
+
+        // When
+        FederatedAccess deserialised = (FederatedAccess) deserialise(serialise(access));
+
+        // Then
+        assertEquals(access, deserialised);
+    }
+
+    private static byte[] serialise(Object obj) throws IOException {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        ObjectOutputStream o = new ObjectOutputStream(b);
+        o.writeObject(obj);
+        return b.toByteArray();
+    }
+
+    private static Object deserialise(byte[] bytes) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream b = new ByteArrayInputStream(bytes);
+        ObjectInputStream o = new ObjectInputStream(b);
+        return o.readObject();
     }
 }

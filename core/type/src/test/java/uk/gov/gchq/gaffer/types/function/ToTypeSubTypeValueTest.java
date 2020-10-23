@@ -94,6 +94,11 @@ public class ToTypeSubTypeValueTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ToTypeSubTypeValue> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<ToTypeSubTypeValue> getFunctionClass() {
         return ToTypeSubTypeValue.class;
     }

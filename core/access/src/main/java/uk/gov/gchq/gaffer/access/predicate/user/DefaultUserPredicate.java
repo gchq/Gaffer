@@ -20,18 +20,22 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.sort;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-public class DefaultUserPredicate implements Predicate<User>, Serializable {
+@Since("1.13.1")
+@Summary("A predicate which returns true if the user is the creatingUser or has a role in the auths list")
+public class DefaultUserPredicate extends KoryphePredicate<User> implements Serializable {
     private final String creatingUserId;
     private final List<String> auths;
 
@@ -41,8 +45,7 @@ public class DefaultUserPredicate implements Predicate<User>, Serializable {
             @JsonProperty("auths") final List<String> auths) {
         this.creatingUserId = creatingUserId;
         if (auths != null) {
-            sort(auths);
-            this.auths = auths;
+            this.auths = auths.stream().sorted().collect(Collectors.toList());
         } else {
             this.auths = emptyList();
         }
@@ -57,6 +60,7 @@ public class DefaultUserPredicate implements Predicate<User>, Serializable {
             return false;
         }
         final DefaultUserPredicate that = (DefaultUserPredicate) o;
+
         return Objects.equals(creatingUserId, that.creatingUserId) &&
                 Objects.equals(auths, that.auths);
     }

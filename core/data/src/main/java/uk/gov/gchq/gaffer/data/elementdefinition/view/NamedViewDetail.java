@@ -18,7 +18,10 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -37,7 +40,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +51,7 @@ import static java.util.Collections.emptyList;
  */
 @JsonPropertyOrder(value = {"name", "description", "creatorId", "writeAccessRoles", "parameters", "view"}, alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonDeserialize(builder = NamedViewDetail.Builder.class)
 public class NamedViewDetail implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = -8354836093398004122L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -58,8 +61,8 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     private String creatorId;
     private List<String> writeAccessRoles;
     private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
-    private AccessPredicate readAccessPredicate;
-    private AccessPredicate writeAccessPredicate;
+    private String readAccessPredicate;
+    private String writeAccessPredicate;
 
     public NamedViewDetail() {
     }
@@ -73,6 +76,10 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     }
 
     public NamedViewDetail(final String name, final String view, final String description, final String userId, final List<String> writers, final Map<String, ViewParameterDetail> parameters, final AccessPredicate readAccessPredicate, final AccessPredicate writeAccessPredicate) {
+        if (writers != null && writeAccessPredicate != null) {
+            throw new IllegalArgumentException("Only one of writers or writeAccessPredicate should be supplied.");
+        }
+
         setName(name);
         setView(view);
         setDescription(description);
@@ -80,8 +87,12 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         this.writeAccessRoles = writers;
         setParameters(parameters);
 
-        this.readAccessPredicate = readAccessPredicate != null ? readAccessPredicate : new UnrestrictedAccessPredicate();
-        this.writeAccessPredicate = writeAccessPredicate != null ? writeAccessPredicate : new NamedViewWriteAccessPredicate(userId, writers);
+        try {
+            this.readAccessPredicate = readAccessPredicate != null ? new String(JSONSerialiser.serialise(readAccessPredicate)) : null;
+            this.writeAccessPredicate = writeAccessPredicate != null ? new String(JSONSerialiser.serialise(writeAccessPredicate)) : null;
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Access Predicates must be json serialisable", e);
+        }
     }
 
     public String getName() {
@@ -146,12 +157,20 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         return ResourceType.NamedView;
     }
 
+    private AccessPredicate deserialise(final String predicateJson) {
+        try {
+            return JSONSerialiser.deserialise(predicateJson, AccessPredicate.class);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Access Predicate must be JsonSerialisable", e);
+        }
+    }
+
     public boolean hasReadAccess(final User user, final String adminAuth) {
-        return readAccessPredicate.test(user, adminAuth);
+        return getOrDefaultReadAccessPredicate().test(user, adminAuth);
     }
 
     public boolean hasWriteAccess(final User user, final String adminAuth) {
-        return writeAccessPredicate.test(user, adminAuth);
+        return getOrDefaultWriteAccessPredicate().test(user, adminAuth);
     }
 
     public Map<String, ViewParameterDetail> getParameters() {
@@ -303,21 +322,43 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
         return "\"${" + paramKey + "}\"";
     }
 
+
     public AccessPredicate getReadAccessPredicate() {
-        return readAccessPredicate;
+        return readAccessPredicate != null ? deserialise(readAccessPredicate) : null;
     }
 
     public AccessPredicate getWriteAccessPredicate() {
-        return writeAccessPredicate;
+        return writeAccessPredicate != null ? deserialise(writeAccessPredicate) : null;
     }
 
+    @JsonIgnore
+    public AccessPredicate getOrDefaultReadAccessPredicate() {
+        final AccessPredicate readAccessPredicate = getReadAccessPredicate();
+        return readAccessPredicate != null ? readAccessPredicate : getDefaultReadAccessPredicate();
+    }
+
+    @JsonIgnore
+    public AccessPredicate getOrDefaultWriteAccessPredicate() {
+        final AccessPredicate writeAccessPredicate = getWriteAccessPredicate();
+        return writeAccessPredicate != null ? writeAccessPredicate : getDefaultWriteAccessPredicate();
+    }
+
+    private AccessPredicate getDefaultReadAccessPredicate() {
+        return new UnrestrictedAccessPredicate();
+    }
+
+    private AccessPredicate getDefaultWriteAccessPredicate() {
+        return new NamedViewWriteAccessPredicate(this.creatorId, this.writeAccessRoles);
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private String name;
         private String view;
         private String description;
         private String creatorId;
-        private List<String> writers = new ArrayList<>();
-        private Map<String, ViewParameterDetail> parameters;
+        private List<String> writers;
+        private Map<String, ViewParameterDetail> parameters = Maps.newHashMap();
         private AccessPredicate readAccessPredicate;
         private AccessPredicate writeAccessPredicate;
 
@@ -326,6 +367,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             return this;
         }
 
+        @JsonProperty("view")
         public Builder view(final String view) {
             if (null != view) {
                 this.view = view;
@@ -335,6 +377,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             }
         }
 
+        @JsonProperty("unParameterisedView")
         public Builder view(final View view) {
             if (null != view) {
                 try {
@@ -358,6 +401,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
             return this;
         }
 
+        @JsonProperty("writeAccessRoles")
         public Builder writers(final List<String> writers) {
             this.writers = writers;
             return this;

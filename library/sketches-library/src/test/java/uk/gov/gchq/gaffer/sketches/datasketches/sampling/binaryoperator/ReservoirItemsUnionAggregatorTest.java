@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -104,5 +103,10 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
     @Override
     protected ReservoirItemsUnionAggregator getInstance() {
         return new ReservoirItemsUnionAggregator();
+    }
+
+    @Override
+    protected Iterable<ReservoirItemsUnionAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

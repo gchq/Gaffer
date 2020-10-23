@@ -78,6 +78,11 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
+    protected Iterable<FreqMapAggregator> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<FreqMapAggregator> getFunctionClass() {
         return FreqMapAggregator.class;
     }

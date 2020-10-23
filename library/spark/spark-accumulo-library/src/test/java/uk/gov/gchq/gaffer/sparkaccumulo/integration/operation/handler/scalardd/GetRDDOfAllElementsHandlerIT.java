@@ -30,8 +30,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
@@ -90,9 +87,7 @@ public final class GetRDDOfAllElementsHandlerIT {
     private static final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
     private static final String GRAPH_ID = "graphId";
 
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerA;
     private static final AccumuloProperties PROPERTIES_A = AccumuloProperties.loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManagerB;
     private static final AccumuloProperties PROPERTIES_B = AccumuloProperties.loadStoreProperties(GetRDDOfAllElementsHandlerIT.class.getResourceAsStream("/store.properties"));
 
     private Entity entityRetainedAfterValidation;
@@ -106,18 +101,6 @@ public final class GetRDDOfAllElementsHandlerIT {
 
     private enum KeyPackage {
         BYTE_ENTITY, CLASSIC
-    }
-
-    @BeforeAll
-    public static void setUpStore() {
-        miniAccumuloClusterManagerA = new MiniAccumuloClusterManager(PROPERTIES_A, tempFolder.getAbsolutePath());
-        miniAccumuloClusterManagerB = new MiniAccumuloClusterManager(PROPERTIES_B, tempFolder.getAbsolutePath());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManagerA.close();
-        miniAccumuloClusterManagerB.close();
     }
 
     @Test

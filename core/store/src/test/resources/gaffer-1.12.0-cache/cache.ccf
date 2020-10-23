@@ -1,0 +1,26 @@
+jcs.default=DC
+jcs.default.cacheattributes=org.apache.commons.jcs.engine.CompositeCacheAttributes
+jcs.default.cacheattributes.MaxObjects=100
+jcs.default.cacheattributes.MemoryCacheName=org.apache.commons.jcs.engine.memory.lru.LRUMemoryCache
+jcs.default.cacheattributes.DiskUsagePatternName=UPDATE
+
+# Indexed Disk Cache
+jcs.auxiliary.DC=org.apache.commons.jcs.auxiliary.disk.indexed.IndexedDiskCacheFactory
+jcs.auxiliary.DC.attributes=org.apache.commons.jcs.auxiliary.disk.indexed.IndexedDiskCacheAttributes
+jcs.auxiliary.DC.attributes.DiskPath=src/test/resources/gaffer-1.12.0-cache/indexed-disk-cache
+jcs.auxiliary.DC.attributes.MaxPurgatorySize=10000
+jcs.auxiliary.DC.attributes.MaxKeySize=10000
+jcs.auxiliary.DC.attributes.OptimizeAtRemoveCount=300000
+jcs.auxiliary.DC.attributes.OptimizeOnShutdown=true
+
+# Region for named operations
+jcs.region.namedOperationsRegion=DC
+
+# Region for aging off after 1 week
+jcs.region.jobTrackerRegion=DC
+jcs.region.jobTrackerRegion.cacheattributes.UseMemoryShrinker=true
+jcs.region.jobTrackerRegion.elementattributes.IsEternal=false
+jcs.region.jobTrackerRegion.elementattributes.MaxLife=604800
+
+# Region for testing the JCS cache service
+jcs.region.test=DC

@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 
@@ -105,5 +104,10 @@ public class ReservoirLongsSketchAggregatorTest extends BinaryOperatorTest {
     @Override
     protected ReservoirLongsSketchAggregator getInstance() {
         return new ReservoirLongsSketchAggregator();
+    }
+
+    @Override
+    protected Iterable<ReservoirLongsSketchAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

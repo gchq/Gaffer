@@ -23,9 +23,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,8 +30,7 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MiniAccumuloClusterManager;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
@@ -68,33 +64,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+
 public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-    private static MiniAccumuloClusterManager miniAccumuloClusterManager;
-    private AccumuloStore store = new SingleUseAccumuloStore();
+    private AccumuloStore store = new SingleUseMiniAccumuloStore();
 
     public String inputDir;
     public String outputDir;
     public String splitsDir;
     public String splitsFile;
-
-    @BeforeAll
-    public static void setUpStore(@TempDir java.nio.file.Path tempDir) {
-        miniAccumuloClusterManager = new MiniAccumuloClusterManager(PROPERTIES, tempDir.toAbsolutePath().toString());
-    }
-
-    @AfterAll
-    public static void tearDownStore() {
-        miniAccumuloClusterManager.close();
-    }
 
     @BeforeEach
     public void setup(@TempDir java.nio.file.Path tempDir) {
