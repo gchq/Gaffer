@@ -1060,7 +1060,7 @@
                         <executions>
                             <execution>
                                 <id>validate</id>
-                        f        <phase>none</phase>
+                                <phase>none</phase>
                             </execution>
                         </executions>
                     </plugin>
