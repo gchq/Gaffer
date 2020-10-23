@@ -16,7 +16,7 @@ jobs:
       matrix:
         test-type:
         - test
-        - integration-test
+        - failsafe:integration-test
         modules:
         - :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         - :accumulo-store,:accumulo-rest
