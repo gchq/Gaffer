@@ -19,7 +19,10 @@ jobs:
     - setup
     steps:
     - name: Build
-      run: mvn clean install -Pquick
+      run: |
+        ls
+        ls ..
+        mvn clean install -Pquick
 
   test:
     runs-on: ubuntu-latest
