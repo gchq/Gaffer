@@ -7,6 +7,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        modules:
+        - common-util
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -14,9 +19,9 @@ jobs:
         with:
           java-version: 1.8
       - name: install
-        run: mvn clean install -Pquick -pl :core-rest -am
+        run: mvn clean install -Pquick -pl :${{modules}} -am
       - name: test
-        run: mvn clean verify -pl :core-rest
+        run: mvn clean verify -pl :${{modules}}
 
 
 
