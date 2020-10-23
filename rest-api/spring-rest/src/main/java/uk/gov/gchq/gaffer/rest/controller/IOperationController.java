@@ -35,7 +35,7 @@ public interface IOperationController {
 
     @RequestMapping(
             method = GET,
-            path = "/",
+            path = "",
             produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(

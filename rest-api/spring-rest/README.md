@@ -27,7 +27,6 @@ the Jersey REST API can, we will change it to match the 2.0 version.
 
 ### Features that we have yet to implement
 * Chunked endpoint
-* Automatic redirect to Swagger
 
 ### Features we don't plan to implement
 * Custom Swagger UI with operation chain builder
@@ -37,7 +36,7 @@ the Jersey REST API can, we will change it to match the 2.0 version.
 ### How to run
 With maven from the root of the project:
 ```bash
-mvn spring-boot:run -pl :spring-rest -Pmap-store
+mvn spring-boot:run -pl :spring-rest -Pdemo
 ```
 
 With java
@@ -46,8 +45,13 @@ java \
 -Dgaffer.schemas=/path/to/schemas \
 -Dgaffer.storeProperties=/path/to/store.properties \
 -Dgaffer.graph.config=/path/to/graphConfig.json \
--Dloader.path=/path/to/external/libs
--jar target/spring-rest-1.13.1-SNAPSHOT.jar \
+-Dloader.path=/path/to/external/libs \
+-jar target/spring-rest-1.13.1-SNAPSHOT.jar 
 ```
 
-Once running, open the browser to http://localhost:8080/api/swagger-ui.html
+You can alternatively add the gaffer system properties to your `application.properties` file
+
+Once running, open the browser to http://localhost:8080/rest
+
+You can change the context root by changing the `server.context-path` value in 
+`application.properties` 

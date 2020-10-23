@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,10 @@ import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import uk.gov.gchq.gaffer.operation.Operation;
-
-import java.util.Set;
 
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION_DEFAULT;
@@ -51,7 +46,7 @@ public class SwaggerConfig {
                 .title(System.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
                 .description(System.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
                 .license("Apache Licence 2.0")
-                .version("2.0-alpha")
+                .version("2.0")
                 .build();
     }
 
@@ -62,16 +57,6 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.basePackage("uk.gov.gchq.gaffer.rest"))
                 .paths(PathSelectors.any())
                 .build()
-                .apiInfo(apiInfo())
-                .alternateTypeRules(
-                        AlternateTypeRules.newRule(
-                                typeResolver.resolve(Set.class, Class.class),
-                                typeResolver.resolve(Set.class, String.class)
-                        ),
-                        AlternateTypeRules.newRule(
-                                typeResolver.resolve(Set.class, typeResolver.resolve(Class.class, Operation.class)),
-                                typeResolver.resolve(Set.class, String.class)
-                        )
-                );
+                .apiInfo(apiInfo());
     }
 }

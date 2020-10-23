@@ -14,6 +14,7 @@
   <properties>
     <spring.boot.version>1.3.2.RELEASE</spring.boot.version>
     <swagger.version>2.6.0</swagger.version>
+    <store.type>map</store.type>
   </properties>
 
   <dependencies>
@@ -23,11 +24,26 @@
       <artifactId>common-rest</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>${store.type}-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
 
     <!-- external dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>log4j-over-slf4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
@@ -42,21 +58,15 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId> <!-- required for most up-to-date version of Swagger -->
+      <groupId>com.google.guava</groupId> <!-- required for version of Swagger -->
       <artifactId>guava</artifactId>
-      <version>29.0-jre</version> <!-- todo fix this -->
+      <version>18.0</version>
     </dependency>
 
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>uk.gov.gchq.gaffer</groupId>
-      <artifactId>map-store</artifactId>
-      <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -109,14 +119,13 @@
       </plugin>
     </plugins>
   </build>
-  <!-- todo Remove log4j from spring -->
   <profiles>
     <profile>
-      <id>map-store</id>
+      <id>demo</id>
       <dependencies>
         <dependency>
           <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>map-store</artifactId>
+          <artifactId>${store.type}-store</artifactId>
           <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -133,7 +142,7 @@
             <version>${spring.boot.version}</version>
             <configuration>
               <jvmArguments>
-                -Dgaffer.storeProperties=${project.build.outputDirectory}/map/store.properties
+                -Dgaffer.storeProperties=${project.build.outputDirectory}/${store.type}/store.properties
                 -Dgaffer.graph.config=${project.build.outputDirectory}/graphConfig.json
                 -Dgaffer.schemas=${project.build.outputDirectory}/schemas
               </jvmArguments>

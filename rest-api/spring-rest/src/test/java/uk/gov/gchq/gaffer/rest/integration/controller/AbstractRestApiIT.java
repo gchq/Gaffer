@@ -28,7 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
-import uk.gov.gchq.gaffer.rest.Application;
+import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,7 +45,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * and that the Gaffer Media type header was added.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(Application.class)
+@SpringApplicationConfiguration(GafferWebApplication.class)
 @WebIntegrationTest(randomPort = true)
 @ActiveProfiles("test")
 public abstract class AbstractRestApiIT {
