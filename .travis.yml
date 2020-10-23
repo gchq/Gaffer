@@ -26,7 +26,6 @@ env:
 
 install: travis_wait 45 ./cd/install.sh
 script:
-  - travis_wait 45 ./cd/verify.sh
   - ./cd/deploy.sh
 
 before_cache: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
