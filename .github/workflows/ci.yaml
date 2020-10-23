@@ -34,18 +34,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: install
-      run: mvn -q clean install -Pquick -pl ${{matrix.modules}} -am
-    - name: test
+    - name: Install
+      run: mvn -q clean install -P quick,coverage -pl ${{matrix.modules}} -am
+    - name: Test
       run: mvn -q ${{matrix.test-type}} -pl ${{matrix.modules}}
-
-  generate-coverage:
-    runs-on: ubuntu-latest
-    needs:
-    - build
-    steps:
-    - uses: actions/checkout@v2
-    - name: Generate Coverage
+    - name: Upload Coverage
       run: bash <(curl -s https://codecov.io/bash)
 
 

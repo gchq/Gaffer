@@ -1251,12 +1251,12 @@
             </build>
         </profile>
         <profile>
-            <id>travis</id>
-            <properties>
-                <!-- The sparkaccumulo integration and parquetstore Spark tests don't run on Travis CI -->
-                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java
-                </exclude.tests>
-            </properties>
+            <id>coverage</id>
+            <!--<properties>-->
+                <!--&lt;!&ndash; The sparkaccumulo integration and parquetstore Spark tests don't run on Travis CI &ndash;&gt;-->
+                <!--<exclude.tests>**/sparkaccumulo/integration/**/*IT.java-->
+                <!--</exclude.tests>-->
+            <!--</properties>-->
             <build>
                 <plugins>
                     <plugin>
