@@ -17,7 +17,7 @@ done
 
 for module in $allModules
 do
-    if ! grep -q :$module .github/workflows/ci.yaml
+    if ! grep -q :$module .github/workflows/continuous-integration.yaml
     then
         echo ".github/workflows/continuous-integration.yaml is missing module $module";
         exit 1;
