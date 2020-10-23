@@ -25,6 +25,6 @@ jobs:
     - build
     steps:
     - name: test
-    run: mvn clean verify -pl :core-rest
+      run: mvn clean verify -pl :core-rest
 
 
