@@ -2,7 +2,11 @@ name: Build
 
 on:
   push:
-    branches: [ gh-2331-github-actions ]
+    branches:
+    - gh-2331-github-actions
+  pull-request:
+    branches:
+    - develop
 
 jobs:
   build:
@@ -10,6 +14,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
+        test-type:
+        - test
+        - integration-test
         modules:
         - :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         - :accumulo-store,:accumulo-rest
@@ -30,7 +37,7 @@ jobs:
       - name: install
         run: mvn clean install -Pquick -pl ${{matrix.modules}} -am
       - name: test
-        run: mvn clean verify -pl ${{matrix.modules}}
+        run: mvn checkstyle:checkstyle ${{matrix.test-type}} -pl ${{matrix.modules}}
 
 
 
