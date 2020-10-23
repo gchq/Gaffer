@@ -101,7 +101,6 @@
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <findbugs.plugin.version>3.0.5</findbugs.plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-        <maven-jar-plugin.version>${maven-war-plugin.version}</maven-jar-plugin.version>
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
         <jar.plugin.version>2.4</jar.plugin.version>
