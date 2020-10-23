@@ -5,7 +5,7 @@ on:
     branches: [ gh-2331-github-actions ]
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -13,23 +13,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-  build:
-    runs-on: ubuntu-latest
-    needs:
-    - setup
-    steps:
-    - name: Build
-      run: |
-        ls
-        ls ..
-        mvn clean install -Pquick
+      - name: install
+        run: mvn clean install -Pquick -pl :core-rest -am
+      - name: test
+        run: mvn clean verify -pl :core-rest
 
-  test:
-    runs-on: ubuntu-latest
-    needs:
-    - build
-    steps:
-    - name: test
-      run: mvn clean verify -pl :core-rest
+
+
 
 
