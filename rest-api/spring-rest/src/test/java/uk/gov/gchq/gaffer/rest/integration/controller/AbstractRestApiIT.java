@@ -77,7 +77,7 @@ public abstract class AbstractRestApiIT {
         }
     }
 
-    protected <T> ResponseEntity<T> post(final String path, final String body, final Class<T> responseBodyClass) {
+    protected <T> ResponseEntity<T> post(final String path, final Object body, final Class<T> responseBodyClass) {
         try {
             return restTemplate.postForEntity(new URI(getBaseURl() + path), body, responseBodyClass);
         } catch (URISyntaxException e) {

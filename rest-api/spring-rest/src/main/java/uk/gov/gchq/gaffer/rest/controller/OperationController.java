@@ -42,48 +42,34 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
 @RestController
 public class OperationController extends AbstractOperationService implements IOperationController {
 
-    private GraphFactory graphFactory;
-    private UserFactory userFactory;
-    private ExamplesFactory examplesFactory;
+    private final GraphFactory graphFactory;
+    private final UserFactory userFactory;
+    private final ExamplesFactory examplesFactory;
 
     @Autowired
-    public void setGraphFactory(final GraphFactory graphFactory) {
+    public OperationController(final GraphFactory graphFactory, final UserFactory userFactory, final ExamplesFactory examplesFactory) {
         this.graphFactory = graphFactory;
-    }
-
-    @Autowired
-    public void setUserFactory(final UserFactory userFactory) {
         this.userFactory = userFactory;
-    }
-
-    @Autowired
-    public void setExamplesFactory(final ExamplesFactory examplesFactory) {
         this.examplesFactory = examplesFactory;
     }
 
     @Override
-    public ResponseEntity<Set<Class<? extends Operation>>> getOperations() {
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(getSupportedOperations());
+    public Set<Class<? extends Operation>> getOperations() {
+        return getSupportedOperations();
     }
 
     @Override
-    public ResponseEntity<Set<OperationDetail>> getAllOperationDetails() {
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(getSupportedOperationDetails());
+    public Set<OperationDetail> getAllOperationDetails() {
+        return getSupportedOperationDetails();
     }
 
     @Override
-    public ResponseEntity<OperationDetail> getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public OperationDetail getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
         try {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
-                return ResponseEntity.ok()
-                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                        .body(new OperationDetail(operationClass, getNextOperations(operationClass), generateExampleJson(operationClass)));
+                return new OperationDetail(operationClass, getNextOperations(operationClass), generateExampleJson(operationClass));
             } else {
                 throw new GafferRuntimeException("Class: " + className + " is not supported by the current store.");
             }
@@ -93,23 +79,21 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public ResponseEntity<Set<Class<? extends Operation>>> getNextOperations(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
         Class<? extends Operation> opClass;
         try {
             opClass = getOperationClass(className);
         } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Operation class was not found: " + className, e);
+            throw new GafferRuntimeException("Operation class was not found: " + className, e, Status.NOT_FOUND);
         } catch (final ClassCastException e) {
-            throw new IllegalArgumentException(className + " does not extend Operation", e);
+            throw new GafferRuntimeException(className + " does not extend Operation", e, Status.BAD_REQUEST);
         }
 
-        return ResponseEntity.ok()
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .body(getNextOperations(opClass));
+        return getNextOperations(opClass);
     }
 
     @Override
-    public ResponseEntity<Operation> getOperationExample(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Operation getOperationExample(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
         Class<? extends Operation> operationClass;
         try {
             operationClass = getOperationClass(className);
@@ -117,9 +101,7 @@ public class OperationController extends AbstractOperationService implements IOp
             throw new GafferRuntimeException("Unable to find operation class " + className + " on the classpath", e, Status.NOT_FOUND);
         }
         try {
-            return ResponseEntity.ok()
-                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                    .body(generateExampleJson(operationClass));
+            return generateExampleJson(operationClass);
         } catch (final InstantiationException | IllegalAccessException e) {
             throw new GafferRuntimeException("Unable to create example for class " + className, e, Status.INTERNAL_SERVER_ERROR);
         }

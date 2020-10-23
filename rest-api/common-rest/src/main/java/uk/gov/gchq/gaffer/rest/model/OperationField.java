@@ -30,7 +30,7 @@ public class OperationField {
     private final Set<String> options;
     private final boolean required;
 
-    OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
+    public OperationField(final String name, final String summary, final String className, final Set<String> options, final boolean required) {
         this.name = name;
         this.summary = summary;
         this.className = className;

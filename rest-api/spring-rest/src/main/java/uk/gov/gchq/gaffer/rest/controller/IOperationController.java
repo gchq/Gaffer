@@ -43,7 +43,7 @@ public interface IOperationController {
             response = Class.class,
             responseContainer = "Set"
     )
-    ResponseEntity<Set<Class<? extends Operation>>> getOperations();
+    Set<Class<? extends Operation>> getOperations();
 
     @RequestMapping(
             method = GET,
@@ -55,7 +55,7 @@ public interface IOperationController {
             response = OperationDetail.class,
             responseContainer = "Set"
     )
-    ResponseEntity<Set<OperationDetail>> getAllOperationDetails();
+    Set<OperationDetail> getAllOperationDetails();
 
     @RequestMapping(
             method = GET,
@@ -66,7 +66,7 @@ public interface IOperationController {
             value = "Gets details about the specified operation class",
             response = OperationDetail.class
     )
-    ResponseEntity<OperationDetail> getOperationDetails(final String className);
+    OperationDetail getOperationDetails(final String className);
 
     @RequestMapping(
             method = GET,
@@ -78,7 +78,7 @@ public interface IOperationController {
             response = Operation.class,
             responseContainer = "Set"
     )
-    ResponseEntity<Set<Class<? extends Operation>>> getNextOperations(final String className);
+    Set<Class<? extends Operation>> getNextOperations(final String className);
 
     @RequestMapping(
             method = GET,
@@ -89,7 +89,7 @@ public interface IOperationController {
             value = "Gets an example of an operation class",
             response = Operation.class
     )
-    ResponseEntity<Operation> getOperationExample(final String className);
+    Operation getOperationExample(final String className);
 
 
     @RequestMapping(
