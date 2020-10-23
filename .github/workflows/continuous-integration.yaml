@@ -1,12 +1,6 @@
 name: Continuous Integration
 
-on:
-  push:
-    branches:
-    - gh-2331-github-actions
-  pull_request:
-    branches:
-    - develop
+on: [ pull_request ]
 
 jobs:
   check-all-modules-are-tested:
@@ -26,8 +20,8 @@ jobs:
         - integration-test
         modules:
         - :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-        #- :accumulo-store,:accumulo-rest # commented out for development as they take a while
-        #- :hbase-store,:hbase-rest
+        - :accumulo-store,:accumulo-rest
+        - :hbase-store,:hbase-rest
         - :parquet-store,:parquet-rest
         - :integration-test,:federated-store,:map-store,:map-rest
         - :rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
