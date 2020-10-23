@@ -15,8 +15,8 @@ jobs:
       fail-fast: true
       matrix:
         test-type:
-        - test
-        - failsafe:integration-test
+        - unit-test
+        - integration-test
         modules:
         - :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         #- :accumulo-store,:accumulo-rest # commented out for development as they take a while
@@ -35,13 +35,10 @@ jobs:
       with:
         java-version: 1.8
     - name: Install
-      run: mvn -q clean install -P quick,coverage -pl ${{matrix.modules}} -am
+      run: mvn clean install -P quick,coverage -pl ${{matrix.modules}} -am
     - name: Test
-      run: mvn -q ${{matrix.test-type}} -pl ${{matrix.modules}}
+      run: mvn test -P${{matrix.test-type}} -pl ${{matrix.modules}}
     - name: Upload Coverage
-      run: bash <(curl -s https://codecov.io/bash)
-
-
-
-
-
+      uses: codecov/codecov-action@v1
+      with:
+        verbose: true
