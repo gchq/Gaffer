@@ -19,9 +19,9 @@ jobs:
         with:
           java-version: 1.8
       - name: install
-        run: mvn clean install -Pquick -pl :${{modules}} -am
+        run: mvn clean install -Pquick -pl :${{matrix.modules}} -am
       - name: test
-        run: mvn clean verify -pl :${{modules}}
+        run: mvn clean verify -pl :${{matrix.modules}}
 
 
 
