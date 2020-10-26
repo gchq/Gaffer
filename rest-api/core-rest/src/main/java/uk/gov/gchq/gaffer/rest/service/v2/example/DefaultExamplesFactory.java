@@ -33,6 +33,6 @@ public class DefaultExamplesFactory extends AbstractExamplesFactory {
 
     @Override
     protected Schema getSchema() {
-        return graphFactory.createGraph().getSchema();
+        return graphFactory.getGraph().getSchema();
     }
 }
