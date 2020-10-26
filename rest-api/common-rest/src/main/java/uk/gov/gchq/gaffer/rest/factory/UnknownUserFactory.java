@@ -25,8 +25,6 @@ import static uk.gov.gchq.gaffer.user.User.UNKNOWN_USER_ID;
  */
 public class UnknownUserFactory implements UserFactory {
 
-    public UnknownUserFactory() {}
-
     @Override
     public User createUser() {
         return new User.Builder()
