@@ -49,4 +49,5 @@ jobs:
         path:
           ~/.m2/repository
           !~/.m2/repository/uk
+        key: gaffer-dependencies
 
