@@ -15,9 +15,6 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        test-type:
-        - unit-test
-        - integration-test
         modules:
         - :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         - :accumulo-store,:accumulo-rest
@@ -38,6 +35,6 @@ jobs:
     - name: Install
       run: mvn clean install -P quick -pl ${{matrix.modules}} -am
     - name: Test
-      run: mvn verify -P coverage,${{matrix.test-type}} -pl ${{matrix.modules}}
+      run: mvn verify -P coverage -pl ${{matrix.modules}}
     - name: Upload Coverage
       uses: codecov/codecov-action@v1
