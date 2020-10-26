@@ -54,10 +54,10 @@ jobs:
         key: ${{matrix.modules.name}}-gaffer-dependencies
 
     - name: Install
-      run: mvn clean -q install -P quick -pl ${{matrix.modules.values}} -am
+      run: mvn clean install -P quick -pl ${{matrix.modules.values}} -am
 
     - name: Test
-      run: mvn verify -q -P coverage -pl ${{matrix.modules.values}}
+      run: mvn verify -P coverage -pl ${{matrix.modules.values}}
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v1
