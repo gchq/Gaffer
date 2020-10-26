@@ -33,8 +33,8 @@ jobs:
       with:
         java-version: 1.8
     - name: Install
-      run: mvn clean install -P quick -pl ${{matrix.modules}} -am
+      run: mvn clean -q install -P quick -pl ${{matrix.modules}} -am
     - name: Test
-      run: mvn verify -P coverage -pl ${{matrix.modules}}
+      run: mvn verify -q -P coverage -pl ${{matrix.modules}}
     - name: Upload Coverage
       uses: codecov/codecov-action@v1
