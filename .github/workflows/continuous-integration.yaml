@@ -16,15 +16,24 @@ jobs:
       fail-fast: true
       matrix:
         modules:
-        - :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-        - :accumulo-store,:accumulo-rest
-        - :hbase-store,:hbase-rest
-        - :parquet-store,:parquet-rest
-        - :integration-test,:federated-store,:map-store,:map-rest
-        - :rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-        - :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
-        - :library,:time-library
-        - :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+        - name: Core
+          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+        - name: Accumulo
+          values: :accumulo-store,:accumulo-rest
+        - name: Hbase
+          values: :hbase-store,:hbase-rest
+        - name: Parquet
+          values: :parquet-store,:parquet-rest
+        - name: Federated-And-Map
+          values: :integration-test,:federated-store,:map-store,:map-rest
+        - name: REST
+          values: :rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
+        - name: Big-Data-Libraries
+          values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
+        - name: Time-Library
+          values: :library,:time-library
+        - name: Caches
+          values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
     steps:
     - uses: actions/checkout@v2
@@ -40,13 +49,13 @@ jobs:
         path:
           ~/.m2/repository
           !~/.m2/repository/uk
-        key: ${{matrix.modules}}-gaffer-dependencies
+        key: ${{matrix.modules.name}}-gaffer-dependencies
 
     - name: Install
-      run: mvn clean -q install -P quick -pl ${{matrix.modules}} -am
+      run: mvn clean -q install -P quick -pl ${{matrix.modules.values}} -am
 
     - name: Test
-      run: mvn verify -q -P coverage -pl ${{matrix.modules}}
+      run: mvn verify -q -P coverage -pl ${{matrix.modules.values}}
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v1
