@@ -42,13 +42,16 @@ public class FactoryConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FactoryConfig.class);
 
-    @Autowired
     private Environment environment;
+
+    @Autowired
+    public void setEnvironment(final Environment environment) {
+        this.environment = environment;
+    }
 
     @PostConstruct
     public void setToSystemProperties() {
         if (environment instanceof AbstractEnvironment) {
-            LOGGER.warn("environment was an AbstractEnvironment");
             Set<String> checkedProperties = new HashSet<>();
 
             ((AbstractEnvironment) environment).getPropertySources().iterator().forEachRemaining(propertySource -> {

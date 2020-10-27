@@ -20,6 +20,7 @@ import com.fasterxml.classmate.TypeResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -40,11 +41,18 @@ public class SwaggerConfig {
     @Autowired
     private TypeResolver typeResolver;
 
+    private Environment environment;
+
+    @Autowired
+    public void setEnvironment(final Environment environment) {
+        this.environment = environment;
+    }
+
     @Bean
     public ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title(System.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
-                .description(System.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
+                .title(environment.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
+                .description(environment.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
                 .license("Apache Licence 2.0")
                 .version("2.0")
                 .build();
