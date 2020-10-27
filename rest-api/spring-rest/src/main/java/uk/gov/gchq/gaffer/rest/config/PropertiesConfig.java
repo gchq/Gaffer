@@ -44,12 +44,20 @@ public class PropertiesConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfig.class);
 
-    @Autowired
     private Environment environment;
+
+    @Autowired
+    public PropertiesConfig(final Environment environment) {
+        this.environment = environment;
+        LOGGER.warn("Got to Properties config constructor");
+    }
+
 
     @PostConstruct
     public void setToSystemProperties() {
+        LOGGER.warn("Got to PostConstruct method");
         if (environment instanceof AbstractEnvironment) {
+            LOGGER.warn("environment was an AbstractEnvironment");
             Set<String> checkedProperties = new HashSet<>();
 
             ((AbstractEnvironment) environment).getPropertySources().iterator().forEachRemaining(propertySource -> {
