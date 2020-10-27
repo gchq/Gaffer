@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
@@ -41,7 +40,6 @@ import java.util.Set;
  * Or via properties specified in the application.properties file.
  */
 @Configuration
-@Component
 public class PropertiesConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfig.class);
