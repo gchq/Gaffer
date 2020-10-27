@@ -1,6 +1,10 @@
 name: Continuous Integration
 
-on: [ pull_request ]
+# on: [ pull_request ]
+on:
+ push:
+  branches:
+  - gh-2302-create-spring-boot-app
 
 jobs:
   check-all-modules-are-tested:

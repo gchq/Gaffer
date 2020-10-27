@@ -20,11 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
@@ -42,7 +41,7 @@ import java.util.Set;
  * Or via properties specified in the application.properties file.
  */
 @Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE) // Ensures this is run before any other configuration
+@Component
 public class PropertiesConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfig.class);
