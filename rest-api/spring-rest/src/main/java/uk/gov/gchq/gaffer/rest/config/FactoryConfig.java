@@ -16,8 +16,14 @@
 
 package uk.gov.gchq.gaffer.rest.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.DefaultExamplesFactory;
@@ -25,8 +31,42 @@ import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
+import javax.annotation.PostConstruct;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 @Configuration
 public class FactoryConfig {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FactoryConfig.class);
+
+    @Autowired
+    private Environment environment;
+
+    @PostConstruct
+    public void setToSystemProperties() {
+        if (environment instanceof AbstractEnvironment) {
+            LOGGER.warn("environment was an AbstractEnvironment");
+            Set<String> checkedProperties = new HashSet<>();
+
+            ((AbstractEnvironment) environment).getPropertySources().iterator().forEachRemaining(propertySource -> {
+                if (propertySource instanceof EnumerablePropertySource) {
+                    String[] propertyNames = ((EnumerablePropertySource) propertySource).getPropertyNames();
+                    Arrays.stream(propertyNames)
+                            .filter(s -> s.startsWith("gaffer") && checkedProperties.add(s)) // Skips expensive property lookup
+                            .forEach(s -> System.setProperty(s, environment.getProperty(s)));
+                } else {
+                    LOGGER.info("Skipping Property source " + propertySource);
+                    LOGGER.info("Any gaffer property configured with this source will not be automatically added " +
+                            "to system properties");
+                }
+            });
+            return;
+        }
+        LOGGER.warn("Environment was not instance of AbstractEnvironment. Property setting will be skipped.");
+    }
 
     @Bean
     public GraphFactory createGraphFactory() throws IllegalAccessException, InstantiationException {
@@ -43,7 +83,7 @@ public class FactoryConfig {
         return new DefaultExamplesFactory();
     }
 
-    private Class<? extends GraphFactory> getDefaultGraphFactory() { // todo improve so that we can use properties files
+    private Class<? extends GraphFactory> getDefaultGraphFactory() {
         final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
                 SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
 
