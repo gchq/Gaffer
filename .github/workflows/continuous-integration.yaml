@@ -1,10 +1,6 @@
 name: Continuous Integration
 
-# on: [ pull_request ]
-on:
- push:
-  branches:
-  - gh-2302-create-spring-boot-app
+on: [ pull_request ]
 
 jobs:
   check-all-modules-are-tested:
@@ -20,26 +16,24 @@ jobs:
       fail-fast: true
       matrix:
         modules:
-#        - name: Core
-#          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-#        - name: Accumulo
-#          values: :accumulo-store,:accumulo-rest
-#        - name: Hbase
-#          values: :hbase-store,:hbase-rest
-#        - name: Parquet
-#          values: :parquet-store,:parquet-rest
-#        - name: Federated-And-Map
-#          values: :integration-test,:federated-store,:map-store,:map-rest
-#        - name: REST
-#          values: :rest-api,:common-rest,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-        - name: spring-rest-api
-          values: :spring-rest
-#        - name: Big-Data-Libraries
-#          values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
-#        - name: Time-Library
-#          values: :library,:time-library
-#        - name: Caches
-#          values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+        - name: Core
+          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+        - name: Accumulo
+          values: :accumulo-store,:accumulo-rest
+        - name: Hbase
+          values: :hbase-store,:hbase-rest
+        - name: Parquet
+          values: :parquet-store,:parquet-rest
+        - name: Federated-And-Map
+          values: :integration-test,:federated-store,:map-store,:map-rest
+        - name: REST
+          values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
+        - name: Big-Data-Libraries
+          values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
+        - name: Time-Library
+          values: :library,:time-library
+        - name: Caches
+          values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
     steps:
     - uses: actions/checkout@v2
