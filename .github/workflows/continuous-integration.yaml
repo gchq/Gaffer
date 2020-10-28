@@ -1,6 +1,8 @@
 name: Continuous Integration
 
-on: [ pull_request ]
+on:
+  branch:
+  - investigate-network-issues
 
 jobs:
   check-all-modules-are-tested:
@@ -16,22 +18,22 @@ jobs:
       fail-fast: true
       matrix:
         modules:
-        - name: Core
-          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-        - name: Accumulo
-          values: :accumulo-store,:accumulo-rest
-        - name: Hbase
-          values: :hbase-store,:hbase-rest
-        - name: Parquet
-          values: :parquet-store,:parquet-rest
-        - name: Federated-And-Map
-          values: :integration-test,:federated-store,:map-store,:map-rest
-        - name: REST
-          values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-        - name: Big-Data-Libraries
-          values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
-        - name: Time-Library
-          values: :library,:time-library
+#        - name: Core
+#          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+#        - name: Accumulo
+#          values: :accumulo-store,:accumulo-rest
+#        - name: Hbase
+#          values: :hbase-store,:hbase-rest
+#        - name: Parquet
+#          values: :parquet-store,:parquet-rest
+#        - name: Federated-And-Map
+#          values: :integration-test,:federated-store,:map-store,:map-rest
+#        - name: REST
+#          values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
+#        - name: Big-Data-Libraries
+#          values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
+#        - name: Time-Library
+#          values: :library,:time-library
         - name: Caches
           values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
@@ -51,12 +53,15 @@ jobs:
           !~/.m2/repository/uk
         key: ${{matrix.modules.name}}-gaffer-dependencies
 
-    - name: Install
-      run: mvn clean install -Dmaven.wagon.http.retryHandler.count=3 -q -P quick -pl ${{matrix.modules.values}} -am
+    - name: Print version
+      run: mvn --version
 
-    - name: Test
-      run: mvn verify -q -Dmaven.wagon.http.retryHandler.count=3 -P coverage -pl ${{matrix.modules.values}}
+#    - name: Install
+#      run: mvn clean install -Dmaven.wagon.http.retryHandler.count=3 -q -P quick -pl ${{matrix.modules.values}} -am
+#
+#    - name: Test
+#      run: mvn verify -q -Dmaven.wagon.http.retryHandler.count=3 -P coverage -pl ${{matrix.modules.values}}
 
-    - name: Upload Coverage
-      uses: codecov/codecov-action@v1
+#    - name: Upload Coverage
+#      uses: codecov/codecov-action@v1
 
