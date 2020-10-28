@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -49,13 +49,15 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 @WebIntegrationTest(randomPort = true)
 @ActiveProfiles("test")
 public abstract class AbstractRestApiIT {
-    private RestTemplate restTemplate = new TestRestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Value("${local.server.port}")
     private int port;
 
     @Value("${server.context-path}")
     private String contextPath;
+
 
     protected String getBaseURl() {
         return "http://localhost:" + port + "/" + contextPath;

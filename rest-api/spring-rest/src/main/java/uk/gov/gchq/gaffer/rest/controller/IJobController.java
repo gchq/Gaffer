@@ -33,7 +33,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public interface IJobController {
 
     @RequestMapping(
-            path = "/",
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE,
             method = POST
@@ -68,7 +67,6 @@ public interface IJobController {
     JobDetail getDetails(final String id) throws OperationException;
 
     @RequestMapping(
-            path = "/",
             produces = APPLICATION_JSON_VALUE,
             method = GET
     )

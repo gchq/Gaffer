@@ -16,12 +16,17 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -31,7 +36,10 @@ import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.Repeat;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.SingleUseMapStore;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
@@ -41,13 +49,17 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
+import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS;
 
 public class JobControllerIT extends AbstractRestApiIT {
 
@@ -57,13 +69,15 @@ public class JobControllerIT extends AbstractRestApiIT {
     @Before
     public void setupGraph() {
         StoreProperties properties = new MapStoreProperties();
+        properties.setStoreClass(SingleUseMapStore.class);
         properties.setJobTrackerEnabled(true);
         properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        properties.set(OPERATION_DECLARATIONS, "ResultCacheExportOperations.json");
 
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig("myGraph"))
                 .storeProperties(properties)
-                .addSchema(new Schema())
+                .addSchema(Schema.fromJson(StreamUtil.schema(JobControllerIT.class)))
                 .build();
 
         when(graphFactory.getGraph()).thenReturn(graph);
@@ -114,6 +128,56 @@ public class JobControllerIT extends AbstractRestApiIT {
         }
     }
 
+    @Test
+    public void shouldRunJob() {
+        // Given
+        ArrayList<Element> elements = Lists.newArrayList(
+                new Entity.Builder()
+                        .group("BasicEntity")
+                        .vertex("vertex1")
+                        .property("count", 5)
+                        .build(),
+                new Entity.Builder()
+                        .group("BasicEntity")
+                        .vertex("vertex2")
+                        .property("count", 5)
+                        .build(),
+                new Edge.Builder()
+                        .group("BasicEdge")
+                        .source("vertex1")
+                        .dest("vertex2")
+                        .directed(true)
+                        .build()
+        );
+
+        AddElements addElements = new AddElements.Builder()
+                .input(elements)
+                .build();
+
+        post("/graph/operations/execute", addElements, Object.class);
+
+        // When
+        Operation operation = new GetAllElements();
+        ResponseEntity<JobDetail> jobResponse = post("/graph/jobs", operation, JobDetail.class);
+        String jobId = jobResponse.getBody().getJobId();
+        boolean jobCompleted = false;
+        ResponseEntity<JobDetail> jobStatusResponse = null;
+
+        while (!jobCompleted) {
+            jobStatusResponse = get("/graph/jobs/" + jobId, JobDetail.class);
+            jobCompleted = !jobStatusResponse.getBody().getStatus().equals(JobStatus.RUNNING);
+        }
+
+        // Then
+        assertNotNull(jobStatusResponse);
+        assertEquals(JobStatus.FINISHED, jobStatusResponse.getBody().getStatus());
+
+        ResponseEntity<List> resultResponse = get("/graph/jobs/" + jobId + "/results", List.class);
+        List<? extends Element> results = Lists.newArrayList(deserialiseElementIterable(resultResponse.getBody()));
+        assertEquals(3, results.size());
+        assertTrue("Results did not contain expected elements", results.containsAll(elements));
+    }
+
     private Iterable<JobDetail> deserialiseJobDetailIterable(final Iterable body) {
         try {
             return JSONSerialiser.deserialise(JSONSerialiser.serialise(body), new TypeReferenceImpl.JobDetailIterable());
@@ -121,4 +185,13 @@ public class JobControllerIT extends AbstractRestApiIT {
             throw new RuntimeException(e);
         }
     }
+
+    private Iterable<? extends Element> deserialiseElementIterable(final Iterable body) {
+        try {
+            return JSONSerialiser.deserialise(JSONSerialiser.serialise(body), new TypeReferenceImpl.IterableElement());
+        } catch (SerialisationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
