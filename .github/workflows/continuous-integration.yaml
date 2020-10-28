@@ -1,8 +1,9 @@
 name: Continuous Integration
 
 on:
-  branch:
-  - investigate-network-issues
+  push:
+    branches:
+    - investigate-network-issues
 
 jobs:
   check-all-modules-are-tested:
