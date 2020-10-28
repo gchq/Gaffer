@@ -123,7 +123,7 @@ public class DefaultGraphFactory implements GraphFactory {
             try {
                 library = Class.forName(graphLibraryClassName).asSubclass(GraphLibrary.class).newInstance();
             } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Error creating GraphLibrary class: + " + e);
+                throw new RuntimeException("Error creating GraphLibrary class", e);
             }
             library.initialise(System.getProperty(SystemProperty.GRAPH_LIBRARY_CONFIG));
             builder.library(library);
