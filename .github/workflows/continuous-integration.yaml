@@ -36,7 +36,7 @@ jobs:
           values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
     env:
-     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3
+     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
     - uses: actions/checkout@v2
 
