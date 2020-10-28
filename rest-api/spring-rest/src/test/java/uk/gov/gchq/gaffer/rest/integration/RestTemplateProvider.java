@@ -30,7 +30,8 @@ public class RestTemplateProvider {
     @Bean
     public RestTemplate createRestTemplate() {
         RestTemplate restTemplate = new TestRestTemplate();
-        restTemplate.getMessageConverters().add(0, createJsonMessageConverter());
+        restTemplate.getMessageConverters().removeIf(e -> e instanceof MappingJackson2HttpMessageConverter);
+        restTemplate.getMessageConverters().add(createJsonMessageConverter());
 
         return restTemplate;
     }
