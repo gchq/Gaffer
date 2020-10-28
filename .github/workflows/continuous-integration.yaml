@@ -48,7 +48,7 @@ jobs:
     - name: Cache dependencies
       uses: actions/cache@v2
       with:
-        path:
+        path: |
           ~/.m2/repository
           !~/.m2/repository/uk
         key: ${{matrix.modules.name}}-gaffer-dependencies
