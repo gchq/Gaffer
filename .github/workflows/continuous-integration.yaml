@@ -35,6 +35,8 @@ jobs:
         - name: Caches
           values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
+    env:
+     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3
     steps:
     - uses: actions/checkout@v2
 
@@ -52,10 +54,10 @@ jobs:
         key: ${{matrix.modules.name}}-gaffer-dependencies
 
     - name: Install
-      run: mvn clean install -Dmaven.wagon.http.retryHandler.count=3 -q -P quick -pl ${{matrix.modules.values}} -am
+      run: mvn clean install -B -q -P quick -pl ${{matrix.modules.values}} -am
 
     - name: Test
-      run: mvn verify -q -Dmaven.wagon.http.retryHandler.count=3 -P coverage -pl ${{matrix.modules.values}}
+      run: mvn verify -B -q -P coverage -pl ${{matrix.modules.values}}
 
     - name: Upload Coverage
       uses: codecov/codecov-action@v1

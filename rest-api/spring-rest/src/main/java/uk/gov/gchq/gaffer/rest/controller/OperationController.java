@@ -73,8 +73,12 @@ public class OperationController extends AbstractOperationService implements IOp
             } else {
                 throw new GafferRuntimeException("Class: " + className + " is not supported by the current store.");
             }
-        } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new GafferRuntimeException("Class: " + className + " was not found on the classpath.", e);
+        } catch (final ClassNotFoundException e) {
+            throw new GafferRuntimeException("Class: " + className + " was not found on the classpath.", e, Status.NOT_FOUND);
+        } catch (final ClassCastException e) {
+            throw new GafferRuntimeException(className + " does not extend Operation", e, Status.BAD_REQUEST);
+        } catch (final  IllegalAccessException | InstantiationException e) {
+            throw new GafferRuntimeException("Unable to instantiate " + className, e);
         }
     }
 
@@ -98,7 +102,9 @@ public class OperationController extends AbstractOperationService implements IOp
         try {
             operationClass = getOperationClass(className);
         } catch (final ClassNotFoundException e) {
-            throw new GafferRuntimeException("Unable to find operation class " + className + " on the classpath", e, Status.NOT_FOUND);
+            throw new GafferRuntimeException("Class: " + className + " was not found on the classpath.", e, Status.NOT_FOUND);
+        } catch (final ClassCastException e) {
+            throw new GafferRuntimeException(className + " does not extend Operation", e, Status.BAD_REQUEST);
         }
         try {
             return generateExampleJson(operationClass);
