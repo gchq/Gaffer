@@ -115,7 +115,8 @@ public class OperationDetailTest extends EqualityTest<OperationDetail> {
                         GetAdjacentIds.class,
                         Sets.newHashSet(DiscardOutput.class, GetElements.class, GetAdjacentIds.class),
                         new GetElements()
-                ),new OperationDetail(
+                ),
+                new OperationDetail(
                         GetAdjacentIds.class,
                         Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
                         new GetElements.Builder()
