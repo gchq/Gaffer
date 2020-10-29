@@ -17,10 +17,15 @@
 package uk.gov.gchq.gaffer.rest.model;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.koryphe.util.EqualityTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class OperationDetailTest {
+public class OperationDetailTest extends EqualityTest<OperationDetail> {
     @Test
     public void shouldUseSummaryAnnotationForSummary() {
         // Given
@@ -82,5 +87,52 @@ public class OperationDetailTest {
                 assertFalse(field.isRequired());
             }
         });
+    }
+
+    @Override
+    protected OperationDetail getInstance() {
+        return new OperationDetail(
+                GetElements.class,
+                Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
+                new GetElements()
+        );
+    }
+
+    @Override
+    protected Iterable<OperationDetail> getDifferentInstancesOrNull() {
+        return Lists.newArrayList(
+                new OperationDetail(
+                        GetAdjacentIds.class,
+                        Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
+                        new GetElements()
+                ),
+                new OperationDetail(
+                        GetAdjacentIds.class,
+                        Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
+                        new GetElements()
+                ),
+                new OperationDetail(
+                        GetAdjacentIds.class,
+                        Sets.newHashSet(DiscardOutput.class, GetElements.class, GetAdjacentIds.class),
+                        new GetElements()
+                ),new OperationDetail(
+                        GetAdjacentIds.class,
+                        Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
+                        new GetElements.Builder()
+                                .input(new EntitySeed("test"))
+                                .build()
+                ),
+                new OperationDetail(
+                        GetAdjacentIds.class,
+                        null,
+                        new GetElements()
+                ),
+                new OperationDetail(
+                        GetAdjacentIds.class,
+                        null,
+                        null
+                )
+
+        );
     }
 }
