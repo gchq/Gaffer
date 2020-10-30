@@ -37,11 +37,6 @@ public class DefaultGraphFactory implements GraphFactory {
      */
     private boolean singletonGraph = true;
 
-    public DefaultGraphFactory() {
-        // Graph factories should be constructed via the createGraphFactory static method,
-        // public constructor is required only by HK2
-    }
-
     public static GraphFactory createGraphFactory() {
         final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
                 SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
@@ -128,7 +123,7 @@ public class DefaultGraphFactory implements GraphFactory {
             try {
                 library = Class.forName(graphLibraryClassName).asSubclass(GraphLibrary.class).newInstance();
             } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Error creating GraphLibrary class: + " + e);
+                throw new RuntimeException("Error creating GraphLibrary class", e);
             }
             library.initialise(System.getProperty(SystemProperty.GRAPH_LIBRARY_CONFIG));
             builder.library(library);

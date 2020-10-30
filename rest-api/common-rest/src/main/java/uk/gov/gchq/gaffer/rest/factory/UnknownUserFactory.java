@@ -25,11 +25,6 @@ import static uk.gov.gchq.gaffer.user.User.UNKNOWN_USER_ID;
  */
 public class UnknownUserFactory implements UserFactory {
 
-    public UnknownUserFactory() {
-        // User factories should be constructed via the createGraphFactory static method,
-        // public constructor is required only by HK2
-    }
-
     @Override
     public User createUser() {
         return new User.Builder()

@@ -30,7 +30,7 @@
         <!-- Gaffer dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>graph</artifactId>
+            <artifactId>common-rest</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
