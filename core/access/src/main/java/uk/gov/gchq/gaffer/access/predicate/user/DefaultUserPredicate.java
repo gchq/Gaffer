@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.access.predicate.user;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
@@ -53,21 +55,25 @@ public class DefaultUserPredicate extends KoryphePredicate<User> implements Seri
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final DefaultUserPredicate that = (DefaultUserPredicate) o;
+        return (this == o)
+                || ((o != null)
+                && (this.getClass() == o.getClass())
+                && new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(this.creatingUserId, ((DefaultUserPredicate) o).creatingUserId)
+                .append(this.auths, ((DefaultUserPredicate) o).auths)
+                .isEquals());
 
-        return Objects.equals(creatingUserId, that.creatingUserId) &&
-                Objects.equals(auths, that.auths);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(creatingUserId, auths);
+        return new HashCodeBuilder(15, 31)
+                .appendSuper(super.hashCode())
+                .append(getClass())
+                .append(creatingUserId)
+                .append(auths)
+                .hashCode();
     }
 
     public String getCreatingUserId() {

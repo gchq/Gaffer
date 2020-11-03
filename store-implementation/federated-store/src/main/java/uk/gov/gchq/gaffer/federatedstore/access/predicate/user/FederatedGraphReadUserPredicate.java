@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.access.predicate.user;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -58,21 +60,22 @@ public class FederatedGraphReadUserPredicate extends DefaultUserPredicate {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        final FederatedGraphReadUserPredicate that = (FederatedGraphReadUserPredicate) o;
-        return isPublic == that.isPublic;
+        return (this == o)
+                || ((o != null)
+                && (this.getClass() == o.getClass())
+                && new EqualsBuilder()
+                        .appendSuper(super.equals(o))
+                        .append(this.isPublic, ((FederatedGraphReadUserPredicate) o).isPublic)
+                        .isEquals());
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), isPublic);
+        return new HashCodeBuilder(71, 67)
+                .appendSuper(super.hashCode())
+                .append(getClass())
+                .append(isPublic)
+                .hashCode();
     }
 }
