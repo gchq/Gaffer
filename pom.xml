@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.13.4-SNAPSHOT</version>
+    <version>1.13.5-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -1251,12 +1251,7 @@
             </build>
         </profile>
         <profile>
-            <id>travis</id>
-            <properties>
-                <!-- The sparkaccumulo integration and parquetstore Spark tests don't run on Travis CI -->
-                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java
-                </exclude.tests>
-            </properties>
+            <id>coverage</id>
             <build>
                 <plugins>
                     <plugin>

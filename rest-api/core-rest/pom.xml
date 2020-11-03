@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>rest-api</artifactId>
-        <version>1.13.4-SNAPSHOT</version>
+        <version>1.13.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>core-rest</artifactId>
@@ -30,7 +30,7 @@
         <!-- Gaffer dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>graph</artifactId>
+            <artifactId>common-rest</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

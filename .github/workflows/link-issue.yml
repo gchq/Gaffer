@@ -1,0 +1,15 @@
+name: 'Issue Links'
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  issue-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tkt-actions/add-issue-links@v1.4.0
+        with:
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
+          branch-prefix: 'gh-'
+          link-style: 'body'
+          resolve: 'true' 
