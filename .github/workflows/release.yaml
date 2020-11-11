@@ -28,8 +28,8 @@ jobs:
 
     - name: Set up Github credentials
       run: |
-        git config user.name Gaffer-Bot
-        git config user.email gaffer@users.noreply.github.com
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
 
     - name: Merge develop into master
       run: |
@@ -96,8 +96,8 @@ jobs:
 
     - name: Set up Github credentials
       run: |
-        git config user.name Gaffer-Bot
-        git config user.email gaffer@users.noreply.github.com
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
 
     - name: Setup JDK
       uses: actions/setup-java@v1
@@ -133,8 +133,8 @@ jobs:
 
     - name: Set up Github credentials
       run: |
-        git config user.name Gaffer-Bot
-        git config user.email gaffer@users.noreply.github.com
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
 
     - name: Setup JDK
       uses: actions/setup-java@v1
