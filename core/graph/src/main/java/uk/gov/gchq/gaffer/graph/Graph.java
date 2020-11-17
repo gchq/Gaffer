@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -66,6 +67,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+
 
 /**
  * <p>
@@ -350,7 +354,7 @@ public final class Graph {
         return new GraphResult<>(result, clonedContext);
     }
 
-    private void updateOperationChainView(final Operations<?> operations) {
+    void updateOperationChainView(final Operations<?> operations) {
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
@@ -359,10 +363,27 @@ public final class Graph {
                 if (null == opView) {
                     opView = config.getView();
                 } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
-                    opView = new View.Builder()
-                            .merge(config.getView())
-                            .merge(opView)
-                            .build();
+                	
+                	// If we have either global elements or nothing at all then merge with both Entities and Edges
+                	if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {                		
+	                    opView = new View.Builder()
+	                            .merge(config.getView())
+	                            .merge(opView)
+	                            .build();
+                	}
+                	else { // We have either global edges or entities in opView, but not both
+                		final View originalView = opView;
+                		final View partialConfigView = new View.Builder()
+                				.merge(config.getView())
+                				.removeEdges((x->isEmpty(originalView.getGlobalEdges())))
+                				.removeEntities((x->isEmpty(originalView.getGlobalEntities())))
+                				.build();
+                		opView = new View.Builder()
+                				.merge(partialConfigView)
+                				.merge(opView)
+                				.build();
+                		
+                	}
                 } else if (opView.isAllEdges() || opView.isAllEntities()) {
                     View.Builder opViewBuilder = new View.Builder()
                             .merge(opView);

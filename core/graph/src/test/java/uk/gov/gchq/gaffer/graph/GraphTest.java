@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.CloneFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
@@ -57,6 +59,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -98,7 +101,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -2432,6 +2437,110 @@ public class GraphTest {
         // Then
         assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
         assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+    }
+    
+    @Test
+    public void shouldExpandGlobalEdges() {
+    	
+        final Schema twoEdgesNoEntities = new Schema.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("vertex", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge("firstEdge", new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(DIRECTED_EITHER)
+                        .build())
+                .edge("secondEdge", new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
+                        .source("vertex")
+                        .destination("vertex")
+                        .directed(DIRECTED_EITHER)
+                        .build())
+                .build();
+        
+        
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getProperties()).willReturn(mock(StoreProperties.class));
+    	
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(twoEdgesNoEntities)
+                .build();
+        
+    	final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
+        		.postAggregationFilter(filter)
+        		.build();
+        final View view = new View.Builder().globalEdges(globalEdgeAggregate).build();
+    	
+        operation = new GetElements.Builder().view(view).build();
+        opChain = new OperationChain.Builder().first(operation).build();
+    	
+    	graph.updateOperationChainView(opChain);
+    	
+    	
+    	assertEquals(1, opChain.getOperations().size());
+    	assertEquals(GetElements.class, opChain.getOperations().get(0).getClass());
+    	final View mergedView = ((GetElements) opChain.getOperations().get(0)).getView();
+    	assertTrue(mergedView.getGlobalEdges() == null || mergedView.getGlobalEdges().size()==0);
+    	assertEquals(2, mergedView.getEdges().size());
+    	for (final Map.Entry<String, ViewElementDefinition> e : mergedView.getEdges().entrySet()) {
+    		assertNotNull(e.getValue().getPostAggregationFilter());
+    	}
+    	
+    };
+    
+    @Test
+    public void shouldNotExpandGlobalEdgesWhereNotPresentInSchema() {
+        final Schema federatedStoreSchema = new Schema.Builder().build();
+        
+        
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(federatedStoreSchema);
+        given(store.getProperties()).willReturn(mock(StoreProperties.class));
+    	
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(federatedStoreSchema)
+                .build();
+        
+    	final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
+        		.postAggregationFilter(filter)
+        		.build();
+        final View view = new View.Builder().globalEdges(globalEdgeAggregate).build();
+    	
+        operation = new GetElements.Builder().view(view).build();
+        opChain = new OperationChain.Builder().first(operation).build();
+    	
+    	graph.updateOperationChainView(opChain);
+    	
+    	
+    	assertEquals(1, opChain.getOperations().size());
+    	assertEquals(GetElements.class, opChain.getOperations().get(0).getClass());
+    	final View mergedView = ((GetElements) opChain.getOperations().get(0)).getView();
+    	assertEquals(0, mergedView.getEdges().size());
+    	assertEquals(1, mergedView.getGlobalEdges().size());
+    	assertNotNull(mergedView.getGlobalEdges().get(0).getPostAggregationFilter());
+    	
     }
 
     public static class TestStoreImpl extends Store {
