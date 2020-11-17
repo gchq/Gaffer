@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -70,24 +69,22 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
-
 /**
  * <p>
  * The Graph separates the user from the {@link Store}. It holds an instance of
- * the {@link Store} and
- * acts as a proxy for the store, delegating {@link Operation}s to the store.
+ * the {@link Store} and acts as a proxy for the store, delegating
+ * {@link Operation}s to the store.
  * </p>
  * <p>
  * The Graph provides users with a single point of entry for executing
- * operations on a store.
- * This allows the underlying store to be swapped and the same operations can
- * still be applied.
+ * operations on a store. This allows the underlying store to be swapped and the
+ * same operations can still be applied.
  * </p>
  * <p>
  * Graphs also provides a view of the data with a instance of {@link View}. The
- * view filters out unwanted information
- * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into
- * transient properties such as averages.
+ * view filters out unwanted information and can transform
+ * {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties
+ * such as averages.
  * </p>
  * <p>
  * When executing operations on a graph, an operation view would override the
@@ -107,12 +104,11 @@ public final class Graph {
     private GraphConfig config;
 
     /**
-     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
-     * and
+     * Constructs a {@code Graph} with the given
+     * {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param config a {@link GraphConfig} used to store the configuration for
-     *               a
+     * @param config a {@link GraphConfig} used to store the configuration for a
      *               Graph.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
@@ -123,8 +119,8 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation on the store.
-     * If the operation does not have a view then the graph view is used.
+     * Performs the given operation on the store. If the operation does not have a
+     * view then the graph view is used.
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
@@ -135,9 +131,9 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation on the store.
-     * If the operation does not have a view then the graph view is used.
-     * The context will be cloned and a new jobId will be created.
+     * Performs the given operation on the store. If the operation does not have a
+     * view then the graph view is used. The context will be cloned and a new jobId
+     * will be created.
      *
      * @param operation the operation to be executed.
      * @param context   the user context for the execution of the operation
@@ -148,8 +144,8 @@ public final class Graph {
     }
 
     /**
-     * Performs the given output operation on the store.
-     * If the operation does not have a view then the graph view is used.
+     * Performs the given output operation on the store. If the operation does not
+     * have a view then the graph view is used.
      *
      * @param operation the output operation to be executed.
      * @param user      the user executing the operation.
@@ -162,9 +158,9 @@ public final class Graph {
     }
 
     /**
-     * Performs the given output operation on the store.
-     * If the operation does not have a view then the graph view is used.
-     * The context will be cloned and a new jobId will be created.
+     * Performs the given output operation on the store. If the operation does not
+     * have a view then the graph view is used. The context will be cloned and a new
+     * jobId will be created.
      *
      * @param operation the output operation to be executed.
      * @param context   the user context for the execution of the operation.
@@ -177,7 +173,8 @@ public final class Graph {
     }
 
     /**
-     * Exeutes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
+     * Exeutes a {@link GraphRequest} on the graph and returns the
+     * {@link GraphResult}.
      *
      * @param request the request to execute
      * @param <O>     the result type
@@ -189,8 +186,8 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation job on the store.
-     * If the operation does not have a view then the graph view is used.
+     * Performs the given operation job on the store. If the operation does not have
+     * a view then the graph view is used.
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the job.
@@ -202,9 +199,9 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation job on the store.
-     * If the operation does not have a view then the graph view is used.
-     * The context will be cloned and a new jobId will be created.
+     * Performs the given operation job on the store. If the operation does not have
+     * a view then the graph view is used. The context will be cloned and a new
+     * jobId will be created.
      *
      * @param operation the operation to be executed.
      * @param context   the user context for the execution of the operation
@@ -217,9 +214,9 @@ public final class Graph {
 
     /**
      * Executes the given {@link GraphRequest} on the graph as an asynchronous job
-     * and returns a {@link GraphResult} containing the {@link JobDetail}s.
-     * If the operation does not have a view then the graph view is used.
-     * The context will be cloned and a new jobId will be created.
+     * and returns a {@link GraphResult} containing the {@link JobDetail}s. If the
+     * operation does not have a view then the graph view is used. The context will
+     * be cloned and a new jobId will be created.
      *
      * @param request the request to execute
      * @return {@link GraphResult} containing the job details
@@ -230,12 +227,12 @@ public final class Graph {
     }
 
     /**
-     * Performs the given Job on the store.
-     * This should be used for Scheduled Jobs,
-     * although if no repeat is set it
-     * will act as a normal Job.
+     * Performs the given Job on the store. This should be used for Scheduled Jobs,
+     * although if no repeat is set it will act as a normal Job.
      *
-     * @param job  the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param job  the {@link Job} to execute, which contains the
+     *             {@link OperationChain} and the
+     *             {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
      * @param user the user running the Job.
      * @return the job detail.
      * @throws OperationException thrown if the job fails to run.
@@ -245,12 +242,12 @@ public final class Graph {
     }
 
     /**
-     * Performs the given Job on the store.
-     * This should be used for Scheduled Jobs,
-     * although if no repeat is set it
-     * will act as a normal Job.
+     * Performs the given Job on the store. This should be used for Scheduled Jobs,
+     * although if no repeat is set it will act as a normal Job.
      *
-     * @param job     the {@link Job} to execute, which contains the {@link OperationChain} and the {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
+     * @param job     the {@link Job} to execute, which contains the
+     *                {@link OperationChain} and the
+     *                {@link uk.gov.gchq.gaffer.jobtracker.Repeat}
      * @param context the user context for the execution of the operation
      * @return the job detail
      * @throws OperationException thrown if the job fails to run.
@@ -287,7 +284,8 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": "
+                            + graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
@@ -297,7 +295,8 @@ public final class Graph {
         return result;
     }
 
-    private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final GraphRequest<?> request) throws OperationException {
+    private <O> GraphResult<O> _execute(final StoreExecuter<O> storeExecuter, final GraphRequest<?> request)
+            throws OperationException {
         if (null == request) {
             throw new IllegalArgumentException("A request is required");
         }
@@ -344,7 +343,8 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": "
+                            + graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
@@ -362,31 +362,24 @@ public final class Graph {
                 View opView = ((OperationView) operation).getView();
                 if (null == opView) {
                     opView = config.getView();
-                } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
-                	
-                	// If we have either global elements or nothing at all then merge with both Entities and Edges
-                	if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {                		
-	                    opView = new View.Builder()
-	                            .merge(config.getView())
-	                            .merge(opView)
-	                            .build();
-                	}
-                	else { // We have either global edges or entities in opView, but not both
-                		final View originalView = opView;
-                		final View partialConfigView = new View.Builder()
-                				.merge(config.getView())
-                				.removeEdges((x->isEmpty(originalView.getGlobalEdges())))
-                				.removeEntities((x->isEmpty(originalView.getGlobalEntities())))
-                				.build();
-                		opView = new View.Builder()
-                				.merge(partialConfigView)
-                				.merge(opView)
-                				.build();
-                		
-                	}
+                } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges()
+                        && !opView.isAllEntities()) {
+
+                    // If we have either global elements or nothing at all then merge with both
+                    // Entities and Edges
+                    if (!isEmpty(opView.getGlobalElements())
+                            || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
+                        opView = new View.Builder().merge(config.getView()).merge(opView).build();
+                    } else { // We have either global edges or entities in opView, but not both
+                        final View originalView = opView;
+                        final View partialConfigView = new View.Builder().merge(config.getView())
+                                .removeEdges((x -> isEmpty(originalView.getGlobalEdges())))
+                                .removeEntities((x -> isEmpty(originalView.getGlobalEntities()))).build();
+                        opView = new View.Builder().merge(partialConfigView).merge(opView).build();
+
+                    }
                 } else if (opView.isAllEdges() || opView.isAllEntities()) {
-                    View.Builder opViewBuilder = new View.Builder()
-                            .merge(opView);
+                    View.Builder opViewBuilder = new View.Builder().merge(opView);
                     if (opView.isAllEdges()) {
                         opViewBuilder.edges(getSchema().getEdgeGroups());
                     }
@@ -418,8 +411,8 @@ public final class Graph {
 
     /**
      * @param operation the class of the operation to check
-     * @return a collection of all the compatible {@link Operation}s that could
-     * be added to an operation chain after the provided operation.
+     * @return a collection of all the compatible {@link Operation}s that could be
+     *         added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -460,8 +453,7 @@ public final class Graph {
      * Returns all the {@link StoreTrait}s for the contained {@link Store}
      * implementation
      *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     * has.
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -506,16 +498,12 @@ public final class Graph {
      * <p>
      * Builder for {@link Graph}.
      * </p>
-     * We recommend instantiating a Graph from a graphConfig.json file, a
-     * schema
-     * directory and a store.properties file.
-     * For example:
+     * We recommend instantiating a Graph from a graphConfig.json file, a schema
+     * directory and a store.properties file. For example:
+     *
      * <pre>
-     * new Graph.Builder()
-     *     .config(Paths.get("graphConfig.json"))
-     *     .addSchemas(Paths.get("schema"))
-     *     .storeProperties(Paths.get("store.properties"))
-     *     .build();
+     * new Graph.Builder().config(Paths.get("graphConfig.json")).addSchemas(Paths.get("schema"))
+     *         .storeProperties(Paths.get("store.properties")).build();
      * </pre>
      */
     public static class Builder {
@@ -654,11 +642,8 @@ public final class Graph {
             this.properties = properties;
             if (null != properties) {
                 ReflectionUtil.addReflectionPackages(properties.getReflectionPackages());
-                JSONSerialiser.update(
-                        properties.getJsonSerialiserClass(),
-                        properties.getJsonSerialiserModules(),
-                        properties.getStrictJson()
-                );
+                JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules(),
+                        properties.getStrictJson());
             }
             return this;
         }
@@ -814,10 +799,7 @@ public final class Graph {
         public Builder addSchema(final Schema schemaModule) {
             if (null != schemaModule) {
                 if (null != schema) {
-                    schema = new Schema.Builder()
-                            .merge(schema)
-                            .merge(schemaModule)
-                            .build();
+                    schema = new Schema.Builder().merge(schema).merge(schemaModule).build();
                 } else {
                     schema = schemaModule;
                 }
@@ -901,7 +883,8 @@ public final class Graph {
             }
             final GraphHook[] hooks;
             try {
-                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()),
+                        GraphHook[].class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
             }
@@ -965,7 +948,7 @@ public final class Graph {
             updateSchema(config);
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
-                //Set Props & Schema if null.
+                // Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
                 properties = (null == properties) ? pair.getSecond() : properties;
                 schema = (null == schema) ? pair.getFirst() : schema;
@@ -988,7 +971,6 @@ public final class Graph {
             }
 
             updateGraphHooks(config);
-
 
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
@@ -1032,9 +1014,7 @@ public final class Graph {
                             if (null == mergedParentSchema) {
                                 mergedParentSchema = parentSchema;
                             } else {
-                                mergedParentSchema = new Schema.Builder()
-                                        .merge(mergedParentSchema)
-                                        .merge(parentSchema)
+                                mergedParentSchema = new Schema.Builder().merge(mergedParentSchema).merge(parentSchema)
                                         .build();
                             }
                         }
@@ -1046,22 +1026,19 @@ public final class Graph {
                 if (null == schema) {
                     schema = mergedParentSchema;
                 } else {
-                    schema = new Schema.Builder()
-                            .merge(mergedParentSchema)
-                            .merge(schema)
-                            .build();
+                    schema = new Schema.Builder().merge(mergedParentSchema).merge(schema).build();
                 }
             }
 
             if (!schemaBytesList.isEmpty()) {
                 if (null == properties) {
-                    throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
+                    throw new IllegalArgumentException(
+                            "To load a schema from json, the store properties must be provided.");
                 }
 
                 final Class<? extends Schema> schemaClass = properties.getSchemaClass();
                 final Schema newSchema = new Schema.Builder()
-                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][]))
-                        .build();
+                        .json(schemaClass, schemaBytesList.toArray(new byte[schemaBytesList.size()][])).build();
                 addSchema(newSchema);
             }
         }
@@ -1086,8 +1063,7 @@ public final class Graph {
             if (null == store) {
                 store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
-                    || (null != schema)
-                    || (null != properties && !properties.equals(store.getProperties()))) {
+                    || (null != schema) || (null != properties && !properties.equals(store.getProperties()))) {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
@@ -1102,7 +1078,8 @@ public final class Graph {
                 try {
                     store.initialise(config.getGraphId(), cloneSchema(schema), properties);
                 } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
+                    throw new IllegalArgumentException(
+                            "Unable to initialise the store with the given graphId, schema and properties", e);
                 }
             }
 
@@ -1115,10 +1092,8 @@ public final class Graph {
 
         private void updateView(final GraphConfig config) {
             if (null == config.getView()) {
-                config.setView(new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
-                        .build());
+                config.setView(new View.Builder().entities(store.getSchema().getEntityGroups())
+                        .edges(store.getSchema().getEdgeGroups()).build());
             }
         }
 
