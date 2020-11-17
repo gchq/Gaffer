@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -53,7 +52,7 @@ public class ValidateOperationChainHandlerTest {
         OperationChain chain = new OperationChain.Builder().first(addElements).then(getAdj).then(getElements).then(discardOutput).build();
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
 
-        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
+        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator());
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
         // When
@@ -71,7 +70,7 @@ public class ValidateOperationChainHandlerTest {
         OperationChain chain = new OperationChain.Builder().first(addElementsFromSocket).build();
         ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder().operationChain(chain).build();
 
-        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator(new ViewValidator()));
+        given(store.getOperationChainValidator()).willReturn(new OperationChainValidator());
         ValidateOperationChainHandler handler = new ValidateOperationChainHandler();
 
         // When

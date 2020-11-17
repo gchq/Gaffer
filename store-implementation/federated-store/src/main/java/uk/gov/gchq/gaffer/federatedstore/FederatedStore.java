@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -53,7 +52,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElem
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -78,7 +76,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -447,11 +444,6 @@ public class FederatedStore extends Store {
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
-    }
-
-    @Override
-    protected OperationChainValidator createOperationChainValidator() {
-        return new FederatedOperationChainValidator(new FederatedViewValidator());
     }
 
     @Override

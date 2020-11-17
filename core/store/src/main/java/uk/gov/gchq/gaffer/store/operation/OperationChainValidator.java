@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -27,24 +26,21 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
 /**
- * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
+ * Validation class for validating {@link OperationChain}s.
  */
 public class OperationChainValidator {
-    private final ViewValidator viewValidator;
 
-    public OperationChainValidator(final ViewValidator viewValidator) {
-        this.viewValidator = viewValidator;
+    public OperationChainValidator() {
     }
 
     /**
-     * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
+     * Validate the provided {@link OperationChain}.
      *
      * @param operationChain the operation chain to validate
      * @param user           the user making the request
@@ -68,7 +64,6 @@ public class OperationChainValidator {
     protected Class<? extends Output> validate(final Operation operation, final User user, final Store store, final ValidationResult validationResult, final Class<? extends Output> input) {
         validationResult.add(operation.validate());
         final Class<? extends Output> output = validateInputOutputTypes(operation, validationResult, store, input);
-        validateViews(operation, user, store, validationResult);
         validateComparables(operation, user, store, validationResult);
         return output;
     }
@@ -141,31 +136,6 @@ public class OperationChainValidator {
                                 + " which does not extend Comparable.");
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * @param op               the operation
-     * @param validationResult the validation result
-     * @param schemaNotUsed    the unused schema
-     * @param store            the store
-     * @deprecated use {@link #validateViews(Operation, User, Store, ValidationResult)} instead
-     */
-    @Deprecated
-    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
-        validateViews(op, null, store, validationResult);
-    }
-
-    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
-        if (op instanceof GraphFilters) {
-            final Schema schema = getSchema(op, user, store);
-            final ValidationResult viewValidationResult = viewValidator.validate(((GraphFilters) op).getView(), schema, getStoreTraits(store));
-            if (!viewValidationResult.isValid()) {
-                validationResult.addError("View for operation "
-                        + op.getClass().getName()
-                        + " is not valid. ");
-                validationResult.add(viewValidationResult);
             }
         }
     }

@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 
 import java.io.IOException;
 
@@ -132,16 +131,6 @@ public class ExamplesServiceTest {
 
         // Then
         assertNotNull(deserialisedOp);
-    }
-
-    @Test
-    public void shouldCreateViewForEdges() {
-        final View.Builder builder = service.generateViewBuilder();
-        final View view = builder.build();
-        assertNotNull(view);
-
-        final ViewValidator viewValidator = new ViewValidator();
-        assertTrue(viewValidator.validate(view, schema, Sets.newHashSet(StoreTrait.values())).isValid());
     }
 
     private void shouldSerialiseAndDeserialiseOperation(final Operation operation) throws IOException {

@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -43,7 +42,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -66,8 +64,7 @@ public class OperationChainValidatorTest {
     @Test
     public void shouldInValidateNullElementDef() {
         // Given
-        final ViewValidator viewValidator = mock(ViewValidator.class);
-        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+        final OperationChainValidator validator = new OperationChainValidator();
         final Store store = mock(Store.class);
         Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
@@ -183,16 +180,12 @@ public class OperationChainValidatorTest {
 
     private void validateOperationChain(final OperationChain opChain, final boolean expectedResult) {
         // Given
-        final ViewValidator viewValidator = mock(ViewValidator.class);
-        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+        final OperationChainValidator validator = new OperationChainValidator();
         final Store store = mock(Store.class);
         final User user = mock(User.class);
         final Schema schema = mock(Schema.class);
 
         given(store.getSchema()).willReturn(schema);
-
-        // TODO: wouldn't work as statndard as the schema was null...
-        given(viewValidator.validate(any(), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
 
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);

@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,7 +131,6 @@ public class SchemaMigration implements GraphHook {
         for (final Map.Entry<String, ViewMigration> entry : migratedEdges.entrySet()) {
             viewBuilder.edge(entry.getKey(), entry.getValue().buildViewElementDefinition());
         }
-        viewBuilder.config(ViewValidator.SKIP_VIEW_VALIDATION, TRUE);
 
         final View updatedView = viewBuilder.build();
         LOGGER.debug("Migrated view: {}", updatedView);
