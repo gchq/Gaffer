@@ -53,14 +53,19 @@ oldVersion=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpr
 
 $(is_version_incremented "${oldVersion}" "${newVersion}") && {
 
-    git checkout -b updating-koryphe-version-$newVersion
+    versionUpdateBranch="${VERSION_UPDATE_BRANCH:-updating-koryphe-version-$newVersion}"
+
+    git checkout -b ${versionUpdateBranch}
 
     sed -i'' "s/<koryphe.version>$oldVersion</<koryphe.version>$newVersion</g" pom.xml
     sed -i'' "s/uk.gov.gchq.koryphe:koryphe:$oldVersion/uk.gov.gchq.koryphe:koryphe:$newVersion/g" NOTICES
 
     git add .
     git commit -a -m "Updated Koryphe version to $newVersion"
-    git push -u origin updating-koryphe-version-$newVersion
+    git push -u origin ${versionUpdateBranch} || {
+        echo "Unable to push branch ${versionUpdateBranch}, exiting."
+        exit 1
+    }
 
 } || {
 

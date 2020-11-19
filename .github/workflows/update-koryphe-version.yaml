@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+      VERSION_UPDATE_BRANCH: update-koryphe-version-${{ github.event.inputs.version }}
     steps:
 
       - name: Checkout develop
@@ -31,3 +32,11 @@ jobs:
 
       - name: Update Korpyhe Version
         run: ./cd/updateKorypheVersion.sh ${{ github.event.inputs.version }}
+
+      - name: Submit PR
+        if: ${{ success() }}
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ env.VERSION_UPDATE_BRANCH }}
+          destination_branch: develop
+          github_token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
