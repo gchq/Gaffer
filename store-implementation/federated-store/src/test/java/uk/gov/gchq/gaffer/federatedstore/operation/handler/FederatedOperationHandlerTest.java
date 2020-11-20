@@ -21,16 +21,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
@@ -38,6 +46,7 @@ import java.util.LinkedHashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -154,7 +163,6 @@ public class FederatedOperationHandlerTest {
         final String graphID = "1,3";
         given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn(graphID);
 
-
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
@@ -203,7 +211,7 @@ public class FederatedOperationHandlerTest {
             fail("Exception should not have been thrown: " + e.getMessage());
         }
 
-        //Then
+        // Then
         final ArgumentCaptor<Context> contextCaptor1 = ArgumentCaptor.forClass(Context.class);
         verify(mockStore1, atLeastOnce()).execute(any(OperationChain.class), contextCaptor1.capture());
         assertEquals(context.getUser(), contextCaptor1.getValue().getUser());
@@ -215,5 +223,73 @@ public class FederatedOperationHandlerTest {
         assertNotEquals(context.getJobId(), contextCaptor2.getValue().getJobId());
     }
 
+    @Test
+    public final void shouldPassGlobalsOnToSubstores() throws Exception {
+        // Given
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEntitiesAggregate = new GlobalViewElementDefinition.Builder()
+                .postAggregationFilter(filter)
+                .build();
+        final View view = new View.Builder()
+                .globalEntities(globalEntitiesAggregate)
+                .build();
+
+        final Operation operation = new GetElements.Builder()
+                .input("input")
+                .view(view)
+                .build();
+        final OperationChain op = new OperationChain.Builder()
+                .first(operation)
+                .build();
+
+        Schema unusedSchema = new Schema.Builder().build();
+
+        final Schema concreteSchema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .aggregate(false)
+                        .build())
+                .entity(TestGroups.ENTITY + "2", new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .aggregate(false)
+                        .build())
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+
+                .build();
+
+        StoreProperties storeProperties = new StoreProperties();
+        Store mockStore1 = getMockStore(unusedSchema, storeProperties);
+        Store mockStore2 = getMockStore(concreteSchema, storeProperties);
+
+        Graph graph1 = getGraphWithMockStore(mockStore1);
+        Graph graph2 = getGraphWithMockStore(mockStore2);
+
+        FederatedStore mockStore = mock(FederatedStore.class);
+        LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
+        linkedGraphs.add(graph1);
+        linkedGraphs.add(graph2);
+
+        when(mockStore.getGraphs(user, null, op)).thenReturn(linkedGraphs);
+
+        final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
+
+        // When
+        new FederatedOperationHandler().doOperation(op, context, mockStore);
+
+        verify(mockStore2).execute(capturedOperation.capture(), any(Context.class));
+
+        assertEquals(1, capturedOperation.getAllValues().size());
+        final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
+        assertEquals(1, transformedOpChain.getOperations().size());
+        assertEquals(GetElements.class, transformedOpChain.getOperations().get(0).getClass());
+        final View mergedView = ((GetElements) transformedOpChain.getOperations().get(0)).getView();
+        assertTrue(mergedView.getGlobalEntities() == null);
+        assertEquals(2, mergedView.getEntities().size());
+        assertTrue(mergedView.getEntities().entrySet().stream().allMatch(x -> x.getValue().getPostAggregationFilter() != null));
+
+    }
 
 }
