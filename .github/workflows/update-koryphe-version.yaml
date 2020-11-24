@@ -39,4 +39,4 @@ jobs:
         with:
           source_branch: ${{ env.VERSION_UPDATE_BRANCH }}
           destination_branch: develop
-          github_token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
