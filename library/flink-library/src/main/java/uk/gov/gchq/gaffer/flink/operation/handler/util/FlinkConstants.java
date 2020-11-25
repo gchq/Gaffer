@@ -30,6 +30,16 @@ public final class FlinkConstants {
      */
     public static final String MAX_QUEUE_SIZE = "gaffer.flink.operation.handler.max-queue-size";
 
+    /**
+     * Operation option key for configuring a synchronous
+     * {@link org.apache.flink.streaming.api.functions.sink.SinkFunction} for the
+     * Gaffer store. The default Sink function uses an asynchronous
+     * implementation for improved performance under high load. However for
+     * certain scenarios, for example unit-testing it is advantageous to ensure
+     * elements are written to the store synchronously.
+     */
+    public static final String SYNCHRONOUS_SINK = "gaffer.flink.operation.handler.synchronous-sink";
+
     private FlinkConstants() {
         // private constructor to prevent users instantiating this class as it
         // only contains constants.

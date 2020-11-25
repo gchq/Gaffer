@@ -33,6 +33,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
 
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.SYNCHRONOUS_SINK;
+
 public class AddElementsFromFileHandlerIT extends FlinkTest {
 
     @Rule
@@ -59,6 +61,7 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
+                .option(SYNCHRONOUS_SINK, Boolean.TRUE.toString())
                 .build();
 
         // When

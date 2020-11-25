@@ -30,6 +30,8 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.SYNCHRONOUS_SINK;
+
 public class AddElementsFromSocketHandlerIT extends FlinkTest {
     @Test
     public void shouldAddElements() throws Exception {
@@ -60,6 +62,7 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
                 .skipInvalidElements(skipInvalid)
                 .hostname(hostname)
                 .port(port[0])
+                .option(SYNCHRONOUS_SINK, Boolean.TRUE.toString())
                 .build();
 
         // When

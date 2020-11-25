@@ -63,6 +63,7 @@ import java.util.Properties;
 public class GafferAdder implements Serializable {
     private static final long serialVersionUID = -3418606107861031989L;
     public static final int MAX_QUEUE_SIZE_DEFAULT = 1000000;
+    private static final boolean SYNCHRONOUS_DEFAULT = false;
 
     private final String graphId;
     private final byte[] schema;
@@ -70,6 +71,7 @@ public class GafferAdder implements Serializable {
 
     private final boolean validate;
     private final boolean skipInvalid;
+    private final boolean synchronous;
     private final int maxQueueSize;
 
     private transient Store store;
@@ -82,6 +84,8 @@ public class GafferAdder implements Serializable {
         this.skipInvalid = operation.isSkipInvalidElements();
         final String maxQueueSizeOption = operation.getOption(FlinkConstants.MAX_QUEUE_SIZE);
         this.maxQueueSize = null != maxQueueSizeOption ? Integer.parseInt(maxQueueSizeOption) : MAX_QUEUE_SIZE_DEFAULT;
+        final String synchronousSinkOption = operation.getOption(FlinkConstants.SYNCHRONOUS_SINK);
+        this.synchronous = null != synchronousSinkOption ? Boolean.parseBoolean(synchronousSinkOption) : SYNCHRONOUS_DEFAULT;
         graphId = store.getGraphId();
         schema = store.getSchema().toCompactJson();
         properties = store.getProperties().getProperties();
@@ -98,6 +102,14 @@ public class GafferAdder implements Serializable {
             return;
         }
 
+        if (synchronous) {
+            synchronousAdd(element);
+        } else {
+            asynchronousAdd(element);
+        }
+    }
+
+    private void asynchronousAdd(final Element element) {
         if (null == queue) {
             queue = new ConsumableBlockingQueue<>(maxQueueSize);
             restart = true;
@@ -124,6 +136,19 @@ public class GafferAdder implements Serializable {
                     throw new RuntimeException(e.getMessage(), e);
                 }
             });
+        }
+    }
+
+    private void synchronousAdd(final Element element) {
+        try {
+            store.execute(new AddElements.Builder()
+                            .input(element)
+                            .validate(validate)
+                            .skipInvalidElements(skipInvalid)
+                            .build(),
+                    new Context(new User()));
+        } catch (final OperationException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

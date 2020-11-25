@@ -49,6 +49,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.SYNCHRONOUS_SINK;
+
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -114,6 +116,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
                 .topic(topic)
                 .bootstrapServers(bootstrapServers)
                 .groupId("groupId")
+                .option(SYNCHRONOUS_SINK, Boolean.TRUE.toString())
                 .build();
 
         // When

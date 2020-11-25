@@ -120,9 +120,7 @@ public abstract class FlinkTest {
         return Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
     }
 
-    public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
-        // Wait for the elements to be ingested.
-        Thread.sleep(3000);
+    public static void verifyElements(final Graph graph) throws OperationException {
         final Iterable<? extends Element> allElements = graph.execute(new GetAllElements(), new User());
         ElementUtil.assertElementEquals(EXPECTED_ELEMENTS, allElements);
     }

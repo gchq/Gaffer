@@ -62,10 +62,13 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
                         createFlinkProperties(op)))
                 .flatMap(function);
 
+        final GafferAdder adder = new GafferAdder(op, store);
+        final GafferSink sink = new GafferSink(adder);
+
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.addSink(new GafferSink(op, store));
+            builder.addSink(sink);
         } else {
-            builder.rebalance().addSink(new GafferSink(op, store));
+            builder.rebalance().addSink(sink);
         }
 
         try {
@@ -85,6 +88,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
         properties.put(FLINK_KAFKA_GROUP_ID, operation.getGroupId());
         properties.put(FLINK_KAFKA_BOOTSTRAP_SERVERS, StringUtils.join(operation.getBootstrapServers(), ","));
         properties.remove(FlinkConstants.SKIP_REBALANCING);
+        properties.remove(FlinkConstants.SYNCHRONOUS_SINK);
         return properties;
     }
 }

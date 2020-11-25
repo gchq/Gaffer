@@ -51,10 +51,13 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
                 env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
                         .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
 
+        final GafferAdder adder = new GafferAdder(op, store);
+        final GafferSink sink = new GafferSink(adder);
+
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.addSink(new GafferSink(op, store));
+            builder.addSink(sink);
         } else {
-            builder.rebalance().addSink(new GafferSink(op, store));
+            builder.rebalance().addSink(sink);
         }
 
         try {
