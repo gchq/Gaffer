@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
@@ -24,6 +26,15 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DefaultGraphFactoryTest {
+
+    @BeforeEach
+    @AfterEach
+    public void clearSystemProperties() {
+        System.clearProperty(SystemProperty.SCHEMA_PATHS);
+        System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
+        System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
+        System.clearProperty(SystemProperty.GRAPH_LIBRARY_CLASS);
+    }
 
     @Test
     public void shouldThrowRuntimeExceptionIfGraphLibraryClassDoesNotExist() {
