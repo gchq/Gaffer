@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.rest.service.impl;
 
 import org.glassfish.jersey.client.ChunkedInput;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -31,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -45,6 +48,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class OperationServiceIT extends AbstractRestApiIT {
+
+    @BeforeEach
+    @AfterEach
+    public void clearUserFactoryClassSystemProperty() {
+        System.clearProperty(SystemProperty.USER_FACTORY_CLASS);
+    }
 
     @Test
     public void shouldReturnNamedOpDetailWithLabelWhenLabelIsAddedToNamedOp() throws Exception {
