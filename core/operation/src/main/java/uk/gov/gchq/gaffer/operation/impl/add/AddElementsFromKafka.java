@@ -34,12 +34,14 @@ import java.util.function.Function;
  * An {@code AddElementsFromKafka} operation consumes records of a Kafka topic,
  * converts each record into a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
- * elements to the Graph. This operation is a blocking operation and will never stop.
- * You will need to terminate the job when you want to stop consuming data.
+ * elements to the Graph. This operation is a blocking operation and will never
+ * stop unless an {@link EndOfElementsIndicator} has been configured and the
+ * the configured {@link Element} is encountered during processing. Otherwise
+ * you will need to terminate the job when you want to stop consuming data.
  *
  * @see Builder
  */
-@JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "consumeAs", "elementGenerator"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "topic", "groupId", "bootstrapServers", "consumeAs", "elementGenerator", "endOfElementsIndicator"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds elements from Kafka")
 @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
@@ -64,6 +66,8 @@ public class AddElementsFromKafka implements
 
     @Required
     private Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator;
+
+    private Class<? extends EndOfElementsIndicator<?>> endOfElementsIndicator;
 
     /**
      * The parallelism of the job to be created
@@ -114,6 +118,14 @@ public class AddElementsFromKafka implements
 
     public void setElementGenerator(final Class<? extends Function<Iterable<?>, Iterable<? extends Element>>> elementGenerator) {
         this.elementGenerator = (Class) elementGenerator;
+    }
+
+    public Class<? extends EndOfElementsIndicator> getEndOfElementsIndicator() {
+        return endOfElementsIndicator;
+    }
+
+    public void setEndOfElementsIndicator(final Class<? extends EndOfElementsIndicator> endOfElementsIndicator) {
+        this.endOfElementsIndicator = (Class) endOfElementsIndicator;
     }
 
     @Override
@@ -173,7 +185,7 @@ public class AddElementsFromKafka implements
                 .topic(topic)
                 .groupId(groupId)
                 .bootstrapServers(bootstrapServers)
-                .generator((Class) consumeAs, elementGenerator)
+                .generator((Class) consumeAs, elementGenerator, (Class) endOfElementsIndicator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
@@ -196,6 +208,13 @@ public class AddElementsFromKafka implements
         public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator) {
             _getOp().setConsumeAs(consumeAs);
             _getOp().setElementGenerator((Class) generator);
+            return _self();
+        }
+
+        public <T> Builder generator(final Class<T> consumeAs, final Class<? extends Function<? extends Iterable<? extends T>, ?>> generator, final Class<? extends EndOfElementsIndicator<T>> endOfElementsIndicator) {
+            _getOp().setConsumeAs(consumeAs);
+            _getOp().setElementGenerator((Class) generator);
+            _getOp().setEndOfElementsIndicator((Class) endOfElementsIndicator);
             return _self();
         }
 

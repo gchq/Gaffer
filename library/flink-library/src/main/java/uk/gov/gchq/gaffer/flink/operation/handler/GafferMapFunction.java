@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.flink.operation.handler.serialisation.ByteArraySchema;
+import uk.gov.gchq.gaffer.operation.impl.add.EndOfElementsIndicator;
 
 import java.util.Collections;
 import java.util.function.Function;
@@ -35,11 +36,14 @@ import java.util.function.Function;
  */
 public class GafferMapFunction<T> implements FlatMapFunction<T, Element> {
     private static final long serialVersionUID = -2338397824952911347L;
+    private static final Class NO_END_OF_ELEMENTS_INDICATOR = null;
 
     private Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generatorClassName;
 
     @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The constructor forces this to be serializable")
     private transient Function<Iterable<? extends T>, Iterable<? extends Element>> elementGenerator;
+    private transient EndOfElementsIndicator<T> endOfElementsIndicator;
+
     private DeserializationSchema<T> serialisationType;
 
     public GafferMapFunction() {
@@ -47,6 +51,10 @@ public class GafferMapFunction<T> implements FlatMapFunction<T, Element> {
     }
 
     public GafferMapFunction(final Class<T> consumeAs, final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generatorClassName) {
+        this(consumeAs, generatorClassName, NO_END_OF_ELEMENTS_INDICATOR);
+    }
+
+    public GafferMapFunction(final Class<T> consumeAs, final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generatorClassName, final Class<? extends EndOfElementsIndicator<T>> endOfElementsIndicator) {
         this.generatorClassName = generatorClassName;
         try {
             this.elementGenerator = generatorClassName.newInstance();
@@ -55,16 +63,52 @@ public class GafferMapFunction<T> implements FlatMapFunction<T, Element> {
                     + " It must have a default constructor.", e);
         }
 
+        if (null != endOfElementsIndicator) {
+            try {
+                this.endOfElementsIndicator = endOfElementsIndicator.newInstance();
+            } catch (final InstantiationException | IllegalAccessException e) {
+                throw new IllegalArgumentException("Unable to instantiate endOfElementsIndicator: " + endOfElementsIndicator.getName()
+                        + " It must have a default constructor.", e);
+            }
+        }
+
         setConsumeAs(consumeAs);
     }
 
     public void setConsumeAs(final Class<T> consumeAs) {
+
         if (null == consumeAs || String.class == consumeAs) {
-            serialisationType = (DeserializationSchema) new SimpleStringSchema();
+            serialisationType = (DeserializationSchema) (endOfElementsIndicator == null ? new SimpleStringSchema() : new StringDeserializationSchema((EndOfElementsIndicator<String>) endOfElementsIndicator));
         } else if (byte[].class == consumeAs) {
-            serialisationType = (DeserializationSchema) new ByteArraySchema();
+            serialisationType = (DeserializationSchema) (endOfElementsIndicator == null ? new ByteArraySchema() : new ByteArrayDeserializationSchema((EndOfElementsIndicator<byte[]>) endOfElementsIndicator));
         } else {
             throw new IllegalArgumentException("This Flink handler cannot consume records as " + consumeAs + ". You must use either byte[] or String.");
+        }
+    }
+
+    private static class StringDeserializationSchema extends SimpleStringSchema {
+        private EndOfElementsIndicator<String> endOfElementsIndicator;
+
+        StringDeserializationSchema(final EndOfElementsIndicator<String> endOfElementsIndicator) {
+            this.endOfElementsIndicator = endOfElementsIndicator;
+        }
+
+        @Override
+        public boolean isEndOfStream(final String item) {
+            return endOfElementsIndicator == null ? false : endOfElementsIndicator.isEndOfElements(item);
+        }
+    }
+
+    private static class ByteArrayDeserializationSchema extends ByteArraySchema {
+        private EndOfElementsIndicator<byte[]> endOfElementsIndicator;
+
+        ByteArrayDeserializationSchema(final EndOfElementsIndicator<byte[]> endOfElementsIndicator) {
+            this.endOfElementsIndicator = endOfElementsIndicator;
+        }
+
+        @Override
+        public boolean isEndOfStream(final byte[] item) {
+            return endOfElementsIndicator == null ? false : endOfElementsIndicator.isEndOfElements(item);
         }
     }
 

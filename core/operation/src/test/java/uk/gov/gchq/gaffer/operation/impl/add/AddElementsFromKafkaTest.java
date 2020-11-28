@@ -40,12 +40,14 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         final boolean validate = true;
         final boolean skipInvalid = false;
         final Integer parallelism = 2;
+        final Class<String> consumeAs = String.class;
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final Class<StringEndOfElementsIndicator> endOfElementsIndicator = StringEndOfElementsIndicator.class;
         final String groupId = "groupId";
         final String topic = "topic";
         final String[] servers = {"server1", "server2"};
         final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
-                .generator(generator)
+                .generator(consumeAs, generator, endOfElementsIndicator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
@@ -65,10 +67,13 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
                         "  \"groupId\" : \"groupId\",%n" +
                         "  \"bootstrapServers\" : [ \"server1\", \"server2\" ],%n" +
                         "  \"parallelism\" : 2,%n" +
-                        "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.generator.TestGeneratorImpl\"%n" +
+                        "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.generator.TestGeneratorImpl\",%n" +
+                        "  \"endOfElementsIndicator\" : \"uk.gov.gchq.gaffer.operation.impl.add.StringEndOfElementsIndicator\"%n" +
                         "}").getBytes(),
                 json);
+        assertEquals(consumeAs, deserialisedOp.getConsumeAs());
         assertEquals(generator, deserialisedOp.getElementGenerator());
+        assertEquals(endOfElementsIndicator, deserialisedOp.getEndOfElementsIndicator());
         assertEquals(parallelism, deserialisedOp.getParallelism());
         assertEquals(validate, deserialisedOp.isValidate());
         assertEquals(skipInvalid, deserialisedOp.isSkipInvalidElements());
@@ -84,14 +89,16 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         final boolean validate = true;
         final boolean skipInvalid = false;
         final Integer parallelism = 2;
+        final Class<String> consumeAs = String.class;
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final Class<StringEndOfElementsIndicator> endOfElementsIndicator = StringEndOfElementsIndicator.class;
         final String groupId = "groupId";
         final String topic = "topic";
         final String[] servers = {"server1", "server2"};
 
         // When
         final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
-                .generator(generator)
+                .generator(consumeAs, generator, endOfElementsIndicator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
@@ -101,7 +108,9 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
                 .build();
 
         // Then
+        assertEquals(consumeAs, op.getConsumeAs());
         assertEquals(generator, op.getElementGenerator());
+        assertEquals(endOfElementsIndicator, op.getEndOfElementsIndicator());
         assertEquals(parallelism, op.getParallelism());
         assertEquals(validate, op.isValidate());
         assertEquals(skipInvalid, op.isSkipInvalidElements());
@@ -117,12 +126,14 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         final boolean validate = true;
         final boolean skipInvalid = false;
         final Integer parallelism = 2;
+        final Class<String> consumeAs = String.class;
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final Class<StringEndOfElementsIndicator> endOfElementsIndicator = StringEndOfElementsIndicator.class;
         final String groupId = "groupId";
         final String topic = "topic";
         final String[] servers = {"server1", "server2"};
         final AddElementsFromKafka addElementsFromKafka = new AddElementsFromKafka.Builder()
-                .generator(generator)
+                .generator(consumeAs, generator, endOfElementsIndicator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
@@ -140,7 +151,9 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         assertEquals(validate, clone.isValidate());
         assertEquals(skipInvalid, clone.isSkipInvalidElements());
         assertEquals(parallelism, clone.getParallelism());
+        assertEquals(consumeAs, clone.getConsumeAs());
         assertEquals(generator, clone.getElementGenerator());
+        assertEquals(endOfElementsIndicator, clone.getEndOfElementsIndicator());
         assertEquals(groupId, clone.getGroupId());
         assertEquals(topic, clone.getTopic());
         assertArrayEquals(servers, clone.getBootstrapServers());

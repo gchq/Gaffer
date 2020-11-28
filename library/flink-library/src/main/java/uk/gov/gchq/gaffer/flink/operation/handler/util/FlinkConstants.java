@@ -40,6 +40,13 @@ public final class FlinkConstants {
      */
     public static final String SYNCHRONOUS_SINK = "gaffer.flink.operation.handler.synchronous-sink";
 
+    /**
+     * Operation option key for configuring flink's Kafka consumer to consume
+     * all messages present on the topic rather then those received after the
+     * point of connection.
+     */
+    public static final String START_FROM_EARLIEST = "gaffer.flink.operation.handler.start-from-earliest";
+
     private FlinkConstants() {
         // private constructor to prevent users instantiating this class as it
         // only contains constants.

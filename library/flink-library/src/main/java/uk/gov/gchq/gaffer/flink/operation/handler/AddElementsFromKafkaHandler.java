@@ -21,7 +21,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.store.Context;
@@ -29,6 +28,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Properties;
+
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.SKIP_REBALANCING;
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.START_FROM_EARLIEST;
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.SYNCHRONOUS_SINK;
 
 /**
  * <p>
@@ -54,18 +57,22 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
             env.setParallelism(op.getParallelism());
         }
 
-        final GafferMapFunction function = new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator());
-        final DataStream<Element> builder = env.addSource(
-                new FlinkKafkaConsumer010<>(
-                        op.getTopic(),
-                        function.getSerialisationType(),
-                        createFlinkProperties(op)))
-                .flatMap(function);
+        final GafferMapFunction function = new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator(), op.getEndOfElementsIndicator());
 
+        final FlinkKafkaConsumer010 flinkKafkaConsumer = new FlinkKafkaConsumer010<>(
+                op.getTopic(),
+                function.getSerialisationType(),
+                createFlinkProperties(op));
+
+        if (Boolean.valueOf(op.getOption(START_FROM_EARLIEST))) {
+            flinkKafkaConsumer.setStartFromEarliest();
+        }
+
+        final DataStream<Element> builder = env.addSource(flinkKafkaConsumer).flatMap(function);
         final GafferAdder adder = new GafferAdder(op, store);
         final GafferSink sink = new GafferSink(adder);
 
-        if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
+        if (Boolean.parseBoolean(op.getOption(SKIP_REBALANCING))) {
             builder.addSink(sink);
         } else {
             builder.rebalance().addSink(sink);
@@ -87,8 +94,9 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
         }
         properties.put(FLINK_KAFKA_GROUP_ID, operation.getGroupId());
         properties.put(FLINK_KAFKA_BOOTSTRAP_SERVERS, StringUtils.join(operation.getBootstrapServers(), ","));
-        properties.remove(FlinkConstants.SKIP_REBALANCING);
-        properties.remove(FlinkConstants.SYNCHRONOUS_SINK);
+        properties.remove(SKIP_REBALANCING);
+        properties.remove(SYNCHRONOUS_SINK);
+        properties.remove(START_FROM_EARLIEST);
         return properties;
     }
 }

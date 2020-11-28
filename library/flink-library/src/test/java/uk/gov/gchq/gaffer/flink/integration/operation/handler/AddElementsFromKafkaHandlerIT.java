@@ -24,6 +24,9 @@ import org.apache.curator.test.TestingServer;
 import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,6 +42,9 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.operation.impl.add.ByteArrayEndOfElementsIndicator;
+import uk.gov.gchq.gaffer.operation.impl.add.EndOfElementsIndicator;
+import uk.gov.gchq.gaffer.operation.impl.add.StringEndOfElementsIndicator;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
@@ -46,14 +52,19 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
+import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.START_FROM_EARLIEST;
 import static uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants.SYNCHRONOUS_SINK;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
+    private static final String TOPIC = UUID.randomUUID().toString();
+    private static final String GROUP = "groupId";
+
     @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    public final TemporaryFolder zookeeperFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @Rule
+    public final TemporaryFolder kafkaLogDir = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     @Rule
     public final RetryRule rule = new RetryRule();
 
@@ -93,84 +104,88 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
 
     @Test
     public void shouldAddElementsWithStringConsumer() throws Exception {
-        shouldAddElements(String.class, TestGeneratorImpl.class);
+        shouldAddElements(String.class, TestGeneratorImpl.class, StringEndOfElementsIndicator.class, StringSerializer.class);
     }
 
     @Test
     public void shouldAddElementsWithByteArrayConsumer() throws Exception {
-        shouldAddElements(byte[].class, TestBytesGeneratorImpl.class);
+        shouldAddElements(byte[].class, TestBytesGeneratorImpl.class, ByteArrayEndOfElementsIndicator.class, ByteArraySerializer.class);
     }
 
-    protected <T> void shouldAddElements(final Class<T> consumeAs, final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator) throws Exception {
+    protected <T> void shouldAddElements(
+            final Class<T> consumeAs,
+            final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator,
+            final Class<? extends EndOfElementsIndicator<T>> endOfElementsIndicator,
+            final Class<? extends Serializer> producerValueSerialiser) throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
         final boolean skipInvalid = false;
-        final String topic = UUID.randomUUID().toString();
 
         final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
-                .generator(consumeAs, elementGenerator)
+                .generator(consumeAs, elementGenerator, endOfElementsIndicator)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .topic(topic)
+                .topic(TOPIC)
                 .bootstrapServers(bootstrapServers)
-                .groupId("groupId")
+                .groupId(GROUP)
                 .option(SYNCHRONOUS_SINK, Boolean.TRUE.toString())
+                .option(START_FROM_EARLIEST, Boolean.TRUE.toString())
                 .build();
 
         // When
-        new Thread(() -> {
+        final Thread graphOperationThread = new Thread(() -> {
             try {
-                Thread.sleep(10000);
                 graph.execute(op, new User());
-            } catch (final OperationException | InterruptedException e) {
+            } catch (final OperationException e) {
                 throw new RuntimeException(e);
             }
-        }).start();
+        });
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(20000);
-                // Create kafka producer and add some data
-                producer = new KafkaProducer<>(producerProps());
-                for (final String dataValue : DATA_VALUES) {
-                    producer.send(new ProducerRecord<>(topic, dataValue)).get();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
+        graphOperationThread.start();
 
-        // Then
-        Thread.sleep(30000);
-        try {
-            verifyElements(graph);
-        } catch (final AssertionError e) {
-            Thread.sleep(60000);
-            verifyElements(graph);
+        producer = new KafkaProducer<>(producerProps(producerValueSerialiser));
+        for (final String dataValue : DATA_VALUES) {
+            final ProducerRecord record = createProducerRecord(consumeAs, dataValue);
+            producer.send(record).get();
         }
+        producer.send(new ProducerRecord(TOPIC, endOfElementsIndicator.newInstance().get())).get();
+
+        /* Wait for consumer to complete processing */
+        graphOperationThread.join();
+
+        verifyElements(graph);
+    }
+
+    private <T> ProducerRecord<Integer, T> createProducerRecord(final Class<T> consumeAs, final String dataValue) {
+        return String.class == consumeAs
+                ? new ProducerRecord(TOPIC, dataValue)
+                : new ProducerRecord(TOPIC, dataValue.getBytes());
     }
 
     private File createZookeeperTmpDir() throws IOException {
-        testFolder.delete();
-        testFolder.create();
-        return testFolder.newFolder("zkTmpDir");
+        zookeeperFolder.delete();
+        zookeeperFolder.create();
+        return zookeeperFolder.newFolder("zkTmpDir");
     }
 
-    private Properties producerProps() {
-        Properties props = new Properties();
+    private Properties producerProps(final Class<? extends Serializer> valueSerialiserClass) {
+        final Properties props = new Properties();
         props.put("bootstrap.servers", bootstrapServers);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", valueSerialiserClass.getName());
         return props;
     }
 
-    private Properties serverProperties() {
+    private Properties serverProperties() throws IOException {
+        kafkaLogDir.delete();
+        kafkaLogDir.create();
         Properties props = new Properties();
         props.put("zookeeper.connect", zkServer.getConnectString());
         props.put("broker.id", "0");
         props.setProperty("listeners", "PLAINTEXT://" + bootstrapServers);
+        props.put(KafkaConfig.LogDirProp(), kafkaLogDir.newFolder().getPath());
         return props;
     }
 
