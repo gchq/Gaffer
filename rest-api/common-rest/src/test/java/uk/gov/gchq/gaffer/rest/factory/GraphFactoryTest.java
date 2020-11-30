@@ -51,6 +51,7 @@ public class GraphFactoryTest {
         System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
         System.clearProperty(SystemProperty.SCHEMA_PATHS);
         System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
+        System.clearProperty(SystemProperty.GRAPH_FACTORY_CLASS);
     }
 
     @Test
