@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
@@ -24,6 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserFactoryTest {
+
+    @BeforeEach
+    @AfterEach
+    public void clearUserFactoryClassSystemProperty() {
+        System.clearProperty(SystemProperty.USER_FACTORY_CLASS);
+    }
 
     @Test
     public void shouldCreateDefaultUserFactoryWhenNoSystemProperty() {
