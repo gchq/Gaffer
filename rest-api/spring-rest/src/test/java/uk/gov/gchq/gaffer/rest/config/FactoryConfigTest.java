@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.config;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.AbstractEnvironment;
@@ -40,6 +41,7 @@ import static uk.gov.gchq.gaffer.rest.SystemProperty.USER_FACTORY_CLASS;
 public class FactoryConfigTest {
 
     @BeforeEach
+    @AfterEach
     public void clearSystemProperties() {
         System.clearProperty(GRAPH_FACTORY_CLASS);
         System.clearProperty(USER_FACTORY_CLASS);
