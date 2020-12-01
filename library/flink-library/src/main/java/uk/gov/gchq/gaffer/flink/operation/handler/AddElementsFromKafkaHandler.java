@@ -47,14 +47,12 @@ import java.util.Properties;
 public class AddElementsFromKafkaHandler implements OperationHandler<AddElementsFromKafka> {
     private static final String FLINK_KAFKA_BOOTSTRAP_SERVERS = "bootstrap.servers";
     private static final String FLINK_KAFKA_GROUP_ID = "group.id";
-    private static final StreamExecutionEnvironment CREATE_STREAM_EXECUTION_ENVIRONMENT_ON_DO_OPERATION = null;
-    private static final GafferSink CREATE_GAFFER_SINK_ON_DO_OPERATION = null;
 
     private final SinkFunction<Element> sink;
     private final StreamExecutionEnvironment env;
 
     public AddElementsFromKafkaHandler() {
-        this(CREATE_STREAM_EXECUTION_ENVIRONMENT_ON_DO_OPERATION, CREATE_GAFFER_SINK_ON_DO_OPERATION);
+        this(null, null);
     }
 
     public AddElementsFromKafkaHandler(final StreamExecutionEnvironment env, final SinkFunction<Element> sink) {
@@ -96,11 +94,11 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
     }
 
     private StreamExecutionEnvironment createExecutionEnvironment() {
-        return env == CREATE_STREAM_EXECUTION_ENVIRONMENT_ON_DO_OPERATION ? StreamExecutionEnvironment.getExecutionEnvironment() : env;
+        return env == null ? StreamExecutionEnvironment.getExecutionEnvironment() : env;
     }
 
     private SinkFunction<Element> getSink(final AddElementsFromKafka op, final Store store) {
-        return sink == CREATE_GAFFER_SINK_ON_DO_OPERATION ? new GafferSink(op, store) : sink;
+        return sink == null ? new GafferSink(op, store) : sink;
     }
 
     private Properties createFlinkProperties(final AddElementsFromKafka operation) {

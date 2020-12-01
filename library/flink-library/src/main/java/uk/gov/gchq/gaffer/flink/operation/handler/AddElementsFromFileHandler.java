@@ -41,12 +41,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * </p>
  */
 public class AddElementsFromFileHandler implements OperationHandler<AddElementsFromFile> {
-    private static final RichOutputFormat<Element> CREATE_GAFFER_OUTPUT_ON_DO_OPERATION = null;
-
     private final RichOutputFormat<Element> outputFormat;
 
     public AddElementsFromFileHandler() {
-        this(CREATE_GAFFER_OUTPUT_ON_DO_OPERATION);
+        this(null);
     }
 
     public AddElementsFromFileHandler(final RichOutputFormat<Element> outputFormat) {
@@ -82,6 +80,6 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
     }
 
     private RichOutputFormat<Element> getOutputFormat(final AddElementsFromFile op, final Store store) {
-        return outputFormat == CREATE_GAFFER_OUTPUT_ON_DO_OPERATION ? new GafferOutput(op, store) : outputFormat;
+        return outputFormat == null ? new GafferOutput(op, store) : outputFormat;
     }
 }

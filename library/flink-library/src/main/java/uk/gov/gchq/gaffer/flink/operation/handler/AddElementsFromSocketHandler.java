@@ -41,12 +41,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * </p>
  */
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
-    private static final GafferSink CREATE_GAFFER_SINK_ON_DO_OPERATION = null;
-
     private final SinkFunction<Element> sink;
 
     public AddElementsFromSocketHandler() {
-        this(CREATE_GAFFER_SINK_ON_DO_OPERATION);
+        this(null);
     }
 
     public AddElementsFromSocketHandler(final SinkFunction<Element> sink) {
@@ -82,6 +80,6 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
     }
 
     private SinkFunction<Element> getSink(final AddElementsFromSocket op, final Store store) {
-        return sink == CREATE_GAFFER_SINK_ON_DO_OPERATION ? new GafferSink(op, store) : sink;
+        return sink == null ? new GafferSink(op, store) : sink;
     }
 }
