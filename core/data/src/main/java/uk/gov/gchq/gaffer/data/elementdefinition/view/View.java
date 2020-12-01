@@ -203,17 +203,17 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
      * The global element definitions will then be set to null
      */
     public void expandGlobalDefinitions() {
-        if (null != globalEntities && !globalEntities.isEmpty()) {
+        if (null != globalEntities && !globalEntities.isEmpty() && !getEntityGroups().isEmpty()) {
             setEntities(expandGlobalDefinitions(getEntities(), getEntityGroups(), globalEntities, false));
             globalEntities = null;
         }
 
-        if (null != globalEdges && !globalEdges.isEmpty()) {
+        if (null != globalEdges && !globalEdges.isEmpty() && !getEdgeGroups().isEmpty()) {
             setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalEdges, false));
             globalEdges = null;
         }
 
-        if (null != globalElements && !globalElements.isEmpty()) {
+        if (null != globalElements && !globalElements.isEmpty() && (!getEdgeGroups().isEmpty() || !getEntityGroups().isEmpty())) {
             setEntities(expandGlobalDefinitions(getEntities(), getEntityGroups(), globalElements, true));
             setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
             globalElements = null;

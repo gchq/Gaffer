@@ -67,6 +67,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+
 /**
  * <p>
  * The Graph separates the user from the {@link Store}. It holds an instance of
@@ -173,7 +175,7 @@ public final class Graph {
     }
 
     /**
-     * Exeutes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
+     * Executes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
      *
      * @param request the request to execute
      * @param <O>     the result type
@@ -351,6 +353,7 @@ public final class Graph {
     }
 
     private void updateOperationChainView(final Operations<?> operations) {
+
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
@@ -359,10 +362,24 @@ public final class Graph {
                 if (null == opView) {
                     opView = config.getView();
                 } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
-                    opView = new View.Builder()
-                            .merge(config.getView())
-                            .merge(opView)
-                            .build();
+
+                    // If we have either global elements or nothing at all then
+                    // merge with both Entities and Edges
+                    if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
+                        opView = new View.Builder().merge(config.getView()).merge(opView).build();
+                    } else { // We have either global edges or entities in
+                             // opView, but not both
+                        final View originalView = opView;
+                        final View partialConfigView = new View.Builder()
+                                .merge(config.getView())
+                                .removeEdges((x -> isEmpty(originalView.getGlobalEdges())))
+                                .removeEntities((x -> isEmpty(originalView.getGlobalEntities())))
+                                .build();
+                        opView = new View.Builder().merge(partialConfigView)
+                                .merge(opView)
+                                .build();
+
+                    }
                 } else if (opView.isAllEdges() || opView.isAllEntities()) {
                     View.Builder opViewBuilder = new View.Builder()
                             .merge(opView);
@@ -398,7 +415,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     * be added to an operation chain after the provided operation.
+     *         be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -440,7 +457,7 @@ public final class Graph {
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     * has.
+     *         has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -489,12 +506,13 @@ public final class Graph {
      * schema
      * directory and a store.properties file.
      * For example:
+     *
      * <pre>
      * new Graph.Builder()
-     *     .config(Paths.get("graphConfig.json"))
-     *     .addSchemas(Paths.get("schema"))
-     *     .storeProperties(Paths.get("store.properties"))
-     *     .build();
+     *         .config(Paths.get("graphConfig.json"))
+     *         .addSchemas(Paths.get("schema"))
+     *         .storeProperties(Paths.get("store.properties"))
+     *         .build();
      * </pre>
      */
     public static class Builder {
@@ -636,8 +654,7 @@ public final class Graph {
                 JSONSerialiser.update(
                         properties.getJsonSerialiserClass(),
                         properties.getJsonSerialiserModules(),
-                        properties.getStrictJson()
-                );
+                        properties.getStrictJson());
             }
             return this;
         }
@@ -944,7 +961,7 @@ public final class Graph {
             updateSchema(config);
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
-                //Set Props & Schema if null.
+                // Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
                 properties = (null == properties) ? pair.getSecond() : properties;
                 schema = (null == schema) ? pair.getFirst() : schema;
@@ -967,7 +984,6 @@ public final class Graph {
             }
 
             updateGraphHooks(config);
-
 
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
