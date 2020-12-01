@@ -1,0 +1,186 @@
+name: Release
+
+on:
+  milestone:
+   types:
+   - closed
+
+env:
+  artifactId: gaffer2
+  MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+
+
+jobs:
+  create-release-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Checkout master
+      uses: actions/checkout@v2
+      with:
+        ref: master
+        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+
+    - name: Set up Github credentials
+      run: |
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
+
+    - name: Merge develop into master
+      run: |
+        git remote set-branches --add origin develop
+        git pull
+        git merge origin/develop
+
+    - name: Set version
+      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
+
+    - name: Update versions
+      run: |
+        KORYPHE_POM_VERSION=$(mvn -q help:evaluate -Dexpression=koryphe.version -DforceStdout)
+        mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
+
+        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$RELEASE_VERSION/" rest-api/core-rest/src/main/resources/version.properties
+        sed -i'' -e "s/^koryphe.version=.*/koryphe.version=$KORYPHE_POM_VERSION/" rest-api/core-rest/src/main/resources/version.properties
+
+    - name: Push changes
+      run: |
+        git commit -a -m "prepare release $artifactId-$RELEASE_VERSION"
+        git tag $artifactId-$RELEASE_VERSION
+        git push origin --tags
+        git push
+
+  update-github-releases:
+    runs-on: ubuntu-latest
+    needs:
+    - create-release-tag
+
+    steps:
+    - name: Checkout Master
+      uses: actions/checkout@v2
+      with:
+        ref: master
+
+    - name: Create Release Notes
+      uses: docker://decathlon/release-notes-generator-action:2.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set version
+      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
+
+    - name: Upload notes
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.artifactId }}-${{ env.RELEASE_VERSION }}
+        release_name: Gaffer ${{ env.RELEASE_VERSION }}
+        body_path: release_file.md
+
+  generate-javadoc:
+    runs-on: ubuntu-latest
+    needs:
+    - create-release-tag
+    steps:
+    - name: Checkout Master
+      uses: actions/checkout@v2
+      with:
+        ref: master
+        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+
+    - name: Set up Github credentials
+      run: |
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
+
+    - name: Setup JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Set version
+      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
+      
+    - name: Upload Javadoc
+      run: |
+        git remote set-branches --add origin gh-pages
+        git pull
+        mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
+        mvn -q javadoc:javadoc -Pquick
+        git checkout gh-pages
+        rm -rf uk
+        mv target/site/apidocs/* .
+        git add .
+        git commit -a -m "Updated javadoc - $RELEASE_VERSION"
+        git push
+
+  update-develop:
+    runs-on: ubuntu-latest
+    needs:
+    - create-release-tag
+    steps:
+    - name: Checkout develop
+      uses: actions/checkout@v2
+      with:
+        ref: develop
+        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+
+    - name: Set up Github credentials
+      run: |
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
+
+    - name: Setup JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Update Develop
+      run: |
+        git remote set-branches --add origin master
+        git pull
+        git merge origin/master
+        mvn release:update-versions -B
+        NEW_GAFFER_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)
+        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/" rest-api/core-rest/src/main/resources/version.properties
+        git commit -a -m "prepare for next development iteration"
+        git push
+
+  release-to-nexus:
+    runs-on: ubuntu-latest
+    needs:
+    - create-release-tag
+
+    steps:
+    - name: Setup JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Checkout master
+      uses: actions/checkout@v2
+      with:
+        ref: master
+
+    - name: Decode CodeSigning key
+      env:
+        CODE_SIGNING_KEY: ${{ secrets.CODE_SIGNING_KEY }}
+        CODE_SIGNING_IV: ${{ secrets.CODE_SIGNING_IV }}
+      run: openssl aes-256-cbc -K "$CODE_SIGNING_KEY" -iv "$CODE_SIGNING_IV" -in cd/codesigning.asc.enc -out cd/codesigning.asc -d
+
+    - name: Import CodeSigning key
+      run: gpg --batch --fast-import cd/codesigning.asc
+
+    - name: Release to Nexus
+      env:
+        GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
+        OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
+      run: mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
