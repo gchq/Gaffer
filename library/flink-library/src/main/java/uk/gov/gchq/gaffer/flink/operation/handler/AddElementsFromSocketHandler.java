@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
@@ -40,6 +41,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * </p>
  */
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
+    private final SinkFunction<Element> sink;
+
+    public AddElementsFromSocketHandler() {
+        this(null);
+    }
+
+    public AddElementsFromSocketHandler(final SinkFunction<Element> sink) {
+        this.sink = sink;
+    }
+
     @Override
     public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -51,10 +62,12 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
                 env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
                         .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
 
+        final SinkFunction<Element> gafferSink = getSink(op, store);
+
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.addSink(new GafferSink(op, store));
+            builder.addSink(gafferSink);
         } else {
-            builder.rebalance().addSink(new GafferSink(op, store));
+            builder.rebalance().addSink(gafferSink);
         }
 
         try {
@@ -64,5 +77,9 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
         }
 
         return null;
+    }
+
+    private SinkFunction<Element> getSink(final AddElementsFromSocket op, final Store store) {
+        return sink == null ? new GafferSink(op, store) : sink;
     }
 }
