@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
+import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.FlatMapOperator;
 
@@ -40,6 +41,18 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * </p>
  */
 public class AddElementsFromFileHandler implements OperationHandler<AddElementsFromFile> {
+    private static final RichOutputFormat<Element> CREATE_GAFFER_OUTPUT_ON_DO_OPERATION = null;
+
+    private final RichOutputFormat<Element> outputFormat;
+
+    public AddElementsFromFileHandler() {
+        this(CREATE_GAFFER_OUTPUT_ON_DO_OPERATION);
+    }
+
+    public AddElementsFromFileHandler(final RichOutputFormat<Element> outputFormat) {
+        this.outputFormat = outputFormat;
+    }
+
     @Override
     public Object doOperation(final AddElementsFromFile op, final Context context, final Store store) throws OperationException {
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
@@ -51,10 +64,12 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
                 env.readTextFile(op.getFilename())
                         .flatMap(new GafferMapFunction(String.class, op.getElementGenerator()));
 
+        final RichOutputFormat<Element> gafferOutput = getOutputFormat(op, store);
+
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.output(new GafferOutput(op, store));
+            builder.output(gafferOutput);
         } else {
-            builder.rebalance().output(new GafferOutput(op, store));
+            builder.rebalance().output(gafferOutput);
         }
 
         try {
@@ -64,5 +79,9 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
         }
 
         return null;
+    }
+
+    private RichOutputFormat<Element> getOutputFormat(final AddElementsFromFile op, final Store store) {
+        return outputFormat == CREATE_GAFFER_OUTPUT_ON_DO_OPERATION ? new GafferOutput(op, store) : outputFormat;
     }
 }

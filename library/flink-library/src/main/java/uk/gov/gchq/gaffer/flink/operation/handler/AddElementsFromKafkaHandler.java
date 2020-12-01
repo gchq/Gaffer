@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -46,10 +47,25 @@ import java.util.Properties;
 public class AddElementsFromKafkaHandler implements OperationHandler<AddElementsFromKafka> {
     private static final String FLINK_KAFKA_BOOTSTRAP_SERVERS = "bootstrap.servers";
     private static final String FLINK_KAFKA_GROUP_ID = "group.id";
+    private static final StreamExecutionEnvironment CREATE_STREAM_EXECUTION_ENVIRONMENT_ON_DO_OPERATION = null;
+    private static final GafferSink CREATE_GAFFER_SINK_ON_DO_OPERATION = null;
+
+    private final SinkFunction<Element> sink;
+    private final StreamExecutionEnvironment env;
+
+    public AddElementsFromKafkaHandler() {
+        this(CREATE_STREAM_EXECUTION_ENVIRONMENT_ON_DO_OPERATION, CREATE_GAFFER_SINK_ON_DO_OPERATION);
+    }
+
+    public AddElementsFromKafkaHandler(final StreamExecutionEnvironment env, final SinkFunction<Element> sink) {
+        this.env = env;
+        this.sink = sink;
+    }
 
     @Override
     public Object doOperation(final AddElementsFromKafka op, final Context context, final Store store) throws OperationException {
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        final StreamExecutionEnvironment env = createExecutionEnvironment();
+
         if (null != op.getParallelism()) {
             env.setParallelism(op.getParallelism());
         }
@@ -62,10 +78,12 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
                         createFlinkProperties(op)))
                 .flatMap(function);
 
+        final SinkFunction<Element> gafferSink = getSink(op, store);
+
         if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
-            builder.addSink(new GafferSink(op, store));
+            builder.addSink(gafferSink);
         } else {
-            builder.rebalance().addSink(new GafferSink(op, store));
+            builder.rebalance().addSink(gafferSink);
         }
 
         try {
@@ -75,6 +93,14 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
         }
 
         return null;
+    }
+
+    private StreamExecutionEnvironment createExecutionEnvironment() {
+        return env == CREATE_STREAM_EXECUTION_ENVIRONMENT_ON_DO_OPERATION ? StreamExecutionEnvironment.getExecutionEnvironment() : env;
+    }
+
+    private SinkFunction<Element> getSink(final AddElementsFromKafka op, final Store store) {
+        return sink == CREATE_GAFFER_SINK_ON_DO_OPERATION ? new GafferSink(op, store) : sink;
     }
 
     private Properties createFlinkProperties(final AddElementsFromKafka operation) {

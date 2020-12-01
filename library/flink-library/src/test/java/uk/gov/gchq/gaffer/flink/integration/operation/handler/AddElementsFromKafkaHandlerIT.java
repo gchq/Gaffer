@@ -21,52 +21,73 @@ import kafka.server.KafkaServer;
 import kafka.utils.MockTime;
 import kafka.utils.TestUtils;
 import org.apache.curator.test.TestingServer;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.jmx.JMXReporter;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.flink.operation.TestFileSink;
+import uk.gov.gchq.gaffer.flink.operation.handler.AddElementsFromKafkaHandler;
 import uk.gov.gchq.gaffer.generator.TestBytesGeneratorImpl;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromKafkaHandlerIT.class);
+    private static final long TEST_TIMEOUT_MS = 10000L;
+    private static final long WAIT_MS = 1000L;
+    private static final String GROUP_ID = "groupId";
+    private static final String TOPIC = UUID.randomUUID().toString();
+
     @Rule
     public final RetryRule rule = new RetryRule();
+    private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
     private KafkaProducer<Integer, String> producer;
     private KafkaServer kafkaServer;
     private TestingServer zkServer;
     private String bootstrapServers;
+    private TestFileSink testFileSink;
 
     @Before
     public void before() throws Exception {
         bootstrapServers = "localhost:" + getOpenPort();
 
         // Create zookeeper server
-        zkServer = new TestingServer(-1, createZookeeperTmpDir());
+        zkServer = new TestingServer(-1, createTemporaryDirectory("zkTmpDir"));
         zkServer.start();
+
+        testFileSink = createTestFileSink();
 
         // Create kafka server
         kafkaServer = TestUtils.createServer(new KafkaConfig(serverProperties()), new MockTime());
@@ -87,87 +108,83 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         if (null != zkServer) {
             zkServer.close();
         }
+
+        unregisterMBeans();
     }
 
-    @Test
+    @Test(timeout = TEST_TIMEOUT_MS)
     public void shouldAddElementsWithStringConsumer() throws Exception {
-        shouldAddElements(String.class, TestGeneratorImpl.class);
+        shouldAddElements(String.class, TestGeneratorImpl.class, StringSerializer.class);
     }
 
-    @Test
+    @Test(timeout = TEST_TIMEOUT_MS)
     public void shouldAddElementsWithByteArrayConsumer() throws Exception {
-        shouldAddElements(byte[].class, TestBytesGeneratorImpl.class);
+        shouldAddElements(byte[].class, TestBytesGeneratorImpl.class, ByteArraySerializer.class);
     }
 
-    protected <T> void shouldAddElements(final Class<T> consumeAs, final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator) throws Exception {
+    protected <T> void shouldAddElements(
+            final Class<T> consumeAs,
+            final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator,
+            final Class<? extends Serializer> valueSerialiser) throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
         final boolean skipInvalid = false;
-        final String topic = UUID.randomUUID().toString();
 
         final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
                 .generator(consumeAs, elementGenerator)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .topic(topic)
+                .topic(TOPIC)
                 .bootstrapServers(bootstrapServers)
-                .groupId("groupId")
+                .groupId(GROUP_ID)
                 .build();
 
         // When
         new Thread(() -> {
             try {
-                Thread.sleep(10000);
                 graph.execute(op, new User());
-            } catch (final OperationException | InterruptedException e) {
+            } catch (final OperationException e) {
                 throw new RuntimeException(e);
             }
         }).start();
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(20000);
-                // Create kafka producer and add some data
-                producer = new KafkaProducer<>(producerProps());
-                for (final String dataValue : DATA_VALUES) {
-                    producer.send(new ProducerRecord<>(topic, dataValue)).get();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
+        waitForOperationToStart();
+
+        producer = new KafkaProducer<>(producerProps(valueSerialiser));
+        for (final String dataValue : DATA_VALUES) {
+            producer.send(new ProducerRecord(TOPIC, convert(consumeAs, dataValue))).get();
+        }
+
+        waitForElements(consumeAs, elementGenerator);
 
         // Then
-        Thread.sleep(30000);
-        try {
-            verifyElements(graph);
-        } catch (final AssertionError e) {
-            Thread.sleep(60000);
-            verifyElements(graph);
-        }
+        verifyElements(consumeAs, testFileSink, elementGenerator);
     }
 
-    private File createZookeeperTmpDir() throws IOException {
-        testFolder.delete();
-        testFolder.create();
-        return testFolder.newFolder("zkTmpDir");
+    private <T> T convert(final Class<T> valueClass, final String value) {
+        return (valueClass.equals(String.class)) ? (T) value : (T) value.getBytes();
     }
 
-    private Properties producerProps() {
-        Properties props = new Properties();
+    private File createTemporaryDirectory(final String directoryName) throws IOException {
+        return testFolder.newFolder(directoryName);
+    }
+
+    private Properties producerProps(final Class<? extends Serializer> valueSerialiser) {
+        final Properties props = new Properties();
         props.put("bootstrap.servers", bootstrapServers);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", valueSerialiser);
         return props;
     }
 
-    private Properties serverProperties() {
-        Properties props = new Properties();
+    private Properties serverProperties() throws IOException {
+        final Properties props = new Properties();
         props.put("zookeeper.connect", zkServer.getConnectString());
         props.put("broker.id", "0");
         props.setProperty("listeners", "PLAINTEXT://" + bootstrapServers);
+        props.put(KafkaConfig.LogDirProp(), createTemporaryDirectory("kafkaLogDir").getPath());
         return props;
     }
 
@@ -177,5 +194,53 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void waitForOperationToStart() throws Exception {
+        while (!consumerConnected()) {
+            LOGGER.info("Waiting for Operation to start, sleeping for {} ms", WAIT_MS);
+            Thread.sleep(WAIT_MS);
+        }
+    }
+
+    private <T> void waitForElements(
+            final Class<T> consumeAs,
+            final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> elementGenerator) throws Exception {
+        while (!waitForElements(consumeAs, testFileSink, elementGenerator)) {
+            LOGGER.info("Waiting for Elements to be stored, sleeping for {} ms", WAIT_MS);
+            Thread.sleep(WAIT_MS);
+        }
+    }
+
+    @Override
+    public Store createStore() {
+        final Store store = Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
+        store.addOperationHandler(AddElementsFromKafka.class, new AddElementsFromKafkaHandler(createJmxEnabledExecutionEnvironment(), testFileSink));
+        return store;
+    }
+
+    private StreamExecutionEnvironment createJmxEnabledExecutionEnvironment() {
+        final Configuration configuration = new Configuration();
+        configuration.setString("metrics.reporters", "jmx");
+        configuration.setString("metrics.reporter.jmx.class", JMXReporter.class.getName());
+        return StreamExecutionEnvironment.createLocalEnvironment(1, configuration);
+    }
+
+    private TestFileSink createTestFileSink() throws IOException {
+        return new TestFileSink(testFolder.newFolder("testFileSink").toPath().toString());
+    }
+
+    private void unregisterMBeans() {
+        for (ObjectName name : platformMBeanServer.queryNames(null, null)) {
+            try {
+                platformMBeanServer.unregisterMBean(name);
+            } catch (Exception e) {
+                /* intentional */
+            }
+        }
+    }
+
+    private boolean consumerConnected() throws Exception {
+        return !platformMBeanServer.queryNames(new ObjectName("kafka.consumer:type=consumer-fetch-manager-metrics,*,topic=".concat(TOPIC)), null).isEmpty();
     }
 }

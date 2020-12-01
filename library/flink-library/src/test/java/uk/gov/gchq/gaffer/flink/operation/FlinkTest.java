@@ -16,28 +16,43 @@
 
 package uk.gov.gchq.gaffer.flink.operation;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
+
 public abstract class FlinkTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @Before
+    public void createFreshTemporaryArea() throws IOException {
+        testFolder.delete();
+        testFolder.create();
+    }
+
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
@@ -57,73 +72,41 @@ public abstract class FlinkTest {
                     .build())
             .build();
 
-    public static final java.util.List<? extends Element> EXPECTED_ELEMENTS = Lists.newArrayList(
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("1")
-                    .property(TestPropertyNames.COUNT, 3L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("2")
-                    .property(TestPropertyNames.COUNT, 2L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("3")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY_2)
-                    .vertex("1")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY_2)
-                    .vertex("1")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY_2)
-                    .vertex("1")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY_2)
-                    .vertex("2")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY_2)
-                    .vertex("2")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY_2)
-                    .vertex("3")
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build()
-    );
-
     public static final String[] DATA_VALUES = {"1", "1", "2", "3", "1", "2"};
     public static final String DATA = StringUtils.join(DATA_VALUES, "\n");
     public static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
 
-    public static Graph createGraph() {
+    public Graph createGraph() {
         return new Graph.Builder()
                 .store(createStore())
                 .build();
     }
 
-    public static Store createStore() {
-        return Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
+    public abstract Store createStore();
+
+    public <T> boolean waitForElements(
+            final Class<T> consumeAs,
+            final ElementFileStore elementFileStore,
+            final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generator) throws Exception {
+        return elementFileStore.getFileIds().size() == listOfExpectedElements(consumeAs, generator).size();
     }
 
-    public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
-        // Wait for the elements to be ingested.
-        Thread.sleep(3000);
-        final Iterable<? extends Element> allElements = graph.execute(new GetAllElements(), new User());
-        ElementUtil.assertElementEquals(EXPECTED_ELEMENTS, allElements);
+    public <T> void verifyElements(
+            final Class<T> consumeAs,
+            final ElementFileStore elementFileStore,
+            final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generator) throws Exception {
+        ElementUtil.assertElementEquals(generator.newInstance().apply(dataValuesAsListOfType(consumeAs)), elementFileStore.getElements());
     }
+
+    private <T> List<? extends Element> listOfExpectedElements(
+            final Class<T> consumeAs,
+            final Class<? extends Function<Iterable<? extends T>, Iterable<? extends Element>>> generator) throws Exception {
+        return StreamSupport.stream(generator.newInstance().apply(dataValuesAsListOfType(consumeAs)).spliterator(), false).collect(toList());
+    }
+
+    private <T> List<T> dataValuesAsListOfType(final Class<T> consumeAs) {
+        return consumeAs == String.class ? (List<T>) Stream.of(DATA_VALUES).collect(toList()) : (List<T>) (Stream.of(DATA_VALUES).map(String::getBytes).collect(toList()));
+    }
+
+
 }
