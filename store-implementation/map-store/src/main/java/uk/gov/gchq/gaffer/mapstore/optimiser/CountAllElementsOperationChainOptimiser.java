@@ -68,4 +68,15 @@ public class CountAllElementsOperationChainOptimiser extends AbstractOperationCh
     private boolean isCountOperation(final Operation operation) {
         return null != operation && Count.class.equals(operation.getClass());
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return true;
+    }
 }
