@@ -79,4 +79,9 @@ public class CountAllElementsOperationChainOptimiser extends AbstractOperationCh
         }
         return true;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
