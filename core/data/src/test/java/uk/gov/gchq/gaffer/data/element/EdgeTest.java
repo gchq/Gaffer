@@ -635,8 +635,8 @@ public class EdgeTest extends ElementTest {
 
         // When / Then
         final Exception exception = assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(json.getBytes(), Edge.class));
-        final String expected = "Instantiation of [simple type, class uk.gov.gchq.gaffer.data.element.Edge] " +
-                "value failed: Use either 'directed' or 'directedType' - not both.";
+        final String expected = "Cannot construct instance of `uk.gov.gchq.gaffer.data.element.Edge`, problem: Use either 'directed' or 'directedType' - not both.\n" +
+                " at [Source: (byte[])\"{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true, \"directedType\": \"DIRECTED\"}\"; line: 1, column: 95]";
         assertEquals(expected, exception.getMessage());
     }
 

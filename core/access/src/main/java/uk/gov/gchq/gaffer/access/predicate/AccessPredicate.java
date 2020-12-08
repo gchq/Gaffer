@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.access.predicate;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate;
@@ -39,8 +37,11 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public class AccessPredicate implements BiPredicate<User, String>, Serializable {
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private final Predicate<User> userPredicate;
+    private Predicate<User> userPredicate;
+
+    public AccessPredicate() {
+        // default constructor for serialisation
+    }
 
     public AccessPredicate(
             final User creatingUser,
@@ -54,8 +55,7 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
         this(new DefaultUserPredicate(creatingUserId, auths));
     }
 
-    @JsonCreator
-    public AccessPredicate(@JsonProperty("userPredicate") final Predicate<User> userPredicate) {
+    public AccessPredicate(final Predicate<User> userPredicate) {
         this.userPredicate = userPredicate;
     }
 
@@ -68,6 +68,11 @@ public class AccessPredicate implements BiPredicate<User, String>, Serializable 
         return (!isNull(user)
                 && isNotEmpty(adminAuth)
                 && user.getOpAuths().contains(adminAuth));
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
+    public void setUserPredicate(final Predicate<User> userPredicate) {
+        this.userPredicate = userPredicate;
     }
 
     public Predicate<User> getUserPredicate() {
