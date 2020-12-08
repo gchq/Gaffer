@@ -38,16 +38,6 @@ jobs:
     env:
      MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
-    - name: clone pre-release-koryphe
-      uses: actions/checkout@v2
-      with:
-        repository: gchq/koryphe
-        ref: develop-v2
-
-    - name: Install Koryphe
-      run: mvn -q -B clean install -Pquick
-
-    - uses: actions/checkout@v2
 
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
@@ -61,6 +51,17 @@ jobs:
           ~/.m2/repository
           !~/.m2/repository/uk
         key: ${{matrix.modules.name}}-gaffer-dependencies
+
+    - name: clone pre-release-koryphe
+      uses: actions/checkout@v2
+      with:
+        repository: gchq/koryphe
+        ref: develop-v2
+
+    - name: Install Koryphe
+      run: mvn -q -B clean install -Pquick
+
+    - uses: actions/checkout@v2
 
     - name: Install
       run: mvn -B -q clean install -P quick -pl ${{matrix.modules.values}} -am
