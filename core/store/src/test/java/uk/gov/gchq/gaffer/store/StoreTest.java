@@ -122,6 +122,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
+import uk.gov.gchq.gaffer.store.optimiser.AbstractOperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -133,7 +134,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -144,6 +144,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -158,6 +160,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -847,7 +850,7 @@ public class StoreTest {
 
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
-        StorePropertiesTest.TestCustomJsonModules1.modules = Arrays.asList(
+        StorePropertiesTest.TestCustomJsonModules1.modules = asList(
                 mock(Module.class),
                 mock(Module.class)
         );
@@ -1029,8 +1032,72 @@ public class StoreTest {
                 JSONSerialiser.serialise(scheduledJobRunnableCaptor.getValue().getOperationChain()));
     }
 
+    @Test
+    public void shouldOptimiseOperationChains() throws Exception {
+        // Given
+        final StoreImpl store = new StoreImpl();
+        store.initialise("graphId", createSchemaMock(), mock(StoreProperties.class));
+
+        final CloseableIterable expectedResult = mock(CloseableIterable.class);
+
+        // An input OperationChain
+        final AddElements addElements = new AddElements();
+        final GetElements getElements = new GetElements();
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(addElements)
+                .then(getElements)
+                .build();
+
+        // The Operation contained in the optimised OperationChain
+        final GetAllElements getAllElements = new GetAllElements();
+        given(getAllElementsHandler.doOperation(getAllElements, context, store))
+                .willReturn(expectedResult);
+
+        // Create OperationChain optimiser
+        store.addOperationChainOptimisers(asList(new TestOperationChainOptimiser(asList(getAllElements))));
+
+        // When
+        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
+
+        // Then
+        assertSame(expectedResult, result);
+        verify(getAllElementsHandler).doOperation(getAllElements, context, store);
+        verify(addElementsHandler, never()).doOperation(addElements, context, store);
+        verify(getElementsHandler, never()).doOperation(getElements, context, store);
+    }
+
+    private class TestOperationChainOptimiser extends AbstractOperationChainOptimiser {
+
+        private final List<Operation> optimisedOperationList;
+
+        TestOperationChainOptimiser(final List<Operation> optimisedOperationList) {
+            this.optimisedOperationList = optimisedOperationList;
+        }
+
+        @Override
+        protected List<Operation> addPreOperations(final Operation previousOp, final Operation currentOp) {
+            return emptyList();
+        }
+
+        @Override
+        protected List<Operation> optimiseCurrentOperation(final Operation previousOp, final Operation currentOp, final Operation nextOp) {
+            return emptyList();
+        }
+
+        @Override
+        protected List<Operation> addPostOperations(final Operation currentOp, final Operation nextOp) {
+            return emptyList();
+        }
+
+        @Override
+        protected List<Operation> optimiseAll(final List<Operation> ops) {
+            return optimisedOperationList;
+        }
+    }
+
+
     private class StoreImpl extends Store {
-        private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
@@ -1125,7 +1192,7 @@ public class StoreTest {
     // Second store implementation with overriding ExecutorService.
     // This cannot be done in the first because the other tests for Jobs will fail due to mocking.
     private class StoreImpl2 extends Store {
-        private final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
