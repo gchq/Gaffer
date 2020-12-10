@@ -230,9 +230,7 @@ public abstract class RoadTrafficTestQueries {
         SW_ROAD_JUNCTIONS_WITH_HEAVY_BUS_USAGE_IN_2000.add("M5:LA Boundary,1067");
     }
 
-    // See gh-2361
     @Test
-    @Disabled
     public void checkRoadJunctionsInSouthWestHeavilyUsedByBusesIn2000() throws OperationException, ParseException {
         assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION), "Skipping test as the store does not implement required trait.");
         assumeTrue(this.graph.hasTrait(StoreTrait.TRANSFORMATION), "Skipping test as the store does not implement required trait.");
