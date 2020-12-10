@@ -16,20 +16,21 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.rest.integration.AbstractRestApiIT;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_COLOUR;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
@@ -70,7 +71,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
         DEFAULT_PROPERTIES = Collections.unmodifiableMap(map);
     }
 
-    @Before
+    @BeforeEach
     public void clearGafferSystemProperties() {
         System.clearProperty(APP_DESCRIPTION);
         System.clearProperty(EXPOSED_PROPERTIES);
@@ -112,7 +113,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
         // Then
         checkResponse(response, 200);
         assertEquals(11, response.getBody().size());
-        assertFalse("Expected the property not to be returned", response.getBody().containsKey("gaffer.random.property"));
+        assertFalse(response.getBody().containsKey("gaffer.random.property"), "Expected the property not to be returned");
     }
 
     @Test
@@ -127,7 +128,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
         // Then
         checkResponse(response, 200);
         assertEquals(12, response.getBody().size());
-        assertTrue("Expected the property to be returned", response.getBody().containsKey("gaffer.random.property"));
+        assertTrue(response.getBody().containsKey("gaffer.random.property"), "Expected the property to be returned");
 
     }
 

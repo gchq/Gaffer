@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.integration.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -54,9 +55,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 import static uk.gov.gchq.gaffer.store.StoreProperties.OPERATION_DECLARATIONS;
@@ -66,7 +67,7 @@ public class JobControllerIT extends AbstractRestApiIT {
     @Autowired
     private GraphFactory graphFactory; // This will be a Mock (see application-test.properties)
 
-    @Before
+    @BeforeEach
     public void setupGraph() {
         StoreProperties properties = new MapStoreProperties();
         properties.setStoreClass(SingleUseMapStore.class);
@@ -175,7 +176,7 @@ public class JobControllerIT extends AbstractRestApiIT {
         ResponseEntity<List> resultResponse = get("/graph/jobs/" + jobId + "/results", List.class);
         List<? extends Element> results = Lists.newArrayList(deserialiseElementIterable(resultResponse.getBody()));
         assertEquals(3, results.size());
-        assertTrue("Results did not contain expected elements", results.containsAll(elements));
+        assertTrue(results.containsAll(elements), "Results did not contain expected elements");
     }
 
     private Iterable<JobDetail> deserialiseJobDetailIterable(final Iterable body) {

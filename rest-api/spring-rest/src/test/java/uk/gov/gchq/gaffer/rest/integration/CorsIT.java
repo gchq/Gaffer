@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.integration.controller;
+package uk.gov.gchq.gaffer.rest.integration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class CorsIT extends AbstractRestApiIT {
     @Test
@@ -41,6 +42,6 @@ public class CorsIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals("http://my-ui.com/ui", response.getHeaders().getAccessControlAllowOrigin());
+        assertEquals("*", response.getHeaders().getAccessControlAllowOrigin());
     }
 }

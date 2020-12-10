@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.integration.controller;
+package uk.gov.gchq.gaffer.rest.integration;
 
-import org.junit.AfterClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.client.RestTemplate;
-
-import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,8 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
@@ -48,21 +44,19 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * for easy access, as well as a {@code checkResponse()} method which asserts that the correct status code is returned
  * and that the Gaffer Media type header was added.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(GafferWebApplication.class)
-@WebIntegrationTest(randomPort = true)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public abstract class AbstractRestApiIT {
     @Autowired
-    private RestTemplate restTemplate;
+    private TestRestTemplate restTemplate;
 
-    @Value("${local.server.port}")
+    @LocalServerPort
     private int port;
 
-    @Value("${server.context-path}")
+    @Value("${server.servlet.context-path}")
     private String contextPath;
 
-    @AfterClass
+    @AfterAll
     public static void clearSystemProperties() {
         Properties properties = System.getProperties();
         List<String> propertiesToBeRemoved = new ArrayList<>();
@@ -75,9 +69,8 @@ public abstract class AbstractRestApiIT {
         propertiesToBeRemoved.forEach(System::clearProperty);
     }
 
-
     protected String getBaseURl() {
-        return "http://localhost:" + port + "/" + contextPath;
+        return "http://localhost:" + port + contextPath;
     }
 
     protected <T> ResponseEntity<T> get(final String path, final Class<T> responseBodyClass) {
@@ -106,6 +99,6 @@ public abstract class AbstractRestApiIT {
 
     protected void checkResponse(final ResponseEntity<?> response, final int expectedCode) {
         assertEquals(expectedCode, response.getStatusCode().value());
-        assertTrue("Gaffer header was not present", response.getHeaders().containsKey(GAFFER_MEDIA_TYPE_HEADER));
+        assertTrue(response.getHeaders().containsKey(GAFFER_MEDIA_TYPE_HEADER), "Gaffer header was not present");
     }
 }

@@ -108,7 +108,7 @@ public class FactoryConfigTest {
         propertySources.addFirst(mockPropertySource);
 
         when(mockEnv.getPropertySources()).thenReturn(propertySources);
-        when(mockEnv.getProperty(GRAPH_FACTORY_CLASS)).then(invocation -> mockPropertySource.getProperty(invocation.getArgumentAt(0, String.class)));
+        when(mockEnv.getProperty(GRAPH_FACTORY_CLASS)).then(invocation -> mockPropertySource.getProperty(invocation.getArgument(0, String.class)));
 
         factoryConfig.setEnvironment(mockEnv); // called by spring normally
 
@@ -133,7 +133,7 @@ public class FactoryConfigTest {
         propertySources.addFirst(mockPropertySource);
 
         when(mockEnv.getPropertySources()).thenReturn(propertySources);
-        when(mockEnv.getProperty(USER_FACTORY_CLASS)).then(invocation -> mockPropertySource.getProperty(invocation.getArgumentAt(0, String.class)));
+        when(mockEnv.getProperty(USER_FACTORY_CLASS)).then(invocation -> mockPropertySource.getProperty(invocation.getArgument(0, String.class)));
 
         factoryConfig.setEnvironment(mockEnv); // called by spring normally
 

@@ -16,29 +16,22 @@
 
 package uk.gov.gchq.gaffer.rest.integration;
 
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
-
-import uk.gov.gchq.gaffer.rest.serialisation.ObjectMapperProvider;
-
-@Configuration
-public class RestTemplateProvider {
-
-    @Bean
-    public RestTemplate createRestTemplate() {
-        RestTemplate restTemplate = new TestRestTemplate();
-        restTemplate.getMessageConverters().removeIf(e -> e instanceof MappingJackson2HttpMessageConverter);
-        restTemplate.getMessageConverters().add(createJsonMessageConverter());
-
-        return restTemplate;
-    }
-
-    private MappingJackson2HttpMessageConverter createJsonMessageConverter() {
-        MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
-        messageConverter.setObjectMapper(new ObjectMapperProvider().getObjectMapper());
-        return messageConverter;
-    }
-}
+//
+//@Configuration
+//public class RestTemplateProvider {
+//
+//    @Bean
+//    public RestTemplate createRestTemplate() {
+//        RestTemplate restTemplate = new RestTemplate();
+//        restTemplate.getMessageConverters().removeIf(e -> e instanceof MappingJackson2HttpMessageConverter);
+//        restTemplate.getMessageConverters().add(createJsonMessageConverter());
+//
+//        return restTemplate;
+//    }
+//
+//    private MappingJackson2HttpMessageConverter createJsonMessageConverter() {
+//        MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
+//        messageConverter.setObjectMapper(new ObjectMapperProvider().getObjectMapper());
+//        return messageConverter;
+//    }
+//}
