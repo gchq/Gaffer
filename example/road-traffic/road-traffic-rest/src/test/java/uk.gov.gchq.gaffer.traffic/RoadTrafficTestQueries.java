@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
