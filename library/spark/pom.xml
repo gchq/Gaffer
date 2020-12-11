@@ -31,7 +31,9 @@
     </modules>
 
     <properties>
-        <spark.version>2.3.2</spark.version>
+        <!-- todo tidy -->
+        <spark.minor.version>3.0</spark.minor.version>
+        <spark.version>${spark.minor.version}.1</spark.version>
     </properties>
 
     <repositories>

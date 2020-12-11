@@ -62,6 +62,7 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,7 +108,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED")));
     }
 
     @Test
@@ -134,7 +135,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED")));
     }
 
     @Test
@@ -170,7 +171,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED")));
     }
 
     @Test
@@ -199,7 +200,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED")));
     }
 
     @Test
@@ -263,7 +264,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final List<Walk> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED")));
         results.forEach(r -> r.getEntities().forEach(l -> {
             assertThat(l, is(not(empty())));
         }));
@@ -322,7 +323,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC,EDA")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED,EDA")));
     }
 
     @Test
@@ -349,7 +350,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED,AEF")));
     }
 
     @Test
@@ -376,7 +377,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,EDA,EFC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED,AEF,EDA,EFC")));
     }
 
     @Test
@@ -430,7 +431,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
+        assertThat(getPaths(results), is(equalTo("AEDAB,AEDAE")));
     }
 
     @Test
@@ -539,7 +540,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AB")));
+        assertThat(getPaths(results), is(equalTo("AB,AED")));
     }
 
     @Test
@@ -609,7 +610,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results), is(equalTo("ABC,AED")));
     }
 
     @Test
@@ -906,14 +907,8 @@ public class GetWalksIT extends AbstractStoreIT {
     }
 
     private String getPaths(final Iterable<Walk> walks) {
-        final StringBuilder sb = new StringBuilder();
-        for (final Walk walk : walks) {
-            sb.append(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
-            sb.append(',');
-        }
-        if (sb.length() > 0) {
-            sb.setLength(sb.length() - 1);
-        }
-        return sb.toString();
+        List<String> paths = new ArrayList<>();
+        walks.forEach(e -> paths.add(e.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining(""))));
+        return paths.stream().sorted().collect(Collectors.joining(","));
     }
 }

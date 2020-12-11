@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.integration;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,8 +48,9 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * for easy access, as well as a {@code checkResponse()} method which asserts that the correct status code is returned
  * and that the Gaffer Media type header was added.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = GafferWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@ExtendWith(SpringExtension.class)
 public abstract class AbstractRestApiIT {
     @Autowired
     private TestRestTemplate restTemplate;

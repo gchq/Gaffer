@@ -24,16 +24,16 @@ import org.apache.curator.test.TestingServer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.jmx.JMXReporter;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,22 +69,22 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     private static final String GROUP_ID = "groupId";
     private static final String TOPIC = UUID.randomUUID().toString();
 
-    @Rule
-    public final RetryRule rule = new RetryRule();
     private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
+
+    private File tempDir;
     private KafkaProducer<Integer, String> producer;
     private KafkaServer kafkaServer;
     private TestingServer zkServer;
     private String bootstrapServers;
     private TestFileSink testFileSink;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    public void before(@TempDir File tempDir) throws Exception {
         bootstrapServers = "localhost:" + getOpenPort();
-
+        this.tempDir = tempDir;
         // Create zookeeper server
-        zkServer = new TestingServer(-1, createTemporaryDirectory("zkTmpDir"));
+        zkServer = new TestingServer(-1, new File(tempDir, "zkTmpDir"));
         zkServer.start();
 
         testFileSink = createTestFileSink();
@@ -95,7 +95,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         MapStore.resetStaticMap();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         if (null != producer) {
             producer.close();
@@ -112,12 +112,14 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         unregisterMBeans();
     }
 
-    @Test(timeout = TEST_TIMEOUT_MS)
+    @Test
+    @Timeout(TEST_TIMEOUT_MS)
     public void shouldAddElementsWithStringConsumer() throws Exception {
         shouldAddElements(String.class, TestGeneratorImpl.class, StringSerializer.class);
     }
 
-    @Test(timeout = TEST_TIMEOUT_MS)
+    @Test
+    @Timeout(TEST_TIMEOUT_MS)
     public void shouldAddElementsWithByteArrayConsumer() throws Exception {
         shouldAddElements(byte[].class, TestBytesGeneratorImpl.class, ByteArraySerializer.class);
     }
@@ -167,10 +169,6 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         return (valueClass.equals(String.class)) ? (T) value : (T) value.getBytes();
     }
 
-    private File createTemporaryDirectory(final String directoryName) throws IOException {
-        return testFolder.newFolder(directoryName);
-    }
-
     private Properties producerProps(final Class<? extends Serializer> valueSerialiser) {
         final Properties props = new Properties();
         props.put("bootstrap.servers", bootstrapServers);
@@ -183,8 +181,9 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         final Properties props = new Properties();
         props.put("zookeeper.connect", zkServer.getConnectString());
         props.put("broker.id", "0");
+        props.put("offsets.topic.replication.factor", "1");
         props.setProperty("listeners", "PLAINTEXT://" + bootstrapServers);
-        props.put(KafkaConfig.LogDirProp(), createTemporaryDirectory("kafkaLogDir").getPath());
+        props.put(KafkaConfig.LogDirProp(), new File(tempDir, "kafkaLogDir").getPath());
         return props;
     }
 
@@ -227,7 +226,9 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     }
 
     private TestFileSink createTestFileSink() throws IOException {
-        return new TestFileSink(testFolder.newFolder("testFileSink").toPath().toString());
+        File testFileSink = new File(tempDir, "testFileSink");
+        testFileSink.mkdir();
+        return new TestFileSink(testFileSink.toPath().toString());
     }
 
     private void unregisterMBeans() {

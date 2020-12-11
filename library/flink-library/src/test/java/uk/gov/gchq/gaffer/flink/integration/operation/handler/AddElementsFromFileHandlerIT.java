@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.flink.operation.TestFileOutput;
 import uk.gov.gchq.gaffer.flink.operation.handler.AddElementsFromFileHandler;
@@ -39,14 +38,12 @@ import java.io.IOException;
 
 public class AddElementsFromFileHandlerIT extends FlinkTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;
     private TestFileOutput testFileOutput;
 
-    @Before
-    public void before() throws IOException {
-        file = testFolder.newFile("inputFile.txt");
+    @BeforeEach
+    public void before(@TempDir File tempDir) throws IOException {
+        file = new File(tempDir, "input.txt");
         FileUtils.write(file, DATA);
         MapStore.resetStaticMap();
         testFileOutput = createTestFileOutput();
@@ -82,6 +79,6 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
     }
 
     private TestFileOutput createTestFileOutput() throws IOException {
-        return new TestFileOutput(testFolder.newFolder("testFileOutput").toPath().toString());
+        return new TestFileOutput(Files.createTempDir().toPath().toString());
     }
 }

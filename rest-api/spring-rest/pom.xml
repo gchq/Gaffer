@@ -79,6 +79,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
+          <classifier>exec</classifier>
           <layout>ZIP</layout>
           <executable>true</executable>
         </configuration>
@@ -114,11 +115,11 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <version>${spring.boot.version}</version>
             <configuration>
-              <jvmArguments>
-                -Dgaffer.storeProperties=${project.build.outputDirectory}/${store.type}/store.properties
-                -Dgaffer.graph.config=${project.build.outputDirectory}/graphConfig.json
-                -Dgaffer.schemas=${project.build.outputDirectory}/schemas
-              </jvmArguments>
+              <systemPropertyVariables>
+                <gaffer.storeProperties>${project.build.outputDirectory}/${store.type}/store.properties</gaffer.storeProperties>
+                <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>
+                <gaffer.schemas>${project.build.outputDirectory}/schemas</gaffer.schemas>
+              </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>

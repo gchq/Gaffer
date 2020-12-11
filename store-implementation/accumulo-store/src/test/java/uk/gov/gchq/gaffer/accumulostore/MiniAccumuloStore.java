@@ -19,12 +19,16 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.io.Files;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +42,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * A {@code MiniAccumuloStore} is an {@link AccumuloStore} which sets up an {@link MiniAccumuloCluster}
- * for each unique instance name. If you create two Accumulo stores with the same instance name,
- * the same cluster will be used for both. It's advisable to re-use an instance so that you don't
+ * A {@code MiniAccumuloStore} is an {@link AccumuloStore} which sets up a {@link MiniAccumuloCluster}.
+ * If you create two Mini Accumulo stores,the same cluster will be used for both. this is so that you don't
  * spend unnecessary time spinning up mini-clusters.
  *
  * It's dependencies mean it cannot be run in a REST API.
@@ -55,7 +58,7 @@ public class MiniAccumuloStore extends AccumuloStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloStore.class);
 
-    private static final HashMap<String, MiniAccumuloCluster> CLUSTER_INSTANCES = new HashMap<>();
+    private static MiniAccumuloCluster instance = null;
     private static final HashMap<String, File> ACCUMULO_DIRECTORIES = new HashMap<>();
 
     private static final String ROOT_PASSWORD_DEFAULT = "password";
@@ -72,7 +75,7 @@ public class MiniAccumuloStore extends AccumuloStore {
         super.preInitialise(graphId, schema, properties);
 
         synchronized (this) {
-            if (getCluster() == null) {
+            if (instance == null) {
                 try {
                     createCluster();
                 } catch (final InterruptedException | IOException e) {
@@ -83,15 +86,11 @@ public class MiniAccumuloStore extends AccumuloStore {
 
 
         try {
-            ensureUserExists(getCluster());
+            ensureUserExists(instance);
         } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException("Failed to ensure user was added", e);
         }
 
-    }
-
-    private MiniAccumuloCluster getCluster() {
-        return CLUSTER_INSTANCES.get(getProperties().getInstance());
     }
 
     private File getAccumuloDirectory() {
@@ -126,14 +125,28 @@ public class MiniAccumuloStore extends AccumuloStore {
 
     @Override
     public Connector getConnection() throws StoreException {
-        if (getCluster() == null) {
+        if (instance == null) {
             throw new StoreException("MiniAccumuloCluster has not been initialised");
         }
         try {
-            return getCluster().getConnector(getProperties().getUser(), getProperties().getPassword());
+            return instance.getConnector(getProperties().getUser(), getProperties().getPassword());
         } catch (final AccumuloSecurityException | AccumuloException e) {
             throw new StoreException("Failed to get Connection", e);
         }
+    }
+
+    /**
+     * Overrides the parent method so the instance name and zookeepers are taken from the running instance,
+     * rather than the store properties.
+     * @param conf the Configuration
+     */
+    @Override
+    protected void addZookeeperToConfiguration(final Configuration conf) {
+        InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
+                conf,
+                new ClientConfiguration()
+                        .withInstance(instance.getInstanceName())
+                        .withZkHosts(instance.getZooKeepers()));
     }
 
     private void createCluster() throws IOException, InterruptedException {
@@ -157,13 +170,13 @@ public class MiniAccumuloStore extends AccumuloStore {
 
         config.setInstanceName(getProperties().getInstance());
 
-        CLUSTER_INSTANCES.put(getProperties().getInstance(), new MiniAccumuloCluster(config));
-        getCluster().start();
+        instance = new MiniAccumuloCluster(config);
+        instance.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                if (this.getCluster() != null) {
-                    this.getCluster().stop();
+                if (instance != null) {
+                    instance.stop();
                 }
             } catch (final InterruptedException | IOException e) {
                 LOGGER.error("Failed to stop Accumulo", e);

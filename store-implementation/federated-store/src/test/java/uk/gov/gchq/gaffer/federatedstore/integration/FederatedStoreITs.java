@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
