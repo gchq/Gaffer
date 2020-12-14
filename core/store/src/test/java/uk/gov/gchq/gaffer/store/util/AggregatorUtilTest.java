@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
@@ -999,5 +1000,81 @@ public class AggregatorUtilTest {
                         .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
+    }
+
+    @Test
+    public void shouldQueryAggregateDirectedEdgesIncludingMatchedVertexGroupBy() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        final List<Element> elements = Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 100)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 200)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 101)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build()
+        );
+
+        final Set<Element> expectedIncludingMatchedVertex = Sets.newHashSet(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 300)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 101)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build()
+        );
+
+        // when
+        final CloseableIterable<Element> aggregatedElementsIncludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, true);
+
+        // then
+        assertElementEquals(expectedIncludingMatchedVertex, aggregatedElementsIncludingMatchedVertex);
     }
 }
