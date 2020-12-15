@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -29,9 +27,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.GafferTest;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
-import uk.gov.gchq.gaffer.integration.provider.GraphBuilderProvider;
-import uk.gov.gchq.gaffer.integration.provider.StorePropertiesProvider;
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.integration.util.TestUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -41,7 +39,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -54,7 +51,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class VisibilityIT extends AbstractStoreIT {
 
@@ -63,10 +59,10 @@ public class VisibilityIT extends AbstractStoreIT {
     private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
             .build();
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessMissingVisibilityGroups(final StoreProperties storeProperties) throws OperationException {
+    public void shouldAccessMissingVisibilityGroups(final GafferTestCase testCase) throws OperationException {
+        StoreProperties storeProperties = testCase.getStoreProperties();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
                 .storeProperties(storeProperties)
@@ -105,15 +101,10 @@ public class VisibilityIT extends AbstractStoreIT {
         iterable.close();
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessMissingVisibilityGroupsWithNoVisibilityPropertyInSchema(final StoreProperties storeProperties) throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig("test"))
-                .storeProperties(storeProperties)
-                .addSchema(createSchemaNoVisibility())
-                .build();
+    public void shouldAccessMissingVisibilityGroupsWithNoVisibilityPropertyInSchema(final GafferTestCase testCase) throws OperationException {
+        final Graph graph = testCase.getEmptyGraph();
 
         final Set<Element> elements = new HashSet<>();
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");
@@ -144,13 +135,12 @@ public class VisibilityIT extends AbstractStoreIT {
         iterable.close();
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessEmptyVisibilityGroups(final StoreProperties storeProperties) throws OperationException {
+    public void shouldAccessEmptyVisibilityGroups(final GafferTestCase gafferTestCase) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
-                .storeProperties(storeProperties)
+                .storeProperties(gafferTestCase.getStoreProperties())
                 .addSchema(createVisibilitySchema())
                 .build();
 
@@ -187,13 +177,12 @@ public class VisibilityIT extends AbstractStoreIT {
         iterable.close();
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessNullVisibilityGroups(final StoreProperties storeProperties) throws OperationException {
+    public void shouldAccessNullVisibilityGroups(final GafferTestCase testCase) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
-                .storeProperties(storeProperties)
+                .storeProperties(testCase.getStoreProperties())
                 .addSchema(createVisibilitySchema())
                 .build();
 
@@ -230,13 +219,12 @@ public class VisibilityIT extends AbstractStoreIT {
         iterable.close();
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessSingleVisibilityGroup(final StoreProperties storeProperties) throws OperationException {
+    public void shouldAccessSingleVisibilityGroup(final GafferTestCase testCase) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
-                .storeProperties(storeProperties)
+                .storeProperties(testCase.getStoreProperties())
                 .addSchema(createVisibilitySchema())
                 .build();
 
@@ -282,13 +270,12 @@ public class VisibilityIT extends AbstractStoreIT {
         userVis2Iterable.close();
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessMultipleVisibilityGroups_and(final StoreProperties storeProperties) throws OperationException {
+    public void shouldAccessMultipleVisibilityGroups_and(final GafferTestCase testCase) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
-                .storeProperties(storeProperties)
+                .storeProperties(testCase.getStoreProperties())
                 .addSchema(createVisibilitySchema())
                 .build();
 
@@ -321,13 +308,12 @@ public class VisibilityIT extends AbstractStoreIT {
         iterable.close();
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(StorePropertiesProvider.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
-    public void shouldAccessMultipleVisibilityGroups_or(final StoreProperties storeProperties) throws OperationException {
+    public void shouldAccessMultipleVisibilityGroups_or(final GafferTestCase testCase) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
-                .storeProperties(storeProperties)
+                .storeProperties(testCase.getStoreProperties())
                 .addSchema(createVisibilitySchema())
                 .build();
 
@@ -377,23 +363,6 @@ public class VisibilityIT extends AbstractStoreIT {
                         .groupBy(TestPropertyNames.INT)
                         .build())
                 .visibilityProperty(TestTypes.VISIBILITY)
-                .build();
-    }
-
-    private Schema createSchemaNoVisibility() {
-        return new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .build())
-                .type(DIRECTED_EITHER, Boolean.class)
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .build())
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .source(TestTypes.ID_STRING)
-                        .destination(TestTypes.ID_STRING)
-                        .directed(DIRECTED_EITHER)
-                        .build())
                 .build();
     }
 

@@ -80,7 +80,7 @@ public class NamedOperation<I_ITEM, O> implements
         return parameters;
     }
 
-    @JsonSetter("parameters")
+    @JsonSetter("extensions")
     public void setParameters(final LinkedHashMap<String, Object> parameters) {
         this.parameters = parameters;
     }

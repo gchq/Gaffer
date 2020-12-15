@@ -119,7 +119,7 @@ public final class ByteArrayEscapeUtils {
      */
     public static byte[] unEscapeByLength(final byte[] allBytes, final int offset, final int length) {
         if (allBytes.length < offset + length) {
-            throw new InvalidParameterException(String.format("unEscape parameters larger than allByte.length:%d, offset:%d, length:%d", allBytes.length, offset, length));
+            throw new InvalidParameterException(String.format("unEscape extensions larger than allByte.length:%d, offset:%d, length:%d", allBytes.length, offset, length));
         }
         final byte[] temp = new byte[length];
         int currentPosition = 0;

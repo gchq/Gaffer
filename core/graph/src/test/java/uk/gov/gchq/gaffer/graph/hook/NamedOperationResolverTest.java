@@ -308,7 +308,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
 
         final User user = mock(User.class);
 
-        // Don't set any parameters
+        // Don't set any extensions
         Map<String, Object> paramMap = Maps.newHashMap();
 
         ParameterDetail param = new ParameterDetail.Builder()

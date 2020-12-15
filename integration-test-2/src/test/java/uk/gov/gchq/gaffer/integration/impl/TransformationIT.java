@@ -16,9 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -31,8 +28,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.GafferTest;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
-import uk.gov.gchq.gaffer.integration.provider.PopulatedGraphProvider;
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -64,15 +62,45 @@ import static uk.gov.gchq.gaffer.integration.util.TestUtil.SOURCE_1;
 public class TransformationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertexWithTransientProperty";
 
+
+    private Graph addElements(final Graph graph) {
+        final Collection<Element> elements = Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX + SOURCE)
+                        .dest(VERTEX + DEST)
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build(),
+
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build()
+        );
+
+        try {
+            graph.execute(new AddElements.Builder()
+                    .input(elements)
+                    .build(), new User());
+        } catch (OperationException e) {
+            throw new RuntimeException("Failed to add extra elements");
+        }
+
+        return graph;
+    }
+
     /**
      * Tests that the entity stored does not contain any transient properties not stored in the Schemas.
      *
      * @throws OperationException should never be thrown.
      */
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
-    public void shouldNotStoreEntityPropertiesThatAreNotInSchema(final Graph graph) throws OperationException {
+    @GafferTest
+    public void shouldNotStoreEntityPropertiesThatAreNotInSchema(final GafferTestCase testCase) throws OperationException {
         // Given
+        final Graph graph = addElements(testCase.getPopulatedGraph());
         final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
@@ -97,10 +125,10 @@ public class TransformationIT extends AbstractStoreIT {
      *
      * @throws OperationException should never be thrown.
      */
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
-    public void shouldNotStoreEdgePropertiesThatAreNotInSchema(final Graph graph) throws OperationException {
+    @GafferTest
+    public void shouldNotStoreEdgePropertiesThatAreNotInSchema(final GafferTestCase testCase) throws OperationException {
         // Given
+        final Graph graph = addElements(testCase.getPopulatedGraph());
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
                 .view(new View.Builder()
@@ -120,11 +148,11 @@ public class TransformationIT extends AbstractStoreIT {
         }
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.TRANSFORMATION)
-    public void shouldCreateTransientEntityProperty(final Graph graph) throws OperationException {
+    public void shouldCreateTransientEntityProperty(final GafferTestCase gafferTestCase) throws OperationException {
         // Given
+        final Graph graph = gafferTestCase.getPopulatedGraph();
         final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed("A1"))
                 .view(new View.Builder()
@@ -150,11 +178,11 @@ public class TransformationIT extends AbstractStoreIT {
         }
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.TRANSFORMATION)
-    public void shouldCreateTransientEdgeProperty(final Graph graph) throws OperationException {
+    public void shouldCreateTransientEdgeProperty(final GafferTestCase testCase) throws OperationException {
         // Given
+        Graph graph = testCase.getPopulatedGraph();
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(SOURCE_1, DEST_1, false))
                 .view(new View.Builder()
@@ -178,11 +206,11 @@ public class TransformationIT extends AbstractStoreIT {
         }
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
+    @GafferTest
     @TraitRequirement(StoreTrait.TRANSFORMATION)
-    public void shouldTransformVertex(final Graph graph) throws OperationException {
+    public void shouldTransformVertex(final GafferTestCase gafferTestCase) throws OperationException {
         // Given
+        Graph graph = gafferTestCase.getPopulatedGraph();
         final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed("A1"))
                 .view(new View.Builder()
@@ -207,10 +235,10 @@ public class TransformationIT extends AbstractStoreIT {
         }
     }
 
-
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
-    public void shouldNotErrorWhenEdgeTransformReceivesEntities(final Graph graph) throws OperationException {
+    @GafferTest
+    public void shouldNotErrorWhenEdgeTransformReceivesEntities(final GafferTestCase testCase) throws OperationException {
+        // Given
+        Graph graph = addElements(testCase.getPopulatedGraph());
         final Iterable<? extends Element> result = graph.execute(new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .build())
@@ -237,9 +265,10 @@ public class TransformationIT extends AbstractStoreIT {
         assertFalse(entities.get(0).getProperties().containsKey("propAlt"));
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(ExtraPopulatedGraphSource.class)
-    public void shouldNotErrorWhenEntityTransformReceivesEdges(final Graph graph) throws OperationException {
+    @GafferTest
+    public void shouldNotErrorWhenEntityTransformReceivesEdges(final GafferTestCase testCase) throws OperationException {
+        // Given
+        Graph graph = addElements(testCase.getPopulatedGraph());
         final Iterable<? extends Element> result = graph.execute(new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         .build())
@@ -263,42 +292,5 @@ public class TransformationIT extends AbstractStoreIT {
         entities.removeIf(e -> e instanceof Edge);
         assertEquals(89, entities.size());
         assertTrue(entities.get(0).getProperties().containsKey("propAlt"));
-    }
-
-    private static class ExtraPopulatedGraphSource extends PopulatedGraphProvider {
-        private ExtraPopulatedGraphSource() {
-            super();
-            getGraphs().forEach(g -> {
-                try {
-                    addAdditionalElements(g);
-                } catch (final OperationException e) {
-                    throw new RuntimeException("Failed to add additional elements");
-                }
-            });
-        }
-
-        private void addAdditionalElements(final Graph graph) throws OperationException {
-            final Collection<Element> elements = Arrays.asList(
-                    new Edge.Builder()
-                            .group(TestGroups.EDGE)
-                            .source(VERTEX + SOURCE)
-                            .dest(VERTEX + DEST)
-                            .directed(true)
-                            .property(TestPropertyNames.COUNT, 1L)
-                            .property(TestPropertyNames.TRANSIENT_1, "test")
-                            .build(),
-
-                    new Entity.Builder()
-                            .group(TestGroups.ENTITY)
-                            .vertex(VERTEX)
-                            .property(TestPropertyNames.TRANSIENT_1, "test")
-                            .build()
-            );
-
-            graph.execute(new AddElements.Builder()
-                    .input(elements)
-                    .build(), new User());
-        }
-
     }
 }

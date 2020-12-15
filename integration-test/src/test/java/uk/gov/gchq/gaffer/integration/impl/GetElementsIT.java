@@ -132,14 +132,14 @@ public class GetElementsIT extends AbstractStoreIT {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError("GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
+                            throw new AssertionError("GetElementsBySeed failed with extensions: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError("GetRelatedElements failed with parameters: \nincludeEntities=" + includeEntities
+                            throw new AssertionError("GetRelatedElements failed with extensions: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
                     }

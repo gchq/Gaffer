@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,7 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.integration.provider.EmptyGraphProvider;
+import uk.gov.gchq.gaffer.integration.GafferTest;
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -39,10 +38,10 @@ import static org.junit.Assert.assertEquals;
 
 public class WhileIT extends AbstractStoreIT {
 
-    @ParameterizedTest
-    @ArgumentsSource(EmptyGraphProvider.class)
-    public void shouldRepeatedlyAddElements(final Graph graph) throws OperationException {
+    @GafferTest
+    public void shouldRepeatedlyAddElements(final GafferTestCase testCase) throws OperationException {
         // Given
+        Graph graph = testCase.getEmptyGraph();
         final While operation = new While.Builder<>()
                 .operation(new AddElements.Builder()
                         .input(new Entity.Builder()

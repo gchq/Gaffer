@@ -31,6 +31,7 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
+            <!-- maybe try scope - test -->
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -46,13 +47,39 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <!-- Store dependencies -->
+        <!-- Map Store -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>map-store</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Proxy Store -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>proxy-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>spring-rest</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- for REST API instantiation only. Maybe think of a way around this. -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>hdfs-library</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <!-- Accumulo Store -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-store</artifactId>
@@ -112,6 +139,8 @@
             <artifactId>accumulo-minicluster</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Can maybe drop -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>

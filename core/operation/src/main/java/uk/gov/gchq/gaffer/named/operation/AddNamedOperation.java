@@ -219,7 +219,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     }
 
     /**
-     * @return a list of the operations in the operation chain resolved using the default parameters.
+     * @return a list of the operations in the operation chain resolved using the default extensions.
      */
     @Override
     @JsonIgnore

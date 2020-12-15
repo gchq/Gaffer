@@ -80,7 +80,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                     try {
                         shouldGetAllElements(includeEntities, includeEdges, directedType);
                     } catch (final AssertionError e) {
-                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
+                        throw new AssertionError("GetAllElements failed with extensions: includeEntities=" + includeEntities
                                 + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
                     }
                 }

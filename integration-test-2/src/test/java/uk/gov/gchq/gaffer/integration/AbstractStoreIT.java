@@ -15,24 +15,48 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+import uk.gov.gchq.gaffer.integration.extensions.AwaitSpringStart;
+import uk.gov.gchq.gaffer.integration.factory.MapStoreGraphFactory;
+import uk.gov.gchq.gaffer.rest.GafferWebApplication;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
 
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+
 /**
- * Logic/config for setting up and running store integration tests.
- * All tests will be skipped if the storeProperties variable has not been set
- * prior to running the tests.
+ * Common code for integration tests. This class is annotated with @SpringBootTest to start a Gaffer REST API so the
+ * ProxyStore can be tested. To save startup time, the Application context will be cached between tests.
  */
+@SpringBootTest(classes = GafferWebApplication.class, webEnvironment = DEFINED_PORT)
+@ExtendWith(AwaitSpringStart.class)
+@ActiveProfiles("proxy")
 public abstract class AbstractStoreIT {
 
+    @BeforeAll
+    public static void beforeAll() {
+        System.out.println("hello");
+    }
+
+    @Autowired
+    private GraphFactory graphFactory;
+
+    @BeforeEach
+    public void resetRemoteProxyGraph() {
+        if (graphFactory instanceof MapStoreGraphFactory) {
+            ((MapStoreGraphFactory) graphFactory).reset();
+        } else {
+            throw new RuntimeException("Expected the MapStoreGraph Factory to be injected");
+        }
+    }
+
     private User user = new User();
-
-    protected static final int DUPLICATES = 2;
-
-    // Identifiers
-
 
     public User getUser() {
         return user;

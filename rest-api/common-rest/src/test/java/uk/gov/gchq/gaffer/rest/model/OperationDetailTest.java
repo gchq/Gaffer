@@ -70,7 +70,7 @@ public class OperationDetailTest extends EqualityTest<OperationDetail> {
         List<String> fieldNames = operationDetail.getFields().stream().map(OperationField::getName).collect(Collectors.toList());
 
         // Then
-        ArrayList<String> expected = Lists.newArrayList("input", "options", "operationName", "parameters");
+        ArrayList<String> expected = Lists.newArrayList("input", "options", "operationName", "extensions");
         assertEquals(expected, fieldNames);
     }
 

@@ -90,7 +90,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"operationChain\": {" +
                 " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
                 " \"overwriteFlag\" : true,%n" +
-                " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false, \"options\": [\"option1\", \"option2\", \"option3\"]}},%n" +
+                " \"extensions\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false, \"options\": [\"option1\", \"option2\", \"option3\"]}},%n" +
                 " \"readAccessRoles\" : [ \"User\" ],%n" +
                 " \"writeAccessRoles\" : [ \"User\" ],%n" +
                 " \"readAccessPredicate\" : {%n" +
@@ -145,7 +145,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"operationChain\": {" +
                 " \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\" : \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]},%n" +
                 " \"overwriteFlag\" : true,%n" +
-                " \"parameters\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false}},%n" +
+                " \"extensions\" : {\"testOption\": {\"description\" :\"Description\", \"defaultValue\": \"On\", \"valueClass\": \"java.lang.String\", \"required\": false}},%n" +
                 " \"readAccessRoles\" : [ \"User\" ],%n" +
                 " \"writeAccessRoles\" : [ \"User\" ]%n" +
                 "}"), new String(json));

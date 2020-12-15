@@ -67,7 +67,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     }
 
     /**
-     * Constructs an {@code TransformIterable} with the given parameters
+     * Constructs an {@code TransformIterable} with the given extensions
      *
      * @param input       the input {@link java.lang.Iterable}
      * @param validator   the {@link Validator}

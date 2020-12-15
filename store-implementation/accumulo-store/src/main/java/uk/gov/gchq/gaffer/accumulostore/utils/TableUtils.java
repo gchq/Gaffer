@@ -201,7 +201,7 @@ public final class TableUtils {
 
     /**
      * Creates a connection to an accumulo instance using the provided
-     * parameters
+     * extensions
      *
      * @param instanceName the instance name
      * @param zookeepers   the zoo keepers

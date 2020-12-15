@@ -61,7 +61,7 @@ public class NamedViewDetailTest {
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +
                 "  \"writeAccessRoles\" : [ \"writeAuth1\", \"writeAuth2\" ],%n" +
-                "  \"parameters\" : {%n" +
+                "  \"extensions\" : {%n" +
                 "    \"entityGroup\" : {%n" +
                 "      \"description\" : \"some description\",%n" +
                 "      \"defaultValue\" : \"red\",%n" +
@@ -102,7 +102,7 @@ public class NamedViewDetailTest {
                 "  \"name\" : \"view1\",%n" +
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +
-                "  \"parameters\" : {%n" +
+                "  \"extensions\" : {%n" +
                 "    \"entityGroup\" : {%n" +
                 "      \"description\" : \"some description\",%n" +
                 "      \"defaultValue\" : \"red\",%n" +
@@ -147,7 +147,7 @@ public class NamedViewDetailTest {
                 "  \"description\" : \"description\",%n" +
                 "  \"creatorId\" : \"creator\",%n" +
                 "  \"writeAccessRoles\" : [\"writeAuth1\", \"writeAuth2\"],%n" +
-                "  \"parameters\" : {%n" +
+                "  \"extensions\" : {%n" +
                 "    \"entityGroup\" : {%n" +
                 "      \"description\" : \"some description\",%n" +
                 "      \"defaultValue\" : \"red\",%n" +

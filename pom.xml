@@ -81,13 +81,14 @@
     <javassist.version>3.19.0-GA</javassist.version>
     <javax-activation.version>1.1.1</javax-activation.version>
     <jcs.version>2.1</jcs.version>
-    <jersey.version>2.25</jersey.version>
+    <jersey.version>2.26</jersey.version>
     <json4s.version>3.2.11</json4s.version>
     <log4j.version>1.2.17</log4j.version>
     <paranamer.version>2.8</paranamer.version>
     <reflections.version>0.9.10</reflections.version>
     <servlet-api.version>3.1.0</servlet-api.version>
     <snappy.version>1.1.2.4</snappy.version>
+    <spring-boot.version>2.4.0</spring-boot.version>
     <swagger.version>2.6.0</swagger.version>
     <zookeeper.version>3.4.14</zookeeper.version>
     <metrics.version>4.1.16</metrics.version>
@@ -269,6 +270,13 @@
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-recipes</artifactId>
         <version>${curator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.hadoop</groupId>

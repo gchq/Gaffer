@@ -333,7 +333,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         }
                         getAllElements(expectedElements, directedType, viewBuilder.build());
                     } catch (final AssertionError e) {
-                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
+                        throw new AssertionError("GetAllElements failed with extensions: includeEntities=" + includeEntities
                                 + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
                     }
                 }
@@ -359,7 +359,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         }
                         getAllElements(includeEntities, includeEdges, directedType, viewBuilder.build());
                     } catch (final AssertionError e) {
-                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
+                        throw new AssertionError("GetAllElements failed with extensions: includeEntities=" + includeEntities
                                 + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
                     }
                 }
@@ -372,7 +372,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
             try {
                 getAllElements(expectedElements, directedType, view);
             } catch (final AssertionError e) {
-                throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + view.hasEntities()
+                throw new AssertionError("GetAllElements failed with extensions: includeEntities=" + view.hasEntities()
                         + ", includeEdges=" + view.hasEdges() + ", directedType=" + directedType.name(), e);
             }
         }
@@ -383,7 +383,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
             try {
                 getAllElements(resultTester, directedType, view);
             } catch (final AssertionError e) {
-                throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + view.hasEntities()
+                throw new AssertionError("GetAllElements failed with extensions: includeEntities=" + view.hasEntities()
                         + ", includeEdges=" + view.hasEdges() + ", directedType=" + directedType.name(), e);
             }
         }

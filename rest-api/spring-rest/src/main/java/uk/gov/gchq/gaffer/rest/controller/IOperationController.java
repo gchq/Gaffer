@@ -106,7 +106,7 @@ public interface IOperationController {
     @PostMapping(
             path = "/execute",
             consumes = APPLICATION_JSON_VALUE,
-            produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
+            produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation("Executes an operation against a Store")
     ResponseEntity<Object> execute(final Operation operation);

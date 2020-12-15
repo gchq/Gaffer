@@ -42,7 +42,7 @@ public interface RangeFactory {
      * @param elementId the element id to get the range for
      * @param operation the operation
      * @return A List of Ranges that are required to return all elements that
-     * match the parameters of the query.
+     * match the extensions of the query.
      * @throws RangeFactoryException if a range could not be created
      */
     List<Range> getRange(final ElementId elementId, final GraphFilters operation)
@@ -63,7 +63,7 @@ public interface RangeFactory {
      * @param pairRange the pair of element ids to get the range for
      * @param operation the operation
      * @return A List of Ranges that are required to return all elements that
-     * match the parameters of the query.
+     * match the extensions of the query.
      * @throws RangeFactoryException if a range could not be created
      */
     Range getRangeFromPair(final Pair<ElementId, ElementId> pairRange, final GraphFilters operation)
