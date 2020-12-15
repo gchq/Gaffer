@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -51,26 +52,29 @@ public class GetAdjacentIdsHandler implements
     public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
                                                              final Context context,
                                                              final Store store) throws OperationException {
-        return doOperation(operation, (MapStore) store);
+        return doOperation(operation, context, (MapStore) store);
     }
 
     private CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
+                                                    final Context context,
                                                     final MapStore mapStore) throws OperationException {
         if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
             return new EmptyClosableIterable<>();
         }
-        return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
+        return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema(), context.getUser());
     }
 
     private static class EntityIdIterable extends WrappedCloseableIterable<EntityId> {
         private final MapImpl mapImpl;
         private final GetAdjacentIds getAdjacentIds;
         private final Schema schema;
+        private final User user;
 
-        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final Schema schema) {
+        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final Schema schema, final User user) {
             this.mapImpl = mapImpl;
             this.getAdjacentIds = getAdjacentIds;
             this.schema = schema;
+            this.user = user;
         }
 
         @Override
@@ -84,6 +88,9 @@ public class GetAdjacentIdsHandler implements
                             GetElementsUtil.getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(), getAdjacentIds.getDirectedType(), getAdjacentIds.getIncludeIncomingOutGoing(), SeedMatching.SeedMatchingType.RELATED)
                                     .stream()
                                     .map(mapImpl::getAggElement));
+
+            // Apply visibility
+            elementStream = GetElementsUtil.applyVisibilityFilter(elementStream, schema, user);
 
             // Apply the view
             elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView());

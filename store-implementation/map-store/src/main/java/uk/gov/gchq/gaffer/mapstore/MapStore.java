@@ -65,6 +65,7 @@ import static java.util.Arrays.asList;
  */
 public class MapStore extends Store {
     public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
+            StoreTrait.VISIBILITY,
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.PRE_AGGREGATION_FILTERING,
             StoreTrait.POST_AGGREGATION_FILTERING,
