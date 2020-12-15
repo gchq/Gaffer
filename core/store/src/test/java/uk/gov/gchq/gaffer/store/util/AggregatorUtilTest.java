@@ -1015,38 +1015,7 @@ public class AggregatorUtilTest {
                         .build())
                 .build();
 
-        final List<Element> elements = Arrays.asList(
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("1-sourceDir3")
-                        .dest("2-destDir3")
-                        .directed(true)
-                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                        .property("count", 100)
-                        .property("property2", "value1")
-                        .property("visibility", "vis1")
-                        .build(),
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("1-sourceDir3")
-                        .dest("2-destDir3")
-                        .directed(true)
-                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                        .property("count", 200)
-                        .property("property2", "value1")
-                        .property("visibility", "vis1")
-                        .build(),
-                new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("1-sourceDir3")
-                        .dest("2-destDir3")
-                        .directed(true)
-                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .property("count", 101)
-                        .property("property2", "value1")
-                        .property("visibility", "vis1")
-                        .build()
-        );
+        final List<Element> elements = createElementsForIncludeMatchedVertexTest();
 
         final Set<Element> expectedIncludingMatchedVertex = Sets.newHashSet(
                 new Edge.Builder()
@@ -1055,7 +1024,7 @@ public class AggregatorUtilTest {
                         .dest("2-destDir3")
                         .directed(true)
                         .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
-                        .property("count", 300)
+                        .property("count", 21)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
                         .build(),
@@ -1065,7 +1034,7 @@ public class AggregatorUtilTest {
                         .dest("2-destDir3")
                         .directed(true)
                         .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                        .property("count", 101)
+                        .property("count", 4300)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
                         .build()
@@ -1076,5 +1045,83 @@ public class AggregatorUtilTest {
 
         // then
         assertElementEquals(expectedIncludingMatchedVertex, aggregatedElementsIncludingMatchedVertex);
+    }
+
+    @Test
+    public void shouldQueryAggregateDirectedEdgesExcludingMatchedVertexGroupBy() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        final List<Element> elements = createElementsForIncludeMatchedVertexTest();
+
+        final Set<Element> expectedExcludingMatchedVertex = Sets.newHashSet(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .property("count", 4321)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build()
+        );
+
+        // when
+        final CloseableIterable<Element> aggregatedElementsExcludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, false);
+
+        // then
+        assertElementEquals(expectedExcludingMatchedVertex, aggregatedElementsExcludingMatchedVertex);
+    }
+
+    private List<Element> createElementsForIncludeMatchedVertexTest() {
+        return Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 1)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 20)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 300)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 4000)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build());
     }
 }
