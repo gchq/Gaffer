@@ -15,14 +15,11 @@
  */
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import uk.gov.gchq.gaffer.integration.extensions.AwaitSpringStart;
 import uk.gov.gchq.gaffer.integration.factory.MapStoreGraphFactory;
 import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
@@ -35,14 +32,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * ProxyStore can be tested. To save startup time, the Application context will be cached between tests.
  */
 @SpringBootTest(classes = GafferWebApplication.class, webEnvironment = DEFINED_PORT)
-@ExtendWith(AwaitSpringStart.class)
 @ActiveProfiles("proxy")
 public abstract class AbstractStoreIT {
-
-    @BeforeAll
-    public static void beforeAll() {
-        System.out.println("hello");
-    }
 
     @Autowired
     private GraphFactory graphFactory;
@@ -54,6 +45,10 @@ public abstract class AbstractStoreIT {
         } else {
             throw new RuntimeException("Expected the MapStoreGraph Factory to be injected");
         }
+    }
+
+    protected MapStoreGraphFactory getGraphFactory() {
+        return (MapStoreGraphFactory) graphFactory;
     }
 
     private User user = new User();

@@ -152,6 +152,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEntityProperty(final GafferTestCase gafferTestCase) throws OperationException {
         // Given
+        System.out.println("Entered Test");
         final Graph graph = gafferTestCase.getPopulatedGraph();
         final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed("A1"))

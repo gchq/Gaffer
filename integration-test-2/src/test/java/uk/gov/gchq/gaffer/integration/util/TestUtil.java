@@ -64,11 +64,12 @@ public class TestUtil {
     public static final String SOURCE_DIR_3 = SOURCE_DIR + 3;
     public static final String DEST_DIR_3 = DEST_DIR + 3;
 
-    private static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
+    public static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
 
     private TestUtil() {
         // prevent instantiation
     }
+
 
     private static void addToMap(final Edge element, final Map<EdgeId, Edge> edges) {
         edges.put(ElementSeed.createSeed(element), element);
@@ -160,6 +161,14 @@ public class TestUtil {
         }
 
         return entities;
+    }
+
+    public static Map<EntityId, Entity> getEntities() {
+        return ENTITIES;
+    }
+
+    public static Map<EdgeId, Edge> getEdges() {
+        return EDGES;
     }
 
     public static Graph addDefaultElements(final Graph graph) {

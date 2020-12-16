@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -27,6 +29,7 @@ public class GafferTestContextProvider implements TestTemplateInvocationContextP
     private final List<StoreProperties> availableStoreProperties;
 
     public GafferTestContextProvider() {
+        System.out.println("Creating provider");
         availableStoreProperties = new ArrayList<>();
         for (InputStream storeInputStream : StreamUtil.openStreams(AbstractStoreIT.class, "/stores")) {
             availableStoreProperties.add(StoreProperties.loadStoreProperties(storeInputStream));
@@ -45,6 +48,8 @@ public class GafferTestContextProvider implements TestTemplateInvocationContextP
 
     @Override
     public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(final ExtensionContext context) {
+        // Force Application to start before evaluating store traits
+        SpringExtension.getApplicationContext(context);
         return availableStoreProperties.stream()
                 .map(GafferTestCase::new)
                 .filter(gtc -> this.hasRequiredTraits(gtc, context))

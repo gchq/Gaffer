@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
@@ -32,7 +33,7 @@ public class FederatedStoreITs extends AbstractStoreITs {
         skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
         addExtraTest(FederatedViewsIT.class);
         addExtraTest(FederatedAdminIT.class);
-        addExtraTest(FederatedStoreRecursionIT.class);
+//        addExtraTest(FederatedStoreRecursionIT.class);
 
     }
 }

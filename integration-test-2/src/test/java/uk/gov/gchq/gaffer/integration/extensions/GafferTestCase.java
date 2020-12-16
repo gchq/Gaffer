@@ -26,7 +26,7 @@ public class GafferTestCase {
         return storeProperties;
     }
 
-    public Graph createEmptyGraph() {
+    private Graph createEmptyGraph() {
         return new Graph.Builder()
                 .config(new GraphConfig("test"))
                 .addSchema(TestUtil.createDefaultSchema())

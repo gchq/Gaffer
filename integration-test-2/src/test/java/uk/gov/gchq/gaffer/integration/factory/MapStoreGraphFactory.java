@@ -6,6 +6,7 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.util.TestUtil;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
  * The Graph factory used by the remote REST API which backs the ProxyStore. It provides an easy mechanism for resetting
@@ -14,8 +15,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 public class MapStoreGraphFactory implements GraphFactory {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(MapStoreGraphFactory.class, "/stores/mapstore.properties"));
     private Graph instance;
+    private Schema schema;
 
     public MapStoreGraphFactory() {
+        schema = TestUtil.createDefaultSchema();
         instance = createGraphBuilder().build();
     }
 
@@ -25,7 +28,7 @@ public class MapStoreGraphFactory implements GraphFactory {
         return new Graph.Builder()
                 .storeProperties(STORE_PROPERTIES)
                 .config(new GraphConfig("proxyStoreTest"))
-                .addSchema(TestUtil.createDefaultSchema());
+                .addSchema(schema);
     }
 
     @Override
@@ -34,6 +37,11 @@ public class MapStoreGraphFactory implements GraphFactory {
     }
 
     public void reset() {
+        reset(TestUtil.createDefaultSchema());
+    }
+
+    public void reset(final Schema schema) {
+        this.schema = schema;
         instance = createGraphBuilder().build();
     }
 }
