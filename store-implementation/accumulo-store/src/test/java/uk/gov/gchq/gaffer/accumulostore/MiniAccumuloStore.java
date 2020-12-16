@@ -59,7 +59,7 @@ public class MiniAccumuloStore extends AccumuloStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloStore.class);
 
     private static MiniAccumuloCluster instance = null;
-    private static final HashMap<String, File> ACCUMULO_DIRECTORIES = new HashMap<>();
+    private static File ACCUMULO_DIRECTORY;
 
     private static final String ROOT_PASSWORD_DEFAULT = "password";
     private static final int DEFAULT_ZOOKEEPER_PORT = 2181;
@@ -94,7 +94,7 @@ public class MiniAccumuloStore extends AccumuloStore {
     }
 
     private File getAccumuloDirectory() {
-        return ACCUMULO_DIRECTORIES.get(getProperties().getInstance());
+        return ACCUMULO_DIRECTORY;
     }
 
     private void ensureUserExists(final MiniAccumuloCluster mac) throws AccumuloSecurityException, AccumuloException {
@@ -152,9 +152,9 @@ public class MiniAccumuloStore extends AccumuloStore {
     private void createCluster() throws IOException, InterruptedException {
         String providedDirectory = getProperties().get(ACCUMULO_DIRECTORY_PROPERTY);
         if (providedDirectory == null) {
-            ACCUMULO_DIRECTORIES.put(getProperties().getInstance(), Files.createTempDir());
+            ACCUMULO_DIRECTORY = Files.createTempDir();
         } else {
-            ACCUMULO_DIRECTORIES.put(getProperties().getInstance(), new File(providedDirectory));
+            ACCUMULO_DIRECTORY = new File(providedDirectory);
         }
 
         String rootUserPassword = getProperties().get(ROOT_PASSWORD_PROPERTY, ROOT_PASSWORD_DEFAULT);

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -14,9 +15,12 @@ import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -26,6 +30,7 @@ import java.util.stream.Stream;
  */
 public class GafferTestContextProvider implements TestTemplateInvocationContextProvider {
 
+    private static final String TEMPDIR = "${tempdir}";
     private final List<StoreProperties> availableStoreProperties;
 
     public GafferTestContextProvider() {
@@ -51,9 +56,24 @@ public class GafferTestContextProvider implements TestTemplateInvocationContextP
         // Force Application to start before evaluating store traits
         SpringExtension.getApplicationContext(context);
         return availableStoreProperties.stream()
+                .map(this::injectTempDir)
                 .map(GafferTestCase::new)
                 .filter(gtc -> this.hasRequiredTraits(gtc, context))
                 .map(this::createContext);
+    }
+
+    private StoreProperties injectTempDir(final StoreProperties storeProperties) {
+        Map<String, String> replacements = new HashMap<>();
+        storeProperties.getProperties().forEach((k, v) -> {
+            if (v instanceof String && k instanceof String && ((String) v).contains(TEMPDIR)) {
+                String replacement = ((String) v).replace(TEMPDIR, AbstractStoreIT.tempDir.toString());
+                replacements.put((String) k, replacement);
+            }
+        });
+
+        replacements.forEach(storeProperties::set);
+
+        return storeProperties;
     }
 
     private boolean hasRequiredTraits(final GafferTestCase testCase, final ExtensionContext context) {
