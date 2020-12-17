@@ -49,7 +49,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class VisibilityTest {
+public final class VisibilityTest {
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.openStreams(VisibilityTest.class, "schema-with-visibilities"));
 
@@ -70,6 +70,9 @@ public class VisibilityTest {
             new String[]{PUBLIC},
             new String[]{PRIVATE, PUBLIC}
     );
+
+    private VisibilityTest() {
+    }
 
     private static Iterable<Element> createElements() {
         return asList(
