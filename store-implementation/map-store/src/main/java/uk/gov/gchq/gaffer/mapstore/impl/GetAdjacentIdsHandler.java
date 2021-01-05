@@ -86,7 +86,7 @@ public class GetAdjacentIdsHandler implements
                                     .map(mapImpl::getAggElement));
 
             // Apply the view
-            elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView());
+            elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView(), true);
 
             final Stream<EntityId> adjacentIdsStream = elementStream
                     .filter(Objects::nonNull)
@@ -105,3 +105,4 @@ public class GetAdjacentIdsHandler implements
         }
     }
 }
+

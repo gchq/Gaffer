@@ -36,6 +36,7 @@ public class MapStoreTest {
         final MapStore mapStore = new MapStore();
         mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
         final Set<StoreTrait> expectedTraits = new HashSet<>(Arrays.asList(
+                StoreTrait.QUERY_AGGREGATION,
                 StoreTrait.INGEST_AGGREGATION,
                 StoreTrait.PRE_AGGREGATION_FILTERING,
                 StoreTrait.POST_AGGREGATION_FILTERING,
