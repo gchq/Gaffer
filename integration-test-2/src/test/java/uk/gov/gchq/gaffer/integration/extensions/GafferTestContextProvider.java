@@ -5,22 +5,17 @@ import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
-import org.junit.jupiter.api.io.TempDir;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.GafferTest;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -34,7 +29,6 @@ public class GafferTestContextProvider implements TestTemplateInvocationContextP
     private final List<StoreProperties> availableStoreProperties;
 
     public GafferTestContextProvider() {
-        System.out.println("Creating provider");
         availableStoreProperties = new ArrayList<>();
         for (InputStream storeInputStream : StreamUtil.openStreams(AbstractStoreIT.class, "/stores")) {
             availableStoreProperties.add(StoreProperties.loadStoreProperties(storeInputStream));
@@ -57,9 +51,24 @@ public class GafferTestContextProvider implements TestTemplateInvocationContextP
         SpringExtension.getApplicationContext(context);
         return availableStoreProperties.stream()
                 .map(this::injectTempDir)
+                .filter(sp -> this.isNotExcluded(sp, context))
                 .map(GafferTestCase::new)
                 .filter(gtc -> this.hasRequiredTraits(gtc, context))
                 .map(this::createContext);
+    }
+
+    private boolean isNotExcluded(StoreProperties storeProperties, ExtensionContext context) {
+        for (Class<? extends Store> storeClass : context.getRequiredTestMethod().getDeclaredAnnotation(GafferTest.class).excludeStores()) {
+            try {
+                if (storeClass.isAssignableFrom(Class.forName(storeProperties.getStoreClass()))) {
+                    return false;
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException("Failed to resolve the store class in the store properties");
+            }
+        }
+
+        return true;
     }
 
     private StoreProperties injectTempDir(final StoreProperties storeProperties) {

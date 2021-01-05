@@ -4,6 +4,7 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import uk.gov.gchq.gaffer.integration.extensions.GafferTestContextProvider;
+import uk.gov.gchq.gaffer.store.Store;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,4 +16,5 @@ import java.lang.annotation.Target;
 @TestTemplate
 @ExtendWith(GafferTestContextProvider.class)
 public @interface GafferTest {
+    Class<? extends Store>[] excludeStores() default {};
 }

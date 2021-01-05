@@ -33,7 +33,7 @@ public class TestUtil {
     private static final String B = "B";
     private static final String C = "C";
     private static final String D = "D";
-    private static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
+    public static final String[] VERTEX_PREFIXES = new String[]{A, B, C, D};
 
     private static final Map<EdgeId, Edge> EDGES = createDefaultEdges();
     private static final Map<EntityId, Entity> ENTITIES = createDefaultEntities();

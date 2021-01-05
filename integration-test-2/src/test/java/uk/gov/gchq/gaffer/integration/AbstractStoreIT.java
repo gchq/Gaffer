@@ -24,7 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.gchq.gaffer.integration.factory.MapStoreGraphFactory;
 import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.nio.file.Path;
 
@@ -56,11 +55,5 @@ public abstract class AbstractStoreIT {
 
     protected MapStoreGraphFactory getGraphFactory() {
         return (MapStoreGraphFactory) graphFactory;
-    }
-
-    private User user = new User();
-
-    public User getUser() {
-        return user;
     }
 }

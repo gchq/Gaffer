@@ -74,37 +74,6 @@
       <version>3.0.16</version>
       <scope>test</scope>
     </dependency>
-    <!-- hbase store -->
-    <dependency>
-      <groupId>uk.gov.gchq.gaffer</groupId>
-      <artifactId>hbase-store</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>uk.gov.gchq.gaffer</groupId>
-      <artifactId>hbase-store</artifactId>
-      <version>${project.parent.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <!--<dependency>-->
-      <!--<groupId>org.apache.hbase</groupId>-->
-      <!--<artifactId>hbase-server</artifactId>-->
-      <!--<version>${hbase.version}</version>-->
-      <!--<type>test-jar</type>-->
-      <!--<exclusions>-->
-        <!--<exclusion>-->
-          <!--<groupId>javax.servlet</groupId>-->
-          <!--<artifactId>servlet-api</artifactId>-->
-        <!--</exclusion>-->
-        <!--<exclusion>-->
-          <!--<groupId>org.mortbay.jetty</groupId>-->
-          <!--<artifactId>servlet-api</artifactId>-->
-        <!--</exclusion>-->
-      <!--</exclusions>-->
-      <!--<scope>test</scope>-->
-    <!--</dependency>-->
     <!-- Proxy Store -->
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>

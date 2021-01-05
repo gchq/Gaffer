@@ -110,7 +110,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, new User()));
 
 
         assertNotNull(results);
@@ -137,7 +137,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, new User()));
 
         // Then
         assertNotNull(results);
@@ -168,7 +168,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, new User()));
 
 
         assertNotNull(results);
@@ -198,7 +198,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, new User()));
 
         assertNotNull(results);
         for (final Element result : results) {
@@ -225,7 +225,7 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, new User()));
 
 
         assertNotNull(results);
@@ -249,7 +249,7 @@ public class TransformationIT extends AbstractStoreIT {
                                 .project("propAlt")
                                 .build())
                         .build())
-                .build(), getUser());
+                .build(), new User());
 
         //Resolve the lazy iterator, by adding the contents to a list, No exception should have been thrown here.
         final ArrayList<Element> edges = Lists.newArrayList(result);
@@ -279,7 +279,7 @@ public class TransformationIT extends AbstractStoreIT {
                                 .project("propAlt")
                                 .build())
                         .build())
-                .build(), getUser());
+                .build(), new User());
 
         //Resolve the lazy iterator, by adding the contents to a list, No exception should have been thrown here.
         final ArrayList<Element> edges = Lists.newArrayList(result);

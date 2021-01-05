@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
 
@@ -57,14 +58,14 @@ public class WhileIT extends AbstractStoreIT {
                 .build();
 
         // When
-        graph.execute(operation, getUser());
+        graph.execute(operation, new User());
 
         final List<? extends Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder()
                 .input("1")
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .build(), getUser()));
+                .build(), new User()));
 
         assertEquals(1, results.size());
         assertEquals(10L, results.get(0).getProperty(TestPropertyNames.COUNT));
