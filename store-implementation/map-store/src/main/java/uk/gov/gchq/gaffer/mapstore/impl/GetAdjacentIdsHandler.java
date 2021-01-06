@@ -93,7 +93,7 @@ public class GetAdjacentIdsHandler implements
             elementStream = GetElementsUtil.applyVisibilityFilter(elementStream, schema, user);
 
             // Apply the view
-            elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView());
+            elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView(), true);
 
             final Stream<EntityId> adjacentIdsStream = elementStream
                     .filter(Objects::nonNull)
@@ -112,3 +112,4 @@ public class GetAdjacentIdsHandler implements
         }
     }
 }
+
