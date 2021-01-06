@@ -46,7 +46,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static uk.gov.gchq.gaffer.integration.util.TestUtil.*;
+import static uk.gov.gchq.gaffer.integration.util.TestUtil.DEST_1;
+import static uk.gov.gchq.gaffer.integration.util.TestUtil.SOURCE_1;
+import static uk.gov.gchq.gaffer.integration.util.TestUtil.VERTEX_PREFIXES;
 
 public class NoAggregationIT extends AbstractStoreIT {
 

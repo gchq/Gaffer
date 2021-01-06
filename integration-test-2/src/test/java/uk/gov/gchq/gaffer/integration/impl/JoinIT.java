@@ -79,7 +79,7 @@ public class JoinIT extends AbstractStoreIT {
             .addSchema(createSchema())
             .config(new GraphConfig("test"))
             .build();
-        
+
         addJoinEntityElements(graph, TestGroups.ENTITY_3);
         final Map map = new Map.Builder<>().input(Lists.newArrayList(4L)).first(new Identity()).build();
 
@@ -409,7 +409,7 @@ public class JoinIT extends AbstractStoreIT {
         ElementUtil.assertElementEquals(expected, joinedKeys);
 
     }
-    
+
     private Schema createSchema() {
         return new Schema.Builder().merge(TestUtil.createDefaultSchema())
                 .entity(TestGroups.ENTITY_3, new SchemaEntityDefinition.Builder()

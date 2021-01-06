@@ -732,10 +732,10 @@ public class SchemaMigrationIT extends AbstractStoreIT {
                         EDGE_OLD_POST_OP_AGGREGATION, EDGE_NEW_POST_OP_AGGREGATION, EDGE_OLD_AGG_BEFORE_POST_FILTER,
                         EDGE_NEW_AGG_BEFORE_POST_FILTER)
                 .build(), new User());
-        
+
         return graph;
     }
-    
+
     private GraphConfig createGraphConfig() {
         migration = createMigration();
         return new GraphConfig.Builder()

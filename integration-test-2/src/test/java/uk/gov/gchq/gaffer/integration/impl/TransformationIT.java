@@ -92,11 +92,6 @@ public class TransformationIT extends AbstractStoreIT {
         return graph;
     }
 
-    /**
-     * Tests that the entity stored does not contain any transient properties not stored in the Schemas.
-     *
-     * @throws OperationException should never be thrown.
-     */
     @GafferTest
     public void shouldNotStoreEntityPropertiesThatAreNotInSchema(final GafferTestCase testCase) throws OperationException {
         // Given
@@ -120,11 +115,6 @@ public class TransformationIT extends AbstractStoreIT {
         }
     }
 
-    /**
-     * Tests that the edge stored does not contain any transient properties not stored in the Schemas.
-     *
-     * @throws OperationException should never be thrown.
-     */
     @GafferTest
     public void shouldNotStoreEdgePropertiesThatAreNotInSchema(final GafferTestCase testCase) throws OperationException {
         // Given
