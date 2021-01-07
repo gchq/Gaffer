@@ -18,24 +18,17 @@ package uk.gov.gchq.gaffer.integration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import uk.gov.gchq.gaffer.integration.factory.MapStoreGraphFactory;
-import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 
 import java.nio.file.Path;
-
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 /**
  * Common code for integration tests. This class is annotated with @SpringBootTest to start a Gaffer REST API so the
  * ProxyStore can be tested. To save startup time, the Application context will be cached between tests.
  */
-@SpringBootTest(classes = GafferWebApplication.class, webEnvironment = DEFINED_PORT)
-@ActiveProfiles("proxy")
-public abstract class AbstractStoreIT {
+public abstract class AbstractStoreIT implements StoreIT {
 
     @Autowired
     private GraphFactory graphFactory;
