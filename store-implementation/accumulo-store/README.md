@@ -556,10 +556,10 @@ Ensure that when running an Accumulo instance, the user specified by the `accumu
 
 | Authorisation     | Required by |
 | ----------------- | ----------- |
-| vis1              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
-| vis2              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
+| vis1              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/template/VisibilityIT.java) |
+| vis2              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/template/VisibilityIT.java) |
 | public            | [SchemaHidingIT](../../core/graph/src/test/java/uk/gov/gchq/gaffer/integration/graph/SchemaHidingIT.java) |
-| private           | [ParameterizedLoaderIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/loader/ParameterizedLoaderIT.java#L63)
+| private           | [ParameterizedLoaderIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/template/loader/ParameterizedLoaderIT.java#L63)
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 
