@@ -288,6 +288,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                                 .build())
                         .build())
                 .build();
+
         final GetElements op = new GetElements.Builder()
                 .input(new EntitySeed(SOURCE_DIR_1), new EntitySeed(DEST_DIR_2), new EntitySeed(SOURCE_DIR_3))
                 .view(view)

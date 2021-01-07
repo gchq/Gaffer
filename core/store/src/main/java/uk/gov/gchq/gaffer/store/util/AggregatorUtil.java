@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.store.util;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
+import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -87,7 +89,8 @@ public final class AggregatorUtil {
     /**
      * Applies query time aggregation to the provided iterable of {@link Element}s.
      * This uses the groupBy properties in the provided {@link View} or {@link Schema} to group
-     * the elements prior to aggregating them.
+     * the elements prior to aggregating them. The Matched Vertex field is ignored during
+     * aggregation.
      * <p>
      * NOTE - this is done in memory so the size of the iterable should be limited.
      *
@@ -97,6 +100,24 @@ public final class AggregatorUtil {
      * @return the aggregated elements.
      */
     public static CloseableIterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view) {
+        return queryAggregate(elements, schema, view, false);
+    }
+
+    /**
+     * Applies query time aggregation to the provided iterable of {@link Element}s.
+     * This uses the groupBy properties in the provided {@link View} or {@link Schema} to group
+     * the elements prior to aggregating them. Aggregation of Edges can optionally be
+     * configured to include the Matched Vertex field.
+     * <p>
+     * NOTE - this is done in memory so the size of the iterable should be limited.
+     *
+     * @param elements             the elements to be aggregated
+     * @param schema               the schema containing the aggregators and groupBy properties to use
+     * @param view                 the view containing the aggregators and groupBy properties to use
+     * @param includeMatchedVertex whether aggregation groups should include the Edge Matched Vertex
+     * @return the aggregated elements.
+     */
+    public static CloseableIterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view, final boolean includeMatchedVertex) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
@@ -116,7 +137,7 @@ public final class AggregatorUtil {
             }
         }
         final Iterable<Element> aggregatedElements = Streams.toStream(aggregatableElements)
-                .collect(Collectors.groupingBy(new ToQueryElementKey(schema, view), Collectors.reducing(null, new QueryElementBinaryOperator(schema, view))))
+                .collect(Collectors.groupingBy(new ToQueryElementKey(schema, view, includeMatchedVertex), Collectors.reducing(null, new QueryElementBinaryOperator(schema, view))))
                 .values();
         return new ChainedIterable<>(aggregatedElements, nonAggregatedElements);
     }
@@ -143,7 +164,11 @@ public final class AggregatorUtil {
     @Summary("Extracts the query time key of an Element")
     public static class ToQueryElementKey extends ToElementKey {
         public ToQueryElementKey(final Schema schema, final View view) {
-            super(getQueryGroupBys(schema, view));
+            this(schema, view, false);
+        }
+
+        public ToQueryElementKey(final Schema schema, final View view, final boolean includeMatchedVertex) {
+            super(getQueryGroupBys(schema, view), includeMatchedVertex);
         }
     }
 
@@ -151,12 +176,18 @@ public final class AggregatorUtil {
     @Summary("Extracts the key of an element")
     public static class ToElementKey extends KorypheFunction<Element, Element> {
         private final Map<String, Set<String>> groupToGroupBys;
+        private final boolean includeMatchedVertex;
 
         public ToElementKey(final Map<String, Set<String>> groupToGroupBys) {
+            this(groupToGroupBys, false);
+        }
+
+        public ToElementKey(final Map<String, Set<String>> groupToGroupBys, final boolean includeMatchedVertex) {
             if (null == groupToGroupBys) {
                 throw new IllegalArgumentException("groupToGroupBys map is required");
             }
             this.groupToGroupBys = groupToGroupBys;
+            this.includeMatchedVertex = includeMatchedVertex;
         }
 
         @Override
@@ -168,6 +199,9 @@ public final class AggregatorUtil {
             }
             for (final String propertyName : groupBy) {
                 key.putProperty(propertyName, element.getProperty(propertyName));
+            }
+            if (includeMatchedVertex && element instanceof Edge) {
+                key.putProperty(ReservedPropertyNames.MATCHED_VERTEX.name(), Edge.class.cast(element).getMatchedVertex());
             }
             return key;
         }

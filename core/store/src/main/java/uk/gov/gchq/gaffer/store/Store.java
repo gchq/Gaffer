@@ -177,6 +177,8 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.StreamSupport;
 
+import static java.util.Collections.unmodifiableList;
+
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
  * uk.gov.gchq.gaffer.data.element.Element}s and
@@ -810,6 +812,10 @@ public abstract class Store {
 
     public void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
+    }
+
+    public List<OperationChainOptimiser> getOperationChainOptimisers() {
+        return unmodifiableList(opChainOptimisers);
     }
 
     /**
