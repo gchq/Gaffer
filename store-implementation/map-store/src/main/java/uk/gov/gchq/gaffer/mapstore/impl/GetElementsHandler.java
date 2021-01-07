@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -59,7 +60,7 @@ public class GetElementsHandler
         if (null == seeds) {
             return new EmptyClosableIterable<>();
         }
-        return new ElementsIterable(mapImpl, operation, mapStore.getSchema(), context.getUser());
+        return new ElementsIterable(mapImpl, operation, mapStore, context.getUser());
     }
 
     private static class ElementsIterable extends WrappedCloseableIterable<Element> {
@@ -67,12 +68,15 @@ public class GetElementsHandler
         private final GetElements getElements;
         private final Schema schema;
         private final User user;
+        private final boolean supportsVisibility;
 
-        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final Schema schema, final User user) {
+        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final MapStore mapStore, final User user) {
             this.mapImpl = mapImpl;
             this.getElements = getElements;
-            this.schema = schema;
+            this.schema = mapStore.getSchema();
             this.user = user;
+            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
+
         }
 
         @Override
@@ -81,7 +85,9 @@ public class GetElementsHandler
                     .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream())
                     .distinct();
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
-            elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
+            if (this.supportsVisibility) {
+                elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
+            }
             elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
             elements = elements.map(element -> {

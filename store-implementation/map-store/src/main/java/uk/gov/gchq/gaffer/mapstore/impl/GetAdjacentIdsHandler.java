@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -61,7 +62,7 @@ public class GetAdjacentIdsHandler implements
         if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
             return new EmptyClosableIterable<>();
         }
-        return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema(), context.getUser());
+        return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());
     }
 
     private static class EntityIdIterable extends WrappedCloseableIterable<EntityId> {
@@ -69,12 +70,14 @@ public class GetAdjacentIdsHandler implements
         private final GetAdjacentIds getAdjacentIds;
         private final Schema schema;
         private final User user;
+        private final boolean supportsVisibility;
 
-        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final Schema schema, final User user) {
+        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final MapStore mapStore, final User user) {
             this.mapImpl = mapImpl;
             this.getAdjacentIds = getAdjacentIds;
-            this.schema = schema;
+            this.schema = mapStore.getSchema();
             this.user = user;
+            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
         }
 
         @Override
@@ -90,7 +93,9 @@ public class GetAdjacentIdsHandler implements
                                     .map(mapImpl::getAggElement));
 
             // Apply visibility
-            elementStream = GetElementsUtil.applyVisibilityFilter(elementStream, schema, user);
+            if (this.supportsVisibility) {
+                elementStream = GetElementsUtil.applyVisibilityFilter(elementStream, schema, user);
+            }
 
             // Apply the view
             elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView(), true);

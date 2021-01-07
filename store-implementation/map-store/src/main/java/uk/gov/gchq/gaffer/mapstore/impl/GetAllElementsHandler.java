@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -45,7 +46,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     }
 
     private CloseableIterable<Element> doOperation(final GetAllElements operation, final Context context, final MapStore mapStore) {
-        return new AllElementsIterable(mapStore.getMapImpl(), operation, mapStore.getSchema(), context.getUser());
+        return new AllElementsIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());
     }
 
     private static class AllElementsIterable extends WrappedCloseableIterable<Element> {
@@ -53,18 +54,22 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
         private final GetAllElements getAllElements;
         private final Schema schema;
         private final User user;
+        private final boolean supportsVisibility;
 
-        AllElementsIterable(final MapImpl mapImpl, final GetAllElements getAllElements, final Schema schema, final User user) {
+        AllElementsIterable(final MapImpl mapImpl, final GetAllElements getAllElements, final MapStore mapStore, final User user) {
             this.mapImpl = mapImpl;
             this.getAllElements = getAllElements;
-            this.schema = schema;
+            this.schema = mapStore.getSchema();
             this.user = user;
+            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
         }
 
         @Override
         public CloseableIterator<Element> iterator() {
             Stream<Element> elements = mapImpl.getAllElements(getAllElements.getView().getGroups());
-            elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
+            if (this.supportsVisibility) {
+                elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
+            }
             elements = GetElementsUtil.applyDirectedTypeFilter(elements, getAllElements.getView().hasEdges(), getAllElements.getDirectedType());
             elements = GetElementsUtil.applyView(elements, schema, getAllElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
