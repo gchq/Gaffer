@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
+import org.junit.AfterClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +33,9 @@ import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -57,6 +61,19 @@ public abstract class AbstractRestApiIT {
 
     @Value("${server.context-path}")
     private String contextPath;
+
+    @AfterClass
+    public static void clearSystemProperties() {
+        Properties properties = System.getProperties();
+        List<String> propertiesToBeRemoved = new ArrayList<>();
+        properties.forEach((key, value) -> {
+            if (key instanceof String && ((String) key).startsWith("gaffer")) {
+                propertiesToBeRemoved.add((String) key);
+            }
+        });
+
+        propertiesToBeRemoved.forEach(System::clearProperty);
+    }
 
 
     protected String getBaseURl() {

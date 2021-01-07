@@ -450,7 +450,7 @@ public abstract class AbstractStoreIT {
     }
 
     protected Iterable<Edge> getDuplicateEdges() {
-        return duplicateEdges;
+        return jsonClone(duplicateEdges);
     }
 
     public static Map<EdgeId, Edge> createDefaultEdges() {
@@ -507,7 +507,7 @@ public abstract class AbstractStoreIT {
     }
 
     protected Iterable<Entity> getDuplicateEntities() {
-        return duplicateEntities;
+        return jsonClone(duplicateEntities);
     }
 
     private <T> List<T> duplicate(final Iterable<T> items) {

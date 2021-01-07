@@ -39,10 +39,10 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
 
-        prepareOperationChain(operationChain, context, store);
+        final OperationChain<OUT> preparedOperationChain = prepareOperationChain(operationChain, context, store);
 
         Object result = null;
-        for (final Operation op : operationChain.getOperations()) {
+        for (final Operation op : preparedOperationChain.getOperations()) {
             updateOperationInput(op, result);
             result = store.handleOperation(op, context);
         }
