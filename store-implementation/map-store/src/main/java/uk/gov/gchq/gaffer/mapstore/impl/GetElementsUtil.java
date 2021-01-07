@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -31,13 +32,16 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Utility methods used by the handlers for the {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
@@ -137,6 +141,13 @@ public final class GetElementsUtil {
     public static Stream<Element> applyView(final Stream<Element> elementStream,
                                             final Schema schema,
                                             final View view) {
+        return applyView(elementStream, schema, view, false);
+    }
+
+    public static Stream<Element> applyView(final Stream<Element> elementStream,
+                                            final Schema schema,
+                                            final View view,
+                                            final boolean includeMatchedVertex) {
         final Set<String> viewGroups = view.getGroups();
         Stream<Element> stream = elementStream;
         // Check group is valid
@@ -150,6 +161,10 @@ public final class GetElementsUtil {
             final ViewElementDefinition ved = view.getElement(e.getGroup());
             return ved.getPreAggregationFilter() == null || ved.getPreAggregationFilter().test(e);
         });
+
+        // Apply aggregation
+        final CloseableIterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
+        stream = StreamSupport.stream(iterable.spliterator(), false);
 
         // Apply post-aggregation filter
         stream = stream.filter(e -> {
@@ -176,3 +191,4 @@ public final class GetElementsUtil {
         return stream;
     }
 }
+
