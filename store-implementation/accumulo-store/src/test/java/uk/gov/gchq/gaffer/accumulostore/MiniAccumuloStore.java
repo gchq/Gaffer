@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -173,15 +172,24 @@ public class MiniAccumuloStore extends AccumuloStore {
         instance = new MiniAccumuloCluster(config);
         instance.start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                if (instance != null) {
-                    instance.stop();
-                }
-            } catch (final InterruptedException | IOException e) {
-                LOGGER.error("Failed to stop Accumulo", e);
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+    }
+
+    protected void reset() throws StoreException {
+        shutdown();
+        preInitialise(getGraphId(), getSchema(), getProperties());
+    }
+
+    private void shutdown() {
+        try {
+            if (instance != null) {
+                instance.stop();
+                instance = null;
             }
-            getAccumuloDirectory().delete();
-        }));
+        } catch (final InterruptedException | IOException e) {
+            LOGGER.error("Failed to stop Accumulo", e);
+        }
+        getAccumuloDirectory().delete();
+
     }
 }

@@ -25,32 +25,16 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
  * A POJO which is injected into Gaffer tests. It provides the test a way to create graphs easily. To create a graph,
  * you only need to provide some store properties. The graphs will then be created lazily.
  */
-public class GafferTestCase {
+public class GafferTestCase extends AbstractTestCase {
 
-    private StoreProperties storeProperties;
     private Graph graph;
 
     public GafferTestCase(final StoreProperties storeProperties) {
-        this.storeProperties = storeProperties;
+        super(storeProperties);
     }
 
-    public String getStoreType() {
-        return this.storeProperties.getStoreClass();
-    }
-
-    public StoreProperties getStoreProperties() {
-        return storeProperties;
-    }
-
-    private Graph createEmptyGraph() {
-        return new Graph.Builder()
-                .config(new GraphConfig("test"))
-                .addSchema(TestUtil.createDefaultSchema())
-                .storeProperties(this.storeProperties)
-                .build();
-    }
-
-    public Graph getEmptyGraph() {
+    @Override
+    public Graph getGraph() {
         if (graph == null) {
             graph = createEmptyGraph();
         }
@@ -58,7 +42,17 @@ public class GafferTestCase {
         return graph;
     }
 
+    private Graph createEmptyGraph() {
+        return new Graph.Builder()
+                .config(new GraphConfig("test"))
+                .addSchema(TestUtil.createDefaultSchema())
+                .storeProperties(this.getStoreProperties())
+                .build();
+    }
+
+
+
     public Graph getPopulatedGraph() {
-        return TestUtil.addDefaultElements(getEmptyGraph());
+        return TestUtil.addDefaultElements(getGraph());
     }
 }

@@ -42,7 +42,7 @@ public class WhileITTemplate extends AbstractStoreIT {
     @GafferTest
     public void shouldRepeatedlyAddElements(final GafferTestCase testCase) throws OperationException {
         // Given
-        Graph graph = testCase.getEmptyGraph();
+        Graph graph = testCase.getGraph();
         final While operation = new While.Builder<>()
                 .operation(new AddElements.Builder()
                         .input(new Entity.Builder()

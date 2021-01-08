@@ -104,7 +104,7 @@ public class VisibilityITTemplate extends AbstractStoreIT {
     @GafferTest
     @TraitRequirement(StoreTrait.VISIBILITY)
     public void shouldAccessMissingVisibilityGroupsWithNoVisibilityPropertyInSchema(final GafferTestCase testCase) throws OperationException {
-        final Graph graph = testCase.getEmptyGraph();
+        final Graph graph = testCase.getGraph();
 
         final Set<Element> elements = new HashSet<>();
         final Entity entity1 = new Entity(TestGroups.ENTITY, "A");

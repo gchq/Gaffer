@@ -50,7 +50,7 @@ public class StoreValidationITTemplate extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.STORE_VALIDATION)
     public void shouldAgeOffDataBasedOnTimestampAndAgeOffFunctionInSchema(final GafferTestCase testcase) throws OperationException, InterruptedException {
         // Given
-        Graph graph = testcase.getEmptyGraph();
+        Graph graph = testcase.getGraph();
         final User user = new User();
         final long now = System.currentTimeMillis();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);
@@ -97,7 +97,7 @@ public class StoreValidationITTemplate extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.STORE_VALIDATION)
     public void shouldRemoveInvalidElements(final GafferTestCase testcase) throws OperationException {
         // Given
-        Graph graph = testcase.getEmptyGraph();
+        Graph graph = testcase.getGraph();
         final User user = new User();
         final Entity entity = new Entity(TestGroups.ENTITY_2, VERTEX);
         entity.putProperty(TestPropertyNames.INT, 100);

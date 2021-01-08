@@ -25,31 +25,17 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
  * A POJO which is injected into Gaffer Loader tests. It provides the test a way to create graphs easily. To create a graph,
  * you only need to provide some store properties.
  */
-public class LoaderTestCase {
+public class LoaderTestCase extends AbstractTestCase {
 
-    private final StoreProperties storeProperties;
     private final SchemaSetup schemaSetup;
     private Graph graph;
 
     public LoaderTestCase(final StoreProperties storeProperties, final SchemaSetup schemaSetup) {
-        this.storeProperties = storeProperties;
+        super(storeProperties);
         this.schemaSetup = schemaSetup;
     }
-
-    public String getStoreType() {
-        return this.storeProperties.getStoreClass();
-    }
-
-    public String getSchemaName() {
-        return this.schemaSetup.name();
-    }
-
     public SchemaSetup getSchemaSetup() {
         return schemaSetup;
-    }
-
-    public StoreProperties getStoreProperties() {
-        return storeProperties;
     }
 
     public Graph getGraph() {
@@ -57,9 +43,14 @@ public class LoaderTestCase {
             graph = new Graph.Builder()
                 .config(new GraphConfig("test"))
                 .addSchema(this.schemaSetup.getTestSchema().getSchema())
-                .storeProperties(this.storeProperties)
+                .storeProperties(this.getStoreProperties())
                 .build();
         }
         return graph;
+    }
+
+    @Override
+    protected String getTestName() {
+        return super.getTestName() + " - " + this.getSchemaSetup().name();
     }
 }

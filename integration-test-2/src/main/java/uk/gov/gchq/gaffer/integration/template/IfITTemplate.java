@@ -44,7 +44,7 @@ public class IfITTemplate extends AbstractStoreIT {
     @GafferTest
     public void shouldRunThenOperationWhenConditionIsTrue(final GafferTestCase testCase) throws OperationException {
         // Given
-        Graph graph = testCase.getEmptyGraph();
+        Graph graph = testCase.getGraph();
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(INPUT_CAMEL_CASE);
         ifOperation.setConditional(new Conditional(new IsA("java.lang.String")));
@@ -62,7 +62,7 @@ public class IfITTemplate extends AbstractStoreIT {
     @GafferTest
     public void shouldRunOtherwiseOperationsWhenConditionIsFalse(final GafferTestCase testCase) throws OperationException {
         // Given
-        Graph graph = testCase.getEmptyGraph();
+        Graph graph = testCase.getGraph();
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(INPUT_CAMEL_CASE);
         ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
@@ -80,7 +80,7 @@ public class IfITTemplate extends AbstractStoreIT {
     @GafferTest
     public void shouldReturnOriginalInputWhenConditionIsFalseAndNoOtherwise(final GafferTestCase testCase) throws OperationException {
         // Given
-        Graph graph = testCase.getEmptyGraph();
+        Graph graph = testCase.getGraph();
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
         ifOperation.setConditional(new Conditional(new IsA("java.lang.String")));
@@ -97,7 +97,7 @@ public class IfITTemplate extends AbstractStoreIT {
     @GafferTest
     public void shouldDoOtherwiseWhenConditionIsFalseAndNoThenOperation(final GafferTestCase testCase) throws OperationException {
         // Given
-        Graph graph = testCase.getEmptyGraph();
+        Graph graph = testCase.getGraph();
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(INPUT_CAMEL_CASE);
         ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
@@ -114,7 +114,7 @@ public class IfITTemplate extends AbstractStoreIT {
     @GafferTest
     public void shouldReturnOriginalInputWhenConditionIsTrueAndNoThen(final GafferTestCase testCase) throws OperationException {
         // Given
-        Graph graph = testCase.getEmptyGraph();
+        Graph graph = testCase.getGraph();
         final If<Object, Object> ifOperation = new If<>();
         ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
         ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
