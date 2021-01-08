@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
-import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
+import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderITTemplate;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.template.loader.AddElementsLoaderIT;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -38,9 +38,9 @@ public class HBaseStoreITs extends AbstractStoreITs {
 
     protected HBaseStoreITs(final HBaseProperties storeProperties) {
         super(storeProperties);
-        addExtraTest(AddElementsFromHdfsLoaderIT.class);
+        addExtraTest(AddElementsFromHdfsLoaderITTemplate.class);
         skipTestMethod(AddElementsLoaderIT.class, "shouldGetElementsWithMatchedVertex", "known issue with INGEST/QUERY AGGREGATION");
-        skipTestMethod(AddElementsFromHdfsLoaderIT.class, "shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist", "Known issue that directory is not empty");
-        skipTestMethod(AddElementsFromHdfsLoaderIT.class, "shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles", "known issue that directory is not empty");
+        skipTestMethod(AddElementsFromHdfsLoaderITTemplate.class, "shouldAddElementsFromHdfsWhenDirectoriesAlreadyExist", "Known issue that directory is not empty");
+        skipTestMethod(AddElementsFromHdfsLoaderITTemplate.class, "shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles", "known issue that directory is not empty");
     }
 }

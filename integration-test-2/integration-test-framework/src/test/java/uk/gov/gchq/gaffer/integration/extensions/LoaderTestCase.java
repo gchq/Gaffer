@@ -38,6 +38,7 @@ public class LoaderTestCase extends AbstractTestCase {
         return schemaSetup;
     }
 
+    @Override
     public Graph getGraph() {
         if (graph == null) {
             graph = new Graph.Builder()

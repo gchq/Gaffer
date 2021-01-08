@@ -48,6 +48,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -64,7 +65,7 @@ public class CreateSplitPointsIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
 
     @TempDir
-    public static java.nio.file.Path tempDir;
+    public static File tempDir;
 
     private FileSystem fs;
 
@@ -79,7 +80,7 @@ public class CreateSplitPointsIT {
 
         fs = createFileSystem();
 
-        final String root = fs.resolvePath(new Path(tempDir.toAbsolutePath().toString())).toString();
+        final String root = fs.resolvePath(new Path(tempDir.getAbsolutePath())).toString();
 
 
         LOGGER.info("using root dir: " + root);
