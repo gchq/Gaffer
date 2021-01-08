@@ -980,12 +980,18 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldFilterWalksUsingWalkPredicateWithoutTransform() throws Exception {
         final Conditional conditional = new Conditional();
-        final Predicate<Walk> predicate = (walk) -> walk.getEntities().stream()
-                .flatMap(l -> l.stream())
-                .anyMatch(e -> e.getVertex().equals("E"));
-        conditional.setPredicate(predicate);
+        conditional.setPredicate(new WalkPredicate());
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
         assertThat(getPaths(walks), is(equalTo("AED")));
+    }
+
+    public static class WalkPredicate implements Predicate<Walk> {
+        @Override
+        public boolean test(final Walk walk) {
+            return walk.getEntities().stream()
+                    .flatMap(l -> l.stream())
+                    .anyMatch(e -> e.getVertex().equals("E"));
+        }
     }
 
     @Test
