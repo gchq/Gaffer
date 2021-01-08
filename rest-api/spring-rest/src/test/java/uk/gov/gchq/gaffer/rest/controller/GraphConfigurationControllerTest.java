@@ -223,6 +223,7 @@ public class GraphConfigurationControllerTest {
         expectedFields.put("includePartial", "java.lang.Boolean");
         expectedFields.put("options", "java.util.Map<java.lang.String,java.lang.String>");
         expectedFields.put("resultsLimit", Integer.class.getName());
+        expectedFields.put("conditional", "uk.gov.gchq.gaffer.operation.util.Conditional");
 
         // Then
         assertEquals(expectedFields, fields);
