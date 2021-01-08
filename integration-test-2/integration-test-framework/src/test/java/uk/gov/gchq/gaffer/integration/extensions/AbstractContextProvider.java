@@ -103,7 +103,7 @@ public abstract class AbstractContextProvider<T extends AbstractTestCase> implem
             return new TestTemplateInvocationContext() {
                 @Override
                 public String getDisplayName(final int invocationIndex) {
-                    return testCase.getTestName();
+                    return "[" + invocationIndex + "] " + testCase.getTestName();
                 }
 
                 @Override

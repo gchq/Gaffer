@@ -22,16 +22,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -57,15 +55,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class CreateSplitPointsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public static java.nio.file.Path tempDir;
 
     private FileSystem fs;
 
@@ -73,17 +72,14 @@ public class CreateSplitPointsIT {
     private String outputDir;
     public String splitsFile;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CreateSplitPointsIT.class));
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
 
         fs = createFileSystem();
 
-        final String root = fs.resolvePath(new Path("/")).toString()
-                .replaceFirst("/$", "")
-                + testFolder.getRoot().getAbsolutePath();
+        final String root = fs.resolvePath(new Path(tempDir.toAbsolutePath().toString())).toString();
 
 
         LOGGER.info("using root dir: " + root);
