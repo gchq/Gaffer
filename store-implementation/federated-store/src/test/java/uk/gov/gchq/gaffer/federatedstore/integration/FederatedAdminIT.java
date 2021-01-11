@@ -17,63 +17,68 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
-import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
-public class FederatedAdminIT extends AbstractStoreIT {
+public class FederatedAdminIT {
 
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
-            StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+            StreamUtil.openStream(FederatedAdminIT.class, "properties/singleUseAccumuloStore.properties"));
 
-    @Override
-    protected Schema createSchema() {
-        final Schema.Builder schemaBuilder = new Schema.Builder(createDefaultSchema());
-        schemaBuilder.edges(Collections.EMPTY_MAP);
-        schemaBuilder.entities(Collections.EMPTY_MAP);
-        return schemaBuilder.build();
+
+    @BeforeEach
+    @AfterEach
+    public void clearCache() throws CacheOperationException {
+        CacheServiceLoader.shutdown();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
-                .build(), user);
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
-                .build(), user);
+    private Graph createGraph() {
+        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setAdminAuth("AdminAuth");
+
+        return new Graph.Builder()
+            .storeProperties(federatedStoreProperties)
+            .addSchema(new Schema())
+            .config(new GraphConfig("FederatedStore"))
+            .build();
     }
 
     @Test
     public void shouldRemoveGraphForAdmin() throws Exception {
-        //given
+        // given
+        User user = new User();
+        Graph graph = createGraph();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -96,7 +101,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
     @Test
     public void shouldNotRemoveGraphForNonAdmin() throws Exception {
-        //given
+        // given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -120,6 +127,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldGetAllGraphIdsForAdmin() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -140,6 +149,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotGetAllGraphIdsForNonAdmin() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -160,6 +171,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldGetAllGraphInfoForAdmin() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -187,6 +200,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotGetAllGraphInfoForNonAdmin() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -205,6 +220,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotGetAllGraphInfoForNonAdminWithAdminDeclarationsInOption() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -225,6 +242,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotGetAllGraphInfoForAdminWithoutAdminDeclartionInOptions() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -243,6 +262,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldGetGraphInfoForSelectedGraphsOnly() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -276,6 +297,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldChangeGraphUserFromOwnGraphToReplacementUser() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final User replacementUser = new User("replacement");
         graph.execute(new AddGraph.Builder()
@@ -303,6 +326,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldChangeGraphUserFromSomeoneElseToReplacementUserAsAdminWhenRequestingAdminAccess() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final User replacementUser = new User("replacement");
         graph.execute(new AddGraph.Builder()
@@ -331,6 +356,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotChangeGraphUserFromSomeoneElseToReplacementUserAsAdminWhenNotRequestingAdminAccess() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final User replacementUser = new User("replacement");
         graph.execute(new AddGraph.Builder()
@@ -358,6 +385,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotChangeGraphUserFromSomeoneElseToReplacementUserAsNonAdminWhenRequestingAdminAccess() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final User replacementUser = new User("replacement");
         graph.execute(new AddGraph.Builder()
@@ -385,6 +414,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final String graphB = "graphB";
         graph.execute(new AddGraph.Builder()
@@ -411,6 +442,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldChangeGraphIdForNonOwnedGraphAsAdminWhenRequestingAdminAccess() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final String graphB = "graphB";
         graph.execute(new AddGraph.Builder()
@@ -438,6 +471,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotChangeGraphIdForNonOwnedGraphAsAdminWhenNotRequestingAdminAccess() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final String graphB = "graphB";
         graph.execute(new AddGraph.Builder()
@@ -464,6 +499,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldNotChangeGraphIdForNonOwnedGraphAsNonAdminWhenRequestingAdminAccess() throws Exception {
         //given
+        Graph graph = createGraph();
+        User user = new User();
         final String graphA = "graphA";
         final String graphB = "graphB";
         final User otherUser = new User("other");
