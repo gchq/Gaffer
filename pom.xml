@@ -31,7 +31,6 @@
     <module>core</module>
     <module>library</module>
     <module>integration-test</module>
-    <module>integration-test-2</module>
     <module>store-implementation</module>
     <module>rest-api</module>
     <module>example</module>
