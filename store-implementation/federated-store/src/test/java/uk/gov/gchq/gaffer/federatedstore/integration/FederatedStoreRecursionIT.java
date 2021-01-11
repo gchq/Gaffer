@@ -27,7 +27,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -74,7 +73,7 @@ public class FederatedStoreRecursionIT {
 
     @BeforeEach
     @AfterEach
-    public void clearCache() throws CacheOperationException {
+    public void clearCache() {
         CacheServiceLoader.shutdown();
     }
 

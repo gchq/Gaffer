@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -71,7 +70,7 @@ public class FederatedViewsIT {
 
     @BeforeEach
     @AfterEach
-    public void clearCache() throws CacheOperationException {
+    public void clearCache() {
         CacheServiceLoader.shutdown();
     }
 

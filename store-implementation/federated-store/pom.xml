@@ -137,26 +137,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.glassfish.jersey.test-framework.providers</groupId>-->
-<!--            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>-->
-<!--            <version>${jersey.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>uk.gov.gchq.gaffer</groupId>-->
-<!--            <artifactId>core-rest</artifactId>-->
-<!--            <version>${project.parent.version}</version>-->
-<!--            <classifier>classes</classifier>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>uk.gov.gchq.gaffer</groupId>-->
-<!--            <artifactId>core-rest</artifactId>-->
-<!--            <version>${project.parent.version}</version>-->
-<!--            <type>test-jar</type>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
@@ -205,5 +185,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
