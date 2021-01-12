@@ -51,7 +51,7 @@ import java.util.Map;
  * @param <I_ITEM> the input iterable item type
  * @param <O>      the output type
  */
-@JsonPropertyOrder(value = {"class", "input", "operationName"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "operationName", "parameters"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Runs a named operation")
 public class NamedOperation<I_ITEM, O> implements
@@ -80,7 +80,7 @@ public class NamedOperation<I_ITEM, O> implements
         return parameters;
     }
 
-    @JsonSetter("extensions")
+    @JsonSetter("parameters")
     public void setParameters(final LinkedHashMap<String, Object> parameters) {
         this.parameters = parameters;
     }

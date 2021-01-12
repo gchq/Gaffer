@@ -77,6 +77,7 @@
     <findbugs.version>3.0.2</findbugs.version>
     <guava.version>28.0-jre</guava.version>
     <httpcomponents.version>4.4</httpcomponents.version>
+    <janino.version>3.0.16</janino.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javax-activation.version>1.1.1</javax-activation.version>
     <jcs.version>2.1</jcs.version>
@@ -714,6 +715,11 @@
         <artifactId>accumulo-minicluster</artifactId>
         <version>${accumulo.version}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.janino</groupId>
+        <artifactId>janino</artifactId>
+        <version>${janino.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -86,12 +86,6 @@
             <version>${koryphe.version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.janino</groupId>
-            <artifactId>janino</artifactId>
-            <version>3.0.16</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

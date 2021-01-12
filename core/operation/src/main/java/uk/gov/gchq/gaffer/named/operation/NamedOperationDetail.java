@@ -176,11 +176,11 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     }
 
     /**
-     * Gets the OperationChain after adding in default values for any extensions. If a parameter
+     * Gets the OperationChain after adding in default values for any parameters. If a parameter
      * does not have a default, null is inserted.
      *
      * @return The {@link OperationChain}
-     * @throws IllegalArgumentException if substituting the extensions fails
+     * @throws IllegalArgumentException if substituting the parameters fails
      */
     @JsonIgnore
     public OperationChain getOperationChainWithDefaultParams() {
@@ -210,16 +210,16 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
     }
 
     /**
-     * Gets the OperationChain after adding in any provided extensions.
+     * Gets the OperationChain after adding in any provided parameters.
      *
-     * @param executionParams the extensions for the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
+     * @param executionParams the parameters for the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @return The {@link OperationChain}
-     * @throws IllegalArgumentException if substituting the extensions fails
+     * @throws IllegalArgumentException if substituting the parameters fails
      */
     public OperationChain getOperationChain(final Map<String, Object> executionParams) {
         String opStringWithParams = operations;
 
-        // First check all the extensions supplied are expected parameter names
+        // First check all the parameters supplied are expected parameter names
         if (null != parameters) {
             if (null != executionParams) {
                 Set<String> paramDetailKeys = parameters.keySet();
@@ -314,7 +314,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
                 .append("operations", operations)
                 .append("readAccessRoles", readAccessRoles)
                 .append("writeAccessRoles", writeAccessRoles)
-                .append("extensions", parameters)
+                .append("parameters", parameters)
                 .append("score", score)
                 .append("readAccessPredicate", readAccessPredicateJson)
                 .append("writeAccessPredicate", writeAccessPredicateJson)

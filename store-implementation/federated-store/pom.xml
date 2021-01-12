@@ -134,7 +134,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>integration-test-framework</artifactId>
             <version>${project.parent.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>

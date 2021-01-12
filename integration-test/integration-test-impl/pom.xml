@@ -16,7 +16,6 @@
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>integration-test-framework</artifactId>
       <version>${project.parent.version}</version>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <!-- Map Store -->
@@ -31,12 +30,6 @@
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>parquet-store</artifactId>
       <version>${project.parent.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.janino</groupId>
-      <artifactId>janino</artifactId>
-      <version>3.0.16</version>
       <scope>test</scope>
     </dependency>
     <!-- Proxy Store -->

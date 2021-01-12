@@ -49,7 +49,7 @@ import static java.util.Collections.emptyList;
 /**
  * Simple POJO containing the details associated with a {@link NamedView}.
  */
-@JsonPropertyOrder(value = {"name", "description", "creatorId", "writeAccessRoles", "extensions", "view"}, alphabetic = true)
+@JsonPropertyOrder(value = {"name", "description", "creatorId", "writeAccessRoles", "parameters", "view"}, alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = NamedViewDetail.Builder.class)
 public class NamedViewDetail implements AccessControlledResource, Serializable {
@@ -188,11 +188,11 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     }
 
     /**
-     * Gets the View after adding in default values for any extensions. If a parameter
+     * Gets the View after adding in default values for any parameters. If a parameter
      * does not have a default, null is inserted.
      *
      * @return The {@link View}
-     * @throws IllegalArgumentException if substituting the extensions fails
+     * @throws IllegalArgumentException if substituting the parameters fails
      */
     @JsonIgnore
     public View getViewWithDefaultParams() {
@@ -222,12 +222,12 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
     }
 
     /**
-     * Gets the View after adding in the extensions specified.  If a parameter does
+     * Gets the View after adding in the parameters specified.  If a parameter does
      * not have a default and none is set an Exception will be thrown.
      *
      * @param executionParams Parameters to add
-     * @return the {@link View} with substituted extensions
-     * @throws IllegalArgumentException if substituting the extensions fails
+     * @return the {@link View} with substituted parameters
+     * @throws IllegalArgumentException if substituting the parameters fails
      */
     public View getView(final Map<String, Object> executionParams) {
         String viewString = view;
@@ -311,7 +311,7 @@ public class NamedViewDetail implements AccessControlledResource, Serializable {
                 .append("description", description)
                 .append("creatorId", creatorId)
                 .append("writeAccessRoles", writeAccessRoles)
-                .append("extensions", parameters)
+                .append("parameters", parameters)
                 .append("readAccessPredicate", readAccessPredicate)
                 .append("writeAccessPredicate", writeAccessPredicate)
                 .toString();

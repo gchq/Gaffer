@@ -11,7 +11,7 @@
 
     <properties>
         <flink.version>1.12.0</flink.version>
-        <kafka.version>2.6.0</kafka.version>
+        <kafka.version>2.3.0</kafka.version>
     </properties>
     <dependencies>
         <!--Gaffer dependencies-->
