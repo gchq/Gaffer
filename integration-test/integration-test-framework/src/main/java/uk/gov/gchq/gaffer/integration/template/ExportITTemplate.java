@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.template;
 
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -27,6 +26,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.GafferTest;
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.integration.util.TestUtil;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;

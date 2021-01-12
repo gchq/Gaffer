@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.template;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -26,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.GafferTest;
-
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;

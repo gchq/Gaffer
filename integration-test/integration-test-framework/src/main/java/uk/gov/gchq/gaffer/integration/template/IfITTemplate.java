@@ -16,12 +16,11 @@
 package uk.gov.gchq.gaffer.integration.template;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.GafferTest;
-
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Map;

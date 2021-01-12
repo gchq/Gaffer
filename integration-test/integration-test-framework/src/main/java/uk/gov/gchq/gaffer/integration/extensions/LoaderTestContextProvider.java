@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.extensions;
 
 import uk.gov.gchq.gaffer.integration.template.loader.schemas.SchemaSetup;
-
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.util.Arrays;

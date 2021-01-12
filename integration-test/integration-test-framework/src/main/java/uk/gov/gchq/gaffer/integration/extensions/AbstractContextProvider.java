@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.extensions;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.GafferTest;
+import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 

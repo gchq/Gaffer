@@ -16,10 +16,9 @@
 
 package uk.gov.gchq.gaffer.integration.extensions;
 
-import uk.gov.gchq.gaffer.integration.template.loader.schemas.SchemaSetup;
-
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.integration.template.loader.schemas.SchemaSetup;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 /**

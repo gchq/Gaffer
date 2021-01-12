@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.template;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import org.junit.jupiter.api.AfterEach;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -34,6 +33,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.GafferTest;
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
 import uk.gov.gchq.gaffer.integration.util.TestUtil;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;

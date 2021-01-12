@@ -16,9 +16,6 @@
 package uk.gov.gchq.gaffer.integration.template;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
-import uk.gov.gchq.gaffer.integration.generators.BasicElementGenerator;
-import uk.gov.gchq.gaffer.integration.generators.BasicObjectGenerator;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,7 +31,9 @@ import uk.gov.gchq.gaffer.integration.GafferTest;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
-
+import uk.gov.gchq.gaffer.integration.extensions.GafferTestCase;
+import uk.gov.gchq.gaffer.integration.generators.BasicElementGenerator;
+import uk.gov.gchq.gaffer.integration.generators.BasicObjectGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
