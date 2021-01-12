@@ -19,15 +19,15 @@ jobs:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         - name: Accumulo
-          values: :accumulo-store,:accumulo-rest
+          values: :accumulo-store
         - name: Hbase
-          values: :hbase-store,:hbase-rest
+          values: :hbase-store
         - name: Parquet
-          values: :parquet-store,:parquet-rest
+          values: :parquet-store
         - name: Integration-Tests
           values: :integration-test-impl
         - name: Federated-And-Map
-          values: :integration-test,:integration-test-framework,:federated-store,:map-store,:map-rest
+          values: :integration-test,:integration-test-framework,:federated-store,:map-store
         - name: REST
           values: :rest-api,:common-rest,:spring-rest,:store-implementation,:proxy-store
         - name: Examples
