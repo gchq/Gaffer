@@ -68,25 +68,30 @@ public class MiniAccumuloStore extends AccumuloStore {
     private static final String ROOT_PASSWORD_PROPERTY = "accumulo.mini.root.password";
     private static final String ACCUMULO_DIRECTORY_PROPERTY = "accumulo.mini.directory";
 
+    private int restartAttempts = 0;
+
 
     @Override
-    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public synchronized void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         super.preInitialise(graphId, schema, properties);
 
-        synchronized (this) {
-            if (instance == null) {
-                try {
-                    createCluster();
-                } catch (final InterruptedException | IOException e) {
-                    throw new StoreException("Failed to start accumulo cluster", e);
-                }
+        if (instance == null) {
+            try {
+                createCluster();
+            } catch (final InterruptedException | IOException e) {
+                throw new StoreException("Failed to start accumulo cluster", e);
             }
         }
-
 
         try {
             ensureUserExists(instance);
         } catch (final AccumuloException | AccumuloSecurityException e) {
+            LOGGER.warn("Failed to ensure user exists", e);
+            if (restartAttempts < 3) {
+                LOGGER.warn("Attempting restart");
+                shutdown();
+                this.preInitialise(graphId, schema, properties);
+            }
             throw new StoreException("Failed to ensure user was added", e);
         }
 
@@ -100,19 +105,17 @@ public class MiniAccumuloStore extends AccumuloStore {
         String userName = getProperties().getUser();
         String rootPassword = getProperties().get(ROOT_PASSWORD_PROPERTY, ROOT_PASSWORD_DEFAULT);
 
-        // Ensure user exists
-        synchronized (this) {
-            Set<String> currentUsers = mac.getConnector(ROOT_USER, rootPassword).securityOperations().listLocalUsers();
-            if (!currentUsers.contains(userName)) {
-                mac.getConnector(ROOT_USER, rootPassword).securityOperations().createLocalUser(
-                        userName, new PasswordToken(getProperties().getPassword())
-                );
-                mac.getConnector(ROOT_USER, rootPassword).securityOperations()
-                        .grantSystemPermission(userName, SystemPermission.CREATE_NAMESPACE);
-                mac.getConnector(ROOT_USER, rootPassword).securityOperations()
-                        .grantSystemPermission(userName, SystemPermission.CREATE_TABLE);
-            }
+        Set<String> currentUsers = mac.getConnector(ROOT_USER, rootPassword).securityOperations().listLocalUsers();
+        if (!currentUsers.contains(userName)) {
+            mac.getConnector(ROOT_USER, rootPassword).securityOperations().createLocalUser(
+                    userName, new PasswordToken(getProperties().getPassword())
+            );
+            mac.getConnector(ROOT_USER, rootPassword).securityOperations()
+                    .grantSystemPermission(userName, SystemPermission.CREATE_NAMESPACE);
+            mac.getConnector(ROOT_USER, rootPassword).securityOperations()
+                    .grantSystemPermission(userName, SystemPermission.CREATE_TABLE);
         }
+
 
         // Add Auths
         String auths = getProperties().get(VISIBILITIES_PROPERTY);
