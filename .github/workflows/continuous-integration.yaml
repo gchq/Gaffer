@@ -24,7 +24,7 @@ jobs:
           values: :hbase-store,:hbase-rest
         - name: Parquet
           values: :parquet-store,:parquet-rest
-        - name: Integration Tests
+        - name: Integration-Tests
           values: integration-test-impl
         - name: Federated-And-Map
           values: :integration-test,:integration-test-framework,:federated-store,:map-store,:map-rest
@@ -63,7 +63,7 @@ jobs:
         ref: develop-v2
 
     - name: Install Koryphe
-      run: mvn -q -B clean install -Pquick
+      run: mvn -B clean install -Pquick
 
     - uses: actions/checkout@v2
 
