@@ -92,8 +92,9 @@ public class MiniAccumuloStore extends AccumuloStore {
                 restartAttempts++;
                 shutdown();
                 this.preInitialise(graphId, schema, properties);
+            } else {
+                throw new StoreException("Failed to ensure user was added", e);
             }
-            throw new StoreException("Failed to ensure user was added", e);
         }
 
     }
