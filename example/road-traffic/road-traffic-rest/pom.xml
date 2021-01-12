@@ -24,13 +24,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>road-traffic-rest</artifactId>
-  <packaging>war</packaging>
 
   <properties>
     <store.type>accumulo</store.type>
     <!-- Test Properties -->
     <gaffer.rest.host>localhost</gaffer.rest.host>
     <gaffer.rest.port>8080</gaffer.rest.port>
+    <loader.path>${project.build.outputDirectory}/roadTrafficSampleData.csv</loader.path>
   </properties>
 
   <dependencies>
@@ -69,10 +69,8 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>uk.gov.gchq.gaffer</groupId>
-      <artifactId>spring-rest</artifactId>
-      <version>${project.parent.version}</version>
-      <type>test-jar</type>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -162,42 +160,23 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>uk.gov.gchq.gaffer.rest.GafferWebApplication</mainClass>
+          <systemPropertyVariables>
+            <roadTraffic.dataLoader.dataPath>${project.build.outputDirectory}/roadTrafficSampleData.csv</roadTraffic.dataLoader.dataPath>
+            <gaffer.storeProperties>${project.build.outputDirectory}/${store.type}/store.properties</gaffer.storeProperties>
+            <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>
+            <gaffer.schemas>${project.build.outputDirectory}/schemas</gaffer.schemas>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <profiles>
-    <profile>
-      <id>demo</id>
-      <dependencies>
-        <dependency>
-          <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>${store.type}-store</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>jcs-cache-service</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-      </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-              <mainClass>uk.gov.gchq.gaffer.rest.GafferWebApplication</mainClass>
-              <systemPropertyVariables>
-                <roadTraffic.dataLoader.dataPath>${project.build.outputDirectory}/roadTrafficSampleData.csv</roadTraffic.dataLoader.dataPath>
-                <gaffer.storeProperties>${project.build.outputDirectory}/${store.type}/store.properties</gaffer.storeProperties>
-                <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>
-                <gaffer.schemas>${project.build.outputDirectory}/schemas</gaffer.schemas>
-              </systemPropertyVariables>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <profile>
       <id>system-test</id>
       <properties>

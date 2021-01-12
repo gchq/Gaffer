@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.rest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "uk.gov.gchq.gaffer")
 public class GafferWebApplication {
     public static void main(final String[] args) {
         SpringApplication.run(GafferWebApplication.class, args);

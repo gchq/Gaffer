@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.traffic.listeners;
 
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -25,14 +26,11 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataLoader;
 import uk.gov.gchq.gaffer.user.User;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletContextListener;
-
 import java.io.File;
 import java.util.logging.Logger;
 
 /**
- * A {@link ServletContextListener} to load the road traffic dataset into the application
+ * A {@link Component} to load the road traffic dataset into the application
  * automatically upon application startup.
  */
 @Component
@@ -41,11 +39,13 @@ public class DataLoader {
 
     private static final Logger LOGGER = Logger.getLogger(DataLoader.class.getName());
 
-    private Environment environment;
+    private final Environment environment;
+    private final GraphFactory graphFactory;
 
     @Autowired
-    public DataLoader(final Environment environment) {
+    public DataLoader(final Environment environment, final GraphFactory graphFactory) {
         this.environment = environment;
+        this.graphFactory = graphFactory;
     }
 
     @PostConstruct
@@ -59,7 +59,7 @@ public class DataLoader {
     private void loadData(final String dataPath) {
         LOGGER.info("Loading data");
 
-        final Graph graph = GraphFactory.createGraphFactory().getGraph();
+        final Graph graph = graphFactory.getGraph();
 
         final RoadTrafficDataLoader dataLoader = new RoadTrafficDataLoader(graph, new User());
         try {
