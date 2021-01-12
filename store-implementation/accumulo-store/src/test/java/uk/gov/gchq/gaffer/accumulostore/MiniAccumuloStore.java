@@ -89,6 +89,7 @@ public class MiniAccumuloStore extends AccumuloStore {
             LOGGER.warn("Failed to ensure user exists", e);
             if (restartAttempts < 3) {
                 LOGGER.warn("Attempting restart");
+                restartAttempts++;
                 shutdown();
                 this.preInitialise(graphId, schema, properties);
             }
