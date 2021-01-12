@@ -40,7 +40,7 @@ jobs:
           values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
     env:
-     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=10 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
     steps:
 
     - name: Set up JDK 1.8
@@ -54,7 +54,7 @@ jobs:
         path: |
           ~/.m2/repository
           !~/.m2/repository/uk
-        key: ${{matrix.modules.name}}-${{ runner.os }}-gaffer-dependencies
+        key: ${{matrix.modules.name}}-gaffer-dependencies
 
     - name: clone pre-release-koryphe
       uses: actions/checkout@v2
