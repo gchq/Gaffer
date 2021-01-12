@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.store.SchemaOperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 public final class SchemaOperationChainUtil {
@@ -34,7 +35,7 @@ public final class SchemaOperationChainUtil {
 
     public static ValidationResult validate(final Schema schema, final OperationChain operationChain) {
         updateOperationChainViews(operationChain, schema);
-        SchemaOperationChainValidator validator = new SchemaOperationChainValidator(schema);
+        SchemaOperationChainValidator validator = new SchemaOperationChainValidator(new ViewValidator(), schema);
 
         return validator.validate(operationChain, null, null);
     }

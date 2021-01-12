@@ -1363,66 +1363,6 @@ public class FederatedStoreTest {
 
     }
 
-    @Test
-    public void shouldFailGetAllElementsFromSelectedGraphsWithViewOfMissingEntityGroupWhileHasConflictingSchemasDueToDiffVertexSerialiser() throws OperationException {
-        //given
-        final Entity A = getEntityA();
-        final Entity B = getEntityB();
-
-        addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
-        addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
-
-        try {
-            //when
-            store.execute(new GetSchema.Builder().build(), userContext);
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches(),
-                    e.getMessage());
-        }
-
-        try {
-            //when
-            CloseableIterable<? extends Element> responseGraphAWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").view(new View.Builder().entity("entityB").build()).build(), userContext);
-            fail("exception expected");
-        } catch (Exception e) {
-            //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphA]\n" +
-                    "(graphId: graphA) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "(graphId: graphA) Entity group entityB does not exist in the schema", e.getMessage());
-        }
-
-        try {
-            //when
-            final CloseableIterable<? extends Element> responseGraphBWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").view(new View.Builder().entity("entityA").build()).build(), userContext);
-            fail("exception expected");
-        } catch (Exception e) {
-            //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphB]\n" +
-                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "(graphId: graphB) Entity group entityA does not exist in the schema", e.getMessage());
-        }
-
-        addGraphWithPaths("graphC", PROPERTIES_1, PATH_ENTITY_B_SCHEMA_JSON);
-
-        try {
-            //when
-            final CloseableIterable<? extends Element> responseGraphBWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB,graphC").view(new View.Builder().entity("entityA").build()).build(), userContext);
-            fail("exception expected");
-        } catch (Exception e) {
-            //then
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[graphB,graphC]\n" +
-                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "(graphId: graphB) Entity group entityA does not exist in the schema\n" +
-                    "(graphId: graphC) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "(graphId: graphC) Entity group entityA does not exist in the schema", e.getMessage());
-        }
-    }
-
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson) throws OperationException {
         addGraphWithPaths(graphName, PROPERTIES_1, pathSchemaJson);
         store.execute(new AddElements.Builder()

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
@@ -27,7 +28,12 @@ public class SchemaOperationChainValidator extends OperationChainValidator {
 
     Schema schema;
 
-    public SchemaOperationChainValidator(final Schema schema) {
+    public SchemaOperationChainValidator(final ViewValidator viewValidator) {
+        super(viewValidator);
+    }
+
+    public SchemaOperationChainValidator(final ViewValidator viewValidator, final Schema schema) {
+        super(viewValidator);
         this.schema = schema;
     }
 
