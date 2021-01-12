@@ -54,6 +54,12 @@
         <!-- Test dependencies-->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>integration-test-framework</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>operation</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
@@ -95,13 +101,6 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>integration-test</artifactId>
-            <version>${project.parent.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>sketches-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
@@ -111,7 +110,6 @@
             <groupId>org.apache.avro</groupId>
             <artifactId>avro-mapred</artifactId>
             <version>${avro.version}</version>
-            <classifier>hadoop2</classifier>
         </dependency>
     </dependencies>
 

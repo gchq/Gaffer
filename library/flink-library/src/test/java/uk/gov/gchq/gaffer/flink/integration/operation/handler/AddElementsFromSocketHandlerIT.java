@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.flink.operation.TestFileSink;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -39,9 +41,11 @@ import java.net.Socket;
 public class AddElementsFromSocketHandlerIT extends FlinkTest {
 
     private TestFileSink testFileSink;
+    private File tempDir;
 
-    @Before
-    public void create() throws IOException {
+    @BeforeEach
+    public void create(@TempDir File tempDir) throws IOException {
+        this.tempDir = tempDir;
         testFileSink = createTestFileSink();
     }
 
@@ -91,6 +95,8 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
     }
 
     private TestFileSink createTestFileSink() throws IOException {
-        return new TestFileSink(testFolder.newFolder("testFileSink").toPath().toString());
+        File testFileSink = new File(tempDir, "testFileSink");
+        testFileSink.mkdir();
+        return new TestFileSink(testFileSink.toPath().toString());
     }
 }

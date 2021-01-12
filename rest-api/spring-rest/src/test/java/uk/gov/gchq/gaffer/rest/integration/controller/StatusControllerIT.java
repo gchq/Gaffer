@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +29,10 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.MockGraphFactory;
+import uk.gov.gchq.gaffer.rest.integration.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 public class StatusControllerIT extends AbstractRestApiIT {
@@ -39,7 +40,7 @@ public class StatusControllerIT extends AbstractRestApiIT {
     @Autowired
     private GraphFactory graphFactory;
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         Mockito.reset(((MockGraphFactory) graphFactory).getMock());
     }

@@ -15,11 +15,11 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
@@ -70,7 +70,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
 
         final GafferMapFunction function = new GafferMapFunction(op.getConsumeAs(), op.getElementGenerator());
         final DataStream<Element> builder = env.addSource(
-                new FlinkKafkaConsumer010<>(
+                new FlinkKafkaConsumer<>(
                         op.getTopic(),
                         function.getSerialisationType(),
                         createFlinkProperties(op)))

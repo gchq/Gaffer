@@ -16,8 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -31,14 +30,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.StandaloneIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -49,19 +46,18 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AccumuloAggregationIT extends StandaloneIT {
+public class AccumuloAggregationIT {
     private static final String VERTEX = "vertex";
     private static final String PUBLIC_VISIBILITY = "publicVisibility";
     private static final String PRIVATE_VISIBILITY = "privateVisibility";
 
     private final User user = getUser();
 
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
-
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAggregationIT.class));
 
     @Test
     public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
@@ -128,9 +124,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedSummarisedEntity, expectedEntity
-        ));
+        assertTrue(results.containsAll(Lists.newArrayList(expectedSummarisedEntity, expectedEntity)));
     }
 
     @Test
@@ -193,10 +187,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY + "," + PRIVATE_VISIBILITY)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity,
-                entity3
-        ));
+        assertTrue(results.containsAll(Lists.newArrayList(expectedEntity, entity3)));
     }
 
     @Test
@@ -460,12 +451,10 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+        assertTrue(results.containsAll(Lists.newArrayList(expectedEntity1,
+            expectedEntity2,
+            expectedEntity3,
+            expectedEntity4)));
     }
 
     @Test
@@ -588,20 +577,18 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(TestPropertyNames.PROP_4, "")
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+        assertTrue(results.containsAll(Lists.newArrayList(expectedEntity1,
+            expectedEntity2,
+            expectedEntity3,
+            expectedEntity4)));
     }
 
-    protected Graph createGraphNoVisibility() {
+    private Graph createGraphNoVisibility() {
         return new Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphWithNoVisibility")
                         .build())
-                .storeProperties(createStoreProperties())
+                .storeProperties(PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                                 .clazz(String.class)
@@ -626,12 +613,12 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
     }
 
-    protected Graph createGraphNoAggregators() {
+    private Graph createGraphNoAggregators() {
         return new Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphWithNoAggregators")
                         .build())
-                .storeProperties(createStoreProperties())
+                .storeProperties(PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                                 .clazz(String.class)
@@ -652,8 +639,14 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
     }
 
-    @Override
-    protected Schema createSchema() {
+    private Graph createGraph() {
+        return new Graph.Builder()
+            .addSchema(createSchema())
+            .storeProperties(PROPERTIES)
+            .config(new GraphConfig("test"))
+            .build();
+    }
+    private Schema createSchema() {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -684,16 +677,10 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .build();
     }
 
-    @Override
-    protected User getUser() {
+    private User getUser() {
         return new User.Builder()
                 .dataAuth(PUBLIC_VISIBILITY)
                 .dataAuth(PRIVATE_VISIBILITY)
                 .build();
-    }
-
-    @Override
-    public StoreProperties createStoreProperties() {
-        return PROPERTIES;
     }
 }

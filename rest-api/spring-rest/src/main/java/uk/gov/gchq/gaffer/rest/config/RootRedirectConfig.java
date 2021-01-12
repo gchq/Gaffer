@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.rest.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class RootRedirectConfig extends WebMvcConfigurerAdapter {
+public class RootRedirectConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(final ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/", "/swagger-ui.html");
+        registry.addRedirectViewController("/", "/swagger-ui/");
     }
 }

@@ -19,12 +19,16 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.io.Files;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +38,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Set;
 
 /**
- * A {@code MiniAccumuloStore} is an {@link AccumuloStore} which sets up an {@link MiniAccumuloCluster}
- * for each unique instance name. If you create two Accumulo stores with the same instance name,
- * the same cluster will be used for both. It's advisable to re-use an instance so that you don't
+ * A {@code MiniAccumuloStore} is an {@link AccumuloStore} which sets up a {@link MiniAccumuloCluster}.
+ * If you create two Mini Accumulo stores,the same cluster will be used for both. this is so that you don't
  * spend unnecessary time spinning up mini-clusters.
  *
  * It's dependencies mean it cannot be run in a REST API.
@@ -55,8 +57,8 @@ public class MiniAccumuloStore extends AccumuloStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAccumuloStore.class);
 
-    private static final HashMap<String, MiniAccumuloCluster> CLUSTER_INSTANCES = new HashMap<>();
-    private static final HashMap<String, File> ACCUMULO_DIRECTORIES = new HashMap<>();
+    private static MiniAccumuloCluster instance = null;
+    private static File accumuloDirectory;
 
     private static final String ROOT_PASSWORD_DEFAULT = "password";
     private static final int DEFAULT_ZOOKEEPER_PORT = 2181;
@@ -66,55 +68,56 @@ public class MiniAccumuloStore extends AccumuloStore {
     private static final String ROOT_PASSWORD_PROPERTY = "accumulo.mini.root.password";
     private static final String ACCUMULO_DIRECTORY_PROPERTY = "accumulo.mini.directory";
 
+    private int restartAttempts = 0;
+
 
     @Override
-    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public synchronized void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         super.preInitialise(graphId, schema, properties);
 
-        synchronized (this) {
-            if (getCluster() == null) {
-                try {
-                    createCluster();
-                } catch (final InterruptedException | IOException e) {
-                    throw new StoreException("Failed to start accumulo cluster", e);
-                }
+        if (instance == null) {
+            try {
+                createCluster();
+            } catch (final InterruptedException | IOException e) {
+                throw new StoreException("Failed to start accumulo cluster", e);
             }
         }
 
-
         try {
-            ensureUserExists(getCluster());
-        } catch (final AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException("Failed to ensure user was added", e);
+            ensureUserExists(instance);
+        } catch (final Exception e) {
+            LOGGER.warn("Failed to ensure user exists", e);
+            if (restartAttempts < 3) {
+                LOGGER.warn("Attempting restart");
+                restartAttempts++;
+                shutdown();
+                this.preInitialise(graphId, schema, properties);
+            } else {
+                throw new StoreException("Failed to ensure user was added", e);
+            }
         }
 
     }
 
-    private MiniAccumuloCluster getCluster() {
-        return CLUSTER_INSTANCES.get(getProperties().getInstance());
-    }
-
     private File getAccumuloDirectory() {
-        return ACCUMULO_DIRECTORIES.get(getProperties().getInstance());
+        return accumuloDirectory;
     }
 
     private void ensureUserExists(final MiniAccumuloCluster mac) throws AccumuloSecurityException, AccumuloException {
         String userName = getProperties().getUser();
         String rootPassword = getProperties().get(ROOT_PASSWORD_PROPERTY, ROOT_PASSWORD_DEFAULT);
 
-        // Ensure user exists
-        synchronized (this) {
-            Set<String> currentUsers = mac.getConnector(ROOT_USER, rootPassword).securityOperations().listLocalUsers();
-            if (!currentUsers.contains(userName)) {
-                mac.getConnector(ROOT_USER, rootPassword).securityOperations().createLocalUser(
-                        userName, new PasswordToken(getProperties().getPassword())
-                );
-                mac.getConnector(ROOT_USER, rootPassword).securityOperations()
-                        .grantSystemPermission(userName, SystemPermission.CREATE_NAMESPACE);
-                mac.getConnector(ROOT_USER, rootPassword).securityOperations()
-                        .grantSystemPermission(userName, SystemPermission.CREATE_TABLE);
-            }
+        Set<String> currentUsers = mac.getConnector(ROOT_USER, rootPassword).securityOperations().listLocalUsers();
+        if (!currentUsers.contains(userName)) {
+            mac.getConnector(ROOT_USER, rootPassword).securityOperations().createLocalUser(
+                    userName, new PasswordToken(getProperties().getPassword())
+            );
+            mac.getConnector(ROOT_USER, rootPassword).securityOperations()
+                    .grantSystemPermission(userName, SystemPermission.CREATE_NAMESPACE);
+            mac.getConnector(ROOT_USER, rootPassword).securityOperations()
+                    .grantSystemPermission(userName, SystemPermission.CREATE_TABLE);
         }
+
 
         // Add Auths
         String auths = getProperties().get(VISIBILITIES_PROPERTY);
@@ -126,22 +129,36 @@ public class MiniAccumuloStore extends AccumuloStore {
 
     @Override
     public Connector getConnection() throws StoreException {
-        if (getCluster() == null) {
+        if (instance == null) {
             throw new StoreException("MiniAccumuloCluster has not been initialised");
         }
         try {
-            return getCluster().getConnector(getProperties().getUser(), getProperties().getPassword());
+            return instance.getConnector(getProperties().getUser(), getProperties().getPassword());
         } catch (final AccumuloSecurityException | AccumuloException e) {
             throw new StoreException("Failed to get Connection", e);
         }
     }
 
+    /**
+     * Overrides the parent method so the instance name and zookeepers are taken from the running instance,
+     * rather than the store properties.
+     * @param conf the Configuration
+     */
+    @Override
+    protected void addZookeeperToConfiguration(final Configuration conf) {
+        InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
+                conf,
+                new ClientConfiguration()
+                        .withInstance(instance.getInstanceName())
+                        .withZkHosts(instance.getZooKeepers()));
+    }
+
     private void createCluster() throws IOException, InterruptedException {
         String providedDirectory = getProperties().get(ACCUMULO_DIRECTORY_PROPERTY);
         if (providedDirectory == null) {
-            ACCUMULO_DIRECTORIES.put(getProperties().getInstance(), Files.createTempDir());
+            accumuloDirectory = Files.createTempDir();
         } else {
-            ACCUMULO_DIRECTORIES.put(getProperties().getInstance(), new File(providedDirectory));
+            accumuloDirectory = new File(providedDirectory);
         }
 
         String rootUserPassword = getProperties().get(ROOT_PASSWORD_PROPERTY, ROOT_PASSWORD_DEFAULT);
@@ -157,18 +174,27 @@ public class MiniAccumuloStore extends AccumuloStore {
 
         config.setInstanceName(getProperties().getInstance());
 
-        CLUSTER_INSTANCES.put(getProperties().getInstance(), new MiniAccumuloCluster(config));
-        getCluster().start();
+        instance = new MiniAccumuloCluster(config);
+        instance.start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                if (this.getCluster() != null) {
-                    this.getCluster().stop();
-                }
-            } catch (final InterruptedException | IOException e) {
-                LOGGER.error("Failed to stop Accumulo", e);
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+    }
+
+    protected void reset() throws StoreException {
+        shutdown();
+        preInitialise(getGraphId(), getSchema(), getProperties());
+    }
+
+    private void shutdown() {
+        try {
+            if (instance != null) {
+                instance.stop();
+                instance = null;
             }
-            getAccumuloDirectory().delete();
-        }));
+        } catch (final InterruptedException | IOException e) {
+            LOGGER.error("Failed to stop Accumulo", e);
+        }
+        getAccumuloDirectory().delete();
+
     }
 }

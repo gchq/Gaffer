@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.mapstore;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MapStoreTest {
 
@@ -34,6 +36,7 @@ public class MapStoreTest {
         final MapStore mapStore = new MapStore();
         mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
         final Set<StoreTrait> expectedTraits = new HashSet<>(Arrays.asList(
+                StoreTrait.QUERY_AGGREGATION,
                 StoreTrait.INGEST_AGGREGATION,
                 StoreTrait.PRE_AGGREGATION_FILTERING,
                 StoreTrait.POST_AGGREGATION_FILTERING,
@@ -41,5 +44,18 @@ public class MapStoreTest {
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX));
         assertEquals(expectedTraits, mapStore.getTraits());
+    }
+
+    @Test
+    public void shouldConfigureCountAllElementsOperationChainOptimiser() throws Exception {
+        // Given
+        final MapStore mapStore = new MapStore();
+
+        // When
+        mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
+
+        // Then
+        assertEquals(1, mapStore.getOperationChainOptimisers().size());
+        assertTrue(mapStore.getOperationChainOptimisers().contains(new CountAllElementsOperationChainOptimiser()));
     }
 }

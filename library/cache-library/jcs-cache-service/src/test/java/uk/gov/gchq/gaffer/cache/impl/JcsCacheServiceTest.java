@@ -229,6 +229,8 @@ public class JcsCacheServiceTest {
         // when
         service.putInCache(AGE_OFF_REGION, "test", 1);
         Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS); // aged off
+        assertNull(service.getFromCache(AGE_OFF_REGION, "test"));
+
         service.putInCache(AGE_OFF_REGION, "test", 1);
 
         // then

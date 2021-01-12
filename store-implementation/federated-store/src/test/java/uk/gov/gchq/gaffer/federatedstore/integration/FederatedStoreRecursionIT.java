@@ -16,43 +16,49 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.SingleUseFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
+import uk.gov.gchq.gaffer.rest.GafferWebApplication;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FederatedStoreRecursionIT extends AbstractStoreIT {
+@SpringBootTest(classes = GafferWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("recursion")
+public class FederatedStoreRecursionIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
@@ -62,20 +68,17 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     public static final String PROPERTY_NAME = "count";
     private Graph proxyToRestServiceFederatedGraph;
 
-    @Before
-    public void setUp() throws Exception {
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
-                .build(), user);
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
-                .build(), user);
+    @LocalServerPort
+    private int port;
 
-        graph = null;
+    @BeforeEach
+    @AfterEach
+    public void clearCache() {
+        CacheServiceLoader.shutdown();
     }
 
-
-    @Test(timeout = 60000)
+    @Test
+    @Timeout(60)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -88,7 +91,6 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
          *                                                                      v                   |
          *                                                                      innerProxy -------->
          */
-
         createProxyToRestServiceFederatedGraph();
         createTheInnerFederatedStore();
         createInnerProxyToOuterFederatedStore();
@@ -102,6 +104,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         testGetAllElements(2);
     }
 
+
     protected void addEntity() throws OperationException {
         LOGGER.debug("addEntity");
         proxyToRestServiceFederatedGraph.execute(
@@ -112,7 +115,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                                 .property(PROPERTY_NAME, 1)
                                 .build())
                         .build(),
-                user);
+                new User());
     }
 
     protected void testGetAllElements(final int expected) throws OperationException {
@@ -120,8 +123,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         ArrayList<Element> elements = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(
                 new GetAllElements.Builder()
                         .build(),
-                user));
-        assertEquals(elements.toString(), 1, elements.size());
+                new User()));
+        assertEquals(1, elements.size(), elements.toString());
         assertEquals(expected, elements.get(0).getProperties().get(PROPERTY_NAME));
     }
 
@@ -142,7 +145,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                                 .validateFunctions(new Exists(), new IsEqual(1))
                                 .build())
                         .build())
-                .build(), user);
+                .build(), new User());
     }
 
     protected void testInnerGetGraphIds(final String... ids) throws OperationException {
@@ -151,23 +154,25 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                         .operationChain(OperationChain.wrap(
                                 new GetAllGraphIds()
                         )).build(),
-                user));
+                new User()));
         assertEquals(ids.length, list.size());
         for (String id : ids) {
-            assertTrue(list.toString(), list.contains(id));
+            assertTrue(list.contains(id), list.toString());
         }
     }
 
     protected void testOuterGetGraphIds(final String... ids) throws OperationException {
-        ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), user));
+        ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), new User()));
         assertEquals(ids.length, list.size());
         for (String id : ids) {
-            assertTrue(list.toString(), list.contains(id));
+            assertTrue(list.contains(id), list.toString());
         }
     }
 
     protected void createInnerProxyToOuterFederatedStore() throws OperationException {
         ProxyProperties storeProperties = new ProxyProperties();
+        storeProperties.setGafferPort(port);
+        storeProperties.setGafferContextRoot("rest");
         storeProperties.setReadTimeout(120000);
         storeProperties.setConnectTimeout(120000);
         proxyToRestServiceFederatedGraph.execute(new FederatedOperationChain.Builder<>()
@@ -176,7 +181,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                         .schema(new Schema())
                         .storeProperties(storeProperties)
                         .build()))
-                .build(), user);
+                .build(), new User());
     }
 
     protected void createTheInnerFederatedStore() throws
@@ -185,22 +190,21 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                 .graphId(INNER_FEDERATED_GRAPH)
                 .schema(new Schema())
                 .storeProperties(new FederatedStoreProperties())
-                .build(), user);
+                .build(), new User());
     }
 
     protected void createProxyToRestServiceFederatedGraph() {
-        final Graph proxyToRestServiceFederatedGraph;
-        ProxyProperties singleUseFedProperties = new ProxyProperties();
-        singleUseFedProperties.setStoreClass(SingleUseFederatedStore.class);
-        singleUseFedProperties.setReadTimeout(120000);
-        singleUseFedProperties.setConnectTimeout(120000);
+        ProxyProperties proxyProps = new ProxyProperties();
+        proxyProps.setGafferPort(port);
+        proxyProps.setGafferContextRoot("rest");
+        proxyProps.setReadTimeout(120000);
+        proxyProps.setConnectTimeout(120000);
 
-        proxyToRestServiceFederatedGraph = new Graph.Builder()
-                .storeProperties(singleUseFedProperties)
+        this.proxyToRestServiceFederatedGraph = new Graph.Builder()
+                .storeProperties(proxyProps)
                 .addSchema(new Schema())
                 .config(new GraphConfig(PROXY_TO_REST_SERVICE_FEDERATED_GRAPH))
                 .build();
-        this.proxyToRestServiceFederatedGraph = proxyToRestServiceFederatedGraph;
     }
 
 

@@ -4,14 +4,14 @@ on: [ pull_request ]
 
 jobs:
   check-all-modules-are-tested:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
     - name: Check all modules are tested
       run: ./cd/check_modules.sh
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: true
       matrix:
@@ -19,15 +19,19 @@ jobs:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         - name: Accumulo
-          values: :accumulo-store,:accumulo-rest
+          values: :accumulo-store
         - name: Hbase
-          values: :hbase-store,:hbase-rest
+          values: :hbase-store
         - name: Parquet
-          values: :parquet-store,:parquet-rest
+          values: :parquet-store
+        - name: Integration-Tests
+          values: :integration-test-impl
         - name: Federated-And-Map
-          values: :integration-test,:federated-store,:map-store,:map-rest
+          values: :integration-test,:integration-test-framework,:federated-store,:map-store
         - name: REST
-          values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
+          values: :rest-api,:common-rest,:spring-rest,:store-implementation,:proxy-store
+        - name: Examples
+          values: :example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:federated-demo
         - name: Big-Data-Libraries
           values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
         - name: Time-Library
@@ -36,7 +40,7 @@ jobs:
           values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
 
     env:
-     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+     MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=10 -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
     steps:
 
     - name: Set up JDK 1.8
