@@ -202,7 +202,7 @@ public class AddNamedOperationHandlerTest {
                 "                  }" +
                 "              ]" +
                 "           }," +
-                "           \"extensions\": {" +
+                "           \"parameters\": {" +
                 "               \"param1\" : { \"description\" : \"Test Long parameter\"," +
                 "                              \"defaultValue\" : [ \"bad arg type\" ]," +
                 "                              \"requiredArg\" : false," +

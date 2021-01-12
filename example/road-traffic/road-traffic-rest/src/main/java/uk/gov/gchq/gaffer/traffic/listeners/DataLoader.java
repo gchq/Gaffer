@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.traffic.listeners;
 
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,8 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataLoader;
 import uk.gov.gchq.gaffer.user.User;
+
+import javax.annotation.PostConstruct;
 
 import java.io.File;
 import java.util.logging.Logger;

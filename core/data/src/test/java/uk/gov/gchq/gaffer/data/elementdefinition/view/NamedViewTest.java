@@ -175,7 +175,7 @@ public class NamedViewTest {
                 "        }" +
                 "      }," +
                 "      \"name\": \"testViewName\"," +
-                "       \"extensions\": {" +
+                "       \"parameters\": {" +
                 "           \"testParamKey\" : 1" +
                 "         }" +
                 "    }");

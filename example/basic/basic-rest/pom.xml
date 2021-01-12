@@ -6,7 +6,7 @@
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~   http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,137 +16,47 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <parent>
-        <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>basic</artifactId>
-        <version>1.13.5-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>uk.gov.gchq.gaffer</groupId>
+    <artifactId>basic</artifactId>
+    <version>1.13.5-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>basic-rest</artifactId>
-    <packaging>war</packaging>
+  <artifactId>basic-rest</artifactId>
 
-    <properties>
-        <store.type>map</store.type>
-        <standalone-path>rest</standalone-path>
-        <standalone-port>8080</standalone-port>
-    </properties>
+  <properties>
+    <store.type>map</store.type>
+  </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>jcs-cache-service</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>uk.gov.gchq.gaffer</groupId>-->
-<!--            <artifactId>core-rest</artifactId>-->
-<!--            <classifier>classes</classifier>-->
-<!--            <version>${project.parent.version}</version>-->
-<!--        </dependency>-->
-    </dependencies>
-    <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${maven-war-plugin.version}</version>
-                <configuration>
-                    <attachClasses>true</attachClasses>
-                    <classesClassifier>classes</classesClassifier>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>uk.gov.gchq.gaffer</groupId>
-                        <artifactId>${store.type}-rest</artifactId>
-                        <version>${project.parent.version}</version>
-                        <type>war</type>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.parent.groupId}</groupId>
-                                    <artifactId>${store.type}-rest</artifactId>
-                                    <version>${project.parent.version}</version>
-                                    <type>war</type>
-                                    <overWrite>false</overWrite>
-                                    <outputDirectory>
-                                        ${project.build.directory}/${project.artifactId}-${project.version}
-                                    </outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>basic-demo</id>
-            <properties>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.0</version>
-                        <configuration>
-                            <path>/${standalone-path}</path>
-                            <port>${standalone-port}</port>
-                            <systemProperties>
-                                <gaffer.properties.app.title>
-                                    Basic Gaffer Example
-                                </gaffer.properties.app.title>
-                                <gaffer.properties.app.description>
-                                    Example using a very basic schema
-                                </gaffer.properties.app.description>
-                                <gaffer.rest-api.basePath>
-                                    ${standalone-path}
-                                </gaffer.rest-api.basePath>
-                                <gaffer.graph.config>
-                                    ${project.build.outputDirectory}/graphConfig.json
-                                </gaffer.graph.config>
-                                <gaffer.schemas>
-                                    ${project.parent.basedir}/basic-model/src/main/resources/schema
-                                </gaffer.schemas>
-                                <gaffer.storeProperties>
-                                    ${project.build.outputDirectory}/${store.type}/store.properties
-                                </gaffer.storeProperties>
-                                <gaffer.error-mode.debug>
-                                    false
-                                </gaffer.error-mode.debug>
-                            </systemProperties>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>deploy</id>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>run-war</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+  <dependencies>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>jcs-cache-service</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>spring-rest</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>uk.gov.gchq.gaffer.rest.GafferWebApplication</mainClass>
+          <systemPropertyVariables>
+            <gaffer.properties.app.title>Basic Gaffer Example</gaffer.properties.app.title>
+            <gaffer.properties.app.description>Example of a basic schema</gaffer.properties.app.description>
+            <gaffer.storeProperties>${project.build.outputDirectory}/${store.type}/store.properties</gaffer.storeProperties>
+            <gaffer.schemas>${project.parent.basedir}/basic-model/src/main/resources/schema</gaffer.schemas>
+            <gaffer.graph.config>${project.build.outputDirectory}/graphConfig.json</gaffer.graph.config>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
