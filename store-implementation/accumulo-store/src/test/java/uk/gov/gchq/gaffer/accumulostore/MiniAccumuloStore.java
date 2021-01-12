@@ -85,7 +85,7 @@ public class MiniAccumuloStore extends AccumuloStore {
 
         try {
             ensureUserExists(instance);
-        } catch (final AccumuloException | AccumuloSecurityException e) {
+        } catch (final Exception e) {
             LOGGER.warn("Failed to ensure user exists", e);
             if (restartAttempts < 3) {
                 LOGGER.warn("Attempting restart");
