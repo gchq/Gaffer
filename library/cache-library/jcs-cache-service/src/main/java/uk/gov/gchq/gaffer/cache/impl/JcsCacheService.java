@@ -38,6 +38,8 @@ import java.util.Properties;
  */
 public class JcsCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JcsCacheService.class);
+    private static final boolean USE_SYSTEM_PROPERTIES = true;
+    private static final boolean FORCE_RECONFIGURATION = true;
     private CompositeCacheManager manager;
 
     @Override
@@ -48,7 +50,7 @@ public class JcsCacheService implements ICacheService {
         if (null != configFile) {
             try {
                 Properties cacheProperties = readProperties(configFile);
-                manager.configure(cacheProperties);
+                manager.configure(cacheProperties, USE_SYSTEM_PROPERTIES, FORCE_RECONFIGURATION);
                 return;
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Cannot create cache using config file " + configFile, e);

@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.MapImpl;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
+import uk.gov.gchq.gaffer.mapstore.optimiser.CountAllElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -44,9 +45,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * An implementation of {@link Store} that uses any class that implements Java's {@link java.util.Map} interface to
@@ -62,7 +64,8 @@ import java.util.Set;
  * </p>
  */
 public class MapStore extends Store {
-    public static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
+    public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
+            StoreTrait.QUERY_AGGREGATION,
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.PRE_AGGREGATION_FILTERING,
             StoreTrait.POST_AGGREGATION_FILTERING,
@@ -81,6 +84,9 @@ public class MapStore extends Store {
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         // Initialise store
         super.initialise(graphId, schema, properties);
+
+        // Add OperationChainOptimisers
+        super.addOperationChainOptimisers(asList(new CountAllElementsOperationChainOptimiser()));
 
         // Initialise maps
         mapImpl = createMapImpl();
