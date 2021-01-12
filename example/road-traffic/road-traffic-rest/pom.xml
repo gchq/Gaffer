@@ -155,7 +155,7 @@
           <systemPropertyVariables>
             <store.type>${store.type}</store.type>
             <roadTraffic.dataLoader.dataPath>
-              ${project.parent.basedir}/road-traffic-demo/src/main/resources/roadTrafficSampleData.csv
+              ${loader.path}
             </roadTraffic.dataLoader.dataPath>
           </systemPropertyVariables>
         </configuration>
