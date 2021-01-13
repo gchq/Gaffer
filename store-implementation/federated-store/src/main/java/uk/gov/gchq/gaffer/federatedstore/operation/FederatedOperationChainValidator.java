@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -71,15 +73,20 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
         final Operation clonedOp = shallowCloneWithDeepOptions(op);
 
-        for (final String graphId : graphIds) {
+        Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, String.join(",", graphIds), clonedOp);
+
+        for (final Graph graph : graphs) {
+            String graphId = graph.getGraphId();
             final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
-            //If graphId is not valid, then there is no schema to validate a view against.
+            // If graphId is not valid, then there is no schema to validate a view against.
             if (graphIdValid) {
                 currentResult = new ValidationResult();
                 clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
-                super.validateViews(clonedOp, user, store, currentResult);
+                if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
+                    super.validateViews(clonedOp, user, store, currentResult);
+                }
                 if (currentResult.isValid()) {
-                    //If any graph has a valid View, break with valid current result
+                    // If any graph has a valid View, break with valid current result
                     break;
                 } else {
                     ValidationResult prependGraphId = new ValidationResult();
