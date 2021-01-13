@@ -28,8 +28,6 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
-import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -1001,9 +999,6 @@ public final class Graph {
             }
             if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
                 config.getHooks().add(0, new NamedOperationResolver());
-            }
-            if (!hasHook(hooks, FunctionAuthoriser.class)) {
-                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
             }
         }
 

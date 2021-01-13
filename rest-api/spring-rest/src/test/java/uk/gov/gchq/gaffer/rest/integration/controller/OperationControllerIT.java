@@ -22,21 +22,32 @@ import org.springframework.http.ResponseEntity;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.MockGraphFactory;
 import uk.gov.gchq.gaffer.rest.integration.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.function.CallMethod;
+import uk.gov.gchq.koryphe.impl.function.CreateObject;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
@@ -49,6 +60,34 @@ public class OperationControllerIT extends AbstractRestApiIT {
 
     private MockGraphFactory getGraphFactory() {
         return (MockGraphFactory) graphFactory;
+    }
+
+    @Test
+    public void shouldNotAllowUserToReadFilesOffTheFileSystemUsingKorypheFunctions() throws IOException {
+        Graph graph = new Graph.Builder()
+            .config(StreamUtil.graphConfig(this.getClass()))
+            .storeProperties(new MapStoreProperties())
+            .addSchema(new Schema())
+            .build();
+
+        String cacheProperties = getClass().getResource("/cache-store.properties").getPath();
+
+        when(getGraphFactory().getGraph()).thenReturn(graph);
+
+        ResponseEntity<Object> lines = post("/graph/operations/execute", new OperationChain.Builder()
+            .first(new Map.Builder<>()
+                .input(cacheProperties)
+                .first(new CreateObject(FileInputStream.class))
+                .then(new CreateObject(InputStreamReader.class))
+                .then(new CreateObject(BufferedReader.class))
+                .then(new CallMethod("lines"))
+                .then(new CreateObject(StreamIterator.class))
+                .then(new CreateObject(WrappedCloseableIterable.class))
+                .build())
+            .then(new ToList())
+            .build(), Object.class);
+
+        assertNotEquals(200, lines.getStatusCodeValue());
     }
 
     @Test

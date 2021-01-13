@@ -135,20 +135,4 @@ that extends GraphHookTest.
 There are some graph hooks which are added by default if they aren't already
 present in the configuration. The NamedViewResolver and NamedOperationResolver
 (providing that NamedOperations are supported by the store) are added at the
-start of the list of hooks. The third hook added is the FunctionAuthoriser,
-which is added at the end of the list - again assuming no hook is not present in
-the configuration. This hook stops users from using potentially dangerous
-functions in their operation chain. If you want to disable this hook, you should
-overwrite it by adding an empty FunctionAuthoriser to your list of hooks. For
-example:
-
-```json
-{
-    "graphId": "example",
-    "hooks": [
-        {
-            "class": "uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser"
-        }
-    ]
-}
-```
+start of the list of hooks.

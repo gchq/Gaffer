@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
+import uk.gov.gchq.gaffer.jsonserialisation.jackson.GafferSimpleClassIdResolver;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -235,7 +235,7 @@ public class JSONSerialiser {
         // We must set this to true to ensure serialisation into json uses the
         // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo/HBase.
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
-        SimpleClassNameIdResolver.configureObjectMapper(mapper);
+        new GafferSimpleClassIdResolver().configureObjectMapper(mapper);
         return mapper;
     }
 
