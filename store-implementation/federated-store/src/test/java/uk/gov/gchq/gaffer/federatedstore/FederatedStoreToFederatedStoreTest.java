@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.clearspring.analytics.util.Lists;
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
