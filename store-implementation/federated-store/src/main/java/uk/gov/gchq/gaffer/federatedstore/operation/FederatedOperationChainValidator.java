@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-
 /**
  * Validation class for validating {@link uk.gov.gchq.gaffer.operation.OperationChain}s against {@link ViewValidator}s using the Federated Store schemas.
  * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
@@ -54,7 +52,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
     @Override
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
-        validateAllGraphsIdViews(op, user, store, validationResult, getGraphIds(op, user, (FederatedStore) store));
+        validateAllGraphsIdViews(op, user, store, validationResult, getGraphIdsCSV(op, user, (FederatedStore) store));
     }
 
     /**
@@ -65,16 +63,14 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
      * @param user             The requesting user
      * @param store            The current store
      * @param validationResult The result of validation
-     * @param graphIds         The graphs to test the view against
+     * @param graphIdsCSV      The graphs to test the view against
      */
-    private void validateAllGraphsIdViews(final Operation op, final User user, final Store store, final ValidationResult validationResult, final Collection<String> graphIds) {
+    private void validateAllGraphsIdViews(final Operation op, final User user, final Store store, final ValidationResult validationResult, final String graphIdsCSV) {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
         final Operation clonedOp = shallowCloneWithDeepOptions(op);
-
-        Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, String.join(",", graphIds), clonedOp);
-
+        Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
         for (final Graph graph : graphs) {
             String graphId = graph.getGraphId();
             final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
@@ -98,7 +94,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
         //What state did the for loop exit with?
         if (currentResult != null && !currentResult.isValid()) {
-            validationResult.addError("View is not valid for graphIds:" + graphIds.stream().collect(Collectors.joining(",", "[", "]")));
+            validationResult.addError("View is not valid for graphIds:" + getGraphIds(op, user, (FederatedStore) store).stream().collect(Collectors.joining(",", "[", "]")));
             //If invalid, no graphs views where valid, so add all saved errors.
             validationResult.add(savedResult);
         }
@@ -106,7 +102,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
     /**
      * Return a clone of the given operations with a deep clone of options.
-     *
+     * <p>
      * Because op.shallowClone() is used it can't be guaranteed that original options won't be modified.
      * So a deep clone of the options is made for the shallow clone of the operation.
      *
@@ -122,12 +118,17 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     private Collection<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
-        return nonNull(op) && nonNull(getGraphIds(op)) && !getGraphIds(op).isEmpty()
-                ? Arrays.asList(getGraphIds(op).split(","))
-                : store.getAllGraphIds(user);
+        return Arrays.asList(getGraphIdsCSV(op, user, store).split(","));
+    }
+
+    private String getGraphIdsCSV(final Operation op, final User user, final FederatedStore store) {
+        String graphIds = getGraphIds(op);
+        return nonNull(graphIds) && !graphIds.isEmpty()
+            ? graphIds
+            : String.join(",", store.getAllGraphIds(user));
     }
 
     private String getGraphIds(final Operation op) {
-        return op.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS);
+        return op == null ? null : op.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS);
     }
 }
