@@ -52,7 +52,6 @@
         <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-minicluster</artifactId>
-            <version>${accumulo.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -96,7 +95,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
 
     <build>

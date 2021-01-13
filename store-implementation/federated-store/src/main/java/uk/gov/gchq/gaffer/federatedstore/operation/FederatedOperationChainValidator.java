@@ -73,13 +73,13 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
         for (final String graphId : graphIds) {
             final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
-            //If graphId is not valid, then there is no schema to validate a view against.
+            // If graphId is not valid, then there is no schema to validate a view against.
             if (graphIdValid) {
                 currentResult = new ValidationResult();
                 clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
                 super.validateViews(clonedOp, user, store, currentResult);
                 if (currentResult.isValid()) {
-                    //If any graph has a valid View, break with valid current result
+                    // If any graph has a valid View, break with valid current result
                     break;
                 } else {
                     ValidationResult prependGraphId = new ValidationResult();
@@ -89,7 +89,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             }
         }
 
-        //What state did the for loop exit with?
+        // What state did the for loop exit with?
         if (currentResult != null && !currentResult.isValid()) {
             validationResult.addError("View is not valid for graphIds:" + graphIds.stream().collect(Collectors.joining(",", "[", "]")));
             //If invalid, no graphs views where valid, so add all saved errors.

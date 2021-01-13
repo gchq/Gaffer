@@ -37,7 +37,7 @@ public class ProxyProperties extends StoreProperties {
     public static final String READ_TIMEOUT = "gaffer.read-timeout";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
-    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest";
+    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "";
     public static final int DEFAULT_GAFFER_PORT = 8080;
     public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
     public static final int DEFAULT_READ_TIMEOUT = 10000;
@@ -147,7 +147,7 @@ public class ProxyProperties extends StoreProperties {
 
         try {
             String contextRoot = prepend("/", getGafferContextRoot());
-            contextRoot = addSuffix("/", contextRoot) + GAFFER_REST_API_VERSION;
+//            contextRoot = addSuffix("/", contextRoot) + GAFFER_REST_API_VERSION;
             return new URL(protocol, getGafferHost(), getGafferPort(),
                     contextRoot + urlSuffix);
         } catch (final MalformedURLException e) {

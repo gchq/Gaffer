@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +29,14 @@ import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.MockGraphFactory;
+import uk.gov.gchq.gaffer.rest.integration.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 public class GraphConfigurationControllerIT extends AbstractRestApiIT {
@@ -47,7 +48,7 @@ public class GraphConfigurationControllerIT extends AbstractRestApiIT {
         return (MockGraphFactory) graphFactory;
     }
 
-    @Before
+    @BeforeEach
     public void resetMocks() {
         Mockito.reset(getMockFactory().getMock());
     }

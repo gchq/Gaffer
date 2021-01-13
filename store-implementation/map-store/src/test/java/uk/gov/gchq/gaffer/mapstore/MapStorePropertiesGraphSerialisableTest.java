@@ -23,8 +23,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
-import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -45,7 +43,6 @@ public class MapStorePropertiesGraphSerialisableTest {
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
                 .addHook(new NamedViewResolver())
-                .addHook(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS))
                 .view(new View.Builder()
                         .entity("e1")
                         .build())

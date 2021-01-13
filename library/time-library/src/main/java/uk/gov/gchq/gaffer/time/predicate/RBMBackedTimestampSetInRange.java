@@ -34,15 +34,12 @@ import uk.gov.gchq.koryphe.util.TimeUnit;
 @Since("1.10.0")
 @Summary("Tests whether an RBMBackedTimestampSet contains values within a given range")
 @JsonPropertyOrder(value = {"class", "startTime", "endTime", "timeUnit", "includeAllTimestamps"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class RBMBackedTimestampSetInRange extends KoryphePredicate<RBMBackedTimestampSet> {
 
     private Number startTime;
     private Number endTime;
-
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private TimeUnit timeUnit = TimeUnit.MILLISECOND;
-
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private Boolean includeAllTimestamps = false;
 
     public RBMBackedTimestampSetInRange() {

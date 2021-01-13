@@ -21,7 +21,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.operation.handler.spark.AbstractSparkOperationsTest;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -62,7 +61,7 @@ public final class TestUtils {
 
     public static ParquetStoreProperties getParquetStoreProperties(final String directory) {
         final ParquetStoreProperties parquetStoreProperties = ParquetStoreProperties.loadStoreProperties(
-                AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
+                TestUtils.class.getResourceAsStream("/multiUseStore.properties"));
         parquetStoreProperties.setDataDir(directory + "/data");
         parquetStoreProperties.setTempFilesDir(directory + "/tmpdata");
         return parquetStoreProperties;

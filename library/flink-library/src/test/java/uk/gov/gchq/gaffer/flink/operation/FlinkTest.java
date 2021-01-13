@@ -16,12 +16,8 @@
 
 package uk.gov.gchq.gaffer.flink.operation;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.apache.commons.lang3.StringUtils;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -35,7 +31,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -44,14 +39,6 @@ import java.util.stream.StreamSupport;
 import static java.util.stream.Collectors.toList;
 
 public abstract class FlinkTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Before
-    public void createFreshTemporaryArea() throws IOException {
-        testFolder.delete();
-        testFolder.create();
-    }
 
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()

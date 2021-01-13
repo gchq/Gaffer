@@ -25,6 +25,10 @@
     </parent>
 
     <artifactId>hbase-store</artifactId>
+    <properties>
+        <hadoop.version>2.6.5</hadoop.version>
+        <guava.version>13.0.1</guava.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -177,9 +181,8 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>integration-test</artifactId>
+            <artifactId>integration-test-framework</artifactId>
             <version>${project.parent.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>

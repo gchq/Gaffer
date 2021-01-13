@@ -25,8 +25,8 @@
     <artifactId>spark-library</artifactId>
 
     <properties>
-        <graphframes.library.version>0.4.0</graphframes.library.version>
-        <graphframes.version>${graphframes.library.version}-spark2.1-s_${scala.version}</graphframes.version>
+        <graphframes.library.version>0.8.0</graphframes.library.version>
+        <graphframes.version>${graphframes.library.version}-spark${spark.minor.version}-s_${scala.version}</graphframes.version>
     </properties>
 
     <dependencies>
@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.11</artifactId>
+            <artifactId>jackson-module-scala_${scala.version}</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
@@ -71,7 +71,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
+                    <artifactId>jackson-module-scala_${scala.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
@@ -132,11 +132,11 @@
                 -->
                 <exclusion>
                     <groupId>org.spire-math</groupId>
-                    <artifactId>spire_2.11</artifactId>
+                    <artifactId>spire_${scala.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.chuusai</groupId>
-                    <artifactId>shapeless_2.11</artifactId>
+                    <artifactId>shapeless_${scala.version}</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -149,7 +149,6 @@
             <groupId>org.apache.avro</groupId>
             <artifactId>avro-mapred</artifactId>
             <version>${avro.version}</version>
-            <classifier>hadoop2</classifier>
         </dependency>
         <dependency>
             <groupId>graphframes</groupId>

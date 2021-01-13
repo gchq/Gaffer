@@ -66,7 +66,7 @@ public class GetElementsWithinSetHandlerTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(GetElementsWithinSetHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
+            .loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/stores/accumuloStoreClassicKeys.properties"));
     private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 

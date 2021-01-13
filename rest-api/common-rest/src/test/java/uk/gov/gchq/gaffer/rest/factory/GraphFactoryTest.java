@@ -26,7 +26,6 @@ import org.junit.jupiter.api.io.TempDir;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
-import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
@@ -136,8 +135,7 @@ public class GraphFactoryTest {
                 NamedViewResolver.class,
                 OperationChainLimiter.class,
                 AddOperationsToChain.class,
-                OperationAuthoriser.class,
-                FunctionAuthoriser.class
+                OperationAuthoriser.class
         ), graph.getGraphHooks());
 
     }

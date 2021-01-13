@@ -61,7 +61,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/stores/accumuloStoreClassicKeys.properties"));
 
     private static View defaultView;
     private static View edgeOnlyView;

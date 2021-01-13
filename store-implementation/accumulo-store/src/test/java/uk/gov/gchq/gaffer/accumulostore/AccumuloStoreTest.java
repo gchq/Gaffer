@@ -104,7 +104,7 @@ public class AccumuloStoreTest {
     private static final String GAFFER_1_GRAPH = "gaffer1Graph";
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/stores/accumuloStoreClassicKeys.properties"));
     private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 

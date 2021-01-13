@@ -65,7 +65,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(CoreKeyGroupByAggregatorIteratorTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(CoreKeyGroupByAggregatorIteratorTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CoreKeyGroupByAggregatorIteratorTest.class, "/stores/accumuloStoreClassicKeys.properties"));
 
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;

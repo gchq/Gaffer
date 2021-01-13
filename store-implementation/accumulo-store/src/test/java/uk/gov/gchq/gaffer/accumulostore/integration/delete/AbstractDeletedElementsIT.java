@@ -28,14 +28,12 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -55,12 +53,13 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.nio.file.Path;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     protected static final String[] VERTICES = {"1", "2", "3"};
@@ -70,9 +69,8 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
+    @TempDir
+    public static Path tempDir;
 
     protected void assertElements(final Iterable<ElementId> expected, final O actual) {
         ElementUtil.assertElementEquals(expected, (Iterable) actual);

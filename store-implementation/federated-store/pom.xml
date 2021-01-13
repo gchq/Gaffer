@@ -63,7 +63,6 @@
         <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-minicluster</artifactId>
-            <version>${accumulo.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -83,13 +82,6 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>data</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>integration-test</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
@@ -120,13 +112,6 @@
             <artifactId>proxy-store</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>proxy-store</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -135,23 +120,20 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <version>${jersey.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-rest</artifactId>
+            <artifactId>spring-rest</artifactId>
             <version>${project.parent.version}</version>
-            <classifier>classes</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-rest</artifactId>
+            <artifactId>integration-test-framework</artifactId>
             <version>${project.parent.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -202,5 +184,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

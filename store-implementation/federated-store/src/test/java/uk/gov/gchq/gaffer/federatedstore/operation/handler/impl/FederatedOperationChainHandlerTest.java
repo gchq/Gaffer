@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.PredefinedFederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -266,7 +265,7 @@ public class FederatedOperationChainHandlerTest {
                         .build())
                 .build();
         final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema,
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedOperationChainHandlerTest.class, "predefinedFederatedStore.properties")));
 
         final Context context = new Context();
 
