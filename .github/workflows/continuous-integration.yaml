@@ -54,7 +54,7 @@ jobs:
         path: |
           ~/.m2/repository
           !~/.m2/repository/uk
-        key: ${{matrix.modules.name}}-gaffer-dependencies
+        key: gaffer-dependencies
 
     - name: clone pre-release-koryphe
       uses: actions/checkout@v2
