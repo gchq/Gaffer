@@ -234,7 +234,7 @@ public class FederatedAccessAuthTest {
     public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndOnlyOneSetsAuth() {
         final Executable executable = () -> new FederatedAccess.Builder()
                 .graphAuths(AUTH_1)
-                .readAccessPredicate(new AccessPredicate(TEST_USER_ID,null))
+                .readAccessPredicate(new AccessPredicate(TEST_USER_ID, null))
                 .build();
         assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
     }
