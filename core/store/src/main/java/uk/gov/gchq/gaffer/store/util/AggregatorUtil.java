@@ -307,16 +307,23 @@ public final class AggregatorUtil {
 
         @Override
         public GroupedProperties _apply(final GroupedProperties a, final GroupedProperties b) {
-            final String group = a.getGroup();
+            final GroupedProperties aGroupedProperties = adaptGroupedProperties(a);
+            final GroupedProperties bGroupedProperties = adaptGroupedProperties(b);
+
+            final String group = aGroupedProperties.getGroup();
             if (null == view) {
-                schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
+                schema.getElement(aGroupedProperties.getGroup()).getIngestAggregator().apply(aGroupedProperties, bGroupedProperties);
             } else {
                 final ViewElementDefinition elementDef = view.getElement(group);
-                schema.getElement(group).getQueryAggregator(elementDef.getGroupBy(), elementDef.getAggregator()).apply(a, b);
+                schema.getElement(group).getQueryAggregator(elementDef.getGroupBy(), elementDef.getAggregator()).apply(aGroupedProperties, bGroupedProperties);
             }
 
             // The aggregator will always return a so this is safe
-            return a;
+            return aGroupedProperties;
+        }
+
+        protected GroupedProperties adaptGroupedProperties(final GroupedProperties groupedProperties) {
+            return groupedProperties;
         }
     }
 
