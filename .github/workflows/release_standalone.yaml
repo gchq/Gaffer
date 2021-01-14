@@ -1,9 +1,6 @@
-name: Release To Nexus
+name: Release To Nexus as standalone
 
-on:
-  push:
-    branches:
-      - rerun-release
+on: [ workflow_dispatch ]
 
 jobs:
   run-maven-release:
@@ -14,10 +11,16 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Checkout master
-      uses: actions/checkout@v2
+    - name: Cache dependencies
+      uses: actions/cache@v2
       with:
-        ref: master
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/uk
+        key: gaffer-dependencies
+
+    - name: Checkout Branch
+      uses: actions/checkout@v2
 
     - name: Decode CodeSigning key
       env:
