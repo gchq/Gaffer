@@ -105,6 +105,7 @@ uk.gov.gchq.gaffer.mapstore.factory
 uk.gov.gchq.gaffer.mapstore.impl
 uk.gov.gchq.gaffer.mapstore.multimap
 uk.gov.gchq.gaffer.mapstore.operation
+uk.gov.gchq.gaffer.mapstore.optimiser
 uk.gov.gchq.gaffer.mapstore.utils
 uk.gov.gchq.gaffer.named.operation
 uk.gov.gchq.gaffer.named.operation.cache.exception
@@ -160,10 +161,13 @@ uk.gov.gchq.gaffer.proxystore.exception
 uk.gov.gchq.gaffer.proxystore.operation.handler
 uk.gov.gchq.gaffer.rest
 uk.gov.gchq.gaffer.rest.application
+uk.gov.gchq.gaffer.rest.config
+uk.gov.gchq.gaffer.rest.controller
 uk.gov.gchq.gaffer.rest.example
 uk.gov.gchq.gaffer.rest.factory
 uk.gov.gchq.gaffer.rest.filter
 uk.gov.gchq.gaffer.rest.mapper
+uk.gov.gchq.gaffer.rest.model
 uk.gov.gchq.gaffer.rest.serialisation
 uk.gov.gchq.gaffer.rest.service
 uk.gov.gchq.gaffer.rest.service.v1
