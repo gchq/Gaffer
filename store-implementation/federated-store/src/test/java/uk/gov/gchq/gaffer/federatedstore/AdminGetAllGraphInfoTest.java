@@ -40,9 +40,8 @@ public class AdminGetAllGraphInfoTest {
 
     private static final String ADMIN_AUTH = "AdminAuth";
     private static final User ADMIN_USER = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
-    private static final Class CURRENT_CLASS = new Object() {}.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES =
-            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, "properties/singleUseAccumuloStore.properties"));
+            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AdminGetAllGraphInfoTest.class, "properties/singleUseAccumuloStore.properties"));
 
     private FederatedAccess access;
     private FederatedStore store;
