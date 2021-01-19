@@ -92,7 +92,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.values;
-import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -867,13 +867,13 @@ public class FederatedStoreTest {
         final CloseableIterable<? extends Element> elements = fedGraph.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(TEST_USER + "Other")
+                        .userId(TEST_USER_ID + "Other")
                         .opAuth("auth")
                         .build());
 
         final CloseableIterable<? extends Element> elements2 = fedGraph.execute(new GetAllElements(),
                 new User.Builder()
-                        .userId(TEST_USER + "Other")
+                        .userId(TEST_USER_ID + "Other")
                         .opAuths("x")
                         .build());
         assertEquals(0, Iterables.size(elements2));
@@ -985,7 +985,7 @@ public class FederatedStoreTest {
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
 
-        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         //check the store and the cache
         assertEquals(1, store.getAllGraphIds(blankUser).size());
@@ -1027,7 +1027,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null, StoreUser.TEST_USER, false, graphToAdd);
+            store.addGraphs(null, TEST_USER_ID, false, graphToAdd);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("No cache has been set"));
@@ -1060,7 +1060,7 @@ public class FederatedStoreTest {
                 .build();
 
         // When
-        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         // Then
         assertEquals(1, store.getGraphs(blankUser, ACC_ID_1, ignore).size());
@@ -1096,7 +1096,7 @@ public class FederatedStoreTest {
         }
 
         // When
-        store.addGraphs(null, StoreUser.TEST_USER, false, graphsToAdd.toArray(new GraphSerialisable[graphsToAdd.size()]));
+        store.addGraphs(null, TEST_USER_ID, false, graphsToAdd.toArray(new GraphSerialisable[graphsToAdd.size()]));
 
         // Then
         for (int i = 0; i < 10; i++) {
@@ -1148,7 +1148,7 @@ public class FederatedStoreTest {
                 .schema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
 
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, TEST_USER_ID, true, graphToAdd);
 
         //check is in the store
         assertEquals(1, store.getAllGraphIds(blankUser).size());
