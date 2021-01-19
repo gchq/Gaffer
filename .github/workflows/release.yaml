@@ -45,8 +45,8 @@ jobs:
         KORYPHE_POM_VERSION=$(mvn -q help:evaluate -Dexpression=koryphe.version -DforceStdout)
         mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
 
-        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$RELEASE_VERSION/" rest-api/core-rest/src/main/resources/version.properties
-        sed -i'' -e "s/^koryphe.version=.*/koryphe.version=$KORYPHE_POM_VERSION/" rest-api/core-rest/src/main/resources/version.properties
+        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$RELEASE_VERSION/" rest-api/common-rest/src/main/resources/version.properties
+        sed -i'' -e "s/^koryphe.version=.*/koryphe.version=$KORYPHE_POM_VERSION/" rest-api/common-rest/src/main/resources/version.properties
 
     - name: Push changes
       run: |
@@ -106,7 +106,7 @@ jobs:
 
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | cut -c 2-)" >> $GITHUB_ENV
-      
+
     - name: Upload Javadoc
       run: |
         git remote set-branches --add origin gh-pages
@@ -148,7 +148,7 @@ jobs:
         git merge origin/master
         mvn release:update-versions -B
         NEW_GAFFER_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)
-        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/" rest-api/core-rest/src/main/resources/version.properties
+        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/" rest-api/common-rest/src/main/resources/version.properties
         git commit -a -m "prepare for next development iteration"
         git push
 
