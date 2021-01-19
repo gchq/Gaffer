@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -39,9 +40,8 @@ public class AdminGetAllGraphInfoTest {
 
     private static final String ADMIN_AUTH = "AdminAuth";
     private static final User ADMIN_USER = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
-    private static final Class CURRENT_CLASS = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES =
-            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, "properties/singleUseAccumuloStore.properties"));
+            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AdminGetAllGraphInfoTest.class, "properties/singleUseAccumuloStore.properties"));
 
     private FederatedAccess access;
     private FederatedStore store;
@@ -74,6 +74,14 @@ public class AdminGetAllGraphInfoTest {
         assertNotNull(allGraphsAndAuths);
         assertFalse(allGraphsAndAuths.isEmpty());
         assertEquals(graph1, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
+        assertEquals("{\n" +
+                "  \"graph1\" : {\n" +
+                "    \"addingUserId\" : \"testuser1\",\n" +
+                "    \"disabledByDefault\" : false,\n" +
+                "    \"graphAuths\" : [ \"authA\" ],\n" +
+                "    \"public\" : false\n" +
+                "  }\n" +
+                "}", new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
     }
 
     @Test

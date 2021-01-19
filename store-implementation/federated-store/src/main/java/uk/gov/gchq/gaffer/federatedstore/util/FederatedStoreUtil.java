@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -126,7 +127,7 @@ public final class FederatedStoreUtil {
                     resultOp = (OP) operation.shallowClone();
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
-                    } else {
+                    } else if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
                         // The view has no groups so the operation would return
                         // nothing, so we shouldn't execute the operation.
                         resultOp = null;
