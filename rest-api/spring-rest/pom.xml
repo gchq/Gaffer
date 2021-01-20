@@ -28,6 +28,28 @@
       <version>${project.parent.version}</version>
     </dependency>
 
+    <!-- common library dependencies -->
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>time-library</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>bitmap-library</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>sketches-library</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>jcs-cache-service</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
     <!-- external dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -86,48 +108,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>time-library</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>bitmap-library</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>jcs-cache-service</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>accumulo-store</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>federated-store</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>hbase-store</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>proxy-store</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>parquet-store</artifactId>
-            <version>${project.parent.version}</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <layout>ZIP</layout>
           <executable>true</executable>
@@ -135,7 +115,7 @@
         </configuration>
         <executions>
           <execution>
-            <id>accumulo</id>
+            <id>create-fat-jar</id>
             <goals>
               <goal>repackage</goal>
             </goals>
@@ -164,18 +144,6 @@
   <profiles>
     <profile>
       <id>demo</id>
-      <dependencies>
-        <dependency>
-          <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>${store.type}-store</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>jcs-cache-service</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-      </dependencies>
       <build>
         <plugins>
           <plugin>
