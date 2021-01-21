@@ -16,69 +16,80 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import org.apache.commons.lang3.exception.CloneFailedException;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Set;
 
-public class FederatedOperationTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-    private static class TestFederatedOperation implements FederatedOperation {
+public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
+    private static final String EXPECTED_GRAPH_ID = "testGraphID1,testGraphID2";
 
-        @Override
-        public Operation shallowClone() throws CloneFailedException {
-            return null;
-        }
-
-        @Override
-        public Map<String, String> getOptions() {
-            return null;
-        }
-
-        @Override
-        public void setOptions(final Map<String, String> options) {
-
-        }
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("payloadOperation", "mergeFunction");
     }
 
     @Test
-    public void shouldReturnTrueWhenOpChainHasFederatedOps() {
-        // Given
-        final OperationChain<?> opChain = new OperationChain.Builder()
-                .first(new GetElements())
-                .then(new DiscardOutput())
-                .then(new TestFederatedOperation())
-                .then(new GetElements())
+    @Override
+    public void builderShouldCreatePopulatedOperation() {
+        FederatedOperation federatedOperation = new FederatedOperation.Builder()
+                .graphIds(EXPECTED_GRAPH_ID)
+                .mergeFunction(new StringConcat())
+                .op(new GetAdjacentIds.Builder()
+                        .build())
                 .build();
 
-        // When
-        final boolean result = FederatedOperation.hasFederatedOperations(opChain);
-
-        // Then
-        assertTrue(result);
+        assertEquals(EXPECTED_GRAPH_ID, federatedOperation.getGraphIdsCSV());
+        assertEquals(new StringConcat(), federatedOperation.getMergeFunction());
+        try {
+            assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getPayloadOperation())));
+            assertEquals("{\n" +
+                    "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",\n" +
+                    "  \"operation\" : {\n" +
+                    "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"\n" +
+                    "  },\n" +
+                    "  \"mergeFunction\" : {\n" +
+                    "    \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat\",\n" +
+                    "    \"separator\" : \",\"\n" +
+                    "  },\n" +
+                    "  \"graphIds\" : \"testGraphID1,testGraphID2\",\n" +
+                    "  \"options\" : {\n" +
+                    "    \"gaffer.federatedstore.operation.graphIds\" : \"\"\n" +
+                    "  }\n" +
+                    "}", new String(JSONSerialiser.serialise(federatedOperation, true)));
+        } catch (SerialisationException e) {
+            fail(e);
+        }
     }
+
 
     @Test
-    public void shouldReturnFalseWhenOpChainDoesNotHaveFederatedOps() {
-        // Given
-        final OperationChain<?> opChain = new OperationChain.Builder()
-                .first(new GetAdjacentIds())
-                .then(new GetElements())
+    @Override
+    public void shouldShallowCloneOperation() {
+        FederatedOperation a = new FederatedOperation.Builder()
+                .graphIds(EXPECTED_GRAPH_ID)
+                .mergeFunction(new StringConcat())
+                .op(new GetAdjacentIds.Builder()
+                        .build())
                 .build();
-
-        // When
-        final boolean result = FederatedOperation.hasFederatedOperations(opChain);
-
-        // Then
-        assertFalse(result);
+        final FederatedOperation b = a.shallowClone();
+        assertEquals(a, b);
     }
+
+    @Override
+    protected FederatedOperation getTestObject() {
+        return new FederatedOperation.Builder()
+                .build();
+    }
+
+
 }

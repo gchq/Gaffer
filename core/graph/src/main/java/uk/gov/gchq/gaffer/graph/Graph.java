@@ -142,6 +142,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
+        LOGGER.error("xxxxxxxxxxxxx{} {}", operation.getClass().getSimpleName(), operation.getOptions());
         execute(new GraphRequest<>(operation, context));
     }
 
@@ -368,7 +369,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -415,7 +416,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -457,7 +458,7 @@ public final class Graph {
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     *         has.
+     * has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();

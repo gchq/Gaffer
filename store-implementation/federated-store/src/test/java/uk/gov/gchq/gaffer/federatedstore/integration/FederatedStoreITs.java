@@ -34,6 +34,5 @@ public class FederatedStoreITs extends AbstractStoreITs {
         addExtraTest(FederatedViewsIT.class);
         addExtraTest(FederatedAdminIT.class);
         addExtraTest(FederatedStoreRecursionIT.class);
-
     }
 }

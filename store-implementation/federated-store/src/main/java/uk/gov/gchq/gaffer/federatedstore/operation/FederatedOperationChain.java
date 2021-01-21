@@ -58,7 +58,7 @@ import java.util.Map;
 @Summary("A wrapped OperationChain to be executed in one go on a delegate graph")
 public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         implements InputOutput<I, CloseableIterable<O_ITEM>>,
-        Operations<OperationChain> {
+        Operations<OperationChain>, IFederationOperation {
     @Required
     private OperationChain operationChain;
     private Map<String, String> options;

@@ -34,6 +34,7 @@ public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<G
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
             final boolean userRequestingAdminUsage = isUserRequestingAdminUsage(operation);
+            //TODO review
             final String graphIdsCsv = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
             return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), graphIdsCsv, userRequestingAdminUsage);
         } catch (final Exception e) {

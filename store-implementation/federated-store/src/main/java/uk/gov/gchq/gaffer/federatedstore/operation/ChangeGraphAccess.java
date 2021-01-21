@@ -42,7 +42,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.11.0")
 @Summary("Changes the protection used for accessing graphs")
 @JsonInclude(Include.NON_DEFAULT)
-public class ChangeGraphAccess implements Output<Boolean> {
+public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation {
     @Required
     private String graphId;
     private Set<String> graphAuths = new HashSet<>();

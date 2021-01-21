@@ -41,6 +41,7 @@ import static java.util.Objects.nonNull;
  * the merged schema based on the user context and operation options.
  */
 public class FederatedOperationChainValidator extends OperationChainValidator {
+    //TODO Review
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
         super(viewValidator);
     }
@@ -103,7 +104,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     /**
      * Return a clone of the given operations with a deep clone of options.
      * <p>
-     * Because op.shallowClone() is used it can't be guaranteed that original options won't be modified.
+     * Because payloadOperation.shallowClone() is used it can't be guaranteed that original options won't be modified.
      * So a deep clone of the options is made for the shallow clone of the operation.
      *
      * @param op the operation to clone

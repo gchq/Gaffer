@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandlerTest;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOutputOperationHandlerTest;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
 public abstract class FederatedItElementToElementHandlerTest<
         OP extends InputOutput<Iterable<? extends Element>, Element>,
         OPH extends OutputOperationHandler<OP, Element>>
-        extends FederatedOperationOutputHandlerTest<OP, Element> {
+        extends FederatedOutputOperationHandlerTest<OP, Element> {
 
     protected OP mockOp;
     protected OPH mockHandler;

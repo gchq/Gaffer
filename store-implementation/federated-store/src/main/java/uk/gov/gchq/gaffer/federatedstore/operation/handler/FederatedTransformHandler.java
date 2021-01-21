@@ -17,14 +17,14 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 
-public class FederatedTransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
+public class FederatedTransformHandler extends FederatedOutputIterableHandler<Transform, Element> {
     private final TransformHandler handler;
 
     public FederatedTransformHandler() {

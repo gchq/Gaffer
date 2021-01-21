@@ -26,6 +26,38 @@
     <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHandlerParent">
         <level value="error"/>
     </logger>
+
+
+    <logger name="uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreRecursionIT">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederationHandler">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.FederatedStore">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.proxystore.ProxyStore">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil">
+        <level value="debug"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler">
+        <level value="debug"/>
+    </logger>
     <root>
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>

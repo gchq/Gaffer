@@ -70,7 +70,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.0.0")
 @Summary("Adds a new Graph to the federated store")
 @JsonInclude(Include.NON_DEFAULT)
-public class AddGraph implements FederatedOperation {
+public class AddGraph implements IFederationOperation {
     @Required
     private String graphId;
     private StoreProperties storeProperties;

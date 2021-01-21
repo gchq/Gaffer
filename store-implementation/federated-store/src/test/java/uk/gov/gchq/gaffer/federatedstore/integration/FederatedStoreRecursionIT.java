@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.SingleUseFederatedStore;
@@ -40,6 +39,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreRecursionIT extends AbstractStoreIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreRecursionIT.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
     public static final String ENTITY_GRAPH = "entityGraph";
@@ -75,7 +75,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     }
 
 
-    @Test(timeout = 60000)
+    @Test//(timeout = 10000)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -96,14 +96,18 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         testInnerGetGraphIds(INNER_PROXY);
         createEntityGraph();
         testOuterGetGraphIds(INNER_FEDERATED_GRAPH, ENTITY_GRAPH);
+        Store.oHOLLA = true;
         addEntity();
         testGetAllElements(1);
         addEntity();
         testGetAllElements(2);
     }
 
+
     protected void addEntity() throws OperationException {
-        LOGGER.debug("addEntity");
+        if (Store.oHOLLA) {
+            LOGGER.info("addEntity");
+        }
         proxyToRestServiceFederatedGraph.execute(
                 new AddElements.Builder()
                         .input(new Entity.Builder()

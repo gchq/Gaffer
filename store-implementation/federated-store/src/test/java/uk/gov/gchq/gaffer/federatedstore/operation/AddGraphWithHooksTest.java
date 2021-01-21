@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks.Builder;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
-import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -36,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AddGraphWithHooksTest extends OperationTest<AddGraphWithHooks> {
+public class AddGraphWithHooksTest extends FederationOperationTest<AddGraphWithHooks> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());

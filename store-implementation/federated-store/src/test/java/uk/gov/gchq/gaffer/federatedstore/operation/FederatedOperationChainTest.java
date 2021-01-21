@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.Set;
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class FederatedOperationChainTest extends OperationTest<FederatedOperationChain> {
+public class FederatedOperationChainTest extends FederationOperationTest<FederatedOperationChain> {
 
     @Test
     @Override

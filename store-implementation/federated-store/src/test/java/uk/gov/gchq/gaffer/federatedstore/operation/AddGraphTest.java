@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
-import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -33,7 +32,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AddGraphTest extends OperationTest<AddGraph> {
+public class AddGraphTest extends FederationOperationTest<AddGraph> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());

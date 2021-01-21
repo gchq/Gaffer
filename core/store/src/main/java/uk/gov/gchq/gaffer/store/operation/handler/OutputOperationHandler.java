@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Store;
 /**
  * An {@code OutputOperationHandler} defines how to handle a specific {@link Output} operations.
  */
-public interface OutputOperationHandler<OP extends Output<O>, O> extends OperationHandler<OP> {
+public interface OutputOperationHandler<OP extends Output<? extends O>, O> extends OperationHandler<OP> {
     /**
      * Execute the given {@link Output} operation.
      *

@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -117,9 +118,9 @@ public class FederatedStoreWrongGraphIDsTest {
                     .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
                     .build(), blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
-        } catch (final IllegalArgumentException e) {
+        } catch (final OperationException e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
-                    e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
+                    e.getCause().getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
 
         try {
@@ -129,9 +130,9 @@ public class FederatedStoreWrongGraphIDsTest {
                             .build(),
                     blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
-        } catch (final IllegalArgumentException e) {
+        } catch (final OperationException e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
-                    e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
+                    e.getCause().getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
     }
 }

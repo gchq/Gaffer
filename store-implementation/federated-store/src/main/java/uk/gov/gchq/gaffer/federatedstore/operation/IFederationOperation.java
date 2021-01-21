@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
+package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
- * A handler for GetElements operation for the FederatedStore.
- *
- * @see uk.gov.gchq.gaffer.store.operation.handler.OperationHandler
- * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
+ * {@link IFederationOperation} interface is for special operation that should always be handled by the
+ * {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
-public class FederatedGetElementsHandler extends FederatedOutputCloseableIterableHandler<GetElements, Element> {
+public interface IFederationOperation extends Operation {
 }

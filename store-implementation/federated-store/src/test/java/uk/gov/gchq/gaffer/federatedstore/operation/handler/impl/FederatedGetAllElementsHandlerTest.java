@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandlerTest;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOutputOperationHandlerTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutputHandlerTest<GetAllElements, CloseableIterable<? extends Element>> {
+public class FederatedGetAllElementsHandlerTest extends FederatedOutputOperationHandlerTest<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
     @BeforeEach
@@ -56,7 +55,7 @@ public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutput
     }
 
     @Override
-    protected FederatedOperationOutputHandler<GetAllElements, CloseableIterable<? extends Element>> getFederatedHandler() {
+    protected FederationHandler<GetAllElements, CloseableIterable<? extends Element>, GetAllElements> getFederatedHandler() {
         return new FederatedGetAllElementsHandler();
     }
 

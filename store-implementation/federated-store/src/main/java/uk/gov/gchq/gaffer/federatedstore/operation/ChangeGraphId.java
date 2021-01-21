@@ -38,7 +38,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.12.0")
 @Summary("Changes the Id of a graph")
 @JsonInclude(Include.NON_DEFAULT)
-public class ChangeGraphId implements Output<Boolean> {
+public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     @Required
     private String graphId;
     private String newGraphId;

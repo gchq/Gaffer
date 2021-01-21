@@ -36,7 +36,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.11.0")
 @Summary("Gets the ids of all available Graphs from a federated store")
 public class GetAllGraphInfo implements
-        FederatedOperation,
+        IFederationOperation,
         Output<Map<String, Object>> {
     private Map<String, String> options;
 

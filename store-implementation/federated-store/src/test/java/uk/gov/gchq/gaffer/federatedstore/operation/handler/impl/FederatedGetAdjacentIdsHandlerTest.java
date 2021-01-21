@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandlerTest;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOutputOperationHandlerTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FederatedGetAdjacentIdsHandlerTest extends FederatedOperationOutputHandlerTest<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+public class FederatedGetAdjacentIdsHandlerTest extends FederatedOutputOperationHandlerTest<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
 
     @Override
     @BeforeEach
@@ -56,9 +55,11 @@ public class FederatedGetAdjacentIdsHandlerTest extends FederatedOperationOutput
     }
 
     @Override
-    protected FederatedOperationOutputHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getFederatedHandler() {
+    protected FederationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>, GetAdjacentIds> getFederatedHandler() {
         return new FederatedGetAdjacentIdsHandler();
     }
+
+
 
     @Override
     protected GetAdjacentIds getExampleOperation() {
