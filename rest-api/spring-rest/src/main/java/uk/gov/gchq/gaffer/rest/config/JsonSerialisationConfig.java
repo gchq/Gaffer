@@ -17,35 +17,20 @@
 package uk.gov.gchq.gaffer.rest.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.serialisation.ObjectMapperProvider;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 
-import java.util.List;
-
-@Configuration()
-public class JsonSerialisationConfig extends WebMvcConfigurerAdapter {
-
-    private final ObjectMapperProvider objectMapperProvider = new ObjectMapperProvider();
+@Configuration
+public class JsonSerialisationConfig extends ObjectMapperProvider {
 
     @Primary
     @Bean
-    public ObjectMapper objectMapper() {
-        return objectMapperProvider.getObjectMapper();
-    }
-
-    @Override
-    public void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
-        converters.add(new MappingJackson2HttpMessageConverter(objectMapper()));
+    public ObjectMapper objectMapper(final GraphFactory graphFactory) {
+        graphFactory.getGraph(); // Re-initialises the JsonSerialiser with the Json Modules
+        return getObjectMapper();
     }
 }
