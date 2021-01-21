@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -96,7 +95,6 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         testInnerGetGraphIds(INNER_PROXY);
         createEntityGraph();
         testOuterGetGraphIds(INNER_FEDERATED_GRAPH, ENTITY_GRAPH);
-        Store.oHOLLA = true;
         addEntity();
         testGetAllElements(1);
         addEntity();
@@ -105,9 +103,6 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
 
 
     protected void addEntity() throws OperationException {
-        if (Store.oHOLLA) {
-            LOGGER.info("addEntity");
-        }
         proxyToRestServiceFederatedGraph.execute(
                 new AddElements.Builder()
                         .input(new Entity.Builder()

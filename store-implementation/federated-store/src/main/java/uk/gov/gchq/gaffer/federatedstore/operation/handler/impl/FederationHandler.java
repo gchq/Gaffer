@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
@@ -55,25 +54,11 @@ public abstract class FederationHandler<OP extends Operation, OUTPUT, PAYLOAD ex
     abstract KorypheBinaryOperator<OUTPUT> getMergeFunction(OP operation);
 
     private List<OUTPUT> getAllGraphResults(final OP operation, final Context context, final FederatedStore store) throws OperationException {
-        if (Store.oHOLLA) {
-            LOGGER.info("{}:getAllGraphResults():{}", store.getGraphId(), store.getId());
-        }
         try {
             List<OUTPUT> results;
-            if (Store.oHOLLA) {
-                LOGGER.debug("{} options before getGraphs = {}", operation.getClass().getSimpleName(), isNull(operation.getOptions()) ? null : operation.getOptions()); //.keySet().stream()/*.filter(e -> e.startsWith("FederatedStore.processed."))*/.collect(Collectors.toList()));
-            }
             final Collection<Graph> graphs = getGraphs(operation, context, store);
-            if (Store.oHOLLA) {
-                LOGGER.debug("{} options after getGraphs= {}", operation.getClass().getSimpleName(), operation.getOptions()); //.keySet().stream()/*.filter(e -> e.startsWith("FederatedStore.processed."))*/.collect(Collectors.toList()));
-            }
             results = new ArrayList<>(graphs.size());
             for (final Graph graph : graphs) {
-
-                if (Store.oHOLLA) {
-                    LOGGER.debug("{} double check = {}", operation.getClass().getSimpleName(), operation.getOptions()); //.keySet().stream()/*.filter(e -> e.startsWith("FederatedStore.processed."))*/.collect(Collectors.toList()));
-                }
-
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(getPayloadOperation(operation), graph);
                 if (null != updatedOp) {
                     OUTPUT execute = null;
@@ -82,18 +67,7 @@ public abstract class FederationHandler<OP extends Operation, OUTPUT, PAYLOAD ex
                             //TODO review this output distinction.
                             execute = graph.execute((Output<OUTPUT>) updatedOp, context);
                         } else {
-                            if (Store.oHOLLA) {
-                                LOGGER.debug("delegate graph = {}", graph.getGraphId());
-//                                LOGGER.debug("clone ID before = {}", updatedOp.getOptions().keySet().stream().filter(e -> e.startsWith("FederatedStore.processed.")).collect(Collectors.toList()));
-                                LOGGER.debug("clone ID before = {}", updatedOp.getOptions());
-                                LOGGER.debug("execute non-output");
-                                LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-                            }
                             graph.execute(updatedOp, context);
-                            if (Store.oHOLLA) {
-                                LOGGER.debug("finished non-output");
-                                LOGGER.debug("clone ID after = {}", updatedOp.getOptions());
-                            }
                         }
                     } catch (final Exception e) {
                         //TODO make optional argument.

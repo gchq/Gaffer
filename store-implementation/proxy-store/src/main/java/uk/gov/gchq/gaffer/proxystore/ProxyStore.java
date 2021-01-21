@@ -160,15 +160,6 @@ public class ProxyStore extends Store {
 
     public <O> O executeOpChainViaUrl(final OperationChain<O> opChain, final Context context)
             throws OperationException {
-        if (Store.oHOLLA) {
-            LOGGER.debug("{}:executeOpChainViaUrl({}:{})",
-                    this.getGraphId(),
-                    opChain.getOperations().stream().findFirst().map(o -> o.getClass().getSimpleName()).get(),
-                    opChain.getOperations().stream().findFirst().map(Operation::getOptions).orElse(null)
-            );
-        }
-
-
         final String opChainJson;
         try {
             opChainJson = new String(JSONSerialiser.serialise(opChain), CommonConstants.UTF_8);

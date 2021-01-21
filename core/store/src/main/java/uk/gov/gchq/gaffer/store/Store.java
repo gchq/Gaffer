@@ -199,7 +199,6 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     private final Boolean addCoreOpHandlers;
-    public static boolean oHOLLA = false;
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
      * to be stored and how to aggregate the elements.

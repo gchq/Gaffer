@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
@@ -106,9 +105,6 @@ public final class FederatedStoreUtil {
      * @return cloned operation with modified View for the given graph.
      */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
-        if (Store.oHOLLA) {
-            LOGGER.error("yyyyyyyyyyyyyy {}", operation.getOptions());
-        }
         OP resultOp = operation;
         if (operation instanceof Operations) {
             resultOp = (OP) operation.shallowClone();

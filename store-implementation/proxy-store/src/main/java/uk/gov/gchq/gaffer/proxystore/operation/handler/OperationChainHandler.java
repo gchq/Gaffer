@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -56,13 +55,6 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
 
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) {
-        if (Store.oHOLLA) {
-            LOGGER.debug("{}:doOperation({}:{}) {}",
-                    store.getGraphId(),
-                    operationChain.getOperations().stream().findFirst().map(o -> o.getClass().getSimpleName()).get(),
-                    operationChain.getOperations().stream().findFirst().map(Operation::getOptions).orElse(null),
-                    ++i);
-        }
         try {
             if (store instanceof ProxyStore) {
                 switch (getProxyOptions(operationChain)) {
@@ -108,9 +100,6 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
 
             for (int i = placeMarker; i < operations.size(); i++, placeMarker++) {
                 Operation operation = operations.get(i);
-                if (Store.oHOLLA) {
-                    LOGGER.debug("UnprocessedLogic {} options:{}", operation.getClass().getSimpleName(), isNull(operation.getOptions()) ? null : operation.getOptions().keySet().stream().filter(e -> e.startsWith("FederatedStore.processed.")).collect(Collectors.toList()));
-                }
                 Class<? extends Operation> opClass = operation.getClass();
                 if (isNull(store.getOperationHandler(opClass))) {
                     processAlternatingLists(listOfOpChain, unhandledOperations, handledOperations, operation, false);
@@ -135,13 +124,6 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
     }
 
     private OUT proxyLogic(final OperationChain<OUT> operationChain, final Context context, final ProxyStore store) throws OperationException {
-        if (Store.oHOLLA) {
-            LOGGER.debug("{}:proxyLogic({}:{})",
-                    store.getGraphId(),
-                    operationChain.getOperations().stream().findFirst().map(o -> o.getClass().getSimpleName()).get(),
-                    operationChain.getOperations().stream().findFirst().map(Operation::getOptions).orElse(null)
-            );
-        }
         return store.executeOpChainViaUrl(operationChain, context);
     }
 
@@ -150,10 +132,6 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
     }
 
     private OUT resolvedLogic(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
-        if (Store.oHOLLA) {
-            LOGGER.debug("{}:resolvedLogic", store.getGraphId());
-        }
-
         Object out = null;
         for (final Operation operation : operationChain.getOperations()) {
             if (operation instanceof OperationChain) {
@@ -163,9 +141,6 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
                 if (TO_PROXY.equals(chain.getOption(PROXY_STORE_OPERATION_CHAIN_HANDLER))) {
                     out = proxyLogic(chain, context, (ProxyStore) store);
                 } else {
-                    if (Store.oHOLLA) {
-                        LOGGER.debug("resolvedLogic:Generic");
-                    }
                     //Generic is of type Object
                     out = new OperationChainHandler<>(getOpChainValidator(), getOpChainOptimisers()).doOperation(chain, context, store);
                 }

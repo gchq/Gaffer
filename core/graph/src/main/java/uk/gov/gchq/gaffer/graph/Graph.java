@@ -142,7 +142,6 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
-        LOGGER.error("xxxxxxxxxxxxx{} {}", operation.getClass().getSimpleName(), operation.getOptions());
         execute(new GraphRequest<>(operation, context));
     }
 

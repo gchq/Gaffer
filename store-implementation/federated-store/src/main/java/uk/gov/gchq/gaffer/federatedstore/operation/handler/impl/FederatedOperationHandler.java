@@ -21,10 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
-
-import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
@@ -33,23 +30,13 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, O> extends Fed
 
     @Override
     PAYLOAD getPayloadOperation(final FederatedOperation operation) {
-        if (Store.oHOLLA) {
-            LOGGER.error("zzzzzzzz class {}", operation.getClass());
-            LOGGER.error("zzzzzzzz options {}", operation.getOptions());
-        }
         Operation payloadOperation = operation.getPayloadOperation();
-        if (Store.oHOLLA) {
-            LOGGER.error("zzzzzzzz payload!! {}", payloadOperation.getOptions());
-        }
         //TODO completely tidy up this important logic see FedOp for autoing this.
 
         if (nonNull(operation.getOptions())) {
             operation.getOptions().forEach((k, v) -> payloadOperation.addOption(k.toString(), v.toString()));
         }
 
-        if (Store.oHOLLA) {
-            LOGGER.error("TTTTTTTTTTTTTTT payload!! {}", payloadOperation.getOptions());
-        }
         return (PAYLOAD) payloadOperation;
     }
 
