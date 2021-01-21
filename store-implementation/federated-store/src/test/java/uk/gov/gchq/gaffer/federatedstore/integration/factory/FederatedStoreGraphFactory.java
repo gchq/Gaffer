@@ -29,9 +29,9 @@ public class FederatedStoreGraphFactory implements GraphFactory {
     @Override
     public Graph.Builder createGraphBuilder() {
         return new Graph.Builder()
-            .storeProperties(new FederatedStoreProperties())
-            .addSchema(new Schema())
-            .config(new GraphConfig("store"));
+                .storeProperties(new FederatedStoreProperties())
+                .addSchema(new Schema())
+                .config(new GraphConfig("store"));
     }
 
     @Override
@@ -40,5 +40,9 @@ public class FederatedStoreGraphFactory implements GraphFactory {
             graph = createGraph();
         }
         return graph;
+    }
+
+    public void reset() {
+        graph = null;
     }
 }
