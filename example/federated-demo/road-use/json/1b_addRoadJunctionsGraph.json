@@ -28,10 +28,6 @@
     }
   },
   "storeProperties": {
-    "gaffer.store.class": "uk.gov.gchq.gaffer.mapstore.MapStore",
-    "accumulo.instance": "someInstanceName",
-    "accumulo.zookeepers": "aZookeeper",
-    "accumulo.user": "user01",
-    "accumulo.password": "password"
+    "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
   }
 }
