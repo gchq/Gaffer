@@ -34,7 +34,7 @@ public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {
         final FreqMap aggregatedFreqMap = new FreqMap(a);
         for (final Entry<String, Long> entry : b.entrySet()) {
             if (aggregatedFreqMap.containsKey(entry.getKey())) {
-                aggregatedFreqMap.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
+                aggregatedFreqMap.put(entry.getKey(), aggregatedFreqMap.get(entry.getKey()) + entry.getValue());
             } else {
                 aggregatedFreqMap.put(entry.getKey(), entry.getValue());
             }

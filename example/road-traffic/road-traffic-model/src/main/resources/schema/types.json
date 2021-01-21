@@ -117,9 +117,6 @@
       ],
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.types.function.FreqMapAggregator"
-      },
-      "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser"
       }
     }
   }

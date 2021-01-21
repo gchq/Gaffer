@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MapStorePropertiesTest {
 
     @Test
-    public void shouldMergeAccumuloJsonModules() {
+    public void shouldMergeJsonModules() {
         // Given
         final MapStoreProperties props = new MapStoreProperties();
         props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
@@ -39,7 +39,7 @@ public class MapStorePropertiesTest {
     }
 
     @Test
-    public void shouldMergeAccumuloJsonModulesAndDeduplicate() {
+    public void shouldMergeJsonModulesAndDeduplicate() {
         // Given
         final MapStoreProperties props = new MapStoreProperties();
         props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
