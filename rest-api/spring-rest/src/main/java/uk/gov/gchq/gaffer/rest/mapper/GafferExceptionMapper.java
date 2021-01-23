@@ -16,10 +16,14 @@
 
 package uk.gov.gchq.gaffer.rest.mapper;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
@@ -27,6 +31,7 @@ import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -58,6 +63,14 @@ public class GafferExceptionMapper extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(error.getStatusCode())
                 .body(error);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(final HttpMessageNotReadableException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
+        final Error error = ErrorFactory.from(new GafferRuntimeException(ex.getMessage(), ex, Status.BAD_REQUEST));
+
+        return ResponseEntity.status(Status.BAD_REQUEST.getStatusCode())
+            .body(error);
     }
 
     @ExceptionHandler(Exception.class)
