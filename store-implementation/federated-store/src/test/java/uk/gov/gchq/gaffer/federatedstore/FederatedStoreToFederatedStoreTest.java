@@ -113,7 +113,7 @@ public class FederatedStoreToFederatedStoreTest {
                 .build())
             .build(), new User()));
 
-        assertTrue(e.getMessage().contains("View is not valid for graphIds:[mapStore]"));
+        assertTrue(e.getCause().getCause().getMessage().contains("View is not valid for graphIds:[mapStore]"), e.getMessage());
     }
 
     @Test

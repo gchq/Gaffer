@@ -74,7 +74,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     }
 
 
-    @Test//(timeout = 10000)
+    @Test(timeout = 10000)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:

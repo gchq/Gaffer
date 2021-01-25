@@ -78,9 +78,9 @@ public class FederatedOperationChainValidatorTest {
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, missingGraph)
                 .build(), new Context());
         fail("exception expected");
-        } catch (final OperationException e) {
+        } catch (final Exception e) {
             //then
-            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getCause().getMessage());
+            assertEquals(String.format(FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE, Lists.newArrayList(missingGraph)), e.getMessage());
         }
 
     }

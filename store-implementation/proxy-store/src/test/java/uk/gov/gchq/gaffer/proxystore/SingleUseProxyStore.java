@@ -45,11 +45,11 @@ public abstract class SingleUseProxyStore extends ProxyStore {
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
-        startMapStoreRestApi(schema);
+        startRemoteStoreRestApi(schema);
         super.initialise(graphId, new Schema(), proxyProps);
     }
 
-    protected void startMapStoreRestApi(final Schema schema) throws StoreException {
+    protected void startRemoteStoreRestApi(final Schema schema) throws StoreException {
         try {
             TEST_FOLDER.delete();
             TEST_FOLDER.create();
