@@ -1,13 +1,10 @@
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
-    "graphId": "accEntities",
+    "graphId": "mapEntitiesClashingGraph",
     "storeProperties": {
-         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.DemoMiniAccumuloStore",
-         "accumulo.instance":"someInstanceName",
-         "accumulo.zookeepers":"aZookeeper",
-         "accumulo.user":"user01",
-         "accumulo.password":"password"
+       "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
     },
+    "disabledByDefault": true,
     "schema": {
        "entities": {
          "BasicEntity": {
@@ -22,7 +19,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
            "class": "java.lang.String"
          },
          "count": {
-           "class": "java.lang.Integer",
+           "class": "java.lang.Long",
            "aggregateFunction": {
              "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
            }
