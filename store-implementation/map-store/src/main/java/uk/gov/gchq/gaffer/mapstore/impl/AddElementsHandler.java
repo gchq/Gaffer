@@ -72,7 +72,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final List<Element> batch = new ArrayList<>(bufferSize);
             for (final Element element : elements) {
                 if (null != element) {
-                    batch.add(element);
+                    batch.add(mapImpl.cloneElement(element, schema));
                     count++;
                     if (count >= bufferSize) {
                         addBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema));
