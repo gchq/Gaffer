@@ -28,7 +28,7 @@
     <artifactId>road-traffic-rest</artifactId>
 
     <properties>
-        <store.type>accumulo</store.type>
+        <store.type>map</store.type>
         <!-- Test Properties -->
         <gaffer.rest.host>localhost</gaffer.rest.host>
         <gaffer.rest.port>8080</gaffer.rest.port>
