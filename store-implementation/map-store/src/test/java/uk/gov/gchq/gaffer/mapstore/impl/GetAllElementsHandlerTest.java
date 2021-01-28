@@ -503,4 +503,11 @@ public class GetAllElementsHandlerTest {
                 });
         return elements;
     }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new GetAllElements.Builder().build(),
+                VisibilityTest::elementIterableResultConsumer);
+    }
 }
