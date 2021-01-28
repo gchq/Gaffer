@@ -34,7 +34,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 public class RestApiV2TestClient extends RestApiTestClient {
 
     public RestApiV2TestClient() {
-        super("http://localhost:8080/", "rest/", "v2", new ApplicationConfigV2());
+        this(8080);
+    }
+
+    public RestApiV2TestClient(int port) {
+        super("http://localhost:" + port + "/", "rest/", "v2", new ApplicationConfigV2());
     }
 
     @Override

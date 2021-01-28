@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.proxystore;
 
 import org.junit.rules.TemporaryFolder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
@@ -27,6 +29,8 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
@@ -40,19 +44,28 @@ import java.io.IOException;
  * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
 public abstract class SingleUseProxyStore extends ProxyStore {
-    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseProxyStore.class);
+
+    private TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private static final Collection<RestApiTestClient> allClients = new HashSet<>();
+    private static final Collection<TemporaryFolder> allFolders = new HashSet<>();
+    private RestApiTestClient client;
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
+        int gafferPort = ((ProxyProperties) proxyProps).getGafferPort();
+        LOGGER.info("Initialising RestApiV2TestClient with proxyProperties port: " + gafferPort);
+        client = new RestApiV2TestClient(gafferPort);
+        allClients.add(client);
         startMapStoreRestApi(schema);
         super.initialise(graphId, new Schema(), proxyProps);
+        LOGGER.debug("testFolder = {}", testFolder.getRoot().toURI().toString());
     }
 
     protected void startMapStoreRestApi(final Schema schema) throws StoreException {
         try {
-            TEST_FOLDER.delete();
-            TEST_FOLDER.create();
+            testFolder.delete();
+            testFolder.create();
         } catch (final IOException e) {
             throw new StoreException("Unable to create temporary folder", e);
         }
@@ -60,16 +73,17 @@ public abstract class SingleUseProxyStore extends ProxyStore {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), getPathToDelegateProperties()));
         try {
-            CLIENT.reinitialiseGraph(TEST_FOLDER, schema, storeProperties);
+            client.reinitialiseGraph(testFolder, schema, storeProperties);
         } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }
     }
 
     public static void cleanUp() {
-        TEST_FOLDER.delete();
-        CLIENT.stopServer();
+        allFolders.forEach(TemporaryFolder::delete);
+        allClients.forEach(RestApiTestClient::stopServer);
     }
+
 
     protected abstract String getPathToDelegateProperties();
 }

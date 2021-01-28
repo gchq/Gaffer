@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -40,66 +42,88 @@ import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BAS
 
 /**
  * The Test structure:
- *                                           --------------------
- *      FederatedStore                      |   GAFFER REST API |
- *           -> Proxy Store --------------> |                   |
- *                                          |      MapStore     |
- *                                          --------------------
+ *                 ------------------------
+ *                 |  GAFFER REST API      |
+ * Proxy Store --> |  port:8081            |             --------------------
+ *                 |  FederatedStore       |             |   GAFFER REST API |
+ *                 |       -> Proxy Store -|-----------> |     port:8082     |
+ *                 |                       |             |      MapStore     |
+ *                 ------------------------              --------------------
  */
 public class FederatedStoreToProxyStoreTest {
-
-    private Graph federatedStoreGraph;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreToProxyStoreTest.class);
+    private Graph restFederatedStoreProxyGraph;
     private Graph restApiMapGraph;
 
     @BeforeEach
     public void setUpStores() throws OperationException {
-        ProxyProperties proxyProperties = new ProxyProperties();
-        proxyProperties.setStoreClass(SingleUseMapProxyStore.class);
+        makeRestMapProxy();
 
-        restApiMapGraph = new Graph.Builder()
-            .storeProperties(proxyProperties)
-            .config(new GraphConfig("RestApiGraph"))
-            .addSchema(Schema.fromJson(getClass().getResourceAsStream("/schema/basicEntitySchema.json")))
-            .build();
-
-        federatedStoreGraph = new Graph.Builder()
-            .config(new GraphConfig("federatedStoreGraph"))
-            .storeProperties(new FederatedStoreProperties())
-            .build();
+        makeRestFederatedStore();
 
         connectGraphs();
     }
 
+    private void makeRestFederatedStore() {
+        LOGGER.debug("makeRestFederatedStore");
+        ProxyProperties fedProxyProperties = new ProxyProperties();
+        fedProxyProperties.setStoreClass(SingleUseFederatedStore.class);
+        fedProxyProperties.setGafferPort(8081);
+
+        restFederatedStoreProxyGraph = new Graph.Builder()
+                .config(new GraphConfig("RestFederatedStoreProxyGraph"))
+                .storeProperties(fedProxyProperties)
+                .addSchema(new Schema())
+                .build();
+    }
+
+    private void makeRestMapProxy() {
+        LOGGER.debug("makeRestMapProxy");
+        ProxyProperties mapProxyProperties = new ProxyProperties();
+        mapProxyProperties.setStoreClass(SingleUseMapProxyStore.class);
+        mapProxyProperties.setGafferPort(8082);
+
+        restApiMapGraph = new Graph.Builder()
+                .config(new GraphConfig("RestApiGraph"))
+                .storeProperties(mapProxyProperties)
+                .addSchema(Schema.fromJson(getClass().getResourceAsStream("/schema/basicEntitySchema.json")))
+                .build();
+
+    }
+
     private void connectGraphs() throws OperationException {
-        federatedStoreGraph.execute(new AddGraph.Builder()
-            .storeProperties(new ProxyProperties())
-            .graphId("RestProxy")
-            .schema(new Schema())
-            .build(), new User());
+        LOGGER.info("connectGraphs");
+        ProxyProperties storeProperties = new ProxyProperties();
+        storeProperties.setGafferPort(8081);
+        restFederatedStoreProxyGraph.execute(new AddGraph.Builder()
+                .storeProperties(storeProperties)
+                .graphId("RestProxy")
+                .schema(new Schema())
+                .build(), new User());
     }
 
     @Test
     public void shouldGetAllElements() throws OperationException {
         // Given
         Entity entity = new Entity.Builder()
-            .group(BASIC_ENTITY)
-            .vertex("myVertex")
-            .property("property1", 1)
-            .build();
+                .group(BASIC_ENTITY)
+                .vertex("myVertex")
+                .property("property1", 1)
+                .build();
 
         restApiMapGraph.execute(new AddElements.Builder()
-            .input(entity)
-            .build(), new User());
+                .input(entity)
+                .build(), new User());
 
         // When
-        CloseableIterable<? extends Element> results = federatedStoreGraph.execute(new GetAllElements(), new User());
+        CloseableIterable<? extends Element> results = restFederatedStoreProxyGraph.execute(new GetAllElements(), new User());
 
 
         List<Element> elements = new ArrayList<>();
         results.iterator().forEachRemaining(elements::add);
 
-        assertEquals(1,elements.size());
-        assertEquals(entity,elements.get(0));
+        assertEquals(1, elements.size());
+        assertEquals(entity, elements.get(0));
     }
 
 
