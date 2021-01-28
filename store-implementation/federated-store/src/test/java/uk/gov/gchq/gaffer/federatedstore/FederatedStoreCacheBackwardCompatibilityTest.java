@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -59,6 +60,11 @@ public class FederatedStoreCacheBackwardCompatibilityTest {
                 .addStoreProperties(PROPERTIES)
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        CacheServiceLoader.shutdown();
     }
 
     @Test
