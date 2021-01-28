@@ -25,14 +25,14 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+import org.apache.accumulo.core.clientImpl.mapreduce.lib.InputConfigurator;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
@@ -346,7 +346,7 @@ public class AccumuloStore extends Store {
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
-                new ClientConfiguration()
+                ClientConfiguration.create()
                         .withInstance(getProperties().getInstance())
                         .withZkHosts(getProperties().getZookeepers()));
     }

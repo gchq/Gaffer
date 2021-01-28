@@ -20,12 +20,13 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
+import org.apache.accumulo.core.cryptoImpl.NoCryptoService;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
+import org.apache.accumulo.core.file.rfile.bcfile.BCFile;
 import org.apache.accumulo.core.file.rfile.bcfile.Compression;
+import org.apache.accumulo.core.util.ratelimit.NullRateLimiter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -381,7 +382,7 @@ public final class GetRDDOfAllElementsHandlerIT {
                                         final Schema schema,
                                         final List<Element> elements)
             throws InterruptedException, AccumuloException, AccumuloSecurityException,
-                   IOException, OperationException, TableNotFoundException, StoreException {
+            IOException, OperationException, TableNotFoundException, StoreException {
         AccumuloStore accumuloStore = new AccumuloStore();
         accumuloStore.initialise(tableName, schema, PROPERTIES_B);
         updateAccumuloPropertiesWithKeyPackage(keyPackage);
@@ -486,13 +487,13 @@ public final class GetRDDOfAllElementsHandlerIT {
     private void writeFile(final KeyPackage keyPackage, final Schema schema, final String file)
             throws IllegalArgumentException, IOException {
         final Configuration conf = new Configuration();
-        final CachableBlockFile.Writer blockFileWriter = new CachableBlockFile.Writer(
-                FileSystem.get(conf),
-                new Path(file),
+        final BCFile.Writer blockFileWriter = new BCFile.Writer(
+                FileSystem.get(conf).create(new Path(file)),
+                NullRateLimiter.INSTANCE,
                 Compression.COMPRESSION_NONE,
-                null,
                 conf,
-                AccumuloConfiguration.getDefaultConfiguration());
+                new NoCryptoService());
+
         final AccumuloElementConverter converter;
         switch (keyPackage) {
             case BYTE_ENTITY:

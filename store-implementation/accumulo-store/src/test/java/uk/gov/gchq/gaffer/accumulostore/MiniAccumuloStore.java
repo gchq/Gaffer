@@ -22,8 +22,8 @@ import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
+import org.apache.accumulo.core.clientImpl.mapreduce.lib.InputConfigurator;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
@@ -44,12 +44,12 @@ import java.util.Set;
  * A {@code MiniAccumuloStore} is an {@link AccumuloStore} which sets up a {@link MiniAccumuloCluster}.
  * If you create two Mini Accumulo stores,the same cluster will be used for both. this is so that you don't
  * spend unnecessary time spinning up mini-clusters.
- *
+ * <p>
  * It's dependencies mean it cannot be run in a REST API.
- *
+ * <p>
  * If a user hasn't been created on the accumulo instance, it will be created for you with the
  * CREATE_NAMESPACE and CREATE_TABLE permissions.
- *
+ * <p>
  * If you specify the authorisations in the store properties, the current authorisations for any
  * existing user will be overwritten.
  */
@@ -142,13 +142,14 @@ public class MiniAccumuloStore extends AccumuloStore {
     /**
      * Overrides the parent method so the instance name and zookeepers are taken from the running instance,
      * rather than the store properties.
+     *
      * @param conf the Configuration
      */
     @Override
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
-                new ClientConfiguration()
+                ClientConfiguration.create()
                         .withInstance(instance.getInstanceName())
                         .withZkHosts(instance.getZooKeepers()));
     }

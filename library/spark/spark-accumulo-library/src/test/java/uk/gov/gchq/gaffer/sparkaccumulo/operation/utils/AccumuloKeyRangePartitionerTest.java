@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.utils;
 
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.admin.TableOperations;
-import org.apache.accumulo.core.client.impl.ConnectorImpl;
 import org.apache.hadoop.io.Text;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +36,7 @@ public class AccumuloKeyRangePartitionerTest {
     public void shouldGetSplitsInOrder() throws Exception {
         // Given
         final AccumuloStore store = mock(AccumuloStore.class);
-        final Connector connector = mock(ConnectorImpl.class);
+        final Connector connector = mock(Connector.class);
         final TableOperations tableOperations = mock(TableOperations.class);
         final String testTableName = "tableName";
         final List<Text> unsortedTextCollection = Arrays.asList(new Text("z"), new Text("f"), new Text("g"), new Text("a"));

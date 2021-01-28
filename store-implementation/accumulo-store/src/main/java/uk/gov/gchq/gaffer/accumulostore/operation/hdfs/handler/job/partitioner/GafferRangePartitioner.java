@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.DistributedCacheHelper;
-import org.apache.accumulo.core.util.Base64;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -40,6 +38,7 @@ import java.util.Scanner;
 import java.util.TreeSet;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Base64.getDecoder;
 
 /**
  * Copy of {@link org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner}
@@ -91,14 +90,14 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
     private synchronized Text[] getCutPoints() throws IOException {
         if (null == cutPointArray) {
             final String cutFileName = conf.get(CUTFILE_KEY);
-            final Path[] cf = DistributedCacheHelper.getLocalCacheFiles(conf);
+            final Path[] cf = Job.getInstance(conf).getLocalCacheFiles();
             if (null != cf) {
                 for (final Path path : cf) {
                     if (path.toUri().getPath().endsWith(cutFileName.substring(cutFileName.lastIndexOf('/')))) {
                         final TreeSet<Text> cutPoints = new TreeSet<>();
                         try (final Scanner in = openCutPointsStream(path)) {
                             while (in.hasNextLine()) {
-                                cutPoints.add(new Text(Base64.decodeBase64(in.nextLine().getBytes(UTF_8))));
+                                cutPoints.add(new Text(getDecoder().decode(in.nextLine().getBytes(UTF_8))));
                             }
                         }
                         cutPointArray = cutPoints.toArray(new Text[cutPoints.size()]);
@@ -142,7 +141,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
      */
     public static void setSplitFile(final Job job, final String file) {
         final URI uri = new Path(file).toUri();
-        DistributedCacheHelper.addCacheFile(uri, job.getConfiguration());
+        job.addCacheFile(uri);
         job.getConfiguration().set(CUTFILE_KEY, uri.getPath());
     }
 

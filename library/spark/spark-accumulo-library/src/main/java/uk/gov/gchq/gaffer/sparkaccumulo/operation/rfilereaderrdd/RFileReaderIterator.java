@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.sample.SamplerConfiguration;
+import org.apache.accumulo.core.clientImpl.mapreduce.lib.InputConfigurator;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
-import org.apache.accumulo.core.conf.SiteConfiguration;
+import org.apache.accumulo.core.cryptoImpl.NoCryptoService;
 import org.apache.accumulo.core.data.ArrayByteSequence;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
@@ -103,7 +103,6 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private void init() throws IOException {
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
         LOGGER.info("Initialising RFileReaderIterator for files {}", StringUtils.join(accumuloTablet.getFiles(), ','));
-        final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance();
 
         // Required column families according to the configuration
         final Set<ByteSequence> requiredColumnFamilies = InputConfigurator
@@ -119,9 +118,12 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         for (final String filename : accumuloTablet.getFiles()) {
             final Path path = new Path(filename);
             final FileSystem fs = path.getFileSystem(configuration);
+            final CachableBlockFile.CachableBuilder cachableBuilder = new CachableBlockFile.CachableBuilder()
+                    .fsPath(fs, path)
+                    .conf(configuration)
+                    .cryptoService(new NoCryptoService());
 
-            final RFile.Reader rFileReader = new RFile.Reader(
-                    new CachableBlockFile.Reader(fs, path, configuration, null, null, accumuloConfiguration));
+            final RFile.Reader rFileReader = new RFile.Reader(new CachableBlockFile.Reader(cachableBuilder));
             iterators.add(rFileReader);
         }
         mergedIterator = new MultiIterator(iterators, true);
@@ -130,8 +132,6 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         if (null != auths) {
             final Authorizations authorizations = new Authorizations(auths.toArray(new String[auths.size()]));
             final SortedKeyValueIterator<Key, Value> visibilityFilter = VisibilityFilter.wrap(mergedIterator, authorizations, new byte[]{});
-            final IteratorSetting visibilityIteratorSetting = new IteratorSetting(1, "auth", VisibilityFilter.class);
-            visibilityFilter.init(mergedIterator, visibilityIteratorSetting.getOptions(), null);
             iteratorAfterIterators = visibilityFilter;
             LOGGER.info("Set authorizations to {}", authorizations);
         } else {

@@ -16,9 +16,10 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
+import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.Property;
+import org.apache.accumulo.core.cryptoImpl.NoCryptoService;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -26,7 +27,6 @@ import org.apache.accumulo.core.file.FileOperations;
 import org.apache.accumulo.core.file.FileSKVIterator;
 import org.apache.accumulo.core.file.FileSKVWriter;
 import org.apache.accumulo.core.file.rfile.RFile;
-import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.jupiter.api.BeforeEach;
@@ -150,8 +150,7 @@ public class BloomFilterIT {
         final Value value2 = elementConverter.getValueFromProperties(TestGroups.EDGE, property);
 
         // Create Accumulo configuration
-        final ConfigurationCopy accumuloConf = new ConfigurationCopy(AccumuloConfiguration
-                .getDefaultConfiguration());
+        final ConfigurationCopy accumuloConf = new ConfigurationCopy(DefaultConfiguration.getInstance());
         accumuloConf.set(Property.TABLE_BLOOM_ENABLED, "true");
         accumuloConf.set(Property.TABLE_BLOOM_KEY_FUNCTOR, CoreKeyBloomFunctor.class
                 .getName());
@@ -160,7 +159,7 @@ public class BloomFilterIT {
         accumuloConf.set(Property.TSERV_BLOOM_LOAD_MAXCONCURRENT, "1");
 
         // Create Hadoop configuration
-        final Configuration conf = CachedConfiguration.getInstance();
+        final Configuration conf = new Configuration();
         final FileSystem fs = FileSystem.get(conf);
 
         // Open file
@@ -175,7 +174,7 @@ public class BloomFilterIT {
         // Writer
         final FileSKVWriter writer = FileOperations.getInstance()
                 .newWriterBuilder()
-                .forFile(filename, fs, conf)
+                .forFile(filename, fs, conf, new NoCryptoService())
                 .withTableConfiguration(accumuloConf)
                 .build();
 
@@ -198,7 +197,7 @@ public class BloomFilterIT {
         // Reader
         final FileSKVIterator reader = FileOperations.getInstance()
                 .newReaderBuilder()
-                .forFile(filename, fs, conf)
+                .forFile(filename, fs, conf, new NoCryptoService())
                 .withTableConfiguration(accumuloConf)
                 .seekToBeginning(false)
                 .build();
