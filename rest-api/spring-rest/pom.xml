@@ -142,7 +142,7 @@
         </configuration>
         <executions>
           <execution>
-            <id>create-fat-jar</id>
+            <id>create-executable-jar</id>
             <goals>
               <goal>repackage</goal>
             </goals>
