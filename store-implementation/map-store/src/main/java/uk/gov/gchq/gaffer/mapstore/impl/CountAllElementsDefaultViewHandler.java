@@ -15,12 +15,18 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
+
+import java.util.stream.Stream;
 
 /**
  * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the
@@ -30,10 +36,23 @@ public class CountAllElementsDefaultViewHandler implements OutputOperationHandle
     @Override
     public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)
             throws OperationException {
-        return doOperation((MapStore) store);
+        return doOperation(context, (MapStore) store);
     }
 
-    private Long doOperation(final MapStore mapStore) {
-        return mapStore.getMapImpl().countAggElements() + mapStore.getMapImpl().countNonAggElements();
+    private Long doOperation(final Context context, final MapStore mapStore) {
+
+        final User user = context.getUser();
+        final Schema schema = mapStore.getSchema();
+        final boolean supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
+
+        Stream<Element> elementStream = Stream.concat(
+                mapStore.getMapImpl().getAllAggElements(schema.getGroups()),
+                mapStore.getMapImpl().getAllNonAggElements(schema.getGroups()));
+
+        if (supportsVisibility) {
+            elementStream = GetElementsUtil.applyVisibilityFilter(elementStream, schema, user);
+        }
+
+        return elementStream.count();
     }
 }
