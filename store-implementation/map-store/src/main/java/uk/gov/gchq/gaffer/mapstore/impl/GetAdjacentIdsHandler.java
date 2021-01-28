@@ -97,6 +97,8 @@ public class GetAdjacentIdsHandler implements
                 elementStream = GetElementsUtil.applyVisibilityFilter(elementStream, schema, user);
             }
 
+            elementStream = elementStream.map(element -> mapImpl.cloneElement(element, schema));
+
             // Apply the view
             elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView(), true);
 

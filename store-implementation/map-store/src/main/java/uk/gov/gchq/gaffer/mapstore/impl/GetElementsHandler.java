@@ -88,8 +88,8 @@ public class GetElementsHandler
             if (this.supportsVisibility) {
                 elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
             }
-            elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
+            elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> {
                 ViewUtil.removeProperties(getElements.getView(), element);
                 return element;
