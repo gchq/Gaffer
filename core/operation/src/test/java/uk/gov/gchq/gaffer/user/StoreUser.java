@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.user;
 public final class StoreUser {
 
     public static final String ALL_USERS = "allUsers";
-    public static final String TEST_USER = "testUser";
-    public static final String AUTH_USER = "authUser";
+    public static final String TEST_USER_ID = "testUser";
+    public static final String AUTH_USER_ID = "authUser";
     public static final String AUTH_1 = "auth1";
     public static final String AUTH_2 = "auth2";
 
@@ -33,11 +33,11 @@ public final class StoreUser {
     }
 
     public static User testUser() {
-        return new User.Builder().userId(TEST_USER).opAuth(ALL_USERS).build();
+        return new User.Builder().userId(TEST_USER_ID).opAuth(ALL_USERS).build();
     }
 
     public static User authUser() {
-        return new User.Builder().userId(AUTH_USER).opAuths(ALL_USERS, AUTH_1, AUTH_2).build();
+        return new User.Builder().userId(AUTH_USER_ID).opAuths(ALL_USERS, AUTH_1, AUTH_2).build();
     }
 
     public static User blankUser() {

@@ -58,7 +58,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
-import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -138,18 +138,18 @@ public class FederatedGraphStorageTest {
         authUserContext = new Context(authUser);
         blankUserContext = new Context(blankUser);
 
-        access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
-        altAccess = new FederatedAccess(Sets.newHashSet(AUTH_2), TEST_USER);
+        access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER_ID);
+        altAccess = new FederatedAccess(Sets.newHashSet(AUTH_2), TEST_USER_ID);
 
-        disabledByDefaultAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER, false, true);
+        disabledByDefaultAccess = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER_ID, false, true);
 
         blockingAccessPredicate = new NoAccessPredicate();
-        blockingReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, blockingAccessPredicate, null);
-        blockingWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, null, blockingAccessPredicate);
+        blockingReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, blockingAccessPredicate, null);
+        blockingWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, null, blockingAccessPredicate);
 
         permissiveAccessPredicate = new UnrestrictedAccessPredicate();
-        permissiveReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, permissiveAccessPredicate, null);
-        permissiveWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER, false, false, null, permissiveAccessPredicate);
+        permissiveReadAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, permissiveAccessPredicate, null);
+        permissiveWriteAccess = new FederatedAccess(NULL_GRAPH_AUTHS, TEST_USER_ID, false, false, null, permissiveAccessPredicate);
     }
 
     @Test

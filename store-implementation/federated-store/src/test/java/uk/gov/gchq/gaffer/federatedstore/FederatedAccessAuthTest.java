@@ -40,6 +40,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -48,6 +51,7 @@ public class FederatedAccessAuthTest {
 
     private static final String AUTH_X = "X";
     private static final User TEST_USER = testUser();
+    public static final User AUTH_USER = authUser();
 
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
@@ -61,7 +65,7 @@ public class FederatedAccessAuthTest {
     @Test
     public void shouldValidateUserWithSubsetAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(ALL_USERS, AUTH_X)
+                .graphAuths(ALL_USERS, AUTH_1)
                 .build();
 
         assertTrue(access.hasReadAccess(TEST_USER));
@@ -69,7 +73,7 @@ public class FederatedAccessAuthTest {
 
     @Test
     public void shouldValidateUserWithSurplusMatchingAuth() throws Exception {
-        final User user = authUser();
+        final User user = AUTH_USER;
 
         assertTrue(user.getOpAuths().contains(AUTH_1));
 
@@ -93,7 +97,7 @@ public class FederatedAccessAuthTest {
     @Test
     public void shouldInValidateUserWithMismatchedAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths("X")
+                .graphAuths(AUTH_1)
                 .build();
 
         assertFalse(access.hasReadAccess(TEST_USER));
@@ -104,17 +108,17 @@ public class FederatedAccessAuthTest {
 
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addGraphAuths(asList(AUTH_1))
-                .addGraphAuths(asList("X"))
+                .addGraphAuths(asList(AUTH_X))
                 .build();
 
-        assertTrue(access.hasReadAccess(authUser()));
+        assertTrue(access.hasReadAccess(AUTH_USER));
     }
 
     @Test
     public void shouldDeserialiseDefaultPredicateIfNotSpecified() throws SerialisationException {
         // Given
         String json = "{" +
-                "   \"addingUserId\": \"user1\"," +
+                "   \"addingUserId\": \"authUser\"," +
                 "   \"public\": true," +
                 "   \"graphAuths\": [ \"auth1\", \"auth2\" ]" +
                 "}";
@@ -123,8 +127,8 @@ public class FederatedAccessAuthTest {
         FederatedAccess deserialised = JSONSerialiser.deserialise(json, FederatedAccess.class);
 
         // Then
-        FederatedGraphReadAccessPredicate expectedReadPredicate = new FederatedGraphReadAccessPredicate("user1", Sets.newHashSet("auth1", "auth2"), true);
-        FederatedGraphWriteAccessPredicate expectedWritePredicate = new FederatedGraphWriteAccessPredicate("user1");
+        FederatedGraphReadAccessPredicate expectedReadPredicate = new FederatedGraphReadAccessPredicate(AUTH_USER_ID, Sets.newHashSet(AUTH_1, AUTH_2), true);
+        FederatedGraphWriteAccessPredicate expectedWritePredicate = new FederatedGraphWriteAccessPredicate(AUTH_USER_ID);
 
         assertEquals(expectedReadPredicate, deserialised.getOrDefaultReadAccessPredicate());
         assertEquals(expectedWritePredicate, deserialised.getOrDefaultWriteAccessPredicate());
@@ -134,10 +138,10 @@ public class FederatedAccessAuthTest {
     public void shouldSerialiseAndDeserialiseAccessPredicatesToJson() throws SerialisationException {
         // Given
         final FederatedAccess federatedAccess = new FederatedAccess.Builder()
-                .addingUserId("blah")
+                .addingUserId(AUTH_USER_ID)
                 .isPublic(false)
-                .readAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains("specialData"))))
-                .writeAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains("specialWriteAuth"))))
+                .readAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains(ALL_USERS))))
+                .writeAccessPredicate(new AccessPredicate(new AdaptedPredicate(new CallMethod("getDataAuths"), new CollectionContains(AUTH_1))))
                 .build();
 
         // When
@@ -145,9 +149,9 @@ public class FederatedAccessAuthTest {
 
         // Then
         final String expected = "{" +
-                "   \"addingUserId\": \"blah\"," +
-                "   \"public\": false," +
+                "   \"addingUserId\": \"authUser\"," +
                 "   \"disabledByDefault\": false," +
+                "   \"public\": false," +
                 "   \"readAccessPredicate\": {" +
                 "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
                 "       \"userPredicate\": {" +
@@ -158,7 +162,7 @@ public class FederatedAccessAuthTest {
                 "           }," +
                 "           \"predicate\": {" +
                 "               \"class\": \"uk.gov.gchq.koryphe.impl.predicate.CollectionContains\"," +
-                "               \"value\": \"specialData\"" +
+                "               \"value\": \"allUsers\"" +
                 "           }" +
                 "       }" +
                 "   }," +
@@ -172,7 +176,7 @@ public class FederatedAccessAuthTest {
                 "           }," +
                 "           \"predicate\": {" +
                 "               \"class\": \"uk.gov.gchq.koryphe.impl.predicate.CollectionContains\"," +
-                "               \"value\": \"specialWriteAuth\"" +
+                "               \"value\": \"auth1\"" +
                 "           }" +
                 "       }" +
                 "   }" +
@@ -187,9 +191,9 @@ public class FederatedAccessAuthTest {
     public void shouldSerialiseAndDeserialiseGraphAuthsToJson() throws SerialisationException {
         // Given
         final FederatedAccess federatedAccess = new FederatedAccess.Builder()
-                .addingUserId("blah")
+                .addingUserId(AUTH_USER_ID)
                 .isPublic(false)
-                .graphAuths("a", "b", "c")
+                .graphAuths(AUTH_1, AUTH_2)
                 .build();
 
         // When
@@ -197,10 +201,10 @@ public class FederatedAccessAuthTest {
 
         // Then
         final String expected = "{" +
-                "   \"addingUserId\": \"blah\"," +
+                "   \"addingUserId\": \"authUser\"," +
                 "   \"public\": false," +
                 "   \"disabledByDefault\": false," +
-                "   \"graphAuths\": [\"a\", \"b\", \"c\"]" +
+                "   \"graphAuths\": [\"auth1\", \"auth2\"]" +
                 "}";
 
         JsonAssert.assertEquals(expected, serialised);
@@ -209,10 +213,28 @@ public class FederatedAccessAuthTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSupplied() {
+    public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndMatchAuths() {
         final Executable executable = () -> new FederatedAccess.Builder()
-                .graphAuths("X")
-                .readAccessPredicate(new AccessPredicate("user1", Collections.singletonList("auth1")))
+                .graphAuths(AUTH_1)
+                .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
+                .build();
+        assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndMismatchedAuths() {
+        final Executable executable = () -> new FederatedAccess.Builder()
+                .graphAuths(AUTH_2)
+                .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
+                .build();
+        assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
+    }
+
+    @Test
+    public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndOnlyOneSetsAuth() {
+        final Executable executable = () -> new FederatedAccess.Builder()
+                .graphAuths(AUTH_1)
+                .readAccessPredicate(new AccessPredicate(TEST_USER_ID, null))
                 .build();
         assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
     }

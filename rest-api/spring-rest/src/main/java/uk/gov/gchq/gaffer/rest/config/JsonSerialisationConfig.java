@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.serialisation.ObjectMapperProvider;
 
 @Configuration
@@ -28,7 +29,8 @@ public class JsonSerialisationConfig extends ObjectMapperProvider {
 
     @Primary
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper objectMapper(final GraphFactory graphFactory) {
+        graphFactory.getGraph(); // Re-initialises the JsonSerialiser with the Json Modules
         return getObjectMapper();
     }
 }
