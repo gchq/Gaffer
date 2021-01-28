@@ -75,7 +75,6 @@ public class FederatedStoreToFederatedStoreTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
-
         if (graphFactory instanceof FederatedStoreGraphFactory) {
             ((FederatedStoreGraphFactory) graphFactory).reset();
         } else {

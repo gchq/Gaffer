@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@ package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 
-public class ObjectMapperProvider {
+/**
+ * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide the
+ * {@link ObjectMapper} from JSONSerialiser. The JSONSerialiser and
+ * ObjectMapper can be configured by System Properties, see JSONSerialiser
+ */
+@Provider
+public class RestJsonProvider extends ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
-    public ObjectMapperProvider() {
-        SimpleClassNameCache.initialise();
-    }
-
-    public ObjectMapper getObjectMapper() {
-        return JSONSerialiser.getMapper();
+    @Override
+    public ObjectMapper getContext(final Class<?> aClass) {
+        return super.getObjectMapper();
     }
 }

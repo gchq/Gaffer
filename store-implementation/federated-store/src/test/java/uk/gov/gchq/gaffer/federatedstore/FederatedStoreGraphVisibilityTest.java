@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -74,6 +75,11 @@ public class FederatedStoreGraphVisibilityTest {
         nonAddingUser = blankUser();
         authNonAddingUser = authUser();
         library = new HashMapGraphLibrary();
+    }
+
+    @AfterAll
+    public static void tearDownCache() {
+        CacheServiceLoader.shutdown();
     }
 
     @Test

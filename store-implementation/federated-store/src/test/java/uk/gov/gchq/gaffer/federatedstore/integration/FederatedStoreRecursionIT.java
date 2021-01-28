@@ -206,6 +206,4 @@ public class FederatedStoreRecursionIT {
                 .config(new GraphConfig(PROXY_TO_REST_SERVICE_FEDERATED_GRAPH))
                 .build();
     }
-
-
 }

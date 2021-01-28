@@ -74,6 +74,14 @@ public abstract class AbstractRestApiIT {
         propertiesToBeRemoved.forEach(System::clearProperty);
     }
 
+    protected int getPort() {
+        return port;
+    }
+
+    protected String getContextPath() {
+        return contextPath;
+    }
+
     protected String getBaseURl() {
         return "http://localhost:" + port + contextPath;
     }

@@ -22,11 +22,60 @@
       <artifactId>common-rest</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+
+    <!-- common library dependencies -->
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
-      <artifactId>${store.type}-store</artifactId>
+      <artifactId>time-library</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>bitmap-library</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>sketches-library</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>jcs-cache-service</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
+    <!-- store dependencies -->
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>map-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <!--<dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>federated-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>accumulo-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>proxy-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>hbase-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.gchq.gaffer</groupId>
+      <artifactId>parquet-store</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>-->
 
     <!-- external dependencies -->
 
@@ -68,9 +117,11 @@
           <classifier>exec</classifier>
           <layout>ZIP</layout>
           <executable>true</executable>
+          <classifier>exec</classifier>
         </configuration>
         <executions>
           <execution>
+            <id>create-executable-jar</id>
             <goals>
               <goal>repackage</goal>
             </goals>
@@ -82,18 +133,6 @@
   <profiles>
     <profile>
       <id>demo</id>
-      <dependencies>
-        <dependency>
-          <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>${store.type}-store</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>uk.gov.gchq.gaffer</groupId>
-          <artifactId>jcs-cache-service</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-      </dependencies>
       <build>
         <plugins>
           <plugin>

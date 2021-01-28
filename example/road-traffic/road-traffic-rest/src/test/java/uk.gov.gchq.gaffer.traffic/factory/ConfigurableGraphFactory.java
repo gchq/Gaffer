@@ -27,7 +27,7 @@ public class ConfigurableGraphFactory implements GraphFactory  {
     private Graph graph;
 
     public static final String STORE_TYPE_PROPERTY = "store.type";
-    public static final String STORE_TYPE_DEFAULT = "accumulo";
+    public static final String STORE_TYPE_DEFAULT = "map";
 
     private final StoreProperties storeProperties;
     private final Schema schema;

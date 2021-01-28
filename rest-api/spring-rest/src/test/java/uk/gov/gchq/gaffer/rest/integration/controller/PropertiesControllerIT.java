@@ -63,7 +63,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
         map.put(APP_BANNER_COLOUR, "");
         map.put(APP_DOCUMENTATION_URL, APP_DOCUMENTATION_URL_DEFAULT);
         map.put(LOGO_LINK, LOGO_LINK_DEFAULT);
-        map.put(LOGO_IMAGE_URL, LOGO_IMAGE_URL_DEFAULT);
+        map.put(LOGO_IMAGE_URL, "/rest/images/logo.png");
         map.put(FAVICON_SMALL_URL, LOGO_IMAGE_URL_DEFAULT);
         map.put(FAVICON_LARGE_URL, LOGO_IMAGE_URL_DEFAULT);
         map.put(GAFFER_VERSION, GAFFER_VERSION_DEFAULT);
