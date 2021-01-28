@@ -49,32 +49,32 @@
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>map-store</artifactId>
-      <version>1.14.1-SNAPSHOT</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>federated-store</artifactId>
-      <version>1.14.1-SNAPSHOT</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>accumulo-store</artifactId>
-      <version>1.14.1-SNAPSHOT</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>proxy-store</artifactId>
-      <version>1.14.1-SNAPSHOT</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>hbase-store</artifactId>
-      <version>1.14.1-SNAPSHOT</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
       <artifactId>parquet-store</artifactId>
-      <version>1.14.1-SNAPSHOT</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <!-- external dependencies -->
