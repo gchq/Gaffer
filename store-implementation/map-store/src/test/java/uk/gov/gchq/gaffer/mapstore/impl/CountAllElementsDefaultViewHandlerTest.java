@@ -47,4 +47,11 @@ public class CountAllElementsDefaultViewHandlerTest {
         // Then
         assertEquals((long) GetAllElementsHandlerTest.getElements().size(), (long) result);
     }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new CountAllElementsDefaultView(),
+                VisibilityTest::elementIterableResultSizeConsumer);
+    }
 }
