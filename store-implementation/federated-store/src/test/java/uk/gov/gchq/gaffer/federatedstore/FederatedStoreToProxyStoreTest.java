@@ -42,8 +42,8 @@ import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BAS
 
 /**
  * The Test structure:
- *                 ------------------------
- *                 |  GAFFER REST API      |
+ *                 ------------------------               Proxy Store -.
+ *                 |  GAFFER REST API      |                           v
  * Proxy Store --> |  port:8081            |             --------------------
  *                 |  FederatedStore       |             |   GAFFER REST API |
  *                 |       -> Proxy Store -|-----------> |     port:8082     |
@@ -105,7 +105,7 @@ public class FederatedStoreToProxyStoreTest {
     }
 
     @Test
-    public void shouldGetAllElements() throws OperationException {
+    public void shouldGetAllMapStoreElementsViaFederatedStore() throws OperationException {
         // Given
         Entity entity = new Entity.Builder()
                 .group(BASIC_ENTITY)
@@ -119,6 +119,30 @@ public class FederatedStoreToProxyStoreTest {
 
         // When
         CloseableIterable<? extends Element> results = restFederatedStoreProxyGraph.execute(new GetAllElements(), new User());
+
+
+        List<Element> elements = new ArrayList<>();
+        results.iterator().forEachRemaining(elements::add);
+
+        assertEquals(1, elements.size());
+        assertEquals(entity, elements.get(0));
+    }
+
+    @Test
+    public void shouldGetAllMapStoreElementsViaMapStore() throws OperationException {
+        // Given
+        Entity entity = new Entity.Builder()
+                .group(BASIC_ENTITY)
+                .vertex("myVertex")
+                .property("property1", 1)
+                .build();
+
+        restApiMapGraph.execute(new AddElements.Builder()
+                .input(entity)
+                .build(), new User());
+
+        // When
+        CloseableIterable<? extends Element> results = restApiMapGraph.execute(new GetAllElements(), new User());
 
 
         List<Element> elements = new ArrayList<>();

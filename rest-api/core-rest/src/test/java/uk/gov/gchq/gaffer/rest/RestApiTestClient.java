@@ -131,9 +131,9 @@ public abstract class RestApiTestClient {
         reinitialiseGraph();
     }
 
-    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
+    public void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
         // set properties for REST service
-        LOGGER.debug("setSystemProperties id={} {}={}", GRAPH_ID,SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
+        LOGGER.debug("setSystemProperties id={} {}= WAS {} NOW {}", GRAPH_ID,SystemProperty.STORE_PROPERTIES_PATH, System.getProperty(SystemProperty.STORE_PROPERTIES_PATH), systemPropertiesPath);
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
         System.setProperty(SystemProperty.GRAPH_ID, GRAPH_ID);

@@ -24,7 +24,9 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
@@ -57,6 +60,7 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     private static final Collection<TemporaryFolder> allFolders = new HashSet<>();
     private RestApiTestClient client;
     private boolean singletonGraph;
+    private Schema schema;
 
     public SingleUseProxyStore() {
         this(DefaultGraphFactory.DEFAULT_SINGLETON_GRAPH);
@@ -67,21 +71,13 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     }
 
     @Override
-    protected <O> O doPost(final URL url, final String jsonBody,
-                           final TypeReference<O> clazz,
-                           final Context context) throws StoreException {
-        LOGGER.debug("trying to force a reintialise.");
-        client.reinitialiseGraph();
-        return super.doPost(url, jsonBody, clazz, context);
-    }
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
 
-    @Override
-    protected <O> O doGet(final URL url,
-                          final TypeReference<O> outputTypeReference, final Context context)
-            throws StoreException {
-        LOGGER.debug("trying to force a reintialise.");
+        LOGGER.debug("trying to force a reinitialise.");
+        client.setSystemProperties(testFolder.getRoot() + "/store.properties", testFolder.getRoot() + "/schema.json");
         client.reinitialiseGraph();
-        return super.doGet(url, outputTypeReference, context);
+
+        return super.execute(operation, context);
     }
 
     @Override
@@ -90,6 +86,7 @@ public abstract class SingleUseProxyStore extends ProxyStore {
         LOGGER.info("Initialising RestApiV2TestClient with proxyProperties port: " + gafferPort);
         client = new RestApiV2TestClient(gafferPort, singletonGraph);
         allClients.add(client);
+        this.schema = schema;
         startRemoteStoreRestApi(schema);
         super.initialise(graphId, new Schema(), proxyProps);
         LOGGER.debug("testFolder = {}", testFolder.getRoot().toURI().toString());
@@ -113,6 +110,7 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     }
 
     public static void cleanUp() {
+        LOGGER.debug("clean up");
         allFolders.forEach(TemporaryFolder::delete);
         allClients.forEach(RestApiTestClient::stopServer);
     }
