@@ -91,7 +91,7 @@
         <servlet-api.version>3.1.0</servlet-api.version>
         <snappy.version>1.1.2.4</snappy.version>
         <spring-boot.version>2.4.0</spring-boot.version>
-        <swagger.version>2.6.0</swagger.version>
+        <swagger.version>3.0.0</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <metrics.version>4.1.16</metrics.version>
         <mockserver.version>3.9.16</mockserver.version>
@@ -1015,6 +1015,11 @@
                 <configuration>
                     <arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
             </plugin>
         </plugins>
     </build>

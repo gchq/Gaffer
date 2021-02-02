@@ -56,8 +56,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 
-//import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-
 public class OperationControllerIT extends AbstractRestApiIT {
 
     @Autowired

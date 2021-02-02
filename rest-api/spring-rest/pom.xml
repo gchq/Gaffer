@@ -1,32 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>rest-api</artifactId>
-    <groupId>uk.gov.gchq.gaffer</groupId>
-    <version>1.15.1-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>rest-api</artifactId>
+        <groupId>uk.gov.gchq.gaffer</groupId>
+        <version>1.15.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>spring-rest</artifactId>
-  <packaging>pom</packaging>
+    <artifactId>spring-rest</artifactId>
+    <packaging>pom</packaging>
 
-  <modules>
-    <module>spring-rest-implementation</module>
-    <module>spring-rest-library</module>
-  </modules>
+    <modules>
+        <module>spring-rest-implementation</module>
+        <module>spring-rest-library</module>
+    </modules>
 
-  <properties>
-    <spring.boot.version>2.4.0</spring.boot.version>
-    <swagger.version>3.0.0</swagger.version>
-  </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-boot-starter</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

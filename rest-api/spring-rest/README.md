@@ -36,7 +36,7 @@ the Jersey REST API can, we will change it to match the 2.0 version.
 ### How to run
 With maven from the root of the project:
 ```bash
-mvn spring-boot:run -pl :spring-rest -Pdemo
+mvn spring-boot:run -pl :spring-rest-implementation -Pdemo
 ```
 
 With java
