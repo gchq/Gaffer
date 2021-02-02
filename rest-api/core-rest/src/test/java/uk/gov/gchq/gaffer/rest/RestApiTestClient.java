@@ -49,6 +49,7 @@ import java.net.URI;
 
 public abstract class RestApiTestClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestApiTestClient.class);
+    public static final String GRAPH_ID = "graphId";
 
     protected final Client client = ClientBuilder.newClient();
     protected final ResourceConfig config;
@@ -132,9 +133,10 @@ public abstract class RestApiTestClient {
 
     private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
         // set properties for REST service
+        LOGGER.debug("setSystemProperties id={} {}={}", GRAPH_ID,SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        System.setProperty(SystemProperty.GRAPH_ID, GRAPH_ID);
     }
 
     public void reinitialiseGraph(final Graph graph) {

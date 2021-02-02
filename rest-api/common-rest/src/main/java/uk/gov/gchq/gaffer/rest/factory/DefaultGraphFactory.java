@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.rest.factory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
  * instantiate default {@link Graph} instances.
  */
 public class DefaultGraphFactory implements GraphFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultGraphFactory.class);
     public static final boolean DEFAULT_SINGLETON_GRAPH = true;
 
     private static Graph graph;
@@ -102,6 +105,7 @@ public class DefaultGraphFactory implements GraphFactory {
     @Override
     public Graph.Builder createGraphBuilder() {
         final String storePropertiesPath = System.getProperty(SystemProperty.STORE_PROPERTIES_PATH);
+        LOGGER.debug("CreateGraphBuilder {}={}", SystemProperty.STORE_PROPERTIES_PATH, storePropertiesPath);
         if (null == storePropertiesPath) {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
         }

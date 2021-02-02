@@ -16,20 +16,25 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.rules.TemporaryFolder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -59,6 +64,24 @@ public abstract class SingleUseProxyStore extends ProxyStore {
 
     protected SingleUseProxyStore(boolean singletonGraph) {
         this.singletonGraph = singletonGraph;
+    }
+
+    @Override
+    protected <O> O doPost(final URL url, final String jsonBody,
+                           final TypeReference<O> clazz,
+                           final Context context) throws StoreException {
+        LOGGER.debug("trying to force a reintialise.");
+        client.reinitialiseGraph();
+        return super.doPost(url, jsonBody, clazz, context);
+    }
+
+    @Override
+    protected <O> O doGet(final URL url,
+                          final TypeReference<O> outputTypeReference, final Context context)
+            throws StoreException {
+        LOGGER.debug("trying to force a reintialise.");
+        client.reinitialiseGraph();
+        return super.doGet(url, outputTypeReference, context);
     }
 
     @Override

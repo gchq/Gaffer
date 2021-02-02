@@ -92,6 +92,8 @@ public class FederatedStoreToProxyStoreTest {
     }
 
     private void connectGraphs() throws OperationException {
+
+
         LOGGER.info("connectGraphs");
         ProxyProperties storeProperties = new ProxyProperties();
         storeProperties.setGafferPort(8082);

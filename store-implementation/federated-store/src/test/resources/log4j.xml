@@ -35,7 +35,7 @@
     <logger name="uk.gov.gchq.gaffer.proxystore.ProxyStore">
         <level value="debug"/>
     </logger>
-    <logger name="uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactoryctory">
+    <logger name="uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory">
         <level value="debug"/>
     </logger>
     <logger name="uk.gov.gchq.gaffer.rest.RestApiTestClient">
