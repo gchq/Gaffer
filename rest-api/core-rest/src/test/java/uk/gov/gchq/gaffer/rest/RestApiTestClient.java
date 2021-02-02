@@ -25,6 +25,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.rules.TemporaryFolder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -46,6 +48,8 @@ import java.io.OutputStream;
 import java.net.URI;
 
 public abstract class RestApiTestClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestApiTestClient.class);
+
     protected final Client client = ClientBuilder.newClient();
     protected final ResourceConfig config;
     protected final String fullPath;
@@ -57,12 +61,16 @@ public abstract class RestApiTestClient {
     protected DefaultGraphFactory defaultGraphFactory;
 
     public RestApiTestClient(final String root, final String path, final String versionString, final ResourceConfig config) {
+        this(root, path, versionString, config, DefaultGraphFactory.DEFAULT_SINGLETON_GRAPH);
+    }
+
+    public RestApiTestClient(final String root, final String path, final String versionString, final ResourceConfig config, boolean singletonGraph) {
         this.root = root.replaceAll("/$", "");
         this.path = path.replaceAll("/$", "");
         this.versionString = versionString.replaceAll("/$", "");
         this.config = config;
-        this.defaultGraphFactory = new DefaultGraphFactory();
-
+        LOGGER.debug("DefaultGraphFactory Singleton={}", singletonGraph);
+        this.defaultGraphFactory = new DefaultGraphFactory(singletonGraph);
         this.fullPath = this.path + '/' + versionString;
         this.uriString = this.root + '/' + this.fullPath;
     }

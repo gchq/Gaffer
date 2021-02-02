@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -50,19 +51,28 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     private static final Collection<RestApiTestClient> allClients = new HashSet<>();
     private static final Collection<TemporaryFolder> allFolders = new HashSet<>();
     private RestApiTestClient client;
+    private boolean singletonGraph;
+
+    public SingleUseProxyStore() {
+        this(DefaultGraphFactory.DEFAULT_SINGLETON_GRAPH);
+    }
+
+    protected SingleUseProxyStore(boolean singletonGraph) {
+        this.singletonGraph = singletonGraph;
+    }
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
         int gafferPort = ((ProxyProperties) proxyProps).getGafferPort();
         LOGGER.info("Initialising RestApiV2TestClient with proxyProperties port: " + gafferPort);
-        client = new RestApiV2TestClient(gafferPort);
+        client = new RestApiV2TestClient(gafferPort, singletonGraph);
         allClients.add(client);
-        startMapStoreRestApi(schema);
+        startRemoteStoreRestApi(schema);
         super.initialise(graphId, new Schema(), proxyProps);
         LOGGER.debug("testFolder = {}", testFolder.getRoot().toURI().toString());
     }
 
-    protected void startMapStoreRestApi(final Schema schema) throws StoreException {
+    protected void startRemoteStoreRestApi(final Schema schema) throws StoreException {
         try {
             testFolder.delete();
             testFolder.create();

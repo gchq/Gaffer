@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV2;
+import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -33,12 +34,14 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 public class RestApiV2TestClient extends RestApiTestClient {
 
+    public static final int DEFAULT_PORT = 8080;
+
     public RestApiV2TestClient() {
-        this(8080);
+        this(DEFAULT_PORT, DefaultGraphFactory.DEFAULT_SINGLETON_GRAPH);
     }
 
-    public RestApiV2TestClient(int port) {
-        super("http://localhost:" + port + "/", "rest/", "v2", new ApplicationConfigV2());
+    public RestApiV2TestClient(int port, boolean singletonGraph) {
+        super("http://localhost:" + port + "/", "rest/", "v2", new ApplicationConfigV2(), singletonGraph);
     }
 
     @Override

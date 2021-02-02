@@ -140,6 +140,7 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
+        LOGGER.debug("Initialise FetchSchema URL = {}", url.toString());
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
 
@@ -168,6 +169,7 @@ public class ProxyStore extends Store {
         }
 
         final URL url = getProperties().getGafferUrl("graph/operations/execute");
+        LOGGER.debug("executeOpChainViaUrl = {}", url.toString());
         try {
             return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {

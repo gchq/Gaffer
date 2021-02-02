@@ -28,6 +28,10 @@ package uk.gov.gchq.gaffer.proxystore;
  * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
 public class SingleUseMapProxyStore extends SingleUseProxyStore {
+    public SingleUseMapProxyStore() {
+        super(false);
+    }
+
     @Override
     protected String getPathToDelegateProperties() {
         return "map-store.properties";

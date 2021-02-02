@@ -29,13 +29,23 @@ import java.nio.file.Paths;
  * instantiate default {@link Graph} instances.
  */
 public class DefaultGraphFactory implements GraphFactory {
+    public static final boolean DEFAULT_SINGLETON_GRAPH = true;
+
     private static Graph graph;
 
     /**
      * Set to true by default - so the same instance of {@link Graph} will be
      * returned.
      */
-    private boolean singletonGraph = true;
+    private boolean singletonGraph;
+
+    public DefaultGraphFactory(final boolean singletonGraph) {
+        this.singletonGraph = singletonGraph;
+    }
+
+    public DefaultGraphFactory() {
+        this(DEFAULT_SINGLETON_GRAPH);
+    }
 
     public static GraphFactory createGraphFactory() {
         final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,

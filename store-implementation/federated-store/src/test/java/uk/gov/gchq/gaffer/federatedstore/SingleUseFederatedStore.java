@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.federatedstore;
 import uk.gov.gchq.gaffer.proxystore.SingleUseProxyStore;
 
 public class SingleUseFederatedStore extends SingleUseProxyStore {
+    public SingleUseFederatedStore() {
+        super(false);
+    }
 
     protected String getPathToDelegateProperties() {
         return "properties/singleUseFederatedStore.properties";

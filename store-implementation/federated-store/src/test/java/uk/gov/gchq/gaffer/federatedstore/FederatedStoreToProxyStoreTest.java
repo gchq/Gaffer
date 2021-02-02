@@ -57,9 +57,9 @@ public class FederatedStoreToProxyStoreTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
-        makeRestMapProxy();
-
         makeRestFederatedStore();
+
+        makeRestMapProxy();
 
         connectGraphs();
     }
@@ -78,7 +78,7 @@ public class FederatedStoreToProxyStoreTest {
     }
 
     private void makeRestMapProxy() {
-        LOGGER.debug("makeRestMapProxy");
+        LOGGER.info("makeRestMapProxy");
         ProxyProperties mapProxyProperties = new ProxyProperties();
         mapProxyProperties.setStoreClass(SingleUseMapProxyStore.class);
         mapProxyProperties.setGafferPort(8082);
@@ -94,7 +94,7 @@ public class FederatedStoreToProxyStoreTest {
     private void connectGraphs() throws OperationException {
         LOGGER.info("connectGraphs");
         ProxyProperties storeProperties = new ProxyProperties();
-        storeProperties.setGafferPort(8081);
+        storeProperties.setGafferPort(8082);
         restFederatedStoreProxyGraph.execute(new AddGraph.Builder()
                 .storeProperties(storeProperties)
                 .graphId("RestProxy")
