@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>spring-rest</artifactId>
+            <artifactId>spring-rest-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <!-- This dependency allows exporting to different Gaffer REST APIs -->

@@ -25,11 +25,12 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.Error;
-//import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.gaffer.operation.impl.Map;
+import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
@@ -55,6 +56,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 
+//import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+
 public class OperationControllerIT extends AbstractRestApiIT {
 
     @Autowired
@@ -64,58 +67,62 @@ public class OperationControllerIT extends AbstractRestApiIT {
         return (MockGraphFactory) graphFactory;
     }
 
-//
-//    @Test
-//    public void shouldReturnHelpfulErrorMessageIfJsonIsIncorrect() {
-//
-//    }
-//
-//    @Test
-//    public void shouldReturnHelpfulErrorMessageIfOperationIsUnsupported() {
-//        // Given
-//        Graph graph = new Graph.Builder()
-//            .config(StreamUtil.graphConfig(this.getClass()))
-//            .storeProperties(new MapStoreProperties())
-//            .addSchema(new Schema())
-//            .build();
-//
-//        when(getGraphFactory().getGraph()).thenReturn(graph);
-//
-//        // When
-//        final ResponseEntity<Error> response = post("/graph/operations/execute",
-//            new GetAllGraphIds(),
-//            Error.class);
-//
-//        // Then
-//
-//        assertNotNull(response.getBody().getSimpleMessage());
-//        assertTrue(response.getBody().getSimpleMessage().contains("GetAllGraphIds is not supported by the MapStore"));
-//    }
+
+    @Test
+    public void shouldReturnHelpfulErrorMessageIfJsonIsIncorrect() {
+
+    }
+
+    @Test
+    public void shouldReturnHelpfulErrorMessageIfOperationIsUnsupported() {
+        // Given
+        Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(new MapStoreProperties())
+                .addSchema(new Schema())
+                .build();
+
+        when(getGraphFactory().getGraph()).thenReturn(graph);
+
+        final OperationImpl operation = new OperationImpl();
+        operation.setRequiredField1("requiredField1");
+        operation.setRequiredField2(new CustomVertex());
+
+        // When
+        final ResponseEntity<Error> response = post("/graph/operations/execute",
+                operation,
+                Error.class);
+
+        // Then
+
+        assertNotNull(response.getBody().getSimpleMessage());
+        assertTrue(response.getBody().getSimpleMessage().contains("OperationImpl is not supported by the MapStore"));
+    }
 
     @Test
     public void shouldNotAllowUserToReadFilesOffTheFileSystemUsingKorypheFunctions() throws IOException {
         Graph graph = new Graph.Builder()
-            .config(StreamUtil.graphConfig(this.getClass()))
-            .storeProperties(new MapStoreProperties())
-            .addSchema(new Schema())
-            .build();
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(new MapStoreProperties())
+                .addSchema(new Schema())
+                .build();
 
         String cacheProperties = getClass().getResource("/cache-store.properties").getPath();
 
         when(getGraphFactory().getGraph()).thenReturn(graph);
 
         ResponseEntity<Object> lines = post("/graph/operations/execute", new OperationChain.Builder()
-            .first(new Map.Builder<>()
-                .input(cacheProperties)
-                .first(new CreateObject(FileInputStream.class))
-                .then(new CreateObject(InputStreamReader.class))
-                .then(new CreateObject(BufferedReader.class))
-                .then(new CallMethod("lines"))
-                .then(new CreateObject(StreamIterator.class))
-                .then(new CreateObject(WrappedCloseableIterable.class))
-                .build())
-            .then(new ToList())
-            .build(), Object.class);
+                .first(new Map.Builder<>()
+                        .input(cacheProperties)
+                        .first(new CreateObject(FileInputStream.class))
+                        .then(new CreateObject(InputStreamReader.class))
+                        .then(new CreateObject(BufferedReader.class))
+                        .then(new CallMethod("lines"))
+                        .then(new CreateObject(StreamIterator.class))
+                        .then(new CreateObject(WrappedCloseableIterable.class))
+                        .build())
+                .then(new ToList())
+                .build(), Object.class);
 
         assertNotEquals(200, lines.getStatusCodeValue());
     }

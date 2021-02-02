@@ -25,10 +25,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
  * The Graph factory used by the remote REST API which backs the ProxyStore. It provides an easy mechanism for resetting
- * the graph which is useful for resetting state between tests without having to restart the whole REST API.
+ * the graph which is useful for resetting state between tests without having to restart the whole REST API. As no user
+ * operation or data auths can be passed over the proxy-store REST call in these integration tests the backing MapStore
+ * is deliberately configured without support for the VISIBILITY StoreTrait.
  */
 public class MapStoreGraphFactory implements GraphFactory {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(MapStoreGraphFactory.class, "/stores/mapstore.properties"));
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(MapStoreGraphFactory.class, "/stores/mapstore_without_visibility_support.properties"));
     private Graph instance;
     private Schema schema;
 

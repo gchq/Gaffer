@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>uk.gov.gchq.gaffer</groupId>
-      <artifactId>spring-rest</artifactId>
+      <artifactId>spring-rest-implementation</artifactId>
       <version>${project.parent.version}</version>
       <scope>test</scope>
     </dependency>

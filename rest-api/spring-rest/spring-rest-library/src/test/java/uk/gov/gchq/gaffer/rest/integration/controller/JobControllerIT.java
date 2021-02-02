@@ -73,7 +73,7 @@ public class JobControllerIT extends AbstractRestApiIT {
         properties.setStoreClass(SingleUseMapStore.class);
         properties.setJobTrackerEnabled(true);
         properties.set(CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
-        properties.set(OPERATION_DECLARATIONS, "ResultCacheExportOperations.json");
+        properties.set(OPERATION_DECLARATIONS, "src/test/resources/ResultCacheExportOperations.json");
 
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig("myGraph"))
