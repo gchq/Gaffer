@@ -25,7 +25,6 @@ import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -36,13 +35,11 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.SplitStoreFromRDDOfElements;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SingleUseMiniAccumuloStoreWithTabletServers;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -56,7 +53,8 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     private ArrayBuffer<Element> elements;
     private RDD<Element> rdd;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
     @BeforeEach
@@ -108,7 +106,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     public void shouldCreateSplitPointsFromRDD() throws Exception {
 
         final int tabletServerCount = 3;
-        final SingleUseAccumuloStoreWithTabletServers store = new SingleUseAccumuloStoreWithTabletServers(tabletServerCount);
+        final SingleUseMiniAccumuloStoreWithTabletServers store = new SingleUseMiniAccumuloStoreWithTabletServers(tabletServerCount);
         store.initialise(
                 GRAPH_ID,
                 Schema.fromJson(StreamUtil.openStreams(getClass(), "/schema-RDDSplitPointIntegrationTests/")),
@@ -131,20 +129,6 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
         assertEquals(expectedSplitCount, splitsOnTable.size());
         assertEquals("3A==", Base64.encodeBase64String(splitsOnTable.get(0).getBytes()));
         assertEquals("6A==", Base64.encodeBase64String(splitsOnTable.get(1).getBytes()));
-    }
-
-    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
-
-        private final List<String> tabletServers;
-
-        SingleUseAccumuloStoreWithTabletServers(final int size) {
-            this.tabletServers = IntStream.range(0, size).mapToObj(Integer::toString).collect(Collectors.toList());
-        }
-
-        @Override
-        public List<String> getTabletServers() throws StoreException {
-            return tabletServers;
-        }
     }
 
 }
