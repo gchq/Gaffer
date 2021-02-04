@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
@@ -44,6 +43,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler;
+import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
+import uk.gov.gchq.gaffer.proxystore.response.deserialiser.impl.DefaultResponseDeserialiser;
+import uk.gov.gchq.gaffer.proxystore.response.deserialiser.impl.OperationsResponseDeserialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -99,7 +101,8 @@ public class ProxyStore extends Store {
 
     protected void checkDelegateStoreStatus() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/status");
-        final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
+        final ResponseDeserialiser<LinkedHashMap> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceImpl.Map());
+        final LinkedHashMap status = doGet(url, responseDeserialiser, null);
         LOGGER.info("Delegate REST API status: {}", status.get("status"));
     }
 
@@ -107,7 +110,8 @@ public class ProxyStore extends Store {
     protected Set<Class<? extends Operation>> fetchOperations() {
         try {
             URL url = getProperties().getGafferUrl("graph/operations");
-            return Collections.unmodifiableSet(doGet(url, new TypeReferenceStoreImpl.Operations(), null));
+            final ResponseDeserialiser<Set<Class<? extends Operation>>> responseDeserialiser = new OperationsResponseDeserialiser();
+            return Collections.unmodifiableSet(doGet(url, responseDeserialiser, null));
         } catch (final StoreException e) {
             throw new GafferRuntimeException("Failed to fetch operations from remote store.", e);
         }
@@ -128,7 +132,8 @@ public class ProxyStore extends Store {
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
+        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.StoreTraits());
+        Set<StoreTrait> newTraits = doGet(url, responseDeserialiser, null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
         } else {
@@ -140,7 +145,8 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
-        return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
+        final ResponseDeserialiser<Schema> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.Schema());
+        return doGet(url, responseDeserialiser, null);
     }
 
     @Override
@@ -152,7 +158,8 @@ public class ProxyStore extends Store {
     public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
-            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), context);
+            final ResponseDeserialiser<JobDetail> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceImpl.JobDetail());
+            return doPost(url, operationChain, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -169,24 +176,25 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
-            return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
+            final ResponseDeserialiser<O> responseDeserialiser = new DefaultResponseDeserialiser<>(opChain.getOutputTypeReference());
+            return doPost(url, opChainJson, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
     }
 
     protected <O> O doPost(final URL url, final Object body,
-                           final TypeReference<O> outputType,
+                           final ResponseDeserialiser<O> responseDeserialiser,
                            final Context context) throws StoreException {
         try {
-            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
+            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), responseDeserialiser, context);
         } catch (final SerialisationException | UnsupportedEncodingException e) {
             throw new StoreException("Unable to serialise body of request into json.", e);
         }
     }
 
     protected <O> O doPost(final URL url, final String jsonBody,
-                           final TypeReference<O> clazz,
+                           final ResponseDeserialiser<O> responseDeserialiser,
                            final Context context) throws StoreException {
 
         final Invocation.Builder request = createRequest(jsonBody, url, context);
@@ -198,11 +206,11 @@ public class ProxyStore extends Store {
                     "the Gaffer URL " + url.toExternalForm(), e);
         }
 
-        return handleResponse(response, clazz);
+        return handleResponse(response, responseDeserialiser);
     }
 
     protected <O> O doGet(final URL url,
-                          final TypeReference<O> outputTypeReference, final Context context)
+                          final ResponseDeserialiser<O> responseDeserialiser, final Context context)
             throws StoreException {
         final Invocation.Builder request = createRequest(null, url, context);
         final Response response;
@@ -213,11 +221,11 @@ public class ProxyStore extends Store {
                     + url.toExternalForm(), e);
         }
 
-        return handleResponse(response, outputTypeReference);
+        return handleResponse(response, responseDeserialiser);
     }
 
     protected <O> O handleResponse(final Response response,
-                                   final TypeReference<O> outputTypeReference)
+                                   final ResponseDeserialiser<O> responseDeserialiser)
             throws StoreException {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
         if (Family.SUCCESSFUL != response.getStatusInfo().getFamily()) {
@@ -234,7 +242,7 @@ public class ProxyStore extends Store {
         O output = null;
         if (null != outputJson) {
             try {
-                output = deserialise(outputJson, outputTypeReference);
+                output = responseDeserialiser.deserialise(outputJson);
             } catch (final SerialisationException e) {
                 throw new StoreException(e.getMessage(), e);
             }
@@ -253,20 +261,6 @@ public class ProxyStore extends Store {
             request.build(body);
         }
         return request;
-    }
-
-    protected <O> O deserialise(final String jsonString,
-                                final TypeReference<O> outputTypeReference)
-            throws SerialisationException {
-        final byte[] jsonBytes;
-        try {
-            jsonBytes = jsonString.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(
-                    "Unable to deserialise JSON: " + jsonString, e);
-        }
-
-        return JSONSerialiser.deserialise(jsonBytes, outputTypeReference);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
