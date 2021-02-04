@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -36,6 +37,7 @@ public class PathParamConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureContentNegotiation(final ContentNegotiationConfigurer configurer) {
-        configurer.favorPathExtension(false);
+        configurer.favorPathExtension(false)
+        .defaultContentType(MediaType.APPLICATION_JSON);
     }
 }

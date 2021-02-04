@@ -1196,4 +1196,13 @@ public class GetElementsHandlerTest {
                 });
         return elements;
     }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new GetElements.Builder()
+                        .input(new EntitySeed(VisibilityTest.VERTEX_1), new EntitySeed(VisibilityTest.VERTEX_2))
+                        .build(),
+                VisibilityTest::elementIterableResultConsumer);
+    }
 }

@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.14.1-SNAPSHOT</version>
+        <version>1.15.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>map-store</artifactId>
@@ -51,6 +51,11 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>sketches-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

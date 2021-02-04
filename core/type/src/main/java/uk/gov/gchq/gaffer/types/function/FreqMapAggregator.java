@@ -31,13 +31,14 @@ import java.util.Map.Entry;
 public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {
     @Override
     protected FreqMap _apply(final FreqMap a, final FreqMap b) {
+        final FreqMap aggregatedFreqMap = new FreqMap(a);
         for (final Entry<String, Long> entry : b.entrySet()) {
-            if (a.containsKey(entry.getKey())) {
-                a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
+            if (aggregatedFreqMap.containsKey(entry.getKey())) {
+                aggregatedFreqMap.put(entry.getKey(), aggregatedFreqMap.get(entry.getKey()) + entry.getValue());
             } else {
-                a.put(entry.getKey(), entry.getValue());
+                aggregatedFreqMap.put(entry.getKey(), entry.getValue());
             }
         }
-        return a;
+        return aggregatedFreqMap;
     }
 }

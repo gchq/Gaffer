@@ -248,6 +248,8 @@ public class ProxyStore extends Store {
                 .request();
         if (null != body) {
             request.header("Content", MediaType.APPLICATION_JSON_TYPE);
+            request.header("Content-Type", MediaType.APPLICATION_JSON_TYPE);
+            request.header("Accept", MediaType.APPLICATION_JSON_TYPE);
             request.build(body);
         }
         return request;
