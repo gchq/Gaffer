@@ -38,7 +38,6 @@ public class DefaultResponseDeserialiserTest {
 
     @Test
     public void shouldDeserialiseValidResponseSuccessfully() throws SerialisationException {
-
         final String jsonString = "[\n" +
                 "  \"MATCHED_VERTEX\",\n" +
                 "  \"QUERY_AGGREGATION\"\n" +

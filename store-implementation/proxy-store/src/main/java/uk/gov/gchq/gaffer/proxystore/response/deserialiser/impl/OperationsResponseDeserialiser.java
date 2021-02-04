@@ -43,7 +43,7 @@ public class OperationsResponseDeserialiser implements ResponseDeserialiser<Set<
                 if (Operation.class.isAssignableFrom(operationClass)) {
                     operationClasses.add(operationClass);
                 } else {
-                    LOGGER.warn("{} is not assignable to {} - it will be ignored.", operationClass, Operation.class.getName());
+                    LOGGER.warn("{} is not assignable to {}. It will be ignored.", operationClass, Operation.class.getName());
                 }
             } catch (final ClassNotFoundException classNotFoundException) {
                 LOGGER.warn("Could not find Class for {}. It will be ignored.", operationClassName);
