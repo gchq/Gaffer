@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
@@ -101,7 +102,7 @@ public class ProxyStore extends Store {
 
     protected void checkDelegateStoreStatus() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/status");
-        final ResponseDeserialiser<LinkedHashMap> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceImpl.Map());
+        final ResponseDeserialiser<LinkedHashMap> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceImpl.Map());
         final LinkedHashMap status = doGet(url, responseDeserialiser, null);
         LOGGER.info("Delegate REST API status: {}", status.get("status"));
     }
@@ -110,11 +111,19 @@ public class ProxyStore extends Store {
     protected Set<Class<? extends Operation>> fetchOperations() {
         try {
             URL url = getProperties().getGafferUrl("graph/operations");
-            final ResponseDeserialiser<Set<Class<? extends Operation>>> responseDeserialiser = new OperationsResponseDeserialiser();
+            final ResponseDeserialiser<Set<Class<? extends Operation>>> responseDeserialiser = getOperationsResponseDeserialiser();
             return Collections.unmodifiableSet(doGet(url, responseDeserialiser, null));
         } catch (final StoreException e) {
             throw new GafferRuntimeException("Failed to fetch operations from remote store.", e);
         }
+    }
+
+    protected ResponseDeserialiser<Set<Class<? extends Operation>>> getOperationsResponseDeserialiser() {
+        return new OperationsResponseDeserialiser();
+    }
+
+    protected <O> ResponseDeserialiser<O> getResponseDeserialiserFor(final TypeReference<O> typeReference) {
+        return new DefaultResponseDeserialiser<>(typeReference);
     }
 
     @Override
@@ -132,7 +141,7 @@ public class ProxyStore extends Store {
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.StoreTraits());
+        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.StoreTraits());
         Set<StoreTrait> newTraits = doGet(url, responseDeserialiser, null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
@@ -145,7 +154,7 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
-        final ResponseDeserialiser<Schema> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.Schema());
+        final ResponseDeserialiser<Schema> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.Schema());
         return doGet(url, responseDeserialiser, null);
     }
 
@@ -158,7 +167,7 @@ public class ProxyStore extends Store {
     public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
-            final ResponseDeserialiser<JobDetail> responseDeserialiser = new DefaultResponseDeserialiser<>(new TypeReferenceImpl.JobDetail());
+            final ResponseDeserialiser<JobDetail> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceImpl.JobDetail());
             return doPost(url, operationChain, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
@@ -176,7 +185,7 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
-            final ResponseDeserialiser<O> responseDeserialiser = new DefaultResponseDeserialiser<>(opChain.getOutputTypeReference());
+            final ResponseDeserialiser<O> responseDeserialiser = getResponseDeserialiserFor(opChain.getOutputTypeReference());
             return doPost(url, opChainJson, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);

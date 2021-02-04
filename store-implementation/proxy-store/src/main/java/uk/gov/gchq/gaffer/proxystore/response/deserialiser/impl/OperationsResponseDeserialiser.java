@@ -37,7 +37,7 @@ public class OperationsResponseDeserialiser implements ResponseDeserialiser<Set<
         final Set<?> operationClassNamesSet = JSONSerialiser.deserialise(bytes, new TypeReference<Set>() {
         });
         final Set<Class<? extends Operation>> operationClasses = new HashSet<>();
-        for (Object operationClassName : operationClassNamesSet) {
+        for (final Object operationClassName : operationClassNamesSet) {
             try {
                 final Class operationClass = Class.forName(operationClassName.toString());
                 if (Operation.class.isAssignableFrom(operationClass)) {
