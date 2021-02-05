@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.12.0")
 @Summary("Changes the Id of a graph")
 @JsonInclude(Include.NON_DEFAULT)
-public class ChangeGraphId implements Output<Boolean> {
+public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     @Required
     private String graphId;
     private String newGraphId;

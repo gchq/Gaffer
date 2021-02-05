@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.util.HashSet;
+import java.util.Map;
 
 import static java.util.Objects.nonNull;
 
@@ -57,12 +58,16 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, OUTPUT> extend
         LOGGER.info("copying options from FederationOperation to Payload operation");
         if (LOGGER.isDebugEnabled()) {
 
-            HashSet<String> intersection = new HashSet<>((operation.getOptions()).keySet());
-            intersection.retainAll(payloadOperation.getOptions().keySet());
+            Map operationOptions = operation.getOptions();
+            Map<String, String> payloadOptions = payloadOperation.getOptions();
+            if (nonNull(operationOptions) && nonNull(payloadOptions)) {
+                HashSet<String> intersection = new HashSet<>(operationOptions.keySet());
+                intersection.retainAll(payloadOptions.keySet());
 
-            if (!intersection.isEmpty()) {
-                //TODO test
-                intersection.forEach(s -> LOGGER.debug("overwriting {} was:{} now:{}", s, payloadOperation.getOption(s), operation.getOption(s)));
+                if (!intersection.isEmpty()) {
+                    //TODO test
+                    intersection.forEach(s -> LOGGER.debug("overwriting {} was:{} now:{}", s, payloadOperation.getOption(s), operation.getOption(s)));
+                }
             }
         }
     }

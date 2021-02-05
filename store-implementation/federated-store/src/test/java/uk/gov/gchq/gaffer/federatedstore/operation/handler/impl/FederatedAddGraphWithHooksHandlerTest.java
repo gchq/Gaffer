@@ -330,7 +330,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 new Context(testUser),
                 store);
 
-        final CloseableIterable<? extends Element> elements = new FederatedGetAllElementsHandler().doOperation(
+        final CloseableIterable<? extends Element> elements = new FederatedOutputCloseableIterableHandler<GetAllElements, Element>().doOperation(
                 new GetAllElements(),
                 new Context(testUser),
                 store);

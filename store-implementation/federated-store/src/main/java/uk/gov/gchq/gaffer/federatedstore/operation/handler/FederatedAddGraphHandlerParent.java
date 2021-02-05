@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -99,12 +101,15 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                         continue;
                     }
                     if (CloseableIterable.class.equals(outputClass)) {
-                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
+                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputCloseableIterableHandler());
+                    } else if (Iterable.class.equals(outputClass)) {
+                        //TODO Examine this duplication
+                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: " + supportedOutputOperation);
                     }
                 } else {
-                    store.addOperationHandler(supportedOperation, new FederatedOperationHandler());
+                    store.addOperationHandler(supportedOperation, new FederatedNoOutputHandler());
                 }
             }
         }

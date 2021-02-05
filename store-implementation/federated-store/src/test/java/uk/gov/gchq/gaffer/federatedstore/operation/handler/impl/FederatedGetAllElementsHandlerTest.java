@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandlerTest;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOutputOperationHandlerTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutputHandlerTest<GetAllElements, CloseableIterable<? extends Element>> {
+public class FederatedGetAllElementsHandlerTest extends FederatedOutputOperationHandlerTest<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
     @BeforeEach
@@ -56,8 +55,8 @@ public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutput
     }
 
     @Override
-    protected FederatedOperationOutputHandler<GetAllElements, CloseableIterable<? extends Element>> getFederatedHandler() {
-        return new FederatedGetAllElementsHandler();
+    protected FederationHandler<GetAllElements, CloseableIterable<? extends Element>, GetAllElements> getFederatedHandler() {
+        return new FederatedOutputCloseableIterableHandler<GetAllElements, Element>();
     }
 
     @Override

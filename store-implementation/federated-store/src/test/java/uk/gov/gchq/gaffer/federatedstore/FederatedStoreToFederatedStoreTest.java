@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
+import org.junit.AfterClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,6 +60,8 @@ public class FederatedStoreToFederatedStoreTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
+        SingleUseFederatedStore.cleanUp();
+
         ProxyProperties proxyProperties = new ProxyProperties();
         proxyProperties.setStoreClass(SingleUseFederatedStore.class);
 
@@ -76,6 +79,7 @@ public class FederatedStoreToFederatedStoreTest {
         connectGraphs();
         addMapStore();
     }
+
 
     private void addMapStore() throws OperationException {
         restApiFederatedGraph.execute(new AddGraph.Builder()
@@ -113,7 +117,7 @@ public class FederatedStoreToFederatedStoreTest {
                 .build())
             .build(), new User()));
 
-        assertTrue(e.getMessage().contains("View is not valid for graphIds:[mapStore]"));
+        assertTrue(e.getCause().getCause().getMessage().contains("View is not valid for graphIds:[mapStore]"), e.getMessage());
     }
 
     @Test
@@ -181,5 +185,10 @@ public class FederatedStoreToFederatedStoreTest {
         // Then
         assertEquals(1, results.size());
         assertEquals(entity, results.get(0));
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        SingleUseFederatedStore.cleanUp();
     }
 }

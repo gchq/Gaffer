@@ -24,6 +24,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederationHandler;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -51,7 +53,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
+public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";
     public static final String TEST_GRAPH_ID = "testGraphId";
     public static final String PROPERTY_TYPE = "property";
@@ -76,7 +78,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         assertNotNull(o4, "Required field object o4 is null");
     }
 
-    protected abstract FederatedOperationOutputHandler<OP, O> getFederatedHandler();
+    protected abstract FederationHandler<OP, O, OP> getFederatedHandler();
 
     protected abstract OP getExampleOperation();
 
@@ -99,7 +101,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         linkedGraphs.add(getGraphWithMockStore(mockStore2));
         linkedGraphs.add(getGraphWithMockStore(mockStore3));
         linkedGraphs.add(getGraphWithMockStore(mockStore4));
-        Mockito.when(mockStore.getGraphs(user, null, op)).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(eq(user), eq(null), eq(FederatedStoreUtil.getFederatedOperation(op)))).thenReturn(linkedGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
@@ -130,7 +132,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
-        Mockito.when(mockStore.getGraphs(user, "1,3", op)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(eq(user), eq("1,3"), eq(FederatedStoreUtil.getFederatedOperation(op)))).thenReturn(filteredGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
@@ -159,14 +161,14 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         given(mockStoreInner.execute(any(OperationChain.class), any(Context.class))).willThrow(new RuntimeException(message));
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID, op)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(eq(user), eq(TEST_GRAPH_ID), eq(FederatedStoreUtil.getFederatedOperation(op)))).thenReturn(filteredGraphs);
 
         // When
         try {
             getFederatedHandler().doOperation(op, context, mockStore);
             fail("Exception not thrown");
         } catch (OperationException e) {
-            assertEquals(message, e.getCause().getMessage());
+            assertEquals(message, e.getCause().getCause().getMessage());
         }
     }
 
@@ -216,7 +218,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
-        Mockito.when(mockStore.getGraphs(user, "1,3", op)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(eq(user), eq("1,3"), eq(FederatedStoreUtil.getFederatedOperation(op)))).thenReturn(filteredGraphs);
 
         // When
         O theMergedResultsOfOperation = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,8 @@ import java.util.Map;
 @Summary("A wrapped OperationChain to be executed in one go on a delegate graph")
 public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         implements InputOutput<I, CloseableIterable<O_ITEM>>,
-        Operations<OperationChain> {
+        Operations<OperationChain>,
+        IFederationOperation {
     @Required
     private OperationChain operationChain;
     private Map<String, String> options;

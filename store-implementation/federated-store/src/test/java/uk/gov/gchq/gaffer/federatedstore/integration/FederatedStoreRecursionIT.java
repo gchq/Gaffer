@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.SingleUseFederatedStore;
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreRecursionIT extends AbstractStoreIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreRecursionIT.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
     public static final String ENTITY_GRAPH = "entityGraph";
@@ -74,8 +74,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         graph = null;
     }
 
-
-    @Test(timeout = 60000)
+    @Test(timeout = 10000)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -103,7 +102,6 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     }
 
     protected void addEntity() throws OperationException {
-        LOGGER.debug("addEntity");
         proxyToRestServiceFederatedGraph.execute(
                 new AddElements.Builder()
                         .input(new Entity.Builder()
@@ -168,8 +166,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
 
     protected void createInnerProxyToOuterFederatedStore() throws OperationException {
         ProxyProperties storeProperties = new ProxyProperties();
-        storeProperties.setReadTimeout(120000);
-        storeProperties.setConnectTimeout(120000);
+        storeProperties.setReadTimeout(10000);
+        storeProperties.setConnectTimeout(10000);
         proxyToRestServiceFederatedGraph.execute(new FederatedOperationChain.Builder<>()
                 .operationChain(OperationChain.wrap(new AddGraph.Builder()
                         .graphId(INNER_PROXY)
@@ -192,8 +190,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         final Graph proxyToRestServiceFederatedGraph;
         ProxyProperties singleUseFedProperties = new ProxyProperties();
         singleUseFedProperties.setStoreClass(SingleUseFederatedStore.class);
-        singleUseFedProperties.setReadTimeout(120000);
-        singleUseFedProperties.setConnectTimeout(120000);
+        singleUseFedProperties.setReadTimeout(10000);
+        singleUseFedProperties.setConnectTimeout(10000);
 
         proxyToRestServiceFederatedGraph = new Graph.Builder()
                 .storeProperties(singleUseFedProperties)
@@ -203,5 +201,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         this.proxyToRestServiceFederatedGraph = proxyToRestServiceFederatedGraph;
     }
 
-
+    @AfterClass
+    public static void afterClass() {
+        SingleUseFederatedStore.cleanUp();
+    }
 }

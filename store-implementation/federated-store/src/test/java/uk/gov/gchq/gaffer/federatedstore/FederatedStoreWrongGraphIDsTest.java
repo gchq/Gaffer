@@ -117,7 +117,7 @@ public class FederatedStoreWrongGraphIDsTest {
                     .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
                     .build(), blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
-        } catch (final IllegalArgumentException e) {
+        } catch (final Exception e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
                     e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }
@@ -129,7 +129,7 @@ public class FederatedStoreWrongGraphIDsTest {
                             .build(),
                     blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
-        } catch (final IllegalArgumentException e) {
+        } catch (final Exception e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
                     e.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
         }

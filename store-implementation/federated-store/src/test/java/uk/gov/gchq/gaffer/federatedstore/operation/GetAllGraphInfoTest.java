@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
@@ -27,7 +26,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class GetAllGraphInfoTest extends OperationTest<GetAllGraphInfo> {
+public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet();
