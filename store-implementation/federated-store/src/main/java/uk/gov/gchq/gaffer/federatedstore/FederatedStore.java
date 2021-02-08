@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -38,20 +39,19 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedGetSchemaHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphWithHooksHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphAccessHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedChangeGraphIdHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphInfoHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -427,7 +427,7 @@ public class FederatedStore extends Store {
                         && !AddElements.class.equals(op)
                         && !AddNamedOperation.class.equals(op)
                         && !AddNamedView.class.equals(op))
-                .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
+                .forEach(op -> addOperationHandler(op, new FederatedNoOutputHandler()));
 
         addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
 
@@ -437,16 +437,17 @@ public class FederatedStore extends Store {
 
         addOperationHandler(Validate.class, new FederatedValidateHandler());
 
+        //FederationOperations
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
-
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
+        addOperationHandler(FederatedOperation.class, new FederatedOperationHandler());
     }
 
     @Override
@@ -456,22 +457,22 @@ public class FederatedStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
-        return new FederatedGetElementsHandler();
+        return new FederatedOutputCloseableIterableHandler<GetElements, Element>();
     }
 
     @Override
     protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
-        return new FederatedGetAllElementsHandler();
+        return new FederatedOutputCloseableIterableHandler<GetAllElements, Element>();
     }
 
     @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return new FederatedGetAdjacentIdsHandler();
+        return new FederatedOutputCloseableIterableHandler<GetAdjacentIds, EntityId>();
     }
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return (OperationHandler) new FederatedOperationHandler();
+        return new FederatedNoOutputHandler<AddElements>();
     }
 
     @Override
@@ -508,5 +509,25 @@ public class FederatedStore extends Store {
         return isAdmin
                 ? graphStorage.changeGraphId(graphId, newGraphId, requestingUser, this.getProperties().getAdminAuth())
                 : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);
+    }
+
+    String defaultGraphIdsCSV;
+
+    public String getDefaultGraphIdsCSV() {
+        return defaultGraphIdsCSV;
+    }
+
+    public FederatedStore setDefaultGraphIdsCSV(final String defaultGraphIdsCSV) {
+        //TODO Review this
+        if (nonNull(this.defaultGraphIdsCSV)) {
+            LOGGER.error("Attempting to change defaultGraphIdsCSV ignoring the value: +" + defaultGraphIdsCSV);
+        } else {
+            this.defaultGraphIdsCSV = defaultGraphIdsCSV;
+        }
+        return this;
+    }
+
+    public Collection<Graph> getDefaultGraphs(final User user, final Operation operation) {
+        return getGraphs(user, defaultGraphIdsCSV, operation);
     }
 }

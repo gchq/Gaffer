@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,7 +182,29 @@ public final class FederatedStoreUtil {
         return newView;
     }
 
+    //TODO FEDERATED REVIEW THIS
     public static boolean isUserRequestingAdminUsage(final Operation operation) {
         return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "false"));
+    }
+
+
+    /**
+     * Defaulted with a iterableConcat
+     *
+     * @param operation
+     * @return
+     */
+    public static FederatedOperation getFederatedOperation(final Operation operation) {
+        return new FederatedOperation.Builder()
+                .op(operation)
+                .mergeFunction(new IterableConcat())
+                //TODO REVIEW THIS
+                //.graphIds(default)
+                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
+                //TODO review this
+                .options(operation.getOptions())
+                .build();
+
+
     }
 }
