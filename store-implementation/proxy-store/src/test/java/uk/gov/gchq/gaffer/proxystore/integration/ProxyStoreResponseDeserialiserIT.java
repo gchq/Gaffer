@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -96,7 +97,8 @@ public class ProxyStoreResponseDeserialiserIT {
         expectedOperationClasses.add(OperationChain.class);
         expectedOperationClasses.add(OperationChainDAO.class);
 
-        assertTrue(actualOperationClasses.size() == expectedOperationClasses.size() && actualOperationClasses.containsAll(expectedOperationClasses));
+        assertEquals(actualOperationClasses.size(), expectedOperationClasses.size());
+        assertTrue(actualOperationClasses.containsAll(expectedOperationClasses));
     }
 
 
