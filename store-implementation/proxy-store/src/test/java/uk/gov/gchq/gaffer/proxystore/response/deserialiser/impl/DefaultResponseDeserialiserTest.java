@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,6 +47,7 @@ public class DefaultResponseDeserialiserTest {
         final Set<StoreTrait> storeTraits = new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.StoreTraits()).deserialise(jsonString);
 
         final Set<StoreTrait> expectedStoreTraits = new HashSet<>(asList(StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION));
-        assertTrue(expectedStoreTraits.size() == storeTraits.size() && expectedStoreTraits.containsAll(storeTraits));
+        assertEquals(expectedStoreTraits.size(), storeTraits.size());
+        assertTrue(expectedStoreTraits.containsAll(storeTraits));
     }
 }

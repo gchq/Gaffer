@@ -48,11 +48,22 @@ public class OperationsResponseDeserialiserTest {
     }
 
     @Test
-    public void shouldSkipClassNamesNotAssignableToOperationInResponse() throws SerialisationException {
+    public void shouldSkipOperationsNotOnTheLocalClasspathInResponse() throws SerialisationException {
         /* Federated Store Operations are not accessible from the proxy-store module */
         final String jsonString = "[\n" +
                 "  \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\"," +
                 "  \"uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds\"" +
+                "]";
+
+        final Set<Class<? extends Operation>> operationClasses = new OperationsResponseDeserialiser().deserialise(jsonString);
+        assertIterableEquals(Collections.singleton(AddElements.class), operationClasses);
+    }
+
+    @Test
+    public void shouldSkipClassNamesNotAssignableToOperationInResponse() throws SerialisationException {
+        final String jsonString = "[\n" +
+                "  \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\"," +
+                "  \"java.lang.String\"" +
                 "]";
 
         final Set<Class<? extends Operation>> operationClasses = new OperationsResponseDeserialiser().deserialise(jsonString);
