@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -75,10 +76,11 @@ public class FederatedStoreToFederatedStoreTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
+        CacheServiceLoader.shutdown();
         if (graphFactory instanceof FederatedStoreGraphFactory) {
             ((FederatedStoreGraphFactory) graphFactory).reset();
         } else {
-            throw new RuntimeException("Expected the MapStoreGraph Factory to be injected");
+            throw new RuntimeException("Expected the FederatedStoreGraphFactory Factory to be injected");
         }
 
         final ProxyProperties proxyProperties = new ProxyProperties();

@@ -79,7 +79,7 @@ public class FederatedStoreRecursionIT {
 
     @BeforeEach
     @AfterEach
-    public void clearCache() {
+    public void clearCacheAndResetGraph() {
         CacheServiceLoader.shutdown();
         if (graphFactory instanceof FederatedStoreGraphFactory) {
             ((FederatedStoreGraphFactory) graphFactory).reset();

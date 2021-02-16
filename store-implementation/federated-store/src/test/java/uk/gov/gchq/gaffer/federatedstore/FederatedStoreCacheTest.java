@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,7 @@ public class FederatedStoreCacheTest {
                 .build();
     }
 
+    @AfterEach
     @BeforeEach
     public void beforeEach() throws CacheOperationException {
         federatedStoreCache.clearCache();
