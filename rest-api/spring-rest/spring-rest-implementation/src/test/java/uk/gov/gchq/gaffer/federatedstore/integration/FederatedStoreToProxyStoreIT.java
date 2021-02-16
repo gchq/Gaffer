@@ -37,7 +37,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BASIC_ENTITY;
 
 /**
  * Integration test to ensure rest API calls either
@@ -52,6 +51,8 @@ import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BAS
  */
 public class FederatedStoreToProxyStoreIT {
 
+    private static final int FEDERATED_STORE_REST_API_PORT = 8081;
+    private static final int MAP_STORE_REST_API_PORT = 8080;
     private GafferInstance federatedStoreInstance;
     private GafferInstance mapStoreInstance;
 
@@ -62,26 +63,26 @@ public class FederatedStoreToProxyStoreIT {
     Path federatedStoreInstanceDir;
 
     private static final Entity ENTITY = new Entity.Builder()
-            .group(BASIC_ENTITY)
+            .group("BasicEntity")
             .vertex("myVertex")
             .property("property1", 1)
             .build();
 
     @BeforeEach
     public void startInstances() throws Exception {
-        final String federatedStoreModulePath = "/store-implementation/federated-store";
+        final String pathToExecutable = GafferInstance.getPathToExecutable(FederatedStoreToProxyStoreIT.class, "/rest-api/spring-rest");
         federatedStoreInstance = new GafferInstance(
-                GafferInstance.getPathToExecutable(FederatedStoreToProxyStoreIT.class, federatedStoreModulePath),
-                8081,
+                pathToExecutable,
+                FEDERATED_STORE_REST_API_PORT,
                 "federatedstore",
-                createFile(federatedStoreInstanceDir, "store.properties", "/properties/singleUseFederatedStore.properties"),
+                createFile(federatedStoreInstanceDir, "store.properties", "/singleUseFederatedStore.properties"),
                 createFile(federatedStoreInstanceDir, "schema.json", "/schema/basicEntitySchema.json"));
 
         federatedStoreInstance.start();
 
         mapStoreInstance = new GafferInstance(
-                GafferInstance.getPathToExecutable(FederatedStoreToProxyStoreIT.class, federatedStoreModulePath),
-                8080,
+                pathToExecutable,
+                MAP_STORE_REST_API_PORT,
                 "mapstore",
                 createFile(mapStoreInstanceDir, "store.properties", "/mapstore_without_visibility_support.properties"),
                 createFile(mapStoreInstanceDir, "schema.json", "/schema/basicEntitySchema.json"));
