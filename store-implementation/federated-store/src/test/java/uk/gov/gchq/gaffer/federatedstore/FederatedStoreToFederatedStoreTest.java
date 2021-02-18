@@ -78,7 +78,7 @@ public class FederatedStoreToFederatedStoreTest {
         if (graphFactory instanceof FederatedStoreGraphFactory) {
             ((FederatedStoreGraphFactory) graphFactory).reset();
         } else {
-            throw new RuntimeException("Expected the MapStoreGraph Factory to be injected");
+            throw new RuntimeException("Expected the FederatedStoreGraphFactory Factory to be injected");
         }
 
         final ProxyProperties proxyProperties = new ProxyProperties();
