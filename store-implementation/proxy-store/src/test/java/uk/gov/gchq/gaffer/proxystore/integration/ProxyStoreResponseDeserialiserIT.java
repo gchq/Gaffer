@@ -15,15 +15,13 @@
  */
 package uk.gov.gchq.gaffer.proxystore.integration;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,13 +29,13 @@ import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.proxystore.integration.factory.TestGraphFactory;
 import uk.gov.gchq.gaffer.proxystore.response.deserialiser.ResponseDeserialiser;
-import uk.gov.gchq.gaffer.rest.RestApiTestClient;
-import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.rest.GafferWebApplication;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,29 +44,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest(classes = GafferWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("proxy")
 public class ProxyStoreResponseDeserialiserIT {
 
-    private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
+    @Autowired
+    private GraphFactory factory;
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @LocalServerPort
+    private int localServerPort;
 
-    @BeforeClass
-    public static void beforeClass() {
-        CLIENT.startServer();
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        CLIENT.stopServer();
-    }
-
-    @Before
-    public void before() throws IOException {
-        CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
+    @BeforeEach
+    public void before() {
+        // Reset Map store
+        if (factory instanceof TestGraphFactory) {
+            ((TestGraphFactory) factory).reset();
+        } else {
+            throw new RuntimeException("Expected Factory to be injected");
+        }
     }
 
     @Test
@@ -80,16 +75,14 @@ public class ProxyStoreResponseDeserialiserIT {
         final TestProxyStore proxyStore = new TestProxyStore.Builder(operationResponseDeserialiser)
                 .graphId("graph1")
                 .host("localhost")
-                .port(8080)
-                .contextRoot("rest/v2")
+                .port(localServerPort)
+                .contextRoot("rest")
                 .build();
 
         // Create Graph and initialise ProxyStore
         new Graph.Builder()
                 .store(proxyStore)
                 .build();
-
-        verify(operationResponseDeserialiser).deserialise(anyString());
 
         final Set<Class<? extends Operation>> actualOperationClasses = proxyStore.getSupportedOperations();
         final Set<Class<? extends Operation>> expectedOperationClasses = new HashSet<>();
@@ -101,9 +94,7 @@ public class ProxyStoreResponseDeserialiserIT {
         assertTrue(actualOperationClasses.containsAll(expectedOperationClasses));
     }
 
-
     public static class TestProxyStore extends ProxyStore {
-
         private final ResponseDeserialiser<Set<Class<? extends Operation>>> operationsResponseDeserialiser;
 
         TestProxyStore(final ResponseDeserialiser<Set<Class<? extends Operation>>> operationsResponseDeserialiser) {
