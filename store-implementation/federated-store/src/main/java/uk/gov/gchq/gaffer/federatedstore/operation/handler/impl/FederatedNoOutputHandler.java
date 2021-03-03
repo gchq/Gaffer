@@ -31,6 +31,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
  * Operation handler for the federation of an PAYLOAD operation with an expected return type of Void/Null.
@@ -55,7 +56,7 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> extends Federat
     @Override
     public Object doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
         loggingIsProcessedByFederatedStore(operation, store, "before");
-        FederatedOperation fedOp = FederatedStoreUtil.getFederatedOperation(operation);
+        FederatedOperation fedOp = getFederatedOperation(operation);
 
         //TODO Handle directly or re-send back to Store
         Object ignore = new FederatedOperationHandler<PAYLOAD, Object>().doOperation(fedOp, context, store);

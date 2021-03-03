@@ -27,8 +27,6 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
@@ -39,9 +37,17 @@ public class GetAllGraphInfo implements
         IFederationOperation,
         Output<Map<String, Object>> {
     private Map<String, String> options;
+    private String graphIdsCsv;
 
-    public GetAllGraphInfo() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+    @JsonProperty("graphIds")
+    public GetAllGraphInfo graphIdsCSV(final String graphIds) {
+        this.graphIdsCsv = graphIds;
+        return this;
+    }
+
+    @JsonProperty("graphIds")
+    public String getGraphIdsCSV() {
+        return graphIdsCsv;
     }
 
     @Override
@@ -53,7 +59,30 @@ public class GetAllGraphInfo implements
     public GetAllGraphInfo shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
+                .graphIDsCSV(graphIdsCsv)
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GetAllGraphInfo that = (GetAllGraphInfo) o;
+
+        return new EqualsBuilder()
+                .append(options, that.options)
+                .append(graphIdsCsv, that.graphIdsCsv)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(options)
+                .append(graphIdsCsv)
+                .toHashCode();
     }
 
     @Override
@@ -70,6 +99,11 @@ public class GetAllGraphInfo implements
 
         public Builder() {
             super(new GetAllGraphInfo());
+        }
+
+        public Builder graphIDsCSV(final String graphIdsCSV) {
+            this._getOp().graphIdsCSV(graphIdsCSV);
+            return this;
         }
     }
 }

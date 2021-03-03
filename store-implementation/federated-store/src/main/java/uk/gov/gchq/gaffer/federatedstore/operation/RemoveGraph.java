@@ -28,8 +28,6 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
  * An Operation used for removing graphs from a FederatedStore.
  * <p>Requires:
@@ -49,10 +47,6 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
     @Required
     private String graphId;
     private Map<String, String> options;
-
-    public RemoveGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     public String getGraphId() {
         return graphId;

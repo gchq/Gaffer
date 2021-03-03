@@ -31,9 +31,6 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
-
 @JsonPropertyOrder(value = {"class", "graphId", "newGraphId"}, alphabetic = true)
 @Since("1.12.0")
 @Summary("Changes the Id of a graph")
@@ -43,10 +40,6 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     private String graphId;
     private String newGraphId;
     private Map<String, String> options = new HashMap<>();
-
-    public ChangeGraphId() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     public String getGraphId() {
         return graphId;

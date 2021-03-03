@@ -55,7 +55,6 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedGraphStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);

@@ -42,7 +42,6 @@ import java.util.Objects;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 /**
  * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
@@ -61,11 +60,6 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     // TODO final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
 
     private Map<String, String> options;
-
-    public FederatedOperation() {
-        // TODO review this initialisation
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     @JsonProperty("graphIds")
     public FederatedOperation graphIdsCSV(final String graphIds) {
@@ -100,6 +94,12 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     public String getGraphIdsCSV() {
         return graphIdsCsv;
     }
+
+    @JsonIgnore
+    public List<String> getGraphIds() {
+        return FederatedStoreUtil.getCleanStrings(graphIdsCsv);
+    }
+
 
     /**
      * Returns a shallow clone of the payload operation.

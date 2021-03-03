@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
  * <p>
  * An Operation used for adding graphs to a FederatedStore.
@@ -83,10 +81,6 @@ public class AddGraph implements IFederationOperation {
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-
-    public AddGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     public String getGraphId() {
         return graphId;

@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
+
 public class FederatedTransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
     private final TransformHandler handler;
 

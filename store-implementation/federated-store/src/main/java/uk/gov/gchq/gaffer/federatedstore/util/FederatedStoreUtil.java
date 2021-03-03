@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 public final class FederatedStoreUtil {
@@ -62,14 +62,6 @@ public final class FederatedStoreUtil {
 
         return String.format("Failed to execute %s on graph %s.%n %s.%n Error: %s",
                 operation.getClass().getSimpleName(), graphId, additionalInfo, e.getMessage());
-    }
-
-    public static List<String> getGraphIds(final Map<String, String> config) {
-        if (null == config) {
-            return null;
-        }
-
-        return getCleanStrings(config.get(KEY_OPERATION_OPTIONS_GRAPH_IDS));
     }
 
     public static List<String> getCleanStrings(final String value) {
@@ -186,7 +178,6 @@ public final class FederatedStoreUtil {
     public static boolean isUserRequestingAdminUsage(final Operation operation) {
         return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "false"));
     }
-
 
     /**
      * Defaulted with a iterableConcat

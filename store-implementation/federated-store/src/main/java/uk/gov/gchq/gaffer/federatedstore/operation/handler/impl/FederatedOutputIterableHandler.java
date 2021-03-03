@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import static java.util.Objects.isNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
  * Operation handler for the federation of an PAYLOAD operation with an expected return type Iterable<ITERABLE_ELEMENTS>
@@ -46,7 +47,7 @@ public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Ite
     @Override
     public Iterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
 
-        FederatedOperation fedOp = FederatedStoreUtil.getFederatedOperation(operation);
+        FederatedOperation fedOp = getFederatedOperation(operation);
 
         //returns flattened ChainedIterable by default
         //TODO Handle directly or re-send back to Store

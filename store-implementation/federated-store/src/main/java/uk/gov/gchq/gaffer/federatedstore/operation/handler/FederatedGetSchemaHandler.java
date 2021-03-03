@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+
 /**
  * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
  * operation by merging federated schemas.
@@ -34,6 +36,6 @@ public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSche
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }
-        return ((FederatedStore) store).getSchema(operation, context);
+        return ((FederatedStore) store).getSchema(getFederatedOperation(operation), context);
     }
 }

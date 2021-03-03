@@ -26,9 +26,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+
 public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        return ((FederatedStore) store).getTraits(operation, context);
+        return ((FederatedStore) store).getTraits(getFederatedOperation(operation), context);
     }
 }

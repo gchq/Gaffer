@@ -35,9 +35,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
-
 @JsonPropertyOrder(value = {"class", "graphId", "graphAuths", "isPublic"}, alphabetic = true)
 @Since("1.11.0")
 @Summary("Changes the protection used for accessing graphs")
@@ -51,10 +48,6 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
 
     private String ownerUserId;
-
-    public ChangeGraphAccess() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     public String getGraphId() {
         return graphId;
