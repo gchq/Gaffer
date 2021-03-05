@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public final class FederatedStoreConstants {
-    //TODO Operation options
-    public static final String KEY_OPERATION_OPTIONS_GRAPH_IDS = "gaffer.federatedstore.operation.graphIds";
-    //TODO Delete This and switch to optional argument.
+    //TODO FS Feature, Delete This and switch to optional argument.
     public static final String KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = "gaffer.federatedstore.operation.skipFailedFederatedStoreExecute";
     public static final String DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = String.valueOf(false);
     public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);

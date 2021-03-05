@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
@@ -82,6 +83,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
@@ -131,7 +133,8 @@ public class FederatedStoreTest {
     private User blankUser;
     private IgnoreOptions ignore;
 
-    private static final Class CURRENT_CLASS = new Object() { }.getClass().getEnclosingClass();
+    private static final Class CURRENT_CLASS = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, PATH_ACC_STORE_PROPERTIES_1));
     private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, PATH_ACC_STORE_PROPERTIES_2));
     private static final AccumuloProperties PROPERTIES_ALT = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(CURRENT_CLASS, PATH_ACC_STORE_PROPERTIES_ALT));
@@ -311,9 +314,9 @@ public class FederatedStoreTest {
     public void shouldUpdateSchemaWhenNewGraphIsAdded() throws Exception {
         // Given
         addGraphWithPaths(ACC_ID_1, PROPERTIES_ALT, PATH_BASIC_ENTITY_SCHEMA_JSON);
-        Schema before = store.getSchema((Operation) null, blankUser);
+        Schema before = store.getSchema(new Context(blankUser));
         addGraphWithPaths(ACC_ID_2, PROPERTIES_ALT, PATH_BASIC_EDGE_SCHEMA_JSON);
-        Schema after = store.getSchema((Operation) null, blankUser);
+        Schema after = store.getSchema(new Context(blankUser));
         // Then
         assertNotEquals(before, after);
     }
@@ -322,15 +325,15 @@ public class FederatedStoreTest {
     public void shouldUpdateSchemaWhenNewGraphIsRemoved() throws Exception {
         // Given
         addGraphWithPaths(ACC_ID_1, PROPERTIES_ALT, PATH_BASIC_ENTITY_SCHEMA_JSON);
-        Schema was = store.getSchema((Operation) null, blankUser);
+        Schema was = store.getSchema(new Context(blankUser));
         addGraphWithPaths(ACC_ID_2, PROPERTIES_ALT, PATH_BASIC_EDGE_SCHEMA_JSON);
 
-        Schema before = store.getSchema((Operation) null, blankUser);
+        Schema before = store.getSchema(new Context(blankUser));
 
         // When
         store.remove(ACC_ID_2, blankUser);
 
-        Schema after = store.getSchema((Operation) null, blankUser);
+        Schema after = store.getSchema(new Context(blankUser));
         assertNotEquals(before.toString(), after.toString());
         assertEquals(was.toString(), after.toString());
     }
@@ -379,9 +382,9 @@ public class FederatedStoreTest {
     @Test
     public void shouldCombineTraitsToMin() throws Exception {
         //Given
-        final GetTraits getTraits = new GetTraits.Builder()
+        final FederatedOperation<GetTraits> getTraits = getFederatedOperation(new GetTraits.Builder()
                 .currentTraits(true)
-                .build();
+                .build());
 
         //When
         final Set<StoreTrait> before = store.getTraits(getTraits, userContext);
@@ -1286,7 +1289,7 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (final SchemaException e) {
             //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches(),
+            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
                     e.getMessage());
         }
 
@@ -1315,17 +1318,16 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (final SchemaException e) {
             //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches(),
+            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
                     e.getMessage());
         }
 
         //when
-        final CloseableIterable<? extends Element> responseGraphA = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").build(), userContext);
-        final CloseableIterable<? extends Element> responseGraphB = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").build(), userContext);
+        final CloseableIterable<? extends Element> responseGraphA = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphA"), userContext);
+        final CloseableIterable<? extends Element> responseGraphB = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphB"), userContext);
         //then
         ElementUtil.assertElementEquals(expectedA, responseGraphA);
         ElementUtil.assertElementEquals(expectedB, responseGraphB);
-
     }
 
     @Test
@@ -1346,15 +1348,15 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (final SchemaException e) {
             //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches(),
+            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
                     e.getMessage());
         }
 
         //when
-        final CloseableIterable<? extends Element> responseGraphAWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").view(new View.Builder().entity("entityA").build()).build(), userContext);
-        final CloseableIterable<? extends Element> responseGraphBWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").view(new View.Builder().entity("entityB").build()).build(), userContext);
-        final CloseableIterable<? extends Element> responseAllGraphsWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA,graphB").view(new View.Builder().entity("entityA").build()).build(), userContext);
-        final CloseableIterable<? extends Element> responseAllGraphsWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA,graphB").view(new View.Builder().entity("entityB").build()).build(), userContext);
+        final CloseableIterable<? extends Element> responseGraphAWithAView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphA"), userContext);
+        final CloseableIterable<? extends Element> responseGraphBWithBView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphB"), userContext);
+        final CloseableIterable<? extends Element> responseAllGraphsWithAView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphA,graphB"), userContext);
+        final CloseableIterable<? extends Element> responseAllGraphsWithBView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphA,graphB"), userContext);
         //then
         ElementUtil.assertElementEquals(expectedA, responseGraphAWithAView);
         ElementUtil.assertElementEquals(expectedB, responseGraphBWithBView);
@@ -1378,31 +1380,31 @@ public class FederatedStoreTest {
             fail("exception expected");
         } catch (final SchemaException e) {
             //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the operation option: gaffer\\.federatedstore\\.operation\\.graphIds").matcher(e.getMessage()).matches(),
+            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
                     e.getMessage());
         }
 
         try {
             //when
-            CloseableIterable<? extends Element> responseGraphAWithBView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphA").view(new View.Builder().entity("entityB").build()).build(), userContext);
+            CloseableIterable<? extends Element> responseGraphAWithBView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityB").build()).build()).graphIdsCSV("graphA"), userContext);
             fail("exception expected");
         } catch (Exception e) {
             //then
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[graphA]\n" +
-                    "(graphId: graphA) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphA) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
                     "(graphId: graphA) Entity group entityB does not exist in the schema", e.getMessage());
         }
 
         try {
             //when
-            final CloseableIterable<? extends Element> responseGraphBWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB").view(new View.Builder().entity("entityA").build()).build(), userContext);
+            final CloseableIterable<? extends Element> responseGraphBWithAView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB"), userContext);
             fail("exception expected");
         } catch (Exception e) {
             //then
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[graphB]\n" +
-                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
                     "(graphId: graphB) Entity group entityA does not exist in the schema", e.getMessage());
         }
 
@@ -1410,25 +1412,27 @@ public class FederatedStoreTest {
 
         try {
             //when
-            final CloseableIterable<? extends Element> responseGraphBWithAView = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graphB,graphC").view(new View.Builder().entity("entityA").build()).build(), userContext);
+            final CloseableIterable<? extends Element> responseGraphBWithAView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphB,graphC"), userContext);
             fail("exception expected");
         } catch (Exception e) {
             //then
             assertEquals("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[graphB,graphC]\n" +
-                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphB) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
                     "(graphId: graphB) Entity group entityA does not exist in the schema\n" +
-                    "(graphId: graphC) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
+                    "(graphId: graphC) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
                     "(graphId: graphC) Entity group entityA does not exist in the schema", e.getMessage());
         }
     }
 
     protected void addElementsToNewGraph(final Entity input, final String graphName, final String pathSchemaJson) throws OperationException {
         addGraphWithPaths(graphName, PROPERTIES_1, pathSchemaJson);
-        store.execute(new AddElements.Builder()
-                .input(input)
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphName)
-                .build(), userContext);
+        store.execute(getFederatedOperation(
+                new AddElements.Builder()
+                        .input(input)
+                        .build())
+                .graphIdsCSV(graphName)
+                .mergeFunction(null), userContext);
     }
 
     protected Entity getEntityB() {

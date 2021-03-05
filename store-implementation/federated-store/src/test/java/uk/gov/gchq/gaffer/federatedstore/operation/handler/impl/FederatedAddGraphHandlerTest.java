@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,8 +144,7 @@ public class FederatedAddGraphHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
-        federatedAddGraphHandler.doOperation(
+        new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
@@ -157,7 +156,6 @@ public class FederatedAddGraphHandlerTest {
 
         Collection<Graph> enabledGraphs = store.getGraphs(testUser, null, ignore);
         assertEquals(0, enabledGraphs.size());
-
 
         Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID, ignore);
         assertEquals(1, expectedGraphs.size());

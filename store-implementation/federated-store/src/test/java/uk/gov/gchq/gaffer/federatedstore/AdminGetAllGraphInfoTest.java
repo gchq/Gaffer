@@ -35,7 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+/**
+ * @see uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfoTest
+ */
 public class AdminGetAllGraphInfoTest {
 
     private static final String ADMIN_AUTH = "AdminAuth";

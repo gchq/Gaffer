@@ -45,8 +45,8 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, OUTPUT> extend
         return (PAYLOAD) payloadOperation;
     }
 
-    private Operation copyOptionToPayload(FederatedOperation operation, Operation payloadOperation) {
-        //TODO x completely tidy up this important logic see FedOp for auto-ing this.
+    private Operation copyOptionToPayload(final FederatedOperation operation, final Operation payloadOperation) {
+        //TODO FS Refactor completely tidy up this important logic see FedOp for auto-ing this.
         if (nonNull(operation.getOptions())) {
             loggingGetPayload(operation, payloadOperation);
             operation.getOptions().forEach((k, v) -> payloadOperation.addOption(k.toString(), v.toString()));
@@ -54,7 +54,7 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, OUTPUT> extend
         return payloadOperation;
     }
 
-    private void loggingGetPayload(FederatedOperation operation, Operation payloadOperation) {
+    private void loggingGetPayload(final FederatedOperation operation, final Operation payloadOperation) {
         LOGGER.info("copying options from FederationOperation to Payload operation");
         if (LOGGER.isDebugEnabled()) {
 
@@ -65,7 +65,7 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, OUTPUT> extend
                 intersection.retainAll(payloadOptions.keySet());
 
                 if (!intersection.isEmpty()) {
-                    //TODO test
+                    //TODO FS test
                     intersection.forEach(s -> LOGGER.debug("overwriting {} was:{} now:{}", s, payloadOperation.getOption(s), operation.getOption(s)));
                 }
             }

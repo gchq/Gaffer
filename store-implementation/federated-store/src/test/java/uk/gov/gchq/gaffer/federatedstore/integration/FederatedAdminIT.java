@@ -42,7 +42,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedAdminIT extends AbstractStoreIT {
 
@@ -262,7 +261,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueB").makePrivate().build();
 
         //when
-        final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().option(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphB).build(), user);
+
+        final Map<String, Object> allGraphsAndAuths =
+                (Map<String, Object>) graph.execute(new GetAllGraphInfo()
+                        .graphIdsCSV(graphB), user);
 
         //then
         assertNotNull(allGraphsAndAuths);

@@ -24,7 +24,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 @Since("2.0.0")
 @Summary("Concatenates and flattens Iterables together.")
 public class IterableConcat<T> extends KorypheBinaryOperator<Iterable<T>> {
-    //TODO DELETE/MOVE
+    //TODO FS Refactor, DELETE/MOVE
     @Override
     protected Iterable<T> _apply(final Iterable<T> a, final Iterable<T> b) {
         return new ChainedIterable<>(a, b);

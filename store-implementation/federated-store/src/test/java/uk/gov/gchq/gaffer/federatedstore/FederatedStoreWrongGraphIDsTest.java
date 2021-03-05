@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -40,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 public class FederatedStoreWrongGraphIDsTest {
 
@@ -59,7 +61,8 @@ public class FederatedStoreWrongGraphIDsTest {
     private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
@@ -92,11 +95,12 @@ public class FederatedStoreWrongGraphIDsTest {
                 .group(E1_GROUP)
                 .vertex("v1")
                 .build();
-        store.execute(new AddElements.Builder()
+
+        store.execute(new FederatedOperation.Builder<>()
+                .op(new AddElements.Builder()
                         .input(expectedEntity)
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
-                        .build(),
-                blankContext);
+                        .build()).build()
+                .graphIdsCSV(GRAPH_1), blankContext);
 
         CloseableIterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
                 .build(), blankContext);
@@ -105,17 +109,13 @@ public class FederatedStoreWrongGraphIDsTest {
         assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
 
 
-        execute = store.execute(new GetAllElements.Builder()
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
-                .build(), blankContext);
+        execute = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_1), blankContext);
 
         assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
         assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
 
         try {
-            store.execute(new GetAllElements.Builder()
-                    .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                    .build(), blankContext);
+            store.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final Exception e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
@@ -123,10 +123,12 @@ public class FederatedStoreWrongGraphIDsTest {
         }
 
         try {
-            store.execute(new AddElements.Builder()
-                            .input(expectedEntity)
-                            .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                            .build(),
+            store.execute(new FederatedOperation.Builder<>()
+                            .op(new AddElements.Builder()
+                                    .input(expectedEntity)
+                                    .build())
+                            .build()
+                            .graphIdsCSV(WRONG_GRAPH_ID),
                     blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final Exception e) {

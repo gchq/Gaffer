@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 public class FederatedTransformHandlerTest {
     @Test
@@ -42,7 +43,7 @@ public class FederatedTransformHandlerTest {
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema(op, context)).willReturn(schema);
+        given(store.getSchema(getFederatedWrappedSchema(), context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
         final FederatedTransformHandler federatedHandler = new FederatedTransformHandler(handler);
@@ -53,5 +54,6 @@ public class FederatedTransformHandlerTest {
         // Then
         assertSame(expectedResult, result);
         verify(handler).doOperation(op, schema);
+        verify(store).getSchema(getFederatedWrappedSchema(), context);
     }
 }

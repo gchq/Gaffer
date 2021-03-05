@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 public class FederatedFilterHandlerTest {
     @Test
@@ -42,7 +43,7 @@ public class FederatedFilterHandlerTest {
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema(op, context)).willReturn(schema);
+        given(store.getSchema(getFederatedWrappedSchema(), context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
         final FederatedFilterHandler federatedHandler = new FederatedFilterHandler(handler);
@@ -53,5 +54,6 @@ public class FederatedFilterHandlerTest {
         // Then
         assertSame(expectedResult, result);
         verify(handler).doOperation(op, schema);
+        verify(store).getSchema(getFederatedWrappedSchema(), context);
     }
 }

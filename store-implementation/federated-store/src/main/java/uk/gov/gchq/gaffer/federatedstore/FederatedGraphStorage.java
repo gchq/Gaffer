@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -261,6 +260,7 @@ public class FederatedGraphStorage {
 
         final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
+        //TODO FS Examine, this operation null check
         try {
             if (nonNull(operation) && nonNull(operation.getPayloadOperation()) && operation.getPayloadOperation().isCompact()) {
                 final GetSchema getSchema = new GetSchema.Builder()

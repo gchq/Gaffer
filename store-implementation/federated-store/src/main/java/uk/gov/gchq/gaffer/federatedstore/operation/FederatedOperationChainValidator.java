@@ -43,7 +43,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * the merged schema based on the user context and operation options.
  */
 public class FederatedOperationChainValidator extends OperationChainValidator {
-    //TODO Review
+    //TODO FS Examine
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
         super(viewValidator);
     }
@@ -56,14 +56,15 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected boolean shouldValidate(Operation op) {
+    protected boolean shouldValidate(final Operation op) {
         return super.shouldValidate(op) || (op instanceof FederatedOperation && super.shouldValidate(((FederatedOperation) op).getPayloadOperation()));
     }
 
     @Override
-    protected View getView(Operation op) {
+    protected View getView(final Operation op) {
         return op instanceof FederatedOperation ? super.getView(((FederatedOperation) op).getPayloadOperation()) : super.getView(op);
     }
+
 
     /**
      * If the given view is valid for at least 1 of the graphIds, then view is valid and exit.
@@ -79,7 +80,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
-        //TODO X REVIEW this inserted Federation and impact on views.
+        //TODO FS Examine, this inserted Federation and impact on views.
         final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
         FederatedOperation<Operation> clonedOp = op instanceof FederatedOperation
                 ? (FederatedOperation<Operation>) shallowCloneWithDeepOptions(op)

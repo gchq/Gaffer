@@ -38,6 +38,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -148,11 +149,11 @@ public class FederatedStoreSchemaTest {
                 .graphId("b")
                 .build(), testContext);
 
-        final CloseableIterable<? extends Element> a = fStore.execute(new OperationChain.Builder()
-                .first(new GetAllElements.Builder()
+        final CloseableIterable<? extends Element> a = (CloseableIterable<? extends Element>) fStore.execute(new OperationChain.Builder()
+                .first(getFederatedOperation(new GetAllElements.Builder()
                         //No view so makes default view, should get only view compatible with graph "a"
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "a")
                         .build())
+                        .graphIdsCSV("a"))
                 .build(), testContext);
 
         assertNotNull(a);

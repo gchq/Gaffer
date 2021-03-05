@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,7 +40,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        FederatedOperation federatedOperation = new FederatedOperation.Builder()
+        FederatedOperation<GetAdjacentIds> federatedOperation = new FederatedOperation.Builder<GetAdjacentIds>()
                 .graphIds(EXPECTED_GRAPH_ID)
                 .mergeFunction(new StringConcat())
                 .op(new GetAdjacentIds.Builder()
@@ -61,10 +60,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                     "    \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat\",\n" +
                     "    \"separator\" : \",\"\n" +
                     "  },\n" +
-                    "  \"graphIds\" : \"testGraphID1,testGraphID2\",\n" +
-                    "  \"options\" : {\n" +
-                    "    \"gaffer.federatedstore.operation.graphIds\" : \"\"\n" +
-                    "  }\n" +
+                    "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
                     "}", new String(JSONSerialiser.serialise(federatedOperation, true)));
         } catch (SerialisationException e) {
             fail(e);
@@ -74,7 +70,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
     @Test
     @Override
     public void shouldShallowCloneOperation() {
-        FederatedOperation a = new FederatedOperation.Builder()
+        FederatedOperation<GetAdjacentIds> a = new FederatedOperation.Builder<GetAdjacentIds>()
                 .graphIds(EXPECTED_GRAPH_ID)
                 .mergeFunction(new StringConcat())
                 .op(new GetAdjacentIds.Builder()
@@ -86,7 +82,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
 
     @Override
     protected FederatedOperation getTestObject() {
-        return new FederatedOperation.Builder()
+        return new FederatedOperation.Builder<>()
                 .build();
     }
 

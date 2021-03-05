@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -50,6 +49,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -65,7 +65,8 @@ public class FederatedGetTraitsHandlerTest {
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
@@ -180,11 +181,12 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // When
-        final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
-                        .currentTraits(true)
-                        .build(),
+        final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(
+                getFederatedOperation(
+                        new GetTraits.Builder()
+                                .currentTraits(true)
+                                .build()
+                ).graphIdsCSV(ALT_STORE),
                 new Context(testUser()));
 
         // Then
@@ -197,37 +199,6 @@ public class FederatedGetTraitsHandlerTest {
                         POST_TRANSFORMATION_FILTERING
                 ),
                 traits);
-    }
-
-    @Test
-    public void shouldGetAllTraitsWhenContainsStoreWithOtherTraitsWithOptions() throws Exception {
-        // Given
-        federatedStore.initialise(FED_STORE_ID, null, properties);
-
-        federatedStore.execute(new AddGraph.Builder()
-                .isPublic(true)
-                .graphId(ALT_STORE)
-                .storeProperties(new TestStorePropertiesImpl())
-                .schema(new Schema())
-                .build(), new Context(testUser()));
-
-        federatedStore.execute(new AddGraph.Builder()
-                .isPublic(true)
-                .graphId(ACC_STORE)
-                .storeProperties(PROPERTIES)
-                .schema(new Schema())
-                .build(), new Context(testUser()));
-
-        // When
-        final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
-                        .currentTraits(false)
-                        .build(),
-                new Context(testUser()));
-
-        // Then
-        assertEquals(StoreTrait.ALL_TRAITS, traits);
     }
 
     public static class TestStorePropertiesImpl extends StoreProperties {

@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -58,18 +57,18 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> extends Federat
         loggingIsProcessedByFederatedStore(operation, store, "before");
         FederatedOperation fedOp = getFederatedOperation(operation);
 
-        //TODO Handle directly or re-send back to Store
+        //TODO FS Peer Review, Handle directly or re-send back to Store 1/3
         Object ignore = new FederatedOperationHandler<PAYLOAD, Object>().doOperation(fedOp, context, store);
 
-        //TODO review Options
+        //TODO FS Examine, setOptions 1/3
         operation.setOptions(fedOp.getOptions());
 
         loggingIsProcessedByFederatedStore(operation, store, "after");
-        //TODO null or void?
+        //TODO FS Examine, Return type null or void?
         return null;
     }
 
-    private void loggingIsProcessedByFederatedStore(PAYLOAD operation, Store store, String when) {
+    private void loggingIsProcessedByFederatedStore(final PAYLOAD operation, final Store store, final String when) {
         if (LOGGER.isDebugEnabled()) {
             Object o = isNull(operation.getOptions()) ? null : operation.getOptions().keySet().stream().filter(e -> e.startsWith("FederatedStore.processed.")).collect(Collectors.toList());
             LOGGER.debug("{}: {} fedOp pipe = {}", store.getGraphId(), when, o);

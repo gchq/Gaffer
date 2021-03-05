@@ -103,7 +103,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     if (CloseableIterable.class.equals(outputClass)) {
                         store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputCloseableIterableHandler());
                     } else if (Iterable.class.equals(outputClass)) {
-                        //TODO Examine this duplication
+                        //TODO FS Examine, this duplication
                         store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: " + supportedOutputOperation);

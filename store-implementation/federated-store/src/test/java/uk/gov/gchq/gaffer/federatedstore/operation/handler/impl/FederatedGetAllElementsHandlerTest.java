@@ -55,7 +55,7 @@ public class FederatedGetAllElementsHandlerTest extends FederatedOutputOperation
     }
 
     @Override
-    protected FederationHandler<GetAllElements, CloseableIterable<? extends Element>, GetAllElements> getFederatedHandler() {
+    protected FederationHandler<GetAllElements, CloseableIterable<? extends Element>, GetAllElements> getFederationHandler() {
         return new FederatedOutputCloseableIterableHandler<GetAllElements, Element>();
     }
 

@@ -175,7 +175,7 @@ public final class FederatedStoreUtil {
         return newView;
     }
 
-    //TODO FEDERATED REVIEW THIS
+    //TODO FS Examine
     public static boolean isUserRequestingAdminUsage(final Operation operation) {
         return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "false"));
     }
@@ -183,23 +183,24 @@ public final class FederatedStoreUtil {
     /**
      * Defaulted with a iterableConcat
      *
-     * @param operation
-     * @return
+     * @param operation operation to be wrapped in FederatedOperation
+     * @param <PAYLOAD> The operation type
+     * @return the wrapped operation
      */
     public static <PAYLOAD extends Operation> FederatedOperation<PAYLOAD> getFederatedOperation(final PAYLOAD operation) {
 
         FederatedOperation.Builder<PAYLOAD> builder = new FederatedOperation.Builder<PAYLOAD>()
                 .op(operation)
                 .mergeFunction(new IterableConcat())
-                //TODO x REVIEW THIS
+                //TODO FS Examine
 //                .graphIds(default)
 //                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
-                //TODO x review this
+                //TODO FS Examine
                 .options(operation.getOptions());
 
         String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(graphIdOption)) {
-            //TODO x ignore or copy or Error
+            //TODO FS Examine, ignore or copy or Error
             LOGGER.info("Operation:{} has old deprecated style of graphId selection. Ignoring:{}", operation.getClass().getSimpleName(), graphIdOption);
             // LOGGER.info("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
             builder.graphIds(graphIdOption);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
         rtn.setOptions(operationChain.getOptions());
         rtn.addOption(PROXY_STORE_OPERATION_CHAIN_HANDLER, RESOLVED);
 
+        //TODO FS Peer Review, Could directly hit ResolvedLogic
         return this.doOperation(rtn, context, store);
     }
 
@@ -132,7 +133,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
                 //noinspection unchecked
                 OperationChain chain = (OperationChain) operation;
                 OperationHandlerUtil.updateOperationInput(chain, out);
-                if (TO_PROXY.equals(chain.getOptions().get(PROXY_STORE_OPERATION_CHAIN_HANDLER))) {
+                if (TO_PROXY.equals(chain.getOption(PROXY_STORE_OPERATION_CHAIN_HANDLER))) {
                     out = proxyLogic(chain, context, (ProxyStore) store);
                 } else {
                     //Generic is of type Object

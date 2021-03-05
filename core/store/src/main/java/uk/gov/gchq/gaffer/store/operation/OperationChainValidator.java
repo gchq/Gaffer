@@ -171,11 +171,11 @@ public class OperationChainValidator {
         }
     }
 
-    protected View getView(Operation op) {
+    protected View getView(final Operation op) {
         return ((GraphFilters) op).getView();
     }
 
-    protected boolean shouldValidate(Operation op) {
+    protected boolean shouldValidate(final Operation op) {
         return op instanceof GraphFilters;
     }
 

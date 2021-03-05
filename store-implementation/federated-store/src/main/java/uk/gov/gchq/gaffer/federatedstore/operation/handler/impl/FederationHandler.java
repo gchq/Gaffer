@@ -72,13 +72,13 @@ public abstract class FederationHandler<OP extends Operation, OUTPUT, PAYLOAD ex
                     OUTPUT execute = null;
                     try {
                         if (updatedOp instanceof Output) {
-                            //TODO x review this output distinction.
+                            //TODO FS Examine, review this output distinction.
                             execute = graph.execute((Output<OUTPUT>) updatedOp, context);
                         } else {
                             graph.execute(updatedOp, context);
                         }
                     } catch (final Exception e) {
-                        //TODO x make optional argument.
+                        //TODO FS Feature, make optional argument.
                         if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
                             throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                         }
@@ -107,12 +107,12 @@ public abstract class FederationHandler<OP extends Operation, OUTPUT, PAYLOAD ex
                 if (!isEmpty(results)) {
                     if (nonNull(mergeFunction)) {
                         for (final OUTPUT result : results) {
-                            //TODO x Test voids & Nulls
+                            //TODO FS Test, voids & Nulls
                             rtn = mergeFunction.apply(rtn, result);
                         }
                     }
                 } else {
-                    //TODO X This is returning a OUTPUT not Iterable<OUTPUT> so returning a EmptyClosableIterable might be a mistake.
+                    //TODO FS Examine, This is returning a OUTPUT not Iterable<OUTPUT> so returning a EmptyClosableIterable might be a mistake.
                     rtn = rtnDefaultWhenMergingNull();
                 }
             }

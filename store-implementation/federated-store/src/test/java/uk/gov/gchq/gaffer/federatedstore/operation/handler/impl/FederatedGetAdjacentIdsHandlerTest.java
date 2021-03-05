@@ -55,11 +55,9 @@ public class FederatedGetAdjacentIdsHandlerTest extends FederatedOutputOperation
     }
 
     @Override
-    protected FederationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>, GetAdjacentIds> getFederatedHandler() {
+    protected FederationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>, GetAdjacentIds> getFederationHandler() {
         return new FederatedOutputCloseableIterableHandler<GetAdjacentIds, EntityId>();
     }
-
-
 
     @Override
     protected GetAdjacentIds getExampleOperation() {

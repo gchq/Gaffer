@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -30,7 +29,7 @@ import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
- * Operation handler for the federation of an PAYLOAD operation with an expected return type Iterable<ITERABLE_ELEMENTS>
+ * Operation handler for the federation of an PAYLOAD operation with an expected return type Iterable/<ITERABLE_ELEMENTS/>
  *
  * @param <PAYLOAD>           The operation to be federated and executed by delegate graphs.
  * @param <ITERABLE_ELEMENTS> the type of elements returned by the Output Iterable
@@ -49,13 +48,13 @@ public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Ite
         FederatedOperation fedOp = getFederatedOperation(operation);
 
         //returns flattened ChainedIterable by default
-        //TODO x Handle directly or re-send back to Store
+        //TODO FS Peer Review, Handle directly or re-send back to Store 1/3
         Iterable<ITERABLE_ELEMENTS> results = new FederatedOperationHandler<PAYLOAD, Iterable<ITERABLE_ELEMENTS>>().doOperation(fedOp, context, store);
 
-        //TODO x review options
+        //TODO FS review, setOptions 1/3
         operation.setOptions(fedOp.getOptions());
 
-        return isNull(results) ? new EmptyClosableIterable<>(): results;
+        return isNull(results) ? new EmptyClosableIterable<>() : results;
     }
 
     @Override

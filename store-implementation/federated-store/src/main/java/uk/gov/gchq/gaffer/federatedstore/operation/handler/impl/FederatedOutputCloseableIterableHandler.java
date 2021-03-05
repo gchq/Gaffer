@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -33,7 +32,7 @@ import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
- * Operation handler for the federation of an PAYLOAD operation with an expected return type CloseableIterable<ITERABLE_ELEMENTS>
+ * Operation handler for the federation of an PAYLOAD operation with an expected return type CloseableIterable/<ITERABLE_ELEMENTS/>
  *
  * @param <PAYLOAD>           The operation to be federated and executed by delegate graphs.
  * @param <ITERABLE_ELEMENTS> the type of elements returned by the Output Iterable
@@ -42,6 +41,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends CloseableIterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
+        //TODO FS Examine, does this need to be FederationHandler?
         extends FederationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>, PAYLOAD>
         implements OutputOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> {
 
@@ -55,16 +55,17 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         FederatedOperation fedOp = getFederatedOperation(operation);
         graphIds.ifPresent(fedOp::graphIdsCSV);
 
-        //TODO x REVIEW RETURN TYPE
+        //TODO FS REVIEW, Return type
+        //TODO FS Peer Review, Handle directly or re-send back to Store 1/3
         CloseableIterable<? extends ITERABLE_ELEMENTS> results = getAnonymousFederatedOperationHandler().doOperation(fedOp, context, store);
 
-        //TODO Review SetOptions
+        //TODO FS Review, setOptions 1/3
         operation.setOptions(fedOp.getOptions());
 
         return isNull(results) ? new EmptyClosableIterable<ITERABLE_ELEMENTS>() : results;
     }
 
-    //TODO X Review this approach
+    //TODO FS IMPORTANT Review, FEAR AND COLD SWEATS
     public FederatedOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> getAnonymousFederatedOperationHandler() {
         return new FederatedOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>>() {
             //TODO REVIEW THIS STATIC ANONYMOUS CREATION

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 
-
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,7 +25,13 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * @see uk.gov.gchq.gaffer.federatedstore.AdminGetAllGraphInfoTest
+ */
 public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo> {
+
+    public static final String GRAPH_IDS_CSV = "a,b,c";
+
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet();
@@ -36,20 +41,25 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()
                 .option("a", "b")
+                .graphIDsCSV(GRAPH_IDS_CSV)
                 .build();
 
         assertThat(operation.getOptions(), hasEntry("a", "b"));
+        assertThat(operation.getGraphIdsCSV(), equals(GRAPH_IDS_CSV));
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()
                 .option("a", "b")
+                .graphIDsCSV(GRAPH_IDS_CSV)
                 .build();
 
-        final GetAllGraphInfo a = operation.shallowClone();
-        assertNotNull(a);
-        assertEquals("b", a.getOption("a"));
+        final GetAllGraphInfo clone = operation.shallowClone();
+        assertNotNull(clone);
+        assertEquals("b", clone.getOption("a"));
+        assertEquals(GRAPH_IDS_CSV, clone.getGraphIdsCSV());
+        assertEquals(operation, clone);
     }
 
     @Override

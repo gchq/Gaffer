@@ -68,10 +68,14 @@ public class GetAllGraphInfo implements
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         GetAllGraphInfo that = (GetAllGraphInfo) o;
 

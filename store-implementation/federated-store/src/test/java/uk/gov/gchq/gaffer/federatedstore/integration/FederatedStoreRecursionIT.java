@@ -19,8 +19,6 @@ import com.google.common.collect.Lists;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -28,7 +26,6 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.SingleUseFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -51,9 +48,9 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 public class FederatedStoreRecursionIT extends AbstractStoreIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreRecursionIT.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
     public static final String ENTITY_GRAPH = "entityGraph";
@@ -74,7 +71,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         graph = null;
     }
 
-    @Test(timeout = 10000)
+
+    @Test(timeout = 120000)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -114,7 +112,6 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     }
 
     protected void testGetAllElements(final int expected) throws OperationException {
-        LOGGER.debug("testGetAllElements");
         ArrayList<Element> elements = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(
                 new GetAllElements.Builder()
                         .build(),
@@ -144,12 +141,12 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     }
 
     protected void testInnerGetGraphIds(final String... ids) throws OperationException {
-        ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(
-                new FederatedOperationChain.Builder<Object, String>()
-                        .operationChain(OperationChain.wrap(
+        ArrayList<? extends String> list = (ArrayList<? extends String>) proxyToRestServiceFederatedGraph.execute(
+                getFederatedOperation(
+                        OperationChain.wrap(
                                 new GetAllGraphIds()
-                        )).build(),
-                user));
+                        )),
+                user);
         assertEquals(ids.length, list.size());
         for (String id : ids) {
             assertTrue(list.toString(), list.contains(id));
@@ -166,15 +163,14 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
 
     protected void createInnerProxyToOuterFederatedStore() throws OperationException {
         ProxyProperties storeProperties = new ProxyProperties();
-        storeProperties.setReadTimeout(10000);
-        storeProperties.setConnectTimeout(10000);
-        proxyToRestServiceFederatedGraph.execute(new FederatedOperationChain.Builder<>()
-                .operationChain(OperationChain.wrap(new AddGraph.Builder()
+        storeProperties.setReadTimeout(120000);
+        storeProperties.setConnectTimeout(120000);
+        proxyToRestServiceFederatedGraph.execute(getFederatedOperation(
+                OperationChain.wrap(new AddGraph.Builder()
                         .graphId(INNER_PROXY)
                         .schema(new Schema())
                         .storeProperties(storeProperties)
-                        .build()))
-                .build(), user);
+                        .build())), user);
     }
 
     protected void createTheInnerFederatedStore() throws
@@ -190,8 +186,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         final Graph proxyToRestServiceFederatedGraph;
         ProxyProperties singleUseFedProperties = new ProxyProperties();
         singleUseFedProperties.setStoreClass(SingleUseFederatedStore.class);
-        singleUseFedProperties.setReadTimeout(10000);
-        singleUseFedProperties.setConnectTimeout(10000);
+        singleUseFedProperties.setReadTimeout(120000);
+        singleUseFedProperties.setConnectTimeout(120000);
 
         proxyToRestServiceFederatedGraph = new Graph.Builder()
                 .storeProperties(singleUseFedProperties)

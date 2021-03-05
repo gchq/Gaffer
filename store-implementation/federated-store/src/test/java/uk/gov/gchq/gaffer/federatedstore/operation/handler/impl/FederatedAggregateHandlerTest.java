@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
@@ -49,11 +48,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 
 public class FederatedAggregateHandlerTest {
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
 
     @Test
@@ -66,7 +67,7 @@ public class FederatedAggregateHandlerTest {
         final Iterable expectedResult = mock(Iterable.class);
         final Schema schema = mock(Schema.class);
 
-        given(store.getSchema(op, context)).willReturn(schema);
+        given(store.getSchema(context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
         final FederatedAggregateHandler federatedHandler = new FederatedAggregateHandler(handler);
@@ -115,23 +116,26 @@ public class FederatedAggregateHandlerTest {
                         .build())
                 .build(), context);
 
-        fed.execute(new AddElements.Builder()
+        fed.execute(getFederatedOperation(new AddElements.Builder()
                 .input(new Edge.Builder()
                         .group("edge")
                         .source("s1")
                         .dest("d1")
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "a")
-                .build(), context);
+                .build())
+                .graphIdsCSV("a")
+                .mergeFunction(null), context);
 
-        fed.execute(new AddElements.Builder()
-                .input(new Edge.Builder()
-                        .group("edge")
-                        .source("s1")
-                        .dest("d1")
+        fed.execute(getFederatedOperation(
+                new AddElements.Builder()
+                        .input(new Edge.Builder()
+                                .group("edge")
+                                .source("s1")
+                                .dest("d1")
+                                .build())
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "b")
-                .build(), context);
+                .graphIdsCSV("b")
+                .mergeFunction(null), context);
 
         final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 

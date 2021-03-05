@@ -29,7 +29,8 @@ import uk.gov.gchq.gaffer.user.User;
  * A handler for {@link ChangeGraphId} operation for the FederatedStore.
  */
 public class FederatedChangeGraphIdHandler implements OutputOperationHandler<ChangeGraphId, Boolean> {
-
+    //TODO FS Feature, Accumulo change graphID?
+    //TODO FS ticket change the graph library
     @Override
     public Boolean doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {

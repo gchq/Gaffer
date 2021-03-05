@@ -59,7 +59,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     private PAYLOAD payloadOperation;
     @Required
     private KorypheBinaryOperator mergeFunction;
-    // TODO x final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
+    // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
 
     private Map<String, String> options;
 
@@ -76,7 +76,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
         }
         this.payloadOperation = op;
 
-        // TODO x mergeOptions();
+        // TODO FS Examine, mergeOptions();
 
         return this;
     }
@@ -89,7 +89,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
-        // TODO x mergeOptions();
+        // TODO FS Examine, mergeOptions();
     }
 
     @JsonProperty("graphIds")
@@ -212,13 +212,13 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
         } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        //TODO x Test Prove this logic
+        //TODO FS Test, Prove this logic
         if (isNull(value) && (!field.getName().equals("mergeFunction") || isNull(payloadOperation) || payloadOperation instanceof Output)) {
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }
 
         if (nonNull(value) && field.getName().equals("mergeFunction") && nonNull(payloadOperation) && !(payloadOperation instanceof Output)) {
-            //TODO X DO I want to error or just ignore and Log?
+            //TODO FS Examine, DO I want to error or just ignore and Log?
             result.addError(String.format("%s: %s is not required when payloadOperation: %s has no Output for: %s", field.getName(), mergeFunction.getClass().getSimpleName(), payloadOperation.getClass().getSimpleName(), this.getClass().getSimpleName()));
         }
     }
