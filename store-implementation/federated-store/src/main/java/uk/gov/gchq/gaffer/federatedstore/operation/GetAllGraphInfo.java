@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -28,14 +31,15 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * An Operation to get all the graphIds within scope of the FederatedStore.
+ * Gets graph info of selected Graphs from the FederatedStore.
  */
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.11.0")
-@Summary("Gets the ids of all available Graphs from a federated store")
+@Summary("Gets graph info of selected Graphs from the FederatedStore")
 public class GetAllGraphInfo implements
+        Output<Map<String, Object>>,
         IFederationOperation,
-        Output<Map<String, Object>> {
+        IFederatedOperation {
     private Map<String, String> options;
     private String graphIdsCsv;
 

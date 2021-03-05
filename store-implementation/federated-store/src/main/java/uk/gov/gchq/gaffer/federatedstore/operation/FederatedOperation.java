@@ -50,8 +50,7 @@ import static java.util.Objects.nonNull;
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
-public class FederatedOperation<PAYLOAD extends Operation> implements IFederationOperation, Output<Object> {
-
+public class FederatedOperation<PAYLOAD extends Operation> implements IFederationOperation, IFederatedOperation, Output {
     private String graphIdsCsv;
     @Required
     private PAYLOAD payloadOperation;
