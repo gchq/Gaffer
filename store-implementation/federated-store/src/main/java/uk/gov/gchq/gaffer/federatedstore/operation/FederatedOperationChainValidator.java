@@ -15,10 +15,11 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
@@ -34,7 +35,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
+
 /**
  * Validation class for validating {@link uk.gov.gchq.gaffer.operation.OperationChain}s against {@link ViewValidator}s using the Federated Store schemas.
  * Extends {@link OperationChainValidator} and uses the {@link FederatedStore} to get
@@ -59,8 +61,8 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     @Override
-    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
-        validateAllGraphsIdViews(op, user, store, validationResult, getGraphIdsCSV(op, user, (FederatedStore) store));
+    protected View getView(Operation op) {
+        return op instanceof FederatedOperation ? super.getView(((FederatedOperation) op).getPayloadOperation()) : super.getView(op);
     }
 
     /**
@@ -71,13 +73,17 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
      * @param user             The requesting user
      * @param store            The current store
      * @param validationResult The result of validation
-     * @param graphIdsCSV      The graphs to test the view against
      */
-    private void validateAllGraphsIdViews(final Operation op, final User user, final Store store, final ValidationResult validationResult, final String graphIdsCSV) {
+    @Override
+    protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
-        final Operation clonedOp = shallowCloneWithDeepOptions(op);
+        //TODO X REVIEW this inserted Federation and impact on views.
+        final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
+        FederatedOperation<Operation> clonedOp = op instanceof FederatedOperation
+                ? (FederatedOperation<Operation>) shallowCloneWithDeepOptions(op)
+                : new FederatedOperation.Builder<>().op(shallowCloneWithDeepOptions(op)).graphIds(graphIdsCSV).build();
         Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
         for (final Graph graph : graphs) {
             String graphId = graph.getGraphId();
@@ -85,9 +91,11 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             // If graphId is not valid, then there is no schema to validate a view against.
             if (graphIdValid) {
                 currentResult = new ValidationResult();
-                clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
+//                clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
                 if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
+                    clonedOp.graphIdsCSV(graphId);
                     super.validateViews(clonedOp, user, store, currentResult);
+//                    super.validateViews(clonedOp, user, store, currentResult);
                 }
                 if (currentResult.isValid()) {
                     // If any graph has a valid View, break with valid current result
@@ -130,13 +138,12 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
     }
 
     private String getGraphIdsCSV(final Operation op, final User user, final FederatedStore store) {
-        String graphIds = getGraphIds(op);
-        return nonNull(graphIds) && !graphIds.isEmpty()
-            ? graphIds
-            : String.join(",", store.getAllGraphIds(user));
-    }
+        String rtn = (op instanceof FederatedOperation)
+                ? ((FederatedOperation) op).getGraphIdsCSV()
+                : null;
 
-    private String getGraphIds(final Operation op) {
-        return op == null ? null : op.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS);
+        return isNull(rtn)
+                ? String.join(",", store.getAllGraphIds(user))
+                : rtn;
     }
 }
