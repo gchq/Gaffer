@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChainValidator;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
@@ -49,7 +48,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllG
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphInfoHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
@@ -297,39 +295,15 @@ public class FederatedStore extends Store {
 
     @Override
     public Schema getSchema() {
-        return getSchema((Map<String, String>) null, (User) null);
+        return getSchema((Context) null);
     }
 
-    public Schema getSchema(final GetSchema operation, final Context context) {
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, context);
-        }
+    public Schema getSchema(final Context context) {
+        return getSchema(FederatedStoreUtil.getFederatedWrappedSchema(), context);
+    }
 
+    public Schema getSchema(final FederatedOperation<GetSchema> operation, final Context context) {
         return graphStorage.getSchema(operation, context);
-    }
-
-    public Schema getSchema(final Operation operation, final Context context) {
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, context);
-        }
-
-        return getSchema(operation.getOptions(), context);
-    }
-
-    public Schema getSchema(final Map<String, String> config, final Context context) {
-        return graphStorage.getSchema(config, context);
-    }
-
-    public Schema getSchema(final Operation operation, final User user) {
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, user);
-        }
-
-        return getSchema(operation.getOptions(), user);
-    }
-
-    public Schema getSchema(final Map<String, String> config, final User user) {
-        return graphStorage.getSchema(config, user);
     }
 
     /**
@@ -340,7 +314,7 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
-    public Set<StoreTrait> getTraits(final GetTraits getTraits, final Context context) {
+    public Set<StoreTrait> getTraits(final FederatedOperation<GetTraits> getTraits, final Context context) {
         return graphStorage.getTraits(getTraits, context);
     }
 

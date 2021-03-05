@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
 
@@ -40,7 +42,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -185,17 +186,34 @@ public final class FederatedStoreUtil {
      * @param operation
      * @return
      */
-    public static FederatedOperation getFederatedOperation(final Operation operation) {
-        return new FederatedOperation.Builder()
+    public static <PAYLOAD extends Operation> FederatedOperation<PAYLOAD> getFederatedOperation(final PAYLOAD operation) {
+
+        FederatedOperation.Builder<PAYLOAD> builder = new FederatedOperation.Builder<PAYLOAD>()
                 .op(operation)
                 .mergeFunction(new IterableConcat())
-                //TODO REVIEW THIS
-                //.graphIds(default)
-                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
-                //TODO review this
-                .options(operation.getOptions())
-                .build();
+                //TODO x REVIEW THIS
+//                .graphIds(default)
+//                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
+                //TODO x review this
+                .options(operation.getOptions());
 
+        String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
+        if (nonNull(graphIdOption)) {
+            //TODO x ignore or copy or Error
+            LOGGER.info("Operation:{} has old deprecated style of graphId selection. Ignoring:{}", operation.getClass().getSimpleName(), graphIdOption);
+            // LOGGER.info("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
+            builder.graphIds(graphIdOption);
+        }
 
+        return builder.build();
+
+    }
+
+    public static FederatedOperation<GetSchema> getFederatedWrappedSchema() {
+        return getFederatedOperation(new GetSchema());
+    }
+
+    public static FederatedOperation<GetTraits> getFederatedWrappedTraits() {
+        return getFederatedOperation(new GetTraits());
     }
 }

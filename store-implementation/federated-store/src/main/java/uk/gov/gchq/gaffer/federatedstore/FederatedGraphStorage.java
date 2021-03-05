@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,7 +64,6 @@ public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
-    public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
@@ -252,21 +252,17 @@ public class FederatedGraphStorage {
         return Collections.unmodifiableCollection(rtn);
     }
 
-    public Schema getSchema(final GetSchema operation, final Context context) {
+    public Schema getSchema(final FederatedOperation<GetSchema> operation, final Context context) {
         if (null == context || null == context.getUser()) {
             // no user then return an empty schema
             return new Schema();
         }
+        final List<String> graphIds = isNull(operation) ? null : operation.getGraphIds();
 
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, context);
-        }
-
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(operation.getOptions());
         final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
-            if (operation.isCompact()) {
+            if (nonNull(operation) && nonNull(operation.getPayloadOperation()) && operation.getPayloadOperation().isCompact()) {
                 final GetSchema getSchema = new GetSchema.Builder()
                         .compact(true)
                         .build();
@@ -282,39 +278,7 @@ public class FederatedGraphStorage {
             }
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(Graph::getGraphId).collect(Collectors.toList());
-            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the operation option: " + KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
-        }
-        return schemaBuilder.build();
-    }
-
-    /**
-     * @param config  configuration containing optional graphIds
-     * @param context the user context to match visibility against.
-     * @return merged schema of the visible graphs.
-     */
-    public Schema getSchema(final Map<String, String> config, final Context context) {
-        if (null == context) {
-            // no context then return an empty schema
-            return new Schema();
-        }
-
-        return getSchema(config, context.getUser());
-    }
-
-    public Schema getSchema(final Map<String, String> config, final User user) {
-        if (null == user) {
-            // no user then return an empty schema
-            return new Schema();
-        }
-
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-        final Stream<Graph> graphs = getStream(user, graphIds);
-        final Builder schemaBuilder = new Builder();
-        try {
-            graphs.forEach(g -> schemaBuilder.merge(g.getSchema()));
-        } catch (final SchemaException e) {
-            final List<String> resultGraphIds = getStream(user, graphIds).map(Graph::getGraphId).collect(Collectors.toList());
-            throw new SchemaException(String.format(UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS, resultGraphIds, KEY_OPERATION_OPTIONS_GRAPH_IDS), e);
+            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds.", e);
         }
         return schemaBuilder.build();
     }
@@ -330,12 +294,13 @@ public class FederatedGraphStorage {
      * @param context the user context
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      */
-    public Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
+    public Set<StoreTrait> getTraits(final FederatedOperation<GetTraits> op, final Context context) {
         final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
-        if (null != op && op.isCurrentTraits()) {
-            final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
+        GetTraits payloadOperation = (nonNull(op)) ? op.getPayloadOperation() : new GetTraits();
+        if (payloadOperation.isCurrentTraits()) {
+            final List<String> graphIds = (nonNull(op)) ? op.getGraphIds() : null;
             final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
-            final GetTraits getTraits = op.shallowClone();
+            final GetTraits getTraits = payloadOperation.shallowClone();
             graphs.forEach(g -> {
                 try {
                     traits.retainAll(g.execute(getTraits, context));
@@ -345,28 +310,7 @@ public class FederatedGraphStorage {
             });
         }
 
-        return traits;
-    }
 
-    /**
-     * returns a set of {@link StoreTrait} that are common for all visible graphs.
-     * traits1 = [a,b,c]
-     * traits2 = [b,c]
-     * traits3 = [a,b]
-     * return [b]
-     *
-     * @param config containing optional graphIds csv.
-     * @param user   to match visibility against.
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     */
-    public Set<StoreTrait> getTraits(final Map<String, String> config, final User user) {
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-        Collection<Graph> graphs = get(user, graphIds);
-
-        final Set<StoreTrait> traits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
-        for (final Graph graph : graphs) {
-            traits.retainAll(graph.getStoreTraits());
-        }
         return traits;
     }
 

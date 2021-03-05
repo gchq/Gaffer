@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,11 @@ public class FederatedAggregateHandler implements OutputOperationHandler<Aggrega
     @Override
     public Iterable<? extends Element> doOperation(final Aggregate operation,
                                                    final Context context,
-                                                   final Store store)
-            throws OperationException {
+                                                   final Store store) throws OperationException {
         try {
-            return handler.doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
+            return handler.doOperation(operation, ((FederatedStore) store).getSchema(context));
         } catch (final SchemaException e) {
-            throw new OperationException("Unable to get the merged schema for the federated store, add graphId to Aggregate operation using option: " + FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
+            throw new OperationException("Unable to get the merged schema for the federated store, add graphId to Aggregate operation using FederatedOperation.graphIds", e);
         }
     }
 }
