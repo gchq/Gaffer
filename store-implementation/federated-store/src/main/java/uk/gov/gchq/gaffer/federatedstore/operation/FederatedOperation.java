@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -37,6 +39,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -56,7 +59,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     private PAYLOAD payloadOperation;
     @Required
     private KorypheBinaryOperator mergeFunction;
-    // TODO final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
+    // TODO x final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
 
     private Map<String, String> options;
 
@@ -73,7 +76,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
         }
         this.payloadOperation = op;
 
-        // TODO mergeOptions();
+        // TODO x mergeOptions();
 
         return this;
     }
@@ -86,7 +89,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
-        // TODO mergeOptions();
+        // TODO x mergeOptions();
     }
 
     @JsonProperty("graphIds")
@@ -120,8 +123,8 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     }
 
     @Override
-    public FederatedOperation shallowClone() throws CloneFailedException {
-        return new FederatedOperation.Builder()
+    public FederatedOperation<PAYLOAD> shallowClone() throws CloneFailedException {
+        return new FederatedOperation.Builder<PAYLOAD>()
                 .graphIds(graphIdsCsv)
                 .op(getPayloadOperation()) /* shallow clone */
                 .mergeFunction(mergeFunction)
@@ -175,27 +178,27 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
         return new TypeReferenceImpl.Object();
     }
 
-    public static class Builder extends BaseBuilder<FederatedOperation, Builder> {
+    public static class Builder<OP extends Operation> extends BaseBuilder<FederatedOperation<OP>, Builder<OP>> {
         public Builder() {
-            super(new FederatedOperation());
+            super(new FederatedOperation<>());
         }
 
-        public Builder graphIds(final String graphIds) {
+        public Builder<OP> graphIds(final String graphIds) {
             _getOp().graphIdsCSV(graphIds);
             return _self();
         }
 
-        public Builder op(final Operation op) {
+        public Builder<OP> op(final OP op) {
             _getOp().payloadOperation(op);
             return _self();
         }
 
-        public Builder mergeFunction(final KorypheBinaryOperator mergeFunction) {
+        public Builder<OP> mergeFunction(final KorypheBinaryOperator mergeFunction) {
             _getOp().mergeFunction(mergeFunction);
             return _self();
         }
 
-        public Builder options(final Map<String, String> options) {
+        public Builder<OP> options(final Map<String, String> options) {
             _getOp().setOptions(options);
             return _self();
         }
@@ -209,14 +212,14 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
         } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        //TODO Test Prove this logic
+        //TODO x Test Prove this logic
         if (isNull(value) && (!field.getName().equals("mergeFunction") || isNull(payloadOperation) || payloadOperation instanceof Output)) {
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }
 
         if (nonNull(value) && field.getName().equals("mergeFunction") && nonNull(payloadOperation) && !(payloadOperation instanceof Output)) {
+            //TODO X DO I want to error or just ignore and Log?
             result.addError(String.format("%s: %s is not required when payloadOperation: %s has no Output for: %s", field.getName(), mergeFunction.getClass().getSimpleName(), payloadOperation.getClass().getSimpleName(), this.getClass().getSimpleName()));
         }
-
     }
 }

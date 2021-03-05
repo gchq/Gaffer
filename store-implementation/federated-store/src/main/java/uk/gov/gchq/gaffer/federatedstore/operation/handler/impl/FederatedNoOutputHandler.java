@@ -54,7 +54,7 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> extends Federat
      * @throws OperationException thrown if the operation fails
      */
     @Override
-    public Object doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
+    public Iterable<Object> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
         loggingIsProcessedByFederatedStore(operation, store, "before");
         FederatedOperation fedOp = getFederatedOperation(operation);
 
@@ -89,6 +89,11 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> extends Federat
     @Override
     String getGraphIdsCsv(final PAYLOAD ignore) {
         throw new IllegalStateException();
+    }
+
+    @Override
+    protected Iterable<Object> rtnDefaultWhenMergingNull() {
+        return null;
     }
 
 

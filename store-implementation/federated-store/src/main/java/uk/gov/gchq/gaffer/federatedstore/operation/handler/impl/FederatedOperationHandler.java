@@ -46,7 +46,7 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, OUTPUT> extend
     }
 
     private Operation copyOptionToPayload(FederatedOperation operation, Operation payloadOperation) {
-        //TODO completely tidy up this important logic see FedOp for auto-ing this.
+        //TODO x completely tidy up this important logic see FedOp for auto-ing this.
         if (nonNull(operation.getOptions())) {
             loggingGetPayload(operation, payloadOperation);
             operation.getOptions().forEach((k, v) -> payloadOperation.addOption(k.toString(), v.toString()));
@@ -75,6 +75,11 @@ public class FederatedOperationHandler<PAYLOAD extends Operation, OUTPUT> extend
     @Override
     String getGraphIdsCsv(final FederatedOperation operation) {
         return operation.getGraphIdsCSV();
+    }
+
+    @Override
+    protected OUTPUT rtnDefaultWhenMergingNull() {
+        return null;
     }
 
     @Override

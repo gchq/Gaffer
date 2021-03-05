@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
+import java.util.Optional;
+
 import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
@@ -45,12 +47,16 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
 
     @Override
     public CloseableIterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
+        return doOperation(operation, context, store, Optional.empty());
+    }
+
+    private CloseableIterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store, final Optional<String> graphIds) throws OperationException {
 
         FederatedOperation fedOp = getFederatedOperation(operation);
         graphIds.ifPresent(fedOp::graphIdsCSV);
 
-        //TODO REVIEW RETURN TYPE
-        CloseableIterable<? extends ITERABLE_ELEMENTS> results = new FederatedOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>>().doOperation(fedOp, context, store);
+        //TODO x REVIEW RETURN TYPE
+        CloseableIterable<? extends ITERABLE_ELEMENTS> results = getAnonymousFederatedOperationHandler().doOperation(fedOp, context, store);
 
         //TODO Review SetOptions
         operation.setOptions(fedOp.getOptions());
@@ -58,6 +64,16 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         return isNull(results) ? new EmptyClosableIterable<ITERABLE_ELEMENTS>() : results;
     }
 
+    //TODO X Review this approach
+    public FederatedOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> getAnonymousFederatedOperationHandler() {
+        return new FederatedOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>>() {
+            //TODO REVIEW THIS STATIC ANONYMOUS CREATION
+            @Override
+            protected CloseableIterable<? extends ITERABLE_ELEMENTS> rtnDefaultWhenMergingNull() {
+                return new EmptyClosableIterable();
+            }
+        };
+    }
 
     @Override
     KorypheBinaryOperator getMergeFunction(final PAYLOAD ignore) {
@@ -71,6 +87,11 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
 
     @Override
     String getGraphIdsCsv(final PAYLOAD ignore) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    protected CloseableIterable<? extends ITERABLE_ELEMENTS> rtnDefaultWhenMergingNull() {
         throw new IllegalStateException();
     }
 

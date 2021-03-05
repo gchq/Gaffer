@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -50,13 +49,13 @@ public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Ite
         FederatedOperation fedOp = getFederatedOperation(operation);
 
         //returns flattened ChainedIterable by default
-        //TODO Handle directly or re-send back to Store
+        //TODO x Handle directly or re-send back to Store
         Iterable<ITERABLE_ELEMENTS> results = new FederatedOperationHandler<PAYLOAD, Iterable<ITERABLE_ELEMENTS>>().doOperation(fedOp, context, store);
 
-        //TODO review options
+        //TODO x review options
         operation.setOptions(fedOp.getOptions());
 
-        return isNull(results) ? new EmptyClosableIterable<ITERABLE_ELEMENTS>() : results;
+        return isNull(results) ? new EmptyClosableIterable<>(): results;
     }
 
     @Override
@@ -72,6 +71,11 @@ public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Ite
     @Override
     String getGraphIdsCsv(final PAYLOAD ignore) {
         throw new IllegalStateException();
+    }
+
+    @Override
+    protected Iterable<? extends ITERABLE_ELEMENTS> rtnDefaultWhenMergingNull() {
+        return new EmptyClosableIterable<>();
     }
 
 }
