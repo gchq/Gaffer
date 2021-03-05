@@ -416,7 +416,6 @@ public class FederatedStore extends Store {
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
-        addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
