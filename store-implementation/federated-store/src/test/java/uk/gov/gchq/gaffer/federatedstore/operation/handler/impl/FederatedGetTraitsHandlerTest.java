@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,9 +49,13 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
 
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -181,7 +188,7 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // When
-        final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(
+        final Iterable<StoreTrait> traits = (Iterable<StoreTrait>) federatedStore.execute(
                 getFederatedOperation(
                         new GetTraits.Builder()
                                 .currentTraits(true)
@@ -198,7 +205,7 @@ public class FederatedGetTraitsHandlerTest {
                         POST_AGGREGATION_FILTERING,
                         POST_TRANSFORMATION_FILTERING
                 ),
-                traits);
+                Sets.newHashSet(traits));
     }
 
     public static class TestStorePropertiesImpl extends StoreProperties {

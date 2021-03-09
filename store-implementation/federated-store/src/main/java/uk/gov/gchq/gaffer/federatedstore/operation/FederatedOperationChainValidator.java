@@ -82,9 +82,9 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
         //TODO FS Examine, this inserted Federation and impact on views.
         final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
-        FederatedOperation<Operation> clonedOp = op instanceof FederatedOperation
-                ? (FederatedOperation<Operation>) shallowCloneWithDeepOptions(op)
-                : new FederatedOperation.Builder<>().op(shallowCloneWithDeepOptions(op)).graphIds(graphIdsCSV).build();
+        FederatedOperation clonedOp = op instanceof FederatedOperation
+                ? (FederatedOperation) shallowCloneWithDeepOptions(op)
+                : new FederatedOperation.Builder().op(shallowCloneWithDeepOptions(op)).graphIds(graphIdsCSV).build();
         Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
         for (final Graph graph : graphs) {
             String graphId = graph.getGraphId();

@@ -64,6 +64,17 @@ public class ChainedIterableTest {
     }
 
     @Test
+    public void shouldWrapAllNestedIterables() {
+        final ChainedIterable<Integer> itr1 = new ChainedIterable<>(Collections.singletonList(0));
+        final ChainedIterable<Integer> emptyItr2 = new ChainedIterable(new ArrayList<>(0));
+        final ChainedIterable<Integer> itr3 = new ChainedIterable(Lists.newArrayList(1, 2, 3, 4), new ChainedIterable(Lists.newArrayList(5, 6)));
+
+        final ChainedIterable<ChainedIterable<Integer>> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3);
+
+        assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
+    }
+
+    @Test
     public void shouldRemoveElementFromFirstIterable() {
         // Given
         final List<String> itr1 = Lists.newArrayList("a");

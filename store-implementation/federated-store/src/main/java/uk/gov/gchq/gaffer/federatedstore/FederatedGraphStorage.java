@@ -251,7 +251,8 @@ public class FederatedGraphStorage {
         return Collections.unmodifiableCollection(rtn);
     }
 
-    public Schema getSchema(final FederatedOperation<GetSchema> operation, final Context context) {
+    //TODO FS REFACTOR, GraphStorage Does not need to know about FedOp only graphIds.
+    public Schema getSchema(final FederatedOperation<Void, Schema, Object> operation, final Context context) {
         if (null == context || null == context.getUser()) {
             // no user then return an empty schema
             return new Schema();
@@ -262,7 +263,8 @@ public class FederatedGraphStorage {
         final Builder schemaBuilder = new Builder();
         //TODO FS Examine, this operation null check
         try {
-            if (nonNull(operation) && nonNull(operation.getPayloadOperation()) && operation.getPayloadOperation().isCompact()) {
+            //TODO FS Examine, the cast payload might not be GetSchema.
+            if (nonNull(operation) && nonNull(operation.getPayloadOperation()) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
                 final GetSchema getSchema = new GetSchema.Builder()
                         .compact(true)
                         .build();
@@ -294,9 +296,10 @@ public class FederatedGraphStorage {
      * @param context the user context
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      */
-    public Set<StoreTrait> getTraits(final FederatedOperation<GetTraits> op, final Context context) {
+    //TODO FS Refactor, GraphStorage does not need to know about FedOp
+    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Set<StoreTrait>, Object> op, final Context context) {
         final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
-        GetTraits payloadOperation = (nonNull(op)) ? op.getPayloadOperation() : new GetTraits();
+        GetTraits payloadOperation = (nonNull(op)) ? (GetTraits) op.getPayloadOperation() : new GetTraits();
         if (payloadOperation.isCurrentTraits()) {
             final List<String> graphIds = (nonNull(op)) ? op.getGraphIds() : null;
             final Stream<Graph> graphs = getStream(context.getUser(), graphIds);

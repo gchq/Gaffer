@@ -25,40 +25,45 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
  * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
- * @param <PAYLOAD> The operation to be federated and executed by delegate graphs
+ *
+ * @param <INPUT>
+ * @param <OUTPUT>
  */
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
-public class FederatedOperation<PAYLOAD extends Operation> implements IFederationOperation, IFederatedOperation, Output {
+public class FederatedOperation</*TODO FS Peer Review I don't think INPUT is required? bookmark1*/INPUT, MIDPUT, OUTPUT> implements IFederationOperation, IFederatedOperation,  /*TODO FS Peer Review is FederatedOperation actually Output*/ Output<OUTPUT> {
     private String graphIdsCsv;
     @Required
-    private PAYLOAD payloadOperation;
-    @Required
-    private KorypheBinaryOperator mergeFunction;
+    private Operation payloadOperation;
+    private Function<Iterable<MIDPUT>, OUTPUT> mergeFunction;
     // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
 
     private Map<String, String> options;
@@ -70,7 +75,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     }
 
     @JsonProperty("operation")
-    public FederatedOperation payloadOperation(final PAYLOAD op) {
+    public FederatedOperation payloadOperation(final Operation op) {
         if (this == op) {
             throw new GafferRuntimeException("Your attempting to add the FederatedOperation to its self as a payload, this will cause an infinite loop when cloned.");
         }
@@ -81,7 +86,7 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
         return this;
     }
 
-    public FederatedOperation mergeFunction(final KorypheBinaryOperator mergeFunction) {
+    public FederatedOperation mergeFunction(final Function<Iterable<MIDPUT>, OUTPUT> mergeFunction) {
         this.mergeFunction = mergeFunction;
         return this;
     }
@@ -109,11 +114,11 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
      * @return cloned payload
      */
     @JsonProperty("operation")
-    public PAYLOAD getPayloadOperation() {
-        return Objects.isNull(payloadOperation) ? null : (PAYLOAD) payloadOperation.shallowClone();
+    public Operation getPayloadOperation() {
+        return Objects.isNull(payloadOperation) ? null : payloadOperation.shallowClone();
     }
 
-    public KorypheBinaryOperator getMergeFunction() {
+    public Function<Iterable<MIDPUT>, OUTPUT> getMergeFunction() {
         return mergeFunction;
     }
 
@@ -123,14 +128,14 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     }
 
     @Override
-    public FederatedOperation<PAYLOAD> shallowClone() throws CloneFailedException {
-        return new FederatedOperation.Builder<PAYLOAD>()
-                .graphIds(graphIdsCsv)
-                .op(getPayloadOperation()) /* shallow clone */
-                .mergeFunction(mergeFunction)
-                .options(options)
-                .build();
+    public FederatedOperation<INPUT, MIDPUT, OUTPUT> shallowClone() throws CloneFailedException {
+        try {
+            return JSONSerialiser.deserialise(JSONSerialiser.serialise(this), FederatedOperation.class);
+        } catch (SerialisationException e) {
+            throw new CloneFailedException(e);
+        }
     }
+
 
     @Override
     public boolean equals(final Object o) {
@@ -174,33 +179,85 @@ public class FederatedOperation<PAYLOAD extends Operation> implements IFederatio
     }
 
     @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableObj();
     }
 
-    public static class Builder<OP extends Operation> extends BaseBuilder<FederatedOperation<OP>, Builder<OP>> {
-        public Builder() {
-            super(new FederatedOperation<>());
+    public static class Builder {
+        public <INPUT, MIDPUT, OUTPUT> BuilderParent<INPUT, MIDPUT, OUTPUT> op(final InputOutput<INPUT, MIDPUT> op) {
+            return new BuilderIO<>(op);
         }
 
-        public Builder<OP> graphIds(final String graphIds) {
+        public <INPUT> BuilderParent<INPUT, Void, Void> op(final Input<INPUT> op) {
+            return new BuilderI<>(op);
+        }
+
+        public <MIDPUT, OUTPUT> BuilderParent<Void, MIDPUT, OUTPUT> op(final Output<MIDPUT> op) {
+            return new BuilderO<>(op);
+        }
+
+        public <INPUT, MIDPUT, OUTPUT> BuilderParent<INPUT, MIDPUT, OUTPUT> op(Operation op) {
+            BuilderParent rtn;
+            if (op instanceof InputOutput) {
+                rtn = op((InputOutput) op);
+            } else if (op instanceof Input) {
+                rtn = op((Input) op);
+            } else if (op instanceof Output) {
+                rtn = op((Output) op);
+            } else {
+                //TODO FS Peer Review ?
+                rtn = new BuilderNeitherIO(op);
+            }
+            return rtn;
+        }
+
+    }
+
+    public static abstract class BuilderParent<INPUT, MIDPUT, OUTPUT> extends BaseBuilder<FederatedOperation<INPUT, MIDPUT, OUTPUT>, BuilderParent<INPUT, MIDPUT, OUTPUT>> {
+        public BuilderParent(FederatedOperation<INPUT, MIDPUT, OUTPUT> fedOp) {
+            super(fedOp);
+        }
+
+        public BuilderParent<INPUT, MIDPUT, OUTPUT> graphIds(final String graphIds) {
             _getOp().graphIdsCSV(graphIds);
             return _self();
         }
 
-        public Builder<OP> op(final OP op) {
-            _getOp().payloadOperation(op);
-            return _self();
-        }
-
-        public Builder<OP> mergeFunction(final KorypheBinaryOperator mergeFunction) {
+        public BuilderParent<INPUT, MIDPUT, OUTPUT> mergeFunction(final Function<Iterable<MIDPUT>, OUTPUT> mergeFunction) {
             _getOp().mergeFunction(mergeFunction);
             return _self();
         }
+    }
 
-        public Builder<OP> options(final Map<String, String> options) {
-            _getOp().setOptions(options);
-            return _self();
+    private static class BuilderIO<INPUT, MIDPUT, OUTPUT> extends FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> {
+        private BuilderIO(InputOutput<INPUT, MIDPUT> op) {
+            super(new FederatedOperation<>());
+            FederatedOperation<INPUT, MIDPUT, OUTPUT> fedOpIO = this._getOp();
+            fedOpIO.payloadOperation(op);
+        }
+    }
+
+    private static class BuilderI<INPUT> extends FederatedOperation.BuilderParent<INPUT, Void, Void> {
+        private BuilderI(Input<INPUT> op) {
+            super(new FederatedOperation<>());
+            FederatedOperation<INPUT, Void, Void> fedOpI = this._getOp();
+            fedOpI.payloadOperation(op);
+        }
+    }
+
+    private static class BuilderO<MIDPUT, OUTPUT> extends FederatedOperation.BuilderParent<Void, MIDPUT, OUTPUT> {
+        private BuilderO(Output<MIDPUT> op) {
+            super(new FederatedOperation<>());
+            FederatedOperation<Void, MIDPUT, OUTPUT> fedOpO = this._getOp();
+            fedOpO.payloadOperation(op);
+        }
+    }
+
+    private static class BuilderNeitherIO extends FederatedOperation.BuilderParent<Void, Void, Void> {
+        private BuilderNeitherIO(Operation op) {
+            super(new FederatedOperation<>());
+            FederatedOperation<Void, Void, Void> fedOpO = this._getOp();
+            fedOpO.payloadOperation(op);
         }
     }
 

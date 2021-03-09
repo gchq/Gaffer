@@ -26,8 +26,6 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederationHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -36,9 +34,11 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
@@ -82,39 +82,40 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
         assertNotNull(o4, "Required field object o4 is null");
     }
 
-    protected abstract FederationHandler<OP, O, OP> getFederationHandler();
-
-    private FederatedOperationHandler<OP, O> getFederatedOperationHandler() {
-        return new FederatedOperationHandler<OP, O>();
-    }
+    protected abstract OutputOperationHandler<OP, O> getFederationOperationHandler();
 
     protected abstract OP getExampleOperation();
 
     @Test
     public void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
-        final OP op = getExampleOperation();
+        OP exampleOperation = getExampleOperation();
+        final FederatedOperation fedOp = getFederatedOperation(exampleOperation);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
-        Store mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
-        Store mockStore3 = getMockStore(unusedSchema, storeProperties, o3);
-        Store mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
+        Store mockStore1 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o1);
+        Store mockStore2 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o2);
+        Store mockStore3 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o3);
+        Store mockStore4 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o4);
 
-        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
-        LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
-        linkedGraphs.add(getGraphWithMockStore(mockStore1));
-        linkedGraphs.add(getGraphWithMockStore(mockStore2));
-        linkedGraphs.add(getGraphWithMockStore(mockStore3));
-        linkedGraphs.add(getGraphWithMockStore(mockStore4));
-        when(mockStore.getGraphs(eq(user), eq(null), eq(getFederatedOperation(op)))).thenReturn(linkedGraphs);
+        FederatedStore mockFederatedStore = Mockito.mock(FederatedStore.class);
+        Collection<Graph> linkedGraphs = Sets.newHashSet(
+                getGraphWithMockStore(mockStore1),
+                getGraphWithMockStore(mockStore2),
+                getGraphWithMockStore(mockStore3),
+                getGraphWithMockStore(mockStore4));
+        when(mockFederatedStore.getGraphs(eq(user), eq(null), eq(exampleOperation))).thenThrow(new RuntimeException("io"));//thenReturn(linkedGraphs);
+        when(mockFederatedStore.getGraphs(eq(user), eq(null), eq(fedOp))).thenThrow(new RuntimeException("fed"));
+        when(mockFederatedStore.getGraphs(eq(user), any(), eq(exampleOperation))).thenThrow(new RuntimeException("io"));//thenReturn(linkedGraphs);
+        when(mockFederatedStore.getGraphs(eq(user), any(), eq(fedOp))).thenThrow(new RuntimeException("fed"));
 
         // When
-        O theMergedResultsOfOperation = getFederationHandler().doOperation(op, context, mockStore);
+        O theMergedResultsOfOperation = getFederationOperationHandler().doOperation(exampleOperation, context, mockFederatedStore);
 
         //Then
+        assertNotNull(theMergedResultsOfOperation);
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1, o2, o3, o4);
         verify(mockStore1).execute(any(OperationChain.class), any(Context.class));
         verify(mockStore2).execute(any(OperationChain.class), any(Context.class));
@@ -125,28 +126,30 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
     @Test
     public void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
         // Given
-        FederatedOperation<OP> federatedOperation = getFederatedOperation(getExampleOperation());
-        federatedOperation.graphIdsCSV("1,3");
+        OP exampleOperation = getExampleOperation();
+        final FederatedOperation<?, O, O> op = getFederatedOperation(exampleOperation);
+        op.graphIdsCSV("1,3");
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
-        Store mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
-        Store mockStore3 = getMockStore(unusedSchema, storeProperties, o3);
-        Store mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
+        Store mockStore1 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o1);
+        Store mockStore2 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o2);
+        Store mockStore3 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o3);
+        Store mockStore4 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o4);
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
 
-        when(mockStore.getGraphs(eq(user), eq("1,3"), eq(federatedOperation))).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(eq(user), eq("1,3"), eq(op))).thenReturn(filteredGraphs);
 
         // When
-        O theMergedResultsOfOperation = getFederatedOperationHandler().doOperation(federatedOperation, context, mockStore);
+        O theMergedResultsOfOperation = new FederatedOperationHandler<Object, O, O>().doOperation((FederatedOperation<Object, O, O>) op, context, mockStore);
 
         //Then
+        assertNotNull(theMergedResultsOfOperation);
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1, o3);
         verify(mockStore1).execute(any(OperationChain.class), any(Context.class));
         verify(mockStore2, never()).execute(any(OperationChain.class), any(Context.class));
@@ -158,7 +161,7 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
     public void shouldThrowException() throws Exception {
         // Given
         final String message = "Test Exception";
-        FederatedOperation<OP> federatedOperation = getFederatedOperation(getExampleOperation());
+        FederatedOperation federatedOperation = getFederatedOperation(getExampleOperation());
         federatedOperation.graphIdsCSV(TEST_GRAPH_ID);
 
         Schema unusedSchema = new Schema.Builder().build();
@@ -174,7 +177,7 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
 
         // When
         try {
-            getFederatedOperationHandler().doOperation(federatedOperation, context, mockStore);
+            new FederatedOperationHandler().doOperation(federatedOperation, context, mockStore);
             fail("Exception not thrown");
         } catch (OperationException e) {
             assertEquals(message, e.getCause().getCause().getMessage());
@@ -184,8 +187,9 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
     @Test
     public void shouldReturnEmptyIterableWhenNoResults() throws Exception {
         // Given
-        FederatedOperation<OP> federatedOperation = getFederatedOperation(getExampleOperation()).graphIdsCSV(TEST_GRAPH_ID);
-//        OP operation = getExampleOperation();
+        OP exampleOperation = getExampleOperation();
+        final FederatedOperation op = getFederatedOperation(exampleOperation);
+        op.graphIdsCSV(TEST_GRAPH_ID);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -199,9 +203,7 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
         given(mockStore.getGraphs(eq(user), eq(TEST_GRAPH_ID), any(FederatedOperation.class))).willReturn(filteredGraphs);
 
         // When
-        FederatedOutputCloseableIterableHandler federationHandler = (FederatedOutputCloseableIterableHandler) getFederationHandler();
-        FederatedOperationHandler federatedOperationHandler = federationHandler.getAnonymousFederatedOperationHandler();
-        final O results = (O) federatedOperationHandler.doOperation(federatedOperation, context, mockStore);
+        final O results = (O) getFederationOperationHandler().doOperation(exampleOperation, context, mockStore);
 
         assertNotNull(results);
         assertTrue(Iterables.isEmpty((Iterable) results));
@@ -211,20 +213,20 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
     @Test
     public void shouldNotThrowException() throws Exception {
         // Given
-        FederatedOperation<OP> federatedOperation = getFederatedOperation(getExampleOperation());
+        FederatedOperation federatedOperation = getFederatedOperation(getExampleOperation());
         federatedOperation.graphIdsCSV("1,3");
         federatedOperation.addOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE, String.valueOf(true));
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
 
-        Store mockStore1 = getMockStore(unusedSchema, storeProperties, o1);
-        Store mockStore2 = getMockStore(unusedSchema, storeProperties, o2);
+        Store mockStore1 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o1);
+        Store mockStore2 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o2);
         Store mockStore3 = Mockito.mock(Store.class);
         given(mockStore3.getSchema()).willReturn(unusedSchema);
         given(mockStore3.getProperties()).willReturn(storeProperties);
         given(mockStore3.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException("Test Exception"));
-        Store mockStore4 = getMockStore(unusedSchema, storeProperties, o4);
+        Store mockStore4 = getMockStoreThatAlwaysReturns(unusedSchema, storeProperties, o4);
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
@@ -235,12 +237,13 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
         // When
         O theMergedResultsOfOperation = null;
         try {
-            theMergedResultsOfOperation = getFederatedOperationHandler().doOperation(federatedOperation, context, mockStore);
+            theMergedResultsOfOperation = (O) new FederatedOperationHandler().doOperation(federatedOperation, context, mockStore);
         } catch (Exception e) {
             fail("Exception should not have been thrown: " + e.getMessage());
         }
 
         //Then
+        assertNotNull(theMergedResultsOfOperation);
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1);
         ArgumentCaptor<Context> context1Captor = ArgumentCaptor.forClass(Context.class);
         verify(mockStore1).execute(any(OperationChain.class), context1Captor.capture());
@@ -254,7 +257,7 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
         verify(mockStore4, never()).execute(any(OperationChain.class), any(Context.class));
     }
 
-    protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);
+    protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final O... resultParts);
 
     private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
@@ -266,12 +269,12 @@ public abstract class FederatedOutputOperationHandlerTest<OP extends Output<O>, 
     }
 
 
-    private Store getMockStore(final Schema unusedSchema, final StoreProperties storeProperties, final O willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
-        Store mockStore1 = Mockito.mock(Store.class);
-        given(mockStore1.getSchema()).willReturn(unusedSchema);
-        given(mockStore1.getProperties()).willReturn(storeProperties);
-        given(mockStore1.execute(any(OperationChain.class), any(Context.class))).willReturn(willReturn);
-        return mockStore1;
+    private Store getMockStoreThatAlwaysReturns(final Schema schema, final StoreProperties storeProperties, final O willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
+        Store mockStore = Mockito.mock(Store.class);
+        given(mockStore.getSchema()).willReturn(schema);
+        given(mockStore.getProperties()).willReturn(storeProperties);
+        given(mockStore.execute(any(Output.class), any(Context.class))).willReturn(willReturn);
+        return mockStore;
     }
 
 

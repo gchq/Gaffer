@@ -30,11 +30,13 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -184,20 +186,58 @@ public final class FederatedStoreUtil {
      * Defaulted with a iterableConcat
      *
      * @param operation operation to be wrapped in FederatedOperation
-     * @param <PAYLOAD> The operation type
      * @return the wrapped operation
      */
-    public static <PAYLOAD extends Operation> FederatedOperation<PAYLOAD> getFederatedOperation(final PAYLOAD operation) {
+    public static <INPUT, MIDPUT, OUTPUT> FederatedOperation<INPUT, MIDPUT, OUTPUT> getFederatedOperation(final InputOutput<INPUT, MIDPUT> operation) {
 
-        FederatedOperation.Builder<PAYLOAD> builder = new FederatedOperation.Builder<PAYLOAD>()
-                .op(operation)
-                .mergeFunction(new IterableConcat())
+        FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> builder = new FederatedOperation.Builder()
+                .op(operation);
+
+        initMergeAndGraphIds(operation, builder);
+
+        return builder.build();
+    }
+
+
+    public static <INPUT> FederatedOperation<INPUT, Void, Void> getFederatedOperation(final Input<INPUT> operation) {
+        FederatedOperation.BuilderParent<INPUT, Void, Void> builder = new FederatedOperation.Builder()
+                .op(operation);
+
+        initMergeAndGraphIds(operation, builder);
+
+        return builder.build();
+    }
+
+    public static <MIDPUT, OUTPUT> FederatedOperation<Void, MIDPUT, OUTPUT> getFederatedOperation(final Output<MIDPUT> operation) {
+
+        FederatedOperation.BuilderParent<Void, MIDPUT, OUTPUT> builder = new FederatedOperation.Builder()
+                .op(operation);
+
+        initMergeAndGraphIds(operation, builder);
+
+        return builder.build();
+    }
+
+    public static <INPUT> FederatedOperation<INPUT, Void, Void> getFederatedOperation(final Operation operation) {
+
+        FederatedOperation.BuilderParent<INPUT, Void, Void> builder = new FederatedOperation.Builder()
+                .op(operation);
+
+        initMergeAndGraphIds(operation, builder);
+
+        return builder.build();
+    }
+
+    private static <INPUT, MIDPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> initMergeAndGraphIds(Operation operation, FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> builder) {
+        //TODO FS Examine
+        builder.mergeFunction(null)
                 //TODO FS Examine
 //                .graphIds(default)
 //                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
                 //TODO FS Examine
                 .options(operation.getOptions());
 
+        //TODO FS Refactor, Search and delete this string.
         String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(graphIdOption)) {
             //TODO FS Examine, ignore or copy or Error
@@ -205,16 +245,17 @@ public final class FederatedStoreUtil {
             // LOGGER.info("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
             builder.graphIds(graphIdOption);
         }
-
-        return builder.build();
-
+        return builder;
     }
 
-    public static FederatedOperation<GetSchema> getFederatedWrappedSchema() {
+
+    //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
+    public static FederatedOperation<Void, Schema, Object> getFederatedWrappedSchema() {
         return getFederatedOperation(new GetSchema());
     }
 
-    public static FederatedOperation<GetTraits> getFederatedWrappedTraits() {
+    //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
+    public static FederatedOperation<Void, Set<StoreTrait>, Object> getFederatedWrappedTraits() {
         return getFederatedOperation(new GetTraits());
     }
 }

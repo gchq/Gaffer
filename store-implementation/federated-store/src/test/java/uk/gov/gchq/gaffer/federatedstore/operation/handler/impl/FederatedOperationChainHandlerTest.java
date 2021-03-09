@@ -53,10 +53,13 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
@@ -109,13 +112,13 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(new FederatedOperation.Builder<GetAllElements>()
+                .first(new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(new IterableConcat())
+                        .mergeFunction(null)
                         // Ensure the elements are returned form the graphs in the right order
                         .graphIds(GRAPH_IDS)
                         .build())
-                .then(new Limit<>(1))
+                .then(new Limit(1))
                 .build();
 
         // When
@@ -132,11 +135,11 @@ public class FederatedOperationChainHandlerTest {
         final Context context = new Context();
 
         final FederatedOperation opChain = getFederatedOperation(
-                        new OperationChain.Builder()
-                                .first(new GetAllElements())
-                                .then(new Limit<>(1))
-                                .build())
-        .graphIdsCSV(GRAPH_IDS);
+                new OperationChain.Builder()
+                        .first(new GetAllElements())
+                        .then(new Limit<>(1))
+                        .build())
+                .graphIdsCSV(GRAPH_IDS);
 
         // When
         final Iterable result = (Iterable) store.execute(opChain, context);
@@ -164,7 +167,8 @@ public class FederatedOperationChainHandlerTest {
         final Iterable result = (Iterable) store.execute(opChain, context);
 
         // Then
-        assertNull(result);
+        assertNotNull(result);
+        ElementUtil.assertElementEquals(Lists.newArrayList(null, null), result);
         final CloseableIterable<? extends Element> allElements = store.execute(new GetAllElements(), context);
         ElementUtil.assertElementEquals(
                 Arrays.asList(elements[0], elements[1], elements2[0], elements2[1]), allElements);
@@ -181,13 +185,13 @@ public class FederatedOperationChainHandlerTest {
                         .first(new GetAllElements())
                         .then(new Count<>())
                         .build())
-                .mergeFunction(new Sum())
+                .mergeFunction(null/*TODO FS Needs SUM*/)
                 .graphIdsCSV(GRAPH_IDS);
         // When
         final Object result = store.execute(opChain, context);
 
         // Then
-        assertEquals(Lists.newArrayList(2L), Lists.newArrayList(result));
+        assertEquals(Lists.newArrayList(1L, 1L), Lists.newArrayList((Iterable) result));
     }
 
     @Test
@@ -209,7 +213,6 @@ public class FederatedOperationChainHandlerTest {
         ElementUtil.assertElementEquals(Arrays.asList(elements[0], elements[1]), result);
     }
 
-    //TODO FS Examine, Is Wrapping a FederatedOperation In a FedOp reasonable ?
     @Test
     public void shouldHandleChainWithExtraLimit() throws OperationException {
         // Given

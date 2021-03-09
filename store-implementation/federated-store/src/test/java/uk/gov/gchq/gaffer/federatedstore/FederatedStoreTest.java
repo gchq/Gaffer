@@ -382,7 +382,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldCombineTraitsToMin() throws Exception {
         //Given
-        final FederatedOperation<GetTraits> getTraits = getFederatedOperation(new GetTraits.Builder()
+        final FederatedOperation getTraits = getFederatedOperation(new GetTraits.Builder()
                 .currentTraits(true)
                 .build());
 

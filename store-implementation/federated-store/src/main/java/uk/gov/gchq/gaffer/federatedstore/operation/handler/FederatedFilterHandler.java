@@ -42,6 +42,7 @@ public class FederatedFilterHandler implements OutputOperationHandler<Filter, It
                                                    final Context context,
                                                    final Store store)
             throws OperationException {
+        // wrappedSchema, is used because graphIds is required.
         return handler.doOperation(operation, ((FederatedStore) store).getSchema(getFederatedWrappedSchema(), context));
     }
 }

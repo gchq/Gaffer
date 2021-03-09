@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -100,11 +99,8 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                         LOGGER.warn("Exception occurred while trying to create a newInstance of operation: " + supportedOperation, e);
                         continue;
                     }
-                    if (CloseableIterable.class.equals(outputClass)) {
+                    if (Iterable.class.isAssignableFrom(outputClass)) {
                         store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputCloseableIterableHandler());
-                    } else if (Iterable.class.equals(outputClass)) {
-                        //TODO FS Examine, this duplication
-                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOutputIterableHandler());
                     } else {
                         LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: " + supportedOutputOperation);
                     }

@@ -16,20 +16,14 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
-import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
@@ -40,8 +34,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @param <PAYLOAD> The operation to be federated and executed by delegate graphs.
  */
 @Since("2.0.0")
-public class FederatedNoOutputHandler<PAYLOAD extends Operation> extends FederationHandler<PAYLOAD, Object, PAYLOAD> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederationHandler.class);
+public class FederatedNoOutputHandler<PAYLOAD extends Operation> implements OperationHandler<PAYLOAD> {
 
     /**
      * The Operation with no output is wrapped in a defaulted FederatedOperation and re-executed.
@@ -53,47 +46,14 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> extends Federat
      * @throws OperationException thrown if the operation fails
      */
     @Override
-    public Iterable<Object> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
-        loggingIsProcessedByFederatedStore(operation, store, "before");
-        FederatedOperation fedOp = getFederatedOperation(operation);
+    public Void doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
+        FederatedOperation<Object, Void, Void> fedOp = getFederatedOperation(operation);
 
-        //TODO FS Peer Review, Handle directly or re-send back to Store 1/3
-        Object ignore = new FederatedOperationHandler<PAYLOAD, Object>().doOperation(fedOp, context, store);
+        Object ignore = store.execute(fedOp, context);
 
         //TODO FS Examine, setOptions 1/3
         operation.setOptions(fedOp.getOptions());
 
-        loggingIsProcessedByFederatedStore(operation, store, "after");
-        //TODO FS Examine, Return type null or void?
         return null;
     }
-
-    private void loggingIsProcessedByFederatedStore(final PAYLOAD operation, final Store store, final String when) {
-        if (LOGGER.isDebugEnabled()) {
-            Object o = isNull(operation.getOptions()) ? null : operation.getOptions().keySet().stream().filter(e -> e.startsWith("FederatedStore.processed.")).collect(Collectors.toList());
-            LOGGER.debug("{}: {} fedOp pipe = {}", store.getGraphId(), when, o);
-        }
-    }
-
-    @Override
-    KorypheBinaryOperator<Object> getMergeFunction(final PAYLOAD ignore) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    PAYLOAD getPayloadOperation(final PAYLOAD ignore) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    String getGraphIdsCsv(final PAYLOAD ignore) {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    protected Iterable<Object> rtnDefaultWhenMergingNull() {
-        return null;
-    }
-
-
 }

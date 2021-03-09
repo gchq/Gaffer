@@ -96,6 +96,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
 /**
  * <p>
@@ -300,10 +301,10 @@ public class FederatedStore extends Store {
     }
 
     public Schema getSchema(final Context context) {
-        return getSchema(FederatedStoreUtil.getFederatedWrappedSchema(), context);
+        return getSchema(getFederatedWrappedSchema(), context);
     }
 
-    public Schema getSchema(final FederatedOperation<GetSchema> operation, final Context context) {
+    public Schema getSchema(final FederatedOperation<Void, Schema, Object> operation, final Context context) {
         return graphStorage.getSchema(operation, context);
     }
 
@@ -315,7 +316,7 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
-    public Set<StoreTrait> getTraits(final FederatedOperation<GetTraits> getTraits, final Context context) {
+    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Set<StoreTrait>, Object> getTraits, final Context context) {
         return graphStorage.getTraits(getTraits, context);
     }
 
@@ -341,10 +342,7 @@ public class FederatedStore extends Store {
         Collection<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
             String optionKey = FEDERATED_STORE_PROCESSED + id;
-            //Keep Order v
-            boolean isFedStoreIdPreexisting = !operation.getOption(optionKey, "").isEmpty();
-            addFedStoreId(operation, optionKey);
-            //Keep Order ^
+            boolean isFedStoreIdPreexisting = addFedStoreId(operation, optionKey);
             if (isFedStoreIdPreexisting) {
                 List<String> federatedStoreGraphIds = operation.getOptions()
                         .entrySet()
@@ -369,12 +367,28 @@ public class FederatedStore extends Store {
         return rtn;
     }
 
-    private void addFedStoreId(final Operation operation, final String optionKey) {
+    private boolean addFedStoreId(final Operation operation, final String optionKey) {
+        boolean rtn = false;
         if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
+            //Keep Order v
+            boolean isFedStoreIdPreexisting = !operation.getOption(optionKey, "").isEmpty();
+            //Keep Order ^
+            boolean isPayloadPreexisting;
+            if (operation instanceof FederatedOperation) {
+                FederatedOperation tmpFedOp = (FederatedOperation) operation;
+                Operation tmpPayload = tmpFedOp.getPayloadOperation();
+                isPayloadPreexisting = addFedStoreId(tmpPayload, optionKey);
+                tmpFedOp.payloadOperation(tmpPayload);
+            } else {
+                isPayloadPreexisting = false;
+            }
+
             final HashMap<String, String> updatedOperations = new HashMap<>(isNull(operation.getOptions()) ? new HashMap<>() : operation.getOptions());
             updatedOperations.put(optionKey, getGraphId());
             operation.setOptions(updatedOperations);
+            rtn = isFedStoreIdPreexisting || isPayloadPreexisting;
         }
+        return rtn;
     }
 
     public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv) {

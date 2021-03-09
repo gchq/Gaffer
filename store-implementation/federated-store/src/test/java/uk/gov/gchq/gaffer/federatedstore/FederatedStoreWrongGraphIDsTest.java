@@ -96,7 +96,7 @@ public class FederatedStoreWrongGraphIDsTest {
                 .vertex("v1")
                 .build();
 
-        store.execute(new FederatedOperation.Builder<>()
+        store.execute(new FederatedOperation.Builder()
                 .op(new AddElements.Builder()
                         .input(expectedEntity)
                         .build()).build()
@@ -123,7 +123,7 @@ public class FederatedStoreWrongGraphIDsTest {
         }
 
         try {
-            store.execute(new FederatedOperation.Builder<>()
+            store.execute(new FederatedOperation.Builder()
                             .op(new AddElements.Builder()
                                     .input(expectedEntity)
                                     .build())

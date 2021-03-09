@@ -19,44 +19,39 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOutputOperationHandlerTest;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederationOutputIterableHandlerTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-public class FederatedGetAdjacentIdsHandlerTest extends FederatedOutputOperationHandlerTest<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+public class FederatedGetAdjacentIdsHandlerTest extends FederationOutputIterableHandlerTest<GetAdjacentIds, EntityId> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        o1 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().group(TEST_ENTITY)
-                .property(PROPERTY_TYPE, 1)
-                .build()));
-        o2 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().group(TEST_ENTITY)
-                .property(PROPERTY_TYPE, 2)
-                .build()));
-        o3 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().group(TEST_ENTITY)
-                .property(PROPERTY_TYPE, 3)
-                .build()));
-        o4 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().group(TEST_ENTITY)
-                .property(PROPERTY_TYPE, 2)
-                .build()));
+        o1 = new WrappedCloseableIterable<>(Lists.newArrayList(
+                new Entity.Builder().group(TEST_ENTITY)
+                        .property(PROPERTY_TYPE, 1)
+                        .build()));
+        o2 = new WrappedCloseableIterable<>(Lists.newArrayList(
+                new Entity.Builder().group(TEST_ENTITY)
+                        .property(PROPERTY_TYPE, 2)
+                        .build()));
+        o3 = new WrappedCloseableIterable<>(Lists.newArrayList(
+                new Entity.Builder().group(TEST_ENTITY)
+                        .property(PROPERTY_TYPE, 3)
+                        .build()));
+        o4 = new WrappedCloseableIterable<>(Lists.newArrayList(
+                new Entity.Builder().group(TEST_ENTITY)
+                        .property(PROPERTY_TYPE, 2)
+                        .build()));
     }
 
     @Override
-    protected FederationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>, GetAdjacentIds> getFederationHandler() {
-        return new FederatedOutputCloseableIterableHandler<GetAdjacentIds, EntityId>();
+    protected FederatedOutputCloseableIterableHandler<GetAdjacentIds, EntityId> getFederationOperationHandler() {
+        return new FederatedOutputCloseableIterableHandler<>();
     }
 
     @Override
@@ -64,18 +59,5 @@ public class FederatedGetAdjacentIdsHandlerTest extends FederatedOutputOperation
         return new GetAdjacentIds.Builder().build();
     }
 
-    @Override
-    protected boolean validateMergeResultsFromFieldObjects(final CloseableIterable<? extends EntityId> result, final Object... resultParts) {
-        assertNotNull(result);
-        final Iterable[] resultPartItrs = Arrays.copyOf(resultParts, resultParts.length, Iterable[].class);
-        final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
-        int i = 0;
-        for (EntityId e : result) {
-            assertTrue(e instanceof Entity);
-            elements.contains(e);
-            i++;
-        }
-        assertEquals(elements.size(), i);
-        return true;
-    }
+
 }
