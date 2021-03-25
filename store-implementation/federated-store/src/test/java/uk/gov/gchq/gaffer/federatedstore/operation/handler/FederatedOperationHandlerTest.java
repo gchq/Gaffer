@@ -113,6 +113,7 @@ public class FederatedOperationHandlerTest {
         graph4 = getGraphWithMockStore(mockStore4);
     }
 
+    //TODO FS feature other 2 types?
     private Output<CloseableIterable<? extends Element>> getPayload() {
         return new GetAllElements.Builder().build();
     }

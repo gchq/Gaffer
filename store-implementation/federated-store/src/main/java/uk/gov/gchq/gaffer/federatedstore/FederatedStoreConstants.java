@@ -23,6 +23,7 @@ public final class FederatedStoreConstants {
     public static final String KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = "gaffer.federatedstore.operation.skipFailedFederatedStoreExecute";
     public static final String DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = String.valueOf(false);
     public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);
+    //TODO FS conflict with StoreProperties.Admin_Auth ?
     public static final String KEY_FEDERATION_ADMIN = "gaffer.federatedstore.operation.admin";
 
     private FederatedStoreConstants() {
