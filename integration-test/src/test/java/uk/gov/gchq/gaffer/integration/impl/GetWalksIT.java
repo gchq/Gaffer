@@ -24,11 +24,13 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.data.graph.function.walk.ExtractWalkEntities;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -38,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks.Builder;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -57,7 +60,9 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
+import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -66,6 +71,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -915,5 +921,131 @@ public class GetWalksIT extends AbstractStoreIT {
             sb.setLength(sb.length() - 1);
         }
         return sb.toString();
+    }
+
+    @Test
+    public void shouldReturnAllWalksWhenConditionalIsNull() throws Exception {
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(null);
+        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+    }
+
+    @Test
+    public void shouldReturnAllWalksWhenConditionalIsUnconfigured() throws Exception {
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(new Conditional());
+        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+    }
+
+    @Test
+    public void shouldFilterWalksThatDoNotContainProperty5() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(5));
+        assertThat(getPaths(walks), is(equalTo("AED")));
+    }
+
+    @Test
+    public void shouldFilterWalksThatDoNotContainProperty2() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(2));
+        assertThat(getPaths(walks), is(equalTo("ABC")));
+    }
+
+    @Test
+    public void shouldFilterAllWalksWhenNoneContainProperty() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(6));
+        assertThat(getPaths(walks), is(equalTo("")));
+    }
+
+    @Test
+    public void shouldNotFilterAnyWalksWhenAllContainProperty() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(1));
+        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+    }
+
+    private Iterable<Walk> getWalksThatPassPredicateTest(final Predicate predicate) throws Exception {
+        final Conditional conditional = new Conditional();
+        conditional.setTransform(new OperationChain.Builder()
+                .first(new Map.Builder<>()
+                        .first(new ExtractWalkEntities())
+                        .then(new IterableConcat())
+                        .build())
+                .then(new ForEach.Builder<>()
+                        .operation(new Map.Builder<>()
+                                .first(new ExtractProperty(TestPropertyNames.PROP_1))
+                                .build())
+                        .build())
+                .build());
+        conditional.setPredicate(predicate);
+
+        return executeGetWalksApplyingConditional(conditional);
+    }
+
+    @Test
+    public void shouldFilterWalksUsingWalkPredicateWithoutTransform() throws Exception {
+        final Conditional conditional = new Conditional();
+        conditional.setPredicate(new WalkPredicate());
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
+        assertThat(getPaths(walks), is(equalTo("AED")));
+    }
+
+    public static class WalkPredicate implements Predicate<Walk> {
+        @Override
+        public boolean test(final Walk walk) {
+            return walk.getEntities().stream()
+                    .flatMap(l -> l.stream())
+                    .anyMatch(e -> e.getVertex().equals("E"));
+        }
+    }
+
+    @Test
+    public void shouldNotFilterWalksWhenNoPredicateSupplied() throws Exception {
+        final Conditional conditional = new Conditional();
+        conditional.setTransform(new OperationChain.Builder()
+                .first(new Map.Builder<>()
+                        .first(new ExtractWalkEntities())
+                        .then(new IterableConcat())
+                        .build())
+                .then(new ForEach.Builder<>()
+                        .operation(new Map.Builder<>()
+                                .first(new ExtractProperty(TestPropertyNames.PROP_1))
+                                .build())
+                        .build())
+                .build());
+
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
+        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+    }
+
+    private Iterable<Walk> executeGetWalksApplyingConditional(final Conditional conditional) throws OperationException {
+        final GetWalks op = new GetWalks.Builder()
+                .operations(
+                        new GetElements.Builder()
+                                .directedType(DirectedType.DIRECTED)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                                .properties(TestPropertyNames.COUNT)
+                                                .build())
+                                        .entity(TestGroups.ENTITY)
+                                        .build())
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                                .build(),
+                        new GetElements.Builder()
+                                .directedType(DirectedType.DIRECTED)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                                .properties(TestPropertyNames.COUNT)
+                                                .build())
+                                        .entity(TestGroups.ENTITY)
+                                        .build())
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                                .build(),
+                        new GetElements.Builder()
+                                .view(new View.Builder()
+                                        .entities(Lists.newArrayList(TestGroups.ENTITY))
+                                        .build())
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                                .build())
+                .conditional(conditional)
+                .input(seedA)
+                .build();
+
+        return graph.execute(op, getUser());
     }
 }
