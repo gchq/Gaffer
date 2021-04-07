@@ -188,9 +188,9 @@ public final class FederatedStoreUtil {
      * @param operation operation to be wrapped in FederatedOperation
      * @return the wrapped operation
      */
-    public static <INPUT, MIDPUT, OUTPUT> FederatedOperation<INPUT, MIDPUT, OUTPUT> getFederatedOperation(final InputOutput<INPUT, MIDPUT> operation) {
+    public static <INPUT, OUTPUT> FederatedOperation<INPUT, OUTPUT> getFederatedOperation(final InputOutput<INPUT, Object> operation) {
 
-        FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> builder = new FederatedOperation.Builder()
+        FederatedOperation.BuilderParent<INPUT, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation);
 
         initMergeAndGraphIds(operation, builder);
@@ -199,8 +199,8 @@ public final class FederatedStoreUtil {
     }
 
 
-    public static <INPUT> FederatedOperation<INPUT, Void, Void> getFederatedOperation(final Input<INPUT> operation) {
-        FederatedOperation.BuilderParent<INPUT, Void, Void> builder = new FederatedOperation.Builder()
+    public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Input<INPUT> operation) {
+        FederatedOperation.BuilderParent<INPUT, Void> builder = new FederatedOperation.Builder()
                 .op(operation);
 
         initMergeAndGraphIds(operation, builder);
@@ -208,9 +208,9 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    public static <MIDPUT, OUTPUT> FederatedOperation<Void, MIDPUT, OUTPUT> getFederatedOperation(final Output<MIDPUT> operation) {
+    public static <OUTPUT> FederatedOperation<Void, OUTPUT> getFederatedOperation(final Output operation) {
 
-        FederatedOperation.BuilderParent<Void, MIDPUT, OUTPUT> builder = new FederatedOperation.Builder()
+        FederatedOperation.BuilderParent<Void, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation);
 
         initMergeAndGraphIds(operation, builder);
@@ -218,9 +218,9 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    public static <INPUT> FederatedOperation<INPUT, Void, Void> getFederatedOperation(final Operation operation) {
+    public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {
 
-        FederatedOperation.BuilderParent<INPUT, Void, Void> builder = new FederatedOperation.Builder()
+        FederatedOperation.BuilderParent<INPUT, Void> builder = new FederatedOperation.Builder()
                 .op(operation);
 
         initMergeAndGraphIds(operation, builder);
@@ -228,9 +228,9 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    private static <INPUT, MIDPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> initMergeAndGraphIds(Operation operation, FederatedOperation.BuilderParent<INPUT, MIDPUT, OUTPUT> builder) {
+    private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> initMergeAndGraphIds(Operation operation, FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
         //TODO FS Examine
-        builder.mergeFunction(null)
+        builder.mergeFunction(null)/*TODO FS Review Null*/
                 //TODO FS Examine
 //                .graphIds(default)
 //                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
@@ -250,12 +250,14 @@ public final class FederatedStoreUtil {
 
 
     //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
-    public static FederatedOperation<Void, Schema, Object> getFederatedWrappedSchema() {
+    public static FederatedOperation<Void, Object> getFederatedWrappedSchema() {
+        //TODO FS Examine return FederatedOperation<Void, Set<StoreTrait>> make a suitable merge function?
         return getFederatedOperation(new GetSchema());
     }
 
     //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
-    public static FederatedOperation<Void, Set<StoreTrait>, Object> getFederatedWrappedTraits() {
+    public static FederatedOperation<Void, Object> getFederatedWrappedTraits() {
+        //TODO FS Examine return FederatedOperation<Void, Set<StoreTrait>> make a suitable merge function?
         return getFederatedOperation(new GetTraits());
     }
 }

@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -124,7 +125,7 @@ public class FederatedAggregateHandlerTest {
                         .build())
                 .build())
                 .graphIdsCSV("a")
-                .mergeFunction(null), context);
+                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), context);
 
         fed.execute(getFederatedOperation(
                 new AddElements.Builder()
@@ -135,7 +136,7 @@ public class FederatedAggregateHandlerTest {
                                 .build())
                         .build())
                 .graphIdsCSV("b")
-                .mergeFunction(null), context);
+                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), context);
 
         final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 

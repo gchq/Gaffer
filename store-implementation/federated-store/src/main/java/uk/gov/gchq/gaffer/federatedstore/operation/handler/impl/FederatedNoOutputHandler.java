@@ -47,7 +47,7 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> implements Oper
      */
     @Override
     public Void doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
-        FederatedOperation<Object, Void, Void> fedOp = getFederatedOperation(operation);
+        FederatedOperation<Object, Void> fedOp = getFederatedOperation(operation);
 
         Object ignore = store.execute(fedOp, context);
 

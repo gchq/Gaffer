@@ -73,6 +73,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -1432,7 +1433,7 @@ public class FederatedStoreTest {
                         .input(input)
                         .build())
                 .graphIdsCSV(graphName)
-                .mergeFunction(null), userContext);
+                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), userContext);
     }
 
     protected Entity getEntityB() {

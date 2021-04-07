@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -29,41 +28,35 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat;
-import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 import static java.util.Objects.nonNull;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
  * FederatedOperation handler for the federation of an PAYLOAD operation with an expected return type OUTPUT
  */
 @Since("2.0.0")
-public class FederatedOperationHandler<INPUT, MIDPUT, OUTPUT> implements OperationHandler<FederatedOperation<INPUT, MIDPUT, OUTPUT>> {
+public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandler<FederatedOperation<INPUT, OUTPUT>> {
 
     public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS = "Error while running operation on graphs";
 
     @Override
-    public OUTPUT doOperation(final FederatedOperation<INPUT, MIDPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
-        final Iterable<MIDPUT> allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
-        Function<Iterable<MIDPUT>, OUTPUT> mergeFunction = operation.getMergeFunction();
+    public OUTPUT doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
+        final Iterable allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
+        Function<Iterable, OUTPUT> mergeFunction = operation.getMergeFunction();
 
         return mergeResults(allGraphResults, mergeFunction);
 
     }
 
-    private ChainedIterable<MIDPUT> getAllGraphResults(final FederatedOperation<INPUT, MIDPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
+    private ChainedIterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
         try {
-            List<MIDPUT> results;
+            List<Object> results;
             final Collection<Graph> graphs = getGraphs(operation, context, store);
             results = new ArrayList<>(graphs.size());
             for (final Graph graph : graphs) {
@@ -73,12 +66,11 @@ public class FederatedOperationHandler<INPUT, MIDPUT, OUTPUT> implements Operati
 //                if (operation instanceof Input) {
 //                    OperationHandlerUtil.updateOperationInput(payloadOperation, ((Input) operation).getInput());
 //                }
-
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getPayloadOperation(), graph);
                 if (null != updatedOp) {
                     try {
                         if (updatedOp instanceof Output) {
-                            results.add(graph.execute((Output<MIDPUT>) updatedOp, context));
+                            results.add(graph.execute((Output) updatedOp, context));
                         } else {
                             graph.execute(updatedOp, context);
                             //TODO FS Peer Review, return a null per graph?
@@ -100,7 +92,7 @@ public class FederatedOperationHandler<INPUT, MIDPUT, OUTPUT> implements Operati
 
     }
 
-    private OUTPUT mergeResults(final Iterable<MIDPUT> results, final Function<Iterable<MIDPUT>, OUTPUT> mergeFunction) throws OperationException {
+    private OUTPUT mergeResults(final Iterable results, final Function<Iterable, OUTPUT> mergeFunction) throws OperationException {
         try {
             OUTPUT rtn;
             if (nonNull(mergeFunction)) {
@@ -110,7 +102,7 @@ public class FederatedOperationHandler<INPUT, MIDPUT, OUTPUT> implements Operati
                 //Flatten
                 //TODO FS USE COLLECTION CONCAT
                 //TODO FS MAKE IT CONFIGURABLE
-                Function<Iterable<MIDPUT>, OUTPUT> flattenFunction = (Iterable<MIDPUT> o) -> {
+                Function<Iterable, OUTPUT> flattenFunction = (Iterable o) -> {
                     ArrayList assumedRtn = new ArrayList<>();
                     o.forEach(midput ->
                             {
@@ -131,7 +123,7 @@ public class FederatedOperationHandler<INPUT, MIDPUT, OUTPUT> implements Operati
         }
     }
 
-    private Collection<Graph> getGraphs(final FederatedOperation<INPUT, MIDPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
+    private Collection<Graph> getGraphs(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) {
         Collection<Graph> graphs = store.getGraphs(context.getUser(), operation.getGraphIdsCSV(), operation);
 
         return nonNull(graphs) ?

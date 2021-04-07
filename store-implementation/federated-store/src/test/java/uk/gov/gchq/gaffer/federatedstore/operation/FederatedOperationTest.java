@@ -19,27 +19,28 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.migration.ToInteger;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.koryphe.function.KorypheFunction;
-import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
-import uk.gov.gchq.koryphe.impl.function.Concat;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
     private static final String EXPECTED_GRAPH_ID = "testGraphID1,testGraphID2";
+    public static final String JSON = "{\n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",\n" +
+            "  \"operation\" : {\n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"\n" +
+            "  },\n" +
+            "  \"mergeFunction\" : {\n" +
+            "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.IterableConcat\"\n" +
+            "  },\n" +
+            "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
+            "}";
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -49,45 +50,51 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        FederatedOperation<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Object> federatedOperation = new FederatedOperation.Builder()
-                .op(new GetAdjacentIds.Builder()
-                        .build())
-                //TODO FS Refactor work out merge
-//                .mergeFunction(new IterableConcat())
-                .graphIds(EXPECTED_GRAPH_ID)
-                .build();
+        //given
+        final FederatedOperation federatedOperation = getFederatedOperationForSerialisation();
 
+        //then
         assertEquals(EXPECTED_GRAPH_ID, federatedOperation.getGraphIdsCSV());
-        //TODO FS Refactor place back in
-//        assertEquals(new StringConcat(), federatedOperation.getMergeFunction());
+        assertEquals(new uk.gov.gchq.koryphe.impl.function.IterableConcat(), federatedOperation.getMergeFunction());
         try {
             assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getPayloadOperation())));
-            assertEquals("{\n" +
-                    "  \"class\" : \"uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation\",\n" +
-                    "  \"operation\" : {\n" +
-                    "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"\n" +
-                    "  },\n" +
-//                    "  \"mergeFunction\" : {\n" +
-//                    "    \"class\" : \"uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat\",\n" +
-//                    "    \"separator\" : \",\"\n" +
-//                    "  },\n" +
-                    "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
-                    "}", new String(JSONSerialiser.serialise(federatedOperation, true)));
+            assertEquals(JSON, new String(JSONSerialiser.serialise(federatedOperation, true)));
         } catch (SerialisationException e) {
             fail(e);
         }
+    }
+
+    private FederatedOperation getFederatedOperationForSerialisation() {
+        return new FederatedOperation.Builder()
+                .op(new GetAdjacentIds.Builder()
+                        .build())
+                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
+                .graphIds(EXPECTED_GRAPH_ID)
+                .build();
+    }
+
+    @Test
+    public void shouldDeserialise() throws Exception {
+        //given
+        final FederatedOperation federatedOperation = getFederatedOperationForSerialisation();
+
+        //when
+        FederatedOperation deserialise = JSONSerialiser.deserialise(JSON, FederatedOperation.class);
+
+        //then
+        assertEquals(federatedOperation, deserialise);
+
     }
 
     @Test
     @Override
     public void shouldShallowCloneOperation() {
 
-
         FederatedOperation a = new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
                         .build())
                 .graphIds(EXPECTED_GRAPH_ID)
-                .mergeFunction(null)
+                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
                 .build();
         final FederatedOperation b = a.shallowClone();
         assertEquals(a, b);
@@ -97,6 +104,4 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
     protected FederatedOperation getTestObject() {
         return new FederatedOperation();
     }
-
-
 }

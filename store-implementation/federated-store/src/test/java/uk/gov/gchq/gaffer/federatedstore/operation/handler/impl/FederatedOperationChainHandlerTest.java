@@ -49,18 +49,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.koryphe.impl.binaryoperator.IterableConcat;
-import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
@@ -114,7 +110,7 @@ public class FederatedOperationChainHandlerTest {
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(null)
+                        .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
                         // Ensure the elements are returned form the graphs in the right order
                         .graphIds(GRAPH_IDS)
                         .build())

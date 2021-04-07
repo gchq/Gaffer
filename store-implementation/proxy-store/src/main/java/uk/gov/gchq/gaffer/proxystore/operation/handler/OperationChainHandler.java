@@ -114,7 +114,7 @@ public class OperationChainHandler<OUT> extends uk.gov.gchq.gaffer.store.operati
         rtn.setOptions(operationChain.getOptions());
         rtn.addOption(PROXY_STORE_OPERATION_CHAIN_HANDLER, RESOLVED);
 
-        //TODO FS Peer Review, Could directly hit ResolvedLogic
+        //TODO FS Peer Review, Could directly hit ResolvedLogic (dont care)
         return this.doOperation(rtn, context, store);
     }
 

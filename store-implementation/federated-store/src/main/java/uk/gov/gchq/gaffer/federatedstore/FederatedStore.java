@@ -54,9 +54,13 @@ import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.jobtracker.Job;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -304,7 +308,7 @@ public class FederatedStore extends Store {
         return getSchema(getFederatedWrappedSchema(), context);
     }
 
-    public Schema getSchema(final FederatedOperation<Void, Schema, Object> operation, final Context context) {
+    public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
         return graphStorage.getSchema(operation, context);
     }
 
@@ -316,7 +320,7 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
-    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Set<StoreTrait>, Object> getTraits, final Context context) {
+    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Object> getTraits, final Context context) {
         return graphStorage.getTraits(getTraits, context);
     }
 
@@ -539,5 +543,52 @@ public class FederatedStore extends Store {
         return isNull(defaultGraphIdsCSV)
                 ? graphStorage.get(user, null)
                 : getGraphs(user, defaultGraphIdsCSV, operation);
+    }
+
+    @Override
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        //magic
+        super.execute(operation, context);
+    }
+
+    @Override
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+
+        //magic
+        return super.execute(operation, context);
+    }
+
+    @Override
+    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+
+        //magic
+        return super.execute(operation, context);
+    }
+
+    @Override
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+
+
+        //magic
+        return super.executeJob(operation, context);
+    }
+
+    @Override
+    public JobDetail executeJob(final Job job, final Context context) throws OperationException {
+
+        //magic
+        return super.executeJob(job, context);
+    }
+
+    @Override
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+        //magic
+        return super.executeJob(operationChain, context);
+    }
+
+    @Override
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
+        //magic
+        return super.executeJob(operationChain, context, parentJobId);
     }
 }

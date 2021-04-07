@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -150,8 +151,7 @@ public class FederatedStoreToFederatedStoreTest {
                 .input(entity, edge)
                 .build())
                 .graphIdsCSV(mapStoreGraphId)
-                .mergeFunction(null)
-                .mergeFunction(null), new User());
+                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), new User());
 
         // When
         List<? extends Element> results = Lists.newArrayList(federatedStoreGraph.execute(new GetAllElements.Builder()

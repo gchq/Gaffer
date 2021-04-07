@@ -125,11 +125,11 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(operation);
+        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(operation);
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
 
         // When
-        CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+        CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
 
         assertNotNull(results);
         validateMergeResultsFromFieldObjects(results, output1, output2, output3, output4);
@@ -142,13 +142,13 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
+        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
         federatedOperation.graphIdsCSV("1,3");
         when(federatedStore.getGraphs(testUser, "1,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
 
         // When
-        CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+        CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
 
         assertNotNull(results);
         validateMergeResultsFromFieldObjects(results, output1, output3);
@@ -192,14 +192,14 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
+        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
 
         // When
         try {
-            CloseableIterable<? extends Element> ignore = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+            CloseableIterable<? extends Element> ignore = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
             fail("Exception Not thrown");
         } catch (OperationException e) {
             assertEquals(FederatedOperationHandler.ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e.getMessage());
@@ -222,7 +222,7 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
+        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
@@ -231,7 +231,7 @@ public class FederatedOperationHandlerTest {
         CloseableIterable<? extends Element> results = null;
 
         try {
-            results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+            results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
         } catch (OperationException e) {
             fail("Store with error should have been skipped.");
         }

@@ -50,12 +50,12 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
 
         //TODO FS Review is this difference of InputOutput
         if (operation instanceof InputOutput) {
-            FederatedOperation<Object, CloseableIterable<? extends ITERABLE_ELEMENTS>, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((InputOutput<Object, CloseableIterable<? extends ITERABLE_ELEMENTS>>) operation);
+            FederatedOperation<Object, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((InputOutput) operation);
             results = store.execute(federatedOperation, context);
             //TODO FS Review, setOptions 1/3
             operation.setOptions(getFederatedOperation(operation).getOptions());
         } else {
-            FederatedOperation<Void, CloseableIterable<? extends ITERABLE_ELEMENTS>, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((Output<CloseableIterable<? extends ITERABLE_ELEMENTS>>) operation);
+            FederatedOperation<Void, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((Output) operation);
             results = store.execute(federatedOperation, context);
             //TODO FS Review, setOptions 1/3
             operation.setOptions(getFederatedOperation(operation).getOptions());

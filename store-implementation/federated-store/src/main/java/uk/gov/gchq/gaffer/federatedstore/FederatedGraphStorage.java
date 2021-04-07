@@ -252,7 +252,7 @@ public class FederatedGraphStorage {
     }
 
     //TODO FS REFACTOR, GraphStorage Does not need to know about FedOp only graphIds.
-    public Schema getSchema(final FederatedOperation<Void, Schema, Object> operation, final Context context) {
+    public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
         if (null == context || null == context.getUser()) {
             // no user then return an empty schema
             return new Schema();
@@ -297,7 +297,7 @@ public class FederatedGraphStorage {
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      */
     //TODO FS Refactor, GraphStorage does not need to know about FedOp
-    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Set<StoreTrait>, Object> op, final Context context) {
+    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Object> op, final Context context) {
         final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
         GetTraits payloadOperation = (nonNull(op)) ? (GetTraits) op.getPayloadOperation() : new GetTraits();
         if (payloadOperation.isCurrentTraits()) {
