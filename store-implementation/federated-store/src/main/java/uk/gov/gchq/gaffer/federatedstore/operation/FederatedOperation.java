@@ -59,7 +59,7 @@ import static java.util.Objects.nonNull;
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
-public class FederatedOperation</*TODO FS Peer Review I don't think INPUT is required? bookmark1*/INPUT, MIDPUT, OUTPUT> implements IFederationOperation, IFederatedOperation,  /*TODO FS Peer Review is FederatedOperation actually Output*/ Output<OUTPUT> {
+public class FederatedOperation<INPUT, MIDPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, Output<OUTPUT> {
     private String graphIdsCsv;
     @Required
     private Operation payloadOperation;
@@ -205,7 +205,6 @@ public class FederatedOperation</*TODO FS Peer Review I don't think INPUT is req
             } else if (op instanceof Output) {
                 rtn = op((Output) op);
             } else {
-                //TODO FS Peer Review ?
                 rtn = new BuilderNeitherIO(op);
             }
             return rtn;
