@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.graphframes.GraphFrame;
 
