@@ -45,6 +45,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.3.0")
 @Summary("Gets a GraphFrame of elements")
 public class GetGraphFrameOfElements implements
