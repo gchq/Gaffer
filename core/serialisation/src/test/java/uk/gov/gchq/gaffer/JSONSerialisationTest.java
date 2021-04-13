@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Provides a common interface for testing classes that should be JSON serialisable.
@@ -53,7 +53,7 @@ public abstract class JSONSerialisationTest<T> {
         final JsonPropertyOrder annotation = op.getClass().getAnnotation(JsonPropertyOrder.class);
 
         // Then
-        assumeTrue(null != annotation && annotation.alphabetic(),
+        assertTrue(null != annotation && annotation.alphabetic(),
                 "Missing JsonPropertyOrder annotation on class. It should de defined and set to alphabetical." + op.getClass().getName());
     }
 
