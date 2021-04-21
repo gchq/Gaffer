@@ -17,33 +17,42 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetFromEndpointTest extends OperationTest<GetFromEndpoint> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
                 .build();
 
+        // When / Then
         assertEquals("testEndpoint", op.getEndpoint());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         GetFromEndpoint op = new GetFromEndpoint.Builder()
                 .endpoint("testEndpoint")
                 .option("testOption", "true")
                 .build();
 
+        // When
         GetFromEndpoint clone = op.shallowClone();
 
+        // Then
         assertNotSame(clone, op);
         assertEquals(clone.getEndpoint(), op.getEndpoint());
         assertEquals(clone.getOption("testOption"), op.getOption("testOption"));

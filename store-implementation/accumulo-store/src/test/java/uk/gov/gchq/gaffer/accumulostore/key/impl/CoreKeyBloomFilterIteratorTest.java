@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.BloomFilterIteratorException;
@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CoreKeyBloomFilterIteratorTest {
     @Test

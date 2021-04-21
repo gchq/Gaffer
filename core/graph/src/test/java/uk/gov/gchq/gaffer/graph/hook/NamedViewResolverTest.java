@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Maps;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -42,9 +42,9 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -79,7 +79,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     @Test
     public void shouldResolveNamedView() throws CacheOperationFailedException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -100,7 +100,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     @Test
     public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
         final View mergedView = new View.Builder().merge(FULL_VIEW).merge(viewToMerge).build();
 
@@ -124,11 +124,11 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     @Test
     public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
         final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(namedViewToMerge.getName()).view(namedViewToMerge).build();
         final View mergedView = new View.Builder().merge(FULL_VIEW).edge(TestGroups.EDGE).build();
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(namedViewDetailToMerge);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willReturn(namedViewDetailToMerge);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -172,9 +172,9 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME));
         assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 1));
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(namedViewWithNestedNamedViewDetail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedViewDetail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1Detail);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(namedViewWithNestedNamedViewDetail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(nestedNamedViewDetail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willReturn(nestedNamedView1Detail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -222,7 +222,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedViewDetail);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(extendedNamedViewDetail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -285,7 +285,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedViewDetail);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(extendedNamedViewDetail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -364,7 +364,7 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
                 .parameters(paramDetailMap)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedViewDetail);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(extendedNamedViewDetail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -404,10 +404,10 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
         assertTrue(nestedNamedView3.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 1));
         assertTrue(nestedNamedView3.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 2));
 
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedViewDetail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1Detail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 2)).willReturn(nestedNamedView2Detail);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 3)).willReturn(nestedNamedView3Detail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(nestedNamedViewDetail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willReturn(nestedNamedView1Detail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 2, CONTEXT.getUser())).willReturn(nestedNamedView2Detail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 3, CONTEXT.getUser())).willReturn(nestedNamedView3Detail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -436,8 +436,8 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
                 .merge(FULL_VIEW)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(null);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willReturn(null);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -465,8 +465,8 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
                 .merge(FULL_VIEW)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 2)).willReturn(namedViewDetailToMerge);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 2, CONTEXT.getUser())).willReturn(namedViewDetailToMerge);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -487,8 +487,8 @@ public class NamedViewResolverTest extends GraphHookTest<NamedViewResolver> {
     @Test
     public void shouldThrowExceptionWhenNamedViewToBeMergedIsNotInCache() throws CacheOperationFailedException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willThrow(new CacheOperationFailedException("No NamedView with the name namedViewName1 exists in the cache"));
+        given(CACHE.getNamedView(NAMED_VIEW_NAME, CONTEXT.getUser())).willReturn(FULL_NAMED_VIEW_DETAIL);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1, CONTEXT.getUser())).willThrow(new CacheOperationFailedException("No NamedView with the name namedViewName1 exists in the cache"));
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()

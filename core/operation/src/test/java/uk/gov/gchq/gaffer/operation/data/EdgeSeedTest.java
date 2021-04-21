@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -31,14 +31,14 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -345,7 +345,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
     @Test
     public void shouldNotFailToConsistentlySwapVerticesWithStringImplementation() {
-        // Opposite to shouldFailToConsistentlySwapVerticesWithNoToStringImplementation(),
+        // Opposite to
+        // shouldFailToConsistentlySwapVerticesWithNoToStringImplementation(),
         // showing that EdgeSeeds which implement toString, equals and hashCode are
         // consistently created with source and destination the correct way round
 
@@ -456,7 +457,6 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         assertEquals(DirectedType.EITHER, deserialisedEdgeSeed.getDirectedType());
     }
 
-
     @Test
     public void shouldThrowExceptionWhenDeserialiseFromJsonUsingDirectedAndDirectedType() {
         // Given
@@ -499,16 +499,12 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
             final Vertex vertex = (Vertex) obj;
 
-            return new EqualsBuilder()
-                    .append(property, vertex.property)
-                    .isEquals();
+            return new EqualsBuilder().append(property, vertex.property).isEquals();
         }
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(53, 41)
-                    .append(property)
-                    .toHashCode();
+            return new HashCodeBuilder(53, 41).append(property).toHashCode();
         }
 
         @Override

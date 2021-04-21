@@ -19,7 +19,7 @@ import com.yahoo.sketches.frequencies.LongsSketch;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LongsSketchKryoSerializerTest extends KryoSerializerTest<LongsSketch> {
 

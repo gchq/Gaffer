@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
 
+
     public AccumuloStoreITs() {
         this(STORE_PROPERTIES);
     }

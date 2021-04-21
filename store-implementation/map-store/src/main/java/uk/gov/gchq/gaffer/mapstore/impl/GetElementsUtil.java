@@ -16,6 +16,14 @@
 
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -31,19 +39,25 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Utility methods used by the handlers for the {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
  * operations in the {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
  */
 public final class GetElementsUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetElementsUtil.class);
 
     private GetElementsUtil() {
         // Private constructor to prevent instantiation.
@@ -120,6 +134,30 @@ public final class GetElementsUtil {
         return relevantElements;
     }
 
+    public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema, final User user) {
+        final Set<String> dataAuths = user.getDataAuths();
+        final Authorisations authorisations = new Authorisations(dataAuths.toArray(new String[dataAuths.size()]));
+        return elements.filter(e -> isVisible(e, schema.getVisibilityProperty(), authorisations));
+    }
+
+    private static boolean isVisible(final Element e, final String visibilityProperty, final Authorisations authorisations) {
+        if (e.getProperty(visibilityProperty) != null) {
+            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(authorisations);
+            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibilityProperty));
+            try {
+                return visibilityEvaluator.evaluate(elementVisibility);
+            } catch (final VisibilityParseException visibilityParseException) {
+                LOGGER.warn("Unable to parse element visibility: {}. Received exception: {}",
+                        elementVisibility,
+                        visibilityParseException.getMessage());
+                return false;
+            }
+        } else {
+            e.putProperty(visibilityProperty, new String());
+            return true;
+        }
+    }
+
     public static Stream<Element> applyDirectedTypeFilter(final Stream<Element> elements,
                                                           final boolean includeEdges,
                                                           final DirectedType directedType) {
@@ -137,6 +175,13 @@ public final class GetElementsUtil {
     public static Stream<Element> applyView(final Stream<Element> elementStream,
                                             final Schema schema,
                                             final View view) {
+        return applyView(elementStream, schema, view, false);
+    }
+
+    public static Stream<Element> applyView(final Stream<Element> elementStream,
+                                            final Schema schema,
+                                            final View view,
+                                            final boolean includeMatchedVertex) {
         final Set<String> viewGroups = view.getGroups();
         Stream<Element> stream = elementStream;
         // Check group is valid
@@ -150,6 +195,10 @@ public final class GetElementsUtil {
             final ViewElementDefinition ved = view.getElement(e.getGroup());
             return ved.getPreAggregationFilter() == null || ved.getPreAggregationFilter().test(e);
         });
+
+        // Apply aggregation
+        final CloseableIterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
+        stream = StreamSupport.stream(iterable.spliterator(), false);
 
         // Apply post-aggregation filter
         stream = stream.filter(e -> {
@@ -176,3 +225,4 @@ public final class GetElementsUtil {
         return stream;
     }
 }
+

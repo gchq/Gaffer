@@ -25,10 +25,15 @@ public class FederatedStoreITs extends AbstractStoreITs {
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {
-        super(STORE_PROPERTIES);
+        this(STORE_PROPERTIES);
+    }
+
+    protected FederatedStoreITs(final FederatedStoreProperties storeProperties) {
+        super(storeProperties);
         skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
         addExtraTest(FederatedViewsIT.class);
         addExtraTest(FederatedAdminIT.class);
         addExtraTest(FederatedStoreRecursionIT.class);
+
     }
 }

@@ -26,15 +26,12 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -45,22 +42,21 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SortGroupSplitTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger.getRootLogger().setLevel(Level.WARN);
     }
-
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private void generateDate(final String inputDir) throws IOException {
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
@@ -97,13 +93,15 @@ public class SortGroupSplitTest {
     }
 
     @Test
-    public void sortTest() throws IOException {
+    public void sortTest(@TempDir java.nio.file.Path tempDir) throws IOException {
         // Given
         final FileSystem fs = FileSystem.get(new Configuration());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final String inputDir = testFolder.newFolder().getAbsolutePath();
-        final String outputDir = testFolder.newFolder().getAbsolutePath() + "/output";
+
+        final String inputDir = Files.createDirectories(tempDir.resolve("input")).toString();
+        final String outputDir = tempDir.resolve("output").toString();
         generateDate(inputDir);
+
         final List<String> sortColumns = new ArrayList<>();
         sortColumns.add(ParquetStore.VERTEX);
         sortColumns.add("date");
@@ -133,7 +131,7 @@ public class SortGroupSplitTest {
                 assertEquals(new Date(200000L).getTime(), (long) results[i].getAs("date"));
             }
             assertEquals(2, (int) results[i].getAs("count"));
-            Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
+            assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
         }
     }

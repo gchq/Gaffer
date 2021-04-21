@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -34,25 +34,30 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 public class AddUpdateTableIteratorTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddUpdateTableIteratorTest.class);
     private static final String GRAPH_ID = "graphId";
     private static final String SCHEMA_DIR = "src/test/resources/schema";
     private static final String SCHEMA_2_DIR = "src/test/resources/schema2";
     private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
     private static final String STORE_PROPS_2_PATH = "src/test/resources/store2.properties";
+    private static final String STORE_PROPS_PATH_UPDATED = "src/test/resources/current_store.properties";
+    private static final String STORE_PROPS_2_PATH_UPDATED = "src/test/resources/current_store2.properties";
     private static final String EMPTY_STORE_PROPS_PATH = "src/test/resources/empty-store.properties";
     private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "target/graphLibrary";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    private static final AccumuloProperties PROPERTIES_1 = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
+    private static final AccumuloProperties PROPERTIES_2 = AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH);
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void setUpAndTearDown() throws IOException {
         if (new File(FILE_GRAPH_LIBRARY_TEST_PATH).exists()) {
             FileUtils.forceDelete(new File(FILE_GRAPH_LIBRARY_TEST_PATH));
@@ -69,9 +74,9 @@ public class AddUpdateTableIteratorTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
     }
@@ -87,9 +92,9 @@ public class AddUpdateTableIteratorTest {
 
         // Then
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
-        assertNotNull("Schema not found", pair.getFirst());
-        assertNotNull("Store properties not found", pair.getSecond());
+        assertNotNull(pair, "Graph for " + GRAPH_ID + " was not found");
+        assertNotNull(pair.getFirst(), "Schema not found");
+        assertNotNull(pair.getSecond(), "Store properties not found");
         JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
         assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
     }
@@ -104,45 +109,47 @@ public class AddUpdateTableIteratorTest {
 
         // Then - no exceptions
         final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
-        assertNull("Graph should not have been stored", pair);
+        assertNull(pair, "Graph should not have been stored");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowKeyErrorWhenInvalidModifyKeyGiven() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "invalid key", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
-        AddUpdateTableIterator.main(args);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> AddUpdateTableIterator.main(args));
 
         // Then
-        final String expected = "Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.";
-        thrown.expectMessage(expected);
+        assertEquals("Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.",
+                actual.getMessage());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldReturnStoreClassNameNotFoundWhenStorePropsIsEmpty() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, EMPTY_STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
-        AddUpdateTableIterator.main(args);
+        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
+                () -> AddUpdateTableIterator.main(args));
 
         // Then
-        final String expected = "The Store class name was not found in the store properties for key: gaffer.store.class";
-        thrown.expectMessage(expected);
+        assertEquals("The Store class name was not found in the store properties for key: gaffer.store.class",
+                actual.getMessage());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldReturnInvalidFilePathErrorWhenPathDoesNotExist() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
-        AddUpdateTableIterator.main(args);
+        RuntimeException actual = assertThrows(RuntimeException.class, () -> AddUpdateTableIterator.main(args));
 
         // Then
-        final String expected = "Failed to load store properties file : invalid/file/path";
-        thrown.expectMessage(expected);
+        assertEquals("Failed to load store properties file : invalid/file/path",
+                actual.getMessage());
     }
 }

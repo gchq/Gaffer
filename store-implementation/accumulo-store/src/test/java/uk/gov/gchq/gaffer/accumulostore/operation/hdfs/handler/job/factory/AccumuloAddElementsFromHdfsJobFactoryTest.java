@@ -23,20 +23,18 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -57,34 +55,38 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+
 public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+    private AccumuloStore store = new SingleUseMiniAccumuloStore();
 
     public String inputDir;
     public String outputDir;
     public String splitsDir;
     public String splitsFile;
 
-    @Before
-    public void setup() {
-        inputDir = testFolder.getRoot().getAbsolutePath() + "inputDir";
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
-        splitsFile = splitsDir + "/splits";
+    @BeforeEach
+    public void setup(@TempDir java.nio.file.Path tempDir) {
+        inputDir = new File(tempDir.toString(), "inputDir").getAbsolutePath();
+        outputDir = new File(tempDir.toString(), "outputDir").getAbsolutePath();
+        splitsDir = new File(tempDir.toString(), "splitsDir").getAbsolutePath();
+        splitsFile = new File(splitsDir, "splits").getAbsolutePath();
     }
 
     @Test
@@ -94,17 +96,18 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
         fs.mkdirs(new Path(splitsDir));
-        try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile), true)))) {
+        try (final BufferedWriter writer =
+                new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile), true)))) {
             writer.write("1");
         }
 
         final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .outputPath(outputDir)
-                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir.toString())
+                .addInputMapperPair(inputDir.toString(), TextMapperGeneratorImpl.class.getName())
                 .useProvidedSplits(true)
-                .splitsFilePath(splitsFile)
+                .splitsFilePath(splitsFile.toString())
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
 
@@ -128,7 +131,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         verify(job).setOutputValueClass(Value.class);
 
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
-        assertEquals(fs.makeQualified(new Path(outputDir)).toString(), job.getConfiguration().get("mapreduce.output.fileoutputformat.outputdir"));
+        assertEquals(fs.makeQualified(new Path(outputDir)).toString(),
+                job.getConfiguration().get("mapreduce.output.fileoutputformat.outputdir"));
 
         verify(job).setNumReduceTasks(2);
         verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
@@ -153,22 +157,18 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     @Test
     public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
+        store.initialise("graphId", SCHEMA, PROPERTIES);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
         fs.mkdirs(new Path(splitsDir));
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile));
+        final BufferedWriter writer = new BufferedWriter(new FileWriter(splitsFile.toString()));
         for (int i = 100; i < 200; i++) {
             writer.write(i + "\n");
         }
         writer.close();
         final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
-                .inputPath(splitsFile)
+                .inputPath(splitsFile.toString())
                 .build();
         store.execute(splitTable, new Context(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = getJobFactory();
@@ -176,8 +176,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .outputPath(outputDir)
-                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir.toString())
+                .addInputMapperPair(inputDir.toString(), TextMapperGeneratorImpl.class.getName())
                 .maxReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -188,8 +188,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
         // When
         operation = new AddElementsFromHdfs.Builder()
-                .outputPath(outputDir)
-                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir.toString())
+                .addInputMapperPair(inputDir.toString(), TextMapperGeneratorImpl.class.getName())
                 .maxReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -200,8 +200,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
         // When
         operation = new AddElementsFromHdfs.Builder()
-                .outputPath(outputDir)
-                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir.toString())
+                .addInputMapperPair(inputDir.toString(), TextMapperGeneratorImpl.class.getName())
                 .maxReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -214,11 +214,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     @Test
     public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
+        store.initialise("graphId", SCHEMA, PROPERTIES);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -275,11 +271,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     @Test
     public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
+        store.initialise("graphId", SCHEMA, PROPERTIES);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -343,11 +335,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
     @Test
     public void shouldThrowExceptionWhenMaxReducersSetOutsideOfRange() throws IOException, StoreException, OperationException {
         // Given
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties
-                .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        store.initialise("graphId", schema, properties);
+        store.initialise("graphId", SCHEMA, PROPERTIES);
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
@@ -388,7 +376,8 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
         fs.mkdirs(new Path(splitsDir));
-        try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile), true)))) {
+        try (final BufferedWriter writer =
+                new BufferedWriter(new OutputStreamWriter(fs.create(new Path(splitsFile))))) {
             writer.write("1");
         }
 
@@ -427,6 +416,10 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
         return conf;
     }
 
+    private java.nio.file.Path Paths(java.nio.file.Path tempDir, String inputDir) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
         public TextMapperGeneratorImpl() {
             super(new ExampleGenerator());
@@ -443,13 +436,9 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest extends AbstractJobFactor
 
     @Override
     protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
-        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
+        super.configureStoreProperties(PROPERTIES, jsonSerialiserClass, jsonSerialiserModules, strictJson);
 
-        super.configureStoreProperties(properties, jsonSerialiserClass, jsonSerialiserModules, strictJson);
-
-        store.initialise("graphId", schema, properties);
+        store.initialise("graphId", SCHEMA, PROPERTIES);
 
         final JobConf localConf = createLocalConf();
         final FileSystem fileSystem = FileSystem.getLocal(localConf);

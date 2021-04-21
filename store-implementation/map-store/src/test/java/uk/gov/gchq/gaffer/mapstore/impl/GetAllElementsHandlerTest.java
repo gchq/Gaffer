@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -48,7 +48,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetAllElementsHandlerTest {
     static final String BASIC_ENTITY = "BasicEntity";
@@ -502,5 +502,12 @@ public class GetAllElementsHandlerTest {
                             .build());
                 });
         return elements;
+    }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new GetAllElements.Builder().build(),
+                VisibilityTest::elementIterableResultConsumer);
     }
 }

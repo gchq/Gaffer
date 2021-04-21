@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl.classic;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicEdgeDirectedUndirectedFilterIterator;
@@ -37,11 +37,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -109,10 +109,11 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         for (final Edge edge : EDGES) {
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
-            assertTrue("Failed for edge: " + edge.toString(), filter.accept(keys.getFirst(), value));
+            assertTrue(filter.accept(keys.getFirst(), value), "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
-                assertFalse("Failed for edge: " + edge.toString(), filter.accept(keys.getSecond(), value));
+                assertFalse(filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }
@@ -136,10 +137,12 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         for (final Edge edge : EDGES) {
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
-            assertEquals("Failed for edge: " + edge.toString(), edge.isDirected(), filter.accept(keys.getFirst(), value));
+            assertEquals(edge.isDirected(), filter.accept(keys.getFirst(), value),
+                    "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
-                assertFalse("Failed for edge: " + edge.toString(), filter.accept(keys.getSecond(), value));
+                assertFalse(filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }
@@ -163,10 +166,12 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         for (final Edge edge : EDGES) {
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
-            assertEquals("Failed for edge: " + edge.toString(), !edge.isDirected(), filter.accept(keys.getFirst(), value));
+            assertEquals(!edge.isDirected(), filter.accept(keys.getFirst(), value),
+                    "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
-                assertFalse("Failed for edge: " + edge.toString(), filter.accept(keys.getSecond(), value));
+                assertFalse(filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }
@@ -189,10 +194,12 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         for (final Edge edge : EDGES) {
             final boolean expectedResult = edge.isDirected();
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
-            assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
-                assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }
@@ -215,10 +222,12 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         for (final Edge edge : EDGES) {
             final boolean expectedResult = !edge.isDirected();
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
-            assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
-                assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }
@@ -241,11 +250,13 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (final Edge edge : EDGES) {
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
-            assertEquals("Failed for edge: " + edge.toString(), false, filter.accept(keys.getFirst(), value));
+            assertEquals(false, filter.accept(keys.getFirst(), value),
+                    "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
                 final boolean expectedResult = edge.isDirected();
-                assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getSecond(), value));
+                assertEquals(expectedResult, filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }
@@ -269,10 +280,12 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         for (final Edge edge : EDGES) {
             final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             final boolean expectedResult = edge.isDirected();
-            assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
+            assertEquals(expectedResult, filter.accept(keys.getFirst(), value),
+                    "Failed for edge: " + edge.toString());
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
-                assertEquals("Failed for edge: " + edge.toString(), false, filter.accept(keys.getSecond(), value));
+                assertEquals(false, filter.accept(keys.getSecond(), value),
+                        "Failed for edge: " + edge.toString());
             }
         }
     }

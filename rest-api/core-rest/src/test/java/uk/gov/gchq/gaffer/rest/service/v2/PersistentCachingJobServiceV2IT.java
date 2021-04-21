@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jobtracker.Job;
@@ -45,8 +45,8 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PersistentCachingJobServiceV2IT extends AbstractRestApiV2IT {
 
@@ -57,7 +57,7 @@ public class PersistentCachingJobServiceV2IT extends AbstractRestApiV2IT {
         super(StreamUtil.SCHEMA, STORE_PROPERTIES_RESOURCE_PATH);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
 
         clearDiskCacheFiles();
@@ -79,7 +79,6 @@ public class PersistentCachingJobServiceV2IT extends AbstractRestApiV2IT {
 
     @Test
     public void shouldKeepScheduledJobsRunningAfterRestart() throws IOException {
-
         final long initialDelay = 1;
         final long repeatPeriod = 1;
         final long sleepPeriod = 5;
@@ -95,7 +94,7 @@ public class PersistentCachingJobServiceV2IT extends AbstractRestApiV2IT {
 
         display(allJobDetails);
 
-        // then - assert job has status of SCHEDULED_PARENT
+        // Then - assert job has status of SCHEDULED_PARENT
         assertEquals(JobStatus.SCHEDULED_PARENT,
                 allJobDetails.stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId1)).findFirst().get().getStatus());
         assertEquals(JobStatus.SCHEDULED_PARENT,
@@ -127,7 +126,7 @@ public class PersistentCachingJobServiceV2IT extends AbstractRestApiV2IT {
         final long job1RunCountAfterSleep = allJobDetailsAfterSleep.stream().filter(jobDetail -> parentJobId1.equals(jobDetail.getParentJobId())).count();
         final long job2RunCountAfterSleep = allJobDetailsAfterSleep.stream().filter(jobDetail -> parentJobId2.equals(jobDetail.getParentJobId())).count();
 
-        // then - assert parent is of Scheduled parent still
+        // Then - assert parent is of Scheduled parent still
         assertEquals(JobStatus.SCHEDULED_PARENT,
                 getAllJobDetails().stream().filter(jobDetail -> jobDetail.getJobId().equals(parentJobId1)).findFirst().get().getStatus());
         assertEquals(JobStatus.SCHEDULED_PARENT,

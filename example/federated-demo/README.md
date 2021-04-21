@@ -37,8 +37,7 @@ To add a Map graph, execute this operation (or run addMapEdgesGraph.sh):
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
     "graphId": "mapEdges",
     "storeProperties": {
-      "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore",
-      "gaffer.store.mapstore.static":true
+      "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
     },
     "schema": {
          "edges": {
@@ -78,18 +77,14 @@ To add a Map graph, execute this operation (or run addMapEdgesGraph.sh):
 }
 ```
 
-And to add an Accumulo graph execute this (or run addAccumuloEntitiesGraph.sh):
+And to add a second Map graph execute this (or run addMapEntitiesGraph.sh):
 
 ```json
 {
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
-    "graphId": "accEntities",
+    "graphId": "mapEntities",
     "storeProperties": {
-         "gaffer.store.class":"uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
-         "accumulo.instance":"someInstanceName",
-         "accumulo.zookeepers":"aZookeeper",
-         "accumulo.user":"user01",
-         "accumulo.password":"password"
+       "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
     },
     "schema": {
        "entities": {
@@ -140,7 +135,7 @@ To add some example data execute this json in /graph/operations/execute (or run 
      "class" : "uk.gov.gchq.gaffer.data.element.Edge"
     } ],
      "options": {
-      "gaffer.federatedstore.operation.graphIds": "accEntities,mapEdges"
+      "gaffer.federatedstore.operation.graphIds": "mapEntities,mapEdges"
       }
 }
 ```

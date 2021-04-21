@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.graph;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -35,17 +34,16 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
 
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
@@ -66,10 +64,10 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     }
 
     @Test
-    public void shouldJsonDeserialiseFromHookPaths() throws IOException {
+    public void shouldJsonDeserialiseFromHookPaths(@TempDir Path tmpDir) throws IOException {
         // Given
-        final File hook1Path = folder.newFile();
-        final File hook2Path = folder.newFile();
+        final File hook1Path = tmpDir.resolve("hook1Path").toFile();
+        final File hook2Path = tmpDir.resolve("hook2Path").toFile();
         FileUtils.write(hook1Path, "{\"class\": \"" + Log4jLogger.class.getName() + "\"}");
         FileUtils.write(hook2Path, "{\"class\": \"" + AddOperationsToChain.class.getName() + "\"}");
         final String json = "{" +

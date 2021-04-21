@@ -49,7 +49,7 @@ public class NamedViewResolver implements GraphHook {
 
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        resolveViews(opChain);
+        resolveViews(opChain, context);
     }
 
     @Override
@@ -62,26 +62,26 @@ public class NamedViewResolver implements GraphHook {
         return result;
     }
 
-    private void resolveViews(final Operations<?> operations) {
+    private void resolveViews(final Operations<?> operations, final Context context) {
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof OperationView) {
                 final OperationView opView = ((OperationView) operation);
                 if (opView.getView() instanceof NamedView) {
-                    opView.setView(resolveView((NamedView) opView.getView()));
+                    opView.setView(resolveView((NamedView) opView.getView(), context));
                 }
             } else if (operation instanceof Operations) {
-                resolveViews((Operations<?>) operation);
+                resolveViews((Operations<?>) operation, context);
             }
         }
     }
 
-    private View resolveView(final NamedView namedView) {
-        View resolvedView = resolveView(namedView.getName(), namedView.getParameters());
+    private View resolveView(final NamedView namedView, final Context context) {
+        View resolvedView = resolveView(namedView.getName(), namedView.getParameters(), context);
         if (CollectionUtils.isNotEmpty(namedView.getMergedNamedViewNames())) {
             final View.Builder viewBuilder = new View.Builder();
             viewBuilder.merge(resolvedView);
             for (final String name : namedView.getMergedNamedViewNames()) {
-                viewBuilder.merge(resolveView(name, namedView.getParameters()));
+                viewBuilder.merge(resolveView(name, namedView.getParameters(), context));
             }
             resolvedView = viewBuilder.build();
         }
@@ -93,10 +93,10 @@ public class NamedViewResolver implements GraphHook {
                 .build();
     }
 
-    private View resolveView(final String namedViewName, final Map<String, Object> parameters) {
+    private View resolveView(final String namedViewName, final Map<String, Object> parameters, final Context context) {
         final NamedViewDetail cachedNamedView;
         try {
-            cachedNamedView = cache.getNamedView(namedViewName);
+            cachedNamedView = cache.getNamedView(namedViewName, context.getUser());
         } catch (final CacheOperationFailedException e) {
             throw new RuntimeException(e);
         }
@@ -112,7 +112,7 @@ public class NamedViewResolver implements GraphHook {
                     final View.Builder viewBuilder = new View.Builder();
                     viewBuilder.merge(resolvedView);
                     for (final String name : ((NamedView) resolvedView).getMergedNamedViewNames()) {
-                        viewBuilder.merge(resolveView(name, parameters));
+                        viewBuilder.merge(resolveView(name, parameters, context));
                     }
                     resolvedView = viewBuilder.build();
                 }

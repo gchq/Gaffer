@@ -16,14 +16,14 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ReservoirNumbersSketchSerialiserTest {
     private static final ReservoirNumbersSketchSerialiser SERIALISER = new ReservoirNumbersSketchSerialiser();

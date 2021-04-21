@@ -65,7 +65,14 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         }
 
         try {
-            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), operation.isDisabledByDefault(), graphSerialisable);
+            ((FederatedStore) store).addGraphs(
+                    operation.getGraphAuths(),
+                    context.getUser().getUserId(),
+                    operation.getIsPublic(),
+                    operation.isDisabledByDefault(),
+                    operation.getReadAccessPredicate(),
+                    operation.getWriteAccessPredicate(),
+                    graphSerialisable);
         } catch (final StorageException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (final Exception e) {

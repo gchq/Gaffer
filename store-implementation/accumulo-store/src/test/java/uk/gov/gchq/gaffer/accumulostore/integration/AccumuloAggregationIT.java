@@ -60,6 +60,9 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     private final User user = getUser();
 
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+
+
     @Test
     public void shouldOnlyAggregateVisibilityWhenGroupByIsNull() throws Exception {
         final Graph graph = createGraph();
@@ -691,6 +694,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
 
     @Override
     public StoreProperties createStoreProperties() {
-        return AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+        return PROPERTIES;
     }
 }

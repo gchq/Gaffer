@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -26,9 +26,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElementEqualityTest {
 
@@ -41,10 +41,9 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.SET, CollectionUtil.treeSet("3"))
                 .property(TestPropertyNames.COUNT, 3L)
                 .build();
-
         final Entity testEntity2 = testEntity1.shallowClone();
 
-        ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
+        final ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
 
         // When / Then
         assertTrue(elementJoinComparator.test(testEntity1, testEntity2));
@@ -52,9 +51,7 @@ public class ElementEqualityTest {
 
     @Test
     public void shouldStaySameWithUpdatedSet() {
-        // Given
         final Set<String> groupBys = Sets.newHashSet("one", "two");
-
         final ElementJoinComparator elementJoinComparator = new ElementJoinComparator(groupBys);
 
         groupBys.remove("two");
@@ -79,7 +76,7 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.COUNT, 5L)
                 .build();
 
-        ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
+        final ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
 
         // When / Then
         assertTrue(elementJoinComparator.test(testEntity1, testEntity2));
@@ -102,7 +99,7 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.COUNT, 3L)
                 .build();
 
-        ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
+        final ElementJoinComparator elementJoinComparator = new ElementJoinComparator();
 
         // When / Then
         assertFalse(elementJoinComparator.test(testEntity1, testEntity2));
@@ -125,7 +122,7 @@ public class ElementEqualityTest {
                 .property(TestPropertyNames.COUNT, 5L)
                 .build();
 
-        ElementJoinComparator elementJoinComparator = new ElementJoinComparator("count");
+        final ElementJoinComparator elementJoinComparator = new ElementJoinComparator("count");
 
         // When / Then
         assertFalse(elementJoinComparator.test(testEntity1, testEntity2));

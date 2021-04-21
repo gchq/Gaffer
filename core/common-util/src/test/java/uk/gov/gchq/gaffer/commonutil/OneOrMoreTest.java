@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,66 +25,54 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OneOrMoreTest {
 
     @Test
     public void shouldDeduplicateByDefault() {
-        // Given
         final OneOrMore<Integer> collection = new OneOrMore<>();
 
-        // When
         collection.add(1);
         collection.add(1);
 
-        // Then
         assertEquals(1, collection.size());
         assertEquals(1, (int) collection.iterator().next());
     }
 
     @Test
     public void shouldAddItemInConstructor() {
-        // Given
         final boolean deduplicate = false;
 
-        // When
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
-        // Then
         assertEquals(1, collection.size());
         assertEquals(1, (int) collection.iterator().next());
     }
 
     @Test
     public void shouldRemoveAnyItem() {
-        // Given
         final boolean deduplicate = true;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
-        // When
         collection.removeAnyItem();
 
-        // Then
         assertTrue(collection.isEmpty());
         assertEquals(0, collection.size());
     }
 
     @Test
     public void shouldRemoveLastItemInList() {
-        // Given
         final boolean deduplicate = false;
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
         collection.add(2);
         collection.add(3);
 
-        // When
         collection.removeAnyItem();
 
-        // Then
         assertEquals(2, collection.size());
         assertEquals(Arrays.asList(1, 2), Lists.newArrayList(collection));
     }
@@ -191,7 +179,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldBeEqual() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
 
@@ -201,7 +188,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldBeEqualWithDeduplicate() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
@@ -211,7 +197,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldBeEqualWithMultipleValues() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         collection1.add(2);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
@@ -223,7 +208,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldBeEqualWithMultipleValuesWithDeduplicate() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
         collection1.add(2);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
@@ -235,7 +219,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldNotBeEqual() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 2);
 
@@ -245,7 +228,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldNotBeEqualWhenDeduplicateDifferent() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
@@ -255,7 +237,6 @@ public class OneOrMoreTest {
 
     @Test
     public void shouldNotBeEqualWithMultipleValues() {
-        // Given
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         collection1.add(2);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);

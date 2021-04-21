@@ -16,55 +16,41 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ViewParameterDetailTest {
 
-    private static final String EXCEPTION_EXPECTED = "Exception expected";
-
     @Test
     public void shouldBuildFullViewParameterDetail() {
-        // When
-        new ViewParameterDetail.Builder()
+        assertDoesNotThrow(() -> new ViewParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
                 .description("test ParamDetail")
                 .required(false)
-                .build();
-
-        // Then - No exceptions
+                .build());
     }
 
     @Test
     public void shouldThrowExceptionWhenDefaultAndRequiredIsSet() {
-        // When / Then
-        try {
-            new ViewParameterDetail.Builder()
-                    .defaultValue(2L)
-                    .valueClass(Long.class)
-                    .description("test ParamDetail")
-                    .required(true)
-                    .build();
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("required is true but a default value has been provided"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new ViewParameterDetail.Builder()
+                .defaultValue(2L)
+                .valueClass(Long.class)
+                .description("test ParamDetail")
+                .required(true)
+                .build());
+        assertEquals("required is true but a default value has been provided", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionWithNoClassSet() {
-        // When / Then
-        try {
-            new ViewParameterDetail.Builder()
-                    .defaultValue(2L)
-                    .description("test paramDetail")
-                    .build();
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("class must not be empty"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new ViewParameterDetail.Builder()
+                .defaultValue(2L)
+                .description("test paramDetail")
+                .build());
+        assertEquals("class must not be empty", exception.getMessage());
     }
 }

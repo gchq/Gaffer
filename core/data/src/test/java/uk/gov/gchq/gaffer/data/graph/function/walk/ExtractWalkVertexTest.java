@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ExtractWalkVertexTest {
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
@@ -38,7 +38,6 @@ public class ExtractWalkVertexTest {
 
     @Test
     public void shouldReturnVertexFromWalkObject() {
-        // Given
         final Function<Walk, Object> function = new ExtractWalkVertex();
         final Walk walk = new Walk.Builder()
                 .entity(ENTITY_A)
@@ -50,24 +49,16 @@ public class ExtractWalkVertexTest {
                 .entity(ENTITY_A)
                 .build();
 
-        // When
         final Object result = function.apply(walk);
 
-        // Then
         assertEquals("A", result);
     }
 
     @Test
-    public void shouldThrowIAEForNullInput() {
-        // Given
+    public void shouldThrowIAEForNullWalkInput() {
         final Function<Walk, Object> function = new ExtractWalkVertex();
-        final Walk walk = null;
 
-        // When / Then
-        try {
-            function.apply(walk);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Walk cannot be null"));
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> function.apply(null));
+        assertEquals("Walk cannot be null", exception.getMessage());
     }
 }

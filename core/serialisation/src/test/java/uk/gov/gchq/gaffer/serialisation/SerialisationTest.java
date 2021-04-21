@@ -16,14 +16,14 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class SerialisationTest<INPUT, OUTPUT> {
     protected final Serialiser<INPUT, OUTPUT> serialiser;
@@ -36,12 +36,12 @@ public abstract class SerialisationTest<INPUT, OUTPUT> {
 
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
-        assertNotNull("historicSerialisationPairs should not be null.", historicSerialisationPairs);
-        assertNotEquals("historicSerialisationPairs should not be empty.", 0, historicSerialisationPairs.length);
+        assertNotNull(historicSerialisationPairs, "historicSerialisationPairs should not be null.");
+        assertNotEquals(0, historicSerialisationPairs.length, "historicSerialisationPairs should not be empty.");
         for (final Pair<INPUT, OUTPUT> pair : historicSerialisationPairs) {
-            assertNotNull("historicSerialisationPairs first value should not be null", pair.getFirst());
+            assertNotNull(pair.getFirst(), "historicSerialisationPairs first value should not be null");
             serialiseFirst(pair);
-            assertNotNull("historicSerialisationPairs second value should not be null", pair.getSecond());
+            assertNotNull(pair.getSecond(), "historicSerialisationPairs second value should not be null");
             deserialiseSecond(pair);
         }
     }

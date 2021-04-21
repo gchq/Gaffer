@@ -17,13 +17,13 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.dat
 
 import com.yahoo.sketches.theta.SetOperation;
 import com.yahoo.sketches.theta.Union;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UnionConverterTest {
     private static final double DELTA = 0.0000000001;

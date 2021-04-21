@@ -52,7 +52,7 @@ public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNam
     @Override
     public CloseableIterable<NamedViewDetail> doOperation(final GetAllNamedViews operation, final Context context, final Store store) throws OperationException {
         try {
-            return cache.getAllNamedViews();
+            return cache.getAllNamedViews(context.getUser());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

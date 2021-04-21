@@ -24,11 +24,9 @@ import org.apache.parquet.format.converter.ParquetMetadataConverter;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.hadoop.metadata.BlockMetaData;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -52,25 +50,24 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class ParquetStoreTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private static final String VERTEX = "vertex";
     private final Schema schema = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -154,9 +151,10 @@ public class ParquetStoreTest {
     }
 
     @Test
-    public void shouldFailSettingSnapshotWhenSnapshotNotExists() throws IOException {
+    public void shouldFailSettingSnapshotWhenSnapshotNotExists(@TempDir java.nio.file.Path tempDir)
+            throws IOException {
         //Given
-        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        final ParquetStoreProperties properties = getParquetStoreProperties(tempDir);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
 
@@ -172,12 +170,13 @@ public class ParquetStoreTest {
     }
 
     @Test
-    public void shouldNotFailSettingSnapshotWhenSnapshotExists() throws IOException {
+    public void shouldNotFailSettingSnapshotWhenSnapshotExists(@TempDir java.nio.file.Path tempDir)
+            throws IOException {
         //Given
-        final ParquetStoreProperties properties = getParquetStoreProperties(testFolder);
+        final ParquetStoreProperties properties = getParquetStoreProperties(tempDir);
         ParquetStore store = (ParquetStore)
                 ParquetStore.createStore("G", TestUtils.gafferSchema("schemaUsingStringVertexType"), properties);
-        testFolder.newFolder("data", ParquetStore.getSnapshotPath(12345L));
+        Files.createDirectories(tempDir.resolve("data").resolve(ParquetStore.getSnapshotPath(12345L)));
 
         // When / Then
         try {
@@ -188,32 +187,36 @@ public class ParquetStoreTest {
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenAddingASingleEdgeWithGroupNotInSchema() throws Exception {
-        getGraph().execute(new AddElements.Builder()
+    public void shouldNotThrowExceptionWhenAddingASingleEdgeWithGroupNotInSchema(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
+        getGraph(tempDir).execute(new AddElements.Builder()
                         .input(unknownEdge)
                         .build(),
                 new User());
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenAddingASingleEntityWithGroupNotInSchema() throws Exception {
-        getGraph().execute(new AddElements.Builder()
+    public void shouldNotThrowExceptionWhenAddingASingleEntityWithGroupNotInSchema(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
+        getGraph(tempDir).execute(new AddElements.Builder()
                         .input(unknownEntity)
                         .build(),
                 new User());
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenAddingAMultipleElementsWithGroupsNotInSchema() throws Exception {
-        getGraph().execute(new AddElements.Builder()
+    public void shouldNotThrowExceptionWhenAddingAMultipleElementsWithGroupsNotInSchema(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
+        getGraph(tempDir).execute(new AddElements.Builder()
                         .input(unknownEntity, unknownEdge)
                         .build(),
                 new User());
     }
 
     @Test
-    public void shouldAddElementWhenAddingBothValidAndInvalidElementsWithoutException() throws Exception {
-        final Graph graph = getGraph();
+    public void shouldAddElementWhenAddingBothValidAndInvalidElementsWithoutException(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
+        final Graph graph = getGraph(tempDir);
         graph.execute(new AddElements.Builder()
                         .input(knownEntity, unknownEntity)
                         .build(),
@@ -229,7 +232,8 @@ public class ParquetStoreTest {
     }
 
     @Test
-    public void shouldCorrectlyUseCompressionOption() throws Exception {
+    public void shouldCorrectlyUseCompressionOption(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
         for (final String compressionType : Sets.newHashSet("GZIP", "SNAPPY", "UNCOMPRESSED")) {
             // Given
             final Schema schema = new Schema.Builder()
@@ -256,9 +260,10 @@ public class ParquetStoreTest {
                             .build())
                     .vertexSerialiser(new StringParquetSerialiser())
                     .build();
-            final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(testFolder);
+            final ParquetStoreProperties parquetStoreProperties = TestUtils.getParquetStoreProperties(tempDir);
             parquetStoreProperties.setCompressionCodecName(compressionType);
-            final ParquetStore parquetStore = (ParquetStore) ParquetStore.createStore("graphId", schema, parquetStoreProperties);
+            final ParquetStore parquetStore =
+                    (ParquetStore) ParquetStore.createStore("graphId", schema, parquetStoreProperties);
             final List<Element> elements = new ArrayList<>();
             elements.add(new Entity.Builder()
                     .group("entity")
@@ -288,10 +293,10 @@ public class ParquetStoreTest {
         }
     }
 
-    private Graph getGraph() throws IOException {
+    private Graph getGraph(final java.nio.file.Path tempDir) throws IOException {
         return new Graph.Builder()
                 .addSchema(schema)
-                .storeProperties(getParquetStoreProperties(testFolder))
+                .storeProperties(getParquetStoreProperties(tempDir))
                 .config(new GraphConfig.Builder().graphId("testGraphId").build())
                 .build();
     }

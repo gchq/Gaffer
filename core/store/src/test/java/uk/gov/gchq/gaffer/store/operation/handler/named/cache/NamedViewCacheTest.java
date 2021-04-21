@@ -18,10 +18,9 @@ package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -38,9 +37,9 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NamedViewCacheTest {
     private static NamedViewCache cache;
@@ -72,7 +71,7 @@ public class NamedViewCacheTest {
             .view(alternativeView)
             .build();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
@@ -80,7 +79,7 @@ public class NamedViewCacheTest {
         cache = new NamedViewCache();
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationFailedException {
         cache.clearCache();
     }
@@ -107,7 +106,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException {
         try {
-            cache.deleteNamedView(null);
+            cache.deleteNamedView(null, standardUser);
             fail(EXCEPTION_EXPECTED);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
@@ -117,7 +116,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationFailedException {
         try {
-            cache.getNamedView(null);
+            cache.getNamedView(null, standardUser);
             fail(EXCEPTION_EXPECTED);
         } catch (CacheOperationFailedException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
@@ -127,12 +126,12 @@ public class NamedViewCacheTest {
     @Test
     public void shouldRemoveNamedView() throws CacheOperationFailedException {
         cache.addNamedView(standard, false);
-        cache.deleteNamedView(standard.getName());
+        cache.deleteNamedView(standard.getName(), standardUser);
     }
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() throws CacheOperationFailedException {
-        CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews();
+        CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews(standardUser);
         assertEquals(0, Iterables.size(views));
     }
 
@@ -153,7 +152,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
         cache.addNamedView(new NamedViewDetail.Builder().name(STANDARD_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
-        Assert.assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
     }
 
     @Test

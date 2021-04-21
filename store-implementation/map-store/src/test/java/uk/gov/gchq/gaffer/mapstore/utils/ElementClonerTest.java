@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandlerTest;
 import uk.gov.gchq.gaffer.store.StoreException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ElementClonerTest {
 

@@ -35,10 +35,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
@@ -54,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class RFileReaderRddIT {
 
@@ -62,10 +61,7 @@ public class RFileReaderRddIT {
     private static int nextTableId;
     private static String tableName;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() {
         nextTableId++;
         tableName = "table" + nextTableId;
@@ -133,7 +129,6 @@ public class RFileReaderRddIT {
         assertEquals(1L, rdd.count());
     }
 
-    @Test(expected = RuntimeException.class)
     public void throwRTX_whenGetPartitionsForFileReaderWithInvalidTableName() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
@@ -145,13 +140,13 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // When
-        rdd.getPartitions();
+        RuntimeException thrown = assertThrows(RuntimeException.class, rdd::getPartitions);
 
         // Then
-        thrown.expectMessage("User user does not have access to table Invalid Table Name");
+        assertEquals("User user does not have access to table Invalid Table Name", thrown.getMessage());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRTX_whenRDDHasUserWithoutPermission() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
@@ -163,13 +158,13 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // When
-        rdd.getPartitions();
+        RuntimeException thrown = assertThrows(RuntimeException.class, rdd::getPartitions);
 
         // Then
-        thrown.expectMessage("User user2 does not have access to table " + tableName);
+        assertEquals("User user2 does not have access to table " + tableName, thrown.getMessage());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRTX_whenRDDHasIncorrectUser() throws IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException {
@@ -180,23 +175,23 @@ public class RFileReaderRddIT {
                 new HashSet<>(), serialiseConfiguration(config));
 
         // When
-        rdd.getPartitions();
+        RuntimeException thrown = assertThrows(RuntimeException.class, rdd::getPartitions);
 
         // Then
-        thrown.expectMessage("Exception connecting to Accumulo");
+        assertEquals("Exception connecting to Accumulo", thrown.getMessage());
     }
 
-    private MiniAccumuloCluster createAccumuloCluster(final String clusterName, final Configuration configuration, final List<String> data)
+    private MiniAccumuloCluster createAccumuloCluster(final String tableName, final Configuration configuration, final List<String> data)
             throws InterruptedException, AccumuloException, AccumuloSecurityException, IOException,
             TableExistsException, TableNotFoundException {
 
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final Connector connector = cluster.getConnector(MiniAccumuloClusterProvider.USER,
                 MiniAccumuloClusterProvider.PASSWORD);
-        connector.tableOperations().create(clusterName);
+        connector.tableOperations().create(tableName);
 
         // Add data
-        final BatchWriter bw = connector.createBatchWriter(clusterName, new BatchWriterConfig());
+        final BatchWriter bw = connector.createBatchWriter(tableName, new BatchWriterConfig());
         for (int i = 0; i < data.size(); i++) {
             final Mutation m = new Mutation("row" + i);
             m.put("CF", "CQ", data.get(i));
@@ -205,7 +200,7 @@ public class RFileReaderRddIT {
         bw.close();
 
         // Compact to ensure an RFile is created, sleep to give it a little time to do it
-        connector.tableOperations().compact(clusterName, new CompactionConfig());
+        connector.tableOperations().compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
 
         InputConfigurator.fetchColumns(AccumuloInputFormat.class, configuration,

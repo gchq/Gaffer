@@ -16,8 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,17 +25,13 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
+
     private HyperLogLogPlus hyperLogLogPlus1;
     private HyperLogLogPlus hyperLogLogPlus2;
-
-    @Before
-    public void setup() {
-        setupHllp(5, 5);
-    }
 
     @Test
     public void shouldAggregateHyperLogLogPlusWithVariousPAndSpValues() {
@@ -90,6 +85,11 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     @Override
     protected HyperLogLogPlusAggregator getInstance() {
         return new HyperLogLogPlusAggregator();
+    }
+
+    @Override
+    protected Iterable<HyperLogLogPlusAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 
     private void setupHllp(final int p, final int sp) {

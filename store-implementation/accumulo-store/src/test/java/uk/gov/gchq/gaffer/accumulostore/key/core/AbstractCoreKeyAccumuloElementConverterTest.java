@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import com.google.common.primitives.Bytes;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.io.ByteArrayOutputStream;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractCoreKeyAccumuloElementConverterTest extends AbstractAccumuloElementConverterTest<AbstractCoreKeyAccumuloElementConverter> {
 

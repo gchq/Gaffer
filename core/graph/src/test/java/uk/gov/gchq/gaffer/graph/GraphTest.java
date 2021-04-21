@@ -21,15 +21,13 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -37,6 +35,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
@@ -92,6 +91,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,18 +104,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -124,12 +124,13 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GraphTest {
+
     private static final String GRAPH_ID = "graphId";
     public static final String SCHEMA_ID_1 = "schemaId1";
     public static final String STORE_PROPERTIES_ID_1 = "storePropertiesId1";
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    Path tempDir;
 
     private User user;
     private Context context;
@@ -139,7 +140,7 @@ public class GraphTest {
     private OperationChain clonedOpChain;
     private GetElements operation;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         HashMapGraphLibrary.clear();
         TestStore.mockStore = mock(TestStore.class);
@@ -219,7 +220,6 @@ public class GraphTest {
                         .build())
                 .type(DIRECTED_EITHER, Boolean.class)
                 .build();
-
 
         // When
         final Graph graph = new Graph.Builder()
@@ -964,7 +964,6 @@ public class GraphTest {
                 .store(store)
                 .build();
 
-
         // When
         final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
         given(store.getTraits()).willReturn(storeTraits);
@@ -1231,7 +1230,7 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
-        //When / Then
+        // When / Then
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1254,7 +1253,7 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
-        //When / Then
+        // When / Then
         try {
             new Graph.Builder()
                     .config(new GraphConfig.Builder()
@@ -1268,10 +1267,9 @@ public class GraphTest {
     }
 
     private File createSchemaDirectory() throws IOException {
-        final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
-        writeToFile("elements.json", tmpDir);
-        writeToFile("types.json", tmpDir);
-        return tmpDir;
+        writeToFile("elements.json", tempDir.toFile());
+        writeToFile("types.json", tempDir.toFile());
+        return tempDir.toFile();
     }
 
     private void writeToFile(final String schemaFile, final File dir) throws IOException {
@@ -1355,7 +1353,6 @@ public class GraphTest {
                         .build())
                 .type(DIRECTED_EITHER, Boolean.class)
                 .build();
-
 
         // When
         final Graph graph = new Graph.Builder()
@@ -1460,7 +1457,7 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
-        final File graphHooks = tempFolder.newFile("graphHooks.json");
+        final File graphHooks = tempDir.resolve("graphHooks.json").toFile();
         FileUtils.writeLines(graphHooks, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
 
         // When
@@ -1476,8 +1473,7 @@ public class GraphTest {
         // Then
         assertEquals(
                 Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, OperationAuthoriser.class, FunctionAuthoriser.class),
-                graph.getGraphHooks()
-        );
+                graph.getGraphHooks());
     }
 
     @Test
@@ -1486,10 +1482,10 @@ public class GraphTest {
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
-        final File graphHook1File = tempFolder.newFile("opChainLimiter.json");
+        final File graphHook1File = tempDir.resolve("opChainLimiter.json").toFile();
         FileUtils.writeLines(graphHook1File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opChainLimiter.json")));
 
-        final File graphHook2File = tempFolder.newFile("opAuthoriser.json");
+        final File graphHook2File = tempDir.resolve("opAuthoriser.json").toFile();
         FileUtils.writeLines(graphHook2File, IOUtils.readLines(StreamUtil.openStream(getClass(), "opAuthoriser.json")));
 
         // When
@@ -1528,8 +1524,7 @@ public class GraphTest {
                         .build())
                 .build(), graph.getView());
         assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
-        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, FunctionAuthoriser.class),
-                graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedViewResolver.class, OperationChainLimiter.class, AddOperationsToChain.class, FunctionAuthoriser.class), graph.getGraphHooks());
     }
 
     @Test
@@ -1803,8 +1798,7 @@ public class GraphTest {
                                 .build())
                         .type(DIRECTED_EITHER, Boolean.class)
                         .build())
-                .store(store)
-                .build();
+                .store(store).build();
         final User user = new User();
         final Context context = new Context(user);
 
@@ -2058,7 +2052,8 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook() throws OperationException {
+    public void shouldManipulateViewRemovingBlacklistedEdgeLeavingEmptyViewUsingUpdateViewHook()
+            throws OperationException {
         // Given
         operation = new GetElements.Builder()
                 .view(new View.Builder()
@@ -2133,7 +2128,7 @@ public class GraphTest {
         given(store.getSchema()).willReturn(new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
-        .build());
+                .build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -2165,7 +2160,8 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook() throws OperationException {
+    public void shouldFillSchemaViewAndManipulateViewRemovingBlacklistedEdgeUsingUpdateViewHook()
+            throws OperationException {
         // Given
         operation = new GetElements.Builder()
                 .build();
@@ -2227,7 +2223,8 @@ public class GraphTest {
 
         final Store store = mock(Store.class);
 
-        given(store.getSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE_5, new SchemaEdgeDefinition()).edge(TestGroups.EDGE, new SchemaEdgeDefinition()).build());
+        given(store.getSchema()).willReturn(new Schema.Builder().edge(TestGroups.EDGE_5, new SchemaEdgeDefinition())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition()).build());
         given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
@@ -2297,8 +2294,7 @@ public class GraphTest {
 
         final List<Operation> ops = captor.getValue().getOperations();
 
-        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(),
-                ((GetElements) ops.get(0)).getView().toCompactJson());
+        JsonAssert.assertEquals(new View.Builder().edge(TestGroups.EDGE_5).edge(TestGroups.EDGE_4).build().toCompactJson(), ((GetElements) ops.get(0)).getView().toCompactJson());
     }
 
     @Test
@@ -2433,6 +2429,276 @@ public class GraphTest {
         // Then
         assertEquals(Arrays.asList(NamedOperationResolver.class, NamedViewResolver.class, FunctionAuthoriser.class), graph.getGraphHooks());
         assertEquals(Identity.class, ((FunctionAuthoriser) graph.getConfig().getHooks().get(2)).getUnauthorisedFunctions().get(0));
+    }
+
+    @Test
+    public void shouldExpandGlobalEdges() throws OperationException {
+
+        final Schema twoEdgesNoEntities = new Schema.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("vertex", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge("firstEdge",
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                                .aggregate(false)
+                                .source("vertex")
+                                .destination("vertex").directed(DIRECTED_EITHER)
+                                .build())
+                .edge("secondEdge",
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                                .aggregate(false)
+                                .source("vertex")
+                                .destination("vertex")
+                                .directed(DIRECTED_EITHER)
+                                .build())
+                .build();
+
+        final Store store = mock(Store.class);
+        final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
+
+        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getProperties()).willReturn(mock(StoreProperties.class));
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(twoEdgesNoEntities)
+                .build();
+
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
+                .postAggregationFilter(filter)
+                .build();
+        final View view = new View.Builder()
+                .globalEdges(globalEdgeAggregate)
+                .build();
+
+        operation = new GetElements.Builder()
+                .view(view)
+                .build();
+        opChain = new OperationChain.Builder()
+                .first(operation)
+                .build();
+
+        graph.execute(opChain, context);
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+
+        assertEquals(1, capturedOperation.getAllValues().size());
+        final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
+
+        assertEquals(1, transformedOpChain.getOperations().size());
+        assertEquals(GetElements.class, transformedOpChain.getOperations().get(0).getClass());
+        final View mergedView = ((GetElements) transformedOpChain.getOperations().get(0)).getView();
+        assertTrue(mergedView.getGlobalEdges() == null || mergedView.getGlobalEdges().size() == 0);
+        assertEquals(2, mergedView.getEdges().size());
+        for (final Map.Entry<String, ViewElementDefinition> e : mergedView.getEdges().entrySet()) {
+            assertNotNull(e.getValue().getPostAggregationFilter());
+        }
+
+    }
+
+    @Test
+    public void shouldExpandAllEdges() throws OperationException {
+        final Schema twoEdgesNoEntities = new Schema.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("vertex", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge("firstEdge",
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                                .aggregate(false)
+                                .source("vertex")
+                                .destination("vertex").directed(DIRECTED_EITHER)
+                                .build())
+                .edge("secondEdge",
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                                .aggregate(false)
+                                .source("vertex")
+                                .destination("vertex")
+                                .directed(DIRECTED_EITHER)
+                                .build())
+                .build();
+
+        final Store store = mock(Store.class);
+        final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
+
+        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getProperties()).willReturn(mock(StoreProperties.class));
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(twoEdgesNoEntities)
+                .build();
+
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
+                .postAggregationFilter(filter)
+                .build();
+        final View view = new View.Builder()
+                .allEdges(true)
+                .build();
+
+        operation = new GetElements.Builder()
+                .view(view)
+                .build();
+        opChain = new OperationChain.Builder()
+                .first(operation)
+                .build();
+
+        graph.execute(opChain, context);
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+
+        assertEquals(1, capturedOperation.getAllValues().size());
+        final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
+
+        assertEquals(1, transformedOpChain.getOperations().size());
+        assertEquals(GetElements.class, transformedOpChain.getOperations().get(0).getClass());
+        final View mergedView = ((GetElements) transformedOpChain.getOperations().get(0)).getView();
+        assertTrue(mergedView.isAllEdges());
+        assertEquals(2, mergedView.getEdges().size());
+    }
+
+    @Test
+    public void preserveAllEntitiesIfNoEntitiesInSchema() throws OperationException {
+        final Schema twoEdgesNoEntities = new Schema.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("vertex", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge("firstEdge",
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                                .aggregate(false)
+                                .source("vertex")
+                                .destination("vertex").directed(DIRECTED_EITHER)
+                                .build())
+                .edge("secondEdge",
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                                .aggregate(false)
+                                .source("vertex")
+                                .destination("vertex")
+                                .directed(DIRECTED_EITHER)
+                                .build())
+                .build();
+
+        final Store store = mock(Store.class);
+        final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
+
+        given(store.getSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getOriginalSchema()).willReturn(twoEdgesNoEntities);
+        given(store.getProperties()).willReturn(mock(StoreProperties.class));
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(twoEdgesNoEntities)
+                .build();
+
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
+                .postAggregationFilter(filter)
+                .build();
+        final View view = new View.Builder()
+                .allEntities(true)
+                .build();
+
+        operation = new GetElements.Builder()
+                .view(view)
+                .build();
+        opChain = new OperationChain.Builder()
+                .first(operation)
+                .build();
+
+        graph.execute(opChain, context);
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+
+        assertEquals(1, capturedOperation.getAllValues().size());
+        final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
+
+        assertEquals(1, transformedOpChain.getOperations().size());
+        assertEquals(GetElements.class, transformedOpChain.getOperations().get(0).getClass());
+        final View mergedView = ((GetElements) transformedOpChain.getOperations().get(0)).getView();
+        assertTrue(mergedView.isAllEntities());
+        assertEquals(0, mergedView.getEntities().size());
+    }
+
+    @Test
+    public void shouldNotExpandGlobalEdgesWhereNotPresentInSchema() throws OperationException {
+        final Schema federatedStoreSchema = new Schema.Builder().build();
+
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(federatedStoreSchema);
+        given(store.getProperties()).willReturn(mock(StoreProperties.class));
+        final ArgumentCaptor<OperationChain> capturedOperation = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<Context> capturedContext = ArgumentCaptor.forClass(Context.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(federatedStoreSchema)
+                .build();
+
+        final ElementFilter filter = mock(ElementFilter.class);
+
+        final GlobalViewElementDefinition globalEdgeAggregate = new GlobalViewElementDefinition.Builder()
+                .postAggregationFilter(filter)
+                .build();
+        final View view = new View.Builder()
+                .globalEdges(globalEdgeAggregate)
+                .build();
+
+        operation = new GetElements.Builder()
+                .view(view)
+                .build();
+        opChain = new OperationChain.Builder()
+                .first(operation)
+                .build();
+
+        graph.execute(opChain, context);
+        Mockito.verify(store, Mockito.times(1)).execute(capturedOperation.capture(), capturedContext.capture());
+
+        assertEquals(1, capturedOperation.getAllValues().size());
+        final OperationChain transformedOpChain = capturedOperation.getAllValues().get(0);
+
+        assertEquals(1, transformedOpChain.getOperations().size());
+        assertEquals(GetElements.class, transformedOpChain.getOperations().get(0).getClass());
+        final View mergedView = ((GetElements) transformedOpChain.getOperations().get(0)).getView();
+        assertEquals(0, mergedView.getEdges().size());
+        assertEquals(1, mergedView.getGlobalEdges().size());
+        assertNotNull(mergedView.getGlobalEdges().get(0).getPostAggregationFilter());
+
     }
 
     public static class TestStoreImpl extends Store {

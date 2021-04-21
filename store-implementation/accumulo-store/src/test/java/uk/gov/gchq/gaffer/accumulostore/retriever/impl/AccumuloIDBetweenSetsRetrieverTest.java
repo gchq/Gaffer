@@ -20,14 +20,13 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -52,65 +51,57 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
-    private static View defaultView;
-    private static View edgeOnlyView;
-    private static View entityOnlyView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @BeforeClass
+    private static View defaultView;
+    private static View edgeOnlyView;
+    private static View entityOnlyView;
+
+    @BeforeAll
     public static void setup() throws StoreException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         edgeOnlyView = new View.Builder().edge(TestGroups.EDGE).build();
         entityOnlyView = new View.Builder().entity(TestGroups.ENTITY).build();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        setupGraph(BYTE_ENTITY_STORE);
+        setupGraph(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesInMemoryFromByteEntityStore() throws StoreException {
-        shouldGetCorrectEdges(true, byteEntityStore);
+        shouldGetCorrectEdges(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesInMemoryFromGaffer1Store() throws StoreException {
-        shouldGetCorrectEdges(true, gaffer1KeyStore);
+        shouldGetCorrectEdges(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesFromByteEntityStore() throws StoreException {
-        shouldGetCorrectEdges(false, byteEntityStore);
+        shouldGetCorrectEdges(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesFromGaffer1Store() throws StoreException {
-        shouldGetCorrectEdges(false, gaffer1KeyStore);
+        shouldGetCorrectEdges(false, GAFFER_1_KEY_STORE);
     }
 
 
@@ -151,12 +142,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     @Test
     public void shouldDealWithOutgoingEdgesOnlyOptionGaffer1KeyStore() {
-        shouldDealWithOutgoingEdgesOnlyOption(gaffer1KeyStore);
+        shouldDealWithOutgoingEdgesOnlyOption(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldDealWithOutgoingEdgesOnlyOptionByteEntityStore() {
-        shouldDealWithOutgoingEdgesOnlyOption(byteEntityStore);
+        shouldDealWithOutgoingEdgesOnlyOption(BYTE_ENTITY_STORE);
     }
 
     /**
@@ -210,22 +201,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryByteEntityStore() {
-        shouldDealWithDirectedEdgesOnlyOption(true, byteEntityStore);
+        shouldDealWithDirectedEdgesOnlyOption(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryGaffer1Store() {
-        shouldDealWithDirectedEdgesOnlyOption(true, gaffer1KeyStore);
+        shouldDealWithDirectedEdgesOnlyOption(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldDealWithDirectedEdgesOnlyByteEntityStore() {
-        shouldDealWithDirectedEdgesOnlyOption(false, byteEntityStore);
+        shouldDealWithDirectedEdgesOnlyOption(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithDirectedEdgesOnlyGaffer1Store() {
-        shouldDealWithDirectedEdgesOnlyOption(false, gaffer1KeyStore);
+        shouldDealWithDirectedEdgesOnlyOption(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) {
@@ -265,22 +256,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException {
-        shouldDealWithFalsePositives(true, byteEntityStore);
+        shouldDealWithFalsePositives(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithFalsePositivesInMemoryGaffer1Store() throws StoreException {
-        shouldDealWithFalsePositives(true, gaffer1KeyStore);
+        shouldDealWithFalsePositives(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldDealWithFalsePositivesByteEntityStore() throws StoreException {
-        shouldDealWithFalsePositives(false, byteEntityStore);
+        shouldDealWithFalsePositives(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithFalsePositivesGaffer1Store() throws StoreException {
-        shouldDealWithFalsePositives(false, gaffer1KeyStore);
+        shouldDealWithFalsePositives(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -359,22 +350,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void shouldOtherFilteringStillAppliedByteEntityStoreInMemoryEntities() throws StoreException {
-        shouldStillApplyOtherFilter(true, byteEntityStore);
+        shouldStillApplyOtherFilter(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldOtherFilteringStillAppliedGaffer1StoreInMemoryEntities() throws StoreException {
-        shouldStillApplyOtherFilter(true, gaffer1KeyStore);
+        shouldStillApplyOtherFilter(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldOtherFilteringStillAppliedByteEntityStore() throws StoreException {
-        shouldStillApplyOtherFilter(false, byteEntityStore);
+        shouldStillApplyOtherFilter(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldOtherFilteringStillAppliedGaffer1Store() throws StoreException {
-        shouldStillApplyOtherFilter(false, gaffer1KeyStore);
+        shouldStillApplyOtherFilter(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldStillApplyOtherFilter(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -409,22 +400,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerByteStoreInMemory() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, byteEntityStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerGaffer1StoreInMemory() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, gaffer1KeyStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerByteStore() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, byteEntityStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerGaffer1Store() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, gaffer1KeyStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, GAFFER_1_KEY_STORE);
     }
 
     private void shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -454,22 +445,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStoreInMemory() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(true, byteEntityStore);
+        testEdgesWithinSetAAreNotReturned(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStoreGaffer1StoreInMemory() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(true, gaffer1KeyStore);
+        testEdgesWithinSetAAreNotReturned(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStore() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(false, byteEntityStore);
+        testEdgesWithinSetAAreNotReturned(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStoreGaffer1Store() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(false, gaffer1KeyStore);
+        testEdgesWithinSetAAreNotReturned(false, GAFFER_1_KEY_STORE);
     }
 
     private void testEdgesWithinSetAAreNotReturned(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -482,13 +473,19 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsBetweenSets operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
-        final AccumuloRetriever<?, Element> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory, store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+        AccumuloRetriever<?, Element> retriever = null;
         final Set<Element> results = new HashSet<>();
-
-        for (final Element elm : retriever) {
-            results.add(elm);
+        try {
+            retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory,
+                    store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+            for (final Element elm : retriever) {
+                results.add(elm);
+            }
+        } finally {
+            if (retriever != null) {
+                retriever.close();
+            }
         }
-        retriever.close();
 
         return results;
     }

@@ -15,31 +15,34 @@
  */
 package uk.gov.gchq.gaffer.basic;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
-import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 public class SchemaIT {
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES =
+            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
+
     @Test
-    public void shouldCreateGraphWithSchemaAndProperties() throws IOException {
+    public void shouldCreateGraphWithSchemaAndProperties() {
         // Given
-        final InputStream storeProps = StreamUtil.openStream(getClass(), "/mockaccumulo.properties");
         final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);
 
-        // When
-        new Graph.Builder()
+        // When / Then
+        assertDoesNotThrow(() -> new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("basicGraph")
                         .build())
-                .storeProperties(storeProps)
+                .storeProperties(PROPERTIES)
                 .addSchemas(schema)
-                .build();
-
-        // Then - no exceptions thrown
+                .build());
     }
 }

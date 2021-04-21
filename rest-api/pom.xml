@@ -19,17 +19,19 @@
     <parent>
         <artifactId>gaffer2</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>1.12.1-SNAPSHOT</version>
+        <version>1.16.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>rest-api</artifactId>
     <packaging>pom</packaging>
 
     <modules>
+        <module>common-rest</module>
         <module>core-rest</module>
         <module>accumulo-rest</module>
         <module>hbase-rest</module>
         <module>parquet-rest</module>
         <module>map-rest</module>
+        <module>spring-rest</module>
     </modules>
 </project>

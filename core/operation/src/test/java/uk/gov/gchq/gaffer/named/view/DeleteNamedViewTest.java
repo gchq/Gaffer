@@ -16,17 +16,21 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
+
     private final String namedViewName = "testNamedViewName";
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given / When
@@ -36,6 +40,7 @@ public class DeleteNamedViewTest extends OperationTest<DeleteNamedView> {
         assertEquals(namedViewName, operation.getName());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

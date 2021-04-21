@@ -29,7 +29,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * provide a {@link org.apache.accumulo.core.client.Connector}.
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
+ *
+ * @deprecated Use the SingleUseMapStore for in memory graphs.
  */
+@Deprecated
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)

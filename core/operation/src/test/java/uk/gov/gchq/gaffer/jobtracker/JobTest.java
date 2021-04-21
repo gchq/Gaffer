@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -23,13 +23,13 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JobTest {
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        // given
+        // Given
         final String json = "{" +
                 "\"repeat\":{" +
                 "\"initialDelay\":20," +
@@ -41,17 +41,17 @@ public class JobTest {
                 "}" +
                 "}";
 
-        // when
+        // When
         final Job deserialised = JSONSerialiser.deserialise(json, Job.class);
 
-        // then
+        // Then
         Job expected = new Job(new Repeat(20L, 30L, TimeUnit.SECONDS), new GetAllElements());
         assertEquals(expected, deserialised);
 
-        // when
+        // When
         final String serialised = new String(JSONSerialiser.serialise(deserialised));
 
-        // then
+        // Then
         assertEquals(json, serialised);
     }
 }

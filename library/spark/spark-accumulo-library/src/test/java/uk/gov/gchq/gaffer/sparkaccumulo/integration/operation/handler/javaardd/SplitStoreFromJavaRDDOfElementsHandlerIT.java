@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -53,6 +53,10 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
 
     private List<Element> elements;
     private JavaRDD<Element> rdd;
+
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
+
 
     @Before
     public void setUp() {
@@ -103,11 +107,11 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     public void shouldCreateSplitPointsFromJavaRDD() throws Exception {
 
         final int tabletServerCount = 3;
-        final SingleUseMockAccumuloStoreWithTabletServers store = new SingleUseMockAccumuloStoreWithTabletServers(tabletServerCount);
+        final SingleUseAccumuloStoreWithTabletServers store = new SingleUseAccumuloStoreWithTabletServers(tabletServerCount);
         store.initialise(
                 GRAPH_ID,
                 Schema.fromJson(StreamUtil.openStreams(getClass(), "/schema-RDDSplitPointIntegrationTests/")),
-                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
+                PROPERTIES
         );
 
         final Graph graph = new Graph.Builder()
@@ -128,11 +132,11 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
         assertEquals("6A==", Base64.encodeBase64String(splitsOnTable.get(1).getBytes()));
     }
 
-    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
+    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
 
         private final List<String> tabletServers;
 
-        SingleUseMockAccumuloStoreWithTabletServers(final int size) {
+        SingleUseAccumuloStoreWithTabletServers(final int size) {
             this.tabletServers = IntStream.range(0, size).mapToObj(Integer::toString).collect(Collectors.toList());
         }
 

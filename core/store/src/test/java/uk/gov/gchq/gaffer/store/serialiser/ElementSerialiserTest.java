@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -29,18 +29,18 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElementSerialiserTest {
 
-    private Schema schema;
-    private ElementSerialiser elementSerialiser;
+    private static Schema schema;
+    private static ElementSerialiser serialiser;
     private static final String TEST_VERTEX = "testVertex";
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
         final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
@@ -51,7 +51,7 @@ public class ElementSerialiserTest {
                 .edge(TestGroups.EDGE, edgeDef)
                 .vertexSerialiser(new StringSerialiser())
                 .build();
-        elementSerialiser = new ElementSerialiser(schema);
+        serialiser = new ElementSerialiser(schema);
     }
 
     @Test
@@ -65,8 +65,8 @@ public class ElementSerialiserTest {
                 .build();
 
         // When
-        final byte[] serialisedEdge = elementSerialiser.serialise(edge);
-        final Element deserialisedElement = elementSerialiser.deserialise(serialisedEdge);
+        final byte[] serialisedEdge = serialiser.serialise(edge);
+        final Element deserialisedElement = serialiser.deserialise(serialisedEdge);
 
         // Then
         assertEquals(edge, deserialisedElement);
@@ -78,8 +78,8 @@ public class ElementSerialiserTest {
         final Entity entity = new Entity(TestGroups.ENTITY, TEST_VERTEX);
 
         // When
-        final byte[] serialisedEntity = elementSerialiser.serialise(entity);
-        final Element deserialisedEntity = elementSerialiser.deserialise(serialisedEntity);
+        final byte[] serialisedEntity = serialiser.serialise(entity);
+        final Element deserialisedEntity = serialiser.deserialise(serialisedEntity);
 
         // Then
         assertEquals(entity, deserialisedEntity);
@@ -95,29 +95,29 @@ public class ElementSerialiserTest {
                 .build();
 
         // When
-        final byte[] serialisedEdge = elementSerialiser.serialise(edge);
+        final byte[] serialisedEdge = serialiser.serialise(edge);
 
         // Then
-        assertEquals(TestGroups.ENTITY, elementSerialiser.getGroup(serialisedEdge));
+        assertEquals(TestGroups.ENTITY, serialiser.getGroup(serialisedEdge));
     }
 
     @Test
     public void testCantSerialiseIntegerClass() throws SerialisationException {
-        assertFalse(elementSerialiser.canHandle(Integer.class));
+        assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
     public void testCanSerialiseElementClass() throws SerialisationException {
-        assertTrue(elementSerialiser.canHandle(Element.class));
+        assertTrue(serialiser.canHandle(Element.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, elementSerialiser.deserialiseEmpty());
+        assertEquals(null, serialiser.deserialiseEmpty());
     }
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, elementSerialiser.preservesObjectOrdering());
+        assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -66,7 +67,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
     private Integer score;
-
+    private AccessPredicate readAccessPredicate;
+    private AccessPredicate writeAccessPredicate;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -177,6 +179,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 .parameters(parameters)
                 .options(options)
                 .score(score)
+                .readAccessPredicate(readAccessPredicate)
+                .writeAccessPredicate(writeAccessPredicate)
                 .build();
     }
 
@@ -196,6 +200,22 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
 
     public void setScore(final Integer score) {
         this.score = score;
+    }
+
+    public AccessPredicate getWriteAccessPredicate() {
+        return writeAccessPredicate;
+    }
+
+    public void setWriteAccessPredicate(final AccessPredicate writeAccessPredicate) {
+        this.writeAccessPredicate = writeAccessPredicate;
+    }
+
+    public AccessPredicate getReadAccessPredicate() {
+        return readAccessPredicate;
+    }
+
+    public void setReadAccessPredicate(final AccessPredicate readAccessPredicate) {
+        this.readAccessPredicate = readAccessPredicate;
     }
 
     /**
@@ -316,6 +336,16 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
 
         public Builder score(final Integer score) {
             _getOp().setScore(score);
+            return _self();
+        }
+
+        public Builder readAccessPredicate(final AccessPredicate readAccessPredicate) {
+            _getOp().setReadAccessPredicate(readAccessPredicate);
+            return _self();
+        }
+
+        public Builder writeAccessPredicate(final AccessPredicate writeAccessPredicate) {
+            _getOp().setWriteAccessPredicate(writeAccessPredicate);
             return _self();
         }
     }

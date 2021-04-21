@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -35,9 +35,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JobServiceV2IT extends AbstractRestApiV2IT {
 
@@ -118,7 +118,7 @@ public class JobServiceV2IT extends AbstractRestApiV2IT {
                 allJobDetailsResponse2.readEntity(new GenericType<List<JobDetail>>() {
                 });
 
-        // then - assert parent job id is not present
+        // Then - assert parent job id is not present
         assertTrue(allJobDetails2.stream().noneMatch(jobDetail -> jobDetail.getJobId().equals(parentJobId)));
     }
 

@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.google.common.collect.Sets;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,12 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {
+
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"inputMapperPairs\" : {%n    \"TestInput\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n  } ,%n" +
@@ -68,6 +69,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .reducers(10)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
+                .commandLineArgs(new String[] {"-libjars", "libjar1,libjar2"})
                 .build();
 
         // When
@@ -77,6 +79,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
+                "  \"commandLineArgs\" : [ \"-libjars\", \"libjar1,libjar2\" ],%n" +
                 "  \"inputMapperPairs\" : { \"inputPath\" :\"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"},%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +
@@ -112,6 +115,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(MapperGenerator.class.getName(), addElements.getInputMapperPairs().get("inputPath"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

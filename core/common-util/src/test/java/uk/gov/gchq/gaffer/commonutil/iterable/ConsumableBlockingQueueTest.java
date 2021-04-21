@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,11 +26,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class ConsumableBlockingQueueTest {
+
     @Test
     public void shouldConsumeResultsWhenIterating() {
         // Given
@@ -62,7 +64,7 @@ public class ConsumableBlockingQueueTest {
         // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-        final boolean[] finishedAdding = new boolean[]{false};
+        final boolean[] finishedAdding = new boolean[] {false};
         new Thread(() -> {
             IntStream.range(0, 10)
                     .forEach(i -> {
@@ -112,13 +114,10 @@ public class ConsumableBlockingQueueTest {
 
     @Test
     public void shouldNotBlockWhenConsumingWhenQueueIsEmpty() {
-        // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-        // When
         final Iterator<Integer> iterator = queue.iterator();
 
-        // Then
         assertFalse(iterator.hasNext());
     }
 }

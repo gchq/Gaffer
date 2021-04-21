@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -23,6 +24,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +33,9 @@ import java.util.Set;
 /**
  * An Operation used for getting traits from the Store.
  */
+@JsonPropertyOrder(alphabetic = true)
+@Since("1.5.0")
+@Summary("An Operation used for getting traits from the Store")
 public class GetTraits implements Operation, Output<Set<StoreTrait>> {
     public static final boolean DEFAULT_CURRENT_TRAITS = true;
 

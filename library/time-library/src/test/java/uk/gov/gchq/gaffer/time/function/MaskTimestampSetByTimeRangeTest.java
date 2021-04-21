@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.time.function;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -29,17 +29,18 @@ import uk.gov.gchq.koryphe.util.TimeUnit;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
     private Instant instant;
     private MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange();
 
-    @Before
+    @BeforeEach
     public void setup() {
         instant = Instant.now();
     }
@@ -140,6 +141,14 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<Function> getDifferentInstancesOrNull() {
+        return Arrays.asList(
+                new MaskTimestampSetByTimeRange(10L, 20L),
+                new MaskTimestampSetByTimeRange(10L, 20L, TimeUnit.SECOND)
+        );
+    }
+
+    @Override
     protected Class<? extends Function> getFunctionClass() {
         return MaskTimestampSetByTimeRange.class;
     }
@@ -154,6 +163,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
         return new Class[]{RBMBackedTimestampSet.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given

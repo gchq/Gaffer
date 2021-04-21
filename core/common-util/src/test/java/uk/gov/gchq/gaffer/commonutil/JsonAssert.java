@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -35,7 +35,7 @@ public final class JsonAssert {
         try {
             final Map expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, Map.class) : Collections.emptyMap();
             final Map actualSchemaMap = null != actualJson ? OBJECT_MAPPER.readValue(actualJson, Map.class) : Collections.emptyMap();
-            Assert.assertEquals(expectedSchemaMap, actualSchemaMap);
+            Assertions.assertEquals(expectedSchemaMap, actualSchemaMap);
             return;
         } catch (final IOException e) {
             // ignore the error and try using lists instead
@@ -44,7 +44,7 @@ public final class JsonAssert {
         try {
             final List expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, List.class) : Collections.emptyList();
             final List actualSchemaMap = null != actualJson ? OBJECT_MAPPER.readValue(actualJson, List.class) : Collections.emptyList();
-            Assert.assertEquals(expectedSchemaMap, actualSchemaMap);
+            Assertions.assertEquals(expectedSchemaMap, actualSchemaMap);
         } catch (final IOException e) {
             throw new AssertionError(expectedJson + " is not equal to " + actualJson, e);
         }
@@ -58,7 +58,7 @@ public final class JsonAssert {
         try {
             final Map firstSchemaMap = null != firstJson ? OBJECT_MAPPER.readValue(firstJson, Map.class) : Collections.emptyMap();
             final Map secondSchemaMap = null != secondJson ? OBJECT_MAPPER.readValue(secondJson, Map.class) : Collections.emptyMap();
-            Assert.assertNotEquals(firstSchemaMap, secondSchemaMap);
+            Assertions.assertNotEquals(firstSchemaMap, secondSchemaMap);
         } catch (final IOException e) {
             // ignore
         }

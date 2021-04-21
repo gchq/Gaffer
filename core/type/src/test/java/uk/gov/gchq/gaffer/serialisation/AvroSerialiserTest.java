@@ -15,13 +15,13 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
 
@@ -32,8 +32,11 @@ public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void testPrimitiveSerialisation() throws SerialisationException {
-        byte[] b = serialiser.serialise(2);
-        Object o = serialiser.deserialise(b);
+        // When
+        final byte[] b = serialiser.serialise(2);
+        final Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
@@ -49,7 +52,7 @@ public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
     }
 
     @Override
-    public void shouldSerialiseWithHistoricValues() throws Exception {
+    public void shouldSerialiseWithHistoricValues() {
         //fail( "This has a byte value that changes, timestamp within the Avro?");
     }
 }

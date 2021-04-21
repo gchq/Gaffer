@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.types.binaryoperator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -24,11 +24,12 @@ import uk.gov.gchq.gaffer.types.CustomMap;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class CustomMapAggregatorTest {
+
     @Test
     public void testMapAggregation() {
         int inA = 1;

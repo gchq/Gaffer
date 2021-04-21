@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -32,7 +33,6 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -53,6 +53,10 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";
+
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
+            StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @Override
     protected Schema createSchema() {
@@ -250,7 +254,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
         graph.execute(new AddGraph.Builder()
                 .graphId(ACCUMULO_GRAPH_WITH_EDGES + 2)
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .schema(Schema.fromJson(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEdge2Schema.json")))
                 .build(), user);
 
@@ -284,7 +288,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
         graph.execute(new AddGraph.Builder()
                 .graphId(ACCUMULO_GRAPH_WITH_ENTITIES + 2)
-                .storeProperties(StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties")))
+                .storeProperties(ACCUMULO_PROPERTIES)
                 .schema(Schema.fromJson(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEntity2Schema.json")))
                 .build(), user);
 

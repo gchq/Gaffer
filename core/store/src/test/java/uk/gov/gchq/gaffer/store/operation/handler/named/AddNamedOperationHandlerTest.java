@@ -17,12 +17,13 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Maps;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
+import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -42,24 +43,30 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationHandlerTest {
+
     private static final String EMPTY_ADMIN_AUTH = "";
+
+    @Mock
     private final NamedOperationCache mockCache = mock(NamedOperationCache.class);
+
     private final AddNamedOperationHandler handler = new AddNamedOperationHandler(mockCache);
 
     private Context context = new Context(new User.Builder()
@@ -70,10 +77,12 @@ public class AddNamedOperationHandlerTest {
     private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
             .overwrite(false)
             .build();
+
     private static final String OPERATION_NAME = "test";
+
     private HashMap<String, NamedOperationDetail> storedOperations = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationFailedException {
         storedOperations.clear();
         addNamedOperation.setOperationName(OPERATION_NAME);
@@ -100,15 +109,14 @@ public class AddNamedOperationHandlerTest {
         given(store.getProperties()).willReturn(new StoreProperties());
     }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @After
+    @AfterEach
     public void after() throws CacheOperationFailedException {
         addNamedOperation.setOperationName(null);
         addNamedOperation.setOperationChain((String) null);
         addNamedOperation.setDescription(null);
         addNamedOperation.setOverwriteFlag(false);
+        addNamedOperation.setReadAccessPredicate(null);
+        addNamedOperation.setWriteAccessPredicate(null);
         mockCache.clear();
     }
 
@@ -128,9 +136,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setOperationChain(parent);
         addNamedOperation.setOperationName("parent");
 
-        exception.expect(OperationException.class);
-
-        handler.doOperation(addNamedOperation, context, store);
+        assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
@@ -150,7 +156,6 @@ public class AddNamedOperationHandlerTest {
             addNamedOperation.setParameters(paramMap);
             handler.doOperation(addNamedOperation, context, store);
             assert cacheContains("namedop");
-
         } catch (final Exception e) {
             fail("Expected test to pass without error. Exception " + e.getMessage());
         }
@@ -175,8 +180,7 @@ public class AddNamedOperationHandlerTest {
         paramMap.put("param2", param);
         addNamedOperation.setParameters(paramMap);
 
-        exception.expect(OperationException.class);
-        handler.doOperation(addNamedOperation, context, store);
+        assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
@@ -209,17 +213,20 @@ public class AddNamedOperationHandlerTest {
                 "   ]" +
                 "}";
 
-        exception.expect(SerialisationException.class);
-        JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class);
+        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
     }
 
     @Test
     public void shouldAddNamedOperationFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+        final List<String> readAuths = asList("readAuth1", "readAuth2");
+        final List<String> writeAuths = asList("writeAuth1", "writeAuth2");
         OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
         addNamedOperation.setOperationChain(opChain);
         addNamedOperation.setScore(2);
         addNamedOperation.setOperationName("testOp");
-        addNamedOperation.setLabels(Arrays.asList("test label"));
+        addNamedOperation.setLabels(asList("test label"));
+        addNamedOperation.setReadAccessRoles(readAuths);
+        addNamedOperation.setWriteAccessRoles(writeAuths);
 
         handler.doOperation(addNamedOperation, context, store);
 
@@ -227,7 +234,36 @@ public class AddNamedOperationHandlerTest {
 
         assert cacheContains("testOp");
         assertTrue(result.getScore() == 2);
-        assertEquals(Arrays.asList("test label"), result.getLabels());
+        assertEquals(asList("test label"), result.getLabels());
+        final AccessPredicate expectedReadAccessPredicate = new AccessPredicate(context.getUser(), readAuths);
+        assertEquals(expectedReadAccessPredicate, result.getOrDefaultReadAccessPredicate());
+        final AccessPredicate expectedWriteAccessPredicate = new AccessPredicate(context.getUser(), writeAuths);
+        assertEquals(expectedWriteAccessPredicate, result.getOrDefaultWriteAccessPredicate());
+    }
+
+    @Test
+    public void shouldAddCustomAccessPredicateFieldsToNamedOperationDetailCorrectly() throws OperationException, CacheOperationFailedException {
+        final AccessPredicate readAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        final AccessPredicate writeAccessPredicate = new AccessPredicate(new CustomUserPredicate());
+        OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
+        addNamedOperation.setOperationChain(opChain);
+        addNamedOperation.setScore(2);
+        addNamedOperation.setOperationName("testOp");
+        addNamedOperation.setLabels(asList("test label"));
+        addNamedOperation.setReadAccessRoles(null);
+        addNamedOperation.setReadAccessPredicate(readAccessPredicate);
+        addNamedOperation.setWriteAccessRoles(null);
+        addNamedOperation.setWriteAccessPredicate(writeAccessPredicate);
+
+        handler.doOperation(addNamedOperation, context, store);
+
+        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User(), EMPTY_ADMIN_AUTH);
+
+        assert cacheContains("testOp");
+        assertTrue(result.getScore() == 2);
+        assertEquals(asList("test label"), result.getLabels());
+        assertEquals(readAccessPredicate, result.getReadAccessPredicate());
+        assertEquals(writeAccessPredicate, result.getWriteAccessPredicate());
     }
 
     private boolean cacheContains(final String operationName) {

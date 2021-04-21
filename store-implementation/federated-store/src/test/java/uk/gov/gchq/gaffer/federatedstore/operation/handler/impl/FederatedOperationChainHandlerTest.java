@@ -17,10 +17,11 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -53,14 +54,20 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedOperationChainHandlerTest {
 
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
+
     public static final String GRAPH_IDS = PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES + "," + PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
-    private Element[] elements = new Element[]{
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+
+    private Element[] elements = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
@@ -73,7 +80,7 @@ public class FederatedOperationChainHandlerTest {
                     .build()
     };
 
-    private Element[] elements2 = new Element[]{
+    private Element[] elements2 = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("2")
@@ -86,8 +93,8 @@ public class FederatedOperationChainHandlerTest {
                     .build()
     };
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void after() {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -99,14 +106,13 @@ public class FederatedOperationChainHandlerTest {
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-        final OperationChain<Iterable<? extends Element>> opChain =
-                new OperationChain.Builder()
-                        .first(new GetAllElements.Builder()
-                                // Ensure the elements are returned form the graphs in the right order
-                                .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
-                                .build())
-                        .then(new Limit<>(1))
-                        .build();
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        // Ensure the elements are returned form the graphs in the right order
+                        .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                        .build())
+                .then(new Limit<>(1))
+                .build();
 
         // When
         final Iterable result = store.execute(opChain, context);
@@ -143,7 +149,6 @@ public class FederatedOperationChainHandlerTest {
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-
         final FederatedOperationChain<Object, Void> opChain = new FederatedOperationChain.Builder<Object, Void>()
                 .operationChain(
                         new OperationChain.Builder()
@@ -168,7 +173,6 @@ public class FederatedOperationChainHandlerTest {
         // Given
         final FederatedStore store = createStore();
         final Context context = new Context();
-
 
         final FederatedOperationChain<Void, Long> opChain = new FederatedOperationChain.Builder<Void, Long>()
                 .operationChain(
@@ -232,6 +236,15 @@ public class FederatedOperationChainHandlerTest {
         ElementUtil.assertElementEquals(Collections.singletonList(elements[0]), result);
     }
 
+    private SchemaEdgeDefinition getProp(final String propName) {
+        return new SchemaEdgeDefinition.Builder()
+                .source("string")
+                .destination("string")
+                .directed(DIRECTED_EITHER)
+                .property(propName, "string")
+                .build();
+    }
+
     private FederatedStore createStore() throws OperationException {
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -252,7 +265,8 @@ public class FederatedOperationChainHandlerTest {
                         .validateFunctions(new IsTrue())
                         .build())
                 .build();
-        final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
+        final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema,
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
 
         final Context context = new Context();
 
@@ -262,4 +276,5 @@ public class FederatedOperationChainHandlerTest {
 
         return store;
     }
+
 }

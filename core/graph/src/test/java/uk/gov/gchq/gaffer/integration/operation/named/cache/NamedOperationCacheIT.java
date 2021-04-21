@@ -134,6 +134,7 @@ public class NamedOperationCacheIT {
                 .writers(new ArrayList<>())
                 .description(add.getDescription())
                 .score(0)
+                .parameters(null)
                 .build();
 
         List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
@@ -199,6 +200,7 @@ public class NamedOperationCacheIT {
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
@@ -238,6 +240,7 @@ public class NamedOperationCacheIT {
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
@@ -259,6 +262,7 @@ public class NamedOperationCacheIT {
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
 
@@ -300,6 +304,7 @@ public class NamedOperationCacheIT {
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);

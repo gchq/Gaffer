@@ -25,15 +25,12 @@ import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -48,14 +45,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AggregateDataForGroupTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger.getRootLogger().setLevel(Level.WARN);
     }
@@ -77,16 +73,17 @@ public class AggregateDataForGroupTest {
     }
 
     @Test
-    public void aggregateDataForGroupTest() throws Exception {
+    public void aggregateDataForGroupTest(@TempDir java.nio.file.Path tempDir)
+            throws Exception {
         // Given
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
-        final String file1 = testFolder.newFolder().getAbsolutePath() + "/inputdata1.parquet";
-        final String file2 = testFolder.newFolder().getAbsolutePath() + "/inputdata2.parquet";
+        final String file1 = tempDir.resolve("inputdata1.parquet").toString();
+        final String file2 = tempDir.resolve("inputdata2.parquet").toString();
         generateData(file1, schemaUtils);
         generateData(file2, schemaUtils);
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final List<String> inputFiles = new ArrayList<>(Sets.newHashSet(file1, file2));
-        final String outputFolder = testFolder.newFolder().getAbsolutePath() + "/aggregated";
+        final String outputFolder = tempDir.resolve("aggregated").toString();
         final AggregateDataForGroup aggregator = new AggregateDataForGroup(FileSystem.get(new Configuration()), schemaUtils, TestGroups.ENTITY,
                 inputFiles, outputFolder, sparkSession);
 
@@ -95,7 +92,7 @@ public class AggregateDataForGroupTest {
 
         // Then
         final FileSystem fs = FileSystem.get(new Configuration());
-        Assert.assertTrue(fs.exists(new Path(outputFolder)));
+        assertTrue(fs.exists(new Path(outputFolder)));
         final Row[] results = (Row[]) sparkSession
                 .read()
                 .parquet(outputFolder)

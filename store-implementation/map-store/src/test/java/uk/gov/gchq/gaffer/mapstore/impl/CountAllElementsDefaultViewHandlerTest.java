@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -46,5 +46,12 @@ public class CountAllElementsDefaultViewHandlerTest {
 
         // Then
         assertEquals((long) GetAllElementsHandlerTest.getElements().size(), (long) result);
+    }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new CountAllElementsDefaultView(),
+                VisibilityTest::elementIterableResultSizeConsumer);
     }
 }

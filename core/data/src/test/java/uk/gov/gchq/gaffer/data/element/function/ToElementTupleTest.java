@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,26 +27,23 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ToElementTupleTest extends FunctionTest {
+
     @Test
     public void shouldReturnNullForNullValue() {
-        // Given
         final ToElementTuple function = new ToElementTuple();
 
-        // When
         final Object result = function.apply(null);
 
-        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldConvertAnElementIntoAnElementTuple() {
-        // Given
         final Element element = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex("vertex1")
@@ -54,10 +51,8 @@ public class ToElementTupleTest extends FunctionTest {
                 .build();
         final ToElementTuple function = new ToElementTuple();
 
-        // When
         final Object result = function.apply(element);
 
-        // Then
         assertEquals(new ElementTuple(element), result);
     }
 
@@ -67,34 +62,35 @@ public class ToElementTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ToElementTuple> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends ToElementTuple> getFunctionClass() {
         return ToElementTuple.class;
     }
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Element.class};
+        return new Class[] {Element.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{ElementTuple.class};
+        return new Class[] {ElementTuple.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        // Given
         final ToElementTuple function = getInstance();
 
-        // When
         final byte[] json = JSONSerialiser.serialise(function);
         final ToElementTuple deserialisedObj = JSONSerialiser.deserialise(json, ToElementTuple.class);
 
-        // Then
-        JsonAssert.assertEquals(
-                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToElementTuple\"}",
-                new String(json)
-        );
+        final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ToElementTuple\"}";
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

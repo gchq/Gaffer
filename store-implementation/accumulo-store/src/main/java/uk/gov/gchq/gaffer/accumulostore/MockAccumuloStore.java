@@ -36,7 +36,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 /**
  * An {@link AccumuloStore} that uses an Accumulo {@link MockInstance} to
  * provide a {@link Connector}.
+ *
+ * @deprecated Use the MapStore for in memory graphs
  */
+@Deprecated
 public class MockAccumuloStore extends AccumuloStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
 
