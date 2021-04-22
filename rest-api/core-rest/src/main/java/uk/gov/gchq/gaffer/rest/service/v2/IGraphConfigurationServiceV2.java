@@ -196,4 +196,17 @@ public interface IGraphConfigurationServiceV2 {
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getDescription();
+
+    @GET
+    @Path("/graphId")
+    @Produces(TEXT_PLAIN)
+    @ApiOperation(value = "Gets the Graph Id",
+            response = String.class,
+            produces = TEXT_PLAIN,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getGraphId();
 }
