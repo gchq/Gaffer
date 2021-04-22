@@ -88,9 +88,10 @@ public class GraphConfigurationServiceV2Test {
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         lenient().when(store.getSchema()).thenReturn(new Schema());
         lenient().when(store.getProperties()).thenReturn(new StoreProperties());
+        lenient().when(store.getGraphId()).thenReturn(GRAPH_ID);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
+                        .graphId(GRAPH_ID) // This graphId is not used as store is mocked
                         .build())
                 .description("test graph")
                 .store(store)
@@ -118,6 +119,17 @@ public class GraphConfigurationServiceV2Test {
         // Then
         assertEquals(200, status);
         assertEquals("test graph", description);
+    }
+
+    @Test
+    public void shouldReturnGraphId() {
+        // When
+        final int status = service.getGraphId().getStatus();
+        final String graphId = service.getGraphId().getEntity().toString();
+
+        // Then
+        assertEquals(200, status);
+        assertEquals(GRAPH_ID, graphId);
     }
 
     @Test
