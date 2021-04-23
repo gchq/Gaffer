@@ -61,7 +61,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             results = new ArrayList<>(graphs.size());
             for (final Graph graph : graphs) {
 
-                //TODO FS Peer Review, Examine stitch the Input of FederatedOperation to PAYLOAD/updatedOp? Similar-1
+                //TODO FS REFACTOR, stitch the Input of FederatedOperation to PAYLOAD/updatedOp? Similar-1
 //                PAYLOAD payloadOperation = getPayloadOperation(operation);
 //                if (operation instanceof Input) {
 //                    OperationHandlerUtil.updateOperationInput(payloadOperation, ((Input) operation).getInput());
@@ -73,7 +73,9 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                             results.add(graph.execute((Output) updatedOp, context));
                         } else {
                             graph.execute(updatedOp, context);
-                            //TODO FS Peer Review, return a null per graph?
+                            if (nonNull(operation.getMergeFunction())) {
+                                results.add(null);
+                            }
                         }
                     } catch (final Exception e) {
                         //TODO FS Feature, make optional argument.

@@ -366,7 +366,7 @@ public class FederatedStore extends Store {
                 rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
             }
         } else {
-            //TODO FS Peer Review, Throw error/log ?
+            LOGGER.warn("getGraphs was requested with null Operation, this will return no graphs.");
         }
         return rtn;
     }
@@ -521,7 +521,7 @@ public class FederatedStore extends Store {
 
     public FederatedStore setDefaultGraphIdsCSV(final String defaultGraphIdsCSV) {
         if (nonNull(this.defaultGraphIdsCSV)) {
-            //TODO FS Peer Review logic
+            //TODO FS Refactor document :To change defaultGraphIdsCSV at the moment it would need to turn off, update config, turn back on.
             LOGGER.error("Attempting to change defaultGraphIdsCSV ignoring the value: " + defaultGraphIdsCSV);
         } else {
             this.defaultGraphIdsCSV = defaultGraphIdsCSV;
