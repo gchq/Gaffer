@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
  * FederatedOperation handler for the federation of an PAYLOAD operation with an expected return type OUTPUT
@@ -78,8 +77,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                             }
                         }
                     } catch (final Exception e) {
-                        //TODO FS Feature, make optional argument.
-                        if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
+                        if (!operation.isSkipFailedFederatedExecution()) {
                             throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                         }
                     }

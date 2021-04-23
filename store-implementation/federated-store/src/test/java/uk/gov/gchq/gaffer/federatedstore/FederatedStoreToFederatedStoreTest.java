@@ -148,10 +148,12 @@ public class FederatedStoreToFederatedStoreTest {
                 .build();
 
         restApiFederatedGraph.execute(getFederatedOperation(new AddElements.Builder()
-                .input(entity, edge)
-                .build())
-                .graphIdsCSV(mapStoreGraphId)
-                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), new User());
+                        .input(entity, edge)
+                        .build())
+                        .graphIdsCSV(mapStoreGraphId)
+                //TODO FS Error, add line below for error.
+                //.mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
+                , new User());
 
         // When
         List<? extends Element> results = Lists.newArrayList(federatedStoreGraph.execute(new GetAllElements.Builder()

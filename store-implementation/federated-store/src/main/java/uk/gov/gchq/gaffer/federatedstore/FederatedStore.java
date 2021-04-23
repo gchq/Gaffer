@@ -519,10 +519,15 @@ public class FederatedStore extends Store {
         return defaultGraphIdsCSV;
     }
 
+    /**
+     * Sets the DefaultGraphIdsCSV once only. To change the defaultGraphIdsCSV it would require to turning off, update config, turning back on.
+     *
+     * @param defaultGraphIdsCSV
+     * @return
+     */
     public FederatedStore setDefaultGraphIdsCSV(final String defaultGraphIdsCSV) {
         if (nonNull(this.defaultGraphIdsCSV)) {
-            //TODO FS Refactor document :To change defaultGraphIdsCSV at the moment it would need to turn off, update config, turn back on.
-            LOGGER.error("Attempting to change defaultGraphIdsCSV ignoring the value: " + defaultGraphIdsCSV);
+            LOGGER.error("Attempting to change defaultGraphIdsCSV. To change defaultGraphIdsCSV it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", defaultGraphIdsCSV);
         } else {
             this.defaultGraphIdsCSV = defaultGraphIdsCSV;
         }

@@ -48,6 +48,7 @@ import java.util.function.Function;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
 
 /**
  * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
@@ -55,7 +56,7 @@ import static java.util.Objects.nonNull;
  * @param <INPUT>
  * @param <OUTPUT>
  */
-@JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
 public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, Output<OUTPUT> {
@@ -64,6 +65,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private Operation payloadOperation;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private Function<Iterable, OUTPUT> mergeFunction; //TODO FS Review change to Function<Iterable, OUTPUT>
+    private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
 
     private Map<String, String> options;
@@ -88,6 +90,15 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     public FederatedOperation mergeFunction(final Function<Iterable, OUTPUT> mergeFunction) {
         this.mergeFunction = mergeFunction;
+        return this;
+    }
+
+    public boolean isSkipFailedFederatedExecution() {
+        return skipFailedFederatedExecution;
+    }
+
+    public FederatedOperation<INPUT, OUTPUT> skipFailedFederatedExecution(final boolean skipFailedFederatedExecution) {
+        this.skipFailedFederatedExecution = skipFailedFederatedExecution;
         return this;
     }
 
@@ -149,6 +160,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             EqualsBuilder equalsBuilder = new EqualsBuilder()
                     .append(this.graphIdsCsv, that.graphIdsCsv)
                     .append(this.mergeFunction, that.mergeFunction)
+                    .append(this.skipFailedFederatedExecution, that.skipFailedFederatedExecution)
                     .append(this.options, that.options);
 
             if (equalsBuilder.isEquals()) {
@@ -174,6 +186,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .append(graphIdsCsv)
                 .append(payloadOperation)
                 .append(mergeFunction)
+                .append(skipFailedFederatedExecution)
                 .append(options)
                 .build();
     }
@@ -224,6 +237,11 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
         public BuilderParent<INPUT, OUTPUT> mergeFunction(final Function<Iterable, OUTPUT> mergeFunction) {
             _getOp().mergeFunction(mergeFunction);
+            return _self();
+        }
+
+        public BuilderParent<INPUT, OUTPUT> skipFailedFederatedExecution(final boolean skipFailedFederatedExecution) {
+            _getOp().skipFailedFederatedExecution(skipFailedFederatedExecution);
             return _self();
         }
     }

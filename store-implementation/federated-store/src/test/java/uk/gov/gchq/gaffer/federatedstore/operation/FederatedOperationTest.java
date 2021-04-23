@@ -39,7 +39,8 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
             "  \"mergeFunction\" : {\n" +
             "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.IterableConcat\"\n" +
             "  },\n" +
-            "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
+            "  \"graphIds\" : \"testGraphID1,testGraphID2\",\n" +
+            "  \"skipFailedFederatedExecution\" : false\n" +
             "}";
 
     @Override
@@ -95,6 +96,8 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                         .build())
                 .graphIds(EXPECTED_GRAPH_ID)
                 .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
+                .option("op1","val1")
+                .skipFailedFederatedExecution(false)
                 .build();
         final FederatedOperation b = a.shallowClone();
         assertEquals(a, b);

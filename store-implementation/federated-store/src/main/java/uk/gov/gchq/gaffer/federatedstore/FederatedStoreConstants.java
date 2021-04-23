@@ -19,9 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public final class FederatedStoreConstants {
-    //TODO FS Feature, Delete This and switch to optional argument.
-    public static final String KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = "gaffer.federatedstore.operation.skipFailedFederatedStoreExecute";
-    public static final String DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = String.valueOf(false);
+    public static final boolean DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION = false;
     public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);
     //TODO FS conflict with StoreProperties.Admin_Auth ?
     public static final String KEY_FEDERATION_ADMIN = "gaffer.federatedstore.operation.admin";
@@ -29,9 +27,5 @@ public final class FederatedStoreConstants {
     private FederatedStoreConstants() {
         // private constructor to prevent users instantiating this class as it
         // only contains constants.
-    }
-
-    public static String getSkipFailedFederatedStoreExecute(final Operation op) {
-        return op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE, DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE);
     }
 }

@@ -40,7 +40,6 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends CloseableIterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
-        //TODO FS Refactor change to Iterable<>
         implements OutputOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> {
 
     @Override

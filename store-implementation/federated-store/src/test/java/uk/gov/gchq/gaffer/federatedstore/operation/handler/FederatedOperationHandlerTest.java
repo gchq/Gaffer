@@ -57,23 +57,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
@@ -217,12 +211,10 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(), any())).willThrow(new RuntimeException(errorMessage));
         graph3 = getGraphWithMockStore(mockStore);
 
-        final Output payload = getPayload();
-        payload.addOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE, String.valueOf(true));
-
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
+        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(getPayload());
+        federatedOperation.skipFailedFederatedExecution(true);
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));

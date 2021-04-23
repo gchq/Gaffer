@@ -48,7 +48,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 public final class FederatedStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
@@ -59,8 +58,8 @@ public final class FederatedStoreUtil {
     }
 
     public static String createOperationErrorMsg(final Operation operation, final String graphId, final Exception e) {
-        final String additionalInfo = String.format("Set the skip and continue flag: %s for operation: %s",
-                KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE,
+        final String additionalInfo = String.format("Set the skip and continue option: %s for operation: %s",
+                "skipFailedFederatedExecution",
                 operation.getClass().getSimpleName());
 
         return String.format("Failed to execute %s on graph %s.%n %s.%n Error: %s",
