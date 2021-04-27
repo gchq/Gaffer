@@ -35,7 +35,7 @@ public class FederatedStoreDefaultGraphsTest {
         //Given
         FederatedStore federatedStore = JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(this.getClass(), "DefaultedGraphIds.json")), FederatedStore.class);
         assertNotNull(federatedStore);
-        assertEquals("defaultJsonGraphId", federatedStore.getDefaultGraphIdsCSV());
+        assertEquals("defaultJsonGraphId", federatedStore.getAdminConfiguredDefaultGraphIdsCSV());
 
         try {
             //when
@@ -53,10 +53,10 @@ public class FederatedStoreDefaultGraphsTest {
         //Given
         FederatedStore federatedStore = JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(this.getClass(), "DefaultedGraphIds.json")), FederatedStore.class);
         assertNotNull(federatedStore);
-        assertEquals("defaultJsonGraphId", federatedStore.getDefaultGraphIdsCSV());
+        assertEquals("defaultJsonGraphId", federatedStore.getAdminConfiguredDefaultGraphIdsCSV());
 
         //when
-        federatedStore.setDefaultGraphIdsCSV("other");
+        federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");
 
         //then
         try {

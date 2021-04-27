@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -146,13 +147,14 @@ public class FederatedStoreToFederatedStoreTest {
                 .property("property1", 1)
                 .build();
 
-        restApiFederatedGraph.execute(getFederatedOperation(new AddElements.Builder()
-                        .input(entity, edge)
-                        .build())
-                        .graphIdsCSV(mapStoreGraphId),
-                //TODO FS Error, add line below for error.
+        FederatedOperation federatedOperation = new FederatedOperation.Builder()
+                .op(new AddElements.Builder().input(entity, edge).build())
+                .graphIds(mapStoreGraphId)
+                //TODO FS ERROR, add line below for error.
                 //.mergeFunction((Function<Iterable, Object>) new DefaultMerge())
-                new User());
+                .build();
+
+        restApiFederatedGraph.execute(federatedOperation, new User());
 
         // When
         List<? extends Element> results = Lists.newArrayList(federatedStoreGraph.execute(new GetAllElements.Builder()

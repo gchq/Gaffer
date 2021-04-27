@@ -109,7 +109,6 @@ public class FederatedOperationHandlerTest {
         graph4 = getGraphWithMockStore(mockStore4);
     }
 
-    //TODO FS feature other 2 types?
     private Output<CloseableIterable<? extends Element>> getPayload() {
         return new GetAllElements.Builder().build();
     }
@@ -167,7 +166,6 @@ public class FederatedOperationHandlerTest {
         return mockStore;
     }
 
-    //TODO FS Delete ?
     @Deprecated
     private Store getMockStore(final Schema schema, final StoreProperties storeProperties) {
         Store mockStore = Mockito.mock(Store.class);

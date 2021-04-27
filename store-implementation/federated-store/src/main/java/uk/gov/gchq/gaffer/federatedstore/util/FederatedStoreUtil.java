@@ -178,7 +178,7 @@ public final class FederatedStoreUtil {
 
     //TODO FS Examine
     public static boolean isUserRequestingAdminUsage(final Operation operation) {
-        return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "false"));
+        return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "false"));
     }
 
     /**
@@ -231,20 +231,15 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> initMergeAndGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
-        //TODO FS Examine
-        builder.mergeFunction(null)/*TODO FS Review Null*/
-                //TODO FS Examine
-//                .graphIds(default)
-//                .graphIds(operation.getOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS))
-                //TODO FS Examine
-                .options(operation.getOptions());
+        // TODO FS Peer Review, mergeOptions();
+        builder.options(operation.getOptions());
 
-        //TODO FS Refactor, Search and delete this string.
+        //TODO FS Refactor, Search and delete this string, inc demo
         String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(graphIdOption)) {
             //TODO FS Examine, ignore or copy or Error
-            LOGGER.info("Operation:{} has old deprecated style of graphId selection. Ignoring:{}", operation.getClass().getSimpleName(), graphIdOption);
-            // LOGGER.info("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
+            // LOGGER.info("Operation:{} has old deprecated style of graphId selection. Ignoring:{}", operation.getClass().getSimpleName(), graphIdOption);
+            LOGGER.info("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
             builder.graphIds(graphIdOption);
         }
         return builder;

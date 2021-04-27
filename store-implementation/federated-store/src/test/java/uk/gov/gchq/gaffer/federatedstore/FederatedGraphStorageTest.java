@@ -447,7 +447,7 @@ public class FederatedGraphStorageTest {
         final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(testUser));
         assertNotEquals(6, traits.size(), "Revealing hidden traits");
         assertEquals(7, traits.size());
-        //TODO FS Examine, previously the test has been expecting 10 traits, but now the handler based on the schema is filtering down to 7. Why is this happening now? and not before, since the schema hasn't changed.
+        //TODO FS ERROR, previously the test has been expecting 10 traits, but now the handler based on the schema is filtering down to 7. Why is this happening now? and not before, since the schema hasn't changed.
     }
 
     @Test
@@ -456,7 +456,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(b, blockingReadAccess);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(blankUser));
         assertEquals(11, traits.size(), "Revealing hidden traits");
-        //TODO FS Examine, now returns 11 default of FederatedStore?
+        //TODO FS ERROR, now returns 11 default of FederatedStore?
     }
 
     @Test
@@ -466,7 +466,7 @@ public class FederatedGraphStorageTest {
         final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(authUser));
         assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(7, traits.size());
-        //TODO FS Examine, previously the test has been expecting 10 traits, but now the handler based on the schema is filtering down to 7. Why is this happening now? and not before, since the schema hasn't changed.
+        //TODO FS ERROR, previously the test has been expecting 10 traits, but now the handler based on the schema is filtering down to 7. Why is this happening now? and not before, since the schema hasn't changed.
     }
 
     @Test
@@ -475,7 +475,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(blankUser));
         assertEquals(11, traits.size(), "Revealing hidden traits");
-        //TODO FS Examine, now returns 11 default of FederatedStore?
+        //TODO FS ERROR, now returns 11 default of FederatedStore?
         //TODO FS Important, this is key route. getStream of graphIds = null is nothing. for blank user. so empty FedStore has all traits available????
 
     }
@@ -487,7 +487,7 @@ public class FederatedGraphStorageTest {
         final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(blankUser));
         assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(7, traits.size());
-        //TODO FS Examine, previously the test has been expecting 10 traits, but now the handler based on the schema is filtering down to 7. Why is this happening now? and not before, since the schema hasn't changed.
+        //TODO FS ERROR, previously the test has been expecting 10 traits, but now the handler based on the schema is filtering down to 7 Why is this happening now? and not before, since the schema hasn't changed.
     }
 
     @Test

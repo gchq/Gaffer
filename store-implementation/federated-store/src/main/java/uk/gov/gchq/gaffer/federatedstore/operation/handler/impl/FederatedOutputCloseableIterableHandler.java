@@ -50,12 +50,12 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         if (operation instanceof InputOutput) {
             FederatedOperation<Object, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((InputOutput) operation);
             results = store.execute(federatedOperation, context);
-            //TODO FS Peer Review, setOptions 1/3
+            // TODO FS Peer Review, mergeOptions(); 1/3
             operation.setOptions(federatedOperation.getOptions());
         } else {
             FederatedOperation<Void, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((Output) operation);
             results = store.execute(federatedOperation, context);
-            //TODO FS Peer Review, setOptions 1/3
+            // TODO FS Peer Review, mergeOptions(); 1/3
             operation.setOptions(federatedOperation.getOptions());
         }
 

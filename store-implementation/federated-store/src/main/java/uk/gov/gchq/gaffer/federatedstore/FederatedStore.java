@@ -120,8 +120,8 @@ public class FederatedStore extends Store {
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
     private final int id;
-    private String defaultGraphIdsCSV; //TODO FS REVIEW NAMING
-    private Function<Iterable, Object> defaultMergeFunction; //TODO FS REVIEW NAMING
+    private String adminConfiguredDefaultGraphIdsCSV;
+    private Function<Iterable, Object> adminConfiguredDefaultMergeFunction;
 
     public FederatedStore() {
         Integer i = null;
@@ -513,21 +513,21 @@ public class FederatedStore extends Store {
                 : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);
     }
 
-    public String getDefaultGraphIdsCSV() {
-        return defaultGraphIdsCSV;
+    public String getAdminConfiguredDefaultGraphIdsCSV() {
+        return adminConfiguredDefaultGraphIdsCSV;
     }
 
     /**
-     * Sets the configureable DefaultGraphIdsCSV once only. To change the defaultGraphIdsCSV it would require to turning off, update config, turning back on.
+     * Sets the configurable default graphIds once only. To change the adminConfiguredDefaultGraphIdsCSV it would require to turning off, update config, turning back on.
      *
-     * @param defaultGraphIdsCSV graphID CSV to use.
+     * @param adminConfiguredDefaultGraphIdsCSV graphID CSV to use.
      * @return This Store.
      */
-    public FederatedStore setDefaultGraphIdsCSV(final String defaultGraphIdsCSV) {
-        if (nonNull(this.defaultGraphIdsCSV)) {
-            LOGGER.error("Attempting to change defaultGraphIdsCSV. To change defaultGraphIdsCSV it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", defaultGraphIdsCSV);
+    public FederatedStore setAdminConfiguredDefaultGraphIdsCSV(final String adminConfiguredDefaultGraphIdsCSV) {
+        if (nonNull(this.adminConfiguredDefaultGraphIdsCSV)) {
+            LOGGER.error("Attempting to change adminConfiguredDefaultGraphIdsCSV. To change adminConfiguredDefaultGraphIdsCSV it would require to turning off, update config, turn back on. Therefore ignoring the value: {}", adminConfiguredDefaultGraphIdsCSV);
         } else {
-            this.defaultGraphIdsCSV = defaultGraphIdsCSV;
+            this.adminConfiguredDefaultGraphIdsCSV = adminConfiguredDefaultGraphIdsCSV;
         }
         return this;
     }
@@ -538,27 +538,26 @@ public class FederatedStore extends Store {
 
     public Collection<Graph> getDefaultGraphs(final User user, final Operation operation, final boolean asAdmin) {
         if (asAdmin) {
-            //TODO FS Feature, Default Graph Admin Access
+            //TODO FS Peer Review ADMIN Default All Graphs? Dangerous when careless of specifying
             throw new UnsupportedOperationException();
         }
 
         //TODO FS Test does this preserve get graph.isDefault?
-        return isNull(defaultGraphIdsCSV)
+        return isNull(adminConfiguredDefaultGraphIdsCSV)
                 ? graphStorage.get(user, null)
-                : getGraphs(user, defaultGraphIdsCSV, operation);
+                : getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
     }
 
-    public FederatedStore setDefaultMergeFunction(final Function<Iterable, Object> defaultMergeFunction) {
-        this.defaultMergeFunction = defaultMergeFunction;
+    public FederatedStore setAdminConfiguredDefaultMergeFunction(final Function<Iterable, Object> adminConfiguredDefaultMergeFunction) {
+        this.adminConfiguredDefaultMergeFunction = adminConfiguredDefaultMergeFunction;
         return this;
     }
 
     public Function<Iterable, Object> getDefaultMergeFunction() {
-        return isNull(defaultMergeFunction)
-                //TODO FS USE COLLECTION/ITERABLE CONCAT
+        return isNull(adminConfiguredDefaultMergeFunction)
+                //TODO FS Refactor USE COLLECTION/ITERABLE CONCAT
                 ? new DefaultMerge()
                 //? new uk.gov.gchq.koryphe.impl.function.IterableConcat()
-                : defaultMergeFunction;
-
+                : adminConfiguredDefaultMergeFunction;
     }
 }

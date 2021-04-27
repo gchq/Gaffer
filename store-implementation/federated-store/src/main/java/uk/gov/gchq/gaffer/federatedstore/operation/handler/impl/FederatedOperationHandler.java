@@ -114,7 +114,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         return nonNull(graphs) ?
                 graphs
                 //TODO FS Test Default
-                //TODO FS ADMIN
+                //TODO FS Peer Review ADMIN Default All Graphs? Dangerous when careless of specifying
                 : store.getDefaultGraphs(context.getUser(), operation, false);
     }
 
