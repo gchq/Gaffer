@@ -185,6 +185,8 @@ public final class FederatedStoreUtil {
      * Defaulted with a iterableConcat
      *
      * @param operation operation to be wrapped in FederatedOperation
+     * @param <INPUT>   payload input type
+     * @param <OUTPUT>  merge function output type
      * @return the wrapped operation
      */
     public static <INPUT, OUTPUT> FederatedOperation<INPUT, OUTPUT> getFederatedOperation(final InputOutput<INPUT, Object> operation) {
@@ -227,7 +229,8 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> initMergeAndGraphIds(Operation operation, FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
+    @Deprecated
+    private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> initMergeAndGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
         //TODO FS Examine
         builder.mergeFunction(null)/*TODO FS Review Null*/
                 //TODO FS Examine

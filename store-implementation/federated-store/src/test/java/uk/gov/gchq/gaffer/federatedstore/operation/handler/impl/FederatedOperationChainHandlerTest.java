@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.federatedstore.DefaultMerge;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.PredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
@@ -110,7 +111,7 @@ public class FederatedOperationChainHandlerTest {
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
+                        .mergeFunction((Function<Iterable, Object>) new DefaultMerge())
                         // Ensure the elements are returned form the graphs in the right order
                         .graphIds(GRAPH_IDS)
                         .build())

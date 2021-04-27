@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -51,13 +50,13 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         if (operation instanceof InputOutput) {
             FederatedOperation<Object, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((InputOutput) operation);
             results = store.execute(federatedOperation, context);
-            //TODO FS Review, setOptions 1/3
-            operation.setOptions(getFederatedOperation(operation).getOptions());
+            //TODO FS Peer Review, setOptions 1/3
+            operation.setOptions(federatedOperation.getOptions());
         } else {
             FederatedOperation<Void, CloseableIterable<? extends ITERABLE_ELEMENTS>> federatedOperation = getFederatedOperation((Output) operation);
             results = store.execute(federatedOperation, context);
-            //TODO FS Review, setOptions 1/3
-            operation.setOptions(getFederatedOperation(operation).getOptions());
+            //TODO FS Peer Review, setOptions 1/3
+            operation.setOptions(federatedOperation.getOptions());
         }
 
 

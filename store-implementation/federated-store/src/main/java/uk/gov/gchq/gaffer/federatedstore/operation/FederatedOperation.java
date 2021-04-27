@@ -53,8 +53,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 /**
  * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
  *
- * @param <INPUT>
- * @param <OUTPUT>
+ * @param <INPUT> Input type of the payload operation
+ * @param <OUTPUT> Output type of the merge function
  */
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
@@ -67,7 +67,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private Function<Iterable, OUTPUT> mergeFunction; //TODO FS Review change to Function<Iterable, OUTPUT>
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
-
     private Map<String, String> options;
 
     @JsonProperty("graphIds")
@@ -103,7 +102,14 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @Override
+    public void addOption(final String name, final String value) {
+        //TODO FS PEER REVIEW. (1) overwrite payload options, (2) AddAll to payload, (3) If null add all ?
+        Output.super.addOption(name, value);
+    }
+
+    @Override
     public void setOptions(final Map<String, String> options) {
+        //TODO FS PEER REVIEW. (1) overwrite payload options, (2) AddAll to payload, (3) If null add all ?
         this.options = options;
         // TODO FS Examine, mergeOptions();
     }
@@ -141,8 +147,9 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public FederatedOperation<INPUT, OUTPUT> shallowClone() throws CloneFailedException {
         try {
+            //TODO FS Review expensive
             return JSONSerialiser.deserialise(JSONSerialiser.serialise(this), FederatedOperation.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new CloneFailedException(e);
         }
     }
@@ -209,7 +216,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             return new BuilderO<>(op);
         }
 
-        public <INPUT, OUTPUT> BuilderParent<INPUT, OUTPUT> op(Operation op) {
+        public <INPUT, OUTPUT> BuilderParent<INPUT, OUTPUT> op(final Operation op) {
             BuilderParent rtn;
             if (op instanceof InputOutput) {
                 rtn = op((InputOutput) op);
@@ -225,8 +232,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     }
 
-    public static abstract class BuilderParent<INPUT, OUTPUT> extends BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
-        public BuilderParent(FederatedOperation<INPUT, OUTPUT> fedOp) {
+    public abstract static class BuilderParent<INPUT, OUTPUT> extends BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
+        public BuilderParent(final FederatedOperation<INPUT, OUTPUT> fedOp) {
             super(fedOp);
         }
 
@@ -246,32 +253,32 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         }
     }
 
-    private static class BuilderIO<INPUT, OUTPUT> extends FederatedOperation.BuilderParent<INPUT, OUTPUT> {
-        private BuilderIO(InputOutput<INPUT, Object> op) {
+    private static final class BuilderIO<INPUT, OUTPUT> extends FederatedOperation.BuilderParent<INPUT, OUTPUT> {
+        private BuilderIO(final InputOutput<INPUT, Object> op) {
             super(new FederatedOperation<>());
             FederatedOperation<INPUT, OUTPUT> fedOpIO = this._getOp();
             fedOpIO.payloadOperation(op);
         }
     }
 
-    private static class BuilderI<INPUT> extends FederatedOperation.BuilderParent<INPUT, Void> {
-        private BuilderI(Input<INPUT> op) {
+    private static final class BuilderI<INPUT> extends FederatedOperation.BuilderParent<INPUT, Void> {
+        private BuilderI(final Input<INPUT> op) {
             super(new FederatedOperation<>());
             FederatedOperation<INPUT, Void> fedOpI = this._getOp();
             fedOpI.payloadOperation(op);
         }
     }
 
-    private static class BuilderO<OUTPUT> extends FederatedOperation.BuilderParent<Void, OUTPUT> {
-        private BuilderO(Output op) {
+    private static final class BuilderO<OUTPUT> extends FederatedOperation.BuilderParent<Void, OUTPUT> {
+        private BuilderO(final Output op) {
             super(new FederatedOperation<>());
             FederatedOperation<Void, OUTPUT> fedOpO = this._getOp();
             fedOpO.payloadOperation(op);
         }
     }
 
-    private static class BuilderNeitherIO extends FederatedOperation.BuilderParent<Void, Void> {
-        private BuilderNeitherIO(Operation op) {
+    private static final class BuilderNeitherIO extends FederatedOperation.BuilderParent<Void, Void> {
+        private BuilderNeitherIO(final Operation op) {
             super(new FederatedOperation<>());
             FederatedOperation<Void, Void> fedOpO = this._getOp();
             fedOpO.payloadOperation(op);

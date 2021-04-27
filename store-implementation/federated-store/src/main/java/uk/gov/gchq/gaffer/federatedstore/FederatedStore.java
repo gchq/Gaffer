@@ -54,13 +54,9 @@ import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.jobtracker.Job;
-import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -93,6 +89,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -123,7 +120,8 @@ public class FederatedStore extends Store {
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
     private final int id;
-    private String defaultGraphIdsCSV;
+    private String defaultGraphIdsCSV; //TODO FS REVIEW NAMING
+    private Function<Iterable, Object> defaultMergeFunction; //TODO FS REVIEW NAMING
 
     public FederatedStore() {
         Integer i = null;
@@ -520,10 +518,10 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Sets the DefaultGraphIdsCSV once only. To change the defaultGraphIdsCSV it would require to turning off, update config, turning back on.
+     * Sets the configureable DefaultGraphIdsCSV once only. To change the defaultGraphIdsCSV it would require to turning off, update config, turning back on.
      *
-     * @param defaultGraphIdsCSV
-     * @return
+     * @param defaultGraphIdsCSV graphID CSV to use.
+     * @return This Store.
      */
     public FederatedStore setDefaultGraphIdsCSV(final String defaultGraphIdsCSV) {
         if (nonNull(this.defaultGraphIdsCSV)) {
@@ -550,50 +548,17 @@ public class FederatedStore extends Store {
                 : getGraphs(user, defaultGraphIdsCSV, operation);
     }
 
-    @Override
-    public void execute(final Operation operation, final Context context) throws OperationException {
-        //magic
-        super.execute(operation, context);
+    public FederatedStore setDefaultMergeFunction(final Function<Iterable, Object> defaultMergeFunction) {
+        this.defaultMergeFunction = defaultMergeFunction;
+        return this;
     }
 
-    @Override
-    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+    public Function<Iterable, Object> getDefaultMergeFunction() {
+        return isNull(defaultMergeFunction)
+                //TODO FS USE COLLECTION/ITERABLE CONCAT
+                ? new DefaultMerge()
+                //? new uk.gov.gchq.koryphe.impl.function.IterableConcat()
+                : defaultMergeFunction;
 
-        //magic
-        return super.execute(operation, context);
-    }
-
-    @Override
-    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
-
-        //magic
-        return super.execute(operation, context);
-    }
-
-    @Override
-    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
-
-
-        //magic
-        return super.executeJob(operation, context);
-    }
-
-    @Override
-    public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-
-        //magic
-        return super.executeJob(job, context);
-    }
-
-    @Override
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
-        //magic
-        return super.executeJob(operationChain, context);
-    }
-
-    @Override
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
-        //magic
-        return super.executeJob(operationChain, context, parentJobId);
     }
 }

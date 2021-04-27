@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import uk.gov.gchq.gaffer.operation.Operation;
-
 public final class FederatedStoreConstants {
     public static final boolean DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION = false;
     public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);

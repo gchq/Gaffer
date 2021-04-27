@@ -51,7 +51,7 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> implements Oper
 
         Object ignore = store.execute(fedOp, context);
 
-        //TODO FS Examine, setOptions 1/3
+        //TODO FS peer review, setOptions 1/3
         operation.setOptions(fedOp.getOptions());
 
         return null;

@@ -49,8 +49,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         final Iterable allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
         Function<Iterable, OUTPUT> mergeFunction = operation.getMergeFunction();
 
-        return mergeResults(allGraphResults, mergeFunction);
-
+        return mergeResults(allGraphResults, mergeFunction, (FederatedStore) store);
     }
 
     private ChainedIterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
@@ -92,28 +91,14 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     }
 
-    private OUTPUT mergeResults(final Iterable results, final Function<Iterable, OUTPUT> mergeFunction) throws OperationException {
+    private OUTPUT mergeResults(final Iterable results, final Function<Iterable, OUTPUT> mergeFunction, final FederatedStore store) throws OperationException {
         try {
             OUTPUT rtn;
             if (nonNull(mergeFunction)) {
                 //TODO FS Test, voids & Nulls
                 rtn = mergeFunction.apply(results);
             } else if (results.iterator().hasNext() && results.iterator().next() instanceof Iterable) {
-                //Flatten
-                //TODO FS USE COLLECTION CONCAT
-                //TODO FS MAKE IT CONFIGURABLE
-                Function<Iterable, OUTPUT> flattenFunction = (Iterable o) -> {
-                    ArrayList assumedRtn = new ArrayList<>();
-                    o.forEach(midput ->
-                            {
-                                if (nonNull(midput)) {
-                                    ((Iterable) midput).forEach(assumedRtn::add);
-                                }
-                            }
-                    );
-                    return (OUTPUT) new ChainedIterable(assumedRtn);
-                };
-                rtn = flattenFunction.apply(results);
+                rtn = (OUTPUT) store.getDefaultMergeFunction().apply(results);
             } else {
                 rtn = (OUTPUT) results;
             }
@@ -129,7 +114,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         return nonNull(graphs) ?
                 graphs
                 //TODO FS Test Default
-                : store.getDefaultGraphs(context.getUser(), operation);
+                //TODO FS ADMIN
+                : store.getDefaultGraphs(context.getUser(), operation, false);
     }
 
 }

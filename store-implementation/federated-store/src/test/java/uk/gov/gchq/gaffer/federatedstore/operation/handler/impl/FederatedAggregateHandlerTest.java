@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.federatedstore.DefaultMerge;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -125,7 +126,7 @@ public class FederatedAggregateHandlerTest {
                         .build())
                 .build())
                 .graphIdsCSV("a")
-                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), context);
+                .mergeFunction((Function<Iterable, Object>) new DefaultMerge()), context);
 
         fed.execute(getFederatedOperation(
                 new AddElements.Builder()
@@ -136,7 +137,7 @@ public class FederatedAggregateHandlerTest {
                                 .build())
                         .build())
                 .graphIdsCSV("b")
-                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), context);
+                .mergeFunction((Function<Iterable, Object>) new DefaultMerge()), context);
 
         final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 

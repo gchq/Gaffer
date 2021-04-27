@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -33,7 +33,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federatedstore.DefaultMerge;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -121,6 +123,7 @@ public class FederatedOperationHandlerTest {
 
         FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(operation);
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
+        when(federatedStore.getDefaultMergeFunction()).thenReturn(new DefaultMerge());
 
         // When
         CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -140,6 +143,7 @@ public class FederatedOperationHandlerTest {
         federatedOperation.graphIdsCSV("1,3");
         when(federatedStore.getGraphs(testUser, "1,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
+        given(federatedStore.getDefaultMergeFunction()).willReturn(new DefaultMerge());
 
         // When
         CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -205,10 +209,11 @@ public class FederatedOperationHandlerTest {
     public void shouldNotThrowStoreExceptionSkipFlagSetTrue() throws Exception {
         // Given
         String errorMessage = "test exception";
-        Store mockStore = Mockito.mock(Store.class);
+        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         given(mockStore.getSchema()).willReturn(new Schema());
-        given(mockStore.getProperties()).willReturn(new StoreProperties());
+        given(mockStore.getProperties()).willReturn(new FederatedStoreProperties());
         given(mockStore.execute(any(), any())).willThrow(new RuntimeException(errorMessage));
+        given(mockStore.getDefaultMergeFunction()).willReturn(new DefaultMerge());
         graph3 = getGraphWithMockStore(mockStore);
 
         FederatedStore federatedStore = mock(FederatedStore.class);
@@ -218,6 +223,7 @@ public class FederatedOperationHandlerTest {
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
+        when(federatedStore.getDefaultMergeFunction()).thenReturn(new DefaultMerge());
 
         // When
         CloseableIterable<? extends Element> results = null;
@@ -321,7 +327,7 @@ public class FederatedOperationHandlerTest {
         ArrayList<Element> arrayList = new ArrayList<>();
         arrayList.add(null);
         ChainedIterable<Object> expected = new ChainedIterable<>(arrayList);
-        assertEquals(Lists.newArrayList((Iterable)expected), Lists.newArrayList((Iterable) results));
+        assertEquals(Lists.newArrayList((Iterable) expected), Lists.newArrayList((Iterable) results));
     }
 
     protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result, final CloseableIterable<? extends Element>... resultParts) {

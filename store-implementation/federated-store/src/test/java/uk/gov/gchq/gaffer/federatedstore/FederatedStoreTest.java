@@ -1433,7 +1433,7 @@ public class FederatedStoreTest {
                         .input(input)
                         .build())
                 .graphIdsCSV(graphName)
-                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat()), userContext);
+                .mergeFunction((Function<Iterable, Object>) new DefaultMerge()), userContext);
     }
 
     protected Entity getEntityB() {
