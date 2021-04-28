@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.proxystore.response.deserialiser.impl;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 
@@ -49,5 +50,14 @@ public class DefaultResponseDeserialiserTest {
         final Set<StoreTrait> expectedStoreTraits = new HashSet<>(asList(StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION));
         assertEquals(expectedStoreTraits.size(), storeTraits.size());
         assertTrue(expectedStoreTraits.containsAll(storeTraits));
+    }
+
+    @Test
+    public void shouldDeserialiseValidStringResponseSuccessfully() throws SerialisationException {
+        final String jsonString = "Result String";
+
+        final Object result = new DefaultResponseDeserialiser<>(new TypeReferenceImpl.Object()).deserialise(jsonString);
+
+        assertEquals(jsonString, result);
     }
 }
