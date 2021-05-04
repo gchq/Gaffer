@@ -232,7 +232,6 @@ public final class FederatedStoreUtil {
     @Deprecated
     private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> initMergeAndGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
         // TODO FS Peer Review, mergeOptions();
-        builder.options(operation.getOptions());
 
         //TODO FS Refactor, Search and delete this string, inc demo
         String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");

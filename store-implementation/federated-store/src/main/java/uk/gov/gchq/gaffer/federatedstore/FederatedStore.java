@@ -373,22 +373,27 @@ public class FederatedStore extends Store {
         boolean rtn = false;
         if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
             //Keep Order v
-            boolean isFedStoreIdPreexisting = !operation.getOption(optionKey, "").isEmpty();
+            boolean hasOperationPreexistingFedStoreId = !operation.getOption(optionKey, "").isEmpty();
             //Keep Order ^
-            boolean isPayloadPreexisting;
+            boolean hasPayloadPreexistingFedStoreId = false;
             if (operation instanceof FederatedOperation) {
                 FederatedOperation tmpFedOp = (FederatedOperation) operation;
                 Operation tmpPayload = tmpFedOp.getPayloadOperation();
-                isPayloadPreexisting = addFedStoreId(tmpPayload, optionKey);
+                //Check and Add FedStoreId to payload
+                hasPayloadPreexistingFedStoreId = addFedStoreId(tmpPayload, optionKey);
+                //TODO FS Review the getPayloadOperation shallowClone()
+                //getPayloadOperation() returns shallowClone(), so apply changes from addFedStoreId()
                 tmpFedOp.payloadOperation(tmpPayload);
-            } else {
-                isPayloadPreexisting = false;
             }
 
-            final HashMap<String, String> updatedOperations = new HashMap<>(isNull(operation.getOptions()) ? new HashMap<>() : operation.getOptions());
-            updatedOperations.put(optionKey, getGraphId());
-            operation.setOptions(updatedOperations);
-            rtn = isFedStoreIdPreexisting || isPayloadPreexisting;
+//            final HashMap<String, String> updatedOperations = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions()) ;
+//            updatedOperations.put(optionKey, getGraphId());
+//            operation.setOptions(updatedOperations);
+//            rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
+
+            //Add FedStoreId to current Operation.
+            operation.addOption(optionKey, getGraphId());
+            rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
         }
         return rtn;
     }

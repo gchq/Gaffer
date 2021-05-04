@@ -47,12 +47,12 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> implements Oper
      */
     @Override
     public Void doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
-        FederatedOperation<Object, Void> fedOp = getFederatedOperation(operation);
+        FederatedOperation<Object, Void> federatedOperation = getFederatedOperation(operation);
 
-        Object ignore = store.execute(fedOp, context);
+        Object ignore = store.execute(federatedOperation, context);
 
-        // TODO FS Peer Review, mergeOptions();
-        operation.setOptions(fedOp.getOptions());
+        // TODO FS Peer Review, mergeOptions(); 1/3
+        operation.setOptions(federatedOperation.getOptions());
 
         return null;
     }

@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +54,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 /**
  * This operation federates a payload operation across a given set of graphs and merges the results with a given function.
  *
- * @param <INPUT> Input type of the payload operation
+ * @param <INPUT>  Input type of the payload operation
  * @param <OUTPUT> Output type of the merge function
  */
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
@@ -82,7 +83,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         }
         this.payloadOperation = op;
 
-        // TODO FS Examine, mergeOptions();
+        //weak options sync with payload.
+        optionsPutAll(op.getOptions());
 
         return this;
     }
@@ -102,16 +104,16 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @Override
-    public void addOption(final String name, final String value) {
-        //TODO FS PEER REVIEW. (1) overwrite payload options, (2) AddAll to payload, (3) If null add all ?
-        Output.super.addOption(name, value);
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        //TODO FS PEER REVIEW. (1) overwrite payload options, (2) AddAll to payload, (3) If null add all ?
-        this.options = options;
-        // TODO FS Examine, mergeOptions();
+    private void optionsPutAll(final Map<? extends String, ? extends String> map) {
+        if (isNull(options)) {
+            options = nonNull(map) ? new HashMap<>(map) : new HashMap<>();
+        } else {
+            options.putAll(map);
+        }
     }
 
     @JsonProperty("graphIds")

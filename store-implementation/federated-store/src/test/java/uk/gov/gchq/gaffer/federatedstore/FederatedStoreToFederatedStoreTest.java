@@ -44,16 +44,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BASIC_ENTITY;
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
  * The FederatedStoreToFederatedStore Test works as follows:
- * --------------------
- * FederatedStore                      |   GAFFER REST API |
- * -> Proxy Store --------------> |                   |
- * |   FederatedStore  |
- * |   -> MapStore     |
- * --------------------
+ *                                           --------------------
+ *      FederatedStore                      |   GAFFER REST API |
+ *           -> Proxy Store --------------> |                   |
+ *                                          |   FederatedStore  |
+ *                                          |   -> MapStore     |
+ *                                          --------------------
  */
 public class FederatedStoreToFederatedStoreTest {
 

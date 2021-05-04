@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+
 /**
  * An {@code Operation} defines an operation to be processed on a graph.
  * All operations must to implement this interface.
@@ -124,11 +126,11 @@ public interface Operation extends Closeable {
      * @param value the value of the option
      */
     default void addOption(final String name, final String value) {
-        if (null == getOptions()) {
+        if (isNull(getOptions())) {
             setOptions(new HashMap<>());
+        } else {
+            getOptions().put(name, value);
         }
-
-        getOptions().put(name, value);
     }
 
     /**
@@ -138,11 +140,9 @@ public interface Operation extends Closeable {
      * @return the value of the option
      */
     default String getOption(final String name) {
-        if (null == getOptions()) {
-            return null;
-        }
-
-        return getOptions().get(name);
+        return isNull(getOptions())
+                ? null
+                : getOptions().get(name);
     }
 
     /**
@@ -153,13 +153,9 @@ public interface Operation extends Closeable {
      * @return the value of the option
      */
     default String getOption(final String name, final String defaultValue) {
-        final String rtn;
-        if (null == getOptions()) {
-            rtn = defaultValue;
-        } else {
-            rtn = getOptions().get(name);
-        }
-        return (null == rtn) ? defaultValue : rtn;
+        return (isNull(getOptions()))
+                ? defaultValue
+                : getOptions().getOrDefault(name, defaultValue);
     }
 
     @JsonGetter("options")
