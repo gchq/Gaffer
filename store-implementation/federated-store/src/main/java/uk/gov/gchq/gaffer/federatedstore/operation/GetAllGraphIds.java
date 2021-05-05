@@ -37,6 +37,7 @@ public class GetAllGraphIds implements
         IFederationOperation,
         Output<Iterable<? extends String>> {
     private Map<String, String> options;
+    private boolean isUserRequestingAdminUsage;
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -53,6 +54,17 @@ public class GetAllGraphIds implements
     @Override
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage;
+    }
+
+    @Override
+    public GetAllGraphIds setIsUserRequestingAdminUsage(final boolean adminRequest) {
+        isUserRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     @Override

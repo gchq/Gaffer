@@ -81,6 +81,7 @@ public class AddGraph implements IFederationOperation {
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
+    private boolean isUserRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -207,6 +208,17 @@ public class AddGraph implements IFederationOperation {
 
     public void setReadAccessPredicate(final AccessPredicate readAccessPredicate) {
         this.readAccessPredicate = readAccessPredicate;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage;
+    }
+
+    @Override
+    public AddGraph setIsUserRequestingAdminUsage(final boolean adminRequest) {
+        isUserRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -69,6 +70,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
     private Map<String, String> options;
+    private boolean isUserRequestingAdminUsage;
+    private boolean isUserRequestingDefaultGraphsOverride;
 
     @JsonProperty("graphIds")
     public FederatedOperation graphIdsCSV(final String graphIds) {
@@ -96,6 +99,31 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     public boolean isSkipFailedFederatedExecution() {
         return skipFailedFederatedExecution;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage;
+    }
+
+    @Override
+    public FederatedOperation<INPUT, OUTPUT> setIsUserRequestingAdminUsage(final boolean adminRequest) {
+        isUserRequestingAdminUsage = adminRequest;
+        return this;
+    }
+
+    public boolean isUserRequestingDefaultGraphsOverride() {
+        return isUserRequestingDefaultGraphsOverride;
+    }
+
+    @JsonGetter("isUserRequestingDefaultGraphsOverride")
+    public Boolean _isUserRequestingDefaultGraphsOverride() {
+        return isUserRequestingDefaultGraphsOverride ? true : null;
+    }
+
+    public FederatedOperation<INPUT, OUTPUT> setUserRequestingDefaultGraphsOverride(final boolean userRequestingDefaultGraphsOverride) {
+        isUserRequestingDefaultGraphsOverride = userRequestingDefaultGraphsOverride;
+        return this;
     }
 
     public FederatedOperation<INPUT, OUTPUT> skipFailedFederatedExecution(final boolean skipFailedFederatedExecution) {

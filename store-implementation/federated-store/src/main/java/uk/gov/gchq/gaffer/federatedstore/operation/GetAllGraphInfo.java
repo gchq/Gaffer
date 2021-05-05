@@ -42,6 +42,7 @@ public class GetAllGraphInfo implements
         IFederatedOperation {
     private Map<String, String> options;
     private String graphIdsCsv;
+    private boolean isUserRequestingAdminUsage;
 
     @JsonProperty("graphIds")
     public GetAllGraphInfo graphIdsCSV(final String graphIds) {
@@ -96,6 +97,17 @@ public class GetAllGraphInfo implements
     @Override
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage;
+    }
+
+    @Override
+    public GetAllGraphInfo setIsUserRequestingAdminUsage(final boolean adminRequest) {
+        isUserRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     @Override

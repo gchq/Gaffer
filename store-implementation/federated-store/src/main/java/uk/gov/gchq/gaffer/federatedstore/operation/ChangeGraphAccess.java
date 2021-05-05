@@ -48,6 +48,7 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
 
     private String ownerUserId;
+    private boolean isUserRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -101,6 +102,17 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
 
     public void setIsPublic(final boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage;
+    }
+
+    @Override
+    public ChangeGraphAccess setIsUserRequestingAdminUsage(final boolean adminRequest) {
+        isUserRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     public boolean getIsPublic() {

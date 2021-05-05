@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -174,11 +173,6 @@ public final class FederatedStoreUtil {
             }
         }
         return newView;
-    }
-
-    //TODO FS Examine
-    public static boolean isUserRequestingAdminUsage(final Operation operation) {
-        return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "false"));
     }
 
     /**

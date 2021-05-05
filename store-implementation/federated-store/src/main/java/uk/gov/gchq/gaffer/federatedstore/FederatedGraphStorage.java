@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -145,7 +146,7 @@ public class FederatedGraphStorage {
         return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user)));
     }
 
-    public Collection<String> getAllIds(final User user, final String adminAuth) {
+    public Collection<String> getAllIdsAsAdmin(final User user, final String adminAuth) {
         return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user, adminAuth)));
     }
 
@@ -238,14 +239,27 @@ public class FederatedGraphStorage {
      * @return visible graphs from the given graphIds.
      */
     public Collection<Graph> get(final User user, final List<String> graphIds) {
+        return get(user, graphIds, null);
+    }
+
+    /**
+     * returns all graphs objects matching the given graphIds, that is visible
+     * to the user.
+     *
+     * @param user      to match visibility against.
+     * @param graphIds  the graphIds to get graphs for.
+     * @param adminAuth adminAuths role
+     * @return visible graphs from the given graphIds.
+     */
+    public Collection<Graph> get(final User user, final List<String> graphIds, final String adminAuth) {
         if (null == user) {
             return Collections.emptyList();
         }
 
-        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
+        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds, adminAuth);
         Stream<Graph> graphs = getStream(user, graphIds);
         if (null != graphIds) {
-            graphs = graphs.sorted((g1, g2) -> graphIds.indexOf(g1.getGraphId()) - graphIds.indexOf(g2.getGraphId()));
+            graphs = graphs.sorted(Comparator.comparingInt(g -> graphIds.indexOf(g.getGraphId())));
         }
         final Set<Graph> rtn = graphs.collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
@@ -317,9 +331,14 @@ public class FederatedGraphStorage {
         return traits;
     }
 
+    @Deprecated
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
+        validateAllGivenGraphIdsAreVisibleForUser(user, null);
+    }
+
+    private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds, final String adminAuth) {
         if (null != graphIds) {
-            final Collection<String> visibleIds = getAllIds(user);
+            final Collection<String> visibleIds = getAllIdsAsAdmin(user, adminAuth);
             if (!visibleIds.containsAll(graphIds)) {
                 final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
                 notVisibleIds.removeAll(visibleIds);
@@ -357,7 +376,7 @@ public class FederatedGraphStorage {
      * If graphIds is null then only enabled by default graphs are returned that the user can see.
      */
     private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
-        if (null == graphIds) {
+        if (isNull(graphIds)) {
             return storage.entrySet()
                     .stream()
                     .filter(entry -> isValidToView(user, entry.getKey()))
@@ -468,7 +487,7 @@ public class FederatedGraphStorage {
         return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user));
     }
 
-    protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds, final String adminAuth) {
+    protected Map<String, Object> getAllGraphsAndAccessAsAdmin(final User user, final List<String> graphIds, final String adminAuth) {
         return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user, adminAuth));
     }
 

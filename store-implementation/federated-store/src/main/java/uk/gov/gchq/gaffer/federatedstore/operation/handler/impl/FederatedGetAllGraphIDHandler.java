@@ -23,14 +23,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isUserRequestingAdminUsage;
 
 public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<GetAllGraphIds, Iterable<? extends String>> {
 
     @Override
     public Iterable<? extends String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {
         try {
-            return ((FederatedStore) store).getAllGraphIds(context.getUser(), isUserRequestingAdminUsage(operation));
+            return ((FederatedStore) store).getAllGraphIds(context.getUser(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error getting all graphIds", e);
         }

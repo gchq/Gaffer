@@ -143,8 +143,10 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 ? ((FederatedOperation) op).getGraphIdsCSV()
                 : null;
 
+        boolean isUserRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
+
         return isNull(rtn)
-                ? String.join(",", store.getAllGraphIds(user))
+                ? String.join(",", store.getAllGraphIds(user, isUserRequestingAdminUsage))
                 : rtn;
     }
 }

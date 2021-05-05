@@ -40,6 +40,7 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     private String graphId;
     private String newGraphId;
     private Map<String, String> options = new HashMap<>();
+    private boolean isUserRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -69,6 +70,17 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     @Override
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return isUserRequestingAdminUsage;
+    }
+
+    @Override
+    public ChangeGraphId setIsUserRequestingAdminUsage(final boolean adminRequest) {
+        isUserRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     @Override
