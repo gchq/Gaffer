@@ -91,7 +91,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
         return new TypeReferenceImpl.Boolean();
     }
 
-    public static class Builder extends BaseBuilder<RemoveGraph, Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<RemoveGraph, Builder> {
 
         public Builder() {
             super(new RemoveGraph());

@@ -29,12 +29,22 @@ import uk.gov.gchq.koryphe.Since;
 public interface IFederationOperation extends Operation {
     boolean isUserRequestingAdminUsage();
 
-    @JsonGetter("isUserRequestingAdminUsage")
+    @JsonGetter("userRequestingAdminUsage")
     default Boolean _isUserRequestingAdminUsageOrNull() {
         return isUserRequestingAdminUsage() ? true : null;
     }
 
     Operation setIsUserRequestingAdminUsage(final boolean adminRequest);
 
+    abstract class BaseBuilder<OP extends IFederationOperation, B extends Operation.BaseBuilder<OP, ?>> extends Operation.BaseBuilder<OP, B> {
+        protected BaseBuilder(final OP op) {
+            super(op);
+        }
+
+        public B setIsUserRequestingAdminUsage(final boolean adminRequest) {
+            this._getOp().setIsUserRequestingAdminUsage(adminRequest);
+            return _self();
+        }
+    }
 
 }

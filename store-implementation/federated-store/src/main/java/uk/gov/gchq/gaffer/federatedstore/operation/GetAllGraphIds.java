@@ -72,8 +72,7 @@ public class GetAllGraphIds implements
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<GetAllGraphIds, Builder> {
-
+    public static class Builder extends IFederationOperation.BaseBuilder<GetAllGraphIds, Builder> {
         public Builder() {
             super(new GetAllGraphIds());
         }

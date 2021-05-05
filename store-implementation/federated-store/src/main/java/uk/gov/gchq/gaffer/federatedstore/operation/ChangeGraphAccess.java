@@ -132,7 +132,7 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
         return new TypeReferenceImpl.Boolean();
     }
 
-    public static class Builder extends BaseBuilder<ChangeGraphAccess, ChangeGraphAccess.Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<ChangeGraphAccess, ChangeGraphAccess.Builder> {
 
         public Builder() {
             super(new ChangeGraphAccess());

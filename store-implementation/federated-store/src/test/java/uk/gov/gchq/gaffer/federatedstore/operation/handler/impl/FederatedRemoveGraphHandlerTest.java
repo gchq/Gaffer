@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -47,7 +46,7 @@ public class FederatedRemoveGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private User testUser;
-    private GetAllElements ignore;
+    private IgnoreOptions ignore;
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
@@ -155,7 +154,7 @@ public class FederatedRemoveGraphHandlerTest {
         assertEquals(1, graphs.size());
     }
 
-    private class IgnoreOptions extends GetAllElements {
+    private class IgnoreOptions extends RemoveGraph {
         @Override
         public void setOptions(final Map<String, String> options) {
             //nothing

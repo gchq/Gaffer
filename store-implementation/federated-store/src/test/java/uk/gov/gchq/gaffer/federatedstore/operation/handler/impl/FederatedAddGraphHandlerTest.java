@@ -73,7 +73,7 @@ public class FederatedAddGraphHandlerTest {
     private User blankUser;
     private FederatedStore store;
     private FederatedStoreProperties federatedStoreProperties;
-    private GetAllElements ignore;
+    private IgnoreOptions ignore;
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
@@ -388,7 +388,7 @@ public class FederatedAddGraphHandlerTest {
                 "FederatedStore with an added Accumulo store should support AddElementsFromHdfs");
     }
 
-    private class IgnoreOptions extends GetAllElements {
+    private class IgnoreOptions extends AddGraph {
         @Override
         public void setOptions(final Map<String, String> options) {
             //ignore

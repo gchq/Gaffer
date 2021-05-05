@@ -1450,7 +1450,7 @@ public class FederatedStoreTest {
                 .build();
     }
 
-    private class IgnoreOptions extends GetAllElements {
+    private class IgnoreOptions extends GetAllGraphIds {
         @Override
         public void setOptions(final Map<String, String> options) {
             //nothing

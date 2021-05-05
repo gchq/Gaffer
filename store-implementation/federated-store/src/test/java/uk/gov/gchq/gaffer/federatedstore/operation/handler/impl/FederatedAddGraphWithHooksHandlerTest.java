@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraphWithHooks;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -74,7 +75,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private User blankUser;
     private FederatedStore store;
     private FederatedStoreProperties federatedStoreProperties;
-    private GetAllElements ignore;
+    private IgnoreOptions ignore;
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
@@ -362,7 +363,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         assertTrue(graphHooks.contains(Log4jLogger.class));
     }
 
-    private class IgnoreOptions extends GetAllElements {
+    private class IgnoreOptions extends AddGraph {
         @Override
         public void setOptions(final Map<String, String> options) {
             //

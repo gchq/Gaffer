@@ -116,7 +116,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return isUserRequestingDefaultGraphsOverride;
     }
 
-    @JsonGetter("isUserRequestingDefaultGraphsOverride")
+    @JsonGetter("userRequestingDefaultGraphsOverride")
     public Boolean _isUserRequestingDefaultGraphsOverride() {
         return isUserRequestingDefaultGraphsOverride ? true : null;
     }
@@ -262,7 +262,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     }
 
-    public abstract static class BuilderParent<INPUT, OUTPUT> extends BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
+    public abstract static class BuilderParent<INPUT, OUTPUT> extends IFederationOperation.BaseBuilder<FederatedOperation<INPUT, OUTPUT>, BuilderParent<INPUT, OUTPUT>> {
         public BuilderParent(final FederatedOperation<INPUT, OUTPUT> fedOp) {
             super(fedOp);
         }

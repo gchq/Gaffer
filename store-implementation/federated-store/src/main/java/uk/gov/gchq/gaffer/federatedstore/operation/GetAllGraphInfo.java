@@ -115,7 +115,7 @@ public class GetAllGraphInfo implements
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<GetAllGraphInfo, Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<GetAllGraphInfo, Builder> {
 
         public Builder() {
             super(new GetAllGraphInfo());

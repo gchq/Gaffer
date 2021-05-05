@@ -23,7 +23,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphAccess;
@@ -84,7 +83,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -107,7 +106,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         //then
@@ -129,7 +128,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -149,7 +148,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         //then
@@ -171,7 +170,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -214,7 +213,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         assertNotNull(allGraphsAndAuths);
@@ -320,7 +319,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
                 .graphId(graphA)
                 .ownerUserId(replacementUser.getUserId())
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -375,7 +374,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
                 .graphId(graphA)
                 .ownerUserId(replacementUser.getUserId())
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), replacementUser);
 
         //then
@@ -427,7 +426,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -482,7 +481,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
-                .option(FederatedStoreConstants.KEY_FEDERATION_ADMIN_REQUEST_FLAG, "true")
+                .setIsUserRequestingAdminUsage(true)
                 .build(), otherUser);
 
         //then

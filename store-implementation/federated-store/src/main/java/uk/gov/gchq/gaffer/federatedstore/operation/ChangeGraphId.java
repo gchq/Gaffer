@@ -93,10 +93,10 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
         return new TypeReferenceImpl.Boolean();
     }
 
-    public static class Builder extends BaseBuilder<ChangeGraphId, ChangeGraphId.Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<ChangeGraphId, ChangeGraphId.Builder> {
 
         public Builder() {
-            super(new ChangeGraphId());
+            this(new ChangeGraphId());
         }
 
         protected Builder(final ChangeGraphId addGraph) {
