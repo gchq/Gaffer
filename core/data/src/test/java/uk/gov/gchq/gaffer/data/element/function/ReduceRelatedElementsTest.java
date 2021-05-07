@@ -403,8 +403,23 @@ public class ReduceRelatedElementsTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends ReduceRelatedElements> getFunctionClass() {
         return ReduceRelatedElements.class;
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[0];
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[0];
     }
 
     @Override

@@ -93,8 +93,23 @@ public class TypeValueToTupleTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends TypeValueToTuple> getFunctionClass() {
         return TypeValueToTuple.class;
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[0];
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[0];
     }
 
     @Override
