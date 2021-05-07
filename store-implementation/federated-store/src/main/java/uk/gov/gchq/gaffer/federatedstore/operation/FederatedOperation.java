@@ -198,7 +198,9 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                     .append(this.graphIdsCsv, that.graphIdsCsv)
                     .append(this.mergeFunction, that.mergeFunction)
                     .append(this.skipFailedFederatedExecution, that.skipFailedFederatedExecution)
-                    .append(this.options, that.options);
+                    .append(this.options, that.options)
+                    .append(this.isUserRequestingAdminUsage, that.isUserRequestingAdminUsage)
+                    .append(this.isUserRequestingDefaultGraphsOverride, that.isUserRequestingDefaultGraphsOverride);
 
             if (equalsBuilder.isEquals()) {
                 try {
@@ -225,6 +227,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .append(mergeFunction)
                 .append(skipFailedFederatedExecution)
                 .append(options)
+                .append(isUserRequestingAdminUsage)
+                .append(isUserRequestingDefaultGraphsOverride)
                 .build();
     }
 

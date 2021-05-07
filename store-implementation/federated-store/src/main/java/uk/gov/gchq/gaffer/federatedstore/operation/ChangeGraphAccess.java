@@ -65,7 +65,8 @@ public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation 
                 .disabledByDefault(disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic)
-                .ownerUserId(this.ownerUserId);
+                .ownerUserId(this.ownerUserId)
+                .setIsUserRequestingAdminUsage(this.isUserRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));

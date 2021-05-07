@@ -102,16 +102,17 @@ public class AddGraph implements IFederationOperation {
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
         final Builder builder = new Builder()
-                .graphId(graphId)
-                .schema(schema)
-                .storeProperties(storeProperties)
-                .parentSchemaIds(parentSchemaIds)
-                .parentPropertiesId(parentPropertiesId)
-                .disabledByDefault(disabledByDefault)
+                .graphId(this.graphId)
+                .schema(this.schema)
+                .storeProperties(this.storeProperties)
+                .parentSchemaIds(this.parentSchemaIds)
+                .parentPropertiesId(this.parentPropertiesId)
+                .disabledByDefault(this.disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
-                .writeAccessPredicate(this.writeAccessPredicate);
+                .writeAccessPredicate(this.writeAccessPredicate)
+                .setIsUserRequestingAdminUsage(this.isUserRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));

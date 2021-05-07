@@ -48,6 +48,7 @@ public class GetAllGraphIds implements
     public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
+                .setIsUserRequestingAdminUsage(isUserRequestingAdminUsage)
                 .build();
     }
 

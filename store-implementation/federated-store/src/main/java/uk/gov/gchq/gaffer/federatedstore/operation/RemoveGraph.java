@@ -62,6 +62,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
         return new RemoveGraph.Builder()
                 .graphId(graphId)
                 .options(options)
+                .setIsUserRequestingAdminUsage(isUserRequestingAdminUsage)
                 .build();
     }
 

@@ -65,6 +65,7 @@ public class GetAllGraphInfo implements
         return new Builder()
                 .options(options)
                 .graphIDsCSV(graphIdsCsv)
+                .setIsUserRequestingAdminUsage(isUserRequestingAdminUsage)
                 .build();
     }
 

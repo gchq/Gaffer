@@ -62,9 +62,11 @@ public class ChangeGraphId implements Output<Boolean>, IFederationOperation {
     public ChangeGraphId shallowClone() throws CloneFailedException {
 
         return new Builder()
-                .graphId(graphId)
-                .newGraphId(newGraphId)
-                .options(this.options).build();
+                .graphId(this.graphId)
+                .newGraphId(this.newGraphId)
+                .options(this.options)
+                .setIsUserRequestingAdminUsage(this.isUserRequestingAdminUsage)
+                .build();
     }
 
     @Override

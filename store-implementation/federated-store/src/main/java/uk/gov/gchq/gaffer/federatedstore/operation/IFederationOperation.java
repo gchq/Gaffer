@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
