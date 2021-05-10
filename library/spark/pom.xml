@@ -37,7 +37,7 @@
     <repositories>
         <repository>
             <id>Spark Packages</id>
-            <url>https://dl.bintray.com/spark-packages/maven/</url>
+            <url>https://repos.spark-packages.org/</url>
         </repository>
     </repositories>
 </project>
