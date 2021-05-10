@@ -15,7 +15,9 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -41,7 +43,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests />
+        <exclude.tests/>
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -94,6 +96,10 @@
         <swagger.version>1.5.15</swagger.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <mockserver.version>3.9.16</mockserver.version>
+
+        <!-- Spark replacement of Bintray  -->
+        <org.scalatest.version>2.2.6</org.scalatest.version>
+        <com.typesafe.scala-logging.version>2.1.2</com.typesafe.scala-logging.version>
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
@@ -619,6 +625,36 @@
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
                 <version>${snappy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-graphx_2.11</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_2.11</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest_2.11</artifactId>
+                <version>${org.scalatest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.scala-logging</groupId>
+                <artifactId>scala-logging-api_2.11</artifactId>
+                <version>${com.typesafe.scala-logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.scala-logging</groupId>
+                <artifactId>scala-logging-slf4j_2.11</artifactId>
+                <version>${com.typesafe.scala-logging.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1175,7 +1211,8 @@
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                             <keepStagingRepositoryOnCloseRuleFailure>true
                             </keepStagingRepositoryOnCloseRuleFailure>
-                            <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
+                            <stagingProgressTimeoutMinutes>10
+                            </stagingProgressTimeoutMinutes>
                         </configuration>
                     </plugin>
                     <plugin>
