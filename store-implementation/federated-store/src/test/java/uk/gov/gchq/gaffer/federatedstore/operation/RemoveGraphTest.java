@@ -37,14 +37,14 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
-                .setIsUserRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build();
 
         byte[] serialise = toJson(op);
         RemoveGraph deserialise = fromJson(serialise);
 
         assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
-        assertTrue(deserialise.isUserRequestingAdminUsage());
+        assertTrue(deserialise.userRequestingAdminUsage());
     }
 
     @Override
@@ -57,11 +57,11 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
-                .setIsUserRequestingAdminUsage(true)
+                .setUserRequestingAdminUsage(true)
                 .build();
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
-        assertTrue(op.isUserRequestingAdminUsage());
+        assertTrue(op.userRequestingAdminUsage());
     }
 
     @Test

@@ -51,7 +51,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
     @Override
     public Void doOperation(final OP operation, final Context context, final Store store) throws OperationException {
         final User user = context.getUser();
-        boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user, operation.isUserRequestingAdminUsage());
+        boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user, operation.userRequestingAdminUsage());
 
         if (isLimitedToLibraryProperties && null != operation.getStoreProperties()) {
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));

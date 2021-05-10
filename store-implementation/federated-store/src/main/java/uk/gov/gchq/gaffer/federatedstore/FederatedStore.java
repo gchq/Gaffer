@@ -292,8 +292,8 @@ public class FederatedStore extends Store {
         return getAllGraphIds(user, false);
     }
 
-    public Collection<String> getAllGraphIds(final User user, final boolean isUserRequestingAdminUsage) {
-        return isUserRequestingAdminUsage
+    public Collection<String> getAllGraphIds(final User user, final boolean userRequestingAdminUsage) {
+        return userRequestingAdminUsage
                 ? graphStorage.getAllIdsAsAdmin(user, this.getProperties().getAdminAuth())
                 : graphStorage.getAllIds(user);
     }
@@ -362,7 +362,7 @@ public class FederatedStore extends Store {
                 LOGGER.debug("getting default graphs because requested graphIdsCsv is null");
                 rtn = getDefaultGraphs(user, operation);
             } else {
-                String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
+                String adminAuth = operation.userRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
                 rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv), adminAuth));
             }
         } else {
@@ -404,9 +404,9 @@ public class FederatedStore extends Store {
         return this.getAllGraphsAndAuths(user, graphIdsCsv, false);
     }
 
-    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean isUserRequestingAdminUsage) {
+    public Map<String, Object> getAllGraphsAndAuths(final User user, final String graphIdsCsv, final boolean userRequestingAdminUsage) {
         List<String> graphIds = getCleanStrings(graphIdsCsv);
-        return isUserRequestingAdminUsage
+        return userRequestingAdminUsage
                 ? graphStorage.getAllGraphsAndAccessAsAdmin(user, graphIds, this.getProperties().getAdminAuth())
                 : graphStorage.getAllGraphsAndAccess(user, graphIds);
     }
@@ -423,9 +423,9 @@ public class FederatedStore extends Store {
         return isLimitedToLibraryProperties(user, false);
     }
 
-    public boolean isLimitedToLibraryProperties(final User user, final boolean isUserRequestingAdminUsage) {
+    public boolean isLimitedToLibraryProperties(final User user, final boolean userRequestingAdminUsage) {
 
-        boolean isAdmin = isUserRequestingAdminUsage && new AccessPredicate(new NoAccessUserPredicate()).test(user, this.getProperties().getAdminAuth());
+        boolean isAdmin = userRequestingAdminUsage && new AccessPredicate(new NoAccessUserPredicate()).test(user, this.getProperties().getAdminAuth());
 
         return !isAdmin
                 && nonNull(this.customPropertiesAuths)
@@ -551,13 +551,13 @@ public class FederatedStore extends Store {
     public Collection<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
 
         boolean isAdminRequestingOverridingDefaultGraphs =
-                operation.isUserRequestingAdminUsage()
+                operation.userRequestingAdminUsage()
                         && (operation instanceof FederatedOperation)
                         && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
 
         //TODO FS Test does this preserve get graph.isDefault?
         return isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs
-                ? graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null))
+                ? graphStorage.get(user, null, (operation.userRequestingAdminUsage() ? getProperties().getAdminAuth() : null))
                 : getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
     }
 

@@ -68,9 +68,9 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     private Function<Iterable, OUTPUT> mergeFunction; //TODO FS Review change to Function<Iterable, OUTPUT>
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
-    // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.isUserRequestingAdminUsage(operation);
+    // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.userRequestingAdminUsage(operation);
     private Map<String, String> options;
-    private boolean isUserRequestingAdminUsage;
+    private boolean userRequestingAdminUsage;
     private boolean isUserRequestingDefaultGraphsOverride;
 
     @JsonProperty("graphIds")
@@ -102,13 +102,13 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @Override
-    public boolean isUserRequestingAdminUsage() {
-        return isUserRequestingAdminUsage;
+    public boolean userRequestingAdminUsage() {
+        return userRequestingAdminUsage;
     }
 
     @Override
-    public FederatedOperation<INPUT, OUTPUT> setIsUserRequestingAdminUsage(final boolean adminRequest) {
-        isUserRequestingAdminUsage = adminRequest;
+    public FederatedOperation<INPUT, OUTPUT> setUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
         return this;
     }
 
@@ -199,7 +199,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                     .append(this.mergeFunction, that.mergeFunction)
                     .append(this.skipFailedFederatedExecution, that.skipFailedFederatedExecution)
                     .append(this.options, that.options)
-                    .append(this.isUserRequestingAdminUsage, that.isUserRequestingAdminUsage)
+                    .append(this.userRequestingAdminUsage, that.userRequestingAdminUsage)
                     .append(this.isUserRequestingDefaultGraphsOverride, that.isUserRequestingDefaultGraphsOverride);
 
             if (equalsBuilder.isEquals()) {
@@ -227,7 +227,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .append(mergeFunction)
                 .append(skipFailedFederatedExecution)
                 .append(options)
-                .append(isUserRequestingAdminUsage)
+                .append(userRequestingAdminUsage)
                 .append(isUserRequestingDefaultGraphsOverride)
                 .build();
     }

@@ -47,7 +47,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
     @Required
     private String graphId;
     private Map<String, String> options;
-    private boolean isUserRequestingAdminUsage;
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -62,7 +62,7 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
         return new RemoveGraph.Builder()
                 .graphId(graphId)
                 .options(options)
-                .setIsUserRequestingAdminUsage(isUserRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -72,13 +72,13 @@ public class RemoveGraph implements IFederationOperation, Output<Boolean> {
     }
 
     @Override
-    public boolean isUserRequestingAdminUsage() {
-        return isUserRequestingAdminUsage;
+    public boolean userRequestingAdminUsage() {
+        return userRequestingAdminUsage;
     }
 
     @Override
-    public RemoveGraph setIsUserRequestingAdminUsage(final boolean adminRequest) {
-        isUserRequestingAdminUsage = adminRequest;
+    public RemoveGraph setUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
         return this;
     }
 

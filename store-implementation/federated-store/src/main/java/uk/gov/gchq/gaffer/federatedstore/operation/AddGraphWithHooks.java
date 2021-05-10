@@ -45,7 +45,7 @@ public class AddGraphWithHooks extends AddGraph {
                 .isPublic(getIsPublic())
                 .readAccessPredicate(getReadAccessPredicate())
                 .writeAccessPredicate(getWriteAccessPredicate())
-                .setIsUserRequestingAdminUsage(isUserRequestingAdminUsage())
+                .setUserRequestingAdminUsage(userRequestingAdminUsage())
                 .hooks(hooks);
 
         if (null != getGraphAuths()) {

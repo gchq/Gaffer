@@ -37,7 +37,7 @@ public class GetAllGraphIds implements
         IFederationOperation,
         Output<Iterable<? extends String>> {
     private Map<String, String> options;
-    private boolean isUserRequestingAdminUsage;
+    private boolean userRequestingAdminUsage;
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -48,7 +48,7 @@ public class GetAllGraphIds implements
     public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .setIsUserRequestingAdminUsage(isUserRequestingAdminUsage)
+                .setUserRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -58,13 +58,13 @@ public class GetAllGraphIds implements
     }
 
     @Override
-    public boolean isUserRequestingAdminUsage() {
-        return isUserRequestingAdminUsage;
+    public boolean userRequestingAdminUsage() {
+        return userRequestingAdminUsage;
     }
 
     @Override
-    public GetAllGraphIds setIsUserRequestingAdminUsage(final boolean adminRequest) {
-        isUserRequestingAdminUsage = adminRequest;
+    public GetAllGraphIds setUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
         return this;
     }
 

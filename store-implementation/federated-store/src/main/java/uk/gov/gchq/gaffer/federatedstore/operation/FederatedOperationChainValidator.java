@@ -88,7 +88,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                         .Builder()
                         .op(shallowCloneWithDeepOptions(op))
                         .graphIds(graphIdsCSV)
-                        .setIsUserRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
+                        .setUserRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).userRequestingAdminUsage())
                         .build();
         Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
         for (final Graph graph : graphs) {
@@ -148,10 +148,10 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 ? ((FederatedOperation) op).getGraphIdsCSV()
                 : null;
 
-        boolean isUserRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
+        boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).userRequestingAdminUsage();
 
         return isNull(rtn)
-                ? String.join(",", store.getAllGraphIds(user, isUserRequestingAdminUsage))
+                ? String.join(",", store.getAllGraphIds(user, userRequestingAdminUsage))
                 : rtn;
     }
 }

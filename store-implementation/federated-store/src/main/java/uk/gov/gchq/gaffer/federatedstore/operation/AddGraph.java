@@ -81,7 +81,7 @@ public class AddGraph implements IFederationOperation {
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-    private boolean isUserRequestingAdminUsage;
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -112,7 +112,7 @@ public class AddGraph implements IFederationOperation {
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
                 .writeAccessPredicate(this.writeAccessPredicate)
-                .setIsUserRequestingAdminUsage(this.isUserRequestingAdminUsage);
+                .setUserRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -212,13 +212,13 @@ public class AddGraph implements IFederationOperation {
     }
 
     @Override
-    public boolean isUserRequestingAdminUsage() {
-        return isUserRequestingAdminUsage;
+    public boolean userRequestingAdminUsage() {
+        return userRequestingAdminUsage;
     }
 
     @Override
-    public AddGraph setIsUserRequestingAdminUsage(final boolean adminRequest) {
-        isUserRequestingAdminUsage = adminRequest;
+    public AddGraph setUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
         return this;
     }
 
