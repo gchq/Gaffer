@@ -84,7 +84,12 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
         FederatedOperation clonedOp = op instanceof FederatedOperation
                 ? (FederatedOperation) shallowCloneWithDeepOptions(op)
-                : new FederatedOperation.Builder().op(shallowCloneWithDeepOptions(op)).graphIds(graphIdsCSV).build();
+                : new FederatedOperation
+                        .Builder()
+                        .op(shallowCloneWithDeepOptions(op))
+                        .graphIds(graphIdsCSV)
+                        .setIsUserRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
+                        .build();
         Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
         for (final Graph graph : graphs) {
             String graphId = graph.getGraphId();

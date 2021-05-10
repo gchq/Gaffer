@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
@@ -36,12 +37,14 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
+                .setIsUserRequestingAdminUsage(true)
                 .build();
 
         byte[] serialise = toJson(op);
         RemoveGraph deserialise = fromJson(serialise);
 
         assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
+        assertTrue(deserialise.isUserRequestingAdminUsage());
     }
 
     @Override
@@ -54,9 +57,11 @@ public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
+                .setIsUserRequestingAdminUsage(true)
                 .build();
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertTrue(op.isUserRequestingAdminUsage());
     }
 
     @Test

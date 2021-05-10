@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import org.apache.commons.lang3.exception.CloneFailedException;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
@@ -30,11 +29,12 @@ import uk.gov.gchq.koryphe.Since;
 public interface IFederationOperation extends Operation {
     boolean isUserRequestingAdminUsage();
 
-    @JsonGetter("userRequestingAdminUsage")
+    @JsonProperty("userRequestingAdminUsage")
     default Boolean _isUserRequestingAdminUsageOrNull() {
         return isUserRequestingAdminUsage() ? true : null;
     }
 
+    @JsonProperty("userRequestingAdminUsage")
     Operation setIsUserRequestingAdminUsage(final boolean adminRequest);
 
     abstract class BaseBuilder<OP extends IFederationOperation, B extends Operation.BaseBuilder<OP, ?>> extends Operation.BaseBuilder<OP, B> {
