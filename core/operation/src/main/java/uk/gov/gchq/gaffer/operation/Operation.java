@@ -128,9 +128,8 @@ public interface Operation extends Closeable {
     default void addOption(final String name, final String value) {
         if (isNull(getOptions())) {
             setOptions(new HashMap<>());
-        } else {
-            getOptions().put(name, value);
         }
+        getOptions().put(name, value);
     }
 
     /**

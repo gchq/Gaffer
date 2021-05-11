@@ -115,7 +115,8 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  */
 public class FederatedStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-    private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
+    public static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
+    public static final String FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY = "FedStoreGraphId_value_null_or_empty";
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
@@ -344,7 +345,7 @@ public class FederatedStore extends Store {
     public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final IFederationOperation operation) {
         Collection<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            String optionKey = FEDERATED_STORE_PROCESSED + id;
+            String optionKey = getFedStoreProcessedKey();
             boolean isFedStoreIdPreexisting = addFedStoreId(operation, optionKey);
             if (isFedStoreIdPreexisting) {
                 List<String> federatedStoreIds = operation.getOptions()
@@ -371,11 +372,15 @@ public class FederatedStore extends Store {
         return rtn;
     }
 
+    private String getFedStoreProcessedKey() {
+        return FEDERATED_STORE_PROCESSED + id;
+    }
+
     private boolean addFedStoreId(final Operation operation, final String optionKey) {
         boolean rtn = false;
         if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
             //Keep Order v
-            boolean hasOperationPreexistingFedStoreId = !operation.getOption(optionKey, "").isEmpty();
+            boolean hasOperationPreexistingFedStoreId = !isNullOrEmpty(operation.getOption(optionKey, null)); //There is difference between value is null and key not found.
             //Keep Order ^
             boolean hasPayloadPreexistingFedStoreId = false;
             if (operation instanceof FederatedOperation) {
@@ -394,7 +399,7 @@ public class FederatedStore extends Store {
 //            rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
 
             //Add FedStoreId to current Operation.
-            operation.addOption(optionKey, getGraphId());
+            operation.addOption(optionKey, getFedStoreProcessedValue());
             rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
         }
         return rtn;
@@ -556,9 +561,21 @@ public class FederatedStore extends Store {
                         && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
 
         //TODO FS Test does this preserve get graph.isDefault?
-        return isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs
-                ? graphStorage.get(user, null, (operation.userRequestingAdminUsage() ? getProperties().getAdminAuth() : null))
-                : getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
+        if (isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs) {
+            return graphStorage.get(user, null, (operation.userRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
+        } else {
+            //This operation has already been processes once, by this store.
+            String fedStoreProcessedKey = getFedStoreProcessedKey();
+            operation.addOption(fedStoreProcessedKey, null); // value is null, but key is still found.
+            Collection<Graph> graphs = getGraphs(user, adminConfiguredDefaultGraphIdsCSV, operation);
+            //put it back
+            operation.addOption(fedStoreProcessedKey, getFedStoreProcessedValue());
+            return graphs;
+        }
+    }
+
+    private String getFedStoreProcessedValue() {
+        return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 
     public FederatedStore setAdminConfiguredDefaultMergeFunction(final Function<Iterable, Object> adminConfiguredDefaultMergeFunction) {

@@ -40,10 +40,14 @@ public class FederatedStoreDefaultGraphsTest {
         try {
             //when
             federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             //then
-            assertTrue(e.getMessage().contains("defaultJsonGraphId"));
-            assertEquals("The following graphIds are not visible or do not exist: [defaultJsonGraphId]", e.getMessage());
+            try {
+                assertTrue(e.getMessage().contains("defaultJsonGraphId"));
+                assertEquals("The following graphIds are not visible or do not exist: [defaultJsonGraphId]", e.getMessage());
+            } catch (final Exception e2) {
+                throw e;
+            }
         }
 
     }
