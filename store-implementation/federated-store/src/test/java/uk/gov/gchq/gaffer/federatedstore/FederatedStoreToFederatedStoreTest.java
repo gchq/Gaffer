@@ -149,8 +149,7 @@ public class FederatedStoreToFederatedStoreTest {
         FederatedOperation federatedOperation = new FederatedOperation.Builder()
                 .op(new AddElements.Builder().input(entity, edge).build())
                 .graphIds(mapStoreGraphId)
-                //TODO FS ERROR, add line below for error.
-                //.mergeFunction((Function<Iterable, Object>) new DefaultMerge())
+                .mergeFunction(new DefaultMerge())
                 .build();
 
         restApiFederatedGraph.execute(federatedOperation, new User());
