@@ -50,6 +50,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.IterableFlatten;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.util.Arrays;
@@ -182,13 +184,13 @@ public class FederatedOperationChainHandlerTest {
                         .first(new GetAllElements())
                         .then(new Count<>())
                         .build())
-                .mergeFunction(null/*TODO FS Needs SUM*/)
+                .mergeFunction(new IterableFlatten(new Sum()))
                 .graphIdsCSV(GRAPH_IDS);
         // When
         final Object result = store.execute(opChain, context);
 
         // Then
-        assertEquals(Lists.newArrayList(1L, 1L), Lists.newArrayList((Iterable) result));
+        assertEquals(2L, result);
     }
 
     @Test
