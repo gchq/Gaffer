@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
-public class ReduceRelatedElementsTest extends FunctionTest {
+public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElements> {
     public static final String RELATES_TO = "relatesTo";
     public static final String VISIBILITY = "visibility";
 
@@ -414,12 +414,12 @@ public class ReduceRelatedElementsTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[]{Iterable.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{Iterable.class};
     }
 
     @Override
