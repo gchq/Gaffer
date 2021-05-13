@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.16.1-SNAPSHOT</version>
+        <version>1.16.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>spark</artifactId>
@@ -37,7 +37,7 @@
     <repositories>
         <repository>
             <id>Spark Packages</id>
-            <url>https://dl.bintray.com/spark-packages/maven/</url>
+            <url>https://repos.spark-packages.org/</url>
         </repository>
     </repositories>
 </project>
