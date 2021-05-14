@@ -586,8 +586,8 @@ public class FederatedStore extends Store {
     public Function<Iterable, Object> getDefaultMergeFunction() {
         return isNull(adminConfiguredDefaultMergeFunction)
                 //TODO FS Refactor USE COLLECTION/ITERABLE CONCAT
-                ? new DefaultMerge()
-                //? new uk.gov.gchq.koryphe.impl.function.IterableConcat()
+//                ? new DefaultMerge()
+                ? new uk.gov.gchq.koryphe.impl.function.IterableConcat()
                 : adminConfiguredDefaultMergeFunction;
     }
 }
