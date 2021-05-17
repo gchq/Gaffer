@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -48,6 +49,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static java.util.Objects.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
@@ -61,7 +63,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
-public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, Output<OUTPUT> {
+public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
     private String graphIdsCsv;
     @Required
     private Operation payloadOperation;
@@ -162,7 +164,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
      */
     @JsonProperty("operation")
     public Operation getPayloadOperation() {
-        return Objects.isNull(payloadOperation) ? null : payloadOperation.shallowClone();
+        return isNull(payloadOperation) ? null : payloadOperation.shallowClone();
     }
 
     public Function<Iterable, OUTPUT> getMergeFunction() {
@@ -235,6 +237,34 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public TypeReference getOutputTypeReference() {
         return new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public INPUT getInput() {
+        if (nonNull(getPayloadOperation()) && (getPayloadOperation() instanceof Input))
+            try {
+                return (INPUT) ((Input) getPayloadOperation()).getInput();
+            } catch (Exception e) {
+                throw new GafferRuntimeException("Error getting FederatedOperation input from payload operation", e);
+            }
+        else {
+            Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
+            throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
+        }
+    }
+
+    @Override
+    public void setInput(final INPUT input) {
+        if (nonNull(this.payloadOperation) && this.payloadOperation instanceof Input) {
+            try {
+                ((Input) this.payloadOperation).setInput(input);
+            } catch (Exception e) {
+                throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
+            }
+        } else {
+            Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
+            throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
+        }
     }
 
     public static class Builder {

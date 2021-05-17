@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.koryphe.Since;
 
 import java.util.ArrayList;
@@ -59,11 +60,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             results = new ArrayList<>(graphs.size());
             for (final Graph graph : graphs) {
 
-                //TODO FS REFACTOR, stitch the Input of FederatedOperation to PAYLOAD/updatedOp? Similar-1
-//                PAYLOAD payloadOperation = getPayloadOperation(operation);
-//                if (operation instanceof Input) {
-//                    OperationHandlerUtil.updateOperationInput(payloadOperation, ((Input) operation).getInput());
-//                }
                 final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getPayloadOperation(), graph);
                 if (null != updatedOp) {
                     try {
