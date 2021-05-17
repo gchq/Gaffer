@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
