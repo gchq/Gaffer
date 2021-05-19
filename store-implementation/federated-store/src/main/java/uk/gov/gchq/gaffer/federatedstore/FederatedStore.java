@@ -82,6 +82,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -308,7 +309,7 @@ public class FederatedStore extends Store {
         return getSchema(getFederatedWrappedSchema(), context);
     }
 
-    public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
+    public Schema getSchema(final FederatedOperation operation, final Context context) {
         return graphStorage.getSchema(operation, context);
     }
 
@@ -320,7 +321,7 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
-    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Object> getTraits, final Context context) {
+    public Set<StoreTrait> getTraits(final FederatedOperation getTraits, final Context context) {
         return graphStorage.getTraits(getTraits, context);
     }
 
@@ -585,9 +586,7 @@ public class FederatedStore extends Store {
 
     public Function<Iterable, Object> getDefaultMergeFunction() {
         return isNull(adminConfiguredDefaultMergeFunction)
-                //TODO FS Refactor USE COLLECTION/ITERABLE CONCAT
-//                ? new DefaultMerge()
-                ? new uk.gov.gchq.koryphe.impl.function.IterableConcat()
+                ? new IterableConcat()
                 : adminConfiguredDefaultMergeFunction;
     }
 }

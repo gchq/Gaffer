@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.federatedstore.DefaultMerge;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
@@ -54,6 +53,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,9 +120,9 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(operation);
+        FederatedOperation federatedOperation = getFederatedOperation(operation);
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
-        when(federatedStore.getDefaultMergeFunction()).thenReturn(new DefaultMerge());
+        when(federatedStore.getDefaultMergeFunction()).thenReturn(new IterableConcat());
 
         // When
         CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -138,11 +138,11 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
+        FederatedOperation federatedOperation = getFederatedOperation(payload);
         federatedOperation.graphIdsCSV("1,3");
         when(federatedStore.getGraphs(testUser, "1,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
-        given(federatedStore.getDefaultMergeFunction()).willReturn(new DefaultMerge());
+        given(federatedStore.getDefaultMergeFunction()).willReturn(new IterableConcat());
 
         // When
         CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -188,7 +188,7 @@ public class FederatedOperationHandlerTest {
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(payload);
+        FederatedOperation federatedOperation = getFederatedOperation(payload);
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
@@ -211,17 +211,17 @@ public class FederatedOperationHandlerTest {
         given(mockStore.getSchema()).willReturn(new Schema());
         given(mockStore.getProperties()).willReturn(new FederatedStoreProperties());
         given(mockStore.execute(any(), any())).willThrow(new RuntimeException(errorMessage));
-        given(mockStore.getDefaultMergeFunction()).willReturn(new DefaultMerge());
+        given(mockStore.getDefaultMergeFunction()).willReturn(new IterableConcat());
         graph3 = getGraphWithMockStore(mockStore);
 
         FederatedStore federatedStore = mock(FederatedStore.class);
 
-        FederatedOperation<Void, CloseableIterable<? extends Element>> federatedOperation = getFederatedOperation(getPayload());
+        FederatedOperation federatedOperation = getFederatedOperation(getPayload());
         federatedOperation.skipFailedFederatedExecution(true);
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
-        when(federatedStore.getDefaultMergeFunction()).thenReturn(new DefaultMerge());
+        when(federatedStore.getDefaultMergeFunction()).thenReturn(new IterableConcat());
 
         // When
         CloseableIterable<? extends Element> results = null;

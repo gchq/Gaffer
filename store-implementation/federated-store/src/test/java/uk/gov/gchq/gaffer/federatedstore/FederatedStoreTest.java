@@ -65,6 +65,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +73,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -1429,7 +1429,7 @@ public class FederatedStoreTest {
                         .input(input)
                         .build())
                 .graphIdsCSV(graphName)
-                .mergeFunction((Function<Iterable, Object>) new DefaultMerge()), userContext);
+                .mergeFunction(new IterableConcat()), userContext);
     }
 
     protected Entity getEntityB() {

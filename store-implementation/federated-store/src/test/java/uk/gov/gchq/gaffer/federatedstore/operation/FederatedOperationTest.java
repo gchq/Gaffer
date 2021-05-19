@@ -20,9 +20,10 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.federatedstore.DefaultMerge;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -96,7 +97,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                 .op(new GetAdjacentIds.Builder()
                         .build())
                 .graphIds(EXPECTED_GRAPH_ID)
-                .mergeFunction((Function<Iterable, Object>) new DefaultMerge())
+                .mergeFunction(new IterableConcat())
                 .option("op1", "val1")
                 .skipFailedFederatedExecution(false)
                 .build();

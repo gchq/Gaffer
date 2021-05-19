@@ -74,13 +74,13 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private boolean isUserRequestingDefaultGraphsOverride;
 
     @JsonProperty("graphIds")
-    public FederatedOperation graphIdsCSV(final String graphIds) {
+    public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {
         this.graphIdsCsv = graphIds;
         return this;
     }
 
     @JsonProperty("operation")
-    public FederatedOperation payloadOperation(final Operation op) {
+    public FederatedOperation<INPUT, OUTPUT> payloadOperation(final Operation op) {
         if (this == op) {
             throw new GafferRuntimeException("Your attempting to add the FederatedOperation to its self as a payload, this will cause an infinite loop when cloned.");
         }
@@ -92,7 +92,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return this;
     }
 
-    public FederatedOperation mergeFunction(final Function<Iterable, OUTPUT> mergeFunction) {
+    public FederatedOperation<INPUT, OUTPUT> mergeFunction(final Function<Iterable, OUTPUT> mergeFunction) {
         this.mergeFunction = mergeFunction;
         return this;
     }
@@ -285,11 +285,36 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             _getOp().skipFailedFederatedExecution(skipFailedFederatedExecution);
             return _self();
         }
+
+        @Override
+        public BuilderParent<INPUT, OUTPUT> _self() {
+            return this;
+        }
+
+        @Override
+        public FederatedOperation<INPUT, OUTPUT> _getOp() {
+            return super._getOp();
+        }
+
+        @Override
+        public BuilderParent<INPUT, OUTPUT> option(final String name, final String value) {
+            return super.option(name, value);
+        }
+
+        @Override
+        public BuilderParent<INPUT, OUTPUT> options(final Map<String, String> options) {
+            return super.options(options);
+        }
+
+        @Override
+        public FederatedOperation<INPUT, OUTPUT> build() {
+            return super.build();
+        }
     }
 
     private static final class BuilderIO<INPUT, OUTPUT> extends FederatedOperation.BuilderParent<INPUT, OUTPUT> {
         private BuilderIO(final InputOutput<INPUT, Object> op) {
-            super(new FederatedOperation<>());
+            super(new FederatedOperation<INPUT, OUTPUT>());
             FederatedOperation<INPUT, OUTPUT> fedOpIO = this._getOp();
             fedOpIO.payloadOperation(op);
         }
@@ -297,7 +322,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     private static final class BuilderI<INPUT> extends FederatedOperation.BuilderParent<INPUT, Void> {
         private BuilderI(final Input<INPUT> op) {
-            super(new FederatedOperation<>());
+            super(new FederatedOperation<INPUT, Void>());
             FederatedOperation<INPUT, Void> fedOpI = this._getOp();
             fedOpI.payloadOperation(op);
         }
@@ -305,7 +330,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     private static final class BuilderO<OUTPUT> extends FederatedOperation.BuilderParent<Void, OUTPUT> {
         private BuilderO(final Output op) {
-            super(new FederatedOperation<>());
+            super(new FederatedOperation<Void, OUTPUT>());
             FederatedOperation<Void, OUTPUT> fedOpO = this._getOp();
             fedOpO.payloadOperation(op);
         }
@@ -313,7 +338,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
 
     private static final class BuilderNeitherIO extends FederatedOperation.BuilderParent<Void, Void> {
         private BuilderNeitherIO(final Operation op) {
-            super(new FederatedOperation<>());
+            super(new FederatedOperation<Void, Void>());
             FederatedOperation<Void, Void> fedOpO = this._getOp();
             fedOpO.payloadOperation(op);
         }

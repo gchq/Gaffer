@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
-import uk.gov.gchq.gaffer.federatedstore.DefaultMerge;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.PredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
@@ -50,6 +49,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.util.Arrays;
@@ -111,7 +111,7 @@ public class FederatedOperationChainHandlerTest {
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction((Function<Iterable, Object>) new DefaultMerge())
+                        .mergeFunction(new IterableConcat())
                         // Ensure the elements are returned form the graphs in the right order
                         .graphIds(GRAPH_IDS)
                         .build())
@@ -216,12 +216,14 @@ public class FederatedOperationChainHandlerTest {
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+        OperationChain.OutputBuilder<Iterable> first = new OperationChain.Builder()
                 .first(getFederatedOperation(new OperationChain.Builder()
                         .first(new GetAllElements())
                         .then(new Limit<>(1))
                         .build())
-                        .graphIdsCSV(GRAPH_IDS))
+                        .graphIdsCSV(GRAPH_IDS));
+
+        final OperationChain<Iterable<Object>> opChain = first
                 .then(new Limit<>(1))
                 .build();
 

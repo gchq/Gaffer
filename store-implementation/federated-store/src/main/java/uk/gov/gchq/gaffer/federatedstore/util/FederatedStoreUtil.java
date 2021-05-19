@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -188,7 +189,7 @@ public final class FederatedStoreUtil {
         FederatedOperation.BuilderParent<INPUT, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation);
 
-        initMergeAndGraphIds(operation, builder);
+        checkGraphIds(operation, builder);
 
         return builder.build();
     }
@@ -198,17 +199,19 @@ public final class FederatedStoreUtil {
         FederatedOperation.BuilderParent<INPUT, Void> builder = new FederatedOperation.Builder()
                 .op(operation);
 
-        initMergeAndGraphIds(operation, builder);
+        checkGraphIds(operation, builder);
 
         return builder.build();
     }
 
-    public static <OUTPUT> FederatedOperation<Void, OUTPUT> getFederatedOperation(final Output operation) {
+    public static FederatedOperation<Void, Iterable> getFederatedOperation(final Output operation) {
 
-        FederatedOperation.BuilderParent<Void, OUTPUT> builder = new FederatedOperation.Builder()
-                .op(operation);
+        FederatedOperation.BuilderParent<Void,Iterable> builder = new FederatedOperation.Builder()
+                .op(operation)
+                .mergeFunction(new IterableConcat());
 
-        initMergeAndGraphIds(operation, builder);
+        checkGraphIds(operation, builder);
+
 
         return builder.build();
     }
@@ -218,15 +221,13 @@ public final class FederatedStoreUtil {
         FederatedOperation.BuilderParent<INPUT, Void> builder = new FederatedOperation.Builder()
                 .op(operation);
 
-        initMergeAndGraphIds(operation, builder);
+        checkGraphIds(operation, builder);
 
         return builder.build();
     }
 
     @Deprecated
-    private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> initMergeAndGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
-        // TODO FS Peer Review, mergeOptions();
-
+    private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> checkGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
         //TODO FS Refactor, Search and delete this string, inc demo
         String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(graphIdOption)) {
@@ -238,13 +239,13 @@ public final class FederatedStoreUtil {
 
 
     //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
-    public static FederatedOperation<Void, Object> getFederatedWrappedSchema() {
+    public static FederatedOperation<Void, Iterable> getFederatedWrappedSchema() {
         //TODO FS Examine return FederatedOperation<Void, Set<StoreTrait>> make a suitable merge function?
         return getFederatedOperation(new GetSchema());
     }
 
     //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
-    public static FederatedOperation<Void, Object> getFederatedWrappedTraits() {
+    public static FederatedOperation<Void, Iterable> getFederatedWrappedTraits() {
         //TODO FS Examine return FederatedOperation<Void, Set<StoreTrait>> make a suitable merge function?
         return getFederatedOperation(new GetTraits());
     }
