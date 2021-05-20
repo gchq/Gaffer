@@ -32,11 +32,11 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -46,10 +46,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
-import static java.util.Objects.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
@@ -239,31 +237,38 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return new TypeReferenceImpl.Object();
     }
 
+    /**
+     * FederatedOperation does not have input.
+     *
+     * @return null
+     */
     @Override
     public INPUT getInput() {
-        if (nonNull(getPayloadOperation()) && (getPayloadOperation() instanceof Input))
-            try {
-                return (INPUT) ((Input) getPayloadOperation()).getInput();
-            } catch (Exception e) {
-                throw new GafferRuntimeException("Error getting FederatedOperation input from payload operation", e);
-            }
-        else {
-            Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
-            throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
-        }
+        return null;
     }
 
+    /**
+     * FederatedOperation does not have input, but will pass through to payload.
+     *
+     * @param input
+     */
     @Override
     public void setInput(final INPUT input) {
-        if (nonNull(this.payloadOperation) && this.payloadOperation instanceof Input) {
-            try {
-                ((Input) this.payloadOperation).setInput(input);
-            } catch (Exception e) {
-                throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
+        if (nonNull(this.payloadOperation)) {
+            if (nonNull(input)) {
+                if (this.payloadOperation instanceof Input) {
+                    try {
+                        OperationHandlerUtil.updateOperationInput(this.payloadOperation,input);
+                    } catch (Exception e) {
+                        throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
+                    }
+                } else {
+                    Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
+                    throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
+                }
             }
         } else {
-            Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
-            throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
+            throw new GafferRuntimeException("The payloadOperation has not been set before applying Input");
         }
     }
 
