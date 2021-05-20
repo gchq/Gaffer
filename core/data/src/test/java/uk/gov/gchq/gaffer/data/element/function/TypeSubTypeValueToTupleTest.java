@@ -19,6 +19,8 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
@@ -26,6 +28,8 @@ import uk.gov.gchq.koryphe.function.FunctionComposite;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 import uk.gov.gchq.koryphe.impl.function.Length;
 import uk.gov.gchq.koryphe.impl.function.ToString;
+import uk.gov.gchq.koryphe.impl.function.ToTuple;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 
@@ -35,8 +39,9 @@ import java.util.function.Function;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class TypeSubTypeValueToTupleTest extends FunctionTest {
+public class TypeSubTypeValueToTupleTest extends FunctionTest<TypeSubTypeValueToTuple> {
 
     @Test
     public void shouldHandleNullInput() {
@@ -104,12 +109,18 @@ public class TypeSubTypeValueToTupleTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[] { TypeSubTypeValue.class };
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{ String.class };
+    }
+
+    @Override
+    public void shouldGenerateExpectedOutputSignature() {
+        super.shouldGenerateExpectedOutputSignature();
+        fail("Expected tuple as output, this fails but string passes is this expected?");
     }
 
     @Override
