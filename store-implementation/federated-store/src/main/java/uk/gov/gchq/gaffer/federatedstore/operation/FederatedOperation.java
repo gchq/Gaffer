@@ -66,7 +66,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Required
     private Operation payloadOperation;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private Function<Iterable, OUTPUT> mergeFunction; //TODO FS Review change to Function<Iterable, OUTPUT>
+    private Function<Iterable<?>, OUTPUT> mergeFunction; //TODO FS Review change to Function<Iterable, OUTPUT>
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.userRequestingAdminUsage(operation);
     private Map<String, String> options;
@@ -92,7 +92,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return this;
     }
 
-    public FederatedOperation<INPUT, OUTPUT> mergeFunction(final Function<Iterable, OUTPUT> mergeFunction) {
+    public FederatedOperation<INPUT, OUTPUT> mergeFunction(final Function<Iterable<?>, OUTPUT> mergeFunction) {
         this.mergeFunction = mergeFunction;
         return this;
     }
@@ -165,7 +165,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return Objects.isNull(payloadOperation) ? null : payloadOperation.shallowClone();
     }
 
-    public Function<Iterable, OUTPUT> getMergeFunction() {
+    public Function<Iterable<?>, OUTPUT> getMergeFunction() {
         return mergeFunction;
     }
 
@@ -276,7 +276,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             return _self();
         }
 
-        public BuilderParent<INPUT, OUTPUT> mergeFunction(final Function<Iterable, OUTPUT> mergeFunction) {
+        public BuilderParent<INPUT, OUTPUT> mergeFunction(final Function<Iterable<?>, OUTPUT> mergeFunction) {
             _getOp().mergeFunction(mergeFunction);
             return _self();
         }

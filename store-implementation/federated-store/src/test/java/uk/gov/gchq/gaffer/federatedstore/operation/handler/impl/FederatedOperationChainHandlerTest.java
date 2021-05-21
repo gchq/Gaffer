@@ -52,10 +52,12 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Function;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
@@ -216,14 +218,14 @@ public class FederatedOperationChainHandlerTest {
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-        OperationChain.OutputBuilder<Iterable> first = new OperationChain.Builder()
+        OperationChain.OutputBuilder<Iterable<? extends Element>> first = new OperationChain.Builder()
                 .first(getFederatedOperation(new OperationChain.Builder()
                         .first(new GetAllElements())
                         .then(new Limit<>(1))
                         .build())
                         .graphIdsCSV(GRAPH_IDS));
 
-        final OperationChain<Iterable<Object>> opChain = first
+        final OperationChain<Iterable<? extends Element>> opChain = first
                 .then(new Limit<>(1))
                 .build();
 

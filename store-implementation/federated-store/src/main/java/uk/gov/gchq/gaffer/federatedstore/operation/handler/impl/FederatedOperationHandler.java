@@ -46,8 +46,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     @Override
     public OUTPUT doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
-        final Iterable allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
-        Function<Iterable, OUTPUT> mergeFunction = operation.getMergeFunction();
+        final Iterable<?> allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
+        Function<Iterable<?>, OUTPUT> mergeFunction = operation.getMergeFunction();
 
         return mergeResults(allGraphResults, mergeFunction, (FederatedStore) store);
     }
@@ -91,7 +91,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     }
 
-    private OUTPUT mergeResults(final Iterable results, final Function<Iterable, OUTPUT> mergeFunction, final FederatedStore store) throws OperationException {
+    private OUTPUT mergeResults(final Iterable results, final Function<Iterable<?>, OUTPUT> mergeFunction, final FederatedStore store) throws OperationException {
         try {
             OUTPUT rtn;
             if (nonNull(mergeFunction)) {

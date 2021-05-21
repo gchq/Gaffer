@@ -71,7 +71,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
         return new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
                         .build())
-                .mergeFunction((Function<Iterable, Object>) new uk.gov.gchq.koryphe.impl.function.IterableConcat())
+                .mergeFunction(new uk.gov.gchq.koryphe.impl.function.IterableConcat())
                 .graphIds(EXPECTED_GRAPH_ID)
                 .build();
     }

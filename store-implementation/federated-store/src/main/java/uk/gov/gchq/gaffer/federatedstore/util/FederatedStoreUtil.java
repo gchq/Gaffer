@@ -184,7 +184,7 @@ public final class FederatedStoreUtil {
      * @param <OUTPUT>  merge function output type
      * @return the wrapped operation
      */
-    public static <INPUT, OUTPUT> FederatedOperation<INPUT, OUTPUT> getFederatedOperation(final InputOutput<INPUT, Object> operation) {
+    public static <INPUT, OUTPUT extends Iterable<?>> FederatedOperation<INPUT, OUTPUT> getFederatedOperation(final InputOutput<INPUT, OUTPUT> operation) {
 
         FederatedOperation.BuilderParent<INPUT, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation);
@@ -204,9 +204,9 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    public static FederatedOperation<Void, Iterable> getFederatedOperation(final Output operation) {
+    public static <OUTPUT extends Iterable<?>> FederatedOperation<Void, OUTPUT> getFederatedOperation(final Output<OUTPUT> operation) {
 
-        FederatedOperation.BuilderParent<Void,Iterable> builder = new FederatedOperation.Builder()
+        FederatedOperation.BuilderParent<Void, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation)
                 .mergeFunction(new IterableConcat());
 
@@ -238,15 +238,11 @@ public final class FederatedStoreUtil {
     }
 
 
-    //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
-    public static FederatedOperation<Void, Iterable> getFederatedWrappedSchema() {
-        //TODO FS Examine return FederatedOperation<Void, Set<StoreTrait>> make a suitable merge function?
-        return getFederatedOperation(new GetSchema());
+    public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
+        return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(new GetSchema()).build();
     }
 
-    //TODO FS Examine, unless for this default I decide with a merge function/null. I don't know what the output is, The merge function decides that.
-    public static FederatedOperation<Void, Iterable> getFederatedWrappedTraits() {
-        //TODO FS Examine return FederatedOperation<Void, Set<StoreTrait>> make a suitable merge function?
-        return getFederatedOperation(new GetTraits());
+    public static FederatedOperation<Void, Iterable<StoreTrait>> getFederatedWrappedTraits() {
+        return new FederatedOperation.Builder().op(new GetTraits()).mergeFunction(new IterableConcat()).build();
     }
 }
