@@ -29,8 +29,11 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.GroupUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -48,6 +51,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.*;
 
 /**
  * <p>
@@ -429,22 +434,29 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final Schema schema) {
-            if (null != schema) {
-                validateSharedGroups(getThisSchema().getEntities(), schema.getEntities());
-                validateSharedGroups(getThisSchema().getEdges(), schema.getEdges());
+            if (nonNull(schema)) {
+                Schema thatSchema;
+                try {
+                    thatSchema = JSONSerialiser.deserialise(JSONSerialiser.serialise(schema), Schema.class);
+                } catch (SerialisationException e) {
+                    throw new GafferRuntimeException("Error merging Schema", e);
+                }
+
+                validateSharedGroups(getThisSchema().getEntities(), thatSchema.getEntities());
+                validateSharedGroups(getThisSchema().getEdges(), thatSchema.getEdges());
 
                 // Schema ID is deprecated - remove this when ID is removed.
                 if (null == getThisSchema().getId()) {
-                    getThisSchema().setId(schema.getId());
-                } else if (null != schema.getId()
-                        && !schema.getId().equals(getThisSchema().getId())) {
-                    getThisSchema().setId(getThisSchema().getId() + "_" + schema.getId());
+                    getThisSchema().setId(thatSchema.getId());
+                } else if (null != thatSchema.getId()
+                        && !thatSchema.getId().equals(getThisSchema().getId())) {
+                    getThisSchema().setId(getThisSchema().getId() + "_" + thatSchema.getId());
                 }
 
                 if (getThisSchema().getEntities().isEmpty()) {
-                    getThisSchema().getEntities().putAll(schema.getEntities());
+                    getThisSchema().getEntities().putAll(thatSchema.getEntities());
                 } else {
-                    for (final Map.Entry<String, SchemaEntityDefinition> entry : schema.getEntities().entrySet()) {
+                    for (final Entry<String, SchemaEntityDefinition> entry : thatSchema.getEntities().entrySet()) {
                         if (!getThisSchema().getEntities().containsKey(entry.getKey())) {
                             entity(entry.getKey(), entry.getValue());
                         } else {
@@ -458,9 +470,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 }
 
                 if (getThisSchema().getEdges().isEmpty()) {
-                    getThisSchema().getEdges().putAll(schema.getEdges());
+                    getThisSchema().getEdges().putAll(thatSchema.getEdges());
                 } else {
-                    for (final Map.Entry<String, SchemaEdgeDefinition> entry : schema.getEdges().entrySet()) {
+                    for (final Entry<String, SchemaEdgeDefinition> entry : thatSchema.getEdges().entrySet()) {
                         if (!getThisSchema().getEdges().containsKey(entry.getKey())) {
                             edge(entry.getKey(), entry.getValue());
                         } else {
@@ -473,33 +485,33 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     }
                 }
 
-                if (null != schema.getVertexSerialiser()) {
+                if (null != thatSchema.getVertexSerialiser()) {
                     if (null == getThisSchema().vertexSerialiser) {
-                        getThisSchema().vertexSerialiser = schema.getVertexSerialiser();
-                    } else if (!getThisSchema().vertexSerialiser.getClass().equals(schema.getVertexSerialiser().getClass())) {
+                        getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
+                    } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
                         throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
-                                + getThisSchema().vertexSerialiser.getClass().getName() + " and " + schema.getVertexSerialiser().getClass().getName());
+                                + getThisSchema().vertexSerialiser.getClass().getName() + " and " + thatSchema.getVertexSerialiser().getClass().getName());
                     }
                 }
 
                 if (null == getThisSchema().visibilityProperty) {
-                    getThisSchema().visibilityProperty = schema.getVisibilityProperty();
-                } else if (null != schema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(schema.getVisibilityProperty())) {
+                    getThisSchema().visibilityProperty = thatSchema.getVisibilityProperty();
+                } else if (null != thatSchema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(thatSchema.getVisibilityProperty())) {
                     throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
-                            + getThisSchema().visibilityProperty + " and " + schema.getVisibilityProperty());
+                            + getThisSchema().visibilityProperty + " and " + thatSchema.getVisibilityProperty());
                 }
 
                 if (null == getThisSchema().timestampProperty) {
-                    getThisSchema().timestampProperty = schema.getTimestampProperty();
-                } else if (null != schema.getTimestampProperty() && !getThisSchema().timestampProperty.equals(schema.getTimestampProperty())) {
+                    getThisSchema().timestampProperty = thatSchema.getTimestampProperty();
+                } else if (null != thatSchema.getTimestampProperty() && !getThisSchema().timestampProperty.equals(thatSchema.getTimestampProperty())) {
                     throw new SchemaException("Unable to merge schemas. Conflict with timestamp property, options are: "
-                            + getThisSchema().timestampProperty + " and " + schema.getTimestampProperty());
+                            + getThisSchema().timestampProperty + " and " + thatSchema.getTimestampProperty());
                 }
 
                 if (getThisSchema().types.isEmpty()) {
-                    getThisSchema().types.putAll(schema.types);
+                    getThisSchema().types.putAll(thatSchema.types);
                 } else {
-                    for (final Entry<String, TypeDefinition> entry : schema.types.entrySet()) {
+                    for (final Entry<String, TypeDefinition> entry : thatSchema.types.entrySet()) {
                         final String newType = entry.getKey();
                         final TypeDefinition newTypeDef = entry.getValue();
                         final TypeDefinition typeDef = getThisSchema().types.get(newType);
@@ -512,9 +524,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 }
 
                 if (null == getThisSchema().config) {
-                    getThisSchema().config = schema.config;
-                } else if (null != schema.config) {
-                    getThisSchema().config.putAll(schema.config);
+                    getThisSchema().config = thatSchema.config;
+                } else if (null != thatSchema.config) {
+                    getThisSchema().config.putAll(thatSchema.config);
                 }
             }
 

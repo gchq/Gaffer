@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
@@ -481,7 +482,7 @@ public class SchemaTest {
         final String typeShared = "typeShared";
         final String type1 = "type1";
         final String type2 = "type2";
-        final Serialiser vertexSerialiser = mock(Serialiser.class);
+        final Serialiser vertexSerialiser = new StringSerialiser();
         final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE,
                         new SchemaEdgeDefinition.Builder()
@@ -527,7 +528,7 @@ public class SchemaTest {
 
         assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
-        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(vertexSerialiser, mergedSchema.getVertexSerialiser());
         assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
         assertEquals("value1a", mergedSchema.getConfig("key1a"));
         assertEquals("value1c", mergedSchema.getConfig("key1b"));
@@ -541,7 +542,7 @@ public class SchemaTest {
         final String typeShared = "typeShared";
         final String type1 = "type1";
         final String type2 = "type2";
-        final Serialiser vertexSerialiser = mock(Serialiser.class);
+        final Serialiser vertexSerialiser = new StringSerialiser();
         final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE,
                         new SchemaEdgeDefinition.Builder()
@@ -585,7 +586,7 @@ public class SchemaTest {
 
         assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
-        assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
+        assertEquals(vertexSerialiser, mergedSchema.getVertexSerialiser());
         assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
     }
 
@@ -642,8 +643,8 @@ public class SchemaTest {
     @Test
     public void shouldThrowExceptionWhenMergeSchemasWithConflictingVertexSerialiser() {
         // Given
-        final Serialiser vertexSerialiser1 = mock(Serialiser.class);
-        final Serialiser vertexSerialiser2 = mock(SerialisationImpl.class);
+        final Serialiser vertexSerialiser1 = new StringSerialiser();
+        final Serialiser vertexSerialiser2 = new StringToStringSerialiser();
         final Schema schema1 = new Schema.Builder().vertexSerialiser(vertexSerialiser1).build();
         final Schema schema2 = new Schema.Builder().vertexSerialiser(vertexSerialiser2).build();
 
