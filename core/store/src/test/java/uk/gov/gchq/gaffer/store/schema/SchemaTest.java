@@ -1258,4 +1258,91 @@ public class SchemaTest {
             return SchemaTest.class.getName().hashCode();
         }
     }
+
+    @Test
+    public void shouldMergeAffectOriginalSchema() {
+        // Given
+        final String typeShared = "typeShared";
+        final String type1 = "type1";
+        final String type2 = "type2";
+
+        // Schemas have some differences that should be merged without affecting the originals
+        final Schema originalSchema1 = new Schema.Builder()
+                .edge(TestGroups.EDGE,
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, type1).build())
+                .edge(TestGroups.EDGE_2,
+                        new SchemaEdgeDefinition.Builder().build())
+                .entity(TestGroups.ENTITY,
+                        new SchemaEntityDefinition.Builder()
+                                .property(TestPropertyNames.COUNT, typeShared).build())
+                .entity(TestGroups.ENTITY_2,
+                        new SchemaEntityDefinition.Builder().build())
+                .type(typeShared,
+                        new TypeDefinition.Builder().clazz(Long.class).validateFunctions(new Exists()).build())
+                .type(type1, Integer.class).visibilityProperty(TestPropertyNames.VISIBILITY).build();
+
+        final Schema originalSchema2 = new Schema.Builder()
+                .entity(TestGroups.ENTITY_2,
+                        new SchemaEntityDefinition.Builder()
+                                .property(TestPropertyNames.COUNT, typeShared).build())
+                .edge(TestGroups.EDGE_2,
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_2, type2).build())
+                .type(type2, String.class).type(typeShared, Long.class).build();
+        final Schema schema1 = originalSchema1.clone();
+        final Schema schema2 = originalSchema2.clone();
+
+        // When
+        new Schema.Builder().merge(schema1).merge(schema2).build();
+
+        // Then
+        JsonAssert.assertEquals(originalSchema1.toJson(true), schema1.toJson(true));
+        JsonAssert.assertEquals(originalSchema2.toJson(true), schema2.toJson(true));
+    }
+
+    @Test
+    public void shouldMergeAffectOriginalSchemaOppositeWayAround() {
+        // Given
+        final String typeShared = "typeShared";
+        final String type1 = "type1";
+        final String type2 = "type2";
+
+        // Schemas have some differences that should be merged without affecting the originals
+        final Schema originalSchema1 = new Schema.Builder()
+                .edge(TestGroups.EDGE,
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, type1).build())
+                .edge(TestGroups.EDGE_2,
+                        new SchemaEdgeDefinition.Builder().build())
+                .entity(TestGroups.ENTITY,
+                        new SchemaEntityDefinition.Builder()
+                                .property(TestPropertyNames.COUNT, typeShared).build())
+                .entity(TestGroups.ENTITY_2,
+                        new SchemaEntityDefinition.Builder().build())
+                .type(typeShared,
+                        new TypeDefinition.Builder().clazz(Long.class).validateFunctions(new Exists()).build())
+                .type(type1, Integer.class).visibilityProperty(TestPropertyNames.VISIBILITY).build();
+
+        final Schema originalSchema2 = new Schema.Builder()
+                //Same group different property
+                .entity(TestGroups.ENTITY_2,
+                        new SchemaEntityDefinition.Builder()
+                                .property(TestPropertyNames.COUNT, typeShared).build())
+                //Same group different property
+                .edge(TestGroups.EDGE_2,
+                        new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_2, type2).build())
+                .type(type2, String.class).type(typeShared, Long.class).build();
+        final Schema schema1 = originalSchema1.clone();
+        final Schema schema2 = originalSchema2.clone();
+
+        // When
+        new Schema.Builder().merge(schema2).merge(schema1).build();
+
+        // Then
+        JsonAssert.assertEquals(originalSchema1.toJson(true), schema1.toJson(true));
+        JsonAssert.assertEquals(originalSchema2.toJson(true), schema2.toJson(true));
+    }
+
 }
