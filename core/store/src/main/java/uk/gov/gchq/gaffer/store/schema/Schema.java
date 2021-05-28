@@ -52,7 +52,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.*;
+import static java.util.Objects.nonNull;
 
 /**
  * <p>
@@ -438,99 +438,140 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 Schema thatSchema;
                 try {
                     thatSchema = JSONSerialiser.deserialise(JSONSerialiser.serialise(schema), Schema.class);
-                } catch (SerialisationException e) {
+                } catch (final SerialisationException e) {
                     throw new GafferRuntimeException("Error merging Schema", e);
                 }
 
-                validateSharedGroups(getThisSchema().getEntities(), thatSchema.getEntities());
-                validateSharedGroups(getThisSchema().getEdges(), thatSchema.getEdges());
+                validateSharedGroupsAreCompatible(thatSchema);
 
-                // Schema ID is deprecated - remove this when ID is removed.
-                if (null == getThisSchema().getId()) {
-                    getThisSchema().setId(thatSchema.getId());
-                } else if (null != thatSchema.getId()
-                        && !thatSchema.getId().equals(getThisSchema().getId())) {
-                    getThisSchema().setId(getThisSchema().getId() + "_" + thatSchema.getId());
-                }
+                mergeSchemaId(thatSchema);
 
-                if (getThisSchema().getEntities().isEmpty()) {
-                    getThisSchema().getEntities().putAll(thatSchema.getEntities());
-                } else {
-                    for (final Entry<String, SchemaEntityDefinition> entry : thatSchema.getEntities().entrySet()) {
-                        if (!getThisSchema().getEntities().containsKey(entry.getKey())) {
-                            entity(entry.getKey(), entry.getValue());
-                        } else {
-                            final SchemaEntityDefinition mergedElementDef = new SchemaEntityDefinition.Builder()
-                                    .merge(getThisSchema().getEntities().get(entry.getKey()))
-                                    .merge(entry.getValue())
-                                    .build();
-                            getThisSchema().getEntities().put(entry.getKey(), mergedElementDef);
-                        }
-                    }
-                }
+                mergeElements(thatSchema);
 
-                if (getThisSchema().getEdges().isEmpty()) {
-                    getThisSchema().getEdges().putAll(thatSchema.getEdges());
-                } else {
-                    for (final Entry<String, SchemaEdgeDefinition> entry : thatSchema.getEdges().entrySet()) {
-                        if (!getThisSchema().getEdges().containsKey(entry.getKey())) {
-                            edge(entry.getKey(), entry.getValue());
-                        } else {
-                            final SchemaEdgeDefinition mergedElementDef = new SchemaEdgeDefinition.Builder()
-                                    .merge(getThisSchema().getEdges().get(entry.getKey()))
-                                    .merge(entry.getValue())
-                                    .build();
-                            getThisSchema().getEdges().put(entry.getKey(), mergedElementDef);
-                        }
-                    }
-                }
+                mergeVertexSerialiser(thatSchema);
 
-                if (null != thatSchema.getVertexSerialiser()) {
-                    if (null == getThisSchema().vertexSerialiser) {
-                        getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
-                    } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
-                        throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
-                                + getThisSchema().vertexSerialiser.getClass().getName() + " and " + thatSchema.getVertexSerialiser().getClass().getName());
-                    }
-                }
+                mergeVisibility(thatSchema);
 
-                if (null == getThisSchema().visibilityProperty) {
-                    getThisSchema().visibilityProperty = thatSchema.getVisibilityProperty();
-                } else if (null != thatSchema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(thatSchema.getVisibilityProperty())) {
-                    throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
-                            + getThisSchema().visibilityProperty + " and " + thatSchema.getVisibilityProperty());
-                }
+                mergeTimeStamp(thatSchema);
 
-                if (null == getThisSchema().timestampProperty) {
-                    getThisSchema().timestampProperty = thatSchema.getTimestampProperty();
-                } else if (null != thatSchema.getTimestampProperty() && !getThisSchema().timestampProperty.equals(thatSchema.getTimestampProperty())) {
-                    throw new SchemaException("Unable to merge schemas. Conflict with timestamp property, options are: "
-                            + getThisSchema().timestampProperty + " and " + thatSchema.getTimestampProperty());
-                }
+                mergeTypes(thatSchema);
 
-                if (getThisSchema().types.isEmpty()) {
-                    getThisSchema().types.putAll(thatSchema.types);
-                } else {
-                    for (final Entry<String, TypeDefinition> entry : thatSchema.types.entrySet()) {
-                        final String newType = entry.getKey();
-                        final TypeDefinition newTypeDef = entry.getValue();
-                        final TypeDefinition typeDef = getThisSchema().types.get(newType);
-                        if (null == typeDef) {
-                            getThisSchema().types.put(newType, newTypeDef);
-                        } else {
-                            typeDef.merge(newTypeDef);
-                        }
-                    }
-                }
-
-                if (null == getThisSchema().config) {
-                    getThisSchema().config = thatSchema.config;
-                } else if (null != thatSchema.config) {
-                    getThisSchema().config.putAll(thatSchema.config);
-                }
+                mergeConfig(thatSchema);
             }
 
             return self();
+        }
+
+        private void mergeConfig(final Schema thatSchema) {
+            if (null == getThisSchema().config) {
+                getThisSchema().config = thatSchema.config;
+            } else if (null != thatSchema.config) {
+                getThisSchema().config.putAll(thatSchema.config);
+            }
+        }
+
+        private void mergeTypes(final Schema thatSchema) {
+            if (getThisSchema().types.isEmpty()) {
+                getThisSchema().types.putAll(thatSchema.types);
+            } else {
+                for (final Entry<String, TypeDefinition> entry : thatSchema.types.entrySet()) {
+                    final String newType = entry.getKey();
+                    final TypeDefinition newTypeDef = entry.getValue();
+                    final TypeDefinition typeDef = getThisSchema().types.get(newType);
+                    if (null == typeDef) {
+                        getThisSchema().types.put(newType, newTypeDef);
+                    } else {
+                        typeDef.merge(newTypeDef);
+                    }
+                }
+            }
+        }
+
+        @Deprecated
+        private void mergeTimeStamp(final Schema thatSchema) {
+            if (null == getThisSchema().timestampProperty) {
+                getThisSchema().timestampProperty = thatSchema.getTimestampProperty();
+            } else if (null != thatSchema.getTimestampProperty() && !getThisSchema().timestampProperty.equals(thatSchema.getTimestampProperty())) {
+                throw new SchemaException("Unable to merge schemas. Conflict with timestamp property, options are: "
+                        + getThisSchema().timestampProperty + " and " + thatSchema.getTimestampProperty());
+            }
+        }
+
+        private void mergeVisibility(final Schema thatSchema) {
+            if (null == getThisSchema().visibilityProperty) {
+                getThisSchema().visibilityProperty = thatSchema.getVisibilityProperty();
+            } else if (null != thatSchema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(thatSchema.getVisibilityProperty())) {
+                throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
+                        + getThisSchema().visibilityProperty + " and " + thatSchema.getVisibilityProperty());
+            }
+        }
+
+        private void mergeVertexSerialiser(final Schema thatSchema) {
+            if (null != thatSchema.getVertexSerialiser()) {
+                if (null == getThisSchema().vertexSerialiser) {
+                    getThisSchema().vertexSerialiser = thatSchema.getVertexSerialiser();
+                } else if (!getThisSchema().vertexSerialiser.getClass().equals(thatSchema.getVertexSerialiser().getClass())) {
+                    throw new SchemaException("Unable to merge schemas. Conflict with vertex serialiser, options are: "
+                            + getThisSchema().vertexSerialiser.getClass().getName() + " and " + thatSchema.getVertexSerialiser().getClass().getName());
+                }
+            }
+        }
+
+        private void mergeElements(final Schema thatSchema) {
+            mergeEntities(thatSchema);
+            mergeEdges(thatSchema);
+        }
+
+        private void mergeEntities(final Schema thatSchema) {
+            if (getThisSchema().getEntities().isEmpty()) {
+                getThisSchema().getEntities().putAll(thatSchema.getEntities());
+            } else {
+                for (final Entry<String, SchemaEntityDefinition> entry : thatSchema.getEntities().entrySet()) {
+                    if (!getThisSchema().getEntities().containsKey(entry.getKey())) {
+                        entity(entry.getKey(), entry.getValue());
+                    } else {
+                        final SchemaEntityDefinition mergedElementDef = new SchemaEntityDefinition.Builder()
+                                .merge(getThisSchema().getEntities().get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisSchema().getEntities().put(entry.getKey(), mergedElementDef);
+                    }
+                }
+            }
+        }
+
+        private void mergeEdges(final Schema thatSchema) {
+            if (getThisSchema().getEdges().isEmpty()) {
+                getThisSchema().getEdges().putAll(thatSchema.getEdges());
+            } else {
+                for (final Entry<String, SchemaEdgeDefinition> entry : thatSchema.getEdges().entrySet()) {
+                    if (!getThisSchema().getEdges().containsKey(entry.getKey())) {
+                        edge(entry.getKey(), entry.getValue());
+                    } else {
+                        final SchemaEdgeDefinition mergedElementDef = new SchemaEdgeDefinition.Builder()
+                                .merge(getThisSchema().getEdges().get(entry.getKey()))
+                                .merge(entry.getValue())
+                                .build();
+                        getThisSchema().getEdges().put(entry.getKey(), mergedElementDef);
+                    }
+                }
+            }
+        }
+
+        @Deprecated
+        private void mergeSchemaId(final Schema schema) {
+            // Schema ID is deprecated - remove this when ID is removed.
+            if (null == getThisSchema().getId()) {
+                getThisSchema().setId(schema.getId());
+            } else if (null != schema.getId()
+                    && !schema.getId().equals(getThisSchema().getId())) {
+                getThisSchema().setId(getThisSchema().getId() + "_" + schema.getId());
+            }
+        }
+
+        private void validateSharedGroupsAreCompatible(final Schema schema) {
+            validateSharedGroupsAreCompatible(getThisSchema().getEntities(), schema.getEntities());
+            validateSharedGroupsAreCompatible(getThisSchema().getEdges(), schema.getEdges());
         }
 
         @JsonIgnore
@@ -574,7 +615,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return getElementDefs();
         }
 
-        private void validateSharedGroups(final Map<String, ? extends SchemaElementDefinition> elements1, final Map<String, ? extends SchemaElementDefinition> elements2) {
+        private void validateSharedGroupsAreCompatible(final Map<String, ? extends SchemaElementDefinition> elements1, final Map<String, ? extends SchemaElementDefinition> elements2) {
             final Set<String> sharedGroups = new HashSet<>(elements1.keySet());
             sharedGroups.retainAll(elements2.keySet());
             if (!sharedGroups.isEmpty()) {
