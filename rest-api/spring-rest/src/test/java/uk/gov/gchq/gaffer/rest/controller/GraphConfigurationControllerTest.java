@@ -89,6 +89,25 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
+    public void shouldReturnGraphId() {
+        // Given
+        when(graphFactory.getGraph()).thenReturn(new Graph.Builder()
+                .config(new GraphConfig("id"))
+                .addSchema(new Schema())
+                .storeProperties(new MapStoreProperties())
+                .description("test graph")
+                .build());
+
+        // When
+        GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
+
+        final String graphId = controller.getGraphId();
+
+        // Then
+        assertEquals("id", graphId);
+    }
+
+    @Test
     public void shouldGetFilterFunctions() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
