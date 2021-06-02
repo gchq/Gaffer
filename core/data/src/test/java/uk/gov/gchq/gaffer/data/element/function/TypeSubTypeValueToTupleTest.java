@@ -19,8 +19,6 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
@@ -28,8 +26,6 @@ import uk.gov.gchq.koryphe.function.FunctionComposite;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 import uk.gov.gchq.koryphe.impl.function.Length;
 import uk.gov.gchq.koryphe.impl.function.ToString;
-import uk.gov.gchq.koryphe.impl.function.ToTuple;
-import uk.gov.gchq.koryphe.tuple.MapTuple;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 
@@ -109,12 +105,12 @@ public class TypeSubTypeValueToTupleTest extends FunctionTest<TypeSubTypeValueTo
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[] { TypeSubTypeValue.class };
+        return new Class[]{TypeSubTypeValue.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{ String.class };
+        return new Class[]{String.class};
     }
 
     @Override

@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -105,12 +104,12 @@ public class TypeValueToTupleTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[] { TypeValue.class };
+        return new Class[]{TypeValue.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{ TypeValue.class };
+        return new Class[]{TypeValue.class};
     }
 
     @Override
