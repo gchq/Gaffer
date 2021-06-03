@@ -17,10 +17,12 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.accumulo.core.client.Connector;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreCache;
@@ -441,8 +443,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
-        final String graphA = "graphA";
-        final String graphB = "graphB";
+        final String graphA = "graphTableA";
+        final String graphB = "graphTableB";
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
@@ -451,16 +453,31 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
+        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
+                ACCUMULO_PROPERTIES.getZookeepers(),
+                ACCUMULO_PROPERTIES.getUser(),
+                ACCUMULO_PROPERTIES.getPassword());
+
         //when
+        boolean tableGraphABefore = connector.tableOperations().exists(graphA);
+        boolean tableGraphBBefore = connector.tableOperations().exists(graphB);
+
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
                 .build(), user);
 
+        boolean tableGraphAfter = connector.tableOperations().exists(graphA);
+        boolean tableGraphBAfter = connector.tableOperations().exists(graphB);
+
         //then
         assertTrue(changed);
         assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        assertTrue(tableGraphABefore);
+        assertFalse(tableGraphBBefore);
+        assertFalse(tableGraphAfter);
+        assertTrue(tableGraphBAfter);
 
     }
 
