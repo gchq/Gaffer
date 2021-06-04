@@ -21,7 +21,9 @@ import org.apache.accumulo.core.client.Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -34,7 +36,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
@@ -624,20 +625,26 @@ public class FederatedGraphStorage {
             //Update Tables
             String storeClass = graphToMove.getStoreProperties().getStoreClass();
             if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
-                Store tmpStore = Store.createStore(graphId, graphToMove.getSchema(), graphToMove.getStoreProperties());
-                if (tmpStore instanceof AccumuloStore) {
-                    AccumuloStore accumuloStore = ((AccumuloStore) tmpStore);
-                    try {
-                        Connector connection = accumuloStore.getConnection();
-                        if (connection.tableOperations().exists(graphId)) {
-                            connection.tableOperations().offline(graphId);
-                            connection.tableOperations().clone(graphId, newGraphId, true, null, null);
-                            connection.tableOperations().delete(graphId);
-                        }
-                    } catch (final Exception e) {
-                        LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
-                        LOGGER.warn("Error trying to update tables.", e);
+                /*
+                 * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
+                 * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
+                 */
+                try {
+                    AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
+                    Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
+                            tmpAccumuloProps.getZookeepers(),
+                            tmpAccumuloProps.getUser(),
+                            tmpAccumuloProps.getPassword());
+
+                    if (connection.tableOperations().exists(graphId)) {
+                        connection.tableOperations().offline(graphId);
+                        connection.tableOperations().clone(graphId, newGraphId, true, null, null);
+                        connection.tableOperations().online(newGraphId);
+                        connection.tableOperations().delete(graphId);
                     }
+                } catch (final Exception e) {
+                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
+                    LOGGER.warn("Error trying to update tables.", e);
                 }
             }
 
