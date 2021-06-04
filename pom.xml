@@ -80,7 +80,7 @@
         <curator.version>2.6.0</curator.version>
         <findbugs.version>3.0.2</findbugs.version>
         <guava.version>13.0.1</guava.version>
-        <httpcomponents.version>4.4</httpcomponents.version>
+        <httpcomponents.version>4.5.13</httpcomponents.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
         <jcs.version>2.1</jcs.version>
