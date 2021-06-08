@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -49,7 +48,7 @@ import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedS
  * In all of theses tests the Federated graph contains two graphs, one containing
  * a schema with only edges the other with only entities.
  */
-public class FederatedViewsIT extends AbstractStoreIT {
+public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";

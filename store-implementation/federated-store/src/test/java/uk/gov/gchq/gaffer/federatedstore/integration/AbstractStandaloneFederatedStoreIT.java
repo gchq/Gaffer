@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
+import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 
-public class FederatedStoreITs extends AbstractStoreITs {
+import java.util.Collections;
+
+public class AbstractStandaloneFederatedStoreIT extends AbstractStoreIT {
+
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
-    public FederatedStoreITs() {
-        this(STORE_PROPERTIES);
-    }
-
-    protected FederatedStoreITs(final FederatedStoreProperties storeProperties) {
-        super(storeProperties);
-        skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
+    public AbstractStandaloneFederatedStoreIT() {
+        AbstractStoreIT.setStoreProperties(STORE_PROPERTIES);
+        AbstractStoreIT.setSkipTests(Collections.emptyMap());
+        AbstractStoreIT.setSkipTestMethods(Collections.emptyMap());
     }
 }
