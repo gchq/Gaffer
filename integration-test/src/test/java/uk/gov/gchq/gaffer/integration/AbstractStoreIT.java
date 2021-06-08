@@ -510,7 +510,7 @@ public abstract class AbstractStoreIT {
         return jsonClone(duplicateEntities);
     }
 
-    private <T> List<T> duplicate(final Iterable<T> items) {
+    public static <T> List<T> duplicate(final Iterable<T> items) {
         final List<T> duplicates = new ArrayList<>();
         for (int i = 0; i < DUPLICATES; i++) {
             Iterables.addAll(duplicates, items);

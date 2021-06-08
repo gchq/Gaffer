@@ -53,7 +53,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class FederatedStoreRecursionIT extends AbstractStoreIT {
+public class FederatedStoreRecursionIT extends AbstractStandaloneFederatedStoreIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
@@ -64,7 +64,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     private Graph proxyToRestServiceFederatedGraph;
 
     @Before
-    public void setUp() throws Exception {
+    public void _setup() throws Exception {
+
         graph.execute(new RemoveGraph.Builder()
                 .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
                 .build(), user);

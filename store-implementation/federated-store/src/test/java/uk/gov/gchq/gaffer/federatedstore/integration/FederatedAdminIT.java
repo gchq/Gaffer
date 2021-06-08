@@ -44,7 +44,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
-public class FederatedAdminIT extends AbstractStoreIT {
+public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
@@ -55,7 +55,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
     @Override
     protected Schema createSchema() {
-        final Schema.Builder schemaBuilder = new Schema.Builder(createDefaultSchema());
+        final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
         schemaBuilder.edges(Collections.EMPTY_MAP);
         schemaBuilder.entities(Collections.EMPTY_MAP);
         return schemaBuilder.build();
