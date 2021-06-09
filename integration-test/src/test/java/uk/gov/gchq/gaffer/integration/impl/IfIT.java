@@ -76,16 +76,16 @@ public class IfIT extends AbstractStoreIT {
     public void shouldReturnOriginalInputWhenConditionIsFalseAndNoOtherwise() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
-        ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
-        ifOperation.setConditional(new Conditional(new IsA("java.lang.String")));
+        ifOperation.setInput(INPUT_CAMEL_CASE);
+        ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
         ifOperation.setThen(new Map<>(Lists.newArrayList(new ToLong(), new ToList())));
 
         // When
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(404, output);
-        assertTrue(output instanceof Integer);
+        assertEquals(INPUT_CAMEL_CASE, output);
+        assertTrue(output instanceof String);
     }
 
     @Test
@@ -108,15 +108,15 @@ public class IfIT extends AbstractStoreIT {
     public void shouldReturnOriginalInputWhenConditionIsTrueAndNoThen() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
-        ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
-        ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
+        ifOperation.setInput(INPUT_CAMEL_CASE);
+        ifOperation.setConditional(new Conditional(new IsA("java.lang.String")));
         ifOperation.setOtherwise(new Map<>(Lists.newArrayList(new ToLong(), new ToList())));
 
         // When
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(404, output);
-        assertTrue(output instanceof Integer);
+        assertEquals(INPUT_CAMEL_CASE, output);
+        assertTrue(output instanceof String);
     }
 }
