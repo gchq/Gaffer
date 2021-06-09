@@ -31,6 +31,13 @@ public class DefaultResponseDeserialiser<O> implements ResponseDeserialiser<O> {
 
     @Override
     public O deserialise(final String jsonString) throws SerialisationException {
-        return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
+        // Special handling for String values returned while using the ProxyStore
+        if (typeReference.getType().equals(Object.class) && !jsonString.matches("^(-?\\d*\\.?\\d*|false|true|null|\\[.*\\]|\\{.*\\})$")) {
+            // The input is likely a plain java.lang.String object, so return as-is
+            return (O) jsonString;
+        } else {
+            // The input is likely a valid JSON value type, so process using the deserialiser
+            return JSONSerialiser.deserialise(encodeString(jsonString), typeReference);
+        }
     }
 }
