@@ -46,7 +46,7 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
  * A {@code ReduceRelatedElements} is a {@link KorypheFunction} which takes an {@link Iterable} or {@link Element}s and
  * combines all related elements using the provided aggregator functions.
  */
-@Since("1.10.6")
+@Since("1.17")
 @Summary("Reduces related elements")
 public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, Iterable<Element>> {
     private BinaryOperator<Object> vertexAggregator = new First();
