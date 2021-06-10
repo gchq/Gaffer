@@ -62,6 +62,11 @@ public class GraphConfigurationController implements IGraphConfigurationControll
     }
 
     @Override
+    public String getGraphId() {
+        return graphFactory.getGraph().getGraphId();
+    }
+
+    @Override
     public Set<Class> getFilterFunctions() {
         return ReflectionUtil.getSubTypes(Predicate.class);
     }

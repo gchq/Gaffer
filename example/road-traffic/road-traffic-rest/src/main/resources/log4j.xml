@@ -44,6 +44,10 @@
         <level value="ERROR"/>
     </logger>
 
+    <logger name="swagger.jackson">
+        <level value="INFO"/>
+    </logger>
+
     <root>
         <priority value="info"/>
         <appender-ref ref="console"/>

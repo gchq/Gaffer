@@ -55,6 +55,17 @@ public interface IGraphConfigurationController {
     String getDescription();
 
     @RequestMapping(
+            path = "/graphId",
+            method = GET,
+            produces = TEXT_PLAIN_VALUE
+    )
+    @ApiOperation(
+            value = "Gets the graph Id",
+            response = String.class
+    )
+    String getGraphId();
+
+    @RequestMapping(
             path = "/filterFunctions",
             method = GET,
             produces = APPLICATION_JSON_VALUE
