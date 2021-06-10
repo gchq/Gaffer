@@ -117,6 +117,9 @@
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}
                                 </gaffer.rest-api.basePath>
+                                <gaffer.rest-api.port>
+                                    ${standalone-port}
+                                </gaffer.rest-api.port>
                                 <gaffer.graph.config>
                                     ${project.build.outputDirectory}/graphConfig.json
                                 </gaffer.graph.config>
