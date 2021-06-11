@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -32,9 +32,9 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TypeSubTypeValueToTupleTest extends FunctionTest<TypeSubTypeValueToTuple> {
@@ -110,7 +110,7 @@ public class TypeSubTypeValueToTupleTest extends FunctionTest<TypeSubTypeValueTo
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{String.class};
+        return new Class[]{Tuple.class};
     }
 
     @Override

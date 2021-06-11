@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -24,11 +24,11 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ToTrailingWildcardPairTest extends FunctionTest {
+public class ToTrailingWildcardPairTest extends FunctionTest<ToTrailingWildcardPair> {
 
     @Test
     public void shouldHandleNullInput() {
@@ -72,12 +72,12 @@ public class ToTrailingWildcardPairTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[0];
+        return new Class[]{String.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[0];
+        return new Class[]{Pair.class};
     }
 
     @Override
