@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-class GetUrlOperationTest extends OperationTest<GetUrlOperation> {
+public class GetUrlOperationTest extends OperationTest<GetUrlOperation> {
 
     private static final String A = "a";
     private static final String ONE = "1";
