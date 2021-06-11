@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -443,8 +444,17 @@ public class FederatedAdminIT extends AbstractStoreIT {
     @Test
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
-        final String graphA = "graphTableA";
-        final String graphB = "graphTableB";
+        Random random = new Random(); //This is a hack, a state isn't being cleared somewhere.
+        final String graphA = "graphTableA_" + random.nextInt();
+        final String graphB = "graphTableB_" + random.nextInt();
+        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
+                ACCUMULO_PROPERTIES.getZookeepers(),
+                ACCUMULO_PROPERTIES.getUser(),
+                ACCUMULO_PROPERTIES.getPassword());
+
+        connector.tableOperations().delete(graphA);
+        connector.tableOperations().delete(graphB);
+
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
@@ -453,10 +463,6 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
 
-        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
-                ACCUMULO_PROPERTIES.getZookeepers(),
-                ACCUMULO_PROPERTIES.getUser(),
-                ACCUMULO_PROPERTIES.getPassword());
 
         //when
         boolean tableGraphABefore = connector.tableOperations().exists(graphA);
