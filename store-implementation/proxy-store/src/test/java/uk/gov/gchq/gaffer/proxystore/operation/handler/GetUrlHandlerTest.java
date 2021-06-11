@@ -29,7 +29,7 @@ import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_CONTEXT_ROOT;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_HOST;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_PORT;
 
-class GetUrlHandlerTest {
+public class GetUrlHandlerTest {
 
 
     @Test
