@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
 /**
  * A {@code TypeValueToTuple} is a {@link KorypheFunction} that converts an {@link TypeValue} into a {@link Tuple}.
  */
-@Since("1.17")
+@Since("1.17.0")
 @Summary("Converts an TypeValue into a Tuple")
 public class TypeValueToTuple extends KorypheFunction<TypeValue, Tuple<String>> {
     @Override

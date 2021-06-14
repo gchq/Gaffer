@@ -16,12 +16,15 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.util.Arrays;
 
 import static java.util.Objects.isNull;
-
+@Since("1.17.0")
+@Summary("Tuple object for TypeSubTypeValue")
 public class TypeSubTypeValueTuple implements Tuple<String> {
     private TypeSubTypeValue tsv;
 
