@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.controller;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
@@ -100,4 +101,13 @@ public interface IOperationController {
     )
     @ApiOperation("Executes an operation against a Store")
     ResponseEntity<Object> execute(final Operation operation);
+
+    @RequestMapping(
+            method = POST,
+            path = "/execute/chunked",
+            consumes = APPLICATION_JSON_VALUE,
+            produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
+    )
+    @ApiOperation("Executes an operation against a Store, returning a chunked output")
+    ResponseEntity<StreamingResponseBody> executeChunked(final Operation operation);
 }
