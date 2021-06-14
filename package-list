@@ -158,6 +158,7 @@ uk.gov.gchq.gaffer.parquetstore.serialisation.impl
 uk.gov.gchq.gaffer.parquetstore.utils
 uk.gov.gchq.gaffer.proxystore
 uk.gov.gchq.gaffer.proxystore.exception
+uk.gov.gchq.gaffer.proxystore.operation
 uk.gov.gchq.gaffer.proxystore.operation.handler
 uk.gov.gchq.gaffer.proxystore.response.deserialiser
 uk.gov.gchq.gaffer.proxystore.response.deserialiser.impl
