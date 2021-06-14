@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -39,12 +40,11 @@ import uk.gov.gchq.gaffer.rest.service.v2.AbstractOperationService;
 import java.io.IOException;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 @RestController
 public class OperationController extends AbstractOperationService implements IOperationController {
@@ -154,7 +154,6 @@ public class OperationController extends AbstractOperationService implements IOp
                     try {
                         response.write(mapper.writeValueAsString(result).getBytes());
                         response.flush();
-                        Thread.sleep(10);
                     } catch (final IOException ioe) {
                         throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);
                     }
