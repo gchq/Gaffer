@@ -263,7 +263,7 @@ public class OperationControllerTest {
     public void shouldCorrectlyChunkIterables() throws IOException, OperationException {
         // Given
         when(userFactory.createContext()).thenReturn(new Context(new User()));
-        when(store.execute(any(Output.class), any(Context.class))).thenReturn(Arrays.asList(1,2,3));
+        when(store.execute(any(Output.class), any(Context.class))).thenReturn(Arrays.asList(1, 2, 3));
 
         // When
         ResponseEntity<StreamingResponseBody> response = operationController.executeChunked(new GetAllElements());
