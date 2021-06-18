@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -45,7 +46,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
@@ -61,7 +61,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
-public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, Output<OUTPUT> {
+public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
     private String graphIdsCsv;
     @Required
     private Operation payloadOperation;
@@ -162,7 +162,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
      */
     @JsonProperty("operation")
     public Operation getPayloadOperation() {
-        return Objects.isNull(payloadOperation) ? null : payloadOperation.shallowClone();
+        return isNull(payloadOperation) ? null : payloadOperation.shallowClone();
     }
 
     public Function<Iterable<?>, OUTPUT> getMergeFunction() {
@@ -235,6 +235,41 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public TypeReference getOutputTypeReference() {
         return new TypeReferenceImpl.Object();
+    }
+
+    /**
+     * FederatedOperation does not have input.
+     *
+     * @return null
+     */
+    @Override
+    public INPUT getInput() {
+        return null;
+    }
+
+    /**
+     * FederatedOperation does not have input, but will pass through to payload.
+     *
+     * @param input
+     */
+    @Override
+    public void setInput(final INPUT input) {
+        if (nonNull(this.payloadOperation)) {
+            if (nonNull(input)) {
+                if (this.payloadOperation instanceof Input) {
+                    try {
+                        OperationHandlerUtil.updateOperationInput(this.payloadOperation,input);
+                    } catch (Exception e) {
+                        throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
+                    }
+                } else {
+                    Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
+                    throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
+                }
+            }
+        } else {
+            throw new GafferRuntimeException("The payloadOperation has not been set before applying Input");
+        }
     }
 
     public static class Builder {
