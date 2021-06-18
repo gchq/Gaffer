@@ -60,7 +60,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
  */
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
-@Summary("This operation federates a payload operation across a given set of graphs and merges the results with a given function.")
+@Summary("Federates a payload operation across given graphs and merges the results with a given function.")
 public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
     private String graphIdsCsv;
     @Required
