@@ -29,7 +29,6 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IterableConcatTest extends FunctionTest<IterableConcat> {
@@ -90,13 +89,13 @@ public class IterableConcatTest extends FunctionTest<IterableConcat> {
     }
 
     @Test
-    public void shouldHandleNullInputIterable() {
+    public void shouldReturnEmptyIterableForNull() {
         // Given
         final IterableConcat<Integer> function = new IterableConcat<>();
 
         // When / Then
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> function.apply(null));
-        assertEquals("iterables are required", exception.getMessage());
+        Iterable<Integer> results = function.apply(null);
+        assertTrue(Iterables.isEmpty(results));
     }
 
     @Test

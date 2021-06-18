@@ -22,6 +22,8 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.ArrayList;
 
+import static java.util.Objects.nonNull;
+
 /**
  * An {@code IterableConcat} is a {@link KorypheFunction} which flattens an
  * {@link Iterable} of {@link Iterable}s by concatenating them.
@@ -45,7 +47,9 @@ public class IterableConcat<I_ITEM> extends KorypheFunction<Iterable<Iterable<I_
      */
     private Iterable[] rearrange(final Iterable<Iterable<I_ITEM>> items) {
         ArrayList<Iterable<I_ITEM>> tmp = new ArrayList<>();
-        items.forEach(tmp::add);
+        if (nonNull(items)) {
+            items.forEach(tmp::add);
+        }
         return tmp.toArray(new Iterable[tmp.size()]);
     }
 }
