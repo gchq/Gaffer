@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.accumulostore.integration;
+package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
@@ -59,10 +59,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class CreateSplitPointsIT {
+public class CreateSplitPointsTest {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsTest.class);
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);

@@ -296,4 +296,14 @@ public class SchemaElementDefinitionValidator {
         }
         return clazz;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        return this == o || this.getClass() == o.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

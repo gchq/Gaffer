@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>basic</artifactId>
-        <version>1.14.1-SNAPSHOT</version>
+        <version>1.17.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -121,6 +121,9 @@
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}
                                 </gaffer.rest-api.basePath>
+                                <gaffer.rest-api.port>
+                                    ${standalone-port}
+                                </gaffer.rest-api.port>
                                 <gaffer.graph.config>
                                     ${project.build.outputDirectory}/graphConfig.json
                                 </gaffer.graph.config>

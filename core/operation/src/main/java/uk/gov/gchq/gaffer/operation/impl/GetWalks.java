@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiEntityIdInput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -42,6 +43,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -53,7 +55,7 @@ import java.util.stream.Collectors;
  * GetElements} operations. These are executed sequentially, with the output of
  * one operation providing the input {@link EntityId}s for the next.
  */
-@JsonPropertyOrder(value = {"class", "input", "operations", "includePartial"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "input", "operations", "includePartial", "conditional"}, alphabetic = true)
 @Since("1.1.0")
 @Summary("Walks around the Graph, returning the full walks taken")
 public class GetWalks implements
@@ -70,6 +72,13 @@ public class GetWalks implements
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean includePartial = false;
 
+    /**
+     * A {@link Conditional}, containing a transform {@link Operation}
+     * and a {@link Predicate} against which the input will be tested,
+     * determining whether or not Walks should be returned.
+     */
+    private Conditional conditional;
+
     private Map<String, String> options;
     private Integer resultsLimit = DEFAULT_RESULTS_LIMIT;
 
@@ -81,6 +90,14 @@ public class GetWalks implements
     @Override
     public void setInput(final Iterable<? extends EntityId> input) {
         this.input = input;
+    }
+
+    public void setConditional(final Conditional conditional) {
+        this.conditional = conditional;
+    }
+
+    public Conditional getConditional() {
+        return conditional;
     }
 
     @Override
@@ -197,6 +214,7 @@ public class GetWalks implements
                 .operations(clonedOps)
                 .includePartial(includePartial)
                 .options(options)
+                .conditional(conditional)
                 .build();
     }
 
@@ -287,6 +305,21 @@ public class GetWalks implements
 
         public Builder includePartial() {
             return includePartial(true);
+        }
+
+        public Builder conditional(final Conditional conditional) {
+            _getOp().setConditional(conditional);
+            return _self();
+        }
+
+        public Builder conditional(final Predicate predicate) {
+            _getOp().setConditional(new Conditional(predicate));
+            return _self();
+        }
+
+        public Builder conditional(final Predicate predicate, final Operation transform) {
+            _getOp().setConditional(new Conditional(predicate, transform));
+            return _self();
         }
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_SERVICE_CLASS;
@@ -48,6 +50,34 @@ public class OperationControllerIT extends AbstractRestApiIT {
 
     private MockGraphFactory getGraphFactory() {
         return (MockGraphFactory) graphFactory;
+    }
+
+
+    @Test
+    public void shouldReturnHelpfulErrorMessageIfJsonIsIncorrect() {
+
+    }
+
+    @Test
+    public void shouldReturnHelpfulErrorMessageIfOperationIsUnsupported() {
+        // Given
+        Graph graph = new Graph.Builder()
+            .config(StreamUtil.graphConfig(this.getClass()))
+            .storeProperties(new MapStoreProperties())
+            .addSchema(new Schema())
+            .build();
+
+        when(getGraphFactory().getGraph()).thenReturn(graph);
+
+        // When
+        final ResponseEntity<Error> response = post("/graph/operations/execute",
+            new GetAllGraphIds(),
+            Error.class);
+
+        // Then
+
+        assertNotNull(response.getBody().getSimpleMessage());
+        assertTrue(response.getBody().getSimpleMessage().contains("GetAllGraphIds is not supported by the MapStore"));
     }
 
     @Test

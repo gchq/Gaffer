@@ -118,6 +118,28 @@ public class GraphConfigurationControllerIT extends AbstractRestApiIT {
     }
 
     @Test
+    public void shouldReturn200WhenReturningGraphId() {
+        // Given
+        Graph emptyGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("id")
+                        .description("test description")
+                        .build())
+                .storeProperties(new MapStoreProperties())
+                .addSchema(new Schema())
+                .build();
+
+        when(graphFactory.getGraph()).thenReturn(emptyGraph);
+
+        // When
+        ResponseEntity<String> response = get("/graph/config/graphId", String.class);
+
+        // Then
+        checkResponse(response, 200);
+        assertEquals("id", response.getBody());
+    }
+
+    @Test
     public void shouldReturn200WithListOfAllFilterFunctions() {
         // Given
         Graph emptyGraph = new Graph.Builder()

@@ -29,8 +29,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.stream.Stream;
 
@@ -44,10 +46,11 @@ public class GetElementsHandler
     public CloseableIterable<Element> doOperation(final GetElements operation,
                                                   final Context context,
                                                   final Store store) throws OperationException {
-        return doOperation(operation, (MapStore) store);
+        return doOperation(operation, context, (MapStore) store);
     }
 
     private CloseableIterable<Element> doOperation(final GetElements operation,
+                                                   final Context context,
                                                    final MapStore mapStore) throws OperationException {
         final MapImpl mapImpl = mapStore.getMapImpl();
         if (!mapImpl.isMaintainIndex()) {
@@ -57,18 +60,23 @@ public class GetElementsHandler
         if (null == seeds) {
             return new EmptyClosableIterable<>();
         }
-        return new ElementsIterable(mapImpl, operation, mapStore.getSchema());
+        return new ElementsIterable(mapImpl, operation, mapStore, context.getUser());
     }
 
     private static class ElementsIterable extends WrappedCloseableIterable<Element> {
         private final MapImpl mapImpl;
         private final GetElements getElements;
         private final Schema schema;
+        private final User user;
+        private final boolean supportsVisibility;
 
-        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final Schema schema) {
+        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final MapStore mapStore, final User user) {
             this.mapImpl = mapImpl;
             this.getElements = getElements;
-            this.schema = schema;
+            this.schema = mapStore.getSchema();
+            this.user = user;
+            this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
+
         }
 
         @Override
@@ -77,8 +85,11 @@ public class GetElementsHandler
                     .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream())
                     .distinct();
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
-            elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
+            if (this.supportsVisibility) {
+                elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
+            }
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
+            elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> {
                 ViewUtil.removeProperties(getElements.getView(), element);
                 return element;

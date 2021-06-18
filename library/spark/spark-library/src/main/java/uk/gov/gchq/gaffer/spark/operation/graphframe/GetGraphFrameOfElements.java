@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.graphframes.GraphFrame;
 
@@ -45,6 +46,7 @@ import java.util.Map;
  *
  * @see uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements
  */
+@JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.3.0")
 @Summary("Gets a GraphFrame of elements")
 public class GetGraphFrameOfElements implements
