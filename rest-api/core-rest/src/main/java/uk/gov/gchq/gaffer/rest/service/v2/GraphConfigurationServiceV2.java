@@ -162,6 +162,13 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     }
 
     @Override
+    public Response getGraphId() {
+        return Response.ok(graphFactory.getGraph().getGraphId())
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
     public Response getTransformFunctions() {
         return Response.ok(ReflectionUtil.getSubTypes(Function.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)

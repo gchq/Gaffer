@@ -40,6 +40,7 @@ import java.util.Set;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.mapstore.impl.VisibilityTest.VERTEX_1;
 
 public class GetAdjacentIdsTest {
 
@@ -369,5 +370,14 @@ public class GetAdjacentIdsTest {
         expectedResults.remove(new EntitySeed("A"));
         expectedResults.remove(new EntitySeed("Y2"));
         assertEquals(expectedResults, resultsSet);
+    }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new GetAdjacentIds.Builder()
+                        .input(new EntitySeed(VERTEX_1))
+                        .build(),
+                VisibilityTest::vertex1AdjacentIdsResultConsumer);
     }
 }

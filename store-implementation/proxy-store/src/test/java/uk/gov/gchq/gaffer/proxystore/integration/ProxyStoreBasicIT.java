@@ -126,7 +126,7 @@ public class ProxyStoreBasicIT {
                         .graphId("graph1")
                         .host("localhost")
                         .port(8080)
-                        .contextRoot("rest")
+                        .contextRoot("rest/v2")
                         .build())
                 .build();
     }

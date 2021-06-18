@@ -40,6 +40,7 @@ public class JsonSerialisationUtilTest {
         expectedValues.put("options", "java.util.Map<java.lang.String,java.lang.String>");
         expectedValues.put("input", "java.lang.Object[]");
         expectedValues.put("includePartial", "java.lang.Boolean");
+        expectedValues.put("conditional", "uk.gov.gchq.gaffer.operation.util.Conditional");
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);

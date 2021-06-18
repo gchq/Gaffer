@@ -1,4 +1,4 @@
-name: Release
+name: Full Release
 
 on:
   milestone:
@@ -162,6 +162,14 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/uk
+        key: gaffer-dependencies
 
     - name: Checkout master
       uses: actions/checkout@v2

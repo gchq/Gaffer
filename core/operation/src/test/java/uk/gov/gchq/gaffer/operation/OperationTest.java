@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected Set<String> getRequiredFields() {
@@ -88,7 +88,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // Then
         assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
         assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
-        assumeTrue(VersionUtil.validateVersionString(annotation.value()),
+        assertTrue(VersionUtil.validateVersionString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
     }
 
@@ -100,9 +100,10 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // When
         final Summary annotation = instance.getClass().getAnnotation(Summary.class);
 
+        // Then
         assertNotNull(annotation, "Missing Since annotation on class " + instance.getClass().getName());
         assertNotNull(annotation.value(), "Missing Since annotation on class " + instance.getClass().getName());
-        assumeTrue(SummaryUtil.validateSummaryString(annotation.value()),
+        assertTrue(SummaryUtil.validateSummaryString(annotation.value()),
                 annotation.value() + " is not a valid value string.");
     }
 }

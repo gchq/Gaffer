@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.mapstore;
 
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -119,5 +121,13 @@ public class MapStoreProperties extends StoreProperties {
 
     public void setStaticMap(final boolean staticMap) {
         set(STATIC_MAP, Boolean.toString(staticMap));
+    }
+
+    @Override
+    public String getJsonSerialiserModules() {
+        return new StringDeduplicateConcat().apply(
+                SketchesJsonModules.class.getName(),
+                super.getJsonSerialiserModules()
+        );
     }
 }

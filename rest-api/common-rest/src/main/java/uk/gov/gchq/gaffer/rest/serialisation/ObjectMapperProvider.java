@@ -25,7 +25,6 @@ public class ObjectMapperProvider {
 
     public ObjectMapperProvider() {
         SimpleClassNameCache.initialise();
-        JSONSerialiser.update();
     }
 
     public ObjectMapper getObjectMapper() {
