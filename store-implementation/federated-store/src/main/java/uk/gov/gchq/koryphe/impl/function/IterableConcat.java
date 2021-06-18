@@ -16,8 +16,11 @@
 package uk.gov.gchq.koryphe.impl.function;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+
+import java.util.ArrayList;
 
 /**
  * An {@code IterableConcat} is a {@link KorypheFunction} which flattens an
@@ -25,10 +28,24 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  *
  * @param <I_ITEM> the type of objects in the innermost iterable
  */
+@Since("2.0.0")
 @Summary("Concatenates 2 iterables")
 public class IterableConcat<I_ITEM> extends KorypheFunction<Iterable<Iterable<I_ITEM>>, Iterable<I_ITEM>> {
     @Override
     public Iterable<I_ITEM> apply(final Iterable<Iterable<I_ITEM>> items) {
-        return new ChainedIterable<>(items);
+        return new ChainedIterable<>(rearrange(items));
+    }
+
+    /**
+     * HACK to re-arrange items due to the constructor of ChainedIterable(final Iterable... itrs).
+     * incorrectly uses [iterable<iterable>] instead of correctly using [iterable,iterable,iterable]
+     *
+     * @param items items re-arrange
+     * @return re-arranged items
+     */
+    private Iterable[] rearrange(final Iterable<Iterable<I_ITEM>> items) {
+        ArrayList<Iterable<I_ITEM>> tmp = new ArrayList<>();
+        items.forEach(tmp::add);
+        return tmp.toArray(new Iterable[tmp.size()]);
     }
 }

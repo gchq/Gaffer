@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -52,7 +51,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         return mergeResults(allGraphResults, mergeFunction, (FederatedStore) store);
     }
 
-    private ChainedIterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
+    private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
         try {
             List<Object> results;
             final Collection<Graph> graphs = getGraphs(operation, context, store);
@@ -83,7 +82,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                 }
             }
 
-            return new ChainedIterable<>(results);
+            return results;
         } catch (
                 final Exception e) {
             throw new OperationException(ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e);
