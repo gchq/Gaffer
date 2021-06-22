@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
@@ -105,7 +106,9 @@ public final class FederatedStoreUtil {
      */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
         OP resultOp = (OP) operation.shallowClone();
-        resultOp.setOptions(new HashMap<>(operation.getOptions()));
+        if (nonNull(resultOp.getOptions())) {
+            resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
+        }
         if (resultOp instanceof Operations) {
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
