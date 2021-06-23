@@ -23,9 +23,10 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -41,17 +42,20 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -65,6 +69,14 @@ public class FederatedStoreSchemaTest {
                     .aggregateFunction(new StringConcat())
                     .build())
             .build();
+    private static final Schema STRING_SCHEMA_REQUIRED = new Schema.Builder()
+            .type(STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .aggregateFunction(new StringConcat())
+                    .validateFunctions(new Exists())
+                    .build())
+            .build();
+
     public User testUser;
     public Context testContext;
     public static final String TEST_FED_STORE = "testFedStore";
@@ -73,7 +85,7 @@ public class FederatedStoreSchemaTest {
     private static final FederatedStoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -109,7 +121,7 @@ public class FederatedStoreSchemaTest {
         HashSet<String> expected = new HashSet<>();
         expected.addAll(Arrays.asList("a", "b", "c"));
 
-        assertTrue(expected.equals(graphIds));
+        assertEquals(expected, graphIds);
     }
 
     @Test
@@ -135,8 +147,9 @@ public class FederatedStoreSchemaTest {
     public void shouldBeAbleToGetElementsWithOverlappingSchemas() throws
             OperationException {
         // Given
-        addOverlappingPropertiesGraphs();
+        addOverlappingPropertiesGraphs(false);
 
+        // Element 1
         fStore.execute(new AddElements.Builder()
                 .input(new Edge.Builder()
                         .group("e1")
@@ -146,11 +159,12 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
+        // Element 2
         fStore.execute(new AddElements.Builder()
                 .input(new Edge.Builder()
                         .group("e1")
                         .source("source1")
-                        .dest("dest1")
+                        .dest("dest2")
                         .property("prop1", "value1")
                         .property("prop2", "value2")
                         .build())
@@ -167,32 +181,123 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(a);
-        final ArrayList<Element> results = new ArrayList<>();
-        final CloseableIterator<? extends Element> aIterator = a.iterator();
-        while (aIterator.hasNext()) {
-            Element result = aIterator.next();
-            results.add(result);
-        }
+        final Set<? extends Element> resultsSet = Streams.toStream(a).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(a).collect(Collectors.toList());
 
         // Then
-        assertEquals(results.size(), 2);
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a, element 1
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build());
+        // Graph a, element 2
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build());
+        // Graph b, element 1
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2", "")
+                .build());
+        // Graph b, element 2
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2", "value2")
+                .build());
+
+        assertEquals(resultsSet, expected);
+        assertEquals(resultsSet.size(), resultsList.size());
     }
 
     @Test
     public void shouldBeAbleToGetSchemaWithOverlappingSchemas() throws
             OperationException {
         // Given
-        addOverlappingPropertiesGraphs();
+        addOverlappingPropertiesGraphs(false);
 
         // When
         final Schema s = fStore.execute(new GetSchema.Builder()
                 .build(), testContext);
 
         // Then
-        assertEquals(s.validate(), new ValidationResult());
+        assertTrue(s.validate().isValid(), s.validate().getErrorString());
     }
 
+    @Test
+    public void shouldValidateCorrectlyWithOverlappingSchemas() throws
+            OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(true);
 
+        // When
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        final CloseableIterable<? extends Element> a = fStore.execute(new GetAllElements.Builder()
+                .build(), testContext);
+        assertNotNull(a);
+        final Set<? extends Element> resultsSet = Streams.toStream(a).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(a).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .property("prop1", "value1")
+                .build());
+        // Graph b
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .property("prop1", "value1")
+                .property("prop2", "value2")
+                .build());
+
+        assertEquals(resultsSet, expected);
+        assertEquals(resultsSet.size(), resultsList.size());
+    }
+
+    @Test
+    public void shouldThrowValidationMissingPropertyWithOverlappingSchemas() throws
+            OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(true);
+
+        // Then
+        assertThrows(OperationException.class, () -> {
+            fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .build())
+                .build(), testContext);
+        });
+    }
     private SchemaEdgeDefinition getProp(final String propName) {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)
@@ -229,7 +334,8 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
     }
 
-    private void addOverlappingPropertiesGraphs() throws OperationException {
+    private void addOverlappingPropertiesGraphs(final boolean propertiesRequired) throws OperationException {
+        final Schema stringSchema = propertiesRequired ? STRING_SCHEMA_REQUIRED : STRING_SCHEMA;
         final Schema aSchema = new Schema.Builder()
                 .edge("e1", new SchemaEdgeDefinition.Builder()
                         .source(STRING)
@@ -238,7 +344,7 @@ public class FederatedStoreSchemaTest {
                         .property("prop1", STRING)
                         .build())
                 .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
+                .merge(stringSchema)
                 .build();
 
         final Schema bSchema = new Schema.Builder()
@@ -250,7 +356,7 @@ public class FederatedStoreSchemaTest {
                         .property("prop2", STRING)
                         .build())
                 .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
+                .merge(stringSchema)
                 .build();
 
         fStore.execute(new AddGraph.Builder()
