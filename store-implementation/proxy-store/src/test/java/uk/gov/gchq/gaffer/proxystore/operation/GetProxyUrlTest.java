@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class GetUrlOperationTest extends OperationTest<GetUrlOperation> {
+public class GetProxyUrlTest extends OperationTest<GetProxyUrl> {
 
     private static final String A = "a";
     private static final String ONE = "1";
@@ -30,7 +30,7 @@ public class GetUrlOperationTest extends OperationTest<GetUrlOperation> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         //given
-        GetUrlOperation op = getTestObject();
+        GetProxyUrl op = getTestObject();
 
         //when
         String value = op.getOption(A);
@@ -41,16 +41,16 @@ public class GetUrlOperationTest extends OperationTest<GetUrlOperation> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        GetUrlOperation testObject = getTestObject();
+        GetProxyUrl testObject = getTestObject();
         Operation operation = testObject.shallowClone();
         assertEquals(testObject, operation);
         assertFalse(testObject == operation);
     }
 
     @Override
-    protected GetUrlOperation getTestObject() {
+    protected GetProxyUrl getTestObject() {
         String expected = ONE;
         String a = A;
-        return new GetUrlOperation.Builder().option(a, expected).build();
+        return new GetProxyUrl.Builder().option(a, expected).build();
     }
 }
