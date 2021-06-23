@@ -31,7 +31,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.17.0")
 @Summary("Gets the Proxy URL value from the store properties")
-public class GetUrlOperation implements Output<String> {
+public class GetProxyUrl implements Output<String> {
 
     private HashMap<String, String> options = new HashMap<>();
 
@@ -42,7 +42,7 @@ public class GetUrlOperation implements Output<String> {
 
     @Override
     public Operation shallowClone() throws CloneFailedException {
-        return new GetUrlOperation.Builder().options(options).build();
+        return new GetProxyUrl.Builder().options(options).build();
     }
 
     @Override
@@ -55,9 +55,9 @@ public class GetUrlOperation implements Output<String> {
         this.options = new HashMap<>(options);
     }
 
-    public static class Builder extends Operation.BaseBuilder<GetUrlOperation, GetUrlOperation.Builder> {
+    public static class Builder extends Operation.BaseBuilder<GetProxyUrl, GetProxyUrl.Builder> {
         public Builder() {
-            super(new GetUrlOperation());
+            super(new GetProxyUrl());
         }
     }
 }
