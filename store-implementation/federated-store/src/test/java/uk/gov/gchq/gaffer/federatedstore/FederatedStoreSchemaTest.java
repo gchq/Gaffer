@@ -63,13 +63,13 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
     private static final String STRING = "string";
-    private static final Schema STRING_SCHEMA = new Schema.Builder()
+    private static final Schema STRING_TYPE = new Schema.Builder()
             .type(STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
                     .aggregateFunction(new StringConcat())
                     .build())
             .build();
-    private static final Schema STRING_SCHEMA_REQUIRED = new Schema.Builder()
+    private static final Schema STRING_REQUIRED_TYPE = new Schema.Builder()
             .type(STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
                     .aggregateFunction(new StringConcat())
@@ -99,19 +99,17 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws Exception {
+    public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws OperationException {
         // Given
         addGroupCollisionGraphs();
 
-        final Schema aSchema = new Schema.Builder()
-                .edge("e1", getProp("prop1"))
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
-                .build();
-
         fStore.execute(new AddGraph.Builder()
                 .graphId("c")
-                .schema(aSchema)
+                .schema(new Schema.Builder()
+                        .edge("e1", getProp("prop1"))
+                        .type(DIRECTED_EITHER, Boolean.class)
+                        .merge(STRING_TYPE)
+                        .build())
                 .storeProperties(PROPERTIES)
                 .build(), testContext);
         // When
@@ -125,8 +123,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldGetCorrectDefaultViewForAChosenGraphOperation() throws
-            Exception {
+    public void shouldGetCorrectDefaultViewForAChosenGraphOperation() throws OperationException {
         // Given
         addGroupCollisionGraphs();
 
@@ -144,8 +141,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToGetElementsWithOverlappingSchemas() throws
-            OperationException {
+    public void shouldBeAbleToGetElementsWithOverlappingSchemas() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(false);
 
@@ -186,21 +182,21 @@ public class FederatedStoreSchemaTest {
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
-        // Graph a, element 1
+        // Graph a, element 1: prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
-        // Graph a, element 2
+        // Graph a, element 2: prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
-        // Graph b, element 1
+        // Graph b, element 1: prop2 empty
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
@@ -208,7 +204,7 @@ public class FederatedStoreSchemaTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property("prop2", "")
                 .build());
-        // Graph b, element 2
+        // Graph b, element 2: prop2 present
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
@@ -217,13 +213,12 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(resultsSet, expected);
-        assertEquals(resultsSet.size(), resultsList.size());
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
     }
 
     @Test
-    public void shouldBeAbleToGetSchemaWithOverlappingSchemas() throws
-            OperationException {
+    public void shouldBeAbleToGetSchemaWithOverlappingSchemas() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(false);
 
@@ -236,8 +231,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldValidateCorrectlyWithOverlappingSchemas() throws
-            OperationException {
+    public void shouldValidateCorrectlyWithOverlappingSchemas() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(true);
 
@@ -276,13 +270,12 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(resultsSet, expected);
-        assertEquals(resultsSet.size(), resultsList.size());
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
     }
 
     @Test
-    public void shouldThrowValidationMissingPropertyWithOverlappingSchemas() throws
-            OperationException {
+    public void shouldThrowValidationMissingPropertyWithOverlappingSchemas() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(true);
 
@@ -308,66 +301,58 @@ public class FederatedStoreSchemaTest {
     }
 
     private void addGroupCollisionGraphs() throws OperationException {
-        final Schema aSchema = new Schema.Builder()
-                .edge("e1", getProp("prop1"))
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
-                .build();
-
-        fStore.execute(OperationChain.wrap(
-                new AddGraph.Builder()
-                        .graphId("a")
-                        .schema(aSchema)
-                        .storeProperties(PROPERTIES)
-                        .build()), testContext);
-
-        final Schema bSchema = new Schema.Builder()
-                .edge("e1", getProp("prop2"))
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(STRING_SCHEMA)
-                .build();
+        fStore.execute(new AddGraph.Builder()
+                .graphId("a")
+                .schema(new Schema.Builder()
+                        .edge("e1", getProp("prop1"))
+                        .type(DIRECTED_EITHER, Boolean.class)
+                        .merge(STRING_TYPE)
+                        .build())
+                .storeProperties(PROPERTIES)
+                .build(), testContext);
 
         fStore.execute(new AddGraph.Builder()
                 .graphId("b")
-                .schema(bSchema)
+                .schema(new Schema.Builder()
+                        .edge("e1", getProp("prop2"))
+                        .type(DIRECTED_EITHER, Boolean.class)
+                        .merge(STRING_TYPE)
+                        .build())
                 .storeProperties(PROPERTIES)
                 .build(), testContext);
     }
 
     private void addOverlappingPropertiesGraphs(final boolean propertiesRequired) throws OperationException {
-        final Schema stringSchema = propertiesRequired ? STRING_SCHEMA_REQUIRED : STRING_SCHEMA;
-        final Schema aSchema = new Schema.Builder()
-                .edge("e1", new SchemaEdgeDefinition.Builder()
-                        .source(STRING)
-                        .destination(STRING)
-                        .directed(DIRECTED_EITHER)
-                        .property("prop1", STRING)
-                        .build())
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(stringSchema)
-                .build();
-
-        final Schema bSchema = new Schema.Builder()
-                .edge("e1", new SchemaEdgeDefinition.Builder()
-                        .source(STRING)
-                        .destination(STRING)
-                        .directed(DIRECTED_EITHER)
-                        .property("prop1", STRING)
-                        .property("prop2", STRING)
-                        .build())
-                .type(DIRECTED_EITHER, Boolean.class)
-                .merge(stringSchema)
-                .build();
+        final Schema stringSchema = propertiesRequired ? STRING_REQUIRED_TYPE : STRING_TYPE;
 
         fStore.execute(new AddGraph.Builder()
                 .graphId("a")
-                .schema(aSchema)
+                .schema(new Schema.Builder()
+                        .edge("e1", new SchemaEdgeDefinition.Builder()
+                                .source(STRING)
+                                .destination(STRING)
+                                .directed(DIRECTED_EITHER)
+                                .property("prop1", STRING)
+                                .build())
+                        .type(DIRECTED_EITHER, Boolean.class)
+                        .merge(stringSchema)
+                        .build())
                 .storeProperties(PROPERTIES)
                 .build(), testContext);
 
         fStore.execute(new AddGraph.Builder()
                 .graphId("b")
-                .schema(bSchema)
+                .schema(new Schema.Builder()
+                        .edge("e1", new SchemaEdgeDefinition.Builder()
+                                .source(STRING)
+                                .destination(STRING)
+                                .directed(DIRECTED_EITHER)
+                                .property("prop1", STRING)
+                                .property("prop2", STRING)
+                                .build())
+                        .type(DIRECTED_EITHER, Boolean.class)
+                        .merge(stringSchema)
+                        .build())
                 .storeProperties(PROPERTIES)
                 .build(), testContext);
     }
