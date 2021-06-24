@@ -45,8 +45,10 @@ public class GetProxyUrlHandlerTest {
         Mockito.when(store.getProperties()).thenReturn(storeProperties);
         String expected = String.format("http://%s:%s/rest/v2", host, port, DEFAULT_GAFFER_CONTEXT_ROOT);
 
-        //whenGetUrlOperationTest
+        //when
         String url = new GetProxyUrlHandler().doOperation(new GetProxyUrl(), new Context(), store);
+
+        //then
         assertEquals(expected, url);
     }
 
