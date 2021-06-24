@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.proxystore.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -41,7 +43,7 @@ public class GetProxyUrl implements Output<String> {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public GetProxyUrl shallowClone() throws CloneFailedException {
         return new GetProxyUrl.Builder().options(options).build();
     }
 
@@ -53,6 +55,23 @@ public class GetProxyUrl implements Output<String> {
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = new HashMap<>(options);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return this == o
+                || (o != null
+                && getClass() == o.getClass()
+                && new EqualsBuilder()
+                .append(options, ((GetProxyUrl) o).options)
+                .isEquals());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(options)
+                .toHashCode();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetProxyUrl, GetProxyUrl.Builder> {
