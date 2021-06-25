@@ -640,6 +640,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                         continue;
                     }
 
+                    // Check to see if either of the properties are a subset of another properties
+                    if (elementDef2.properties.entrySet().containsAll(elementDef1.properties.entrySet()) ||
+                            elementDef1.properties.entrySet().containsAll(elementDef2.properties.entrySet())) {
+                        continue;
+                    }
+
                     throw new SchemaException("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part. "
                             + "Please fix this group: " + sharedGroup);
                 }

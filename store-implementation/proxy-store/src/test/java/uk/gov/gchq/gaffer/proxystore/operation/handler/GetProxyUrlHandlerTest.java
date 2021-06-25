@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.proxystore.operation.handler;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.proxystore.operation.GetUrlOperation;
+import uk.gov.gchq.gaffer.proxystore.operation.GetProxyUrl;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -29,7 +29,7 @@ import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_CONTEXT_ROOT;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_HOST;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_PORT;
 
-public class GetUrlHandlerTest {
+public class GetProxyUrlHandlerTest {
 
 
     @Test
@@ -45,8 +45,10 @@ public class GetUrlHandlerTest {
         Mockito.when(store.getProperties()).thenReturn(storeProperties);
         String expected = String.format("http://%s:%s/rest/v2", host, port, DEFAULT_GAFFER_CONTEXT_ROOT);
 
-        //whenGetUrlOperationTest
-        String url = new GetUrlHandler().doOperation(new GetUrlOperation(), new Context(), store);
+        //when
+        String url = new GetProxyUrlHandler().doOperation(new GetProxyUrl(), new Context(), store);
+
+        //then
         assertEquals(expected, url);
     }
 
