@@ -280,7 +280,7 @@ public class FederatedStoreSchemaTest {
         addOverlappingPropertiesGraphs(true);
 
         // Then
-        assertThrows(OperationException.class, () -> {
+        OperationException exception = assertThrows(OperationException.class, () -> {
             fStore.execute(new AddElements.Builder()
                 .input(new Edge.Builder()
                         .group("e1")
@@ -290,6 +290,7 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
         });
+        assertTrue(exception.getMessage().contains("returned false for properties: {prop2: null}"));
     }
     private SchemaEdgeDefinition getProp(final String propName) {
         return new SchemaEdgeDefinition.Builder()
