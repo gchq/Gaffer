@@ -183,7 +183,7 @@ public class FederatedStoreUtilTest {
         final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
 
         // Then
-        assertSame(operation, updatedOp);
+        assertEquals(operation, updatedOp);
         assertSame(operation.getView(), updatedOp.getView());
     }
 
@@ -303,7 +303,7 @@ public class FederatedStoreUtilTest {
         final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
 
         // Then
-        assertSame(operation, updatedOp);
+        assertEquals(operation, updatedOp);
         assertNull(updatedOp.getInput());
     }
 

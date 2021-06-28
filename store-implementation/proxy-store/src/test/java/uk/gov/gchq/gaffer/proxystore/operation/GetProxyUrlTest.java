@@ -15,42 +15,43 @@
  */
 package uk.gov.gchq.gaffer.proxystore.operation;
 
-import uk.gov.gchq.gaffer.operation.Operation;
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class GetUrlOperationTest extends OperationTest<GetUrlOperation> {
+public class GetProxyUrlTest extends OperationTest<GetProxyUrl> {
 
     private static final String A = "a";
     private static final String ONE = "1";
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         //given
-        GetUrlOperation op = getTestObject();
+        GetProxyUrl op = getTestObject();
 
         //when
-        String value = op.getOption(A);
+        String actual = op.getOption(A);
 
         //then
-        assertEquals(ONE, A);
+        assertEquals(ONE, actual);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
-        GetUrlOperation testObject = getTestObject();
-        Operation operation = testObject.shallowClone();
+        GetProxyUrl testObject = getTestObject();
+        GetProxyUrl operation = testObject.shallowClone();
         assertEquals(testObject, operation);
         assertFalse(testObject == operation);
     }
 
     @Override
-    protected GetUrlOperation getTestObject() {
-        String expected = ONE;
-        String a = A;
-        return new GetUrlOperation.Builder().option(a, expected).build();
+    protected GetProxyUrl getTestObject() {
+        return new GetProxyUrl.Builder().option(A, ONE).build();
     }
 }
