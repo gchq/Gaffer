@@ -59,6 +59,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -303,7 +305,7 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptyOutputOfTypeIterableWhenNoResults() throws Exception {
+    public void shouldReturnEmptyOutputOfTypeIterableWhenResultsIsNull() throws Exception {
         // Given
         Output<CloseableIterable<? extends Element>> payload = getPayload();
 
@@ -311,7 +313,7 @@ public class FederatedOperationHandlerTest {
         StoreProperties storeProperties = new StoreProperties();
 
         Store mockStore = getMockStore(unusedSchema, storeProperties);
-        given(mockStore.execute(any(OperationChain.class), eq(context))).willReturn(null);
+        given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(null);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStore));
@@ -320,12 +322,32 @@ public class FederatedOperationHandlerTest {
         // When
         final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
 
+        // Then
         assertNotNull(results);
+        assertEquals(Lists.newArrayList((Iterable) new ChainedIterable<>(new ArrayList<>(0))), Lists.newArrayList((Iterable) results));
+    }
 
-        ArrayList<Element> arrayList = new ArrayList<>();
-        arrayList.add(null);
-        ChainedIterable<Object> expected = new ChainedIterable<>(arrayList);
-        assertEquals(Lists.newArrayList((Iterable) expected), Lists.newArrayList((Iterable) results));
+    @Test
+    public void shouldReturnNulledOutputOfTypeIterableWhenResultsContainsOnlyNull() throws Exception {
+        // Given
+        Output<CloseableIterable<? extends Element>> payload = getPayload();
+
+        Schema unusedSchema = new Schema.Builder().build();
+        StoreProperties storeProperties = new StoreProperties();
+
+        Store mockStore = getMockStore(unusedSchema, storeProperties);
+        given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList((Object) null));
+
+        FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
+        HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStore));
+        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(filteredGraphs);
+
+        // When
+        final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
+
+        // Then
+        assertNotNull(results);
+        assertEquals(Lists.newArrayList((Iterable) new ChainedIterable<>(Lists.newArrayList((Object) null))), Lists.newArrayList((Iterable) results));
     }
 
     protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result, final CloseableIterable<? extends Element>... resultParts) {
@@ -340,6 +362,31 @@ public class FederatedOperationHandlerTest {
         }
         assertEquals(elements.size(), i);
         return true;
+    }
+
+    @Test
+    public void shouldMergeVariousReturnsFromGraphs() {
+        // Given
+        final Function<Iterable, Object> function = new FederatedStore().getDefaultMergeFunction();
+
+        List<Integer> graph1Results = null; //null results
+        List<Integer> graph2ResultsVeryNormal = Arrays.asList(1, 2, 3); //normal results
+        List<Integer> graph3Results = Arrays.asList(); //empty results
+        List<Integer> graph4Results = Arrays.asList((Integer) null); // results is null
+        List<Integer> graph5Results = Arrays.asList(4, null, 5); //results with null
+        final Iterable<Iterable<Integer>> input = Arrays.asList(
+                graph1Results,
+                graph2ResultsVeryNormal,
+                graph3Results,
+                graph4Results,
+                graph5Results);
+
+        // When
+        final Object results = function.apply(input);
+
+        // Then
+        assertEquals(new IterableConcat<>(), function);
+        assertEquals(Arrays.asList(1, 2, 3, null, 4, null, 5), Lists.newArrayList((Iterable) results));
     }
 
 }

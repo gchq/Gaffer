@@ -174,7 +174,7 @@ public abstract class AbstractElementFilter extends Filter {
 
     private void updateSchemaGroupsWithoutFilters() {
         groupsWithoutFilters = new HashSet<>();
-        for (final Map.Entry<String, SchemaElementDefinition> entry : new ChainedIterable<Map.Entry<String, SchemaElementDefinition>>(schema.getEntities().entrySet(), schema.getEdges().entrySet())) {
+        for (final Map.Entry<String, ? extends SchemaElementDefinition> entry : new ChainedIterable<>(schema.getEntities().entrySet(), schema.getEdges().entrySet())) {
             if (null == entry.getValue() || !entry.getValue().hasValidation()) {
                 groupsWithoutFilters.add(entry.getKey());
             }

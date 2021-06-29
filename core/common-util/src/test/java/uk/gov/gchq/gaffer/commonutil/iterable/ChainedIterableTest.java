@@ -48,30 +48,35 @@ public class ChainedIterableTest {
 
     @Test
     public void shouldThrowIAXWhenIterablesAreNull() {
-        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>(null));
+        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>((Iterable<Integer>[]) null));
     }
 
     @Test
     public void shouldWrapAllIterables() {
         final List<Integer> itr1 = Collections.singletonList(0);
         final List<Integer> emptyItr2 = new ArrayList<>(0);
-        final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, 4);
+        final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, null, 4);
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
         final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
-        assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
+        assertEquals(Lists.newArrayList(0, 1, 2, 3, null, 4, 5, 6), Lists.newArrayList(wrappedItr));
     }
 
     @Test
     public void shouldWrapAllNestedIterables() {
         final ChainedIterable<Integer> itr1 = new ChainedIterable<>(Collections.singletonList(0));
         final ChainedIterable<Integer> emptyItr2 = new ChainedIterable(new ArrayList<>(0));
-        final ChainedIterable<Integer> itr3 = new ChainedIterable(Lists.newArrayList(1, 2, 3, 4), new ChainedIterable(Lists.newArrayList(5, 6)));
+        final ChainedIterable<Integer> itr3 = new ChainedIterable(Lists.newArrayList(1, 2, 3, 4), new ChainedIterable(Lists.newArrayList(5, 6), null));
 
-        final ChainedIterable<ChainedIterable<Integer>> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3);
+        final ChainedIterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3);
 
         assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
+
+        //TODO FS Following line fails, using wrong constructor
+//        final ChainedIterable<Integer> itr4 = new ChainedIterable(Lists.newArrayList(7, 8, 9), new ChainedIterable(Lists.newArrayList(10, 11)));
+//        final ChainedIterable<Integer> wrappedItr2 = new ChainedIterable<>(wrappedItr, itr4);
+//        assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Lists.newArrayList(wrappedItr2));
     }
 
     @Test

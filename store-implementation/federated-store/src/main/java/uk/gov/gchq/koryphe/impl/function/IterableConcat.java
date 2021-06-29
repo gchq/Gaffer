@@ -20,10 +20,6 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-import java.util.ArrayList;
-
-import static java.util.Objects.nonNull;
-
 /**
  * An {@code IterableConcat} is a {@link KorypheFunction} which flattens an
  * {@link Iterable} of {@link Iterable}s by concatenating them.
@@ -35,21 +31,6 @@ import static java.util.Objects.nonNull;
 public class IterableConcat<I_ITEM> extends KorypheFunction<Iterable<Iterable<I_ITEM>>, Iterable<I_ITEM>> {
     @Override
     public Iterable<I_ITEM> apply(final Iterable<Iterable<I_ITEM>> items) {
-        return new ChainedIterable<>(rearrange(items));
-    }
-
-    /**
-     * HACK to re-arrange items due to the constructor of ChainedIterable(final Iterable... itrs).
-     * incorrectly uses [iterable<iterable>] instead of correctly using [iterable,iterable,iterable]
-     *
-     * @param items items re-arrange
-     * @return re-arranged items
-     */
-    private Iterable[] rearrange(final Iterable<Iterable<I_ITEM>> items) {
-        ArrayList<Iterable<I_ITEM>> tmp = new ArrayList<>();
-        if (nonNull(items)) {
-            items.forEach(tmp::add);
-        }
-        return tmp.toArray(new Iterable[tmp.size()]);
+        return new ChainedIterable<>(items);
     }
 }

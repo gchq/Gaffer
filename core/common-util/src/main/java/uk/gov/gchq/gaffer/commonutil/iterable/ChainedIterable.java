@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,100 +13,89 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-/**
- * A {@code ChainedIterable} is an iterable composed of other {@link java.lang.Iterable}s.
- *
- * As a client iterates through this iterable, the child iterables are consumed
- * sequentially.
- *
- * @param <T> the type of items in the iterable.
- */
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+
 public class ChainedIterable<T> implements CloseableIterable<T> {
-    private final Iterable<T>[] itrs;
-    private final int n;
+    private final Iterable<? extends Iterable<? extends T>> iterables;
 
-    public ChainedIterable(final Iterable... itrs) {
-        if (null == itrs || 0 == itrs.length) {
-            throw new IllegalArgumentException("At least 1 iterable is required.");
-        }
-        this.itrs = itrs;
-        n = this.itrs.length;
+    public ChainedIterable(final Iterable<? extends T>... itrs) {
+        this(isEmpty(itrs) ? null : Arrays.asList(itrs));
     }
 
-    @Override
-    public void close() {
-        for (final Iterable<T> itr : itrs) {
-            CloseableUtil.close(itr);
+    public ChainedIterable(final Iterable<? extends Iterable<? extends T>> iterables) {
+        if (null == iterables) {
+            throw new IllegalArgumentException("Iterables are required");
         }
+        this.iterables = iterables;
     }
 
     @Override
     public CloseableIterator<T> iterator() {
-        return new IteratorWrapper();
+        return new ChainedIterator<>(iterables.iterator());
     }
 
-    private class IteratorWrapper implements CloseableIterator<T> {
-        private final Iterator<T>[] iterators = new Iterator[itrs.length];
-        private int index = 0;
+    @Override
+    public void close() {
+        for (final Iterable<? extends T> iterable : iterables) {
+            CloseableUtil.close(iterable);
+        }
+    }
+
+
+    private static class ChainedIterator<T> implements CloseableIterator<T> {
+        private final Iterator<? extends Iterable<? extends T>> iterablesIterator;
+        private Iterator<? extends T> currentIterator = Collections.emptyIterator();
+
+        ChainedIterator(final Iterator<? extends Iterable<? extends T>> iterablesIterator) {
+            this.iterablesIterator = iterablesIterator;
+        }
 
         @Override
         public boolean hasNext() {
-            return -1 != getNextIndex();
+            return getIterator().hasNext();
         }
 
         @Override
         public T next() {
-            index = getNextIndex();
-            if (-1 == index) {
-                throw new NoSuchElementException();
-            }
-
-            return getIterator(index).next();
-        }
-
-        private int getNextIndex() {
-            boolean hasNext = getIterator(index).hasNext();
-            int nextIndex = index;
-            while (!hasNext) {
-                nextIndex = nextIndex + 1;
-                if (nextIndex < n) {
-                    hasNext = getIterator(nextIndex).hasNext();
-                } else {
-                    nextIndex = -1;
-                    break;
-                }
-            }
-
-            return nextIndex;
+            return getIterator().next();
         }
 
         @Override
         public void remove() {
-            getIterator(index).remove();
-        }
-
-        private Iterator<T> getIterator(final int i) {
-            if (null == iterators[i]) {
-                iterators[i] = itrs[i].iterator();
-            }
-
-            return iterators[i];
+            currentIterator.remove();
         }
 
         @Override
         public void close() {
-            for (final Iterator<T> itr : iterators) {
-                CloseableUtil.close(itr);
+            CloseableUtil.close(currentIterator);
+            while (iterablesIterator.hasNext()) {
+                CloseableUtil.close(iterablesIterator.next());
             }
-            ChainedIterable.this.close();
+        }
+
+        private Iterator<? extends T> getIterator() {
+            while (!currentIterator.hasNext()) {
+                CloseableUtil.close(currentIterator);
+                if (iterablesIterator.hasNext()) {
+                    Iterable<? extends T> next = iterablesIterator.next();
+                    if (nonNull(next)) {
+                        currentIterator = next.iterator();
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            return currentIterator;
         }
     }
 }
