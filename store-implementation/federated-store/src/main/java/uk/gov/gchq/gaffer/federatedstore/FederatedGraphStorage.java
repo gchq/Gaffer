@@ -312,7 +312,7 @@ public class FederatedGraphStorage {
      */
     //TODO FS Refactor, GraphStorage does not need to know about FedOp
     public Set<StoreTrait> getTraits(final FederatedOperation<Void, Object> op, final Context context) {
-        final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
+        final Set<StoreTrait> traits = Sets.newHashSet();
         GetTraits payloadOperation = (nonNull(op)) ? (GetTraits) op.getPayloadOperation() : new GetTraits();
         if (payloadOperation.isCurrentTraits()) {
             final List<String> graphIds = (nonNull(op)) ? op.getGraphIds() : null;
@@ -320,11 +320,13 @@ public class FederatedGraphStorage {
             final GetTraits getTraits = payloadOperation.shallowClone();
             graphs.forEach(g -> {
                 try {
-                    traits.retainAll(g.execute(getTraits, context));
+                    traits.addAll(g.execute(getTraits, context));
                 } catch (final OperationException e) {
                     throw new RuntimeException("Unable to fetch traits from graph " + g.getGraphId(), e);
                 }
             });
+        } else {
+            traits.addAll(StoreTrait.ALL_TRAITS);
         }
 
 
