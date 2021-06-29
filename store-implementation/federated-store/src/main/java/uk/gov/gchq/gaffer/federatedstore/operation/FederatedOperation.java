@@ -250,7 +250,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     /**
      * FederatedOperation does not have input, but will pass through to payload.
      *
-     * @param input
+     * @param input input to passed to payload operation.
      */
     @Override
     public void setInput(final INPUT input) {
@@ -258,8 +258,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             if (nonNull(input)) {
                 if (this.payloadOperation instanceof Input) {
                     try {
-                        OperationHandlerUtil.updateOperationInput(this.payloadOperation,input);
-                    } catch (Exception e) {
+                        OperationHandlerUtil.updateOperationInput(this.payloadOperation, input);
+                    } catch (final Exception e) {
                         throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
                     }
                 } else {
