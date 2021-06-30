@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,11 +46,12 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -62,11 +64,11 @@ public class FederatedGetTraitsHandlerTest {
     public static final String ALT_STORE = "altStore";
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
+    private StoreProperties storeProperties;
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedGetTraitsHandlerTest.class, "/properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -74,6 +76,8 @@ public class FederatedGetTraitsHandlerTest {
         properties = new FederatedStoreProperties();
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
+        storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class);
     }
 
     @Test
@@ -89,11 +93,11 @@ public class FederatedGetTraitsHandlerTest {
                 new Context(testUser()));
 
         // Then
-        assertEquals(StoreTrait.ALL_TRAITS, traits);
+        assertEquals(Collections.emptySet(), traits);
     }
 
     @Test
-    public void shouldGetAllTraitsForEmptyStoreWithCurrentTraits() throws Exception {
+    public void shouldGetZeroTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
         assertEquals(0, federatedStore.getAllGraphIds(testUser()).size(),
@@ -105,7 +109,7 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // Then
-        assertEquals(StoreTrait.ALL_TRAITS, traits);
+        assertEquals(Collections.emptySet(), traits);
     }
 
     @Test
@@ -115,7 +119,16 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ALT_STORE)
-                .storeProperties(new TestStorePropertiesImpl())
+                .storeProperties(storeProperties)
+                .schema(new Schema())
+                .build(), new Context(testUser()));
+
+        StoreProperties altProps = new StoreProperties();
+        altProps.setStoreClass(TestStoreAltImpl.class);
+        federatedStore.execute(new AddGraph.Builder()
+                .isPublic(true)
+                .graphId(ALT_STORE + 2)
+                .storeProperties(altProps)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -126,8 +139,13 @@ public class FederatedGetTraitsHandlerTest {
                         .build(),
                 new Context(testUser()));
 
+        HashSet<Object> expectedIntersectionTraits = new HashSet<>();
+        expectedIntersectionTraits.addAll(TestStoreImpl.STORE_TRAITS);
+        expectedIntersectionTraits.retainAll(TestStoreAltImpl.STORE_TRAITS);
+
         // Then
-        assertEquals(StoreTrait.ALL_TRAITS, traits);
+        assertEquals(expectedIntersectionTraits, traits);
+        assertTrue(expectedIntersectionTraits.size() < TestStoreImpl.STORE_TRAITS.size());
     }
 
     @Test
@@ -137,7 +155,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ALT_STORE)
-                .storeProperties(new TestStorePropertiesImpl())
+                .storeProperties(storeProperties)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -168,7 +186,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ALT_STORE)
-                .storeProperties(new TestStorePropertiesImpl())
+                .storeProperties(storeProperties)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -207,7 +225,7 @@ public class FederatedGetTraitsHandlerTest {
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(ALT_STORE)
-                .storeProperties(new TestStorePropertiesImpl())
+                .storeProperties(storeProperties)
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
@@ -227,26 +245,22 @@ public class FederatedGetTraitsHandlerTest {
                 new Context(testUser()));
 
         // Then
-        assertEquals(StoreTrait.ALL_TRAITS, traits);
-    }
-
-    public static class TestStorePropertiesImpl extends StoreProperties {
-        public TestStorePropertiesImpl() {
-            super(TestStoreImpl.class);
-        }
+        assertEquals(TestStoreImpl.STORE_TRAITS, traits);
     }
 
     public static class TestStoreImpl extends Store {
 
+        private static final Set<StoreTrait> STORE_TRAITS = ImmutableSet.of(
+                StoreTrait.INGEST_AGGREGATION,
+                StoreTrait.PRE_AGGREGATION_FILTERING,
+                StoreTrait.POST_AGGREGATION_FILTERING,
+                StoreTrait.TRANSFORMATION,
+                StoreTrait.POST_TRANSFORMATION_FILTERING,
+                StoreTrait.MATCHED_VERTEX);
+
         @Override
         public Set<StoreTrait> getTraits() {
-            return new HashSet<>(Arrays.asList(
-                    StoreTrait.INGEST_AGGREGATION,
-                    StoreTrait.PRE_AGGREGATION_FILTERING,
-                    StoreTrait.POST_AGGREGATION_FILTERING,
-                    StoreTrait.TRANSFORMATION,
-                    StoreTrait.POST_TRANSFORMATION_FILTERING,
-                    StoreTrait.MATCHED_VERTEX));
+            return STORE_TRAITS;
         }
 
         @Override
@@ -279,4 +293,15 @@ public class FederatedGetTraitsHandlerTest {
             return null;
         }
     }
+
+    public static class TestStoreAltImpl extends TestStoreImpl {
+
+        private static final Set<StoreTrait> STORE_TRAITS = ImmutableSet.of(StoreTrait.VISIBILITY);
+
+        @Override
+        public Set<StoreTrait> getTraits() {
+            return STORE_TRAITS;
+        }
+    }
+
 }

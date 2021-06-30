@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -412,49 +411,6 @@ public class FederatedGraphStorageTest {
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
         assertEquals(e1, schema.getElement("e1"));
-    }
-
-    @Test
-    public void shouldGetTraitsForAddingUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, blockingReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals(0, traits.size(), "Revealing hidden traits");
-    }
-
-    @Test
-    public void shouldGetTraitsForAuthUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForBlankUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals(0, traits.size(), "Revealing hidden traits");
-    }
-
-    @Test
-    public void shouldGetTraitsForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, permissiveReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
     }
 
     @Test

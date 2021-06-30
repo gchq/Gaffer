@@ -334,7 +334,9 @@ public class FederatedStore extends Store {
 
     /**
      * @return {@link Store#getTraits()}
+     * @deprecated should execute GetTraits Operation against the FederatedStore
      */
+    @Deprecated
     @Override
     public Set<StoreTrait> getTraits() {
         return StoreTrait.ALL_TRAITS;

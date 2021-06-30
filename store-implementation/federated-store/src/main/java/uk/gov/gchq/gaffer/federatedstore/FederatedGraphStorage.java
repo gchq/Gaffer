@@ -332,42 +332,28 @@ public class FederatedGraphStorage {
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      */
     public Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
-        final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
-        if (null != op && op.isCurrentTraits()) {
+        boolean firstPass = true;
+        final Set<StoreTrait> traits = new HashSet<>();
+        if (null != op) {
             final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
-            final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
+            //final Set<Graph> graphs = get(context.getUser(), graphIds) would throw informative error if user couldn't view request graphs
+            final Set<Graph> graphs = getStream(context.getUser(), graphIds).collect(Collectors.toSet());
             final GetTraits getTraits = op.shallowClone();
-            graphs.forEach(g -> {
+            for (final Graph graph : graphs) {
                 try {
-                    traits.retainAll(g.execute(getTraits, context));
+                    Set<StoreTrait> execute = graph.execute(getTraits, context);
+                    if (firstPass) {
+                        traits.addAll(execute);
+                        firstPass = false;
+                    } else {
+                        traits.retainAll(execute);
+                    }
                 } catch (final OperationException e) {
-                    throw new RuntimeException("Unable to fetch traits from graph " + g.getGraphId(), e);
+                    throw new RuntimeException("Unable to fetch traits from graph " + graph.getGraphId(), e);
                 }
-            });
+            }
         }
 
-        return traits;
-    }
-
-    /**
-     * returns a set of {@link StoreTrait} that are common for all visible graphs.
-     * traits1 = [a,b,c]
-     * traits2 = [b,c]
-     * traits3 = [a,b]
-     * return [b]
-     *
-     * @param config containing optional graphIds csv.
-     * @param user   to match visibility against.
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     */
-    public Set<StoreTrait> getTraits(final Map<String, String> config, final User user) {
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-        Collection<Graph> graphs = get(user, graphIds);
-
-        final Set<StoreTrait> traits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
-        for (final Graph graph : graphs) {
-            traits.retainAll(graph.getStoreTraits());
-        }
         return traits;
     }
 
