@@ -47,6 +47,9 @@ public class FederatedStoreProperties extends StoreProperties {
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
     public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
 
+    public static final String CACHE_REFRESH_RATE = "gaffer.federatedstore.cache.refresh.rate";
+    public static final String CACHE_REFRESH_RATE_DEFAULT = String.valueOf(3600000);//hour
+
     public FederatedStoreProperties() {
         super(FederatedStore.class);
     }
@@ -93,5 +96,13 @@ public class FederatedStoreProperties extends StoreProperties {
 
     public void setGraphsCanHavePublicAccess(final boolean b) {
         set(IS_PUBLIC_ACCESS_ALLOWED, Boolean.toString(b));
+    }
+
+    public void setCacheRefreshRate(final int cacheRefreshRate) {
+        set(CACHE_REFRESH_RATE, String.valueOf(cacheRefreshRate));
+    }
+
+    public int getCacheRefreshRate() {
+        return Integer.valueOf(get(CACHE_REFRESH_RATE, CACHE_SERVICE_CLASS_DEFAULT));
     }
 }
