@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -98,7 +99,8 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             }
             return rtn;
         } catch (final Exception e) {
-            throw new OperationException("Error while merging results. " + e.getMessage(), e);
+            String message = e.getMessage();
+            throw new OperationException(String.format("Error while merging results. %s", isNull(message) ? "" : message), e);
         }
     }
 

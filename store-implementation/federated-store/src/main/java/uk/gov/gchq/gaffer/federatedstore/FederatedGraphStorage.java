@@ -309,26 +309,32 @@ public class FederatedGraphStorage {
      * @param op      the GetTraits operation
      * @param context the user context
      * @return the set of {@link StoreTrait} that are common for all visible graphs
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(uk.gov.gchq.gaffer.operation.Operation, Context)} with GetTraits Operation.
      */
+    @Deprecated
     //TODO FS Refactor, GraphStorage does not need to know about FedOp
-    public Set<StoreTrait> getTraits(final FederatedOperation<Void, Object> op, final Context context) {
-        final Set<StoreTrait> traits = Sets.newHashSet();
-        GetTraits payloadOperation = (nonNull(op)) ? (GetTraits) op.getPayloadOperation() : new GetTraits();
-        if (payloadOperation.isCurrentTraits()) {
+    public Set<StoreTrait> getTraits(final FederatedOperation op, final Context context) {
+        boolean firstPass = true;
+        final Set<StoreTrait> traits = new HashSet<>();
+        if (null != op) {
+            GetTraits payloadOperation = (nonNull(op)) ? (GetTraits) op.getPayloadOperation() : new GetTraits();
             final List<String> graphIds = (nonNull(op)) ? op.getGraphIds() : null;
-            final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
+            final Collection<Graph> graphs = get(context.getUser(), graphIds);
             final GetTraits getTraits = payloadOperation.shallowClone();
-            graphs.forEach(g -> {
+            for (final Graph graph : graphs) {
                 try {
-                    traits.addAll(g.execute(getTraits, context));
+                    Set<StoreTrait> execute = graph.execute(getTraits, context);
+                    if (firstPass) {
+                        traits.addAll(execute);
+                        firstPass = false;
+                    } else {
+                        traits.retainAll(execute);
+                    }
                 } catch (final OperationException e) {
-                    throw new RuntimeException("Unable to fetch traits from graph " + g.getGraphId(), e);
+                    throw new RuntimeException("Unable to fetch traits from graph " + graph.getGraphId(), e);
                 }
-            });
-        } else {
-            traits.addAll(StoreTrait.ALL_TRAITS);
+            }
         }
-
 
         return traits;
     }
