@@ -81,7 +81,7 @@ public class FederatedGetTraitsHandlerTest {
     }
 
     @Test
-    public void shouldGetAllTraitsForEmptyStore() throws Exception {
+    public void shouldGetZeroTraitsForEmptyStore() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
 

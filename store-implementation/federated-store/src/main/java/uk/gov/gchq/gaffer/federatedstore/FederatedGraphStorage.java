@@ -330,14 +330,15 @@ public class FederatedGraphStorage {
      * @param op      the GetTraits operation
      * @param context the user context
      * @return the set of {@link StoreTrait} that are common for all visible graphs
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(uk.gov.gchq.gaffer.operation.Operation, Context)} with GetTraits Operation.
      */
+    @Deprecated
     public Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
         boolean firstPass = true;
         final Set<StoreTrait> traits = new HashSet<>();
         if (null != op) {
             final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
-            //final Set<Graph> graphs = get(context.getUser(), graphIds) would throw informative error if user couldn't view request graphs
-            final Set<Graph> graphs = getStream(context.getUser(), graphIds).collect(Collectors.toSet());
+            final Collection<Graph> graphs = get(context.getUser(), graphIds);
             final GetTraits getTraits = op.shallowClone();
             for (final Graph graph : graphs) {
                 try {
