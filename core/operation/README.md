@@ -78,9 +78,6 @@ closeable fields are closed.
 The core Gaffer operations need to be registered in the `Store` class,
 with their respective handlers. The `StoreTest` unit test also needs similar information.
 
-Operation implementations should override the close method and ensure all
-closeable fields are closed.
-
 #### Annotations
 
 Any fields that are required should be annotated with the Required annotation.
