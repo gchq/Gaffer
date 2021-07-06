@@ -60,7 +60,7 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
             Map<StoreTrait, Integer> rtn;
             if (nonNull(concatResults) && nonNull(concatResults.iterator()) && concatResults.iterator().hasNext()) {
                 rtn = Streams.toStream(concatResults)
-                        //.flatMap(Collection::stream)
+                        // collect a map of k=trait v=count to covert concat of traits to an intersection of traits.
                         .collect(Collectors.toMap(t -> t, ignore -> 1, (existing, replacement) -> existing + replacement));
 
                 long graphIdsSize = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation).stream().count();
