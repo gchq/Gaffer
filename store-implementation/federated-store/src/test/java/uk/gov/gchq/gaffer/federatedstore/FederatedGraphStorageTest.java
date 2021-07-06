@@ -28,12 +28,14 @@ import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -54,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedTraits;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
@@ -415,7 +418,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetTraitsForAddingUser() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(testUser));
+        final Set<StoreTrait> traits = graphStorage.getTraits(new FederatedOperation.Builder().op(new GetTraits.Builder().currentTraits(false).build()).build(), new Context(testUser));
         assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(10, traits.size());
     }
@@ -424,7 +427,7 @@ public class FederatedGraphStorageTest {
     public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, blockingReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(blankUser));
+        final Set<StoreTrait> traits = graphStorage.getTraits(getFederatedWrappedTraits(), new Context(blankUser));
         assertEquals(0, traits.size(), "Revealing hidden traits");
     }
 
@@ -432,7 +435,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetTraitsForAuthUser() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(authUser));
+        final Set<StoreTrait> traits = graphStorage.getTraits(new FederatedOperation.Builder().op(new GetTraits.Builder().currentTraits(false).build()).build(), new Context(authUser));
         assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(10, traits.size());
     }
@@ -441,7 +444,7 @@ public class FederatedGraphStorageTest {
     public void shouldNotGetTraitsForBlankUser() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(new Context(blankUser)));
+        final Set<StoreTrait> traits = graphStorage.getTraits(getFederatedWrappedTraits(), new Context(new Context(blankUser)));
         assertEquals(0, traits.size(), "Revealing hidden traits");
     }
 
@@ -449,7 +452,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetTraitsForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, permissiveReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, new Context(blankUser));
+        final Set<StoreTrait> traits = graphStorage.getTraits(new FederatedOperation.Builder().op(new GetTraits.Builder().currentTraits(false).build()).build(), new Context(blankUser));
         assertNotEquals(5, traits.size(), "Revealing hidden traits");
         assertEquals(10, traits.size());
     }

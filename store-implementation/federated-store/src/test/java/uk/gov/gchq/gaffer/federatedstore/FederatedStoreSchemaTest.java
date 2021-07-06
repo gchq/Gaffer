@@ -85,7 +85,8 @@ public class FederatedStoreSchemaTest {
     private FederatedStore fStore;
     private static final FederatedStoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
@@ -283,16 +284,18 @@ public class FederatedStoreSchemaTest {
         // Then
         OperationException exception = assertThrows(OperationException.class, () -> {
             fStore.execute(new AddElements.Builder()
-                .input(new Edge.Builder()
-                        .group("e1")
-                        .source("source1")
-                        .dest("dest2")
-                        .property("prop1", "value1")
-                        .build())
-                .build(), testContext);
+                    .input(new Edge.Builder()
+                            .group("e1")
+                            .source("source1")
+                            .dest("dest2")
+                            .property("prop1", "value1")
+                            .build())
+                    .build(), testContext);
         });
-        assertTrue(exception.getMessage().contains("returned false for properties: {prop2: null}"));
+        String message = exception.getCause().getMessage();
+        assertTrue(message.contains("returned false for properties: {prop2: null}"), message);
     }
+
     private SchemaEdgeDefinition getProp(final String propName) {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)

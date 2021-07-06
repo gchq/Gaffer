@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -93,11 +92,11 @@ public class FederatedGetTraitsHandlerTest {
                 new Context(testUser()));
 
         // Then
-        assertEquals(Collections.emptySet(), traits);
+        assertEquals(null, traits);
     }
 
     @Test
-    public void shouldGetZeroTraitsForEmptyStoreWithCurrentTraits() throws Exception {
+    public void shouldGetNullTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
         assertEquals(0, federatedStore.getAllGraphIds(testUser()).size(),
@@ -109,7 +108,7 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // Then
-        assertEquals(Collections.emptySet(), traits);
+        assertEquals(null, traits);
     }
 
     @Test
@@ -215,7 +214,7 @@ public class FederatedGetTraitsHandlerTest {
                         POST_AGGREGATION_FILTERING,
                         POST_TRANSFORMATION_FILTERING
                 ),
-                traits);
+                Sets.newHashSet(traits));
     }
 
     public static class TestStoreImpl extends Store {
