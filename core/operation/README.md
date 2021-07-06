@@ -130,7 +130,8 @@ To assist users of the new Operation, it would be beneficial to provide document
 and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
 
 Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
-it would be useful to also be added into the 
+it is good practice to add it into the 
+
 Python-Shell of [Gaffer-tools](https://github.com/gchq/gaffer-tools).
 For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/components/tool/python-shell.html).
 
