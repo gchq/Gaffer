@@ -125,14 +125,11 @@ Class-level Javadoc should be provided for each `Operation`, giving a descriptio
 and any configuration information that may not immediately be obvious. Member-level Javadoc
 is not strictly necessary, but good practice for explanations/clarifications of complex methods.
 
-
 To assist users of the new Operation, it is best practice to provide documentation,
-
 and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
 
 Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
-it is good practice to add it into the 
-
+it is good practice to add it into the
 Python-Shell of [Gaffer-tools](https://github.com/gchq/gaffer-tools).
 For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/components/tool/python-shell.html).
 
