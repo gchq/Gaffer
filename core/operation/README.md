@@ -120,8 +120,7 @@ For use with a `ScoreOperationChain`, some `Operation`s may require a custom
 way of calculating an associated score, therefore an implementation of
 the `ScoreResolver` interface may be required. There is a `DefaultScoreResolver`
 to which the custom implementation should delegate, in a manner specific to the
-new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/components/core/store.html#scoreoperationchain),
-and 
+new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/components/core/store.html#scoreoperationchain) and [ScoreOperationChainExample](https://gchq.github.io/gaffer-doc/getting-started/operations/scoreoperationchain.html).
 
 #### Documentation
 
