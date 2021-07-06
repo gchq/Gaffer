@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,13 +43,13 @@ import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
+import static uk.gov.gchq.gaffer.user.StoreUser.UNUSED_AUTH_STRING;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    private static final String AUTH_X = "X";
     private static final User TEST_USER = testUser();
     public static final User AUTH_USER = authUser();
 
@@ -108,7 +108,7 @@ public class FederatedAccessAuthTest {
 
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addGraphAuths(asList(AUTH_1))
-                .addGraphAuths(asList(AUTH_X))
+                .addGraphAuths(asList(UNUSED_AUTH_STRING))
                 .build();
 
         assertTrue(access.hasReadAccess(AUTH_USER));
