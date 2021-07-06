@@ -124,7 +124,6 @@ new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/g
 Class-level Javadoc should be provided for each `Operation`, giving a description of the functionality,
 and any configuration information that may not immediately be obvious. Member-level Javadoc
 is not strictly necessary, but welcome if it would be beneficial 
-(e.g. explanations/clarifications for complex methods).
 
 To assist users of the new Operation, it would be beneficial to provide documentation,
 and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
