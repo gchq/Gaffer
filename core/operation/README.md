@@ -126,7 +126,8 @@ and any configuration information that may not immediately be obvious. Member-le
 is not strictly necessary, but good practice for explanations/clarifications of complex methods.
 
 
-To assist users of the new Operation, it would be beneficial to provide documentation,
+To assist users of the new Operation, it is best practice to provide documentation,
+
 and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
 
 Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
