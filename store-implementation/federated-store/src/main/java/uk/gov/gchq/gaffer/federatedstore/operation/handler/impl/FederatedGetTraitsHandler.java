@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 /**
  * returns a set of {@link StoreTrait} that are common for all visible graphs.
@@ -48,13 +49,10 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
         try {
-            HashMap<String, String> options = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
-            int graphIdsSize = getGraphIdsSize(options, store, context);
-
             FederatedOperationChain<Void, StoreTrait> wrappedFedChain = new FederatedOperationChain.Builder<Void, StoreTrait>()
                     .operationChain(OperationChain.wrap(operation))
                     //deep copy options
-                    .options(options)
+                    .options(isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions()))
                     .build();
 
             final CloseableIterable<StoreTrait> concatResults = store.execute(wrappedFedChain, context);
@@ -65,6 +63,7 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
                         //.flatMap(Collection::stream)
                         .collect(Collectors.toMap(t -> t, ignore -> 1, (existing, replacement) -> existing + replacement));
 
+                long graphIdsSize = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation).stream().count();
                 rtn.values().removeIf(v -> v < graphIdsSize);
             } else {
                 rtn = Collections.EMPTY_MAP;
@@ -74,14 +73,5 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
         } catch (final Exception e) {
             throw new OperationException("Error getting federated traits.", e);
         }
-    }
-
-    private int getGraphIdsSize(final HashMap<String, String> options, final Store store, final Context context) throws OperationException {
-        int graphIdsSize = 0;
-        Iterable<? extends String> execute = store.execute(new GetAllGraphIds.Builder().options(new HashMap<>(options)).build(), context);
-        for (final String ignore : execute) {
-            graphIdsSize++;
-        }
-        return graphIdsSize;
     }
 }
