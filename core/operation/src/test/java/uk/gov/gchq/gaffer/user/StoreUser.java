@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ public final class StoreUser {
     public static final String AUTH_USER_ID = "authUser";
     public static final String AUTH_1 = "auth1";
     public static final String AUTH_2 = "auth2";
+    public static final String UNUSED_AUTH_STRING = "unusedAuthString";
 
     private StoreUser() {
         // private to prevent instantiation
@@ -42,5 +43,9 @@ public final class StoreUser {
 
     public static User blankUser() {
         return new User.Builder().build();
+    }
+
+    public static User nullUser() {
+        return null;
     }
 }
