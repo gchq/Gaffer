@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +61,8 @@ public class FederatedStoreRecursionIT extends AbstractStandaloneFederatedStoreI
     public static final String PROPERTY_NAME = "count";
     private Graph proxyToRestServiceFederatedGraph;
 
-    @Before
-    public void _setup() throws Exception {
+    @Override
+    public void _setUp() throws Exception {
 
         graph.execute(new RemoveGraph.Builder()
                 .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)

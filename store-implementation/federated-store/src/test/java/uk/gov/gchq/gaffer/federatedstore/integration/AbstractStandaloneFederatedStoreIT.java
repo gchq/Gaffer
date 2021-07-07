@@ -31,12 +31,12 @@ public abstract class AbstractStandaloneFederatedStoreIT {
     protected User user = new User();
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         createGraph();
-        _setup();
+        _setUp();
     }
 
-    protected void _setup() throws Exception {
+    protected void _setUp() throws Exception {
         // Override if required;
     }
 
