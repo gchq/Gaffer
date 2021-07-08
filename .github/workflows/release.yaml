@@ -32,6 +32,7 @@ jobs:
         git config user.email github-actions@github.com
 
     - name: Merge develop into master
+      if: ${{ ! contains(github.event.milestone.description, 'hotfix') }}
       run: |
         git remote set-branches --add origin develop
         git pull
@@ -162,14 +163,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.m2/repository
-          !~/.m2/repository/uk
-        key: gaffer-dependencies
 
     - name: Checkout master
       uses: actions/checkout@v2
