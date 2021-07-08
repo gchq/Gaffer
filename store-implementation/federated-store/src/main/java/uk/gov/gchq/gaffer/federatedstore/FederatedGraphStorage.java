@@ -24,10 +24,10 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -46,12 +46,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -69,16 +66,11 @@ public class FederatedGraphStorage {
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
-    private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
-    private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
 
     protected void startCacheServiceLoader() throws StorageException {
-        if (CacheServiceLoader.isEnabled()) {
-            isCacheEnabled = true;
-            makeAllGraphsFromCache();
-        }
+        makeAllGraphsFromCache();
     }
 
     /**
@@ -112,26 +104,17 @@ public class FederatedGraphStorage {
             String graphId = graph.getDeserialisedConfig().getGraphId();
             try {
                 if (null == access) {
-                    throw new IllegalArgumentException(ACCESS_IS_NULL);
+                    throw new StorageException(new IllegalArgumentException(ACCESS_IS_NULL));
                 }
 
                 if (null != graphLibrary) {
                     graphLibrary.checkExisting(graphId, graph.getDeserialisedSchema(), graph.getDeserialisedProperties());
                 }
 
-                validateExisting(graph);
-                final Graph builtGraph = graph.getGraph();
-                if (isCacheEnabled()) {
-                    addToCache(builtGraph, access);
-                }
+                validateExisting(graphId);
 
-                Set<Graph> existingGraphs = storage.get(access);
-                if (null == existingGraphs) {
-                    existingGraphs = Sets.newHashSet(builtGraph);
-                    storage.put(access, existingGraphs);
-                } else {
-                    existingGraphs.add(builtGraph);
-                }
+                addToCache(graph.getGraph(), access);
+
             } catch (final Exception e) {
                 throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
             }
@@ -148,19 +131,16 @@ public class FederatedGraphStorage {
      * @return visible graphIds.
      */
     public Collection<String> getAllIds(final User user) {
-        return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user)));
+        return getIdsFrom(getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user)));
     }
 
     public Collection<String> getAllIds(final User user, final String adminAuth) {
-        return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user, adminAuth)));
+        return getIdsFrom(getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user, adminAuth)));
     }
 
     @Deprecated
     protected Collection<String> getAllIdsAsAdmin() {
-        final Stream<Graph> allGraphsAsStream = storage.entrySet().stream()
-                .flatMap(entry -> entry.getValue().stream());
-
-        return getIdsFrom(allGraphsAsStream);
+        return federatedStoreCache.getAllGraphIds();
     }
 
     private Collection<String> getIdsFrom(final Stream<Graph> allStream) {
@@ -178,7 +158,7 @@ public class FederatedGraphStorage {
      * @return visible graphs
      */
     public Collection<Graph> getAll(final User user) {
-        final Set<Graph> rtn = getUserGraphStream(entry -> entry.getKey().hasReadAccess(user))
+        final Set<Graph> rtn = getUserGraphStream(federatedAccess -> federatedAccess.hasReadAccess(user))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
     }
@@ -194,45 +174,25 @@ public class FederatedGraphStorage {
      * @see #isValidToView(User, FederatedAccess)
      */
     public boolean remove(final String graphId, final User user) {
-        return remove(graphId, entry -> entry.getKey().hasWriteAccess(user));
+        return remove(graphId, federatedAccess -> federatedAccess.hasWriteAccess(user));
     }
 
     @Deprecated
     protected boolean remove(final String graphId) {
-        return remove(graphId, entry -> true);
+        return remove(graphId, federatedAccess -> true);
     }
 
     protected boolean remove(final String graphId, final User user, final String adminAuth) {
-        return remove(graphId, entry -> entry.getKey().hasWriteAccess(user, adminAuth));
+        return remove(graphId, federatedAccess -> federatedAccess.hasWriteAccess(user, adminAuth));
     }
 
-    private boolean remove(final String graphId, final Predicate<Entry<FederatedAccess, Set<Graph>>> entryPredicateForGraphRemoval) {
-        return storage.entrySet().stream()
-                .filter(entryPredicateForGraphRemoval)
-                .map(entry -> {
-                    boolean isRemoved = false;
-                    final Set<Graph> graphs = entry.getValue();
-                    if (null != graphs) {
-                        HashSet<Graph> remove = Sets.newHashSet();
-                        for (final Graph graph : graphs) {
-                            if (graph.getGraphId().equals(graphId)) {
-                                remove.add(graph);
-                                deleteFromCache(graphId);
-                                isRemoved = true;
-                            }
-                        }
-                        graphs.removeAll(remove);
-                    }
-                    return isRemoved;
-                })
-                .collect(Collectors.toSet())
-                .contains(true);
-    }
-
-    private void deleteFromCache(final String graphId) {
-        if (isCacheEnabled()) {
-            federatedStoreCache.deleteGraphFromCache(graphId);
+    private boolean remove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
+        FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
+        boolean test = accessPredicate.test(accessFromCache);
+        if (test) {
+            federatedStoreCache.deleteFromCache(graphId);
         }
+        return test;
     }
 
     /**
@@ -376,7 +336,7 @@ public class FederatedGraphStorage {
     }
 
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
-        if (null != graphIds) {
+        if (nonNull(graphIds)) {
             final Collection<String> visibleIds = getAllIds(user);
             if (!visibleIds.containsAll(graphIds)) {
                 final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
@@ -386,14 +346,10 @@ public class FederatedGraphStorage {
         }
     }
 
-    private void validateExisting(final GraphSerialisable graph) throws StorageException {
-        final String graphId = graph.getDeserialisedConfig().getGraphId();
-        for (final Set<Graph> graphs : storage.values()) {
-            for (final Graph g : graphs) {
-                if (g.getGraphId().equals(graphId)) {
-                    throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId)));
-                }
-            }
+    private void validateExisting(final String graphId) throws StorageException {
+        boolean exists = federatedStoreCache.getAllGraphIds().contains(graphId);
+        if (exists) {
+            throw new StorageException(new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId))));
         }
     }
 
@@ -415,30 +371,29 @@ public class FederatedGraphStorage {
      * If graphIds is null then only enabled by default graphs are returned that the user can see.
      */
     private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
-        if (null == graphIds) {
-            return storage.entrySet()
-                    .stream()
-                    .filter(entry -> isValidToView(user, entry.getKey()))
-                    .filter(entry -> !entry.getKey().isDisabledByDefault())
-                    .flatMap(entry -> entry.getValue().stream());
-        }
+        return isNull(graphIds)
+                ? federatedStoreCache.getAllGraphIds().stream()
+                .map(g -> federatedStoreCache.getFromCache(g))
+                .filter(pair -> isValidToView(user, pair.getSecond()))
+                .filter(pair -> !pair.getSecond().isDisabledByDefault())
+                .map(pair -> pair.getFirst().getGraph())
 
-        return storage.entrySet()
-                .stream()
-                .filter(entry -> isValidToView(user, entry.getKey()))
-                .flatMap(entry -> entry.getValue().stream())
-                .filter(graph -> graphIds.contains(graph.getGraphId()));
+                : federatedStoreCache.getAllGraphIds().stream()
+                .map(g -> federatedStoreCache.getFromCache(g))
+                .filter(pair -> isValidToView(user, pair.getSecond()))
+                .filter(pair -> graphIds.contains(pair.getFirst().getGraph().getGraphId()))
+                .map(pair -> pair.getFirst().getGraph());
     }
 
     /**
      * @param readAccessPredicate to filter graphs.
      * @return a stream of graphs the user has visibility for.
      */
-    private Stream<Graph> getUserGraphStream(final Predicate<Entry<FederatedAccess, Set<Graph>>> readAccessPredicate) {
-        return storage.entrySet()
-                .stream()
-                .filter(readAccessPredicate)
-                .flatMap(entry -> entry.getValue().stream());
+    private Stream<Graph> getUserGraphStream(final Predicate<FederatedAccess> readAccessPredicate) {
+        return federatedStoreCache.getAllGraphIds().stream()
+                .map(graphId -> federatedStoreCache.getFromCache(graphId))
+                .filter(pair -> readAccessPredicate.test(pair.getSecond()))
+                .map(pair -> pair.getFirst().getGraph());
     }
 
     private void addToCache(final Graph newGraph, final FederatedAccess access) {
@@ -494,24 +449,13 @@ public class FederatedGraphStorage {
 
     }
 
-    private Boolean isCacheEnabled() {
-        boolean rtn = false;
-        if (isCacheEnabled) {
-            if (federatedStoreCache.getCache() == null) {
-                throw new RuntimeException("No cache has been set, please initialise the FederatedStore instance");
-            }
-            rtn = true;
-        }
-        return rtn;
-    }
-
     private void makeGraphFromCache(final String graphId) throws StorageException {
         final GraphSerialisable graph = federatedStoreCache.getGraphSerialisableFromCache(graphId);
         final FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
         put(graph, accessFromCache);
     }
 
-    private void makeAllGraphsFromCache() throws StorageException {
+    private void makeAllGraphsFromCache() {
         final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
         for (final String graphId : allGraphIds) {
             try {
@@ -536,19 +480,17 @@ public class FederatedGraphStorage {
     }
 
     private Map<String, Object> getAllGraphsAndAccess(final List<String> graphIds, final Predicate<FederatedAccess> accessPredicate) {
-        return storage.entrySet()
-                .stream()
+        return federatedStoreCache.getAllGraphIds().stream()
+                .map(graphId -> federatedStoreCache.getFromCache(graphId))
                 //filter on FederatedAccess
-                .filter(e -> accessPredicate.test(e.getKey()))
-                //convert to Map<graphID,FederatedAccess>
-                .flatMap(entry -> entry.getValue().stream().collect(Collectors.toMap(Graph::getGraphId, g -> entry.getKey())).entrySet().stream())
+                .filter(pair -> accessPredicate.test(pair.getSecond()))
                 //filter on if graph required?
-                .filter(entry -> {
-                    final boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(entry.getKey());
-                    final boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
+                .filter(pair -> {
+                    boolean isGraphIdRequested = nonNull(graphIds) && graphIds.contains(pair.getFirst().getGraph().getGraphId());
+                    boolean isAllGraphIdsRequired = isNull(graphIds) || graphIds.isEmpty();
                     return isGraphIdRequested || isAllGraphIdsRequired;
                 })
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+                .collect(Collectors.toMap(pair -> pair.getFirst().getGraph().getGraphId(), Pair::getSecond));
     }
 
 
@@ -571,32 +513,26 @@ public class FederatedGraphStorage {
 
         if (nonNull(graphToMove)) {
             //remove graph to be moved
-            FederatedAccess oldAccess = null;
-            for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-                entry.getValue().removeIf(graph -> graph.getGraphId().equals(graphId));
-                oldAccess = entry.getKey();
-            }
+            remove(graphId, federatedAccess -> true);
 
-            //add the graph being moved.
-            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), newFederatedAccess);
-
-            if (isCacheEnabled()) {
-                //Update cache
-                try {
-                    federatedStoreCache.addGraphToCache(graphToMove, newFederatedAccess, true/*true because graphLibrary should have throw error*/);
-                } catch (final CacheOperationException e) {
-                    //TODO FS recovery
-                    String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
-                    LOGGER.error(s + " graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
-                    throw new StorageException(s, e);
-                }
-            }
+            updateCacheWithNewAccess(graphId, newFederatedAccess, graphToMove);
 
             rtn = true;
         } else {
             rtn = false;
         }
         return rtn;
+    }
+
+    private void updateCacheWithNewAccess(final String graphId, final FederatedAccess newFederatedAccess, final Graph graphToMove) throws StorageException {
+        try {
+            this.put(new GraphSerialisable.Builder().graph(graphToMove).build(), newFederatedAccess);
+        } catch (final Exception e) {
+            //TODO FS recovery
+            String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
+            LOGGER.error(s + " graphStorage access:{} cache access:{}", newFederatedAccess, federatedStoreCache.getAccessFromCache(graphId));
+            throw new StorageException(s, e);
+        }
     }
 
     public boolean changeGraphId(final String graphId, final String newGraphId, final User requestingUser) throws StorageException {
@@ -612,69 +548,64 @@ public class FederatedGraphStorage {
         final Graph graphToMove = getGraphToMove(graphId, accessPredicate);
 
         if (nonNull(graphToMove)) {
-            FederatedAccess key = null;
-            //remove graph to be moved from storage
-            for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-                final boolean removed = entry.getValue().removeIf(graph -> graph.getGraphId().equals(graphId));
-                if (removed) {
-                    key = entry.getKey();
-                    break;
-                }
-            }
 
-            //Update Tables
-            String storeClass = graphToMove.getStoreProperties().getStoreClass();
-            if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
-                /*
-                 * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-                 * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
-                 */
-                try {
-                    AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
-                    Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
-                            tmpAccumuloProps.getZookeepers(),
-                            tmpAccumuloProps.getUser(),
-                            tmpAccumuloProps.getPassword());
+            updateTablesWithNewGraphId(newGraphId, graphToMove);
 
-                    if (connection.tableOperations().exists(graphId)) {
-                        connection.tableOperations().offline(graphId);
-                        connection.tableOperations().clone(graphId, newGraphId, true, null, null);
-                        connection.tableOperations().online(newGraphId);
-                        connection.tableOperations().delete(graphId);
-                    }
-                } catch (final Exception e) {
-                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
-                    LOGGER.warn("Error trying to update tables.", e);
-                }
-            }
+            updateCacheWithNewGraphId(newGraphId, graphToMove);
 
-            final GraphConfig configWithNewGraphId = cloneGraphConfigWithNewGraphId(newGraphId, graphToMove);
-
-            //add the graph being renamed.
-            GraphSerialisable newGraphSerialisable = new GraphSerialisable.Builder()
-                    .graph(graphToMove)
-                    .config(configWithNewGraphId)
-                    .build();
-            this.put(newGraphSerialisable, key);
-
-            //Update cache
-            if (isCacheEnabled()) {
-                try {
-                    federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true/*true because graphLibrary should have throw error*/);
-                } catch (final CacheOperationException e) {
-                    //TODO FS recovery
-                    String s = "Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-                    LOGGER.error(s + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
-                    throw new StorageException(s, e);
-                }
-                federatedStoreCache.deleteGraphFromCache(graphId);
-            }
+            remove(graphId, federatedAccess -> true);
 
             rtn = true;
         } else {
             rtn = false;
         }
         return rtn;
+    }
+
+    private void updateCacheWithNewGraphId(final String newGraphId, final Graph graphToMove) throws StorageException {
+        //rename graph
+        GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder()
+                .graph(graphToMove)
+                .config(cloneGraphConfigWithNewGraphId(newGraphId, graphToMove))
+                .build();
+
+        try {
+            this.put(updatedGraphSerialisable, federatedStoreCache.getAccessFromCache(graphToMove.getGraphId()));
+        } catch (final Exception e) {
+            //TODO FS recovery
+            String s = "Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
+            LOGGER.error(s + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphToMove.getGraphId());
+            throw new StorageException(s, e);
+        }
+    }
+
+    private void updateTablesWithNewGraphId(final String newGraphId, final Graph graphToMove) {
+        //Update Tables
+        String graphId = graphToMove.getGraphId();
+        String storeClass = graphToMove.getStoreProperties().getStoreClass();
+        if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
+            /*
+             * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
+             * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
+             */
+            try {
+                AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
+                Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
+                        tmpAccumuloProps.getZookeepers(),
+                        tmpAccumuloProps.getUser(),
+                        tmpAccumuloProps.getPassword());
+
+                if (connection.tableOperations().exists(graphId)) {
+                    connection.tableOperations().offline(graphId);
+                    connection.tableOperations().clone(graphId, newGraphId, true, null, null);
+                    connection.tableOperations().online(newGraphId);
+                    connection.tableOperations().delete(graphId);
+                }
+            } catch (final Exception e) {
+                LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
+                LOGGER.warn("Error trying to update tables.", e);
+            }
+        }
     }
 
     private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final Graph graphToMove) {
@@ -685,25 +616,9 @@ public class FederatedGraphStorage {
     }
 
     private Graph getGraphToMove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
-        Graph graphToMove = null;
-        for (final Entry<FederatedAccess, Set<Graph>> entry : storage.entrySet()) {
-            if (accessPredicate.test(entry.getKey())) {
-                //select graph to be moved
-                for (final Graph graph : entry.getValue()) {
-                    if (graph.getGraphId().equals(graphId)) {
-                        if (isNull(graphToMove)) {
-                            //1st match, store graph and continue.
-                            graphToMove = graph;
-                        } else {
-                            //2nd match.
-                            throw new IllegalStateException("graphIds are unique, but more than one graph was found with the same graphId: " + graphId);
-                        }
-                    }
-                }
-            }
-        }
-        return graphToMove;
+        Pair<GraphSerialisable, FederatedAccess> fromCache = federatedStoreCache.getFromCache(graphId);
+        return accessPredicate.test(fromCache.getSecond())
+                ? fromCache.getFirst().getGraph()
+                : null;
     }
-
-
 }
