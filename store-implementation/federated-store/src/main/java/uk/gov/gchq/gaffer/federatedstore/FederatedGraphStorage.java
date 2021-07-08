@@ -53,8 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,29 +69,16 @@ public class FederatedGraphStorage {
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
-    private final int cacheRefreshRate;
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
     private GraphLibrary graphLibrary;
-    private Timer timer;
-
-    public FederatedGraphStorage() {
-        this(Integer.valueOf(FederatedStoreProperties.CACHE_REFRESH_RATE_DEFAULT));
-    }
-
-    public FederatedGraphStorage(int cacheRefreshRate) {
-        this.cacheRefreshRate = cacheRefreshRate;
-    }
-
 
     protected void startCacheServiceLoader() throws StorageException {
         if (CacheServiceLoader.isEnabled()) {
             isCacheEnabled = true;
             makeAllGraphsFromCache();
         }
-        timer = new Timer();
-        timer.schedule(new ReloadGraphsFromCache(this), 0, cacheRefreshRate);
     }
 
     /**
@@ -526,7 +511,7 @@ public class FederatedGraphStorage {
         put(graph, accessFromCache);
     }
 
-    public void makeAllGraphsFromCache() throws StorageException {
+    private void makeAllGraphsFromCache() throws StorageException {
         final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
         for (final String graphId : allGraphIds) {
             try {
@@ -720,23 +705,5 @@ public class FederatedGraphStorage {
         return graphToMove;
     }
 
-    class ReloadGraphsFromCache extends TimerTask {
-        private final FederatedGraphStorage storage;
 
-        public ReloadGraphsFromCache(FederatedGraphStorage storage) {
-            this.storage = storage;
-        }
-
-        @Override
-        public void run() {
-            try {
-                //Noisy creation, throws errors when creating clashing with pre-existing graphs.
-                //Will need to synchronisation with FederatedGraphStorage
-                storage.makeAllGraphsFromCache();
-            } catch (StorageException e) {
-                this.cancel();
-                throw new RuntimeException("Error timer refreshing graphs", e);
-            }
-        }
-    }
 }

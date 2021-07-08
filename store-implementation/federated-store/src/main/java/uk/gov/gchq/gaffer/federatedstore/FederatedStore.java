@@ -96,8 +96,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_REFRESH_RATE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_REFRESH_RATE_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
@@ -117,7 +115,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
 public class FederatedStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
-    private FederatedGraphStorage graphStorage;
+    private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
@@ -144,7 +142,6 @@ public class FederatedStore extends Store {
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
         super.initialise(graphId, new Schema(), properties);
-        graphStorage = new FederatedGraphStorage(Integer.valueOf(properties.get(CACHE_REFRESH_RATE, CACHE_REFRESH_RATE_DEFAULT)));
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
     }
