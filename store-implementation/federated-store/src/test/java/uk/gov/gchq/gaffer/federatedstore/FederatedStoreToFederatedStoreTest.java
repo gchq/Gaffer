@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.AfterClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -61,20 +62,23 @@ public class FederatedStoreToFederatedStoreTest {
     @BeforeEach
     public void setUpStores() throws OperationException {
         SingleUseFederatedStore.cleanUp();
+        CacheServiceLoader.shutdown();
 
         ProxyProperties proxyProperties = new ProxyProperties();
         proxyProperties.setStoreClass(SingleUseFederatedStore.class);
 
         restApiFederatedGraph = new Graph.Builder()
-            .storeProperties(proxyProperties)
-            .config(new GraphConfig("RestApiGraph"))
-            .addSchema(new Schema())
-            .build();
+                .storeProperties(proxyProperties)
+                .config(new GraphConfig("RestApiGraph"))
+                .addSchema(new Schema())
+                .build();
 
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.setCacheServiceNameSuffix("Alt");
         federatedStoreGraph = new Graph.Builder()
-            .config(new GraphConfig("federatedStoreGraph"))
-            .storeProperties(new FederatedStoreProperties())
-            .build();
+                .config(new GraphConfig("federatedStoreGraph"))
+                .storeProperties(properties)
+                .build();
 
         connectGraphs();
         addMapStore();
@@ -82,39 +86,39 @@ public class FederatedStoreToFederatedStoreTest {
 
     private void addMapStore() throws OperationException {
         restApiFederatedGraph.execute(new AddGraph.Builder()
-            .storeProperties(new MapStoreProperties())
-            .graphId("mapStore")
-            .schema(Schema.fromJson(getClass().getResourceAsStream("/schema/basicEntitySchema.json")))
-            .build(), new User());
+                .storeProperties(new MapStoreProperties())
+                .graphId("mapStore")
+                .schema(Schema.fromJson(getClass().getResourceAsStream("/schema/basicEntitySchema.json")))
+                .build(), new User());
     }
 
     private void connectGraphs() throws OperationException {
         federatedStoreGraph.execute(new AddGraph.Builder()
-            .storeProperties(new ProxyProperties())
-            .graphId("RestProxy")
-            .schema(new Schema())
-            .build(), new User());
+                .storeProperties(new ProxyProperties())
+                .graphId("RestProxy")
+                .schema(new Schema())
+                .build(), new User());
     }
 
     @Test
     public void shouldErrorIfViewIsInvalid() throws OperationException {
         // Given
         Entity entity = new Entity.Builder()
-            .group(BASIC_ENTITY)
-            .vertex("myVertex")
-            .property("property1", 1)
-            .build();
+                .group(BASIC_ENTITY)
+                .vertex("myVertex0")
+                .property("property1", 1)
+                .build();
 
         restApiFederatedGraph.execute(new AddElements.Builder()
-            .input(entity)
-            .build(), new User());
+                .input(entity)
+                .build(), new User());
 
         // When
         OperationException e = assertThrows(OperationException.class, () -> federatedStoreGraph.execute(new GetAllElements.Builder()
-            .view(new View.Builder()
-                .edge(BASIC_EDGE)
-                .build())
-            .build(), new User()));
+                .view(new View.Builder()
+                        .edge(BASIC_EDGE)
+                        .build())
+                .build(), new User()));
 
         assertTrue(e.getMessage().contains("View is not valid for graphIds:[mapStore]"));
     }
@@ -124,62 +128,65 @@ public class FederatedStoreToFederatedStoreTest {
         // Given
         final String mapStoreGraphId = "mapStoreWithFullSchema";
         restApiFederatedGraph.execute(new AddGraph.Builder()
-            .storeProperties(new MapStoreProperties())
-            .graphId(mapStoreGraphId)
-            .schema(Schema.fromJson(getClass().getResourceAsStream("/schema/basicEntitySchema.json"),
-                getClass().getResourceAsStream("/schema/basicEdgeSchema.json")))
-            .build(), new User());
+                .storeProperties(new MapStoreProperties())
+                .graphId(mapStoreGraphId)
+                .schema(Schema.fromJson(getClass().getResourceAsStream("/schema/basicEntitySchema.json"),
+                        getClass().getResourceAsStream("/schema/basicEdgeSchema.json")))
+                .build(), new User());
 
         Entity entity = new Entity.Builder()
-            .group(BASIC_ENTITY)
-            .vertex("myVertex")
-            .property("property1", 1)
-            .build();
+                .group(BASIC_ENTITY)
+                .vertex("myVertex1")
+                .property("property1", 1)
+                .build();
 
         Edge edge = new Edge.Builder()
-            .source("mySource")
-            .dest("myDest")
-            .group(BASIC_EDGE)
-            .property("columnQualifier", 2)
-            .property("prooperty1", 1)
-            .build();
+                .source("mySource")
+                .dest("myDest")
+                .group(BASIC_EDGE)
+                .property("columnQualifier", 2)
+                .property("prooperty1", 1)
+                .build();
 
         restApiFederatedGraph.execute(new AddElements.Builder()
-            .input(entity, edge)
-            .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, mapStoreGraphId)
-            .build(), new User());
+                .input(entity, edge)
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, mapStoreGraphId)
+                .build(), new User());
 
         // When
         List<? extends Element> results = Lists.newArrayList(federatedStoreGraph.execute(new GetAllElements.Builder()
-            .view(new View.Builder()
-                .entity(BASIC_ENTITY)
-                .build())
-            .build(), new User()));
+                .view(new View.Builder()
+                        .entity(BASIC_ENTITY)
+                        .build())
+                .build(), new User()));
 
         // Then
-        assertEquals(1, results.size());
-
+        results.forEach(e -> {
+            assertEquals(BASIC_ENTITY, e.getGroup(), "viewed query returned the wrong group");
+            assertEquals("myVertex1", ((Entity) e).getVertex());
+        });
+        assertEquals(1, results.size(), "possible symptom of duplicate adding/getting to a shared cache");
     }
 
     @Test
     public void shouldBeAbleToSendViewedQueries() throws OperationException {
         // Given
         Entity entity = new Entity.Builder()
-            .group(BASIC_ENTITY)
-            .vertex("myVertex")
-            .property("property1", 1)
-            .build();
+                .group(BASIC_ENTITY)
+                .vertex("myVertex2")
+                .property("property1", 1)
+                .build();
 
         restApiFederatedGraph.execute(new AddElements.Builder()
-            .input(entity)
-            .build(), new User());
+                .input(entity)
+                .build(), new User());
 
         // When
         List<? extends Element> results = Lists.newArrayList(federatedStoreGraph.execute(new GetAllElements.Builder()
-            .view(new View.Builder()
-                .entity(BASIC_ENTITY)
-                .build())
-            .build(), new User()));
+                .view(new View.Builder()
+                        .entity(BASIC_ENTITY)
+                        .build())
+                .build(), new User()));
 
         // Then
         assertEquals(1, results.size());

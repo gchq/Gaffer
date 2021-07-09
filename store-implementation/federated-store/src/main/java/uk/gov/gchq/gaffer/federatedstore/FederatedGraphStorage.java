@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
@@ -57,6 +58,7 @@ import java.util.stream.Stream;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
@@ -66,11 +68,27 @@ public class FederatedGraphStorage {
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
-    private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+    private FederatedStoreCache federatedStoreCache;
     private GraphLibrary graphLibrary;
 
+    public FederatedGraphStorage() {
+        this(null);
+    }
+
+    public FederatedGraphStorage(final String cacheNameSuffix) {
+        federatedStoreCache = new FederatedStoreCache(cacheNameSuffix);
+    }
+
     protected void startCacheServiceLoader() throws StorageException {
-        makeAllGraphsFromCache();
+        if (CacheServiceLoader.isEnabled()) {
+            try {
+                makeAllGraphsFromCache();
+            } catch (final Exception e) {
+                throw new StorageException("Error occurred while loading graphs from cache.", e);
+            }
+        } else {
+            throw new StorageException("Cache is not enabled for the FederatedStore, Set a value in StoreProperties for " + CACHE_SERVICE_CLASS);
+        }
     }
 
     /**
@@ -116,7 +134,7 @@ public class FederatedGraphStorage {
                 addToCache(graph.getGraph(), access);
 
             } catch (final Exception e) {
-                throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
+                throw new StorageException("Error adding graph " + graphId + (nonNull(e.getMessage()) ? (" to storage due to: " + e.getMessage()) : "."), e);
             }
         } else {
             throw new StorageException("Graph cannot be null");
@@ -188,7 +206,7 @@ public class FederatedGraphStorage {
 
     private boolean remove(final String graphId, final Predicate<FederatedAccess> accessPredicate) {
         FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
-        boolean test = accessPredicate.test(accessFromCache);
+        boolean test = nonNull(accessFromCache) ? accessPredicate.test(accessFromCache) : false;
         if (test) {
             federatedStoreCache.deleteFromCache(graphId);
         }
@@ -349,7 +367,8 @@ public class FederatedGraphStorage {
     private void validateExisting(final String graphId) throws StorageException {
         boolean exists = federatedStoreCache.getAllGraphIds().contains(graphId);
         if (exists) {
-            throw new StorageException(new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId))));
+            OverwritingException cause = new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId)));
+            throw new StorageException(cause.getMessage(), cause);
         }
     }
 

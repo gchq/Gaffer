@@ -26,6 +26,10 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -44,12 +48,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -102,6 +107,9 @@ public class FederatedGraphStorageTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheProperties(federatedStoreProperties.getCacheProperties());
+        CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
         graphStorage = new FederatedGraphStorage();
 
         e1 = new SchemaEntityDefinition.Builder()
@@ -506,13 +514,13 @@ public class FederatedGraphStorageTest {
         // Then
         // A B
         final Iterator<Graph> itrAB = graphsAB.iterator();
-        assertSame(a.getGraph(), itrAB.next());
-        assertSame(b.getGraph(), itrAB.next());
+        assertEquals(a.getGraph(), itrAB.next());
+        assertEquals(b.getGraph(), itrAB.next());
         assertFalse(itrAB.hasNext());
         // B A
         final Iterator<Graph> itrBA = graphsBA.iterator();
-        assertSame(b.getGraph(), itrBA.next());
-        assertSame(a.getGraph(), itrBA.next());
+        assertEquals(b.getGraph(), itrBA.next());
+        assertEquals(a.getGraph(), itrBA.next());
         assertFalse(itrBA.hasNext());
     }
 
@@ -593,13 +601,9 @@ public class FederatedGraphStorageTest {
                 .build();
 
         // When / Then
-        try {
-            graphStorage.put(graph2, access);
-            fail(EXCEPTION_EXPECTED);
-        } catch (StorageException e) {
-            assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
-            testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
-        }
+        StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph2, access));
+        assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+        testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
     }
 
     private void testNotLeakingContents(final StorageException e, final String... values) {
@@ -634,12 +638,9 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graph1, access);
 
         // When / Then
-        try {
-            graphStorage.put(graph1, altAccess);
-        } catch (StorageException e) {
-            assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
-            testNotLeakingContents(e, UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
-        }
+        StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph1, altAccess));
+        assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+        testNotLeakingContents(e, UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
 
     @Test
@@ -680,11 +681,50 @@ public class FederatedGraphStorageTest {
         graphStorage.put(graph2, altAccess);
 
         // When / Then
-        try {
-            graphStorage.put(graph2, access);
-        } catch (StorageException e) {
-            assertEquals("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B), e.getMessage());
-            testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
-        }
+        StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph2, access));
+        assertEquals("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B), e.getMessage());
+        testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
+    }
+
+    @Test
+    public void shouldAddGraphWithCacheEnabled() throws StorageException {
+        //given
+        final Properties serviceLoaderProperties = new Properties();
+        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        CacheServiceLoader.initialise(serviceLoaderProperties);
+        graphStorage.startCacheServiceLoader();
+        final ICacheService cacheService = CacheServiceLoader.getService();
+
+        //when
+        graphStorage.put(a, access);
+        final Collection<String> allIds = graphStorage.getAllIds(testUser);
+
+        //then
+        assertEquals(1, cacheService.getCache("federatedStoreGraphs").getAllValues().size());
+        assertEquals(1, allIds.size());
+        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+
+    }
+
+    @Test
+    public void shouldAddGraphReplicatedBetweenInstances() throws StorageException {
+        //given
+        final Properties serviceLoaderProperties = new Properties();
+        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        CacheServiceLoader.initialise(serviceLoaderProperties);
+        final ICacheService cacheService = CacheServiceLoader.getService();
+        final FederatedGraphStorage otherGraphStorage = new FederatedGraphStorage();
+        graphStorage.startCacheServiceLoader();
+
+        //when
+        otherGraphStorage.startCacheServiceLoader();
+        otherGraphStorage.put(a, access);
+        final Collection<String> allIds = graphStorage.getAllIds(testUser);
+
+        //then
+        assertEquals(1, cacheService.getCache("federatedStoreGraphs").getAllValues().size());
+        assertEquals(1, allIds.size());
+        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+
     }
 }

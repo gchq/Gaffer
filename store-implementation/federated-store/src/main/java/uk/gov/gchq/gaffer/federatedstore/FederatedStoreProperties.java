@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
@@ -45,7 +46,8 @@ public class FederatedStoreProperties extends StoreProperties {
      * eg.gaffer.federatedstore.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
      */
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
-    public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
+    public static final String CACHE_SERVICE_CLASS_DEFAULT = HashMapCacheService.class.getCanonicalName();
+    public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -73,6 +75,14 @@ public class FederatedStoreProperties extends StoreProperties {
 
     public String getCacheProperties() {
         return get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT);
+    }
+
+    public void setCacheServiceNameSuffix(final String suffix) {
+        set(CACHE_SERVICE_NAME_SUFFIX, suffix);
+    }
+
+    public String getCacheServiceNameSuffix() {
+        return get(CACHE_SERVICE_NAME_SUFFIX, null);
     }
 
     public String getCustomPropsValue() {

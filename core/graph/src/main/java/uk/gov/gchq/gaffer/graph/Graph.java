@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.graph;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -368,7 +370,7 @@ public final class Graph {
                     if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
                         opView = new View.Builder().merge(config.getView()).merge(opView).build();
                     } else { // We have either global edges or entities in
-                             // opView, but not both
+                        // opView, but not both
                         final View originalView = opView;
                         final View partialConfigView = new View.Builder()
                                 .merge(config.getView())
@@ -415,7 +417,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     *         be added to an operation chain after the provided operation.
+     * be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -457,7 +459,7 @@ public final class Graph {
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     *         has.
+     * has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -1120,5 +1122,30 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Graph graph = (Graph) o;
+
+        return new EqualsBuilder()
+                .append(new GraphSerialisable.Builder().graph(this).build(), new GraphSerialisable.Builder().graph(graph).build())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(store)
+                .append(config)
+                .toHashCode();
     }
 }

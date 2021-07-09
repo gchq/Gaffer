@@ -76,9 +76,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
     private FederatedStoreProperties federatedStoreProperties;
     private GetAllElements ignore;
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedAddGraphWithHooksHandlerTest.class, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -197,9 +195,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 .type("string", String.class)
                 .build();
 
-        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
-
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+
+        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
         FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
 
@@ -234,9 +232,9 @@ public class FederatedAddGraphWithHooksHandlerTest {
     public void shouldThrowWhenOverwriteGraphIsSameAndAccessIsDifferent() throws Exception {
         Schema expectedSchema = new Schema.Builder().build();
 
-        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
-
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+
+        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
         FederatedAddGraphWithHooksHandler federatedAddGraphWithHooksHandler = new FederatedAddGraphWithHooksHandler();
 

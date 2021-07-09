@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 
 import java.util.Collections;
 import java.util.Set;
@@ -55,7 +56,12 @@ public class Cache<V> {
     }
 
     public Set<String> getAllKeys() {
-        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+        final Set<String> allKeysFromCache;
+        try {
+            allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(cacheName);
+        } catch (final NullPointerException e) {
+            throw new GafferRuntimeException("Error getting all keys, check Cache was Initialised.", e);
+        }
         return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -96,6 +97,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
@@ -115,7 +118,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
 public class FederatedStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
-    private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private FederatedGraphStorage graphStorage;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
@@ -141,6 +144,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
+        graphStorage = new FederatedGraphStorage(properties.get(FederatedStoreProperties.CACHE_SERVICE_NAME_SUFFIX));
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -149,7 +153,11 @@ public class FederatedStore extends Store {
     @Override
     public void setGraphLibrary(final GraphLibrary library) {
         super.setGraphLibrary(library);
-        graphStorage.setGraphLibrary(library);
+        if (nonNull(graphStorage)) {
+            graphStorage.setGraphLibrary(library);
+        } else {
+            throw new GafferRuntimeException("Error adding GraphLibrary, Initialise the FederatedStore first.");
+        }
     }
 
     /**
@@ -481,11 +489,12 @@ public class FederatedStore extends Store {
 
     @Override
     protected void startCacheServiceLoader(final StoreProperties properties) {
+        properties.set(CACHE_SERVICE_CLASS, properties.get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT));
         super.startCacheServiceLoader(properties);
         try {
             graphStorage.startCacheServiceLoader();
-        } catch (final StorageException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (final Exception e) {
+            throw new RuntimeException("Error occurred while starting cache. " + e.getMessage(), e);
         }
     }
 

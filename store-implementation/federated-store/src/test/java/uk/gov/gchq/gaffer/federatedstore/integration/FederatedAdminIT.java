@@ -445,15 +445,12 @@ public class FederatedAdminIT extends AbstractStoreIT {
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
         Random random = new Random(); //This is a hack, a state isn't being cleared somewhere.
-        final String graphA = "graphTableA_" + random.nextInt();
-        final String graphB = "graphTableB_" + random.nextInt();
+        final String graphA = "graphTableA_" + random.nextInt(1000);
+        final String graphB = "graphTableB_" + random.nextInt(1000);
         Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
                 ACCUMULO_PROPERTIES.getZookeepers(),
                 ACCUMULO_PROPERTIES.getUser(),
                 ACCUMULO_PROPERTIES.getPassword());
-
-        connector.tableOperations().delete(graphA);
-        connector.tableOperations().delete(graphB);
 
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)

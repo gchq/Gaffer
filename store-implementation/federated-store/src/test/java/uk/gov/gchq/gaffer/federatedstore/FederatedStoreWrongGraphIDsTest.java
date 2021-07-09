@@ -69,6 +69,7 @@ public class FederatedStoreWrongGraphIDsTest {
         fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
+        store.initialise(FED_ID, null, fedProps);
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
@@ -86,7 +87,6 @@ public class FederatedStoreWrongGraphIDsTest {
 
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
-        store.initialise(FED_ID, null, fedProps);
         store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1).parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
         final Entity expectedEntity = new Entity.Builder()
                 .group(E1_GROUP)

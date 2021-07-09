@@ -62,12 +62,14 @@ public class FederatedStorePublicAccessTest {
 
         library.addProperties(PROP_1, PROPERTIES);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
-        store.setGraphLibrary(library);
+
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsDefaultedPrivate() throws Exception {
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
+
         store.execute(new AddGraph.Builder()
                 .graphId(GRAPH_1)
                 .parentPropertiesId(PROP_1)
@@ -79,6 +81,8 @@ public class FederatedStorePublicAccessTest {
     @Test
     public void shouldBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
+
         store.execute(getAddGraphOp(true), TEST_USER_CONTEXT);
         getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, true);
     }
@@ -87,6 +91,7 @@ public class FederatedStorePublicAccessTest {
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPrivate() throws Exception {
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
         store.execute(getAddGraphOp(false), TEST_USER_CONTEXT);
         getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
     }
@@ -95,6 +100,7 @@ public class FederatedStorePublicAccessTest {
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPublic() throws Exception {
         fedProps.setFalseGraphsCanHavePublicAccess();
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
         store.execute(getAddGraphOp(true), TEST_USER_CONTEXT);
         getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
     }
@@ -103,6 +109,7 @@ public class FederatedStorePublicAccessTest {
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPrivate() throws Exception {
         fedProps.setFalseGraphsCanHavePublicAccess();
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
         store.execute(getAddGraphOp(false), TEST_USER_CONTEXT);
         getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
     }
@@ -111,6 +118,7 @@ public class FederatedStorePublicAccessTest {
     public void shouldNotBePublicWhenAllGraphsSetPublicAndGraphIsSetPrivate() throws Exception {
         fedProps.setTrueGraphsCanHavePublicAccess();
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
         store.execute(getAddGraphOp(false), TEST_USER_CONTEXT);
         getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, false);
     }
@@ -119,6 +127,7 @@ public class FederatedStorePublicAccessTest {
     public void shouldBePublicWhenAllGraphsSetPublicAndGraphIsSetPublic() throws Exception {
         fedProps.setTrueGraphsCanHavePublicAccess();
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.setGraphLibrary(library);
         store.execute(getAddGraphOp(true), TEST_USER_CONTEXT);
         getAllGraphsIdsHasNext(store, BLANK_USER_CONTEXT, true);
     }
@@ -135,7 +144,6 @@ public class FederatedStorePublicAccessTest {
 
     private static void getAllGraphsIdsHasNext(FederatedStore store, Context blankUserContext, final boolean expected) throws uk.gov.gchq.gaffer.operation.OperationException {
         Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUserContext);
-        //final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUserContext);
         assertEquals(expected, execute.iterator().hasNext());
     }
 }

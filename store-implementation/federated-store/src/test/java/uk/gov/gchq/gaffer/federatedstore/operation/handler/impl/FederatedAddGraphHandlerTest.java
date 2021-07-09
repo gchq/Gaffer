@@ -223,9 +223,9 @@ public class FederatedAddGraphHandlerTest {
                 .type("string", String.class)
                 .build();
 
-        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
-
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+
+        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 
@@ -260,9 +260,9 @@ public class FederatedAddGraphHandlerTest {
     public void shouldThrowWhenOverwriteGraphIsSameAndAccessIsDifferent() throws Exception {
         Schema expectedSchema = new Schema.Builder().build();
 
-        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
-
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+
+        assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 

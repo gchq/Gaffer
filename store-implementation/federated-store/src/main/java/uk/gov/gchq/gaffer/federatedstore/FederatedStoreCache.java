@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for
@@ -32,9 +33,14 @@ import static java.util.Objects.isNull;
  */
 public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, FederatedAccess>> {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
+    private static final String CACHE_SERVICE_NAME_PREFIX = "federatedStoreGraphs";
 
     public FederatedStoreCache() {
-        super("federatedStoreGraphs");
+        this(null);
+    }
+
+    public FederatedStoreCache(final String cacheNameSuffix) {
+        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX, nonNull(cacheNameSuffix) ? cacheNameSuffix : ""));
     }
 
     /**
