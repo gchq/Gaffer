@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
      * By default it will return a list of current traits.
      */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
-    private Map<String, String> options;
+    private Map<String, String> options = new HashMap<>();
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {

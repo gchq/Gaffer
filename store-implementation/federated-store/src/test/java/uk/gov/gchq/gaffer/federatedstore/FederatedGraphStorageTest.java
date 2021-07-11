@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -423,49 +422,6 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldGetTraitsForAddingUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, blockingReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals(0, traits.size(), "Revealing hidden traits");
-    }
-
-    @Test
-    public void shouldGetTraitsForAuthUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForBlankUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals(0, traits.size(), "Revealing hidden traits");
-    }
-
-    @Test
-    public void shouldGetTraitsForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, permissiveReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
     public void shouldRemoveForAddingUser() throws Exception {
         graphStorage.put(a, access);
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser);
@@ -602,7 +558,7 @@ public class FederatedGraphStorageTest {
 
         // When / Then
         StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph2, access));
-        assertTrue(e.getCause().getMessage().contains( String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_A)));
+        assertTrue(e.getCause().getMessage().contains(String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_A)));
         testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
     }
 
@@ -639,7 +595,7 @@ public class FederatedGraphStorageTest {
 
         // When / Then
         StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph1, altAccess));
-        assertTrue(e.getCause().getMessage().contains( String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_A)));
+        assertTrue(e.getCause().getMessage().contains(String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_A)));
         testNotLeakingContents(e, UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
 
@@ -682,7 +638,7 @@ public class FederatedGraphStorageTest {
 
         // When / Then
         StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph2, access));
-        assertTrue(e.getCause().getMessage().contains( String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_B)));
+        assertTrue(e.getCause().getMessage().contains(String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_B)));
         testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
     }
 
