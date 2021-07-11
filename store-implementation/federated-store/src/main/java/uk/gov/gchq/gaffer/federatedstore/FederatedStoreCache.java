@@ -40,7 +40,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     public FederatedStoreCache(final String cacheNameSuffix) {
-        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX, nonNull(cacheNameSuffix) ? cacheNameSuffix : ""));
+        super(String.format("%s%s", CACHE_SERVICE_NAME_PREFIX, nonNull(cacheNameSuffix) ? "_" + cacheNameSuffix.toLowerCase() : ""));
     }
 
     /**

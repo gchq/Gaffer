@@ -150,7 +150,7 @@ public class FederatedStoreAuthTest {
                     federatedStore);
             fail("exception expected");
         } catch (final OperationException e) {
-            assertEquals(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID), e.getCause().getMessage());
+            assertTrue(e.getCause().getMessage().contains(String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID)));
             String message = "error message should not contain details about schema";
             assertFalse(e.getMessage().contains(unusualType), message);
             assertFalse(e.getMessage().contains(groupEdge), message);

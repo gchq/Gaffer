@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -399,11 +400,14 @@ public class FederatedStoreTest {
 
         final Set<StoreTrait> afterAcc = store.getTraits(getTraits, blankContext);
 
+        StoreProperties TestStoreImp = new StoreProperties();
+        TestStoreImp.setStoreClass(FederatedGetTraitsHandlerTest.TestStoreImpl.class);
+
         store.execute(new AddGraph.Builder()
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(MAP_ID_1)
-                .storeProperties(new FederatedGetTraitsHandlerTest.TestStorePropertiesImpl())
+                .storeProperties(TestStoreImp)
                 .build(), new Context(testUser()));
 
         final Set<StoreTrait> afterMap = store.getTraits(getTraits, blankContext);
@@ -416,7 +420,7 @@ public class FederatedStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX)));
-        assertEquals(StoreTrait.ALL_TRAITS, before);
+        assertEquals(Collections.emptySet(), before, "No traits should be found for an empty FederatedStore");
         assertEquals(Sets.newHashSet(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,
@@ -822,7 +826,6 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddGraphIdWithAuths() throws Exception {
-
         // Given
         int start = Iterables.size(store.execute(new GetAllGraphIds(), new Context(authUser())));
         ArrayList<String> schemas = Lists.newArrayList(ID_SCHEMA_ENTITY);

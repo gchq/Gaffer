@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,12 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
     public static final String CACHE_SERVICE_CLASS_DEFAULT = HashMapCacheService.class.getCanonicalName();
+
+    /**
+     * This is used...
+     * CASE INSENSITIVE
+     * e.g. gaffer.cache.service.name.suffix="v2"
+     */
     public static final String CACHE_SERVICE_NAME_SUFFIX = "gaffer.cache.service.name.suffix";
 
     public FederatedStoreProperties() {

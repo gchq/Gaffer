@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -60,6 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
@@ -108,7 +108,7 @@ public class FederatedGraphStorageTest {
     @BeforeEach
     public void setUp() throws Exception {
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(federatedStoreProperties.getCacheProperties());
+        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_DEFAULT);
         CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
         graphStorage = new FederatedGraphStorage();
 
@@ -602,7 +602,7 @@ public class FederatedGraphStorageTest {
 
         // When / Then
         StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph2, access));
-        assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+        assertTrue(e.getCause().getMessage().contains( String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_A)));
         testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
     }
 
@@ -639,7 +639,7 @@ public class FederatedGraphStorageTest {
 
         // When / Then
         StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph1, altAccess));
-        assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+        assertTrue(e.getCause().getMessage().contains( String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_A)));
         testNotLeakingContents(e, UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
     }
 
@@ -682,7 +682,7 @@ public class FederatedGraphStorageTest {
 
         // When / Then
         StorageException e = assertThrows(StorageException.class, () -> graphStorage.put(graph2, access));
-        assertEquals("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B), e.getMessage());
+        assertTrue(e.getCause().getMessage().contains( String.format("User is attempting to overwrite a graph within FederatedStore. GraphId: %s", GRAPH_ID_B)));
         testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
     }
 

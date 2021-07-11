@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,10 +60,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
-            StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+            StreamUtil.openStream(FederatedAdminIT.class, "properties/singleUseAccumuloStore.properties"));
 
     @Override
     protected Schema createSchema() {
@@ -459,7 +457,6 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-
 
         //when
         boolean tableGraphABefore = connector.tableOperations().exists(graphA);
