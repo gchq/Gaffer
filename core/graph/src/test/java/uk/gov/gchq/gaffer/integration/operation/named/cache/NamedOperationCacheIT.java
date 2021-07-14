@@ -130,8 +130,6 @@ public class NamedOperationCacheIT {
                 .operationName(add.getOperationName())
                 .operationChain(add.getOperationChainAsString())
                 .creatorId(user.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .description(add.getDescription())
                 .score(0)
                 .parameters(null)
@@ -197,8 +195,6 @@ public class NamedOperationCacheIT {
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(user.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
                 .parameters(null)
                 .build();
@@ -237,8 +233,6 @@ public class NamedOperationCacheIT {
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(user.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
                 .parameters(null)
                 .build();
@@ -259,8 +253,6 @@ public class NamedOperationCacheIT {
                 .operationChain(add.getOperationChainAsString())
                 .description(add.getDescription())
                 .creatorId(authorisedUser.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
                 .parameters(null)
                 .build();
@@ -301,8 +293,6 @@ public class NamedOperationCacheIT {
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(adminAuthUser.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
                 .parameters(null)
                 .build();

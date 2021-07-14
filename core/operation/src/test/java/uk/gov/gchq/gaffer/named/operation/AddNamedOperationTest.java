@@ -46,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
@@ -55,6 +56,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     private static final AccessPredicate READ_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
     private static final AccessPredicate WRITE_ACCESS_PREDICATE = new AccessPredicate(new CustomUserPredicate());
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         //Given
@@ -94,20 +96,16 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 " \"readAccessRoles\" : [ \"User\" ],%n" +
                 " \"writeAccessRoles\" : [ \"User\" ],%n" +
                 " \"readAccessPredicate\" : {%n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate\",%n" +
-                "    \"userId\" : \"CreatingUserId\",%n" +
-                "    \"map\" : {%n" +
-                "        \"ReadKey\": \"ReadValue\"%n" +
-                "    },%n" +
-                "    \"auths\" : [ \"CustomReadAuth1\", \"CustomReadAuth2\" ]%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "    \"userPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "    }%n" +
                 "},%n" +
                 "\"writeAccessPredicate\" : {%n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.CustomAccessPredicate\",%n" +
-                "    \"userId\" : \"CreatingUserId\",%n" +
-                "    \"map\" : {%n" +
-                "        \"WriteKey\": \"WriteValue\"%n" +
-                "    },%n" +
-                "    \"auths\" : [ \"CustomWriteAuth1\", \"CustomWriteAuth2\" ]%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\",%n" +
+                "    \"userPredicate\" : {%n" +
+                "       \"class\" : \"uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate\"%n" +
+                "    }%n" +
                 "}%n" +
                 "}"), new String(json));
         assertNotNull(deserialisedObj);
@@ -152,6 +150,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotNull(deserialisedObj);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
@@ -181,6 +180,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(WRITE_ACCESS_PREDICATE, addNamedOperation.getWriteAccessPredicate());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -225,6 +225,23 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertNotNull(clone.getParameters().get("optionTestParameter").getOptions());
         assertEquals(READ_ACCESS_PREDICATE, clone.getReadAccessPredicate());
         assertEquals(WRITE_ACCESS_PREDICATE, clone.getWriteAccessPredicate());
+    }
+
+    @Test
+    public void shouldShallowCloneOperationWithNoAccessRoles() {
+        // Given
+        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain(OPERATION_CHAIN)
+                .description("Test Named Operation")
+                .name("Test")
+                .build();
+
+        // When
+        AddNamedOperation clone = addNamedOperation.shallowClone();
+
+        // Then
+        assertNull(clone.getReadAccessRoles());
+        assertNull(clone.getWriteAccessRoles());
     }
 
     @Test
@@ -300,5 +317,19 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("operations");
+    }
+
+    @Test
+    public void shouldNotDefaultAnyAccessControlConfiguration() {
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain("{\"operations\":[{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"${testParameter}\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}")
+                .description("Test Named Operation")
+                .name("Test")
+                .build();
+
+        assertNull(addNamedOperation.getReadAccessRoles());
+        assertNull(addNamedOperation.getWriteAccessRoles());
+        assertNull(addNamedOperation.getReadAccessPredicate());
+        assertNull(addNamedOperation.getWriteAccessPredicate());
     }
 }

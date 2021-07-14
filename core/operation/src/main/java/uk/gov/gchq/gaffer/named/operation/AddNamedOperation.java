@@ -38,6 +38,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ import static java.util.Objects.nonNull;
  * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
  * and adding it to a Gaffer graph.
  */
-@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "labels", "operationChain", "input", "overwriteFlag", "parameters", "readAccessRoles", "writeAccessRoles", "readAccessPredicate", "writeAccessPredicate"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds a new named operation")
 public class AddNamedOperation implements Operation, Operations<Operation> {
@@ -61,8 +62,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private String operationName;
     private List<String> labels;
     private String description;
-    private List<String> readAccessRoles = new ArrayList<>();
-    private List<String> writeAccessRoles = new ArrayList<>();
+    private List<String> readAccessRoles;
+    private List<String> writeAccessRoles;
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
@@ -173,8 +174,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 .name(operationName)
                 .labels(labels)
                 .description(description)
-                .readAccessRoles(readAccessRoles.toArray(new String[readAccessRoles.size()]))
-                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .readAccessRoles(readAccessRoles == null ? null : readAccessRoles.toArray(new String[readAccessRoles.size()]))
+                .writeAccessRoles(writeAccessRoles == null ? null : writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
                 .options(options)
@@ -301,12 +302,24 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         }
 
         public Builder readAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getReadAccessRoles(), roles);
+            if (null == roles) {
+                _getOp().setReadAccessRoles(null);
+            } else if (null == _getOp().getReadAccessRoles()) {
+                _getOp().setReadAccessRoles(Arrays.asList(roles));
+            } else {
+                Collections.addAll(_getOp().getReadAccessRoles(), roles);
+            }
             return _self();
         }
 
         public Builder writeAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            if (null == roles) {
+                _getOp().setWriteAccessRoles(null);
+            } else if (null == _getOp().getWriteAccessRoles()) {
+                _getOp().setWriteAccessRoles(Arrays.asList(roles));
+            } else {
+                Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            }
             return _self();
         }
 
