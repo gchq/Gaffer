@@ -97,8 +97,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
@@ -144,7 +142,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        graphStorage = new FederatedGraphStorage(properties.get(FederatedStoreProperties.CACHE_SERVICE_NAME_SUFFIX));
+        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix());
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -499,7 +497,8 @@ public class FederatedStore extends Store {
 
     @Override
     protected void startCacheServiceLoader(final StoreProperties properties) {
-        properties.set(CACHE_SERVICE_CLASS, properties.get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT));
+        //this line sets the property map with the default value if required.
+        properties.setCacheServiceClass(properties.getCacheServiceClass(FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT));
         super.startCacheServiceLoader(properties);
         try {
             graphStorage.startCacheServiceLoader();

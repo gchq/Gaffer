@@ -72,7 +72,7 @@ public class FederatedStoreAuthTest {
         federatedStore = new FederatedStore();
 
         federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         schema = new Schema.Builder().build();
 
