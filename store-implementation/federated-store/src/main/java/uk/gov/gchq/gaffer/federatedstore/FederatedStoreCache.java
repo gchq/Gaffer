@@ -61,7 +61,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        addGraphToCache(new GraphSerialisable.Builder().graph(graph).build(), access, overwrite);
+        addGraphToCache(new GraphSerialisable.Builder(graph).build(), access, overwrite);
     }
 
     /**
@@ -87,14 +87,14 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
     }
 
     /**
-     * Retrieve the {@link Graph} with the specified ID from the cache.
+     * Retrieve the {@link GraphSerialisable} with the specified ID from the cache.
      *
      * @param graphId the ID of the {@link Graph} to retrieve
-     * @return the {@link Graph} related to the specified ID
+     * @return the {@link GraphSerialisable} related to the specified ID
      */
-    public Graph getGraphFromCache(final String graphId) {
+    public GraphSerialisable getGraphFromCache(final String graphId) {
         final GraphSerialisable graphSerialisable = getGraphSerialisableFromCache(graphId);
-        return (isNull(graphSerialisable)) ? null : graphSerialisable.getGraph();
+        return (isNull(graphSerialisable)) ? null : graphSerialisable;
     }
 
     /**

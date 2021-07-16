@@ -389,7 +389,7 @@ public class FederatedStore extends Store {
                 HashMap<String, String> updatedOptions = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
                 updatedOptions.put(optionKey, getGraphId());
                 operation.setOptions(updatedOptions);
-                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
+                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)).stream().map(GraphSerialisable::getGraph).collect(Collectors.toList()));
             } else {
                 List<String> federatedStoreGraphIds = operation.getOptions()
                         .entrySet()

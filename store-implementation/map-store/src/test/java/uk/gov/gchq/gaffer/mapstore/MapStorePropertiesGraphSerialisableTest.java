@@ -83,7 +83,7 @@ public class MapStorePropertiesGraphSerialisableTest {
         final MapStoreProperties mapStoreProperties = new MapStoreProperties();
         mapStoreProperties.setProperties(properties);
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(mapStoreProperties).config(config).build();
-        final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
+        final GraphSerialisable result = new GraphSerialisable.Builder(graph).build();
         assertEquals(expected, result);
     }
 }

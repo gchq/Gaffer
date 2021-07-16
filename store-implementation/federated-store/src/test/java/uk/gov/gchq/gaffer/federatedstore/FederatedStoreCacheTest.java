@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
 import java.util.Properties;
 import java.util.Set;
@@ -47,7 +48,8 @@ public class FederatedStoreCacheTest {
     private static FederatedStoreCache federatedStoreCache;
     private static Properties properties = new Properties();
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_MAP_STORE_PROPERTIES));
 
 
@@ -70,11 +72,11 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldAddAndGetGraphToCache() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
-        Graph cached = federatedStoreCache.getGraphFromCache(MAP_ID_1);
+        GraphSerialisable cached = federatedStoreCache.getGraphFromCache(MAP_ID_1);
 
         assertEquals(testGraph.getGraphId(), cached.getGraphId());
-        assertEquals(testGraph.getSchema().toString(), cached.getSchema().toString());
-        assertEquals(testGraph.getStoreProperties(), cached.getStoreProperties());
+        assertEquals(testGraph.getSchema(), cached.getDeserialisedSchema());
+        assertEquals(testGraph.getStoreProperties(), cached.getDeserialisedProperties());
     }
 
     @Test

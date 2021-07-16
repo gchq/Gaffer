@@ -1137,7 +1137,7 @@ public final class Graph {
         final Graph graph = (Graph) o;
 
         return new EqualsBuilder()
-                .append(new GraphSerialisable.Builder().graph(this).build(), new GraphSerialisable.Builder().graph(graph).build())
+                .append(new GraphSerialisable.Builder(this).build(), new GraphSerialisable.Builder(graph).build())
                 .isEquals();
     }
 

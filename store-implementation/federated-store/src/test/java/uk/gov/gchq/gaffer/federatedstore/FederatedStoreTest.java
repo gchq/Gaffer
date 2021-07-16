@@ -342,12 +342,8 @@ public class FederatedStoreTest {
     @Test
     public void shouldFailWithIncompleteSchema() throws Exception {
         // When / Then
-        try {
-            addGraphWithPaths(ACC_ID_1, PROPERTIES_ALT, PATH_INCOMPLETE_SCHEMA);
-            fail(EXCEPTION_NOT_THROWN);
-        } catch (final Exception e) {
-            assertContains(e, FederatedAddGraphHandler.ERROR_ADDING_GRAPH_GRAPH_ID_S, ACC_ID_1);
-        }
+        Exception e = assertThrows(OperationException.class, () -> addGraphWithPaths(ACC_ID_1, PROPERTIES_ALT, PATH_INCOMPLETE_SCHEMA));
+        assertContains(e, FederatedAddGraphHandler.ERROR_ADDING_GRAPH_GRAPH_ID_S, ACC_ID_1);
     }
 
     @Test

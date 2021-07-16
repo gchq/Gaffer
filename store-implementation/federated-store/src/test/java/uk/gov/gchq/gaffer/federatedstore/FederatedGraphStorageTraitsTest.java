@@ -254,8 +254,7 @@ public class FederatedGraphStorageTraitsTest {
     @Test
     public void shouldGetCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
         //given
-        final GraphSerialisable acc2 = new GraphSerialisable.Builder()
-                .graph(acc.getGraph())
+        final GraphSerialisable acc2 = new GraphSerialisable.Builder(acc.getGraph())
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
                 .build();
 
@@ -274,8 +273,7 @@ public class FederatedGraphStorageTraitsTest {
     @Test
     public void shouldGetNonCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
         //given
-        final GraphSerialisable acc2 = new GraphSerialisable.Builder()
-                .graph(acc.getGraph())
+        final GraphSerialisable acc2 = new GraphSerialisable.Builder(acc.getGraph())
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
                 .build();
 
