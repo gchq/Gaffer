@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -43,6 +45,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -53,8 +56,14 @@ import static org.mockito.Mockito.verify;
 
 public class FederatedAggregateHandlerTest {
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedAggregateHandlerTest.class, "properties/accumuloStore.properties"));
+
+    @BeforeEach
+    public void beforeEach() {
+        CacheServiceLoader.shutdown();
+
+
+    }
 
     @Test
     public void shouldDelegateToHandler() throws OperationException {
@@ -82,7 +91,7 @@ public class FederatedAggregateHandlerTest {
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
         FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
-                StreamUtil.openStream(currentClass, "predefinedFederatedStore.properties"));
+                StreamUtil.openStream(FederatedAggregateHandlerTest.class, "predefinedFederatedStore.properties"));
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
                 .addSchema(new Schema())
@@ -90,6 +99,14 @@ public class FederatedAggregateHandlerTest {
                 .build();
 
         final Context context = new Context(new User());
+        Properties properties = PROPERTIES.getProperties();
+        AccumuloProperties propsA = new AccumuloProperties();
+        propsA.setProperties(properties);
+        propsA.setInstance(properties.getProperty(AccumuloProperties.INSTANCE_NAME) + "A");
+        AccumuloProperties propsB = new AccumuloProperties();
+        propsB.setProperties(properties);
+        propsB.setInstance(properties.getProperty(AccumuloProperties.INSTANCE_NAME) + "B");
+
         fed.execute(new OperationChain.Builder()
                 .first(new AddGraph.Builder()
                         .graphId("a")
@@ -100,7 +117,7 @@ public class FederatedAggregateHandlerTest {
                                         .build())
                                 .type("string", String.class)
                                 .build())
-                        .storeProperties(PROPERTIES)
+                        .storeProperties(propsA)
                         .build())
                 .then(new AddGraph.Builder()
                         .graphId("b")
@@ -111,7 +128,7 @@ public class FederatedAggregateHandlerTest {
                                         .build())
                                 .type("string", String.class)
                                 .build())
-                        .storeProperties(PROPERTIES)
+                        .storeProperties(propsB)
                         .build())
                 .build(), context);
 

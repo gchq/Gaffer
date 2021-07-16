@@ -797,7 +797,7 @@ public abstract class Store {
 
     protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
-            return new JobTracker();
+            return new JobTracker(getProperties().getCacheServiceNameSuffix());
         }
         return null;
     }

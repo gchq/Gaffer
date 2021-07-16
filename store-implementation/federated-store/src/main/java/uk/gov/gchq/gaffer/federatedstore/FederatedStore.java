@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -115,7 +116,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
 public class FederatedStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
-    private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private FederatedGraphStorage graphStorage;
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
@@ -141,6 +142,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
+        graphStorage = new FederatedGraphStorage(properties.getCacheServiceNameSuffix());
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -149,7 +151,11 @@ public class FederatedStore extends Store {
     @Override
     public void setGraphLibrary(final GraphLibrary library) {
         super.setGraphLibrary(library);
-        graphStorage.setGraphLibrary(library);
+        if (nonNull(graphStorage)) {
+            graphStorage.setGraphLibrary(library);
+        } else {
+            throw new GafferRuntimeException("Error adding GraphLibrary, Initialise the FederatedStore first.");
+        }
     }
 
     /**
@@ -381,7 +387,7 @@ public class FederatedStore extends Store {
                 HashMap<String, String> updatedOptions = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
                 updatedOptions.put(optionKey, getGraphId());
                 operation.setOptions(updatedOptions);
-                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
+                rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)).stream().map(GraphSerialisable::getGraph).collect(Collectors.toList()));
             } else {
                 List<String> federatedStoreGraphIds = operation.getOptions()
                         .entrySet()
@@ -491,11 +497,13 @@ public class FederatedStore extends Store {
 
     @Override
     protected void startCacheServiceLoader(final StoreProperties properties) {
+        //this line sets the property map with the default value if required.
+        properties.setCacheServiceClass(properties.getCacheServiceClass(FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT));
         super.startCacheServiceLoader(properties);
         try {
             graphStorage.startCacheServiceLoader();
-        } catch (final StorageException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (final Exception e) {
+            throw new RuntimeException("Error occurred while starting cache. " + e.getMessage(), e);
         }
     }
 

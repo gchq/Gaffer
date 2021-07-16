@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS_DEFAULT;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
@@ -119,6 +121,9 @@ public class FederatedGraphStorageTraitsTest {
     @BeforeEach
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
+        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
+        CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
 
         acc = new GraphSerialisable.Builder()
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO))
@@ -249,8 +254,7 @@ public class FederatedGraphStorageTraitsTest {
     @Test
     public void shouldGetCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
         //given
-        final GraphSerialisable acc2 = new GraphSerialisable.Builder()
-                .graph(acc.getGraph())
+        final GraphSerialisable acc2 = new GraphSerialisable.Builder(acc.getGraph())
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
                 .build();
 
@@ -269,8 +273,7 @@ public class FederatedGraphStorageTraitsTest {
     @Test
     public void shouldGetNonCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
         //given
-        final GraphSerialisable acc2 = new GraphSerialisable.Builder()
-                .graph(acc.getGraph())
+        final GraphSerialisable acc2 = new GraphSerialisable.Builder(acc.getGraph())
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
                 .build();
 

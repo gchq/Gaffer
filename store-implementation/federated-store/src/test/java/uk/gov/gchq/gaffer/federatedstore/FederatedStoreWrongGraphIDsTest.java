@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,9 +66,10 @@ public class FederatedStoreWrongGraphIDsTest {
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
-        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        fedProps.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
+        store.initialise(FED_ID, null, fedProps);
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
@@ -86,7 +87,6 @@ public class FederatedStoreWrongGraphIDsTest {
 
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
-        store.initialise(FED_ID, null, fedProps);
         store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1).parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
         final Entity expectedEntity = new Entity.Builder()
                 .group(E1_GROUP)

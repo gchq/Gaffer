@@ -44,7 +44,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-store</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>

@@ -64,7 +64,11 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
+        Graph graph;
         try {
+            //created at this position to capture errors before adding to cache.
+            graph = graphSerialisable.getGraph();
+
             ((FederatedStore) store).addGraphs(
                     operation.getGraphAuths(),
                     context.getUser().getUserId(),
@@ -79,7 +83,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
             throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }
 
-        addGenericHandler((FederatedStore) store, graphSerialisable.getGraph());
+        addGenericHandler((FederatedStore) store, graph);
 
         return null;
     }

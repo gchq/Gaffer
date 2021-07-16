@@ -83,7 +83,7 @@ public class GraphSerialisableTest {
     public void shouldConsumeGraph() {
         // Given
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties)).config(config).build();
-        final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
+        final GraphSerialisable result = new GraphSerialisable.Builder(graph).build();
 
         // When / Then
         assertEquals(expected, result);

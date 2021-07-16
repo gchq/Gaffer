@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,12 +180,13 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                 .build(), user);
     }
 
-    protected void createTheInnerFederatedStore() throws
-            OperationException {
+    protected void createTheInnerFederatedStore() throws OperationException {
+        FederatedStoreProperties properties = new FederatedStoreProperties();
+        properties.setCacheServiceNameSuffix(INNER_FEDERATED_GRAPH);
         proxyToRestServiceFederatedGraph.execute(new AddGraph.Builder()
                 .graphId(INNER_FEDERATED_GRAPH)
                 .schema(new Schema())
-                .storeProperties(new FederatedStoreProperties())
+                .storeProperties(properties)
                 .build(), user);
     }
 
