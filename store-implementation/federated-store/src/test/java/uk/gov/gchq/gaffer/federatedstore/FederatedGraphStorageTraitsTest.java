@@ -122,7 +122,7 @@ public class FederatedGraphStorageTraitsTest {
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_DEFAULT);
+        federatedStoreProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_DEFAULT);
         CacheServiceLoader.initialise(federatedStoreProperties.getProperties());
 
         acc = new GraphSerialisable.Builder()

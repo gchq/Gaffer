@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -458,8 +458,7 @@ public final class Graph {
      * Returns all the {@link StoreTrait}s for the contained {@link Store}
      * implementation
      *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     * has.
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();

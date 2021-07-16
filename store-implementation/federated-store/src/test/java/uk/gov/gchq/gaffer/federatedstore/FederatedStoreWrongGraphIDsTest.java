@@ -66,7 +66,7 @@ public class FederatedStoreWrongGraphIDsTest {
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
-        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        fedProps.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
         store.initialise(FED_ID, null, fedProps);

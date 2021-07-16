@@ -948,7 +948,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidCacheClass() throws StoreException {
-        federatedProperties.setCacheProperties(INVALID_CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(INVALID_CACHE_SERVICE_CLASS_STRING);
         try {
             clearCache();
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
@@ -962,7 +962,7 @@ public class FederatedStoreTest {
     public void shouldReuseGraphsAlreadyInCache() throws Exception {
         //Check cache is empty
         CacheServiceLoader.shutdown();
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         assertNull(CacheServiceLoader.getService());
 
         //initialise FedStore
@@ -996,7 +996,7 @@ public class FederatedStoreTest {
     public void shouldInitialiseWithCache() throws StoreException {
         CacheServiceLoader.shutdown();
         assertNull(CacheServiceLoader.getService());
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         assertNull(CacheServiceLoader.getService());
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         assertNotNull(CacheServiceLoader.getService());
@@ -1004,7 +1004,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldThrowExceptionWithoutInitialisation() throws StoreException {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // Given
@@ -1037,7 +1037,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddGraphsToCache() throws Exception {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // Given
@@ -1070,7 +1070,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddMultipleGraphsToCache() throws Exception {
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         // Given
 
@@ -1123,7 +1123,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldNotAddGraphToLibraryWhenReinitialisingFederatedStoreWithGraphFromCache() throws Exception {
         //Check cache is empty
-        federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.shutdown();
         assertNull(CacheServiceLoader.getService());
 

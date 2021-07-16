@@ -69,7 +69,7 @@ public class FederatedStoreGraphVisibilityTest {
         CacheServiceLoader.shutdown();
 
         fedProperties = new FederatedStoreProperties();
-        fedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        fedProperties.setCacheServiceClass(CACHE_SERVICE_CLASS_STRING);
 
         addingUser = testUser();
         nonAddingUser = blankUser();
