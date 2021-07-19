@@ -555,10 +555,9 @@ public class FederatedGraphStorage {
                 try {
                     federatedStoreCache.addGraphToCache(graphToMove, newFederatedAccess, true/*true because graphLibrary should have throw error*/);
                 } catch (final CacheOperationException e) {
-                    //TODO FS recovery
-                    String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
-                    LOGGER.error(s + " graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
-                    throw new StorageException(s, e);
+                    String message = String.format("Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:%s. Recovery is possible from a restart if a persistent cache is being used, otherwise contact admin", graphId);
+                    LOGGER.error(message + " graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
+                    throw new StorageException(message, e);
                 }
             }
 
@@ -606,10 +605,9 @@ public class FederatedGraphStorage {
                 try {
                     federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true/*true because graphLibrary should have throw error*/);
                 } catch (final CacheOperationException e) {
-                    //TODO FS recovery
-                    String s = "Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-                    LOGGER.error(s + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
-                    throw new StorageException(s, e);
+                    String message = String.format("Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId. graphStorage graphId:%s cache graphId:%s. Recovery is possible from a restart if a persistent cache is being used, otherwise contact admin", newGraphId, graphId);
+                    LOGGER.error(message);
+                    throw new StorageException(message, e);
                 }
                 federatedStoreCache.deleteGraphFromCache(graphId);
             }
