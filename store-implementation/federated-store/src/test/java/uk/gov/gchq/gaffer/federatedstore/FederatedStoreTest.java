@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -82,6 +81,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
@@ -1284,15 +1284,11 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
         addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
 
-        try {
-            //when
-            store.execute(new GetSchema.Builder().build(), userContext);
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
-                    e.getMessage());
-        }
+        //when
+        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), userContext));
+        //then
+        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
+                e.getMessage());
 
         //when
         final CloseableIterable<? extends Element> responseGraphsWithNoView = store.execute(new GetAllElements.Builder().build(), userContext);
@@ -1313,15 +1309,12 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
         addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
 
-        try {
-            //when
-            store.execute(new GetSchema.Builder().build(), userContext);
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
-                    e.getMessage());
-        }
+        //when
+        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), userContext));
+
+        //then
+        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
+                e.getMessage());
 
         //when
         final CloseableIterable<? extends Element> responseGraphA = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().build()).graphIdsCSV("graphA"), userContext);
@@ -1343,15 +1336,11 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
         addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
 
-        try {
-            //when
-            store.execute(new GetSchema.Builder().build(), userContext);
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
-                    e.getMessage());
-        }
+        //when
+        OperationException e = assertThrows(OperationException.class, () -> store.execute(new GetSchema.Builder().build(), userContext));
+        //then
+        assertTrue(Pattern.compile(".*Unable to merge the schemas for all of your federated graphs\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\..*").matcher(e.getMessage()).matches(),
+                e.getMessage());
 
         //when
         final CloseableIterable<? extends Element> responseGraphAWithAView = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements.Builder().view(new View.Builder().entity("entityA").build()).build()).graphIdsCSV("graphA"), userContext);
@@ -1375,15 +1364,11 @@ public class FederatedStoreTest {
         addElementsToNewGraph(A, "graphA", PATH_ENTITY_A_SCHEMA_JSON);
         addElementsToNewGraph(B, "graphB", PATH_ENTITY_B_SCHEMA_JSON);
 
-        try {
-            //when
-            store.execute(new GetSchema.Builder().build(), userContext);
-            fail("exception expected");
-        } catch (final SchemaException e) {
-            //then
-            assertTrue(Pattern.compile("Unable to merge the schemas for all of your federated graphs: \\[graph., graph.\\]\\. You can limit which graphs to query for using the FederatedOperation\\.graphIds\\.").matcher(e.getMessage()).matches(),
-                    e.getMessage());
-        }
+        //when
+        Exception e1 = assertThrows(Exception.class, () -> store.execute(new GetSchema.Builder().build(), userContext));
+        //then
+        assertTrue(e1.getMessage().contains("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds."),
+                e1.getMessage());
 
         try {
             //when

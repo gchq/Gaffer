@@ -265,7 +265,7 @@ public class FederatedGraphStorage {
         return Collections.unmodifiableCollection(rtn);
     }
 
-    //TODO FS REFACTOR, GraphStorage Does not need to know about FedOp only graphIds.
+    @Deprecated
     public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
         if (null == context || null == context.getUser()) {
             // no user then return an empty schema
@@ -275,9 +275,7 @@ public class FederatedGraphStorage {
 
         final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
-        //TODO FS Examine, this operation null check
         try {
-            //TODO FS Examine, the cast payload might not be GetSchema.
             if (nonNull(operation) && nonNull(operation.getPayloadOperation()) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
                 final GetSchema getSchema = new GetSchema.Builder()
                         .compact(true)
@@ -312,7 +310,6 @@ public class FederatedGraphStorage {
      * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(uk.gov.gchq.gaffer.operation.Operation, Context)} with GetTraits Operation.
      */
     @Deprecated
-    //TODO FS Refactor, GraphStorage does not need to know about FedOp
     public Set<StoreTrait> getTraits(final FederatedOperation op, final Context context) {
         boolean firstPass = true;
         final Set<StoreTrait> traits = new HashSet<>();

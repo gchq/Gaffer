@@ -300,15 +300,33 @@ public class FederatedStore extends Store {
                 : graphStorage.getAllIds(user);
     }
 
+    /**
+     * @return schema
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
+     */
     @Override
+    @Deprecated
     public Schema getSchema() {
         return getSchema((Context) null);
     }
 
+    /**
+     * @param context context with User.
+     * @return schema
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
+     */
+    @Deprecated
     public Schema getSchema(final Context context) {
         return getSchema(getFederatedWrappedSchema(), context);
     }
 
+    /**
+     * @param operation operation with graphIds.
+     * @param context   context with User.
+     * @return schema
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetSchema Operation.
+     */
+    @Deprecated
     public Schema getSchema(final FederatedOperation operation, final Context context) {
         return graphStorage.getSchema(operation, context);
     }
@@ -325,8 +343,8 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * @param federatedOperation   GetTrait op with graph scope.
-     * @param context context of the query
+     * @param federatedOperation GetTrait op with graph scope.
+     * @param context            context of the query
      * @return the set of {@link StoreTrait} that are common for all visible graphs
      * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
      */
