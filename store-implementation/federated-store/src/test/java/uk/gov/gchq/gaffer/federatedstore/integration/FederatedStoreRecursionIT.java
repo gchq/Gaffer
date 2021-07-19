@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +25,12 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.SingleUseFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -53,7 +49,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class FederatedStoreRecursionIT extends AbstractStoreIT {
+public class FederatedStoreRecursionIT extends AbstractStandaloneFederatedStoreIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
@@ -63,16 +59,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     public static final String PROPERTY_NAME = "count";
     private Graph proxyToRestServiceFederatedGraph;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
-                .build(), user);
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
-                .build(), user);
-
-        graph = null;
     }
 
 

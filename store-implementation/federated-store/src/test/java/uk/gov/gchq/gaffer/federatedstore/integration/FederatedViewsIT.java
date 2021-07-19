@@ -49,7 +49,7 @@ import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedS
  * In all of theses tests the Federated graph contains two graphs, one containing
  * a schema with only edges the other with only entities.
  */
-public class FederatedViewsIT extends AbstractStoreIT {
+public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";
@@ -60,7 +60,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
     @Override
     protected Schema createSchema() {
-        final Schema.Builder schemaBuilder = new Schema.Builder(createDefaultSchema());
+        final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
         schemaBuilder.edges(Collections.EMPTY_MAP);
         schemaBuilder.entities(Collections.EMPTY_MAP);
         schemaBuilder.json(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEdgeSchema.json"));
