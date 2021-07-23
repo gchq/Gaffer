@@ -10,6 +10,18 @@ jobs:
     - name: Check all modules are tested
       run: ./cd/check_modules.sh
 
+  semgrep:
+    name: Scan
+    runs-on: ubuntu-latest  
+    steps:     
+      - uses: actions/checkout@v2
+      - uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/ci
+            p/security-audit
+            p/secrets
+
   build:
     runs-on: ubuntu-latest
     strategy:
