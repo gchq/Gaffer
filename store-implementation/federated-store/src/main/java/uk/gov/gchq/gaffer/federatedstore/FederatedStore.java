@@ -414,11 +414,11 @@ public class FederatedStore extends Store {
             boolean hasPayloadPreexistingFedStoreId = false;
             if (operation instanceof FederatedOperation) {
                 FederatedOperation tmpFedOp = (FederatedOperation) operation;
+                //TODO FS Review the getPayloadOperation shallowClone()
                 Operation tmpPayload = tmpFedOp.getPayloadOperation();
                 //Check and Add FedStoreId to payload
                 hasPayloadPreexistingFedStoreId = addFedStoreId(tmpPayload, optionKey);
-                //TODO FS Review the getPayloadOperation shallowClone()
-                //getPayloadOperation() returns shallowClone(), so apply changes from addFedStoreId()
+                //getPayloadOperation() returns a shallowClone(), so re-apply changes from addFedStoreId()
                 tmpFedOp.payloadOperation(tmpPayload);
             }
 

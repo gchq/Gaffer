@@ -80,7 +80,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
-        //TODO FS Examine, this inserted Federation and impact on views.
+        //TODO FS Examine/test, this inserted Federation and impact on views.
         final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
         FederatedOperation clonedOp = op instanceof FederatedOperation
                 ? (FederatedOperation) shallowCloneWithDeepOptions(op)

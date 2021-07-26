@@ -46,18 +46,10 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
 
         CloseableIterable<? extends ITERABLE_ELEMENTS> results;
 
-        //TODO FS Review is this difference of InputOutput
-        if (operation instanceof InputOutput) {
-            FederatedOperation federatedOperation = getFederatedOperation((InputOutput) operation);
-            results = (CloseableIterable<? extends ITERABLE_ELEMENTS>) store.execute(federatedOperation, context);
-            // TODO FS Peer Review, mergeOptions(); 1/3
-            operation.setOptions(federatedOperation.getOptions());
-        } else {
-            FederatedOperation federatedOperation = getFederatedOperation((Output) operation);
-            results = (CloseableIterable<? extends ITERABLE_ELEMENTS>) store.execute(federatedOperation, context);
-            // TODO FS Peer Review, mergeOptions(); 1/3
-            operation.setOptions(federatedOperation.getOptions());
-        }
+        FederatedOperation federatedOperation = getFederatedOperation(operation instanceof InputOutput ? (InputOutput) operation : (Output) operation);
+        results = (CloseableIterable<? extends ITERABLE_ELEMENTS>) store.execute(federatedOperation, context);
+        // TODO FS Peer Review, mergeOptions(); 1/3
+        operation.setOptions(federatedOperation.getOptions());
 
 
         return isNull(results) ? new EmptyClosableIterable<ITERABLE_ELEMENTS>() : results;

@@ -66,9 +66,8 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Required
     private Operation payloadOperation;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private Function<Iterable<?>, OUTPUT> mergeFunction; //TODO FS Review change to Function<Iterable, OUTPUT>
+    private Function<Iterable<?>, OUTPUT> mergeFunction;
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
-    // TODO FS Feature, final boolean userRequestingAdminUsage = FederatedStoreUtil.userRequestingAdminUsage(operation);
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
     private boolean isUserRequestingDefaultGraphsOverride;
@@ -162,6 +161,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
      */
     @JsonProperty("operation")
     public Operation getPayloadOperation() {
+        //TODO FS Examine expensive clone
         return isNull(payloadOperation) ? null : payloadOperation.shallowClone();
     }
 
@@ -177,7 +177,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public FederatedOperation<INPUT, OUTPUT> shallowClone() throws CloneFailedException {
         try {
-            //TODO FS Review expensive
+            //TODO FS Examine expensive clone
             return JSONSerialiser.deserialise(JSONSerialiser.serialise(this), FederatedOperation.class);
         } catch (final SerialisationException e) {
             throw new CloneFailedException(e);
@@ -392,9 +392,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }
 
-        if (nonNull(value) && field.getName().equals("mergeFunction") && nonNull(payloadOperation) && !(payloadOperation instanceof Output)) {
-            //TODO FS Examine, DO I want to error or just ignore and Log?
-            result.addError(String.format("%s: %s is not required when payloadOperation: %s has no Output for: %s", field.getName(), mergeFunction.getClass().getSimpleName(), payloadOperation.getClass().getSimpleName(), this.getClass().getSimpleName()));
-        }
+        // Merge function is allowed when payload is non output, user may want to count nulls from graphs.
     }
 }

@@ -72,11 +72,6 @@ public class ChainedIterableTest {
         final ChainedIterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3);
 
         assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
-
-        //TODO FS Following line fails, using wrong constructor
-//        final ChainedIterable<Integer> itr4 = new ChainedIterable(Lists.newArrayList(7, 8, 9), new ChainedIterable(Lists.newArrayList(10, 11)));
-//        final ChainedIterable<Integer> wrappedItr2 = new ChainedIterable<>(wrappedItr, itr4);
-//        assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), Lists.newArrayList(wrappedItr2));
     }
 
     @Test

@@ -230,7 +230,6 @@ public final class FederatedStoreUtil {
 
     @Deprecated
     private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> checkGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
-        //TODO FS Refactor, Search and delete this string, inc demo
         String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
         if (nonNull(graphIdOption)) {
             LOGGER.warn("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
