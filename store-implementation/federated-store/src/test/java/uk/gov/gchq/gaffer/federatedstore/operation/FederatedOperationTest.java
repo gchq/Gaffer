@@ -58,7 +58,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
         assertEquals(EXPECTED_GRAPH_ID, federatedOperation.getGraphIdsCSV());
         assertEquals(new uk.gov.gchq.koryphe.impl.function.IterableConcat(), federatedOperation.getMergeFunction());
         try {
-            assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getPayloadOperation())));
+            assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getUnClonedPayload())));
             assertEquals(JSON, new String(JSONSerialiser.serialise(federatedOperation, true)));
         } catch (SerialisationException e) {
             fail(e);

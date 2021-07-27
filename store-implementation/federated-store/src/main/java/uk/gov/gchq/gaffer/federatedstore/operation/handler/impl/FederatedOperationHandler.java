@@ -59,7 +59,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             results = new ArrayList<>(graphs.size());
             for (final Graph graph : graphs) {
 
-                final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getPayloadOperation(), graph);
+                final Operation updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getUnClonedPayload(), graph);
                 if (null != updatedOp) {
                     try {
                         if (updatedOp instanceof Output) {
@@ -90,7 +90,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
         try {
             OUTPUT rtn;
             if (nonNull(mergeFunction)) {
-                //TODO FS Test, voids & Nulls
                 rtn = mergeFunction.apply(results);
             } else if (results.iterator().hasNext() && results.iterator().next() instanceof Iterable) {
                 rtn = (OUTPUT) store.getDefaultMergeFunction().apply(results);

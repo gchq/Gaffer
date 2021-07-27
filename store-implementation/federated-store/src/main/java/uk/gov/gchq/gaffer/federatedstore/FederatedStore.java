@@ -409,19 +409,15 @@ public class FederatedStore extends Store {
         boolean rtn = false;
         if (nonNull(operation) && !isNullOrEmpty(optionKey)) {
             //Keep Order v
-            boolean hasOperationPreexistingFedStoreId = !isNullOrEmpty(operation.getOption(optionKey, null)); //There is difference between value is null and key not found.
+            boolean hasOperationPreexistingFedStoreId = !isNullOrEmpty(operation.getOption(optionKey, null)); //There is a difference between value null and key not found.
             //Keep Order ^
             boolean hasPayloadPreexistingFedStoreId = false;
             if (operation instanceof FederatedOperation) {
-                FederatedOperation tmpFedOp = (FederatedOperation) operation;
-                //TODO FS Review the getPayloadOperation shallowClone()
-                Operation tmpPayload = tmpFedOp.getPayloadOperation();
                 //Check and Add FedStoreId to payload
-                hasPayloadPreexistingFedStoreId = addFedStoreId(tmpPayload, optionKey);
-                //getPayloadOperation() returns a shallowClone(), so re-apply changes from addFedStoreId()
-                tmpFedOp.payloadOperation(tmpPayload);
+                hasPayloadPreexistingFedStoreId = addFedStoreId(((FederatedOperation) operation).getUnClonedPayload(), optionKey);
             }
 
+            //TODO FS Review
 //            final HashMap<String, String> updatedOperations = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions()) ;
 //            updatedOperations.put(optionKey, getGraphId());
 //            operation.setOptions(updatedOperations);
@@ -589,7 +585,7 @@ public class FederatedStore extends Store {
                         && (operation instanceof FederatedOperation)
                         && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
 
-        //TODO FS Test does this preserve get graph.isDefault?
+        //TODO FS Test does this preserve get graph.disabledByDefault?
         if (isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs) {
             return graphStorage.get(user, null, (operation.userRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {

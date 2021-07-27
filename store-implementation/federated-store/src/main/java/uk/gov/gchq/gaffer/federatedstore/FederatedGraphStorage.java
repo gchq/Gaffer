@@ -276,13 +276,10 @@ public class FederatedGraphStorage {
         final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
-            if (nonNull(operation) && nonNull(operation.getPayloadOperation()) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
-                final GetSchema getSchema = new GetSchema.Builder()
-                        .compact(true)
-                        .build();
+            if (nonNull(operation) && operation.hasPayloadOperation() && operation.payloadInstanceOf(GetSchema.class) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
                 graphs.forEach(g -> {
                     try {
-                        schemaBuilder.merge(g.execute(getSchema, context));
+                        schemaBuilder.merge(g.execute((GetSchema) operation.getPayloadOperation(), context));
                     } catch (final OperationException e) {
                         throw new RuntimeException("Unable to fetch schema from graph " + g.getGraphId(), e);
                     }
@@ -313,11 +310,10 @@ public class FederatedGraphStorage {
     public Set<StoreTrait> getTraits(final FederatedOperation op, final Context context) {
         boolean firstPass = true;
         final Set<StoreTrait> traits = new HashSet<>();
-        if (null != op) {
-            GetTraits payloadOperation = (nonNull(op)) ? (GetTraits) op.getPayloadOperation() : new GetTraits();
-            final List<String> graphIds = (nonNull(op)) ? op.getGraphIds() : null;
+        if (nonNull(op) && (!op.hasPayloadOperation() || op.payloadInstanceOf( GetTraits.class))) {
+            final GetTraits getTraits = (GetTraits) op.getPayloadOperation();
+            final List<String> graphIds = op.getGraphIds();
             final Collection<Graph> graphs = get(context.getUser(), graphIds);
-            final GetTraits getTraits = payloadOperation.shallowClone();
             for (final Graph graph : graphs) {
                 try {
                     Set<StoreTrait> execute = graph.execute(getTraits, context);

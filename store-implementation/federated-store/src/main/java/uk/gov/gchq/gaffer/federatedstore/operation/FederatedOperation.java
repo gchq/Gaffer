@@ -159,10 +159,33 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
      *
      * @return cloned payload
      */
-    @JsonProperty("operation")
     public Operation getPayloadOperation() {
-        //TODO FS Examine expensive clone
-        return isNull(payloadOperation) ? null : payloadOperation.shallowClone();
+        return hasPayloadOperation() ? payloadOperation.shallowClone() : null;
+    }
+
+    @JsonIgnore
+    public boolean hasPayloadOperation() {
+        return nonNull(payloadOperation);
+    }
+
+    /**
+     * Use responsibly internals including options may incorrectly get modified.
+     *
+     * @return uncloned payload
+     */
+    @JsonProperty("operation")
+    public Operation getUnClonedPayload() {
+        return payloadOperation;
+    }
+
+    @JsonIgnore
+    public Class<? extends Operation> getPayloadClass() {
+        return hasPayloadOperation() ? payloadOperation.getClass() : null;
+    }
+
+    @JsonIgnore
+    public boolean payloadInstanceOf(Class<?> c) {
+        return nonNull(c) && hasPayloadOperation() && c.isAssignableFrom(payloadOperation.getClass());
     }
 
     public Function<Iterable<?>, OUTPUT> getMergeFunction() {
@@ -177,7 +200,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public FederatedOperation<INPUT, OUTPUT> shallowClone() throws CloneFailedException {
         try {
-            //TODO FS Examine expensive clone
             return JSONSerialiser.deserialise(JSONSerialiser.serialise(this), FederatedOperation.class);
         } catch (final SerialisationException e) {
             throw new CloneFailedException(e);
@@ -263,8 +285,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                         throw new GafferRuntimeException("Error passing FederatedOperation input into payload operation", e);
                     }
                 } else {
-                    Class<? extends Operation> payloadClass = isNull(getPayloadOperation()) ? null : getPayloadOperation().getClass();
-                    throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + payloadClass);
+                    throw new GafferRuntimeException("Payload operation is not correct type. Expected:Input found:" + getPayloadClass());
                 }
             }
         } else {
@@ -388,7 +409,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
             throw new RuntimeException(e);
         }
         //TODO FS Test, Prove this logic
-        if (isNull(value) && (!field.getName().equals("mergeFunction") || isNull(payloadOperation) || payloadOperation instanceof Output)) {
+        if (isNull(value) && (!field.getName().equals("mergeFunction") || !hasPayloadOperation() || payloadOperation instanceof Output)) {
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }
 
