@@ -321,7 +321,7 @@ public class FederatedGraphStorage {
             for (final Graph graph : graphs) {
                 try {
                     Set<StoreTrait> execute = graph.execute(getTraits, context);
-                    //Deprecate, although a FedOp is being used that can specify merging, it is ignored.
+                    //Deprecated, although a FedOp is being used that can specify merging, it is ignored.
                     if (firstPass) {
                         traits.addAll(execute);
                         firstPass = false;

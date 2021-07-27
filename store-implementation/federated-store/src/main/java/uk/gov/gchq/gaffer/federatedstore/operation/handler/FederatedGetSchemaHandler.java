@@ -49,7 +49,7 @@ public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSche
             } catch (final Exception e) {
                 throw new SchemaException("Unable to merge the schemas for all of your federated graphs. You can limit which graphs to query for using the FederatedOperation.graphIds.", e);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new OperationException("Error getting Schemas for FederatedStore - " + e.getMessage(), e);
         }
 

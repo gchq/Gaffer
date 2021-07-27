@@ -3,7 +3,7 @@
   <parent>
     <artifactId>rest-api</artifactId>
     <groupId>uk.gov.gchq.gaffer</groupId>
-    <version>1.17.1-SNAPSHOT</version>
+    <version>1.17.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -135,6 +135,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring.boot.version}</version>
         <configuration>
           <layout>ZIP</layout>
           <executable>true</executable>
