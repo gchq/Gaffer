@@ -139,7 +139,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -162,7 +162,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         //then
@@ -184,7 +184,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -204,7 +204,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         //then
@@ -226,7 +226,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -269,7 +269,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
         assertNotNull(allGraphsAndAuths);
@@ -375,7 +375,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
                 .graphId(graphA)
                 .ownerUserId(replacementUser.getUserId())
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -430,7 +430,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
                 .graphId(graphA)
                 .ownerUserId(replacementUser.getUserId())
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), replacementUser);
 
         //then
@@ -482,7 +482,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), ADMIN_USER);
 
         //then
@@ -537,7 +537,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
-                .setUserRequestingAdminUsage(true)
+                .userRequestingAdminUsage(true)
                 .build(), otherUser);
 
         //then

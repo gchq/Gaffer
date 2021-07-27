@@ -392,7 +392,7 @@ public class FederatedStore extends Store {
                 LOGGER.debug("getting default graphs because requested graphIdsCsv is null");
                 rtn = getDefaultGraphs(user, operation);
             } else {
-                String adminAuth = operation.userRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
+                String adminAuth = operation.isUserRequestingAdminUsage() ? this.getProperties().getAdminAuth() : null;
                 rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv), adminAuth));
             }
         } else {
@@ -416,12 +416,6 @@ public class FederatedStore extends Store {
                 //Check and Add FedStoreId to payload
                 hasPayloadPreexistingFedStoreId = addFedStoreId(((FederatedOperation) operation).getUnClonedPayload(), optionKey);
             }
-
-            //TODO FS Review
-//            final HashMap<String, String> updatedOperations = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions()) ;
-//            updatedOperations.put(optionKey, getGraphId());
-//            operation.setOptions(updatedOperations);
-//            rtn = hasOperationPreexistingFedStoreId || hasPayloadPreexistingFedStoreId;
 
             //Add FedStoreId to current Operation.
             operation.addOption(optionKey, getFedStoreProcessedValue());
@@ -581,13 +575,13 @@ public class FederatedStore extends Store {
     public Collection<Graph> getDefaultGraphs(final User user, final IFederationOperation operation) {
 
         boolean isAdminRequestingOverridingDefaultGraphs =
-                operation.userRequestingAdminUsage()
+                operation.isUserRequestingAdminUsage()
                         && (operation instanceof FederatedOperation)
                         && ((FederatedOperation) operation).isUserRequestingDefaultGraphsOverride();
 
         //TODO FS Test does this preserve get graph.disabledByDefault?
         if (isNull(adminConfiguredDefaultGraphIdsCSV) || isAdminRequestingOverridingDefaultGraphs) {
-            return graphStorage.get(user, null, (operation.userRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
+            return graphStorage.get(user, null, (operation.isUserRequestingAdminUsage() ? getProperties().getAdminAuth() : null));
         } else {
             //This operation has already been processes once, by this store.
             String fedStoreProcessedKey = getFedStoreProcessedKey();

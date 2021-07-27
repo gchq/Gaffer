@@ -30,12 +30,11 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.shallowCloneWithDeepOptions;
 
 /**
  * Validation class for validating {@link uk.gov.gchq.gaffer.operation.OperationChain}s against {@link ViewValidator}s using the Federated Store schemas.
@@ -43,7 +42,6 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * the merged schema based on the user context and operation options.
  */
 public class FederatedOperationChainValidator extends OperationChainValidator {
-    //TODO FS Examine
     public FederatedOperationChainValidator(final ViewValidator viewValidator) {
         super(viewValidator);
     }
@@ -80,15 +78,14 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
-        //TODO FS Examine/test, this inserted Federation and impact on views.
         final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
         FederatedOperation clonedOp = op instanceof FederatedOperation
-                ? (FederatedOperation) shallowCloneWithDeepOptions(op)
+                ? ((FederatedOperation) op).deepClone()
                 : new FederatedOperation
                         .Builder()
                         .op(shallowCloneWithDeepOptions(op))
                         .graphIds(graphIdsCSV)
-                        .setUserRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).userRequestingAdminUsage())
+                        .userRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
                         .build();
         Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
         for (final Graph graph : graphs) {
@@ -97,11 +94,9 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             // If graphId is not valid, then there is no schema to validate a view against.
             if (graphIdValid) {
                 currentResult = new ValidationResult();
-//                clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
                 if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
                     clonedOp.graphIdsCSV(graphId);
                     super.validateViews(clonedOp, user, store, currentResult);
-//                    super.validateViews(clonedOp, user, store, currentResult);
                 }
                 if (currentResult.isValid()) {
                     // If any graph has a valid View, break with valid current result
@@ -122,23 +117,6 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         }
     }
 
-    /**
-     * Return a clone of the given operations with a deep clone of options.
-     * <p>
-     * Because payloadOperation.shallowClone() is used it can't be guaranteed that original options won't be modified.
-     * So a deep clone of the options is made for the shallow clone of the operation.
-     *
-     * @param op the operation to clone
-     * @return a clone of the operation with a deep clone of options.
-     */
-    private Operation shallowCloneWithDeepOptions(final Operation op) {
-        final Operation cloneForValidation = op.shallowClone();
-        final Map<String, String> options = op.getOptions();
-        final Map<String, String> optionsDeepClone = isNull(options) ? null : new HashMap<>(options);
-        cloneForValidation.setOptions(optionsDeepClone);
-        return cloneForValidation;
-    }
-
     private Collection<String> getGraphIds(final Operation op, final User user, final FederatedStore store) {
         return Arrays.asList(getGraphIdsCSV(op, user, store).split(","));
     }
@@ -148,7 +126,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                 ? ((FederatedOperation) op).getGraphIdsCSV()
                 : null;
 
-        boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).userRequestingAdminUsage();
+        boolean userRequestingAdminUsage = (op instanceof IFederationOperation) && ((IFederationOperation) op).isUserRequestingAdminUsage();
 
         return isNull(rtn)
                 ? String.join(",", store.getAllGraphIds(user, userRequestingAdminUsage))

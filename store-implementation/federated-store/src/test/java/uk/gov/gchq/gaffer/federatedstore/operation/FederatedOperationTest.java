@@ -39,8 +39,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
             "  \"mergeFunction\" : {\n" +
             "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.IterableConcat\"\n" +
             "  },\n" +
-            "  \"graphIds\" : \"testGraphID1,testGraphID2\",\n" +
-            "  \"skipFailedFederatedExecution\" : false\n" +
+            "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
             "}";
 
     @Override

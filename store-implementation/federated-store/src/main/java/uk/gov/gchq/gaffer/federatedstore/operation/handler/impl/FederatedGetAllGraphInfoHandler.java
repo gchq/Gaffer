@@ -31,7 +31,7 @@ public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<G
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {
         try {
-            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), operation.getGraphIdsCSV(), operation.userRequestingAdminUsage());
+            return ((FederatedStore) store).getAllGraphsAndAuths(context.getUser(), operation.getGraphIdsCSV(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error getting graph information.", e);
         }

@@ -32,7 +32,7 @@ public class FederatedChangeGraphIdHandler implements OutputOperationHandler<Cha
     public Boolean doOperation(final ChangeGraphId operation, final Context context, final Store store) throws OperationException {
         try {
             final User user = context.getUser();
-            return ((FederatedStore) store).changeGraphId(user, operation.getGraphId(), operation.getNewGraphId(), operation.userRequestingAdminUsage());
+            return ((FederatedStore) store).changeGraphId(user, operation.getGraphId(), operation.getNewGraphId(), operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error changing graphId", e);
         }

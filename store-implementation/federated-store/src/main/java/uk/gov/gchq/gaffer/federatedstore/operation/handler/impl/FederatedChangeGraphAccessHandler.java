@@ -35,7 +35,7 @@ public class FederatedChangeGraphAccessHandler implements OutputOperationHandler
         try {
             final FederatedAccess federatedAccess = new FederatedAccess(operation.getGraphAuths(), operation.getOwnerUserId(), operation.getIsPublic(), operation.isDisabledByDefault());
             final User user = context.getUser();
-            return ((FederatedStore) store).changeGraphAccess(user, operation.getGraphId(), federatedAccess, operation.userRequestingAdminUsage());
+            return ((FederatedStore) store).changeGraphAccess(user, operation.getGraphId(), federatedAccess, operation.isUserRequestingAdminUsage());
         } catch (final Exception e) {
             throw new OperationException("Error changing graph access", e);
         }

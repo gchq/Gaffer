@@ -65,7 +65,7 @@ public class GetAllGraphInfo implements
         return new Builder()
                 .options(options)
                 .graphIDsCSV(graphIdsCsv)
-                .setUserRequestingAdminUsage(userRequestingAdminUsage)
+                .userRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -101,12 +101,12 @@ public class GetAllGraphInfo implements
     }
 
     @Override
-    public boolean userRequestingAdminUsage() {
+    public boolean isUserRequestingAdminUsage() {
         return userRequestingAdminUsage;
     }
 
     @Override
-    public GetAllGraphInfo setUserRequestingAdminUsage(final boolean adminRequest) {
+    public GetAllGraphInfo isUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }

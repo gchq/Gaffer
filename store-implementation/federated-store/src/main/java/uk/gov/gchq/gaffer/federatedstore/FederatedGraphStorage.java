@@ -310,7 +310,7 @@ public class FederatedGraphStorage {
     public Set<StoreTrait> getTraits(final FederatedOperation op, final Context context) {
         boolean firstPass = true;
         final Set<StoreTrait> traits = new HashSet<>();
-        if (nonNull(op) && (!op.hasPayloadOperation() || op.payloadInstanceOf( GetTraits.class))) {
+        if (nonNull(op) && (!op.hasPayloadOperation() || op.payloadInstanceOf(GetTraits.class))) {
             final GetTraits getTraits = (GetTraits) op.getPayloadOperation();
             final List<String> graphIds = op.getGraphIds();
             final Collection<Graph> graphs = get(context.getUser(), graphIds);

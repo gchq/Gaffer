@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.koryphe.Since;
@@ -27,22 +28,24 @@ import uk.gov.gchq.koryphe.Since;
  */
 @Since("2.0.0")
 public interface IFederationOperation extends Operation {
-    boolean userRequestingAdminUsage();
 
-    @JsonProperty("userRequestingAdminUsage")
-    default Boolean _userRequestingAdminUsageOrNull() {
-        return userRequestingAdminUsage() ? true : null;
+    boolean isUserRequestingAdminUsage();
+
+    @JsonGetter("userRequestingAdminUsage")
+    default Boolean _isUserRequestingAdminUsageOrNull() {
+        return isUserRequestingAdminUsage() ? true : null;
     }
 
-    Operation setUserRequestingAdminUsage(final boolean adminRequest);
+    @JsonSetter("userRequestingAdminUsage")
+    Operation isUserRequestingAdminUsage(final boolean adminRequest);
 
     abstract class BaseBuilder<OP extends IFederationOperation, B extends Operation.BaseBuilder<OP, ?>> extends Operation.BaseBuilder<OP, B> {
         protected BaseBuilder(final OP op) {
             super(op);
         }
 
-        public B setUserRequestingAdminUsage(final boolean adminRequest) {
-            this._getOp().setUserRequestingAdminUsage(adminRequest);
+        public B userRequestingAdminUsage(final boolean adminRequest) {
+            this._getOp().isUserRequestingAdminUsage(adminRequest);
             return _self();
         }
     }

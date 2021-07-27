@@ -45,9 +45,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public final class FederatedStoreUtil {
@@ -245,5 +247,22 @@ public final class FederatedStoreUtil {
 
     public static FederatedOperation<Void, Iterable<StoreTrait>> getFederatedWrappedTraits() {
         return new FederatedOperation.Builder().op(new GetTraits()).mergeFunction(new IterableConcat()).build();
+    }
+
+    /**
+     * Return a clone of the given operations with a deep clone of options.
+     * <p>
+     * Because payloadOperation.shallowClone() is used it can't be guaranteed that original options won't be modified.
+     * So a deep clone of the options is made for the shallow clone of the operation.
+     *
+     * @param op the operation to clone
+     * @return a clone of the operation with a deep clone of options.
+     */
+    public static Operation shallowCloneWithDeepOptions(final Operation op) {
+        final Operation cloneForValidation = op.shallowClone();
+        final Map<String, String> options = op.getOptions();
+        final Map<String, String> optionsDeepClone = isNull(options) ? null : new HashMap<>(options);
+        cloneForValidation.setOptions(optionsDeepClone);
+        return cloneForValidation;
     }
 }

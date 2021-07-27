@@ -70,7 +70,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
-    private boolean isUserRequestingDefaultGraphsOverride;
+    private boolean userRequestingDefaultGraphsOverride;
 
     @JsonProperty("graphIds")
     public FederatedOperation<INPUT, OUTPUT> graphIdsCSV(final String graphIds) {
@@ -100,28 +100,33 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return skipFailedFederatedExecution;
     }
 
+    @JsonGetter("skipFailedFederatedExecution")
+    public Boolean _isSkipFailedFederatedExecution() {
+        return skipFailedFederatedExecution ? true : null;
+    }
+
     @Override
-    public boolean userRequestingAdminUsage() {
+    public boolean isUserRequestingAdminUsage() {
         return userRequestingAdminUsage;
     }
 
     @Override
-    public FederatedOperation<INPUT, OUTPUT> setUserRequestingAdminUsage(final boolean adminRequest) {
+    public FederatedOperation<INPUT, OUTPUT> isUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
 
     public boolean isUserRequestingDefaultGraphsOverride() {
-        return isUserRequestingDefaultGraphsOverride;
+        return userRequestingDefaultGraphsOverride;
     }
 
     @JsonGetter("userRequestingDefaultGraphsOverride")
     public Boolean _isUserRequestingDefaultGraphsOverride() {
-        return isUserRequestingDefaultGraphsOverride ? true : null;
+        return userRequestingDefaultGraphsOverride ? true : null;
     }
 
-    public FederatedOperation<INPUT, OUTPUT> setUserRequestingDefaultGraphsOverride(final boolean userRequestingDefaultGraphsOverride) {
-        isUserRequestingDefaultGraphsOverride = userRequestingDefaultGraphsOverride;
+    public FederatedOperation<INPUT, OUTPUT> isUserRequestingDefaultGraphsOverride(final boolean userRequestingDefaultGraphsOverride) {
+        this.userRequestingDefaultGraphsOverride = userRequestingDefaultGraphsOverride;
         return this;
     }
 
@@ -133,6 +138,11 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    public FederatedOperation<INPUT, OUTPUT> options(final Map<String, String> options) {
+        setOptions(options);
+        return this;
     }
 
     private void optionsPutAll(final Map<? extends String, ? extends String> map) {
@@ -184,7 +194,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
     }
 
     @JsonIgnore
-    public boolean payloadInstanceOf(Class<?> c) {
+    public boolean payloadInstanceOf(final Class<?> c) {
         return nonNull(c) && hasPayloadOperation() && c.isAssignableFrom(payloadOperation.getClass());
     }
 
@@ -197,8 +207,21 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         return options;
     }
 
+    @JsonIgnore
     @Override
     public FederatedOperation<INPUT, OUTPUT> shallowClone() throws CloneFailedException {
+        return new FederatedOperation()
+                .payloadOperation(payloadOperation)
+                .mergeFunction(mergeFunction)
+                .graphIdsCSV(graphIdsCsv)
+                .isUserRequestingAdminUsage(userRequestingAdminUsage)
+                .isUserRequestingDefaultGraphsOverride(userRequestingDefaultGraphsOverride)
+                .skipFailedFederatedExecution(skipFailedFederatedExecution)
+                .options(options);
+    }
+
+    @JsonIgnore
+    public FederatedOperation<INPUT, OUTPUT> deepClone() throws CloneFailedException {
         try {
             return JSONSerialiser.deserialise(JSONSerialiser.serialise(this), FederatedOperation.class);
         } catch (final SerialisationException e) {
@@ -222,7 +245,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                     .append(this.skipFailedFederatedExecution, that.skipFailedFederatedExecution)
                     .append(this.options, that.options)
                     .append(this.userRequestingAdminUsage, that.userRequestingAdminUsage)
-                    .append(this.isUserRequestingDefaultGraphsOverride, that.isUserRequestingDefaultGraphsOverride);
+                    .append(this.userRequestingDefaultGraphsOverride, that.userRequestingDefaultGraphsOverride);
 
             if (equalsBuilder.isEquals()) {
                 try {
@@ -250,7 +273,7 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
                 .append(skipFailedFederatedExecution)
                 .append(options)
                 .append(userRequestingAdminUsage)
-                .append(isUserRequestingDefaultGraphsOverride)
+                .append(userRequestingDefaultGraphsOverride)
                 .build();
     }
 

@@ -48,7 +48,7 @@ public class GetAllGraphIds implements
     public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .setUserRequestingAdminUsage(userRequestingAdminUsage)
+                .userRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
@@ -58,12 +58,12 @@ public class GetAllGraphIds implements
     }
 
     @Override
-    public boolean userRequestingAdminUsage() {
+    public boolean isUserRequestingAdminUsage() {
         return userRequestingAdminUsage;
     }
 
     @Override
-    public GetAllGraphIds setUserRequestingAdminUsage(final boolean adminRequest) {
+    public GetAllGraphIds isUserRequestingAdminUsage(final boolean adminRequest) {
         userRequestingAdminUsage = adminRequest;
         return this;
     }
