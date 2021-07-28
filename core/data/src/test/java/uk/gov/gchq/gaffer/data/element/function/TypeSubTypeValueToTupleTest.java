@@ -113,6 +113,7 @@ public class TypeSubTypeValueToTupleTest extends FunctionTest<TypeSubTypeValueTo
         return new Class[]{Tuple.class};
     }
 
+    @Test
     @Override
     public void shouldGenerateExpectedOutputSignature() {
         super.shouldGenerateExpectedOutputSignature();
