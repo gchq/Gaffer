@@ -51,7 +51,6 @@ public class FederatedNoOutputHandler<PAYLOAD extends Operation> implements Oper
 
         Object ignore = store.execute(federatedOperation, context);
 
-        // TODO FS Peer Review, mergeOptions(); 1/3
         operation.setOptions(federatedOperation.getOptions());
 
         return null;

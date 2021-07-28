@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.Since;
 import java.util.List;
 
 /**
- * Interface for Operations that uses a selection graphs of graphs to be performed.
+ * Interface for Operations that uses a selection of graphs to be performed.
  */
 @Since("2.0.0")
 public interface IFederatedOperation extends Operation {

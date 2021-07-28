@@ -104,7 +104,7 @@ public class FederatedGraphStorage {
      */
     public void put(final GraphSerialisable graph, final FederatedAccess access) throws StorageException {
         if (graph != null) {
-            String graphId = graph.getDeserialisedConfig().getGraphId();
+            String graphId = graph.getGraphId();
             try {
                 if (null == access) {
                     throw new IllegalArgumentException(ACCESS_IS_NULL);
@@ -350,7 +350,7 @@ public class FederatedGraphStorage {
     }
 
     private void validateExisting(final GraphSerialisable graph) throws StorageException {
-        final String graphId = graph.getDeserialisedConfig().getGraphId();
+        final String graphId = graph.getGraphId();
         for (final Set<Graph> graphs : storage.values()) {
             for (final Graph g : graphs) {
                 if (g.getGraphId().equals(graphId)) {

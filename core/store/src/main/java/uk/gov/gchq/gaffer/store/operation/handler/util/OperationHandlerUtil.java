@@ -51,12 +51,7 @@ public final class OperationHandlerUtil {
         if (operation instanceof OperationChain) {
             if (!((OperationChain) operation).getOperations().isEmpty()) {
                 final Operation firstOp = (Operation) ((OperationChain) operation).getOperations().get(0);
-                //TODO_ticket This if statement can be removed with recursion.
-                if (firstOp instanceof Input) {
-                    setOperationInputIfNull((Input) firstOp, input);
-                } else if (firstOp instanceof OperationChain) {
-                    updateOperationInput(firstOp, input);
-                }
+                updateOperationInput(firstOp, input);
             }
         } else if (operation instanceof Input) {
             setOperationInputIfNull((Input) operation, input);

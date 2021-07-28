@@ -67,7 +67,7 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        String graphId = graphSerialisable.getDeserialisedConfig().getGraphId();
+        String graphId = graphSerialisable.getGraphId();
         Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(graphSerialisable, access);
         try {
             addToCache(graphId, pair, overwrite);

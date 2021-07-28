@@ -26,12 +26,6 @@
     <logger name="uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAddGraphHandlerParent">
         <level value="error"/>
     </logger>
-    <logger name="uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil">
-        <level value="info"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.federatedstore.FederatedStore">
-        <level value="debug"/>
-    </logger>
     <root>
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>

@@ -185,6 +185,11 @@ public final class GraphSerialisable implements Serializable {
         return deserialisedConfig;
     }
 
+    @JsonIgnore
+    public String getGraphId() {
+        return getDeserialisedConfig().getGraphId();
+    }
+
     public byte[] getConfig() {
         return config;
     }

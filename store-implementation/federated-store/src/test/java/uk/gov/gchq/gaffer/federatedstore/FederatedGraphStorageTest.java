@@ -449,8 +449,8 @@ public class FederatedGraphStorageTest {
     public void shouldGetGraphsInOrder() throws Exception {
         // Given
         graphStorage.put(Lists.newArrayList(a, b), access);
-        final List<String> configAB = Arrays.asList(a.getDeserialisedConfig().getGraphId(), b.getDeserialisedConfig().getGraphId());
-        final List<String> configBA = Arrays.asList(b.getDeserialisedConfig().getGraphId(), a.getDeserialisedConfig().getGraphId());
+        final List<String> configAB = Arrays.asList(a.getGraphId(), b.getGraphId());
+        final List<String> configBA = Arrays.asList(b.getGraphId(), a.getGraphId());
 
         // When
         final Collection<Graph> graphsAB = graphStorage.get(authUser, configAB);
@@ -474,7 +474,7 @@ public class FederatedGraphStorageTest {
         //given
         GraphLibrary mock = mock(GraphLibrary.class);
         String testMockException = "testMockException";
-        String graphId = a.getDeserialisedConfig().getGraphId();
+        String graphId = a.getGraphId();
         Mockito.doThrow(new RuntimeException(testMockException))
                 .when(mock)
                 .checkExisting(graphId, a.getDeserialisedSchema(), a.getDeserialisedProperties());

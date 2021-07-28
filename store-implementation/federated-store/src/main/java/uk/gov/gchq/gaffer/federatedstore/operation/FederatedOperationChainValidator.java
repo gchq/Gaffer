@@ -60,7 +60,9 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
 
     @Override
     protected View getView(final Operation op) {
-        return op instanceof FederatedOperation ? super.getView(((FederatedOperation) op).getPayloadOperation()) : super.getView(op);
+        return op instanceof FederatedOperation
+                ? super.getView(((FederatedOperation) op).getPayloadOperation())
+                : super.getView(op);
     }
 
 
