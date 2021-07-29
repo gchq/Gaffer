@@ -23,7 +23,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 /**
  * A {@code TypeValueToTuple} is a {@link KorypheFunction} that converts an {@link TypeValue} into a {@link TypeValueTuple}.
  */
-@Since("1.17.0")
+@Since("1.18.0")
 @Summary("Converts an TypeValue into a Tuple")
 public class TypeValueToTuple extends KorypheFunction<TypeValue, TypeValueTuple> {
     @Override
