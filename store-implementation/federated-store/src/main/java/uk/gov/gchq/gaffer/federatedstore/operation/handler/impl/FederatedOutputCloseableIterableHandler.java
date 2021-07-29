@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -44,14 +45,28 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
     @Override
     public CloseableIterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
 
-        CloseableIterable<? extends ITERABLE_ELEMENTS> results;
+        Iterable<? extends ITERABLE_ELEMENTS> results;
 
         FederatedOperation federatedOperation = getFederatedOperation(operation instanceof InputOutput ? (InputOutput) operation : (Output) operation);
-        results = (CloseableIterable<? extends ITERABLE_ELEMENTS>) store.execute(federatedOperation, context);
-        // TODO FS Peer Review, mergeOptions(); 1/3
+        Object execute = store.execute(federatedOperation, context);
+        try {
+            results = (Iterable<? extends ITERABLE_ELEMENTS>) execute;
+        } catch (final ClassCastException e) {
+            throw new OperationException(String.format("Could not cast execution result. Expected:%s Found:%s", Iterable.class, execute.getClass().toString()), e);
+        }
         operation.setOptions(federatedOperation.getOptions());
 
 
-        return isNull(results) ? new EmptyClosableIterable<ITERABLE_ELEMENTS>() : results;
+        CloseableIterable<? extends ITERABLE_ELEMENTS> rtn;
+        if (isNull(results)) {
+            rtn = new EmptyClosableIterable<>();
+        } else if (results instanceof uk.gov.gchq.koryphe.iterable.CloseableIterable) {
+            //Hack for duplicated and @Deprecated CloseableIterable in Koryphe uk.gov.gchq.koryphe.iterable.CloseableIterable
+            rtn = new WrappedCloseableIterable<>(((uk.gov.gchq.koryphe.iterable.CloseableIterable) results).iterator());
+        } else {
+            rtn = new WrappedCloseableIterable<>(results);
+        }
+
+        return rtn;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler;
+package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDeprecatedGraphIds;
 
 /**
  * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
@@ -40,6 +42,7 @@ public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSche
             final Iterable<Schema> schemas = (Iterable<Schema>) store.execute(
                     new FederatedOperation.Builder()
                             .op(operation)
+                            .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(), context);
 
             try {

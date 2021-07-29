@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
@@ -56,6 +57,7 @@ public final class FederatedStoreUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
     public static final Collection<String> STRINGS_TO_REMOVE = Collections.unmodifiableCollection(Arrays.asList("", null));
+    public static final String DEPRECATED_GRAPH_IDS_FLAG = "gaffer.federatedstore.operation.graphIds";
 
     private FederatedStoreUtil() {
     }
@@ -193,7 +195,7 @@ public final class FederatedStoreUtil {
         FederatedOperation.BuilderParent<INPUT, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation);
 
-        checkGraphIds(operation, builder);
+        addDeprecatedGraphIds(operation, builder);
 
         return builder.build();
     }
@@ -203,7 +205,7 @@ public final class FederatedStoreUtil {
         FederatedOperation.BuilderParent<INPUT, Void> builder = new FederatedOperation.Builder()
                 .op(operation);
 
-        checkGraphIds(operation, builder);
+        addDeprecatedGraphIds(operation, builder);
 
         return builder.build();
     }
@@ -214,7 +216,7 @@ public final class FederatedStoreUtil {
                 .op(operation)
                 .mergeFunction(new IterableConcat());
 
-        checkGraphIds(operation, builder);
+        addDeprecatedGraphIds(operation, builder);
 
 
         return builder.build();
@@ -225,21 +227,30 @@ public final class FederatedStoreUtil {
         FederatedOperation.BuilderParent<INPUT, Void> builder = new FederatedOperation.Builder()
                 .op(operation);
 
-        checkGraphIds(operation, builder);
+        addDeprecatedGraphIds(operation, builder);
 
         return builder.build();
     }
 
     @Deprecated
-    private static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> checkGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
-        String graphIdOption = operation.getOption("gaffer.federatedstore.operation.graphIds");
+    public static <INPUT, OUTPUT> FederatedOperation.BuilderParent<INPUT, OUTPUT> addDeprecatedGraphIds(final Operation operation, final FederatedOperation.BuilderParent<INPUT, OUTPUT> builder) {
+        String graphIdOption = getDeprecatedGraphIds(operation);
         if (nonNull(graphIdOption)) {
-            LOGGER.warn("Operation:{} has old deprecated style of graphId selection.", operation.getClass().getSimpleName());
             builder.graphIds(graphIdOption);
         }
         return builder;
     }
 
+    @Deprecated
+    public static String getDeprecatedGraphIds(final Operation operation) throws GafferRuntimeException {
+        String deprecatedGraphIds = operation.getOption(DEPRECATED_GRAPH_IDS_FLAG);
+        if (nonNull(deprecatedGraphIds)) {
+            String simpleName = operation.getClass().getSimpleName();
+            LOGGER.warn("Operation:{} has old Deprecated style of graphId selection.", simpleName);
+            //throw new GafferRuntimeException(String.format("Operation:%s has old deprecated style of graphId selection. Use FederatedOperation to perform this selection", simpleName));
+        }
+        return deprecatedGraphIds;
+    }
 
     public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
         return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(new GetSchema()).build();

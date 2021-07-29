@@ -28,6 +28,8 @@ import uk.gov.gchq.koryphe.impl.function.IterableFlatten;
 
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDeprecatedGraphIds;
+
 /**
  * returns a set of {@link StoreTrait} that are common for all visible graphs.
  * traits1 = [a,b,c]
@@ -43,6 +45,7 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
                     new FederatedOperation.Builder()
                             .op(operation)
                             .mergeFunction(new IterableFlatten(new CollectionIntersect()))
+                            .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(), context);
         } catch (final Exception e) {
             throw new OperationException("Error getting federated traits.", e);
