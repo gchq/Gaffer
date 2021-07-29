@@ -11,14 +11,6 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.m2/repository
-          !~/.m2/repository/uk
-        key: gaffer-dependencies
-
     - name: Checkout Branch
       uses: actions/checkout@v2
 
