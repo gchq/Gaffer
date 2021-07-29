@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
-import uk.gov.gchq.koryphe.tuple.Tuple;
 
 /**
  * A {@code TypeValueToTuple} is a {@link KorypheFunction} that converts an {@link TypeValue} into a {@link Tuple}.

@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
-import uk.gov.gchq.koryphe.tuple.Tuple;
 
 /**
  * A {@code TypeSubTypeValueToTuple} is a {@link KorypheFunction} that converts an {@link TypeSubTypeValue} into a {@link Tuple}.
