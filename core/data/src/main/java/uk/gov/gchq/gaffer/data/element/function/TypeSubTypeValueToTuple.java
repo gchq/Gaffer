@@ -26,9 +26,9 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
  */
 @Since("1.17.0")
 @Summary("Converts an TypeSubTypeValue into a Tuple")
-public class TypeSubTypeValueToTuple extends KorypheFunction<TypeSubTypeValue, Tuple<String>> {
+public class TypeSubTypeValueToTuple extends KorypheFunction<TypeSubTypeValue, TypeSubTypeValueTuple> {
     @Override
-    public Tuple<String> apply(final TypeSubTypeValue input) {
+    public TypeSubTypeValueTuple apply(final TypeSubTypeValue input) {
         if (null == input) {
             return null;
         }

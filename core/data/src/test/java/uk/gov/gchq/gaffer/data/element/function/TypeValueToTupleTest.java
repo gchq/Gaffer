@@ -109,7 +109,7 @@ public class TypeValueToTupleTest extends FunctionTest<TypeValueToTuple> {
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{Tuple.class};
+        return new Class[]{TypeValueTuple.class};
     }
 
     @Test
