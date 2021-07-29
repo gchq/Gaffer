@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.proxystore.operation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -31,7 +33,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.17.0")
 @Summary("Gets the Proxy URL value from the store properties")
-public class GetUrlOperation implements Output<String> {
+public class GetProxyUrl implements Output<String> {
 
     private HashMap<String, String> options = new HashMap<>();
 
@@ -41,8 +43,8 @@ public class GetUrlOperation implements Output<String> {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
-        return new GetUrlOperation.Builder().options(options).build();
+    public GetProxyUrl shallowClone() throws CloneFailedException {
+        return new GetProxyUrl.Builder().options(options).build();
     }
 
     @Override
@@ -55,9 +57,26 @@ public class GetUrlOperation implements Output<String> {
         this.options = new HashMap<>(options);
     }
 
-    public static class Builder extends Operation.BaseBuilder<GetUrlOperation, GetUrlOperation.Builder> {
+    @Override
+    public boolean equals(final Object o) {
+        return this == o
+                || (o != null
+                && getClass() == o.getClass()
+                && new EqualsBuilder()
+                .append(options, ((GetProxyUrl) o).options)
+                .isEquals());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(options)
+                .toHashCode();
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetProxyUrl, GetProxyUrl.Builder> {
         public Builder() {
-            super(new GetUrlOperation());
+            super(new GetProxyUrl());
         }
     }
 }
