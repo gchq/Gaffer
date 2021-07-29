@@ -80,6 +80,7 @@ public class ToTrailingWildcardPairTest extends FunctionTest<ToTrailingWildcardP
         return new Class[]{Pair.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

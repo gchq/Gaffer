@@ -114,12 +114,6 @@ public class TypeValueToTupleTest extends FunctionTest<TypeValueToTuple> {
 
     @Test
     @Override
-    public void shouldGenerateExpectedOutputSignature() {
-        super.shouldGenerateExpectedOutputSignature();
-
-    }
-
-    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final TypeValueToTuple function = getInstance();

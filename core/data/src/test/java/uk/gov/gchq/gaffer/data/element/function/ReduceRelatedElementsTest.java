@@ -422,6 +422,7 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
         return new Class[]{Iterable.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

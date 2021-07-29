@@ -115,12 +115,6 @@ public class TypeSubTypeValueToTupleTest extends FunctionTest<TypeSubTypeValueTo
 
     @Test
     @Override
-    public void shouldGenerateExpectedOutputSignature() {
-        super.shouldGenerateExpectedOutputSignature();
-        fail("Expected tuple as output, this fails but string passes is this expected?");
-    }
-
-    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final TypeSubTypeValueToTuple function = getInstance();
