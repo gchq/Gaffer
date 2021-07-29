@@ -21,7 +21,7 @@ import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
- * A {@code TypeSubTypeValueToTuple} is a {@link KorypheFunction} that converts an {@link TypeSubTypeValue} into a {@link Tuple}.
+ * A {@code TypeSubTypeValueToTuple} is a {@link KorypheFunction} that converts an {@link TypeSubTypeValue} into a {@link TypeSubTypeValueTuple}.
  */
 @Since("1.17.0")
 @Summary("Converts an TypeSubTypeValue into a Tuple")
