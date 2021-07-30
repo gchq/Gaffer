@@ -36,12 +36,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
@@ -103,9 +105,11 @@ public final class FederatedStoreUtil {
      * @return cloned operation with modified View for the given graph.
      */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
-        OP resultOp = operation;
-        if (operation instanceof Operations) {
-            resultOp = (OP) operation.shallowClone();
+        OP resultOp = (OP) operation.shallowClone();
+        if (nonNull(resultOp.getOptions())) {
+            resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
+        }
+        if (resultOp instanceof Operations) {
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
             for (final Operation nestedOp : operations.getOperations()) {
@@ -117,14 +121,13 @@ public final class FederatedStoreUtil {
                 resultOperations.add(updatedNestedOp);
             }
             operations.updateOperations(resultOperations);
-        } else if (operation instanceof OperationView) {
-            final View view = ((OperationView) operation).getView();
+        } else if (resultOp instanceof OperationView) {
+            final View view = ((OperationView) resultOp).getView();
             if (null != view && view.hasGroups()) {
                 final View validView = createValidView(view, graph.getSchema());
                 if (view != validView) {
                     // If the view is not the same instance as the original view
                     // then clone the operation and add the new view.
-                    resultOp = (OP) operation.shallowClone();
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
                     } else if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
@@ -134,8 +137,8 @@ public final class FederatedStoreUtil {
                     }
                 }
             }
-        } else if (operation instanceof AddElements) {
-            final AddElements addElements = ((AddElements) operation);
+        } else if (resultOp instanceof AddElements) {
+            final AddElements addElements = ((AddElements) resultOp);
             if (null == addElements.getInput()) {
                 if (!addElements.isValidate() || !addElements.isSkipInvalidElements()) {
                     LOGGER.debug("Invalid elements will be skipped when added to {}", graph.getGraphId());

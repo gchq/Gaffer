@@ -68,6 +68,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -396,11 +397,14 @@ public class FederatedStoreTest {
 
         final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
 
+        StoreProperties TestStoreImp = new StoreProperties();
+        TestStoreImp.setStoreClass(FederatedGetTraitsHandlerTest.TestStoreImpl.class);
+
         store.execute(new AddGraph.Builder()
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(MAP_ID_1)
-                .storeProperties(new FederatedGetTraitsHandlerTest.TestStorePropertiesImpl())
+                .storeProperties(TestStoreImp)
                 .build(), new Context(testUser()));
 
         final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
@@ -413,7 +417,7 @@ public class FederatedStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX)));
-        assertEquals(StoreTrait.ALL_TRAITS, before);
+        assertEquals(Collections.emptySet(), before, "No traits should be found for an empty FederatedStore");
         assertEquals(Sets.newHashSet(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,
