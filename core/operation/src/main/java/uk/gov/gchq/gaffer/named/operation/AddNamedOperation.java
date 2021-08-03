@@ -52,7 +52,7 @@ import static java.util.Objects.nonNull;
  * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
  * and adding it to a Gaffer graph.
  */
-@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "labels", "operationChain", "input", "overwriteFlag", "parameters", "readAccessRoles", "writeAccessRoles", "readAccessPredicate", "writeAccessPredicate"}, alphabetic = true)
+@JsonPropertyOrder(value = {"class", "operationName", "description", "score", "operations"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Adds a new named operation")
 public class AddNamedOperation implements Operation, Operations<Operation> {
@@ -174,8 +174,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 .name(operationName)
                 .labels(labels)
                 .description(description)
-                .readAccessRoles(readAccessRoles == null ? null : readAccessRoles.toArray(new String[readAccessRoles.size()]))
-                .writeAccessRoles(writeAccessRoles == null ? null : writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .readAccessRoles(isNull(readAccessRoles) ? null : readAccessRoles.toArray(new String[readAccessRoles.size()]))
+                .writeAccessRoles(isNull(writeAccessRoles) ? null : writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
                 .options(options)
@@ -236,7 +236,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private Collection<Operation> getOperationsWithDefaultParams() {
         String opStringWithDefaults = operations;
 
-        if (null != parameters) {
+        if (nonNull(parameters)) {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
 
@@ -302,9 +302,9 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         }
 
         public Builder readAccessRoles(final String... roles) {
-            if (null == roles) {
+            if (isNull(roles)) {
                 _getOp().setReadAccessRoles(null);
-            } else if (null == _getOp().getReadAccessRoles()) {
+            } else if (isNull(_getOp().getReadAccessRoles())) {
                 _getOp().setReadAccessRoles(Arrays.asList(roles));
             } else {
                 Collections.addAll(_getOp().getReadAccessRoles(), roles);
@@ -313,9 +313,9 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         }
 
         public Builder writeAccessRoles(final String... roles) {
-            if (null == roles) {
+            if (isNull(roles)) {
                 _getOp().setWriteAccessRoles(null);
-            } else if (null == _getOp().getWriteAccessRoles()) {
+            } else if (isNull(_getOp().getWriteAccessRoles())) {
                 _getOp().setWriteAccessRoles(Arrays.asList(roles));
             } else {
                 Collections.addAll(_getOp().getWriteAccessRoles(), roles);
