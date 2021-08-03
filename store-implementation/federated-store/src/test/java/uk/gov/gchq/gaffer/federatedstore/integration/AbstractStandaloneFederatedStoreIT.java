@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -30,7 +30,7 @@ public abstract class AbstractStandaloneFederatedStoreIT {
     protected Graph graph;
     protected User user = new User();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         createGraph();
         _setUp();

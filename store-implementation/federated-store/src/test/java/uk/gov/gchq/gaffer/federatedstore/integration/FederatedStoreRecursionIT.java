@@ -17,10 +17,12 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -40,6 +42,7 @@ import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -49,7 +52,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class FederatedStoreRecursionIT extends AbstractStandaloneFederatedStoreIT {
+public class FederatedStoreRecursionIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
@@ -58,13 +61,10 @@ public class FederatedStoreRecursionIT extends AbstractStandaloneFederatedStoreI
     public static final String ENT_GROUP = "ent1";
     public static final String PROPERTY_NAME = "count";
     private Graph proxyToRestServiceFederatedGraph;
+    private User user = new User();
 
-    @Override
-    public void setUp() throws Exception {
-    }
-
-
-    @Test(timeout = 60000)
+    @Test
+    @Timeout(value = 60)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -77,6 +77,7 @@ public class FederatedStoreRecursionIT extends AbstractStandaloneFederatedStoreI
          *                                                                      v                   |
          *                                                                      innerProxy -------->
          */
+        CacheServiceLoader.shutdown();
 
         createProxyToRestServiceFederatedGraph();
         createTheInnerFederatedStore();
