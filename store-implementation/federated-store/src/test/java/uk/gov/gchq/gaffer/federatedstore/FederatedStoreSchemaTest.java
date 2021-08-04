@@ -490,7 +490,7 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop2","value2")
+                .property("prop2", "value2")
                 .build());
         // Graph b, element 2: prop1 omitted, prop2 present
         expected.add(new Edge.Builder()
@@ -498,7 +498,7 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop2","value2")
+                .property("prop2", "value2")
                 .build());
 
         assertEquals(expected, resultsSet);
@@ -557,8 +557,8 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop1","value1")
-                .property("prop2","value2")
+                .property("prop1", "value1")
+                .property("prop2", "value2")
                 .build());
         // Graph b, element 2
         expected.add(new Edge.Builder()
@@ -566,8 +566,8 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop1","value1")
-                .property("prop2","value2")
+                .property("prop1", "value1")
+                .property("prop2", "value2")
                 .build());
 
         assertEquals(expected, resultsSet);
@@ -623,7 +623,7 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop1","value1")
+                .property("prop1", "value1")
                 .build());
         // Graph a, element 2: prop1 present, prop2 missing
         expected.add(new Edge.Builder()
@@ -631,7 +631,7 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop1","value1")
+                .property("prop1", "value1")
                 .build());
         // Graph b, element 1: prop1 present, prop2 present
         expected.add(new Edge.Builder()
@@ -639,8 +639,8 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop1","value1")
-                .property("prop2","value2")
+                .property("prop1", "value1")
+                .property("prop2", "value2")
                 .build());
         // Graph b, element 2: prop1 present, prop2 present
         expected.add(new Edge.Builder()
@@ -648,8 +648,8 @@ public class FederatedStoreSchemaTest {
                 .source("source1")
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                .property("prop1","value1")
-                .property("prop2","value2")
+                .property("prop1", "value1")
+                .property("prop2", "value2")
                 .build());
 
         assertEquals(expected, resultsSet);
