@@ -27,7 +27,7 @@ import static java.util.Objects.isNull;
 /**
  * A {@link TypeValueTuple} class represents a {@link TypeValue} object as a Koryphe n-valued {@link Tuple}.
  */
-@Since("1.17.0")
+@Since("1.19.0")
 @Summary("Converts an TypeSubTypeValue into a Tuple")
 public class TypeValueTuple implements Tuple<String> {
     private final TypeValue tv;
