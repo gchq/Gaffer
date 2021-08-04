@@ -23,13 +23,17 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.util.Arrays;
 
 import static java.util.Objects.isNull;
+
+/**
+ * A {@link TypeSubTypeValueTuple} class represents a {@link TypeSubTypeValue} object as a Koryphe n-valued {@link Tuple}.
+ */
 @Since("1.17.0")
 @Summary("Tuple object for TypeSubTypeValue")
 public class TypeSubTypeValueTuple implements Tuple<String> {
-    private TypeSubTypeValue tsv;
+    private final TypeSubTypeValue tsv;
 
     public TypeSubTypeValueTuple() {
-        this(null);
+        this.tsv = new TypeSubTypeValue();
     }
 
     public TypeSubTypeValueTuple(final TypeSubTypeValue tsv) {

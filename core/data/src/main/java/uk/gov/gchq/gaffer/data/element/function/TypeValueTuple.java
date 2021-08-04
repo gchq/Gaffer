@@ -23,13 +23,17 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.util.Arrays;
 
 import static java.util.Objects.isNull;
+
+/**
+ * A {@link TypeValueTuple} class represents a {@link TypeValue} object as a Koryphe n-valued {@link Tuple}.
+ */
 @Since("1.17.0")
 @Summary("Converts an TypeSubTypeValue into a Tuple")
 public class TypeValueTuple implements Tuple<String> {
-    private TypeValue tv;
+    private final TypeValue tv;
 
     public TypeValueTuple() {
-        this(null);
+        this.tv = new TypeValue();
     }
 
     public TypeValueTuple(final TypeValue tv) {
