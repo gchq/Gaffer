@@ -425,6 +425,84 @@ public class FederatedStoreSchemaTest {
         assertEquals(resultsList.size(), resultsSet.size());
     }
 
+    @Test
+    public void shouldBeAbleToFilterPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .properties("prop2")
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a, element 1: prop1 omitted, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build());
+        // Graph a, element 2: prop1 omitted, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build());
+        // Graph a, element 1: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2","value2")
+                .build());
+        // Graph a, element 2: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2","value2")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
     private SchemaEdgeDefinition getProp(final String propName) {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)
