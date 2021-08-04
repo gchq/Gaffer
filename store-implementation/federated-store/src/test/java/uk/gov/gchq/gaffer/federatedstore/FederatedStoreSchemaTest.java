@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -426,7 +428,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldBeAbleToFilterPropertyWithOverlappingSchemas() throws OperationException {
+    public void shouldBeAbleToViewPropertyWithOverlappingSchemas() throws OperationException {
         // Given
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
@@ -482,7 +484,7 @@ public class FederatedStoreSchemaTest {
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
-        // Graph a, element 1: prop1 omitted, prop2 present
+        // Graph b, element 1: prop1 omitted, prop2 present
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
@@ -490,7 +492,74 @@ public class FederatedStoreSchemaTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property("prop2","value2")
                 .build());
-        // Graph a, element 2: prop1 omitted, prop2 present
+        // Graph b, element 2: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2","value2")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
+    @Test
+    public void shouldBeAbleToFilterPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select("prop2")
+                                        .execute(new IsEqual("value2"))
+                                        .build())
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph b, element 1: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2","value2")
+                .build());
+        // Graph b, element 2: prop1 omitted, prop2 present
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
