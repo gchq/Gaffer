@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -128,7 +130,7 @@ public class FederatedStoreSchemaTest {
         addGroupCollisionGraphs();
 
         // When
-        final CloseableIterable<? extends Element> a = fStore.execute(new OperationChain.Builder()
+        final CloseableIterable<? extends Element> allElements = fStore.execute(new OperationChain.Builder()
                 .first(new GetAllElements.Builder()
                         //No view so makes default view, should get only view compatible with graph "a"
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "a")
@@ -136,14 +138,14 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // Then
-        assertNotNull(a);
-        assertFalse(a.iterator().hasNext());
+        assertNotNull(allElements);
+        assertFalse(allElements.iterator().hasNext());
     }
 
     @Test
     public void shouldBeAbleToGetElementsWithOverlappingSchemas() throws OperationException {
         // Given
-        addOverlappingPropertiesGraphs(false);
+        addOverlappingPropertiesGraphs(STRING_TYPE);
 
         // Element 1
         fStore.execute(new AddElements.Builder()
@@ -167,7 +169,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> a = fStore.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
                         .edge("e1", new ViewElementDefinition.Builder()
@@ -176,9 +178,9 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        assertNotNull(a);
-        final Set<? extends Element> resultsSet = Streams.toStream(a).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(a).collect(Collectors.toList());
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -196,12 +198,15 @@ public class FederatedStoreSchemaTest {
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
-        // Graph b, element 1: prop2 empty
+        // Graph b, element 1: prop2 empty (see below)
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                // Due to a string serialisation quirk, missing properties (null value)
+                // are deserialsed as empty strings
+                // This will be fixed so the test will need amending, as per gh-2483
                 .property("prop2", "")
                 .build());
         // Graph b, element 2: prop2 present
@@ -220,20 +225,20 @@ public class FederatedStoreSchemaTest {
     @Test
     public void shouldBeAbleToGetSchemaWithOverlappingSchemas() throws OperationException {
         // Given
-        addOverlappingPropertiesGraphs(false);
+        addOverlappingPropertiesGraphs(STRING_TYPE);
 
         // When
-        final Schema s = fStore.execute(new GetSchema.Builder()
+        final Schema schema = fStore.execute(new GetSchema.Builder()
                 .build(), testContext);
 
         // Then
-        assertTrue(s.validate().isValid(), s.validate().getErrorString());
+        assertTrue(schema.validate().isValid(), schema.validate().getErrorString());
     }
 
     @Test
     public void shouldValidateCorrectlyWithOverlappingSchemas() throws OperationException {
         // Given
-        addOverlappingPropertiesGraphs(true);
+        addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
 
         // When
         fStore.execute(new AddElements.Builder()
@@ -246,11 +251,11 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        final CloseableIterable<? extends Element> a = fStore.execute(new GetAllElements.Builder()
+        final CloseableIterable<? extends Element> allElements = fStore.execute(new GetAllElements.Builder()
                 .build(), testContext);
-        assertNotNull(a);
-        final Set<? extends Element> resultsSet = Streams.toStream(a).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(a).collect(Collectors.toList());
+        assertNotNull(allElements);
+        final Set<? extends Element> resultsSet = Streams.toStream(allElements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(allElements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -277,7 +282,7 @@ public class FederatedStoreSchemaTest {
     @Test
     public void shouldThrowValidationMissingPropertyWithOverlappingSchemas() throws OperationException {
         // Given
-        addOverlappingPropertiesGraphs(true);
+        addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
 
         // Then
         OperationException exception = assertThrows(OperationException.class, () -> {
@@ -292,6 +297,365 @@ public class FederatedStoreSchemaTest {
         });
         assertTrue(exception.getMessage().contains("returned false for properties: {prop2: null}"));
     }
+
+    @Test
+    public void shouldBeAbleToIngestAggregateWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a: prop1 aggregated, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1,value1")
+                .build());
+        // Graph b: prop1 aggregated, prop2 aggregated
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1,value1")
+                .property("prop2", "value2,value2")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
+    @Test
+    public void shouldBeAbleToIngestAggregateMissingPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a: prop1 aggregated, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1,value1")
+                .build());
+        // Graph b: prop1 aggregated, prop2 aggregated empty (see below)
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1,value1")
+                // Due to a string serialisation quirk, missing properties (null value)
+                // are deserialsed as empty strings, so here 2 empty strings are aggregated
+                // This will be fixed so the test will need amending, as per gh-2483
+                .property("prop2", ",")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
+    @Test
+    public void shouldBeAbleToViewPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .properties("prop2")
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a, element 1: prop1 omitted, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build());
+        // Graph a, element 2: prop1 omitted, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build());
+        // Graph b, element 1: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2", "value2")
+                .build());
+        // Graph b, element 2: prop1 omitted, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop2", "value2")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
+    @Test
+    public void shouldBeAbleToFilterPropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select("prop2")
+                                        .execute(new IsEqual("value2"))
+                                        .build())
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph b, element 1
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1")
+                .property("prop2", "value2")
+                .build());
+        // Graph b, element 2
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1")
+                .property("prop2", "value2")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
+    @Test
+    public void shouldBeAbleToQueryAggregatePropertyWithOverlappingSchemas() throws OperationException {
+        // Given
+        addOverlappingPropertiesGraphs(STRING_TYPE);
+
+        // Element 1
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest1")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // Element 2
+        fStore.execute(new AddElements.Builder()
+                .input(new Edge.Builder()
+                        .group("e1")
+                        .source("source1")
+                        .dest("dest2")
+                        .property("prop1", "value1")
+                        .property("prop2", "value2")
+                        .build())
+                .build(), testContext);
+
+        // When
+        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+                .input(new EntitySeed("source1"))
+                .view(new View.Builder()
+                        .edge("e1", new ViewElementDefinition.Builder()
+                                .groupBy()
+                                .build())
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(elements);
+        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
+        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+
+        // Then
+        HashSet<Edge> expected = new HashSet<>();
+        // Graph a, element 1: prop1 present, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1")
+                .build());
+        // Graph a, element 2: prop1 present, prop2 missing
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1")
+                .build());
+        // Graph b, element 1: prop1 present, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest1")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1")
+                .property("prop2", "value2")
+                .build());
+        // Graph b, element 2: prop1 present, prop2 present
+        expected.add(new Edge.Builder()
+                .group("e1")
+                .source("source1")
+                .dest("dest2")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property("prop1", "value1")
+                .property("prop2", "value2")
+                .build());
+
+        assertEquals(expected, resultsSet);
+        assertEquals(resultsList.size(), resultsSet.size());
+    }
+
     private SchemaEdgeDefinition getProp(final String propName) {
         return new SchemaEdgeDefinition.Builder()
                 .source(STRING)
@@ -323,9 +687,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
     }
 
-    private void addOverlappingPropertiesGraphs(final boolean propertiesRequired) throws OperationException {
-        final Schema stringSchema = propertiesRequired ? STRING_REQUIRED_TYPE : STRING_TYPE;
-
+    private void addOverlappingPropertiesGraphs(final Schema stringSchema) throws OperationException {
         fStore.execute(new AddGraph.Builder()
                 .graphId("a")
                 .schema(new Schema.Builder()
