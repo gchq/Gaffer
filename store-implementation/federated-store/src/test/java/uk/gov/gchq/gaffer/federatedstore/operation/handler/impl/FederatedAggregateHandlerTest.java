@@ -54,7 +54,7 @@ import static org.mockito.Mockito.verify;
 public class FederatedAggregateHandlerTest {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @Test
     public void shouldDelegateToHandler() throws OperationException {
@@ -89,10 +89,13 @@ public class FederatedAggregateHandlerTest {
                 .storeProperties(federatedStoreProperties)
                 .build();
 
+        final String graphNameA = "a";
+        final String graphNameB = "b";
+
         final Context context = new Context(new User());
         fed.execute(new OperationChain.Builder()
                 .first(new AddGraph.Builder()
-                        .graphId("a")
+                        .graphId(graphNameA)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
                                         .source("string")
@@ -103,7 +106,7 @@ public class FederatedAggregateHandlerTest {
                         .storeProperties(PROPERTIES)
                         .build())
                 .then(new AddGraph.Builder()
-                        .graphId("b")
+                        .graphId(graphNameB)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
                                         .source("string")
@@ -121,7 +124,7 @@ public class FederatedAggregateHandlerTest {
                         .source("s1")
                         .dest("d1")
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "a")
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameA)
                 .build(), context);
 
         fed.execute(new AddElements.Builder()
@@ -130,7 +133,7 @@ public class FederatedAggregateHandlerTest {
                         .source("s1")
                         .dest("d1")
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "b")
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameB)
                 .build(), context);
 
         final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
