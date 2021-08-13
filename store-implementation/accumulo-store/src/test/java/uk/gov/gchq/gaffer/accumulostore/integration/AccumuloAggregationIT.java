@@ -111,8 +111,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedSummarisedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3a")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY + "," + PUBLIC_VISIBILITY)
@@ -121,8 +119,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3b")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
@@ -239,10 +235,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, ",") //String Aggregation is combining two empty strings -> "",""
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, ",") //String Aggregation is combining two empty strings -> "",""
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, ",test 3") //String Aggregation is combining one empty strings -> "","test 3"
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, ",test 4") //String Aggregation is combining one empty strings -> "","test 4"
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
         assertEquals(expectedEntity, results.get(0));
     }
@@ -287,8 +281,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
         assertEquals(expectedEntity, results.get(0));
     }
@@ -331,8 +323,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -427,8 +417,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedEntity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -437,27 +425,23 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1a")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, ",test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, ",test 4")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
         final Entity expectedEntity3 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, ",test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, ",test 4")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
         final Entity expectedEntity4 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test2a")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
 
         assertThat(results, IsCollectionContaining.hasItems(
@@ -555,8 +539,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedEntity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, "")
-                .property(TestPropertyNames.PROP_2, "")
                 .property(TestPropertyNames.PROP_3, "test 3")
                 .property(TestPropertyNames.PROP_4, "test 4")
                 .build();
@@ -565,7 +547,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(TestPropertyNames.PROP_1, "test1a")
-                .property(TestPropertyNames.PROP_2, "")
                 .property(TestPropertyNames.PROP_3, "test 3")
                 .property(TestPropertyNames.PROP_4, "test 4")
                 .build();
@@ -574,7 +555,6 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(TestPropertyNames.PROP_1, "test1b")
-                .property(TestPropertyNames.PROP_2, "")
                 .property(TestPropertyNames.PROP_3, "test 3")
                 .property(TestPropertyNames.PROP_4, "test 4")
                 .build();
@@ -582,10 +562,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final Entity expectedEntity4 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, "")
                 .property(TestPropertyNames.PROP_2, "test2a")
                 .property(TestPropertyNames.PROP_3, "test 3")
-                .property(TestPropertyNames.PROP_4, "")
                 .build();
 
         assertThat(results, IsCollectionContaining.hasItems(

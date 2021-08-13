@@ -26,7 +26,12 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
 
     /**
-     * Handle an incoming null value and generate an appropriate {@code byte[]} representation.
+     * Handle an incoming null string value and generate an appropriate {@code byte[]} representation.
+     */
+    byte[] NULL_BYTES = new byte[]{0};
+
+    /**
+     * Handle an incoming empty or null value and generate an appropriate {@code byte[]} representation.
      */
     byte[] EMPTY_BYTES = new byte[0];
 

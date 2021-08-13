@@ -21,10 +21,15 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser.EMPTY_BYTES;
+import static uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser.NULL_BYTES;
 
 public class StringSerialiserTest extends ToBytesSerialisationTest<String> {
 
@@ -56,6 +61,15 @@ public class StringSerialiserTest extends ToBytesSerialisationTest<String> {
     }
 
     @Test
+    public void shouldSerialiseEmpty() throws SerialisationException {
+        // When
+        final byte[] bytes = serialiser.serialise("");
+
+        // Then
+        assertArrayEquals(EMPTY_BYTES, bytes);
+    }
+
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
@@ -63,6 +77,21 @@ public class StringSerialiserTest extends ToBytesSerialisationTest<String> {
 
         // Then
         assertEquals("", value);
+    }
+
+    @Test
+    @Override
+    public void shouldSerialiseNull() throws SerialisationException {
+        // When
+        final byte[] bytes = serialiser.serialiseNull();
+
+        // Then
+        assertArrayEquals(NULL_BYTES, bytes);
+    }
+
+    @Test
+    public void shouldDeserialiseNull() throws SerialisationException {
+        assertNull(serialiser.deserialise(ToBytesViaStringDeserialiser.NULL_BYTES));
     }
 
     @Override

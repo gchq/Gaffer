@@ -72,7 +72,7 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, Integer.MIN_VALUE);
             }
         };
-        byte[] historicColumnQualifierBytes = {4, 1, 0, 0, 0, 4, -1, -1, -1, 127, 4, 3, 0, 0, 0, 4, 0, 0, 0, -128};
+        byte[] historicColumnQualifierBytes = {4, 1, 0, 0, 0, 4, -1, -1, -1, 127, 4, 3, 0, 0, 0, 4, 0, 0, 0, -128, 0};
 
         // When
         final byte[] columnQualifier = converter.buildColumnQualifier(TestGroups.EDGE, properties);
@@ -80,6 +80,7 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
 
         // Then
         assertArrayEquals(historicColumnQualifierBytes, columnQualifier);
+        properties.put(AccumuloPropertyNames.VISIBILITY, "");
         assertEquals(propertiesFromHistoric, properties);
     }
 

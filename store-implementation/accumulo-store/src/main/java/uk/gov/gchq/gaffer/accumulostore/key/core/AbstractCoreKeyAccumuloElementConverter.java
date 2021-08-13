@@ -120,6 +120,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @SuppressWarnings("Convert2streamapi")
     @Override
     public Value getValueFromProperties(final String group, final Properties properties) {
+        // Look into backwards compatibility
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
@@ -220,8 +221,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException(e.getMessage(), e);
                     }
-                } else {
-                    rtn = serialiser.serialiseNull();
                 }
             }
         }
@@ -286,7 +285,17 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             } else {
                 Object value = properties.get(propertyName);
                 //serialiseNull could be different to AccumuloStoreConstants.EMPTY_BYTES
-                bytes = (null == value) ? serialiser.serialiseNull() : serialiser.serialise(value);
+                if (null != value) {
+                    bytes = serialiser.serialise(value);
+                } else if (null != this.schema.getVisibilityProperty()) {
+                    if (this.schema.getVisibilityProperty().equals(propertyName)) {
+                        bytes = serialiser.serialise("");
+                    } else {
+                        bytes = serialiser.serialiseNull();
+                    }
+                } else {
+                    bytes = serialiser.serialiseNull();
+                }
             }
             writeBytes(bytes, stream);
         } catch (final IOException e) {

@@ -198,16 +198,12 @@ public class FederatedStoreSchemaTest {
                 .dest("dest2")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build());
-        // Graph b, element 1: prop2 empty (see below)
+        // Graph b, element 1: prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
-                // Due to a string serialisation quirk, missing properties (null value)
-                // are deserialsed as empty strings
-                // This will be fixed so the test will need amending, as per gh-2483
-                .property("prop2", "")
                 .build());
         // Graph b, element 2: prop2 present
         expected.add(new Edge.Builder()
@@ -219,7 +215,8 @@ public class FederatedStoreSchemaTest {
                 .build());
 
         assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertEquals(4, resultsList.size());
+        assertEquals(3, resultsSet.size());
     }
 
     @Test
@@ -410,21 +407,18 @@ public class FederatedStoreSchemaTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property("prop1", "value1,value1")
                 .build());
-        // Graph b: prop1 aggregated, prop2 aggregated empty (see below)
+        // Graph b: prop1 aggregated, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
                 .source("source1")
                 .dest("dest1")
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .property("prop1", "value1,value1")
-                // Due to a string serialisation quirk, missing properties (null value)
-                // are deserialsed as empty strings, so here 2 empty strings are aggregated
-                // This will be fixed so the test will need amending, as per gh-2483
-                .property("prop2", ",")
                 .build());
 
         assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertEquals(2, resultsList.size());
+        assertEquals(1, resultsSet.size());
     }
 
     @Test

@@ -83,13 +83,19 @@ public class ElementSerialisation {
                 try {
                     if (null != serialiser) {
                         Object value = properties.get(propertyName);
+                        byte[] bytes;
                         if (null != value) {
-                            final byte[] bytes = serialiser.serialise(value);
-                            writeBytes(bytes, out);
+                            bytes = serialiser.serialise(value);
+                        } else if (null != this.schema.getVisibilityProperty()) {
+                            if (this.schema.getVisibilityProperty().equals(propertyName)) {
+                                bytes = serialiser.serialise("");
+                            } else {
+                                bytes = serialiser.serialiseNull();
+                            }
                         } else {
-                            final byte[] bytes = serialiser.serialiseNull();
-                            writeBytes(bytes, out);
+                            bytes = serialiser.serialiseNull();
                         }
+                        writeBytes(bytes, out);
                     } else {
                         writeBytes(HBaseStoreConstants.EMPTY_BYTES, out);
                     }
@@ -194,8 +200,6 @@ public class ElementSerialisation {
                     } catch (final SerialisationException e) {
                         throw new SerialisationException(e.getMessage(), e);
                     }
-                } else {
-                    return serialiser.serialiseNull();
                 }
             }
         }

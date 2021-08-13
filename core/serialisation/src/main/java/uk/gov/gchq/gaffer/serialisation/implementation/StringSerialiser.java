@@ -68,4 +68,9 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
     public int hashCode() {
         return StringSerialiser.class.getName().hashCode();
     }
+
+    @Override
+    public byte[] serialiseNull() {
+        return NULL_BYTES;
+    }
 }

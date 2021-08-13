@@ -27,16 +27,19 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser.EMPTY_BYTES;
+import static uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser.NULL_BYTES;
 
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
+    @Test
     @Override
     public void shouldSerialiseNull() throws SerialisationException {
         // When
         final byte[] bytes = serialiser.serialiseNull();
 
         // Then
-        assertArrayEquals(new byte[0], bytes);
+        assertArrayEquals(EMPTY_BYTES, bytes);
     }
 
     @Test

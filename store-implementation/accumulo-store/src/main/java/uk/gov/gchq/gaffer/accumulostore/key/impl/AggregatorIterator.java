@@ -57,6 +57,9 @@ public class AggregatorIterator extends Combiner {
     public Value reduce(final Key key, final Iterator<Value> iter) {
         // Get first Value. If this is the only Value then return it straight
         // away;
+        if (!iter.hasNext()) {
+            return null;
+        }
         Value value = iter.next();
         if (!iter.hasNext()) {
             return value;

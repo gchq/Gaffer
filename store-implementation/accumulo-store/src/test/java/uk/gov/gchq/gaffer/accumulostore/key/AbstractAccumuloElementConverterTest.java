@@ -61,7 +61,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
     @BeforeEach
     public void setUp() throws SchemaException, IOException {
-        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
         converter = createConverter(schema);
     }
 

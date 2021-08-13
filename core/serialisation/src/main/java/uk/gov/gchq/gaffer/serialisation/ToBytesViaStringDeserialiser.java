@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 /**
  * Abstract serialiser that deserialises the given byte[] via an interim String object.
@@ -56,6 +57,9 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
     @Override
     public final T deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         try {
+            if (Arrays.equals(Arrays.copyOfRange(allBytes, offset, offset + length), NULL_BYTES)) {
+                return null;
+            }
             String valueString = new String(allBytes, offset, length, charset);
             return deserialiseString(valueString);
         } catch (final UnsupportedEncodingException | StringIndexOutOfBoundsException e) {
