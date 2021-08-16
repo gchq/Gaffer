@@ -120,7 +120,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @SuppressWarnings("Convert2streamapi")
     @Override
     public Value getValueFromProperties(final String group, final Properties properties) {
-        // Look into backwards compatibility
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
