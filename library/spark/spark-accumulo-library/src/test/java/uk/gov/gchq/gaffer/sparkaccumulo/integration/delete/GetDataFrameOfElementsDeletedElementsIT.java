@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.spark.data.generator.RowToElementGenerator;
 import uk.gov.gchq.gaffer.spark.function.DataFrameToIterableRow;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 
 public class GetDataFrameOfElementsDeletedElementsIT extends AbstractDeletedElementsIT<GetDataFrameOfElements, Dataset<Row>> {
     @Override

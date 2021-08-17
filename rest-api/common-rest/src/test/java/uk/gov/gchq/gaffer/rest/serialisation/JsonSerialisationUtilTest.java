@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.operation.impl.GetWalks;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 
 import java.util.HashMap;

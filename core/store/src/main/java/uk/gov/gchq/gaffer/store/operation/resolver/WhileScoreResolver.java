@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.operation.impl.While;
-
 /**
  * An {@code WhileScoreResolver} is an implementation of {@link ScoreResolver}
  * for the {@link While} operation.

@@ -26,7 +26,6 @@ import org.graphframes.GraphFrame;
 import uk.gov.gchq.gaffer.data.element.ReservedPropertyNames;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.spark.utils.scala.DataFrameUtil;

@@ -15,10 +15,7 @@
  */
 
 package uk.gov.gchq.gaffer.rest.factory;
-
-import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
 
 public class HBaseDisableOperationsTest extends DisableOperationsTest {

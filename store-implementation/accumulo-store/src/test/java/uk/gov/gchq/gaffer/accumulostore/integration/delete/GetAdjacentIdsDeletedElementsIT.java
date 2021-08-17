@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
 import java.util.ArrayList;
 import java.util.List;

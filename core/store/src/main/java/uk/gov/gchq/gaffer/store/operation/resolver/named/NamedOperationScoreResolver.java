@@ -17,8 +17,6 @@ package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;

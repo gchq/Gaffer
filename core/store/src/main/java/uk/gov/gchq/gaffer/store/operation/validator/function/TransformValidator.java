@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.validator.function;
 import org.apache.commons.lang3.ArrayUtils;
 
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;

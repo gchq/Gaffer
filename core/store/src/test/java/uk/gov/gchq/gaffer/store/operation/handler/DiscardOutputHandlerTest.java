@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.store.Context;
 
 import static org.hamcrest.CoreMatchers.nullValue;

@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.graph;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

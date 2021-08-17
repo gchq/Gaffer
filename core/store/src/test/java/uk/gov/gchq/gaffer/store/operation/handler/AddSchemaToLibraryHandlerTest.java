@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary.Builder;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;

@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 
 import org.apache.hadoop.io.Writable;
-
-import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.store.Store;
 
 public interface SampleDataForSplitPointsJobFactory extends JobFactory<SampleDataForSplitPoints> {

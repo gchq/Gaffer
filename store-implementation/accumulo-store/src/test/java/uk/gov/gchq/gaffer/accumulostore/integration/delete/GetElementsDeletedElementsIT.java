@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 public class GetElementsDeletedElementsIT extends AbstractDeletedElementsIT<GetElements, CloseableIterable<? extends Element>> {
     @Override

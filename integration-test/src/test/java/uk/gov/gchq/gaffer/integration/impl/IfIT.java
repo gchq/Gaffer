@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.util.Conditional;
 import uk.gov.gchq.koryphe.impl.function.ToList;

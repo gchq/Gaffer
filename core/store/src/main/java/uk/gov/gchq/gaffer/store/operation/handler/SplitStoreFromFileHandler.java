@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.apache.commons.io.FileUtils;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
-import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 

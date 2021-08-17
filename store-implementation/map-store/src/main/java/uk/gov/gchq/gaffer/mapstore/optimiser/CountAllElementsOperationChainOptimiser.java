@@ -15,11 +15,7 @@
  */
 
 package uk.gov.gchq.gaffer.mapstore.optimiser;
-
-import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.Count;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.optimiser.AbstractOperationChainOptimiser;
 
 import java.util.List;

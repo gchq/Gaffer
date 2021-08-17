@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClassicIteratorSettingsFactory.class);

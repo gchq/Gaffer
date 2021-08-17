@@ -15,8 +15,6 @@
  */
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
-
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;

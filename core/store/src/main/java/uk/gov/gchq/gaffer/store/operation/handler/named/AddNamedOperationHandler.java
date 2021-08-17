@@ -15,9 +15,6 @@
  */
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
-
-import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;

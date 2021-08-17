@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class AddSchemaToLibraryHandler implements OperationHandler<AddSchemaToLibrary> {

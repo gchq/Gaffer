@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
-
-import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 

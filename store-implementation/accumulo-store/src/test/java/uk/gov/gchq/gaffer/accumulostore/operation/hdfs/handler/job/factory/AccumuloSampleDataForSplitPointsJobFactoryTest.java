@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
-import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.hander.job.factory.AbstractJobFactoryTest;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.JobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;

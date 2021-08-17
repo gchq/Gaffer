@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.mockito.ArgumentMatchers.any;

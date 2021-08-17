@@ -15,13 +15,10 @@
  */
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
-
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
 import uk.gov.gchq.koryphe.impl.function.IterableFlatten;

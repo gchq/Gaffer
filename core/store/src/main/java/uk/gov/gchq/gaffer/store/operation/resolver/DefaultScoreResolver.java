@@ -15,8 +15,6 @@
  */
 
 package uk.gov.gchq.gaffer.store.operation.resolver;
-
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 

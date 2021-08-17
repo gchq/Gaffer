@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.UseMatchedVertex;
 import uk.gov.gchq.gaffer.store.Context;

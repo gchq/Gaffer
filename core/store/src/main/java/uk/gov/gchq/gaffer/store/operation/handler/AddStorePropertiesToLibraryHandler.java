@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary;
 
 
 public class AddStorePropertiesToLibraryHandler implements OperationHandler<AddStorePropertiesToLibrary> {

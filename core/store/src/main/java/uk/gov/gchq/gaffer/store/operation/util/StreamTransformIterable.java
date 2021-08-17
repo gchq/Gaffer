@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.store.operation.util;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 
 public class StreamTransformIterable extends StreamIterable<Element> {
     public StreamTransformIterable(final Transform operation) {

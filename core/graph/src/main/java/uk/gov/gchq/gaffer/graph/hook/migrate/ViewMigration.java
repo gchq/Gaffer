@@ -23,9 +23,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.migrate.predicate.TransformAndFilter;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
-import uk.gov.gchq.gaffer.operation.impl.function.Filter;
-import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.koryphe.util.IterableUtil;
 
 import java.util.ArrayList;

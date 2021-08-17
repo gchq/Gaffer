@@ -31,15 +31,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.Count;
-import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
-import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.Map;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
-import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.output.ToList;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
 
 import java.util.Arrays;

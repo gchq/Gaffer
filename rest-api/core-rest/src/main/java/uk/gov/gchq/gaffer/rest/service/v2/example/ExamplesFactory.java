@@ -16,22 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
-import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.view.AddNamedView;
-import uk.gov.gchq.gaffer.operation.impl.GetWalks;
-import uk.gov.gchq.gaffer.operation.impl.If;
-import uk.gov.gchq.gaffer.operation.impl.While;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.compare.Max;
-import uk.gov.gchq.gaffer.operation.impl.compare.Min;
-import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
-import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
-
 /**
  * An {@code ExamplesFactory} creates example operations for use with Gaffer's
  * REST API.

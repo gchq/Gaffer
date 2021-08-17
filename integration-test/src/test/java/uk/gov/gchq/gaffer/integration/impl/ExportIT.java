@@ -30,13 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
-import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
-import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
-import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
-import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
-import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Map;
 

@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSingletonList;
 import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.Arrays;
