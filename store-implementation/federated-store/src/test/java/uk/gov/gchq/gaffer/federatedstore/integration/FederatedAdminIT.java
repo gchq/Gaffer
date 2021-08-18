@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -443,16 +442,12 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
-        Random random = new Random(); //This is a hack, a state isn't being cleared somewhere.
-        final String graphA = "graphTableA_" + random.nextInt();
-        final String graphB = "graphTableB_" + random.nextInt();
+        final String graphA = "graphTableA";
+        final String graphB = "graphTableB";
         Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
                 ACCUMULO_PROPERTIES.getZookeepers(),
                 ACCUMULO_PROPERTIES.getUser(),
                 ACCUMULO_PROPERTIES.getPassword());
-
-        connector.tableOperations().delete(graphA);
-        connector.tableOperations().delete(graphB);
 
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
@@ -461,7 +456,6 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .graphAuths("Auths1")
                 .build(), user);
         assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-
 
         //when
         boolean tableGraphABefore = connector.tableOperations().exists(graphA);
