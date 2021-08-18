@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -22,6 +23,30 @@ public class ByteEntityAccumuloElementConverterVisibilityTest extends ByteEntity
     public void setUp() throws SchemaException, IOException {
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
         converter = createConverter(schema);
+    }
+
+    @Override
+    @Test
+    public void shouldSerialiseWithHistoricPropertiesAsBytesFromFullColumnQualifier() throws Exception {
+        // Given
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_3, 3);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
+            }
+        };
+        // An extra 0 at the end of the byte array compared to the parent method accounts for the fact that
+        // this schema has one extra property: visibility, which when not set is serialised as EMPTY_BYTES
+        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0, 0};
+        final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
+
+        // When
+        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 5);
+
+        // Then
+        assertArrayEquals(historicPropertyBytes, propertiesBytes.getBytes());
     }
 
     @Override
