@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -37,7 +36,7 @@ public class CountTest extends OperationTest<Count> {
                 .build();
 
         // Then
-        assertThat(count.getInput(), is(notNullValue()));
+        assertThat(count.getInput()).isNotNull();
     }
 
     @Test

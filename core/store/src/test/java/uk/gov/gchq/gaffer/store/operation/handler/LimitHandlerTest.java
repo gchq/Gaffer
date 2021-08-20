@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
@@ -27,9 +29,6 @@ import uk.gov.gchq.gaffer.operation.impl.Limit;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -91,6 +90,6 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
     }
 }

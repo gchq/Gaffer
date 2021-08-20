@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.TableExistsException;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +56,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -208,7 +208,7 @@ public class GetElementsWithinSetHandlerTest {
 
         //After query compaction the result size should be 3
         assertEquals(3, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements).contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
         elements.close();
     }
 
@@ -240,7 +240,7 @@ public class GetElementsWithinSetHandlerTest {
 
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
+        assertThat((CloseableIterable<Element>) elements).contains(expectedSummarisedEdge);
         elements.close();
     }
 
@@ -267,7 +267,7 @@ public class GetElementsWithinSetHandlerTest {
 
         //The result size should be 2
         assertEquals(2, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements).contains(expectedEntity1, expectedEntity2);
         elements.close();
     }
 

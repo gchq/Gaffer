@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -23,11 +25,6 @@ import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -43,10 +40,10 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
                 .build();
 
         // Then
-        assertThat(countGroups.getInput(), is(notNullValue()));
-        assertThat(countGroups.getInput(), iterableWithSize(2));
-        assertThat(countGroups.getLimit(), is(1));
-        assertThat(countGroups.getInput(), containsInAnyOrder(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2)));
+        assertThat(countGroups.getInput()).isNotNull();
+        assertThat(countGroups.getInput()).hasSize(2);
+        assertThat(countGroups.getLimit()).isEqualTo(1);
+        assertThat(countGroups.getInput()).containsOnly(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2));
     }
 
     @Test

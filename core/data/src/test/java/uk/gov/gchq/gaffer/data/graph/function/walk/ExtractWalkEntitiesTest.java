@@ -15,8 +15,9 @@
  */
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,8 +28,6 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 
 public class ExtractWalkEntitiesTest {
 
@@ -58,11 +57,7 @@ public class ExtractWalkEntitiesTest {
         final Iterable<Set<Entity>> results = function.apply(walk);
 
         // Then
-        final Matcher<Iterable<? extends Set<Entity>>> matcher = containsInAnyOrder(
-                Sets.newHashSet(ENTITY_A),
-                Sets.newHashSet(ENTITY_B),
-                Sets.newHashSet(ENTITY_C),
-                Sets.newHashSet(ENTITY_A));
-        assertThat(results, matcher);
+        
+        assertThat(results).containsOnly(Sets.newHashSet(ENTITY_A), Sets.newHashSet(ENTITY_B), Sets.newHashSet(ENTITY_C), Sets.newHashSet(ENTITY_A));
     }
 }

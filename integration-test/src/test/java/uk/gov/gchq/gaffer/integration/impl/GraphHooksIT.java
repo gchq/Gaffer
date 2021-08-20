@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import org.junit.Test;
 
@@ -118,7 +119,6 @@ public class GraphHooksIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(1, resultList.size());
-        assertThat(resultList, IsCollectionContaining.hasItems(
-                (Element) edge1));
+        assertThat(resultList).contains((Element) edge1);
     }
 }

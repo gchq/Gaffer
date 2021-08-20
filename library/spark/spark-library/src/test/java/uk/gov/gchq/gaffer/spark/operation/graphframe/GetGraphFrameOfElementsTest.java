@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -28,13 +30,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -114,9 +109,9 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
                 .build();
 
         // Then
-        assertThat(op.getView(), is(notNullValue()));
-        assertThat(op.getView().getEdgeGroups(), hasItem(TestGroups.EDGE));
-        assertThat(op.getView().getEntityGroups(), hasItem(TestGroups.ENTITY));
+        assertThat(op.getView()).isNotNull();
+        assertThat(op.getView().getEdgeGroups()).contains(TestGroups.EDGE);
+        assertThat(op.getView().getEntityGroups()).contains(TestGroups.ENTITY);
     }
 
     @Test
@@ -134,8 +129,8 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
         final GetGraphFrameOfElements clone = op.shallowClone();
 
         // Then
-        assertThat(op, is(not(sameInstance(clone))));
-        assertThat(op.getView(), is(equalTo(clone.getView())));
+        assertThat(op).isNotSameAs(clone);
+        assertThat(op.getView()).isEqualTo(clone.getView());
     }
 
     @Override

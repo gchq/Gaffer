@@ -15,15 +15,14 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import uk.gov.gchq.gaffer.store.Context;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 
 public class ExportToSetHandlerTest {
 
@@ -43,6 +42,6 @@ public class ExportToSetHandlerTest {
         final Object result = handler.doOperation(exportToSet, context, null);
 
         // Then
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
     }
 }

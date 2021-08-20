@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.spark.function;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -28,8 +30,6 @@ import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import java.util.List;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 
 public class DataFrameToIterableRowTest {
 
@@ -47,6 +47,6 @@ public class DataFrameToIterableRowTest {
         final List<Row> resultList = Lists.newArrayList(result);
 
         // Then
-        assertThat(resultList, hasSize(7));
+        assertThat(resultList).hasSize(7);
     }
 }

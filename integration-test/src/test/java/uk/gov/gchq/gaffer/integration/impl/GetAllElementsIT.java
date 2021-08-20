@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -121,8 +122,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(2, resultList.size());
-        assertThat(resultList, IsCollectionContaining.hasItems(
-                (Element) edge1, edge2));
+        assertThat(resultList).contains((Element) edge1, edge2);
     }
 
     @Test

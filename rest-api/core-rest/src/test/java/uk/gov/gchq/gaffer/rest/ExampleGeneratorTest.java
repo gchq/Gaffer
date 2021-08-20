@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -40,8 +42,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ExampleGeneratorTest {
 
@@ -84,7 +84,7 @@ public class ExampleGeneratorTest {
         final Operation operation = generator.generateExample(opClass);
 
         // Then
-        assertThat(operation, notNullValue());
+        assertThat(operation).isNotNull();
     }
 
     @ParameterizedTest
@@ -94,7 +94,7 @@ public class ExampleGeneratorTest {
         final Operation operation = generator.generateExample(ExampleCharOperation.class);
 
         //Then
-        assertThat(operation, notNullValue());
+        assertThat(operation).isNotNull();
     }
 
 }

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.junit.jupiter.api.AfterEach;
@@ -36,8 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 
 public class AggregateGafferRowsFunctionTest {
     private SchemaUtils utils;
@@ -81,7 +81,7 @@ public class AggregateGafferRowsFunctionTest {
         expected.add(TestUtils.DATE.getTime());
         expected.add(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP));
         expected.add(2);
-        assertThat(expected, contains(actual.toArray()));
+        assertThat(expected).containsExactly(actual.toArray());
     }
 
     @Test
@@ -114,6 +114,6 @@ public class AggregateGafferRowsFunctionTest {
         expected.add(TestUtils.DATE.getTime());
         expected.add(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP));
         expected.add(2);
-        assertThat(expected, contains(actual.toArray()));
+        assertThat(expected).containsExactly(actual.toArray());
     }
 }

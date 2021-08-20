@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -187,7 +187,7 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test3", 3);
 
         assertEquals(3, service.sizeOfCache(TEST_REGION));
-        assertThat(service.getAllKeysFromCache(TEST_REGION), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(service.getAllKeysFromCache(TEST_REGION)).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -201,7 +201,7 @@ public class JcsCacheServiceTest {
         assertEquals(4, service.sizeOfCache(TEST_REGION));
         assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
 
-        assertThat(service.getAllValuesFromCache(TEST_REGION), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(service.getAllValuesFromCache(TEST_REGION)).contains(1, 2, 3);
     }
 
     @Test

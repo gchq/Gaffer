@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
@@ -27,9 +29,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LimitedInMemorySortedIterableTest {
@@ -107,13 +106,13 @@ public class LimitedInMemorySortedIterableTest {
 
         final boolean evensResult = itr.addAll(evens);
 
-        assertThat(evens, hasSize(10));
-        assertThat(evensResult, equalTo(true));
+        assertThat(evens).hasSize(10);
+        assertThat(evensResult).isTrue();
         assertEquals(10, itr.size());
 
         List<Integer> list = Lists.newArrayList(itr);
-        assertThat(list.get(0), equalTo(0));
-        assertThat(list.get(list.size() - 1), equalTo(18));
+        assertThat(list.get(0)).isZero();
+        assertThat(list.get(list.size() - 1)).isEqualTo(18);
         final List<Integer> odds = IntStream.iterate(1, i -> i + 2)
                 .limit(10)
                 .boxed()
@@ -121,11 +120,11 @@ public class LimitedInMemorySortedIterableTest {
 
         final boolean oddsResult = itr.addAll(odds);
         list = Lists.newArrayList(itr);
-        assertThat(odds, hasSize(10));
-        assertThat(oddsResult, equalTo(true));
-        assertThat(list, hasSize(20));
-        assertThat(list.get(0), equalTo(0));
-        assertThat(list.get(itr.size() - 1), equalTo(19));
+        assertThat(odds).hasSize(10);
+        assertThat(oddsResult).isTrue();
+        assertThat(list).hasSize(20);
+        assertThat(list.get(0)).isZero();
+        assertThat(list.get(itr.size() - 1)).isEqualTo(19);
     }
 
     @Test
@@ -143,11 +142,11 @@ public class LimitedInMemorySortedIterableTest {
         final boolean evensResult = itr.addAll(evens);
         List<Integer> list = Lists.newArrayList(itr);
 
-        assertThat(evens, hasSize(100));
-        assertThat(evensResult, equalTo(true));
-        assertThat(list, hasSize(10));
-        assertThat(list.get(0), equalTo(0));
-        assertThat(list.get(itr.size() - 1), equalTo(18));
+        assertThat(evens).hasSize(100);
+        assertThat(evensResult).isTrue();
+        assertThat(list).hasSize(10);
+        assertThat(list.get(0)).isZero();
+        assertThat(list.get(itr.size() - 1)).isEqualTo(18);
 
         final List<Integer> odds = IntStream.iterate(1, i -> i + 2)
                 .limit(100)
@@ -156,11 +155,11 @@ public class LimitedInMemorySortedIterableTest {
 
         final boolean oddsResult = itr.addAll(odds);
         list = Lists.newArrayList(itr);
-        assertThat(odds, hasSize(100));
-        assertThat(oddsResult, equalTo(true));
-        assertThat(list, hasSize(10));
-        assertThat(list.get(0), equalTo(0));
-        assertThat(list.get(itr.size() - 1), equalTo(9));
+        assertThat(odds).hasSize(100);
+        assertThat(oddsResult).isTrue();
+        assertThat(list).hasSize(10);
+        assertThat(list.get(0)).isZero();
+        assertThat(list.get(itr.size() - 1)).isEqualTo(9);
     }
 
     @Test

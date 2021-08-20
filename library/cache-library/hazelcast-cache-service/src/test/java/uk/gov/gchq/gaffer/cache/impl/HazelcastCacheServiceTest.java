@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -202,7 +202,7 @@ public class HazelcastCacheServiceTest {
         service.putInCache(CACHE_NAME, "test3", 3);
 
         assertEquals(3, service.sizeOfCache(CACHE_NAME));
-        assertThat(service.getAllKeysFromCache(CACHE_NAME), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(service.getAllKeysFromCache(CACHE_NAME)).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -217,6 +217,6 @@ public class HazelcastCacheServiceTest {
         assertEquals(4, service.sizeOfCache(CACHE_NAME));
         assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
 
-        assertThat(service.getAllValuesFromCache(CACHE_NAME), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(service.getAllValuesFromCache(CACHE_NAME)).contains(1, 2, 3);
     }
 }

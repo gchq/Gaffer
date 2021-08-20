@@ -16,14 +16,14 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -87,7 +87,7 @@ public class HashMapCacheTest {
         cache.put("test3", 3);
 
         assertEquals(3, cache.size());
-        assertThat(cache.getAllKeys(), hasItems("test1", "test2", "test3"));
+        assertThat(cache.getAllKeys()).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -100,7 +100,7 @@ public class HashMapCacheTest {
         assertEquals(4, cache.size());
         assertEquals(4, cache.getAllValues().size());
 
-        assertThat(cache.getAllValues(), hasItems(1, 2, 3, 3));
+        assertThat(cache.getAllValues()).contains(1, 2, 3, 3);
     }
 
     @DisplayName("Should cause JavaSerialisableException when serialisation flag is true")

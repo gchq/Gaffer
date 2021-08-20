@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,11 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -75,7 +72,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, containsInAnyOrder(vertex1, vertex2));
+        assertThat(results).containsOnly(vertex1, vertex2);
     }
 
     @Test
@@ -120,7 +117,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex4, vertex6, vertex8));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex1, vertex4, vertex6, vertex8);
     }
 
     @Test
@@ -144,7 +141,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2, vertex3, vertex5, vertex7));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex2, vertex3, vertex5, vertex7);
     }
 
     @Test
@@ -162,7 +159,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex2, vertex3));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex1, vertex2, vertex3);
     }
 
     @Test
@@ -179,7 +176,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex1);
     }
 
     @Test
@@ -197,7 +194,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex2);
     }
 
     @Test
@@ -219,7 +216,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex3, vertex5, vertex7));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex1, vertex3, vertex5, vertex7);
     }
 
     @Test
@@ -241,7 +238,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2, vertex4, vertex6, vertex8));
+        assertThat(Sets.newHashSet(results)).containsOnly(vertex2, vertex4, vertex6, vertex8);
     }
 
     @Test
@@ -263,7 +260,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertThat(Sets.newHashSet(results), is(empty()));
+        assertThat(Sets.newHashSet(results)).isEmpty();
     }
 
     @Test
@@ -279,6 +276,6 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 }

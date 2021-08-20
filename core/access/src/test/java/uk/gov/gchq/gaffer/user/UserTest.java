@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.user;
 
-import org.hamcrest.core.IsCollectionContaining;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -49,13 +49,9 @@ public class UserTest {
         // Then
         assertEquals(userId, user.getUserId());
         assertEquals(2, user.getDataAuths().size());
-        assertThat(user.getDataAuths(), IsCollectionContaining.hasItems(
-                dataAuth1, dataAuth2
-        ));
+        assertThat(user.getDataAuths()).contains(dataAuth1, dataAuth2);
         assertEquals(2, user.getOpAuths().size());
-        assertThat(user.getOpAuths(), IsCollectionContaining.hasItems(
-                opAuth1, opAuth1
-        ));
+        assertThat(user.getOpAuths()).contains(opAuth1, opAuth1);
     }
 
     @Test

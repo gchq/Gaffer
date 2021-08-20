@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +26,6 @@ import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -136,7 +136,7 @@ public class HashMapCacheServiceTest {
 
         // Then
         assertEquals(3, service.sizeOfCache(CACHE_NAME));
-        assertThat(service.getAllKeysFromCache(CACHE_NAME), hasItems("test1", "test2", "test3"));
+        assertThat(service.getAllKeysFromCache(CACHE_NAME)).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -150,7 +150,7 @@ public class HashMapCacheServiceTest {
         // Then
         assertEquals(4, service.sizeOfCache(CACHE_NAME));
         assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
-        assertThat(service.getAllValuesFromCache(CACHE_NAME), hasItems(1, 2, 3, 3));
+        assertThat(service.getAllValuesFromCache(CACHE_NAME)).contains(1, 2, 3, 3);
     }
 
     private void populateCache() throws CacheOperationException {

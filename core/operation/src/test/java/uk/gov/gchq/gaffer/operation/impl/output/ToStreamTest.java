@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
@@ -23,11 +25,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -40,9 +37,9 @@ public class ToStreamTest extends OperationTest<ToStream> {
         final ToStream<String> toStream = new ToStream.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toStream.getInput(), is(notNullValue()));
-        assertThat(toStream.getInput(), iterableWithSize(2));
-        assertThat(toStream.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(toStream.getInput()).isNotNull();
+        assertThat(toStream.getInput()).hasSize(2);
+        assertThat(toStream.getInput()).containsOnly("1", "2");
     }
 
     @Override

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
@@ -29,10 +31,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -66,8 +64,8 @@ public class ToCsvTest extends OperationTest<ToCsv> {
                 .build();
 
         // Then
-        assertThat(toCsv.getInput(), is(notNullValue()));
-        assertThat(toCsv.getInput(), iterableWithSize(1));
+        assertThat(toCsv.getInput()).isNotNull();
+        assertThat(toCsv.getInput()).hasSize(1);
         assertFalse(toCsv.isIncludeHeader());
         assertEquals(generator, toCsv.getElementGenerator());
     }

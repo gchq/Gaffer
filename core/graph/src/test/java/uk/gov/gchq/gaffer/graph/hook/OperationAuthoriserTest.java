@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
@@ -41,7 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -300,8 +300,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
         final Set<String> allOpAuths = hook.getAllAuths();
 
         // Then
-        assertThat(allOpAuths,
-                IsCollectionContaining.hasItems("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser"));
+        assertThat(allOpAuths).contains("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser");
     }
 
     @Test

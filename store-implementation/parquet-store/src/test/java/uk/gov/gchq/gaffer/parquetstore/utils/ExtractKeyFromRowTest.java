@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExtractKeyFromRowTest {
@@ -88,7 +88,7 @@ public class ExtractKeyFromRowTest {
         expected.add("vertex");
         expected.add(TestUtils.DATE.getTime());
         expected.add(WrappedArray$.MODULE$.make(TestUtils.getTreeSet1().toArray()));
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        assertThat(expected).containsOnly(actual.toArray());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ExtractKeyFromRowTest {
         expected.add("src");
         expected.add(true);
         expected.add(TestUtils.DATE.getTime());
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        assertThat(expected).containsOnly(actual.toArray());
     }
 
     @Test

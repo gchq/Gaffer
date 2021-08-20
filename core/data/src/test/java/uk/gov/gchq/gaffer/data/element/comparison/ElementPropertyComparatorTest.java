@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.data.element.comparison;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
@@ -26,10 +28,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.Comparator;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ElementPropertyComparatorTest extends JSONSerialisationTest<ElementPropertyComparator> {
@@ -68,7 +66,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, lessThan(0));
+        assertThat(result).isLessThan(0);
     }
 
     @Test
@@ -87,7 +85,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, equalTo(0));
+        assertThat(result).isZero();
     }
 
     @Test
@@ -106,7 +104,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, greaterThan(0));
+        assertThat(result).isGreaterThan(0);
     }
 
     @Test
@@ -126,7 +124,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, lessThan(0));
+        assertThat(result).isLessThan(0);
     }
 
     @Test
@@ -145,7 +143,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, equalTo(0));
+        assertThat(result).isZero();
     }
 
     @Test
@@ -164,7 +162,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, greaterThan(0));
+        assertThat(result).isGreaterThan(0);
     }
 
     @Test
@@ -183,7 +181,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, lessThan(0));
+        assertThat(result).isLessThan(0);
     }
 
     @Test
@@ -203,7 +201,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, greaterThan(0));
+        assertThat(result).isGreaterThan(0);
     }
 
     @Test
@@ -221,7 +219,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result, lessThan(0));
+        assertThat(result).isLessThan(0);
     }
 
     private Entity makeEntityWithPropertyValueAsPrimitiveInt(final int propertyValue) {

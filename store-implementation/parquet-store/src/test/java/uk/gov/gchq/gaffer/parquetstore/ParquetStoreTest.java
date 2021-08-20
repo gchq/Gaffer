@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.conf.Configuration;
@@ -57,8 +59,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -163,7 +163,7 @@ public class ParquetStoreTest {
             store.setLatestSnapshot(12345L);
         } catch (StoreException e) {
             //Expected
-            assertThat(e.getMessage(), containsString("does not exist"));
+            assertThat(e.getMessage()).contains("does not exist");
             return;
         }
         fail("StoreException should have been thrown as folder already exists");

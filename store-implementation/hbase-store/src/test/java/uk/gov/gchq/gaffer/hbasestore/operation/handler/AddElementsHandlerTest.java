@@ -16,11 +16,12 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -50,7 +51,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -171,7 +171,7 @@ public class AddElementsHandlerTest {
         final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
         final List<Element> elementsAdded = CellUtil.getElements(combinedPuts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
-        assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
+        assertThat(elementsAdded).contains(expectedElementsArr);
     }
 
     @Test

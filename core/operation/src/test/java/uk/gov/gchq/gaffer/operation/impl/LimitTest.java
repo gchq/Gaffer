@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -23,11 +25,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -46,10 +43,10 @@ public class LimitTest extends OperationTest<Limit> {
         final Limit<String> limit = new Limit.Builder<String>().input("1", "2").resultLimit(1).build();
 
         // Then
-        assertThat(limit.getInput(), is(notNullValue()));
-        assertThat(limit.getInput(), iterableWithSize(2));
-        assertThat(limit.getResultLimit(), is(1));
-        assertThat(limit.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(limit.getInput()).isNotNull();
+        assertThat(limit.getInput()).hasSize(2);
+        assertThat(limit.getResultLimit()).isEqualTo(1);
+        assertThat(limit.getInput()).containsOnly("1", "2");
     }
 
     @Override

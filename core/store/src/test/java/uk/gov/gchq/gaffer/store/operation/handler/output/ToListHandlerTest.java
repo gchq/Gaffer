@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -26,9 +28,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -65,6 +64,6 @@ public class ToListHandlerTest {
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 }

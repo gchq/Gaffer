@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
@@ -32,9 +34,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -53,7 +52,7 @@ public class IfTest extends OperationTest<If> {
                 .build();
 
         // Then
-        assertThat(ifOp.getInput(), is(notNullValue()));
+        assertThat(ifOp.getInput()).isNotNull();
         assertTrue(ifOp.getCondition());
         assertTrue(ifOp.getThen() instanceof GetElements);
         assertTrue(ifOp.getOtherwise() instanceof GetAllElements);

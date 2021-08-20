@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -156,7 +156,7 @@ public class HazelcastCacheTest {
         cache.put("test3", 3);
 
         assertEquals(3, cache.size());
-        assertThat(cache.getAllKeys(), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(cache.getAllKeys()).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -169,7 +169,7 @@ public class HazelcastCacheTest {
         assertEquals(4, cache.size());
         assertEquals(4, cache.getAllValues().size());
 
-        assertThat(cache.getAllValues(), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(cache.getAllValues()).contains(1, 2, 3);
     }
 
 }

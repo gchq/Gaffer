@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.Test;
 
@@ -23,9 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable;
 import java.util.LinkedHashSet;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedInMemorySortedIterable;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLinkedHashSet;
@@ -39,8 +38,8 @@ public class GafferCollectorTest {
         final Iterable<Integer> iterable = stream.boxed()
                 .collect(toLinkedHashSet());
 
-        assertThat(iterable, instanceOf(LinkedHashSet.class));
-        assertThat(Iterables.size(iterable), equalTo(100));
+        assertThat(iterable).isInstanceOf(LinkedHashSet.class);
+        assertThat(Iterables.size(iterable)).isEqualTo(100);
     }
 
     @Test

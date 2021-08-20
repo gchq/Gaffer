@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -24,9 +26,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -62,8 +61,8 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
                 .build();
 
         // Then
-        assertThat(op.getOptions(), is(notNullValue()));
-        assertThat(op.getOptions().get("key"), is("value"));
+        assertThat(op.getOptions()).isNotNull();
+        assertThat(op.getOptions().get("key")).isEqualTo("value");
     }
 
     @Test

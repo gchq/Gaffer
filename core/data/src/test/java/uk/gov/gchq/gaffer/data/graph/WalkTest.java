@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.graph;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +32,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -69,7 +65,7 @@ public class WalkTest {
 
 
         // Then
-        assertThat(walk, is(equalTo(deserialisedWalk)));
+        assertThat(walk).isEqualTo(deserialisedWalk);
         final String expected = "{" +
                 "  \"edges\": [" +
                 "  [" +
@@ -176,11 +172,11 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(3)); // A, B, C
-        assertThat(walk.getEdges(), hasSize(2)); // A -> B, B -> C
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AB, EDGE_BC));
-        assertThat(walk.getEntities(), contains(Collections.emptySet(), Sets.newHashSet(ENTITY_B), Collections.emptySet()));
-        assertThat(walk.getVerticesOrdered(), contains("A", "B", "C"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(3); // A, B, C
+        assertThat(walk.getEdges()).hasSize(2); // A -> B, B -> C
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AB, EDGE_BC);
+        assertThat(walk.getEntities()).containsExactly(Collections.emptySet(), Sets.newHashSet(ENTITY_B), Collections.emptySet());
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "B", "C");
     }
 
     @Test
@@ -198,11 +194,11 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(3)); // A, B, C
-        assertThat(walk.getEdges(), hasSize(2)); // A -> B, B -> C
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AB, EDGE_BC));
-        assertThat(walk.getEntities(), contains(Sets.newHashSet(ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C)));
-        assertThat(walk.getVerticesOrdered(), contains("A", "B", "C"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(3); // A, B, C
+        assertThat(walk.getEdges()).hasSize(2); // A -> B, B -> C
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AB, EDGE_BC);
+        assertThat(walk.getEntities()).containsExactly(Sets.newHashSet(ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C));
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "B", "C");
     }
 
     @Test
@@ -220,11 +216,11 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(3)); // A, B, C
-        assertThat(walk.getEdges(), hasSize(2)); // A -> B, B -> C
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AB, EDGE_BC));
-        assertThat(walk.getEntities(), contains(Sets.newHashSet(ENTITY_A, ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C)));
-        assertThat(walk.getVerticesOrdered(), contains("A", "B", "C"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(3); // A, B, C
+        assertThat(walk.getEdges()).hasSize(2); // A -> B, B -> C
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AB, EDGE_BC);
+        assertThat(walk.getEntities()).containsExactly(Sets.newHashSet(ENTITY_A, ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C));
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "B", "C");
     }
 
     @Test
@@ -243,12 +239,12 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(4)); // A, D, E, A
-        assertThat(walk.getEdges(), hasSize(3)); // A -> E, E -> D, D -> A
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AE, EDGE_ED, EDGE_DA));
-        assertThat(walk.getEntities(), contains(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
-                Collections.emptySet(), Sets.newHashSet(ENTITY_A, ENTITY_A)));
-        assertThat(walk.getVerticesOrdered(), contains("A", "E", "D", "A"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(4); // A, D, E, A
+        assertThat(walk.getEdges()).hasSize(3); // A -> E, E -> D, D -> A
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AE, EDGE_ED, EDGE_DA);
+        assertThat(walk.getEntities()).containsExactly(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
+                Collections.emptySet(), Sets.newHashSet(ENTITY_A, ENTITY_A));
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "E", "D", "A");
     }
 
     @Test
@@ -267,12 +263,12 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(4)); // A, D, E, A
-        assertThat(walk.getEdges(), hasSize(3)); // A -> E, E -> D, D -> A
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AE, EDGE_ED, EDGE_DA));
-        assertThat(walk.getEntities(), contains(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
-                Collections.emptySet(), Collections.emptySet()));
-        assertThat(walk.getVerticesOrdered(), contains("A", "E", "D", "A"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(4); // A, D, E, A
+        assertThat(walk.getEdges()).hasSize(3); // A -> E, E -> D, D -> A
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AE, EDGE_ED, EDGE_DA);
+        assertThat(walk.getEntities()).containsExactly(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
+                Collections.emptySet(), Collections.emptySet());
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "E", "D", "A");
     }
 
     @Test
@@ -292,8 +288,8 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesForVertex("E"), hasSize(1));
-        assertThat(walk.getEntitiesForVertex("E"), contains(ENTITY_E));
+        assertThat(walk.getEntitiesForVertex("E")).hasSize(1);
+        assertThat(walk.getEntitiesForVertex("E")).containsExactly(ENTITY_E);
     }
 
     @Test
@@ -313,8 +309,8 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAtDistance(2), hasSize(1));
-        assertThat(walk.getEntitiesAtDistance(2), contains(ENTITY_D));
+        assertThat(walk.getEntitiesAtDistance(2)).hasSize(1);
+        assertThat(walk.getEntitiesAtDistance(2)).containsExactly(ENTITY_D);
     }
 
     @Test
@@ -334,7 +330,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getVertexSet(), hasItems("A", "E", "D"));
+        assertThat(walk.getVertexSet()).contains("A", "E", "D");
     }
 
     @Test
@@ -354,7 +350,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.length(), is(2));
+        assertThat(walk.length()).isEqualTo(2);
     }
 
     @Test
@@ -374,7 +370,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isTrail(), is(true));
+        assertThat(walk.isTrail()).isTrue();
     }
 
     @Test
@@ -391,7 +387,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isTrail(), is(false));
+        assertThat(walk.isTrail()).isFalse();
     }
 
     @Test
@@ -411,7 +407,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isPath(), is(true));
+        assertThat(walk.isPath()).isTrue();
     }
 
     @Test
@@ -427,7 +423,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isPath(), is(false));
+        assertThat(walk.isPath()).isFalse();
     }
 
     @Test

@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -26,14 +28,10 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort.Builder;
 
+import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -63,11 +61,10 @@ public class SortTest extends OperationTest<Sort> {
         }).build();
 
         // Then
-        assertThat(sort.getInput(), is(notNullValue()));
-        assertThat(sort.getInput(), iterableWithSize(2));
-        assertThat(Streams.toStream(sort.getInput())
-                .map(e -> e.getProperty("property"))
-                .collect(toList()), containsInAnyOrder(1, 2));
+        assertThat(sort.getInput()).isNotNull();
+        assertThat(sort.getInput()).hasSize(2);
+        List properties = Streams.toStream(sort.getInput()).map(e -> e.getProperty("property")).collect(toList());
+        assertThat(properties).containsOnly(1, 2);
     }
 
     @Test

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
@@ -46,10 +48,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -88,7 +86,9 @@ public class VisibilityIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(iterable);
 
         // Check for all entities which should be visible
-        assertThat("Results do not contain all expected entities.", results, hasSize(1));
+        assertThat(results)
+                .withFailMessage("Results do not contain all expected entities.")
+                .hasSize(1);
 
         for (final Element e : results) {
 
@@ -96,9 +96,9 @@ public class VisibilityIT extends AbstractStoreIT {
             assertTrue("Visibility property should be visible.", e.getProperties()
                     .containsKey(TestTypes.VISIBILITY));
 
-            assertThat("Visibility property should contain an empty String.", e.getProperties()
-                    .get(TestTypes.VISIBILITY)
-                    .toString(), isEmptyString());
+            assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
+                    .withFailMessage("Visibility property should contain an empty String.")
+                    .isEmpty();
         }
         iterable.close();
     }
@@ -126,7 +126,9 @@ public class VisibilityIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(iterable);
 
         // Check for all entities which should be visible
-        assertThat("Results do not contain all expected entities.", results, hasSize(1));
+        assertThat(results)
+                .withFailMessage("Results do not contain all expected entities.")
+                .hasSize(1);
 
         for (final Element e : results) {
 
@@ -161,7 +163,9 @@ public class VisibilityIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(iterable);
 
         // Check for all entities which should be visible
-        assertThat("Results do not contain all expected entities.", results, hasSize(1));
+        assertThat(results)
+                .withFailMessage("Results do not contain all expected entities.")
+                .hasSize(1);
 
         for (final Element e : results) {
 
@@ -169,9 +173,9 @@ public class VisibilityIT extends AbstractStoreIT {
             assertTrue("Visibility property should be visible.", e.getProperties()
                     .containsKey(TestTypes.VISIBILITY));
 
-            assertThat("Visibility property should contain an empty String.", e.getProperties()
-                    .get(TestTypes.VISIBILITY)
-                    .toString(), isEmptyString());
+            assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
+                    .withFailMessage("Visibility property should contain an empty String.")
+                    .isEmpty();
         }
 
         iterable.close();
@@ -199,7 +203,9 @@ public class VisibilityIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(iterable);
 
         // Check for all entities which should be visible
-        assertThat("Results do not contain all expected entities.", results, hasSize(1));
+        assertThat(results)
+                .withFailMessage("Results do not contain all expected entities.")
+                .hasSize(1);
 
         for (final Element e : results) {
 
@@ -207,9 +213,9 @@ public class VisibilityIT extends AbstractStoreIT {
             assertTrue("Visibility property should be visible.", e.getProperties()
                     .containsKey(TestTypes.VISIBILITY));
 
-            assertThat("Visibility property should contain an empty String.", e.getProperties()
-                    .get(TestTypes.VISIBILITY)
-                    .toString(), isEmptyString());
+            assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
+                    .withFailMessage("Visibility property should contain an empty String.")
+                    .isEmpty();
         }
 
         iterable.close();
@@ -242,8 +248,8 @@ public class VisibilityIT extends AbstractStoreIT {
         final List<Element> userVis1Results = Lists.newArrayList(userVis1Iterable);
         final List<Element> userVis2Results = Lists.newArrayList(userVis2Iterable);
 
-        assertThat(userVis1Results, hasSize(2));
-        assertThat(userVis2Results, is(empty()));
+        assertThat(userVis1Results).hasSize(2);
+        assertThat(userVis2Results).isEmpty();
 
         for (final Element e : userVis1Results) {
             // Check that all visible entities contain the visibility property
@@ -285,7 +291,9 @@ public class VisibilityIT extends AbstractStoreIT {
 
         final List<Element> results = Lists.newArrayList(iterable);
 
-        assertThat("Results do not contain all expected Elements.", results, hasSize(1));
+        assertThat(results)
+                .withFailMessage("Results do not contain all expected entities.")
+                .hasSize(1);
 
         for (final Element e : iterable) {
             assertTrue(e.getProperties()
@@ -317,7 +325,9 @@ public class VisibilityIT extends AbstractStoreIT {
 
         final List<Element> results = Lists.newArrayList(iterable);
 
-        assertThat("Results do not contain all expected Elements.", results, hasSize(1));
+        assertThat(results)
+                .withFailMessage("Results do not contain all expected entities.")
+                .hasSize(1);
 
         for (final Element e : results) {
             assertTrue(e.getProperties()

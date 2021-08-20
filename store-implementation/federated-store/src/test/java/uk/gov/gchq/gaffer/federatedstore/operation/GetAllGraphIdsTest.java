@@ -16,14 +16,14 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -39,7 +39,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
                 .option("a", "b")
                 .build();
 
-        assertThat(operation.getOptions(), hasEntry("a", "b"));
+        assertThat(operation.getOptions()).containsEntry("a", "b");
     }
 
     @Override

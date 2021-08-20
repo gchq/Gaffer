@@ -15,8 +15,9 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -80,8 +81,7 @@ public class GeneratorsIT extends AbstractStoreIT {
         // Then
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                entityDomainObject, edgeDomainObject));
+        assertThat(results).contains(entityDomainObject, edgeDomainObject);
     }
 
     @Test

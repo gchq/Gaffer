@@ -15,8 +15,9 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -128,9 +129,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedSummarisedEntity, expectedEntity
-        ));
+        assertThat(results).contains(expectedSummarisedEntity, expectedEntity);
     }
 
     @Test
@@ -193,10 +192,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY + "," + PRIVATE_VISIBILITY)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity,
-                entity3
-        ));
+        assertThat(results).contains(expectedEntity, entity3);
     }
 
     @Test
@@ -460,12 +456,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+        assertThat(results).contains(expectedEntity1, expectedEntity2, expectedEntity3, expectedEntity4);
     }
 
     @Test
@@ -588,12 +579,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(TestPropertyNames.PROP_4, "")
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+        assertThat(results).contains(expectedEntity1, expectedEntity2, expectedEntity3, expectedEntity4);
     }
 
     protected Graph createGraphNoVisibility() {

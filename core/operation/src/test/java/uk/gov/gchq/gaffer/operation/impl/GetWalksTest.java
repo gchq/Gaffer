@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
@@ -35,12 +37,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -57,11 +53,11 @@ public class GetWalksTest extends OperationTest<GetWalks> {
                                 .operations(new GetElements()).resultsLimit(100).build();
 
                 // Then
-                assertThat(getWalks.getInput(), is(notNullValue()));
-                assertThat(getWalks.getInput(), iterableWithSize(2));
-                assertThat(getWalks.getResultsLimit(), is(equalTo(100)));
-                assertThat(getWalks.getOperations(), iterableWithSize(1));
-                assertThat(getWalks.getInput(), containsInAnyOrder(new EntitySeed("1"), new EntitySeed("2")));
+                assertThat(getWalks.getInput()).isNotNull();
+                assertThat(getWalks.getInput()).hasSize(2);
+                assertThat(getWalks.getResultsLimit()).isEqualTo(100);
+                assertThat(getWalks.getOperations()).hasSize(1);
+                assertThat(getWalks.getInput()).containsOnly(new EntitySeed("1"), new EntitySeed("2"));
         }
 
         @Override

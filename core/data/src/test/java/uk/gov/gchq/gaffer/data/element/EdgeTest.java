@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.jupiter.api.Test;
@@ -31,9 +33,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -449,8 +448,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Vertex("1")));
-        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+        assertThat(edge.getSource()).isEqualTo(new Vertex("1"));
+        assertThat(edge.getDestination()).isEqualTo(new Vertex("2"));
     }
 
     @Test
@@ -463,8 +462,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Vertex("1")));
-        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+        assertThat(edge.getSource()).isEqualTo(new Vertex("1"));
+        assertThat(edge.getDestination()).isEqualTo(new Vertex("2"));
     }
 
     @Test
@@ -477,8 +476,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Integer(1)));
-        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+        assertThat(edge.getSource()).isEqualTo(new Integer(1));
+        assertThat(edge.getDestination()).isEqualTo(new Integer(2));
     }
 
     @Test
@@ -491,8 +490,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Integer(1)));
-        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+        assertThat(edge.getSource()).isEqualTo(new Integer(1));
+        assertThat(edge.getDestination()).isEqualTo(new Integer(2));
     }
 
     @Test
@@ -525,8 +524,8 @@ public class EdgeTest extends ElementTest {
         }
 
         // Then
-        assertThat(edges.stream().map(Edge::getSource).distinct().count(), greaterThan(1L));
-        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), greaterThan(1L));
+        assertThat(edges.stream().map(Edge::getSource).distinct().count()).isGreaterThan(1L);
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count()).isGreaterThan(1L);
     }
 
     @Test
@@ -559,8 +558,8 @@ public class EdgeTest extends ElementTest {
         }
 
         // Then
-        assertThat(edges.stream().map(Edge::getSource).distinct().count(), equalTo(1L));
-        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), equalTo(1L));
+        assertThat(edges.stream().map(Edge::getSource).distinct().count()).isEqualTo(1L);
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count()).isEqualTo(1L);
     }
 
     @Test
@@ -572,7 +571,7 @@ public class EdgeTest extends ElementTest {
         edge1.setGroup(TestGroups.EDGE_2);
 
         assertEquals(3, edge1.getSource());
-        assertThat(edge1, equalTo(edge2));
+        assertThat(edge1).isEqualTo(edge2);
     }
 
     @Test
@@ -580,7 +579,7 @@ public class EdgeTest extends ElementTest {
         final Edge edge1 = new Edge(TestGroups.EDGE, 1, "2", false);
         final Edge edge2 = new Edge(TestGroups.EDGE, "2", 1, false);
 
-        assertThat(edge1, equalTo(edge2));
+        assertThat(edge1).isEqualTo(edge2);
     }
 
     @Test

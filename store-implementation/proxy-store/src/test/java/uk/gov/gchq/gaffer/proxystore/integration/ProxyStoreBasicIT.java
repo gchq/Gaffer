@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Iterables;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,8 +61,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -142,7 +142,7 @@ public class ProxyStoreBasicIT {
 
         // Then
         assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItems(DEFAULT_ELEMENTS));
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ProxyStoreBasicIT {
 
         // Then
         assertEquals(1, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
     }
 
     @Test
@@ -192,8 +192,8 @@ public class ProxyStoreBasicIT {
 
         // Then
         assertEquals(2, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[2]));
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[2]);
     }
 
     @Test

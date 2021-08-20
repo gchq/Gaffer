@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.job;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -25,9 +27,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -57,7 +56,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
                 .build();
 
         // Then
-        assertThat(jobResults.getKey(), is(nullValue()));
+        assertThat(jobResults.getKey()).isNull();
     }
 
     @Test

@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.service.v1;
 
-import org.hamcrest.core.IsCollectionContaining;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +48,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -107,7 +107,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getFilterFunctions(null);
 
         // Then
-        assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
+        assertThat(classes).contains(IsA.class);
     }
 
     @Test
@@ -116,9 +116,9 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getFilterFunctions(Long.class.getName());
 
         // Then
-        assertThat(classes, IsCollectionContaining.hasItem(IsLessThan.class));
-        assertThat(classes, IsCollectionContaining.hasItem(IsMoreThan.class));
-        assertThat(classes, IsCollectionContaining.hasItem(Not.class));
+        assertThat(classes).contains(IsLessThan.class);
+        assertThat(classes).contains(IsMoreThan.class);
+        assertThat(classes).contains(Not.class);
     }
 
     @Test

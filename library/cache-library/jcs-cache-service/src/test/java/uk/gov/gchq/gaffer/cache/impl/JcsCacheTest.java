@@ -16,9 +16,10 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -147,7 +147,7 @@ public class JcsCacheTest {
         cache.put("test3", 3);
 
         assertEquals(3, cache.size());
-        assertThat(cache.getAllKeys(), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(cache.getAllKeys()).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -160,6 +160,6 @@ public class JcsCacheTest {
         assertEquals(4, cache.size());
         assertEquals(4, cache.getAllValues().size());
 
-        assertThat(cache.getAllValues(), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(cache.getAllValues()).contains(1, 2, 3);
     }
 }
