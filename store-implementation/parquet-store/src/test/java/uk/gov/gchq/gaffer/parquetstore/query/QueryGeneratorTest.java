@@ -47,11 +47,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.apache.parquet.filter2.predicate.FilterApi.and;
 import static org.apache.parquet.filter2.predicate.FilterApi.eq;
 import static org.apache.parquet.filter2.predicate.FilterApi.gt;
 import static org.apache.parquet.filter2.predicate.FilterApi.or;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryGeneratorTest {
 

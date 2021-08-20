@@ -56,7 +56,6 @@ public class ExtractWalkEntitiesTest {
         final Iterable<Set<Entity>> results = function.apply(walk);
 
         // Then
-        
         assertThat(results).containsOnly(Sets.newHashSet(ENTITY_A), Sets.newHashSet(ENTITY_B), Sets.newHashSet(ENTITY_C), Sets.newHashSet(ENTITY_A));
     }
 }
