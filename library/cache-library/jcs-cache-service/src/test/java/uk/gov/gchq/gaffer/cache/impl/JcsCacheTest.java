@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;

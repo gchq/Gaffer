@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.jupiter.api.Test;
@@ -33,6 +31,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

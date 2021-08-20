@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +38,7 @@ import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
 import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

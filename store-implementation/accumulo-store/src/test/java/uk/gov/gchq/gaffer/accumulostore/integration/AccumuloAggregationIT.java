@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
@@ -50,6 +48,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;

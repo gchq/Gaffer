@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import uk.gov.gchq.gaffer.store.Context;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExportToSetHandlerTest {
 

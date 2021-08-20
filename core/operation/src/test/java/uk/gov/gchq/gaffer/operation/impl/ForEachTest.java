@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -28,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;

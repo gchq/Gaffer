@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import java.util.Collections;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdjacencyMapTest {
 

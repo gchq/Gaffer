@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +30,7 @@ import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.types.function;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +25,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.impl.predicate.Regex;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AggregateGafferRowsFunctionTest {
     private SchemaUtils utils;

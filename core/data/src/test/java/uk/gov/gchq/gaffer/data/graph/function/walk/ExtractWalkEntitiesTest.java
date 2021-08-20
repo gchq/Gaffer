@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +26,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExtractWalkEntitiesTest {
 
