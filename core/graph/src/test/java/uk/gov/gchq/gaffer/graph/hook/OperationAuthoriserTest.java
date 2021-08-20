@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;

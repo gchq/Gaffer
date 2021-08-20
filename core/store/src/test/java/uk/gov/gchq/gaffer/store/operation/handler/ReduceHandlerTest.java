@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -28,6 +26,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

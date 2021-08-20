@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Min.Builder;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;

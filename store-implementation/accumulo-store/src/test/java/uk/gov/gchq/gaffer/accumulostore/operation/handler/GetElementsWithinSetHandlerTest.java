@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.TableExistsException;
@@ -56,6 +54,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 

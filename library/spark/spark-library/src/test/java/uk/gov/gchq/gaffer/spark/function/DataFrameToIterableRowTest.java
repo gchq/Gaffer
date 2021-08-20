@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.spark.function;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Lists;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;

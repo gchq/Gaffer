@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.graph.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -25,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 
 import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

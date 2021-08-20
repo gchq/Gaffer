@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable;
 import java.util.LinkedHashSet;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedInMemorySortedIterable;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLinkedHashSet;

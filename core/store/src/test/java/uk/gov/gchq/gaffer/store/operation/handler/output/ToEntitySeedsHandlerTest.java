@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +28,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

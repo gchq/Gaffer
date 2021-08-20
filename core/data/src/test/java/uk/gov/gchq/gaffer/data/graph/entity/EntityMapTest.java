@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.graph.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
