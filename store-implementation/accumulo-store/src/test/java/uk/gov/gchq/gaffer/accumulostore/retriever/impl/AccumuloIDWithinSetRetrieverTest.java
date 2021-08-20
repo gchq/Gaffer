@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
@@ -51,7 +53,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 

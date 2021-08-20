@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +30,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

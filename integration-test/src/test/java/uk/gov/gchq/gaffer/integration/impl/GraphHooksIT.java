@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Test;
@@ -46,7 +48,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 

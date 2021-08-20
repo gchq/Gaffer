@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.junit.jupiter.api.AfterEach;

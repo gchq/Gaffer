@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.conf.Configuration;
@@ -57,7 +59,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

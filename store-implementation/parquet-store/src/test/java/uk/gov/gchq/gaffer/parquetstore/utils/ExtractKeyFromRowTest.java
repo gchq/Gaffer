@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExtractKeyFromRowTest {

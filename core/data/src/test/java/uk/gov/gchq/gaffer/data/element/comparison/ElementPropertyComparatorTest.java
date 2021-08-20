@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.data.element.comparison;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
@@ -26,7 +28,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.Comparator;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ElementPropertyComparatorTest extends JSONSerialisationTest<ElementPropertyComparator> {
