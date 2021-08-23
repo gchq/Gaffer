@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -44,7 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Simple POJO containing the details associated with a {@link NamedOperation}.
+ * Simple POJO containing the details associated with a NamedOperation.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonDeserialize(builder = NamedOperationDetail.Builder.class)
@@ -201,7 +200,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
 
         OperationChain opChain;
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
+            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -253,7 +252,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         OperationChain opChain;
 
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChainDAO.class);
+            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }

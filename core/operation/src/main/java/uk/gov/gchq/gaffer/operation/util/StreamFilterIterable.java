@@ -17,9 +17,10 @@ package uk.gov.gchq.gaffer.operation.util;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 public class StreamFilterIterable extends StreamIterable<Element> {
-    public StreamFilterIterable(final Filter operation) {
+    public StreamFilterIterable(final Operation operation) {
         super(new FilterStreamSupplier(operation));
     }
 }

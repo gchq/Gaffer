@@ -48,11 +48,4 @@ public interface SeededGraphFilters extends GraphFilters {
     enum IncludeIncomingOutgoingType {
         EITHER, INCOMING, OUTGOING
     }
-
-    interface Builder<OP extends SeededGraphFilters, B extends Builder<OP, ?>> extends GraphFilters.Builder<OP, B> {
-        default B inOutType(final IncludeIncomingOutgoingType inOutType) {
-            _getOp().setIncludeIncomingOutGoing(inOutType);
-            return _self();
-        }
-    }
 }

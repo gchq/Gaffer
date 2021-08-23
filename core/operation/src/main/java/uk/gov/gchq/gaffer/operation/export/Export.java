@@ -40,11 +40,5 @@ public interface Export {
 
     void setKey(String key);
 
-    interface Builder<OP extends Export, B extends Builder<OP, ?>>
-            extends Operation.Builder<OP, B> {
-        default B key(final String key) {
-            _getOp().setKey(key);
-            return _self();
-        }
-    }
+
 }

@@ -47,12 +47,4 @@ public interface GraphFilters extends OperationView {
 
     void setDirectedType(final DirectedType directedType);
 
-    interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends
-            OperationView.Builder<OP, B> {
-
-        default B directedType(final DirectedType directedType) {
-            _getOp().setDirectedType(directedType);
-            return _self();
-        }
-    }
 }

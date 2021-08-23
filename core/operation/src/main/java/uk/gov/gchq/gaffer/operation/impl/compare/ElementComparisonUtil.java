@@ -16,11 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,14 +32,16 @@ import java.util.Set;
  * to make comparisons between elements. It is required to have an array of
  * {@link Comparator}s of {@link Element}s
  */
-public interface ElementComparison {
+public final class ElementComparisonUtil {
 
-    /**
-     * Get the list of {@link Element} comparators registered to the operation.
-     *
-     * @return an ordered {@link List} containing the comparators
-     */
-    List<Comparator<Element>> getComparators();
+    public static final String COMPARATORS = "comparators";
+
+    private ElementComparisonUtil() {
+    }
+
+    public static List<Comparator<Element>> getComparators(final Operation operation) {
+        return (List<Comparator<Element>>) operation.get(COMPARATORS);
+    }
 
     /**
      * Combine all currently registered comparators into a single {@link Comparator}
@@ -48,9 +49,8 @@ public interface ElementComparison {
      *
      * @return the combined comparator
      */
-    @JsonIgnore
-    default Comparator<Element> getCombinedComparator() {
-        final List<Comparator<Element>> comparators = getComparators();
+    public static Comparator<Element> getCombinedComparator(Operation operation) {
+        final List<Comparator<Element>> comparators = getComparators(operation);
         Comparator<Element> combinedComparator = null;
         if (null != comparators && !comparators.isEmpty()) {
             for (final Comparator<Element> comparator : comparators) {
@@ -71,9 +71,8 @@ public interface ElementComparison {
      *
      * @return a {@link Set} containing the pairs
      */
-    @JsonIgnore
-    default Set<Pair<String, String>> getComparableGroupPropertyPairs() {
-        final List<Comparator<Element>> comparators = getComparators();
+    public static Set<Pair<String, String>> getComparableGroupPropertyPairs(Operation operation) {
+        final List<Comparator<Element>> comparators = getComparators(operation);
         if (null != comparators && !comparators.isEmpty()) {
             final Set<Pair<String, String>> pairs = new HashSet<>();
             for (final Comparator<Element> comparator : comparators) {
@@ -86,4 +85,5 @@ public interface ElementComparison {
 
         return Collections.emptySet();
     }
+
 }

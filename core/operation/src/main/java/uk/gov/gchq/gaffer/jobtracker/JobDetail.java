@@ -67,11 +67,11 @@ public class JobDetail implements Serializable {
     }
 
     @Deprecated
-    public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String userId, final OperationChain opChain, final JobStatus jobStatus, final String description) {
         this(jobId, null, userId, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final User user, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final User user, final OperationChain opChain, final JobStatus jobStatus, final String description) {
         this(jobId, null, user, opChain, jobStatus, description);
     }
 
@@ -81,11 +81,11 @@ public class JobDetail implements Serializable {
     }
 
     @Deprecated
-    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain opChain, final JobStatus jobStatus, final String description) {
         this(jobId, parentJobId, new User(userId), opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final String parentJobId, final User user, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String parentJobId, final User user, final OperationChain opChain, final JobStatus jobStatus, final String description) {
         this.jobId = jobId;
         this.parentJobId = parentJobId;
         this.user = user;

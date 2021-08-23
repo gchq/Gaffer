@@ -25,11 +25,5 @@ public interface GetExport extends Export {
 
     void setJobId(final String jobId);
 
-    interface Builder<OP extends GetExport, B extends Builder<OP, ?>>
-            extends Export.Builder<OP, B> {
-        default B jobId(final String jobId) {
-            _getOp().setJobId(jobId);
-            return _self();
-        }
-    }
+
 }

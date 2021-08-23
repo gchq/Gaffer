@@ -42,25 +42,4 @@ public interface Validatable {
      */
     void setValidate(final boolean validate);
 
-    interface Builder<OP extends Validatable, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
-        /**
-         * @param skipInvalidElements the skipInvalidElements flag to set on the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Validatable#setSkipInvalidElements(boolean)
-         */
-        default B skipInvalidElements(final boolean skipInvalidElements) {
-            _getOp().setSkipInvalidElements(skipInvalidElements);
-            return _self();
-        }
-
-        /**
-         * @param validate the validate flag to set on the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Validatable#setValidate(boolean)
-         */
-        default B validate(final boolean validate) {
-            _getOp().setValidate(validate);
-            return _self();
-        }
-    }
 }

@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,12 +29,12 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
- * A {@link StreamSupplier} which uses a {@link Filter}
+ * A {@link StreamSupplier} which uses a Filter Operation
  * to filter the {@link Iterable} input into an {@link Iterable} output.
  */
 public class FilterStreamSupplier implements StreamSupplier<Element> {
     private final Iterable<? extends Element> input;
-    private final Filter filter;
+    private final Operation filter;
 
     /**
      * Default constructor.
@@ -41,8 +42,8 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
      * @param filter the Filter operation to be applied,
      *               from which the input is pulled
      */
-    public FilterStreamSupplier(final Filter filter) {
-        this.input = filter.getInput();
+    public FilterStreamSupplier(final Operation filter) {
+        this.input = (Iterable<? extends Element>) filter.input();
         this.filter = filter;
     }
 
@@ -58,19 +59,19 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
     }
 
     private static final class ElementFilterPredicate implements Predicate<Element> {
-        private final Filter filter;
+        private final Operation filter;
 
-        private ElementFilterPredicate(final Filter filter) {
+        private ElementFilterPredicate(final Operation filter) {
             this.filter = filter;
         }
 
         @Override
         public boolean test(final Element element) {
             if (element instanceof Edge) {
-                return test(element, filter.getGlobalEdges(), filter.getEdges());
+                return test(element, (ElementFilter) filter.get("globalEdges"), (Map<String, ElementFilter>) filter.get("edges"));
             }
 
-            return test(element, filter.getGlobalEntities(), filter.getEntities());
+            return test(element, (ElementFilter) filter.get("globalEntites"), (Map<String, ElementFilter>) filter.get("entities"));
         }
 
         private boolean test(final Element element,
@@ -85,7 +86,8 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
                 return false;
             }
 
-            if (null != filter.getGlobalElements() && !filter.getGlobalElements().test(element)) {
+            //TODO change to Edges && Entities
+            if (null != filter.get("globalElements") && !((ElementFilter) filter.get("globalElements")).test(element)) {
                 return false;
             }
 
