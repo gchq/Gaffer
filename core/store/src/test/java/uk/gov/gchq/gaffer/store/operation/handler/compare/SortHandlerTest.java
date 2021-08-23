@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class SortHandlerTest {
 
                 final List<Entity> input = Lists.newArrayList(entity1, entity4, entity3a, entity3b, entity2);
 
-                final Sort sort = new Sort.Builder().input(input).comparators(new ElementPropertyComparator.Builder()
+                final Operation sort = new SortHandler.Builder().input(input).comparators(new ElementPropertyComparator.Builder()
                                 .groups(TestGroups.ENTITY).property("property").build()).build();
 
                 final SortHandler handler = new SortHandler();
@@ -81,7 +82,7 @@ public class SortHandlerTest {
 
                 final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-                final Sort sort = new Sort.Builder().input(input)
+                final Operation sort = new SortHandler.Builder().input(input)
                                 .comparators(new ElementPropertyComparator.Builder().groups(TestGroups.ENTITY)
                                                 .property("property").comparator(new PropertyComparatorImpl())
                                                 .reverse(true).build())
@@ -110,7 +111,7 @@ public class SortHandlerTest {
 
                 final List<Entity> input = Lists.newArrayList(entity1, entity3, entity2, entity4);
 
-                final Sort sort = new Sort.Builder().input(input)
+                final Operation sort = new SortHandler.Builder().input(input)
                                 .comparators(new ElementPropertyComparator.Builder().groups(TestGroups.ENTITY)
                                                 .property("property1").build(),
                                                 new ElementPropertyComparator.Builder().groups(TestGroups.ENTITY)
@@ -137,7 +138,7 @@ public class SortHandlerTest {
 
                 final List<Entity> input = Lists.newArrayList(entity1, entity3, entity4, entity2, entity5);
 
-                final Sort sort = new Sort.Builder().input(input)
+                final Operation sort = new SortHandler.Builder().input(input)
                                 .comparators(new ElementPropertyComparator.Builder().property("property")
                                                 .groups(TestGroups.ENTITY).comparator(new PropertyComparatorImpl())
                                                 .build())
@@ -163,7 +164,7 @@ public class SortHandlerTest {
 
                 final List<Entity> input = Lists.newArrayList(entity1, entity3, entity2, entity4, entity5);
 
-                final Sort sort = new Sort.Builder().input(input)
+                final Operation sort = new SortHandler.Builder().input(input)
                                 .comparators(new ElementPropertyComparator.Builder().property("property")
                                                 .groups(TestGroups.ENTITY).comparator(new PropertyComparatorImpl())
                                                 .build())
@@ -195,7 +196,7 @@ public class SortHandlerTest {
 
                 final List<Entity> input = Lists.newArrayList(entity1, entity3, entity2, entity4);
 
-                final Sort sort = new Sort.Builder().input(input).comparators(new ElementComparatorImpl()).build();
+                final Operation sort = new SortHandler.Builder().input(input).comparators(new ElementComparatorImpl()).build();
 
                 final SortHandler handler = new SortHandler();
 
@@ -217,7 +218,7 @@ public class SortHandlerTest {
                 // Given
                 final List<Entity> input = Lists.newArrayList();
 
-                final Sort sort = new Sort.Builder().input(input).comparators(new ElementPropertyComparator.Builder()
+                final Operation sort = new SortHandler.Builder().input(input).comparators(new ElementPropertyComparator.Builder()
                                 .groups(TestGroups.ENTITY).property("property").build()).build();
 
                 final SortHandler handler = new SortHandler();
@@ -232,7 +233,7 @@ public class SortHandlerTest {
         @Test
         public void shouldReturnNullIfOperationInputIsNull() throws OperationException {
                 // Given
-                final Sort sort = new Sort.Builder().build();
+                final Operation sort = new SortHandler.Builder().build();
 
                 final SortHandler handler = new SortHandler();
 
@@ -248,7 +249,7 @@ public class SortHandlerTest {
                 // Given
                 final List<Entity> input = Lists.newArrayList();
 
-                final Sort sort = new Sort.Builder().input(input).build();
+                final Operation sort = new SortHandler.Builder().input(input).build();
 
                 final SortHandler handler = new SortHandler();
 
@@ -269,7 +270,7 @@ public class SortHandlerTest {
                                 .distinct().limit(streamSize).mapToObj(i -> new Entity.Builder()
                                                 .group(TestGroups.ENTITY).property("property", i).build());
 
-                final Sort sort = new Sort.Builder().input(() -> stream.iterator())
+                final Operation sort = new SortHandler.Builder().input(() -> stream.iterator())
                                 .comparators(new ElementPropertyComparator.Builder().groups(TestGroups.ENTITY)
                                                 .property("property").reverse(false).build())
                                 .resultLimit(resultLimit).deduplicate(true).build();

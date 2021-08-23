@@ -96,6 +96,10 @@ public class Operation implements Closeable {
         return this;
     }
 
+    public Operation operationArg(Map.Entry<String, Object> entry) {
+        return operationArg(entry.getKey(), entry.getValue());
+    }
+
     public Object get(final String key) {
         //TODO FS
         return operationArgs.get(key);

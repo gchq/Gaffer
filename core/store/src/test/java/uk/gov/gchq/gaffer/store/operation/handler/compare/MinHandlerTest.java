@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import java.util.Comparator;
@@ -45,7 +46,8 @@ public class MinHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Min min = new Min.Builder().input(input)
+        final Operation min = new MinHandler.Builder()
+                .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property")
@@ -72,7 +74,7 @@ public class MinHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Min min = new Min.Builder().input(input)
+        final Operation min = new MinHandler.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                                 .groups(TestGroups.ENTITY)
                                 .property("property1")
@@ -103,14 +105,14 @@ public class MinHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
 
-        final Min min1 = new Min.Builder().input(input)
+        final Operation min1 = new MinHandler.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property1")
                         .build())
                 .build();
 
-        final Min min2 = new Min.Builder().input(input)
+        final Operation min2 = new MinHandler.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property2")
@@ -140,7 +142,7 @@ public class MinHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Min min = new Min.Builder().input(input)
+        final Operation min = new MinHandler.Builder().input(input)
                 .comparators(new SimpleElementComparator())
                 .build();
 
@@ -158,7 +160,7 @@ public class MinHandlerTest {
     @Test
     public void shouldReturnNullIfOperationInputIsNull() throws OperationException {
         // Given
-        final Min min = new Min.Builder().build();
+        final Operation min = new MinHandler.Builder().build();
         final MinHandler handler = new MinHandler();
 
         // When
@@ -172,7 +174,7 @@ public class MinHandlerTest {
     public void shouldReturnNullIfBothComparatorsAreNull() throws OperationException {
         // Given
         final List<Entity> input = Lists.newArrayList();
-        final Min min = new Min.Builder().input(input)
+        final Operation min = new MinHandler.Builder().input(input)
                 .build();
 
         final MinHandler handler = new MinHandler();

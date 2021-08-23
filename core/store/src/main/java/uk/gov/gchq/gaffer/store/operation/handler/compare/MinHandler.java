@@ -15,44 +15,62 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
+import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Objects.isNull;
+import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.entryComparators;
+import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getCombinedComparator;
+import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getComparators;
+
 /**
- * A {@code MinHandler} handles the {@link Min} operation.
- *
+ * A {@code MinHandler} handles the Min operation.
+ * <p>
  * It uses the {@link Comparator}s instances on the operation to determine the
  * object with the minimum value.
  */
-public class MinHandler implements OutputOperationHandler<Min, Element> {
+public class MinHandler implements OperationHandler<Element> {
     @Override
-    public Element doOperation(final Min operation, final Context context, final Store store) throws OperationException {
+    public Element _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         // If there is no input or there are no comparators, we return null
-        if (null == operation.getInput()
-                || null == operation.getComparators()
-                || operation.getComparators().isEmpty()) {
+        if (null == operation.input()
+                || isNull(getComparators(operation))
+                || getComparators(operation).isEmpty()) {
             return null;
         }
 
         try {
-            return getMin(operation.getInput(), operation);
+            return getMin((Iterable<? extends Element>) operation.input(), operation);
         } finally {
             CloseableUtil.close(operation);
         }
     }
 
-    private Element getMin(final Iterable<? extends Element> elements, final Min operation) {
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldRequired(entryComparators)
+                .fieldRequired("input", Iterable.class);
+
+    }
+
+    private Element getMin(final Iterable<? extends Element> elements, final Operation operation) {
         Element minElement = null;
 
-        final List<Comparator<Element>> comparators = operation.getComparators();
+        final List<Comparator<Element>> comparators = getComparators(operation);
         if (1 == comparators.size() && comparators.get(0) instanceof ElementPropertyComparator) {
             final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparators.get(0);
             Object minProperty = null;
@@ -70,7 +88,7 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
                 }
             }
         } else {
-            final Comparator<Element> combinedComparator = operation.getCombinedComparator();
+            final Comparator<Element> combinedComparator = getCombinedComparator(operation);
             if (null != combinedComparator) {
                 for (final Element element : elements) {
                     if (null == element) {
@@ -87,5 +105,28 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
         }
 
         return minElement;
+    }
+
+    static class Builder extends OperationHandler.BuilderSpecificInputOperation<MinHandler.Builder> {
+
+        public MinHandler.Builder comparators(List<Comparator<Element>> comparators) {
+            operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, comparators);
+            return this;
+        }
+
+        public MinHandler.Builder comparators(Comparator<Element>... comparators) {
+            operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, Lists.newArrayList(comparators));
+            return this;
+        }
+
+        @Override
+        protected MinHandler.Builder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected FieldDeclaration getFieldDeclaration() {
+            return new MinHandler().getFieldDeclaration();
+        }
     }
 }

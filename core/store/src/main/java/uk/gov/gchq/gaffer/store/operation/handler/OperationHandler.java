@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
@@ -45,11 +46,8 @@ public interface OperationHandler<O> {
 
     default O doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-
-
             validateOperation(operation, getFieldDeclaration());
             return _doOperation(operation, context, store);
-
         } catch (final Exception e) {
             throw new OperationException(String.format("Error with Executor: %s handling operation: %s with handler: %s due to: %s", store.getGraphId(), operation.getId(), this.getClass().getCanonicalName(), e.getMessage()), e);
         }
@@ -67,7 +65,7 @@ public interface OperationHandler<O> {
     }
 
     static List<String> getOperationErrorsForIncorrectValueType(final Operation operation, final FieldDeclaration fieldDeclaration) {
-        final TreeMap<String, Class> fieldDeclarations = fieldDeclaration.getFields();
+        final TreeMap<String, Class> fieldDeclarations = requireNonNull(fieldDeclaration).getFields();
         final List<String> rtn = fieldDeclarations.entrySet().stream()
                 .filter(e -> {
                     final String key = e.getKey();

@@ -26,6 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -58,10 +59,18 @@ public class FieldDeclaration {
         return fieldRequired(field, valueClass);
     }
 
+    public FieldDeclaration fieldOptional(Map.Entry<String, Class> entry) {
+        return fieldOptional(entry.getKey(), entry.getValue());
+    }
+
     public FieldDeclaration fieldOptional(final String field, final Class valueClass) {
         fieldRequired(field, valueClass);
         optionalFields.add(field);
         return this;
+    }
+
+    public FieldDeclaration fieldRequired(Map.Entry<String, Class> entry) {
+        return fieldRequired(entry.getKey(), entry.getValue());
     }
 
     public FieldDeclaration fieldRequired(final String field, final Class valueClass) {
