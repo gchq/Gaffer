@@ -64,6 +64,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals(storeProperties, deserialisedOp.getStoreProperties());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -89,6 +90,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
         assertEquals(storeProperties, op.getStoreProperties());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

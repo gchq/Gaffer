@@ -50,6 +50,7 @@ public class UnrestrictedAccessPredicateTest implements AccessPredicateTest {
         assertEquals(new UnrestrictedAccessPredicate(), new UnrestrictedAccessPredicate());
     }
 
+    @Test
     @Override
     public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
         /* not possible */

@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.yahoo.sketches.quantiles.ItemsSketch;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import java.util.Comparator;
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final ItemsSketch obj, final ItemsSketch deserialised) {
         final double fraction = 0.5D;

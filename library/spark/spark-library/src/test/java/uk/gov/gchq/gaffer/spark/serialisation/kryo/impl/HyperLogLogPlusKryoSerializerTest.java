@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import java.util.stream.IntStream;
@@ -37,6 +39,7 @@ public class HyperLogLogPlusKryoSerializerTest extends KryoSerializerTest<HyperL
         return hyperLogLogPlus;
     }
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final HyperLogLogPlus obj, final HyperLogLogPlus deserialised) {
         assertEquals(obj.cardinality(), deserialised.cardinality());

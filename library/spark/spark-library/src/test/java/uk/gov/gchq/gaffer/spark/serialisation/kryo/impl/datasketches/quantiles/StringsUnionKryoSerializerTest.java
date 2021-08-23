@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StringsUnionKryoSerializerTest extends KryoSerializerTest<ItemsUnion> {
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final ItemsUnion obj, final ItemsUnion deserialised) {
         final double fraction = 0.5D;

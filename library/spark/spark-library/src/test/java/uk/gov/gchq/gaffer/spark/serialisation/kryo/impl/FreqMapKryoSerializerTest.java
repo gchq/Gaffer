@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
@@ -22,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FreqMapKryoSerializerTest extends KryoSerializerTest<FreqMap> {
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final FreqMap obj, final FreqMap deserialised) {
         assertEquals(obj, deserialised);

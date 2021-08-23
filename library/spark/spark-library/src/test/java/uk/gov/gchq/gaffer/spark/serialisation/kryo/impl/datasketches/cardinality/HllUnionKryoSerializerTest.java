@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinalit
 
 import com.yahoo.sketches.hll.Union;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HllUnionKryoSerializerTest extends KryoSerializerTest<Union> {
     private static final double DELTA = 0.0000001D;
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final Union obj, final Union deserialised) {
         assertEquals(obj.getEstimate(), deserialised.getEstimate(), DELTA);

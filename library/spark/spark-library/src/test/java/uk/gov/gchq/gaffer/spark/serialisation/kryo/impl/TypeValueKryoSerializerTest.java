@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
@@ -22,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TypeValueKryoSerializerTest extends KryoSerializerTest<TypeValue> {
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final TypeValue obj, final TypeValue deserialised) {
         assertEquals(obj, deserialised);

@@ -52,6 +52,7 @@ public class LimitTest extends OperationTest<Limit> {
         assertThat(limit.getInput(), containsInAnyOrder("1", "2"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

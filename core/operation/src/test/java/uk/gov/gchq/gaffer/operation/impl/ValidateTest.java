@@ -96,6 +96,7 @@ public class ValidateTest extends OperationTest<Validate> {
         assertEquals(edge, validate.getInput().iterator().next());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

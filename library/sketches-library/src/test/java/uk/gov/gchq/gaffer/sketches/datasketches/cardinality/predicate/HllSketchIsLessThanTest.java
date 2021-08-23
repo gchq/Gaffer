@@ -111,6 +111,7 @@ public class HllSketchIsLessThanTest extends PredicateTest {
         assertFalse(accepted);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -151,6 +152,7 @@ public class HllSketchIsLessThanTest extends PredicateTest {
         );
     }
 
+    @Test
     @Override
     public void shouldHaveSummaryAnnotation() {
         /* TODO: look at why this is not passing unless we include the overriden method whereas with HyperLogLogPlusIsLessThanTest it is without the override */

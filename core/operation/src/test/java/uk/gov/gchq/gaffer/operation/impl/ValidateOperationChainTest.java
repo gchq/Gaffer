@@ -54,6 +54,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
         assertEquals(validateOperationChain.getOperationChain(), deserialisedOp.getOperationChain());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder()
@@ -63,6 +64,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
         assertEquals(operationChain, validateOperationChain.getOperationChain());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -42,6 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class IfTest extends OperationTest<If> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -59,6 +61,7 @@ public class IfTest extends OperationTest<If> {
         assertTrue(ifOp.getOtherwise() instanceof GetAllElements);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

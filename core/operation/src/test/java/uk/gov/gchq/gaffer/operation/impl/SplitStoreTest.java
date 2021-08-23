@@ -61,6 +61,7 @@ public class SplitStoreTest extends OperationTest<SplitStore> {
         assertEquals("true", splitTable.getOption(TEST_OPTION_KEY));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

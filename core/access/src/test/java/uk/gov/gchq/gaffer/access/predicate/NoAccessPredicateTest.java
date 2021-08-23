@@ -50,6 +50,7 @@ public class NoAccessPredicateTest implements AccessPredicateTest {
         assertEquals(new NoAccessPredicate(), new NoAccessPredicate());
     }
 
+    @Test
     @Override
     public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
         /* not possible */

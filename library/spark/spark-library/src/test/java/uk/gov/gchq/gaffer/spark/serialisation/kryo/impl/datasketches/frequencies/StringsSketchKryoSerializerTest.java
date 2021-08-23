@@ -17,12 +17,15 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencie
 
 import com.yahoo.sketches.frequencies.ItemsSketch;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
 
+    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final ItemsSketch obj, final ItemsSketch deserialised) {
         assertEquals(obj.getEstimate("1"), deserialised.getEstimate("1"));

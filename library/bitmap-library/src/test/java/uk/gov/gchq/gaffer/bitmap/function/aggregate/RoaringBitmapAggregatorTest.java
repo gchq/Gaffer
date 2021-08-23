@@ -118,6 +118,7 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
         return RoaringBitmapAggregator.class;
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
 

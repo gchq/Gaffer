@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EdgeTest extends ElementTest {
 
+    @Test
     @Override
     public void shouldSetAndGetFields() {
         final Edge edge = new Edge.Builder()
@@ -179,6 +180,7 @@ public class EdgeTest extends ElementTest {
         assertEquals(edge, clone);
     }
 
+    @Test
     @Override
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         final Edge edge = new Edge.Builder()
@@ -214,6 +216,7 @@ public class EdgeTest extends ElementTest {
         assertTrue(isEqual);
     }
 
+    @Test
     @Override
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         final Edge edge1 = new Edge.Builder()
@@ -257,6 +260,7 @@ public class EdgeTest extends ElementTest {
         assertNotEquals(edge1.hashCode(), edge2.hashCode());
     }
 
+    @Test
     @Override
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
@@ -408,6 +412,7 @@ public class EdgeTest extends ElementTest {
         assertFalse(edge1.hashCode() == edge2.hashCode());
     }
 
+    @Test
     @Override
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
