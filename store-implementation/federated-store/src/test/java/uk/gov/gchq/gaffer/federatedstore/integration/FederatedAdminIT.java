@@ -17,8 +17,7 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -44,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
-public class FederatedAdminIT extends AbstractStoreIT {
+public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
@@ -55,14 +54,14 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
     @Override
     protected Schema createSchema() {
-        final Schema.Builder schemaBuilder = new Schema.Builder(createDefaultSchema());
+        final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
         schemaBuilder.edges(Collections.EMPTY_MAP);
         schemaBuilder.entities(Collections.EMPTY_MAP);
         return schemaBuilder.build();
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @Override
+    public void _setUp() throws Exception {
         graph.execute(new RemoveGraph.Builder()
                 .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
                 .build(), user);
