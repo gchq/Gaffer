@@ -17,33 +17,36 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
-import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
+import static uk.gov.gchq.gaffer.operation.OperationConstants.KEY_INPUT;
+import static uk.gov.gchq.gaffer.operation.OperationConstants.KEY_OUTPUT_TYPE_REFERENCE;
+import static uk.gov.gchq.gaffer.operation.OperationConstants.LOCALE;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 @JsonPropertyOrder(value = {"class", "id", "operationArgs"}, alphabetic = true)
@@ -55,35 +58,36 @@ public class Operation implements Closeable {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
     @JsonPropertyOrder(value = {"class"}, alphabetic = true)
     private Map<String, Object> operationArgs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    public static final Locale LOCALE = Locale.ENGLISH;
+
 
     public Operation(final String id) {
-        this.id = id;
+        this.id = requireNonNull(id);
     }
 
     @JsonCreator
-    public Operation(@JsonProperty("id") final String id, @JsonProperty("operationArgs") final Map<String, Object> operationArgs) {
-        this.id = id;
-        if (Objects.nonNull(operationArgs)) {
-            this.operationArgs = operationArgs;
-        }
+    public Operation(@JsonProperty("id") final String id, @JsonProperty("operationArgs") final Map<String, Object> operationArgs) throws NullPointerException {
+        this(id);
+        operationArgs(operationArgs);
     }
 
     public boolean containsKey(final String key) {
         return operationArgs.containsKey(key);
     }
 
-    public Operation operationArgs(final Map<String, Object> operationsArgs) {
-        this.operationArgs = operationsArgs;
+    public Operation operationArgs(final Map<String, Object> operationsArgs) throws NullPointerException {
+        this.operationArgs.clear();
+        addOperationArgs(operationsArgs);
         return this;
     }
 
     public Map<String, Object> getOperationArgs() {
-        return operationArgs;
+        return ImmutableMap.copyOf(operationArgs);
     }
 
     public Operation addOperationArgs(final Map<String, Object> operationsArgs) {
-        this.operationArgs.putAll(operationsArgs);
+        if (nonNull(operationsArgs)) {
+            this.operationArgs.putAll(operationsArgs);
+        }
         return this;
     }
 
@@ -92,24 +96,32 @@ public class Operation implements Closeable {
         return this;
     }
 
-    public Operation inputOperationArg(final Object value) {
-        return this.operationArg("input", value);
-    }
-
     public Object get(final String key) {
+        //TODO FS
         return operationArgs.get(key);
     }
 
     public Operation input(final Object input) {
-        return inputOperationArg(input);
+        return this.operationArg(KEY_INPUT, input);
     }
 
+    @JsonIgnore
     public Object input() {
-        return get("input");
+        return get(KEY_INPUT);
     }
 
     public Object getOrDefault(final String key, final Object defaultValue) {
         return operationArgs.getOrDefault(key, defaultValue);
+    }
+
+    @JsonIgnore
+    public TypeReference getOutputTypeReference() {
+        return (TypeReference) get(KEY_OUTPUT_TYPE_REFERENCE);
+    }
+
+    public Operation outputTypeReference(TypeReference typeReference) {
+        operationArg(KEY_OUTPUT_TYPE_REFERENCE, typeReference);
+        return this;
     }
 
     public String getId() {
@@ -117,9 +129,10 @@ public class Operation implements Closeable {
     }
 
     public Boolean getIdComparison(final String s) {
-        return getId().toLowerCase(LOCALE).equals(s.toLowerCase(Locale.ENGLISH));
+        return getId().toLowerCase(LOCALE).equals(s.toLowerCase(LOCALE));
     }
 
+    @JsonIgnore
     public Set<String> keySet() {
         return ImmutableSet.copyOf(operationArgs.keySet());
     }
@@ -134,57 +147,41 @@ public class Operation implements Closeable {
      * @throws CloneFailedException if a Clone error occurs
      */
     public Operation shallowClone() throws CloneFailedException {
-        return new Operation(id)
-                .operationArgs(operationArgs);
-    }
-
-    /**
-     * Operation implementations should ensure that all closeable fields are closed in this method.
-     *
-     * @throws IOException if an I/O error occurs
-     */
-    public void close() throws IOException {
-        // do nothing by default
-    }
-
-    public ValidationResult validate() {
-        final ValidationResult result = new ValidationResult();
-
-        HashSet<Field> fields = Sets.newHashSet();
-        Class<?> currentClass = this.getClass();
-        while (null != currentClass) {
-            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
-            currentClass = currentClass.getSuperclass();
-        }
-
-        for (final Field field : fields) {
-            final Required[] annotations = field.getAnnotationsByType(Required.class);
-            if (null != annotations && annotations.length > 0) {
-                if (field.isAccessible()) {
-                    validateRequiredFieldPresent(result, field);
-                } else {
-                    AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
-                        field.setAccessible(true);
-                        validateRequiredFieldPresent(result, field);
-                        return null;
-                    });
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public void validateRequiredFieldPresent(final ValidationResult result, final Field field) {
-        final Object value;
         try {
-            value = field.get(this);
-        } catch (final IllegalAccessException e) {
-            throw new RuntimeException(e);
+            return new Operation(id)
+                    .operationArgs(operationArgs);
+        } catch (Exception e) {
+            throw new CloneFailedException(e);
         }
+    }
 
-        if (null == value) {
-            result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
+    public Operation deepClone() throws CloneFailedException {
+        try {
+            return JSONSerialiser.deserialise(JSONSerialiser.serialise(this), Operation.class);
+        } catch (Exception e) {
+            throw new CloneFailedException(e);
+        }
+    }
+
+    //TODO review this
+    public void close() throws IOException {
+        List<String> collect = operationArgs.values().stream()
+                .filter(v -> v instanceof Closeable)
+                .map(v -> {
+                    try {
+                        ((Closeable) v).close();
+                    } catch (IOException e) {
+                        return e;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .map(Throwable::getMessage)
+                .collect(Collectors.toList());
+
+        if (!collect.isEmpty()) {
+            String join = String.join(" : ", collect);
+            throw new IOException(join);
         }
     }
 

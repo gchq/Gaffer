@@ -68,9 +68,10 @@ public interface Operations<T extends Operation> {
      * @return a list of flattened operations.
      */
     default List<Operation> flatten() {
-        final List<Operation> tmp = new ArrayList<>(1);
+        Collection<T> operations = getOperations();
+        final List<Operation> tmp = new ArrayList<>(operations.size());
 
-        for (final Operation operation : getOperations()) {
+        for (final Operation operation : operations) {
             if (operation instanceof Operations) {
                 tmp.addAll(((Operations) operation).flatten());
             } else {
