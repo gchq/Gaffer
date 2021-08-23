@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,8 +52,6 @@ public class GetAllNamedOperationsHandlerTest {
             .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
             .creatorId(User.UNKNOWN_USER_ID)
             .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
-            .readers(new ArrayList<>())
-            .writers(new ArrayList<>())
             .parameters(null)
             .build();
 
@@ -63,8 +60,6 @@ public class GetAllNamedOperationsHandlerTest {
             .inputType(null)
             .creatorId(User.UNKNOWN_USER_ID)
             .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.store.operation.GetSchema\",\"compact\":false}]}")
-            .readers(new ArrayList<>())
-            .writers(new ArrayList<>())
             .parameters(null)
             .build();
 
