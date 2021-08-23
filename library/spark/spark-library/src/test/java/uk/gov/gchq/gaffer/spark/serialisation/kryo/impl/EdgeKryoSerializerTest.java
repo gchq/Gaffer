@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import org.junit.jupiter.api.Test;
-
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
@@ -24,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EdgeKryoSerializerTest extends KryoSerializerTest<Edge> {
 
-    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final Edge obj, final Edge deserialised) {
         assertEquals(obj, deserialised);

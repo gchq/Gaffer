@@ -17,15 +17,12 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 
-import org.junit.jupiter.api.Test;
-
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class ReservoirLongsSketchKryoSerializerTest extends KryoSerializerTest<ReservoirLongsSketch> {
 
-    @Test
     @Override
     protected void shouldCompareSerialisedAndDeserialisedObjects(final ReservoirLongsSketch obj, final ReservoirLongsSketch deserialised) {
         assertArrayEquals(obj.getSamples(), deserialised.getSamples());
