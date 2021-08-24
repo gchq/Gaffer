@@ -30,7 +30,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
+public class TransformHandler implements OperationHandler<Transform, Iterable<? extends Element>> {
     private final FunctionValidator<Transform> validator = new TransformValidator();
 
     @Override
@@ -39,7 +39,7 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
     }
 
     public Iterable<? extends Element> doOperation(final Transform operation, final Schema schema) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Transform operation has null iterable of elements");
         }
 

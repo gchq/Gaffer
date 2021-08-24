@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * @see FederatedStore
  * @see RemoveGraph
  */
-public class FederatedRemoveGraphHandler implements OutputOperationHandler<RemoveGraph, Boolean> {
+public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph, Boolean> {
     @Override
     public Boolean doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {

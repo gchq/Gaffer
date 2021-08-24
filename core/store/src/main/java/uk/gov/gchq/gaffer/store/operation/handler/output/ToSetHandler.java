@@ -36,14 +36,14 @@ import java.util.Set;
  *
  * @param <T> the type of object contained in the input iterable
  */
-public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? extends T>> {
+public class ToSetHandler<T> implements OperationHandler<ToSet<T>, Set<? extends T>> {
     @Override
     public Set<T> doOperation(final ToSet<T> operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
-        return Streams.toStream(operation.getInput())
+        return Streams.toStream(operation.input())
                       .collect(GafferCollectors.toLinkedHashSet());
     }
 }

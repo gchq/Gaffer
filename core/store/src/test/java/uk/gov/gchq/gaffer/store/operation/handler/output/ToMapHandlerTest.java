@@ -60,7 +60,7 @@ public class ToMapHandlerTest {
         final ToMapHandler handler = new ToMapHandler();
         final ToMap operation = mock(ToMap.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
         given(operation.getElementGenerator()).willReturn(generator);
 
         //When
@@ -76,7 +76,7 @@ public class ToMapHandlerTest {
         final ToMapHandler handler = new ToMapHandler();
         final ToMap operation = mock(ToMap.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         //When
         final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);

@@ -26,15 +26,15 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * The {@code ToEntitySeedsHandler} handles {@link ToEntitySeeds} operations by
  * wrapping each object in the input {@link Iterable} in an {@link EntitySeed} object.
  */
-public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
+public class ToEntitySeedsHandler implements OperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
     @Override
     public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
         return new StreamMapIterable<>(
-                operation.getInput(),
+                operation.input(),
                 seed -> seed instanceof EntitySeed ? ((EntitySeed) seed) : new EntitySeed(seed)
         );
     }

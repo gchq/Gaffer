@@ -32,7 +32,7 @@ import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_PORT;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.READ_TIMEOUT;
 
 
-public class GetProxyPropertiesHandler implements OutputOperationHandler<GetProxyProperties, Map<String, Object>> {
+public class GetProxyPropertiesHandler implements OperationHandler<GetProxyProperties, Map<String, Object>> {
 
     public static final String URL_INFERRED = "URL_inferred";
 

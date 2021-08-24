@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store)
             throws OperationException {

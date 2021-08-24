@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 
-public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<GetAllGraphIds, Iterable<? extends String>> {
+public class FederatedGetAllGraphIDHandler implements OperationHandler<GetAllGraphIds, Iterable<? extends String>> {
 
     @Override
     public Iterable<? extends String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {

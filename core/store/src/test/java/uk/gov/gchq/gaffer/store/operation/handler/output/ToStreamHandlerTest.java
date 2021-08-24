@@ -45,7 +45,7 @@ public class ToStreamHandlerTest {
         final ToStreamHandler<Integer> handler = new ToStreamHandler();
         final ToStream operation = mock(ToStream.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Stream<Integer> stream = handler.doOperation(operation, new Context(), null);
@@ -61,7 +61,7 @@ public class ToStreamHandlerTest {
         final ToStreamHandler<Integer> handler = new ToStreamHandler();
         final ToStream operation = mock(ToStream.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         //When
         final Stream<Integer> results = handler.doOperation(operation, new Context(), null);

@@ -32,7 +32,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AggregateHandler implements OutputOperationHandler<Aggregate, Iterable<? extends Element>> {
+public class AggregateHandler implements OperationHandler<Aggregate, Iterable<? extends Element>> {
     private final FunctionValidator<Aggregate> validator = new AggregateValidator();
 
     @Override
@@ -41,7 +41,7 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
     }
 
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Schema schema) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Aggregate operation has null iterable of elements");
         }
 
@@ -62,7 +62,7 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
             throw new OperationException("Aggregate operation is invalid. " + result.getErrorString());
         }
 
-        return AggregatorUtil.queryAggregate(operation.getInput(), schema, buildView(operation));
+        return AggregatorUtil.queryAggregate(operation.input(), schema, buildView(operation));
     }
 
     private View buildView(final Aggregate operation) {

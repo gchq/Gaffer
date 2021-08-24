@@ -26,7 +26,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 /**
  * Operation Handler for ValidateOperationChain
  */
-public class ValidateOperationChainHandler implements OutputOperationHandler<ValidateOperationChain, ValidationResult> {
+public class ValidateOperationChainHandler implements OperationHandler<ValidateOperationChain, ValidationResult> {
 
     /**
      * Returns a {@link ValidationResult} for the supplied OperationChain.

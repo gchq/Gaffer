@@ -127,17 +127,17 @@ public class MapStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new GetAdjacentIdsHandler();
     }
 

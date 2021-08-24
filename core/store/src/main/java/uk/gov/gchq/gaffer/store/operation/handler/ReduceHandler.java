@@ -27,7 +27,7 @@ import java.util.function.BinaryOperator;
  *
  * @param <T> The object type of the input object
  */
-public class ReduceHandler<T> implements OutputOperationHandler<Reduce<T>, T> {
+public class ReduceHandler<T> implements OperationHandler<Reduce<T>, T> {
 
     /**
      * Handles the {@link Reduce} operation. Applies the {@link BinaryOperator}
@@ -46,7 +46,7 @@ public class ReduceHandler<T> implements OutputOperationHandler<Reduce<T>, T> {
             throw new OperationException("Operation cannot be null");
         }
 
-        Iterable<? extends T> input = operation.getInput();
+        Iterable<? extends T> input = operation.input();
 
         if (null == input) {
             throw new OperationException("Input cannot be null");

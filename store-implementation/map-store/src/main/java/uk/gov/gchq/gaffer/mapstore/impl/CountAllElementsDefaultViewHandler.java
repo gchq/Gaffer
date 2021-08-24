@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the
  * {@link CountAllElementsDefaultView} operation on the {@link MapStore}.
  */
-public class CountAllElementsDefaultViewHandler implements OutputOperationHandler<CountAllElementsDefaultView, Long> {
+public class CountAllElementsDefaultViewHandler implements OperationHandler<CountAllElementsDefaultView, Long> {
     @Override
     public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)
             throws OperationException {

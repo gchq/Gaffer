@@ -300,7 +300,7 @@ public class FederatedStoreUtilTest {
 
         // Then
         assertNotSame(operation, updatedOp);
-        assertNotSame(operation.getInput(), updatedOp.getInput());
+        assertNotSame(operation.input(), updatedOp.getInput());
         final List<Element> updatedInput = Lists.newArrayList(updatedOp.getInput());
         assertEquals(
                 Arrays.asList(new Entity.Builder()

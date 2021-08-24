@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.Store;
 /**
  * A {@code CountGroupsHandler} handles {@link CountGroups} operations.
  */
-public class CountGroupsHandler implements OutputOperationHandler<CountGroups, GroupCounts> {
+public class CountGroupsHandler implements OperationHandler<CountGroups, GroupCounts> {
     @Override
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)
@@ -35,8 +35,8 @@ public class CountGroupsHandler implements OutputOperationHandler<CountGroups, G
         final GroupCounts groupCounts = new GroupCounts();
         try {
             int count = 0;
-            if (null != operation.getInput()) {
-                for (final Element element : operation.getInput()) {
+            if (null != operation.input()) {
+                for (final Element element : operation.input()) {
                     if (null != operation.getLimit()) {
                         count++;
                         if (count > operation.getLimit()) {

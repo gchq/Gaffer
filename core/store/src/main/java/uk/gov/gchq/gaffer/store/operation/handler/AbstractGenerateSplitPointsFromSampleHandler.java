@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractGenerateSplitPointsFromSampleHandler<T, S extends Store> implements OutputOperationHandler<GenerateSplitPointsFromSample<T>, List<T>> {
+public abstract class AbstractGenerateSplitPointsFromSampleHandler<T, S extends Store> implements OperationHandler<GenerateSplitPointsFromSample<T>, List<T>> {
 
     @Override
     public List<T> doOperation(final GenerateSplitPointsFromSample<T> operation, final Context context, final Store store) throws OperationException {
@@ -43,7 +43,7 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandler<T, S extends 
             return Collections.emptyList();
         }
 
-        final List<T> records = Streams.toStream(operation.getInput()).collect(Collectors.toList());
+        final List<T> records = Streams.toStream(operation.input()).collect(Collectors.toList());
 
         final List<T> splits;
         if (records.size() < 2 || records.size() <= numSplits) {
@@ -69,7 +69,7 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandler<T, S extends 
     }
 
     protected void validate(final GenerateSplitPointsFromSample operation, final S store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Operation input is required.");
         }
     }

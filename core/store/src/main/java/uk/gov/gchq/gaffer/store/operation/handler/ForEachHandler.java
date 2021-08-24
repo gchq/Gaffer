@@ -31,7 +31,7 @@ import java.util.List;
  * @param <I> input type
  * @param <O> output type
  */
-public class ForEachHandler<I, O> implements OutputOperationHandler<ForEach<I, O>, Iterable<? extends O>> {
+public class ForEachHandler<I, O> implements OperationHandler<ForEach<I, O>, Iterable<? extends O>> {
 
     @Override
     public Iterable<? extends O> doOperation(final ForEach<I, O> forEach, final Context context, final Store store) throws OperationException {

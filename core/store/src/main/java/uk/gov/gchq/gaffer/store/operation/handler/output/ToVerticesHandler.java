@@ -38,15 +38,15 @@ import java.util.stream.Stream;
  * values.
  * </p>
  */
-public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
+public class ToVerticesHandler implements OperationHandler<ToVertices, Iterable<? extends Object>> {
 
     @Override
     public Iterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
-        return new StreamFlatMapIterable<>(operation.getInput(), elementIdsToVertices(operation));
+        return new StreamFlatMapIterable<>(operation.input(), elementIdsToVertices(operation));
     }
 
     private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {

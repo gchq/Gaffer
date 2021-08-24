@@ -34,7 +34,7 @@ public class DiscardOutputHandlerTest {
         final DiscardOutputHandler handler = new DiscardOutputHandler();
         final DiscardOutput operation = mock(DiscardOutput.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         // When
         final Void results = handler.doOperation(operation, new Context(), null);

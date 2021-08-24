@@ -47,7 +47,7 @@ public class ToEntitySeedsHandlerTest {
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
         final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
@@ -66,7 +66,7 @@ public class ToEntitySeedsHandlerTest {
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
         final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
@@ -84,7 +84,7 @@ public class ToEntitySeedsHandlerTest {
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
         final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         //When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);

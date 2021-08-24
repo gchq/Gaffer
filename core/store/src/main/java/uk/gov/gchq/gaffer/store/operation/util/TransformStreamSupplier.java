@@ -46,7 +46,7 @@ public class TransformStreamSupplier implements StreamSupplier<Element> {
      *                  which it contains
      */
     public TransformStreamSupplier(final Transform operation) {
-        this.input = operation.getInput();
+        this.input = operation.input();
         this.transform = operation;
     }
 

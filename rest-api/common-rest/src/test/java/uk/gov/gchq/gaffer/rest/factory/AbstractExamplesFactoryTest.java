@@ -54,7 +54,7 @@ public class AbstractExamplesFactoryTest {
 
         // Then
         int size = 0;
-        for (ElementId e : operation.getInput()) {
+        for (ElementId e : operation.input()) {
             size++;
             if (e instanceof EntityId) {
                 assertEquals(String.class, ((EntityId) e).getVertex().getClass());
@@ -76,7 +76,7 @@ public class AbstractExamplesFactoryTest {
 
         // Then
         int size = 0;
-        for (ElementId e : operation.getInput()) {
+        for (ElementId e : operation.input()) {
             size++;
             if (e instanceof EntityId) {
                 assertEquals(String.class, ((EntityId) e).getVertex().getClass());
@@ -116,7 +116,7 @@ public class AbstractExamplesFactoryTest {
                         .build()
         );
 
-        assertEquals(expectedInput, Lists.newArrayList(operation.getInput()));
+        assertEquals(expectedInput, Lists.newArrayList(operation.input()));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class AbstractExamplesFactoryTest {
         GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
 
         // Then
-        assertNull(operation.getInput());
+        assertNull(operation.input());
         assertEquals(0, operation.getOperations().size());
     }
 
@@ -186,7 +186,7 @@ public class AbstractExamplesFactoryTest {
         GetWalks operation = (GetWalks) examplesFactory.generateExample(GetWalks.class);
 
         // Then
-        assertEquals(Lists.newArrayList(new EntitySeed("vertex1")), Lists.newArrayList(operation.getInput()));
+        assertEquals(Lists.newArrayList(new EntitySeed("vertex1")), Lists.newArrayList(operation.input()));
         assertEquals(Lists.newArrayList(new OperationChain.Builder()
                 .first(
                         new GetElements.Builder()

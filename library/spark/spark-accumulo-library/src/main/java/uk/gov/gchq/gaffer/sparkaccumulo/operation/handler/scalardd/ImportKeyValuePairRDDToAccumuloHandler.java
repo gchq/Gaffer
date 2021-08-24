@@ -39,7 +39,7 @@ public class ImportKeyValuePairRDDToAccumuloHandler extends AbstractImportKeyVal
 
     @Override
     protected void prepareKeyValues(final ImportKeyValuePairRDDToAccumulo operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException {
-        final OrderedRDDFunctions orderedRDDFunctions = new OrderedRDDFunctions(operation.getInput(), ORDERING_CLASS_TAG, KEY_CLASS_TAG, VALUE_CLASS_TAG, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
+        final OrderedRDDFunctions orderedRDDFunctions = new OrderedRDDFunctions(operation.input(), ORDERING_CLASS_TAG, KEY_CLASS_TAG, VALUE_CLASS_TAG, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
         final PairRDDFunctions pairRDDFunctions = new PairRDDFunctions(orderedRDDFunctions.repartitionAndSortWithinPartitions(partitioner), KEY_CLASS_TAG, VALUE_CLASS_TAG, ORDERING_CLASS_TAG);
         pairRDDFunctions.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
     }

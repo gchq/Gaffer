@@ -39,9 +39,9 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         try {
             final Iterable<?extends Element> validatedElements;
             if (operation.isValidate()) {
-                validatedElements = new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
+                validatedElements = new ValidatedElements(operation.input(), store.getSchema(), operation.isSkipInvalidElements());
             } else {
-                validatedElements = operation.getInput();
+                validatedElements = operation.input();
             }
             store.addElements(validatedElements);
         } catch (final StoreException e) {

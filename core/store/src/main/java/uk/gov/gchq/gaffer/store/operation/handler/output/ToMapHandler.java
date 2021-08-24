@@ -27,13 +27,13 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
  * input {@link Iterable}.
  */
-public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<? extends Map<String, Object>>> {
+public class ToMapHandler implements OperationHandler<ToMap, Iterable<? extends Map<String, Object>>> {
     @Override
     public Iterable<? extends Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
-        return operation.getElementGenerator().apply(operation.getInput());
+        return operation.getElementGenerator().apply(operation.input());
     }
 }

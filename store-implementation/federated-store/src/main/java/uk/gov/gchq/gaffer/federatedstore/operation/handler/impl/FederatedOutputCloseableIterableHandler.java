@@ -37,7 +37,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends CloseableIterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
-        implements OutputOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> {
+        implements OperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> {
 
     @Override
     public CloseableIterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {

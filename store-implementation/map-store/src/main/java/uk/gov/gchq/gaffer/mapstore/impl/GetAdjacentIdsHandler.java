@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * An {@link OutputOperationHandler} for the {@link GetAdjacentIds} operation on the {@link MapStore}.
  */
 public class GetAdjacentIdsHandler implements
-        OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+        OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAdjacentIds.class);
 
     @Override
@@ -58,7 +58,7 @@ public class GetAdjacentIdsHandler implements
     private CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
                                                     final Context context,
                                                     final MapStore mapStore) throws OperationException {
-        if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
+        if (null == operation.input() || !operation.input().iterator().hasNext()) {
             return new EmptyClosableIterable<>();
         }
         return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());

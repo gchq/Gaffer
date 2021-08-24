@@ -28,14 +28,14 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation, final Context context, final Store store) throws OperationException {
         return doOperation(operation, context.getUser(), (HBaseStore) store);
     }
 
     private CloseableIterable<? extends Element> doOperation(final GetElements operation, final User user, final HBaseStore store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             // If null seeds no results are returned
             return new WrappedCloseableIterable<>();
         }
@@ -45,7 +45,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
                     "Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
         }
         try {
-            return store.createRetriever(operation, user, operation.getInput(), SeedMatching.SeedMatchingType.EQUAL != operation.getSeedMatching());
+            return store.createRetriever(operation, user, operation.input(), SeedMatching.SeedMatchingType.EQUAL != operation.getSeedMatching());
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

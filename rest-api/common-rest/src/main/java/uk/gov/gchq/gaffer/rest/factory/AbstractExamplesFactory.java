@@ -380,7 +380,7 @@ public abstract class AbstractExamplesFactory implements ExamplesFactory {
     }
 
     public Sort sort() {
-        return new Sort.Builder()
+        return new SortHandler.Builder()
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(getAnEdgeGroup())
                         .property(getAnEntityPropertyName())

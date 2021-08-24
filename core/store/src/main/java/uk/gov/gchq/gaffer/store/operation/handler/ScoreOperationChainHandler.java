@@ -47,7 +47,7 @@ import java.util.Set;
 /**
  * Operation Handler for ScoreOperationChain
  */
-public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreOperationChain, Integer> {
+public class ScoreOperationChainHandler implements OperationHandler<ScoreOperationChain, Integer> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreOperationChainHandler.class);
 

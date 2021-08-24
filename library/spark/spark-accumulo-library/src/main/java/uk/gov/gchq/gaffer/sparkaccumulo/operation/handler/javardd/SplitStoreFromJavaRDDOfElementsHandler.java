@@ -53,7 +53,7 @@ public class SplitStoreFromJavaRDDOfElementsHandler extends AbstractSplitStoreFr
         final byte[] schemaAsJson = store.getSchema().toCompactJson();
         final String keyConverterClassName = store.getKeyPackage().getKeyConverter().getClass().getName();
 
-        final JavaRDD<Text> rows = operation.getInput().mapPartitions(new ElementIteratorToPairIteratorFunction(keyConverterClassName, schemaAsJson))
+        final JavaRDD<Text> rows = operation.input().mapPartitions(new ElementIteratorToPairIteratorFunction(keyConverterClassName, schemaAsJson))
                 .flatMap(pair -> {
                     if (null == pair.getSecond()) {
                         return asList(pair.getFirst()).iterator();

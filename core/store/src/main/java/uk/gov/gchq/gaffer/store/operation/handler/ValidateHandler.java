@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -24,24 +25,39 @@ import uk.gov.gchq.gaffer.store.ValidatedElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * An {@code ValidateHandler} handles for {@link uk.gov.gchq.gaffer.operation.impl.Validate} operations.
+ * An {@code ValidateHandler} handles for Validate operations.
  * Takes an {@link Iterable} of {@link Element}s and returns an
  * {@link Iterable} containing only valid {@link Element}s, specifically an instance of {@link ValidatedElements}.
  * The {@link uk.gov.gchq.gaffer.store.schema.Schema} is used to validate the elements.
- * The isSkipInvalidElements flag on {@link Validate} is used to determine what to do with invalid {@link Element}s.
+ * The isSkipInvalidElements flag on Validate is used to determine what to do with invalid {@link Element}s.
  */
-public class ValidateHandler implements OutputOperationHandler<Validate, Iterable<? extends Element>> {
+public class ValidateHandler implements OperationHandler<Iterable<? extends Element>> {
     @Override
-    public Iterable<? extends Element> doOperation(final Validate operation,
-                                                   final Context context, final Store store)
-            throws OperationException {
-        return doOperation(operation, store.getSchema());
-    }
-
-    public Iterable<? extends Element> doOperation(final Validate operation, final Schema schema) {
-        if (null == operation.getInput()) {
+    public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) {
+        Iterable<? extends Element> input = (Iterable<? extends Element>) operation.input();
+        if (null == input) {
             return null;
         }
-        return new ValidatedElements(operation.getInput(), schema, operation.isSkipInvalidElements());
+        return new ValidatedElements(input, store.getSchema(), (Boolean) operation.get("skipInvalidElements"));
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldOptional("validate", Boolean.class)
+                .fieldOptional("skipInvalidElements", Boolean.class)
+                .fieldOptional("input", Iterable.class);
+    }
+
+    static class Builder extends OperationHandler.BuilderSpecificInputOperation {
+        @Override
+        protected OperationHandler.AbstractBuilder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected FieldDeclaration getFieldDeclaration() {
+            return new ValidateHandler().getFieldDeclaration();
+        }
     }
 }

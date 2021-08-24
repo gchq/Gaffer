@@ -48,25 +48,25 @@ import java.util.Set;
  *
  * @param <T> the type of object in the input iterable
  */
-public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]> {
+public class ToArrayHandler<T> implements OperationHandler<ToArray<T>, T[]> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     @Override
     public T[] doOperation(final ToArray<T> operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput() || Iterables.isEmpty(operation.getInput())) {
+        if (null == operation.input() || Iterables.isEmpty(operation.input())) {
             return null;
         }
 
         final Set<Class> classes = new HashSet<>();
         final Collection<T> collection;
-        if (operation.getInput() instanceof Collection) {
-            collection = (Collection) operation.getInput();
+        if (operation.input() instanceof Collection) {
+            collection = (Collection) operation.input();
             collection.stream()
                     .filter(Objects::nonNull)
                     .forEach(e -> classes.add(e.getClass()));
 
         } else {
             collection = new ArrayList<>();
-            for (final T t : operation.getInput()) {
+            for (final T t : operation.input()) {
                 if (null != t) {
                     classes.add(t.getClass());
                 }

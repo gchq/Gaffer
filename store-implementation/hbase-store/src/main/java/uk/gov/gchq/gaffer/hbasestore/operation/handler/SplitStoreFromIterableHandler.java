@@ -39,12 +39,12 @@ public class SplitStoreFromIterableHandler implements OperationHandler<SplitStor
     }
 
     private void doOperation(final SplitStoreFromIterable<String> operation, final HBaseStore store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Operation input is required.");
         }
 
         final SortedSet<byte[]> splits = new TreeSet<>();
-        for (final String split : operation.getInput()) {
+        for (final String split : operation.input()) {
             splits.add(Base64.decodeBase64(split));
         }
 

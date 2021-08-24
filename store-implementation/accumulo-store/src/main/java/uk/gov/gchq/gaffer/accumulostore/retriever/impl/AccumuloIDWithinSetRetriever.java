@@ -85,7 +85,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
                                         final User user,
                                         final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, readEntriesIntoMemory, iteratorSettings);
-        setSeeds(operation.getInput());
+        setSeeds(operation.input());
     }
 
     private void setSeeds(final Iterable<? extends EntityId> seeds) {

@@ -27,11 +27,11 @@ public class SetVariableHandler implements OperationHandler<SetVariable> {
             throw new IllegalArgumentException("Variable name cannot be null");
         }
 
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new IllegalArgumentException("Variable input value cannot be null");
         }
 
-        context.setVariable(operation.getVariableName(), operation.getInput());
+        context.setVariable(operation.getVariableName(), operation.input());
         return null;
     }
 }

@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Map;
 
 
-public class FederatedGetAllGraphInfoHandler implements OutputOperationHandler<GetAllGraphInfo, Map<String, Object>> {
+public class FederatedGetAllGraphInfoHandler implements OperationHandler<GetAllGraphInfo, Map<String, Object>> {
 
     @Override
     public Map<String, Object> doOperation(final GetAllGraphInfo operation, final Context context, final Store store) throws OperationException {

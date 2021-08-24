@@ -57,7 +57,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
         final SparkContext sparkContext = SparkContextUtil.getSparkSession(context, store.getProperties()).sparkContext();
         final Broadcast<AccumuloElementConverter> broadcast = JavaSparkContext.fromSparkContext(sparkContext).broadcast(store.getKeyPackage().getKeyConverter());
         final ElementConverterFunction func = new ElementConverterFunction(broadcast);
-        final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
+        final JavaPairRDD<Key, Value> rdd = operation.input().flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo op =
                 new ImportKeyValueJavaPairRDDToAccumulo.Builder()
                         .input(rdd)

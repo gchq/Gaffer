@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
  */
 public class GetElementsHandler
-        implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+        implements OperationHandler<GetElements, CloseableIterable<? extends Element>> {
 
     @Override
     public CloseableIterable<Element> doOperation(final GetElements operation,
@@ -55,7 +55,7 @@ public class GetElementsHandler
         if (!mapImpl.isMaintainIndex()) {
             throw new OperationException("Cannot execute getElements if the properties request that an index is not created");
         }
-        final Iterable<? extends ElementId> seeds = operation.getInput();
+        final Iterable<? extends ElementId> seeds = operation.input();
         if (null == seeds) {
             return new EmptyClosableIterable<>();
         }

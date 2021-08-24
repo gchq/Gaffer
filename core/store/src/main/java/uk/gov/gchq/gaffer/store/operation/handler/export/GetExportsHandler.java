@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Handler for {@link GetExports} operations.
  */
-public class GetExportsHandler implements OutputOperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
+public class GetExportsHandler implements OperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
     @Override
     public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
         final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();

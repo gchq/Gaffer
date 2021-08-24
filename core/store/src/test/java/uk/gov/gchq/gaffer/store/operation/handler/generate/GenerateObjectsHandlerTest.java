@@ -46,7 +46,7 @@ public class GenerateObjectsHandlerTest {
         final Iterator objsIter = mock(Iterator.class);
         given(objs.iterator()).willReturn(objsIter);
         given(objGenerator.apply(elements)).willReturn(objs);
-        given(operation.getInput()).willReturn(elements);
+        given(operation.input()).willReturn(elements);
         given(operation.getElementGenerator()).willReturn(objGenerator);
 
         // When

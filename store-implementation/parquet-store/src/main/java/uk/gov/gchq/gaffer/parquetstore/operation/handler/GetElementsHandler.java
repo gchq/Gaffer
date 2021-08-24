@@ -34,14 +34,14 @@ import java.util.Iterator;
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link ParquetStore}.
  */
-public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements, CloseableIterable<? extends Element>> {
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,
                                                             final Context context,
                                                             final Store store) throws OperationException {
         final CloseableIterable<? extends Element> result;
-        final Iterable<? extends ElementId> input = operation.getInput();
+        final Iterable<? extends ElementId> input = operation.input();
         if (null == input) {
             throw new OperationException("Operation input is null - please specify an input.");
         } else {

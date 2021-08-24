@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,
                                                             final Context context, final Store store)
@@ -43,7 +43,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
             throw new IllegalArgumentException("The accumulostore.operation.return_matched_id_as_edge_source option has been removed. Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
         }
 
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Operation input is undefined - please specify an input.");
         }
 

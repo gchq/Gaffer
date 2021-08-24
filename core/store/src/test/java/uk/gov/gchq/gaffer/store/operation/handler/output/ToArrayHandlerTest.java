@@ -49,7 +49,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Integer[] results = handler.doOperation(operation, new Context(), null);
@@ -74,7 +74,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<Element> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Element[] results = handler.doOperation(operation, new Context(), null);
@@ -92,7 +92,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final ElementId[] results = handler.doOperation(operation, new Context(), null);
@@ -119,7 +119,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final ElementId[] results = handler.doOperation(operation, new Context(), null);
@@ -145,7 +145,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<Object> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Object[] results = handler.doOperation(operation, new Context(), null);
@@ -163,7 +163,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<Object> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Object[] results = handler.doOperation(operation, new Context(), null);
@@ -178,7 +178,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         //When
         final Integer[] results = handler.doOperation(operation, new Context(), null);
@@ -196,7 +196,7 @@ public class ToArrayHandlerTest {
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
         final ToArray operation = mock(ToArray.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Integer[] results = handler.doOperation(operation, new Context(), null);

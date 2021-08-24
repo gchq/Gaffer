@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.user.User;
 /**
  * A handler for {@link ChangeGraphAccess} operation for the FederatedStore.
  */
-public class FederatedChangeGraphAccessHandler implements OutputOperationHandler<ChangeGraphAccess, Boolean> {
+public class FederatedChangeGraphAccessHandler implements OperationHandler<ChangeGraphAccess, Boolean> {
 
     @Override
     public Boolean doOperation(final ChangeGraphAccess operation, final Context context, final Store store) throws OperationException {

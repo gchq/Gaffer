@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters, O>
-        implements OutputOperationHandler<OP, O> {
+        implements OperationHandler<OP, O> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
     public static final String USE_RFILE_READER_RDD = "gaffer.accumulo.spark.directrdd.use_rfile_reader";
@@ -105,7 +105,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                    final INPUT_OP operation)
             throws OperationException {
         final List<Range> ranges = new ArrayList<>();
-        for (final ElementId entityId : operation.getInput()) {
+        for (final ElementId entityId : operation.input()) {
             try {
                 ranges.addAll(accumuloStore.getKeyPackage()
                         .getRangeFactory()
@@ -123,7 +123,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                             final INPUT_OP operation)
             throws OperationException {
         final List<Range> ranges = new ArrayList<>();
-        for (final Pair pair : operation.getInput()) {
+        for (final Pair pair : operation.input()) {
             try {
                 ranges.add(accumuloStore.getKeyPackage()
                         .getRangeFactory()

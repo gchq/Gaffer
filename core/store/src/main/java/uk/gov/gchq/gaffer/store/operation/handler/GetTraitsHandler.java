@@ -32,7 +32,7 @@ import java.util.Set;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
-public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+public class GetTraitsHandler implements OperationHandler<GetTraits, Set<StoreTrait>> {
 
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {

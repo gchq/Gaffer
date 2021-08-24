@@ -28,7 +28,7 @@ import java.util.function.Function;
  * @param <I> The object type of the input object
  * @param <O> The object type of the output object
  */
-public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
+public class MapHandler<I, O> implements OperationHandler<Map<I, O>, O> {
 
     /**
      * Handles the {@link Map} operation. Applies the function(s) contained within the Map operation
@@ -46,7 +46,7 @@ public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
             throw new OperationException("Operation cannot be null");
         }
 
-        Object input = operation.getInput();
+        Object input = operation.input();
 
         if (null == input) {
             throw new OperationException("Input cannot be null");

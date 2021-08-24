@@ -380,7 +380,7 @@ public class ParquetStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 

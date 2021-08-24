@@ -52,13 +52,13 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     private void addElements(final AddElements addElementsOperation, final HBaseStore store)
             throws OperationException {
-        if (null == addElementsOperation.getInput()) {
+        if (null == addElementsoperation.input()) {
             return;
         }
 
         try {
             final Table table = store.getTable();
-            final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
+            final Iterator<? extends Element> elements = addElementsoperation.input().iterator();
             final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
             final int batchSize = store.getProperties().getWriteBufferSize();
             List<Put> puts = new ArrayList<>(batchSize);

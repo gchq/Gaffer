@@ -20,12 +20,15 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * An {@code ElementComparison} operation is an operation which is used
@@ -34,13 +37,14 @@ import java.util.Set;
  */
 public final class ElementComparisonUtil {
 
-    public static final String COMPARATORS = "comparators";
+    public static final String KEY_COMPARATORS = "comparators";
+    public static final AbstractMap.SimpleImmutableEntry<String, Class> entryComparators = new AbstractMap.SimpleImmutableEntry<>(KEY_COMPARATORS, List.class);
 
     private ElementComparisonUtil() {
     }
 
     public static List<Comparator<Element>> getComparators(final Operation operation) {
-        return (List<Comparator<Element>>) operation.get(COMPARATORS);
+        return (List<Comparator<Element>>) operation.get(KEY_COMPARATORS);
     }
 
     /**

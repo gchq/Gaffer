@@ -20,14 +20,14 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class CountHandler<T> implements OutputOperationHandler<Count<T>, Long> {
+public class CountHandler<T> implements OperationHandler<Count<T>, Long> {
 
     @Override
     public Long doOperation(final Count operation, final Context context, final Store store)
             throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Count operation has null iterable of items");
         }
-        return Streams.toStream(operation.getInput()).count();
+        return Streams.toStream(operation.input()).count();
     }
 }

@@ -28,10 +28,10 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * If {@link If#getThen()} or {@link If#getOtherwise()} is called but returns a null operation,
  * then the input object will simply be returned.
  */
-public class IfHandler implements OutputOperationHandler<If<Object, Object>, Object> {
+public class IfHandler implements OperationHandler<If<Object, Object>, Object> {
     @Override
     public Object doOperation(final If operation, final Context context, final Store store) throws OperationException {
-        final Object input = operation.getInput();
+        final Object input = operation.input();
 
         boolean computedCondition;
 

@@ -477,17 +477,17 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new FederatedOutputCloseableIterableHandler<GetElements, Element>();
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return new FederatedOutputCloseableIterableHandler<GetAllElements, Element>();
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new FederatedOutputCloseableIterableHandler<GetAdjacentIds, EntityId>();
     }
 

@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * based on the groups provided in the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
  * </p>
  */
-public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<GetGraphFrameOfElements, GraphFrame> {
+public class GetGraphFrameOfElementsHandler implements OperationHandler<GetGraphFrameOfElements, GraphFrame> {
     @Override
     public GraphFrame doOperation(final GetGraphFrameOfElements operation, final Context context, final Store store) throws OperationException {
         final GetDataFrameOfElements getDataFrame = new GetDataFrameOfElements.Builder()

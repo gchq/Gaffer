@@ -89,7 +89,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * Currently the handler only supports creating {@link Walk}s which contain
  * {@link Edge}s.
  */
-public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
+public class GetWalksHandler implements OperationHandler<GetWalks, Iterable<Walk>> {
     private Integer maxHops = null;
     private boolean prune = true;
 

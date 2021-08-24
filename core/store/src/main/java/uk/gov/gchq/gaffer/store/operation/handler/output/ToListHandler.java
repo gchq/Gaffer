@@ -34,14 +34,14 @@ import java.util.stream.Collectors;
  *
  * @param <T> the type of object contained in the input iterable
  */
-public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<? extends T>> {
+public class ToListHandler<T> implements OperationHandler<ToList<T>, List<? extends T>> {
     @Override
     public List<T> doOperation(final ToList<T> operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
-        return Streams.toStream(operation.getInput())
+        return Streams.toStream(operation.input())
                       .collect(Collectors.toList());
     }
 }

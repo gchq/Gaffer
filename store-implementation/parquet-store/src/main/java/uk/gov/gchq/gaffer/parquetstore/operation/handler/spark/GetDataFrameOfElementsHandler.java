@@ -38,7 +38,7 @@ import java.io.Serializable;
  * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetDataFrameOfElements}
  * operation on the {@link ParquetStore}.
  */
-public class GetDataFrameOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>>, Serializable {
+public class GetDataFrameOfElementsHandler implements OperationHandler<GetDataFrameOfElements, Dataset<Row>>, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetDataFrameOfElementsHandler.class);
     private static final long serialVersionUID = 6355341028414862100L;
 

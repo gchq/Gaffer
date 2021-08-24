@@ -57,7 +57,7 @@ public final class OperationHandlerUtil {
     }
 
     private static void setOperationInputIfNull(final Input operation, final Object input) {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             operation.setInput(input);
         }
     }

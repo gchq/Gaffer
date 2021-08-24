@@ -27,19 +27,19 @@ import uk.gov.gchq.gaffer.store.Store;
  * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so the data is
  * not stored in memory.
  */
-public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterable<? extends T>> {
+public class LimitHandler<T> implements OperationHandler<Limit<T>, Iterable<? extends T>> {
     @Override
     public Iterable<? extends T> doOperation(final Limit<T> operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
         if (null != operation.getResultLimit()) {
-            return new LimitedCloseableIterable<>(operation.getInput(), 0, operation
+            return new LimitedCloseableIterable<>(operation.input(), 0, operation
                     .getResultLimit(), operation.getTruncate());
 
         }
 
-        return operation.getInput();
+        return operation.input();
     }
 }

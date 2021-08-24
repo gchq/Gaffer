@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * the {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
  */
 public class GetAdjacentIdsHandler
-        implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+        implements OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
 
     @Override
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentIds operation,

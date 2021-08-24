@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 /**
  * A {@code GetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema} operation.
  */
-public class GetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
+public class GetSchemaHandler implements OperationHandler<GetSchema, Schema> {
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         final Schema schema;

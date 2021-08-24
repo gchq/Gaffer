@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.user.User;
 /**
  * An {@link OutputOperationHandler} for the {@link GetAllElements} operation on the {@link ParquetStore}.
  */
-public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,

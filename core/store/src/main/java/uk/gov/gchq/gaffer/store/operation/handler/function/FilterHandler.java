@@ -30,7 +30,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? extends Element>> {
+public class FilterHandler implements OperationHandler<Filter, Iterable<? extends Element>> {
 
     private final FunctionValidator<Filter> validator = new FilterValidator();
 
@@ -40,7 +40,7 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
     }
 
     public Iterable<? extends Element> doOperation(final Filter operation, final Schema schema) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Filter operation has null iterable of elements");
         }
 

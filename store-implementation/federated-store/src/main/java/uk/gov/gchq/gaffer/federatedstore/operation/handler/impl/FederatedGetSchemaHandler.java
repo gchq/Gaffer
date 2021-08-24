@@ -29,7 +29,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDepre
  * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
  * operation by merging federated schemas.
  */
-public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
+public class FederatedGetSchemaHandler implements OperationHandler<GetSchema, Schema> {
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         if (null == operation) {

@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
 
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
 
-public class FederatedFilterHandler implements OutputOperationHandler<Filter, Iterable<? extends Element>> {
+public class FederatedFilterHandler implements OperationHandler<Filter, Iterable<? extends Element>> {
     private final FilterHandler handler;
 
     public FederatedFilterHandler() {

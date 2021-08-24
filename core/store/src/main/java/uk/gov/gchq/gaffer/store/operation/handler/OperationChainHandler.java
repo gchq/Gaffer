@@ -33,14 +33,14 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  *
  * @param <OUT> the output type of the operation chain
  */
-public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
+public class OperationChainHandler<OUT> implements OperationHandler< OUT> {
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
 
     @Override
-    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
+    public OUT _doOperation(final Operation operationChain, final Context context, final Store store) throws OperationException {
 
-        final OperationChain<OUT> preparedOperationChain = prepareOperationChain(operationChain, context, store);
+        final OperationChain preparedOperationChain = prepareOperationChain(operationChain, context, store);
 
         Object result = null;
         for (final Operation op : preparedOperationChain.getOperations()) {

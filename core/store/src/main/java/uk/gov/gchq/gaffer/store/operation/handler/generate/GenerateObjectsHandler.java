@@ -28,11 +28,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  *
  * @param <OBJ> the type of output objects from the operation.
  */
-public class GenerateObjectsHandler<OBJ> implements OutputOperationHandler<GenerateObjects<OBJ>, Iterable<? extends OBJ>> {
+public class GenerateObjectsHandler<OBJ> implements OperationHandler<GenerateObjects<OBJ>, Iterable<? extends OBJ>> {
     @Override
     public Iterable<? extends OBJ> doOperation(final GenerateObjects<OBJ> operation,
                                                final Context context, final Store store)
             throws OperationException {
-        return operation.getElementGenerator().apply(operation.getInput());
+        return operation.getElementGenerator().apply(operation.input());
     }
 }

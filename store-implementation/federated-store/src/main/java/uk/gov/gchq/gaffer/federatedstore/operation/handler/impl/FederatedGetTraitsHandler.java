@@ -34,7 +34,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getDepre
  * traits3 = [a,b]
  * return [b]
  */
-public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+public class FederatedGetTraitsHandler implements OperationHandler<GetTraits, Set<StoreTrait>> {
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
         try {

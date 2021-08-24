@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
 import java.net.URL;
 
-public class GetFromEndpointHandler implements OutputOperationHandler<GetFromEndpoint, String> {
+public class GetFromEndpointHandler implements OperationHandler<GetFromEndpoint, String> {
     @Override
     public String doOperation(final GetFromEndpoint operation, final Context context, final Store store) throws OperationException {
         try {

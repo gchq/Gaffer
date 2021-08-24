@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetDataFrameOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
+public class GetDataFrameOfElementsHandler implements OperationHandler<GetDataFrameOfElements, Dataset<Row>> {
 
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,

@@ -37,7 +37,7 @@ import java.util.function.Function;
 /**
  * Operation Handler for GetAllNamedOperations
  */
-public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>> {
+public class GetAllNamedOperationsHandler implements OperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>> {
     private final NamedOperationCache cache;
 
     public GetAllNamedOperationsHandler() {

@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsBetweenSetsHandler implements OutputOperationHandler<GetElementsBetweenSets, CloseableIterable<? extends Element>> {
+public class GetElementsBetweenSetsHandler implements OperationHandler<GetElementsBetweenSets, CloseableIterable<? extends Element>> {
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElementsBetweenSets operation,

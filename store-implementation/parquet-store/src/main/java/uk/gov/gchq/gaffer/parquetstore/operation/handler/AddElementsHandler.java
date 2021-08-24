@@ -96,7 +96,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         LOGGER.trace("currentGraphPartitioner is {}", currentGraphPartitioner);
         new WriteUnsortedData(store, currentGraphPartitioner,
                 directoryForGroupAndPartitionId, directoryForGroupAndPartitionIdForReversedEdges)
-                .writeElements(addElementsOperation.getInput());
+                .writeElements(addElementsoperation.input());
 
         // For every group and partition, aggregate the new data with the old data and then sort
         final BiFunction<String, Integer, String> directoryForSortedResultsForGroupAndPartitionId = (group, partitionId) ->

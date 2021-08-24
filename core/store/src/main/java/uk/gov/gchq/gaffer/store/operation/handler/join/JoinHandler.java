@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
-public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<? extends MapTuple>> {
+public class JoinHandler<I> implements OperationHandler<Join<I>, Iterable<? extends MapTuple>> {
     @Override
     public Iterable<? extends MapTuple> doOperation(final Join<I> operation, final Context context, final Store store) throws OperationException {
         final int limit = operation.getCollectionLimit() != null ? operation.getCollectionLimit() : 100000;
@@ -46,7 +46,7 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
             throw new OperationException("A match method must be supplied");
         }
 
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             operation.setInput(new ArrayList<>());
         }
 
@@ -73,7 +73,7 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
         final Iterable limitedRightIterable;
 
         try {
-            limitedLeftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
+            limitedLeftIterable = new LimitedCloseableIterable(operation.input(), 0, limit, false);
             limitedRightIterable = new LimitedCloseableIterable(rightIterable, 0, limit, false);
             return joinFunction.join(limitedLeftIterable, limitedRightIterable, operation.getMatchMethod(), matchKey, operation.isFlatten());
         } catch (final LimitExceededException e) {

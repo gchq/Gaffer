@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-public class GetProxyUrlHandler implements OutputOperationHandler<GetProxyUrl, String> {
+public class GetProxyUrlHandler implements OperationHandler<GetProxyUrl, String> {
     @Override
     public String doOperation(final GetProxyUrl operation, final Context context, final Store store) throws OperationException {
         try {

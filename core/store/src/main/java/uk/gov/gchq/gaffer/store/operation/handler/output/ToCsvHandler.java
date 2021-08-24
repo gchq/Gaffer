@@ -28,10 +28,10 @@ import java.util.Collections;
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
  * input {@link Iterable}.
  */
-public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
+public class ToCsvHandler implements OperationHandler<ToCsv, Iterable<? extends String>> {
     @Override
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             return null;
         }
 
@@ -39,7 +39,7 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
             throw new IllegalArgumentException("ToCsv operation requires a generator");
         }
 
-        final Iterable<? extends String> csv = operation.getElementGenerator().apply(operation.getInput());
+        final Iterable<? extends String> csv = operation.getElementGenerator().apply(operation.input());
         if (operation.isIncludeHeader()) {
             return new ChainedIterable<>(Collections.singletonList(operation.getElementGenerator().getHeader()), csv);
         }

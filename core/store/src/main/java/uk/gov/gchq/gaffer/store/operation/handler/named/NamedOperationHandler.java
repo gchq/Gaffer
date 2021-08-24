@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  *
  * If this handler is invoked then it means the named operation could not be resolved.
  */
-public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
+public class NamedOperationHandler implements OperationHandler<NamedOperation<?, Object>, Object> {
     @Override
     public Object doOperation(final NamedOperation<?, Object> operation, final Context context, final Store store) throws OperationException {
         throw new UnsupportedOperationException("The named operation: " + operation.getOperationName() + " was not found.");

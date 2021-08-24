@@ -41,7 +41,7 @@ public class ToSetHandlerTest {
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
         final ToSet<Integer> operation = mock(ToSet.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
@@ -57,7 +57,7 @@ public class ToSetHandlerTest {
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
         final ToSet<Integer> operation = mock(ToSet.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
@@ -72,7 +72,7 @@ public class ToSetHandlerTest {
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
         final ToSet<Integer> operation = mock(ToSet.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);

@@ -779,7 +779,7 @@ public abstract class Store {
      * @return the implementation of the handler for {@link
      * uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
-    protected abstract OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler();
+    protected abstract OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -789,7 +789,7 @@ public abstract class Store {
      * @return the implementation of the handler for {@link
      * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
-    protected abstract OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
+    protected abstract OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -798,7 +798,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
      */
-    protected abstract OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
+    protected abstract OperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -852,7 +852,7 @@ public abstract class Store {
         }
     }
 
-    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OperationHandler<OP, O> handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {

@@ -108,7 +108,7 @@ public class Queries {
                                 .build())
                         .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                         .build())
-                .then(new Sort.Builder()
+                .then(new SortHandler.Builder()
                         .comparators(new ElementPropertyComparator.Builder()
                                 .groups("JunctionUse")
                                 .property("busCount")

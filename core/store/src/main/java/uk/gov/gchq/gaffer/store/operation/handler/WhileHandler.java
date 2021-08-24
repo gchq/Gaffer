@@ -47,7 +47,7 @@ import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUt
  * and then register a path to the json file in your store properties
  * using the key gaffer.store.operation.declarations.
  */
-public class WhileHandler implements OutputOperationHandler<While<Object, Object>, Object> {
+public class WhileHandler implements OperationHandler<While<Object, Object>, Object> {
     private int maxRepeats = While.MAX_REPEATS;
 
     @Override
@@ -56,7 +56,7 @@ public class WhileHandler implements OutputOperationHandler<While<Object, Object
                               final Store store) throws OperationException {
         validateMaxRepeats(operation);
 
-        Object input = operation.getInput();
+        Object input = operation.input();
         for (int repeatCount = 0; repeatCount < operation.getMaxRepeats(); repeatCount++) {
             final While operationClone = operation.shallowClone();
             if (!isSatisfied(input, operationClone, context, store)) {

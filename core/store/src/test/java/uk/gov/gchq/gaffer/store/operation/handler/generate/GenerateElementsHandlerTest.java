@@ -46,7 +46,7 @@ public class GenerateElementsHandlerTest {
         final CloseableIterator<Element> elementsIter = mock(CloseableIterator.class);
         given(elements.iterator()).willReturn(elementsIter);
         given(elementGenerator.apply(objs)).willReturn(elements);
-        given(operation.getInput()).willReturn(objs);
+        given(operation.input()).willReturn(objs);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When

@@ -24,11 +24,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Collections;
 import java.util.List;
 
-public class ToSingletonListHandler<T> implements OutputOperationHandler<ToSingletonList<T>, List<? extends T>> {
+public class ToSingletonListHandler<T> implements OperationHandler<ToSingletonList<T>, List<? extends T>> {
     @Override
     public List<? extends T> doOperation(final ToSingletonList<T> operation, final Context context, final Store store) throws OperationException {
-        if (null != operation.getInput()) {
-            return Collections.singletonList(operation.getInput());
+        if (null != operation.input()) {
+            return Collections.singletonList(operation.input());
         } else {
             throw new OperationException("Input cannot be null");
         }

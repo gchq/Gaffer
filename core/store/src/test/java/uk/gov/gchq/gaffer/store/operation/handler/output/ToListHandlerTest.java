@@ -43,7 +43,7 @@ public class ToListHandlerTest {
         final ToListHandler handler = new ToListHandler();
         final ToList<Integer> operation = mock(ToList.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.input()).willReturn(originalResults);
 
         //When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
@@ -58,7 +58,7 @@ public class ToListHandlerTest {
         final ToListHandler handler = new ToListHandler();
         final ToList<Integer> operation = mock(ToList.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
 
         //When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);

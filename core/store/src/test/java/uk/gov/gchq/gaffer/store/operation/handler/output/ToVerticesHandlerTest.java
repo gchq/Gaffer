@@ -67,7 +67,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.NONE);
 
         //When
@@ -85,7 +85,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.NONE);
 
         //When
@@ -111,7 +111,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.EQUAL);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.DESTINATION);
 
@@ -135,7 +135,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.OPPOSITE);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.SOURCE);
 
@@ -154,7 +154,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.BOTH);
 
         //When
@@ -171,7 +171,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.SOURCE);
 
         //When
@@ -189,7 +189,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.DESTINATION);
 
         //When
@@ -211,7 +211,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.EQUAL);
 
         // When
@@ -233,7 +233,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.OPPOSITE);
 
         // When
@@ -255,7 +255,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(elementIds);
+        given(operation.input()).willReturn(elementIds);
         given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.IGNORE);
 
         // When
@@ -271,7 +271,7 @@ public class ToVerticesHandlerTest {
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
-        given(operation.getInput()).willReturn(null);
+        given(operation.input()).willReturn(null);
         given(operation.getEdgeVertices()).willReturn(EdgeVertices.NONE);
 
         //When

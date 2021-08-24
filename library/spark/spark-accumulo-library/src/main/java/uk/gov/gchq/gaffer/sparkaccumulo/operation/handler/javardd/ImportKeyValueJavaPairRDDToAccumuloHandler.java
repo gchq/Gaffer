@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitio
 public class ImportKeyValueJavaPairRDDToAccumuloHandler extends AbstractImportKeyValuePairRDDToAccumuloHandler<ImportKeyValueJavaPairRDDToAccumulo> {
     @Override
     protected void prepareKeyValues(final ImportKeyValueJavaPairRDDToAccumulo operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException {
-        final JavaPairRDD<Key, Value> rdd = operation.getInput().repartitionAndSortWithinPartitions(partitioner);
+        final JavaPairRDD<Key, Value> rdd = operation.input().repartitionAndSortWithinPartitions(partitioner);
         rdd.saveAsNewAPIHadoopFile(operation.getOutputPath(), Key.class, Value.class, AccumuloFileOutputFormat.class, getConfiguration(operation));
     }
 

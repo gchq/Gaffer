@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * A {@code GetJobResultsHandler} handles {@link GetJobResults} operations by querying
  * the configured store's job tracker for the required job results.
  */
-public class GetJobResultsHandler implements OutputOperationHandler<GetJobResults, CloseableIterable<?>> {
+public class GetJobResultsHandler implements OperationHandler<GetJobResults, CloseableIterable<?>> {
     @Override
     public CloseableIterable<?> doOperation(final GetJobResults operation, final Context context, final Store store) throws OperationException {
         if (!store.isSupported(GetGafferResultCacheExport.class)) {

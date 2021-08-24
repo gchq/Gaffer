@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 /**
  * An {@link OutputOperationHandler} for the {@link GetAllElements} operation on the {@link MapStore}.
  */
-public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,

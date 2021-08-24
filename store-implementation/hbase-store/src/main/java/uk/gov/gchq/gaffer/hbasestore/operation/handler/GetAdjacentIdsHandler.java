@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
-public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
 
     @Override
     public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,

@@ -66,7 +66,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store));
-        this.ids = operation.getInput();
+        this.ids = operation.input();
         transformGroups = getGroupsWithTransforms(operation.getView());
     }
 

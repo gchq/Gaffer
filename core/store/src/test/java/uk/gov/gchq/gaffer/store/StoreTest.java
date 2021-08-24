@@ -120,9 +120,9 @@ public class StoreTest {
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements> addElementsHandler;
-    private OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getElementsHandler;
-    private OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
-    private OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
+    private OperationHandler<GetElements, CloseableIterable<? extends Element>> getElementsHandler;
+    private OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
+    private OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
     private OperationHandler<Validate> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
@@ -1083,17 +1083,17 @@ public class StoreTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        protected OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
             return getAdjacentIdsHandler;
         }
 
@@ -1178,17 +1178,17 @@ public class StoreTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        protected OperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
             return getAdjacentIdsHandler;
         }
 

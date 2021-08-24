@@ -30,7 +30,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends Store> implements OutputOperationHandler<SampleElementsForSplitPoints<T>, List<T>> {
+public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends Store> implements OperationHandler<SampleElementsForSplitPoints<T>, List<T>> {
     public static final int MAX_SAMPLED_ELEMENTS_DEFAULT = 10000000;
 
     private int maxSampledElements = MAX_SAMPLED_ELEMENTS_DEFAULT;
@@ -54,7 +54,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
 
 
         final Iterable<? extends Element> cleanElements = Iterables.filter(
-                operation.getInput(),
+                operation.input(),
                 e -> null != e && (1 == proportionToSample || random.nextFloat() <= proportionToSample)
         );
 
@@ -84,7 +84,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
     protected abstract Stream<T> process(final Stream<? extends Element> stream, final S store);
 
     protected void validate(final SampleElementsForSplitPoints operation, final S store) throws OperationException {
-        if (null == operation.getInput()) {
+        if (null == operation.input()) {
             throw new OperationException("Operation input is required.");
         }
     }
