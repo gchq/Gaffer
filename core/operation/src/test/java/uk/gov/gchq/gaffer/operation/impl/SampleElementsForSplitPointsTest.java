@@ -92,6 +92,7 @@ public class SampleElementsForSplitPointsTest extends OperationTest<SampleElemen
         assertEquals(Collections.singletonList(new Entity(TestGroups.ENTITY, "vertex")), op.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

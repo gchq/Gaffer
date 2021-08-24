@@ -60,6 +60,7 @@ public class KllFloatsSketchAggregatorTest extends BinaryOperatorTest {
         assertEquals(new KllFloatsSketchAggregator(), new KllFloatsSketchAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

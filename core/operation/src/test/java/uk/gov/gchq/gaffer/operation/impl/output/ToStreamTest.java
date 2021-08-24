@@ -45,6 +45,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
         assertThat(toStream.getInput(), containsInAnyOrder("1", "2"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

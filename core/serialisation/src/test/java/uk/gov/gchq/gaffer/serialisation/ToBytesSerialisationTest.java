@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
+    @Test
     @Override
     public void shouldSerialiseNull() throws SerialisationException {
         // When

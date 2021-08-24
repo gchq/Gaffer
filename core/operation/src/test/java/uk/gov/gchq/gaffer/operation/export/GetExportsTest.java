@@ -70,6 +70,7 @@ public class GetExportsTest extends OperationTest<GetExports> {
         assertEquals("key2", op.getGetExports().get(1).getKey());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

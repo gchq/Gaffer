@@ -105,6 +105,7 @@ public class ExtractPropertyTest extends FunctionTest {
         return new Class[]{Object.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         final ExtractProperty function = getInstance();

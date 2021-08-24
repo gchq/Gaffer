@@ -53,6 +53,7 @@ public class HllSketchAggregatorTest extends BinaryOperatorTest {
         assertEquals(new HllSketchAggregator(), new HllSketchAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

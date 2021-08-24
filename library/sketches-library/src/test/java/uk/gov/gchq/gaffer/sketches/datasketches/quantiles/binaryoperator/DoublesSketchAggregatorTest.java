@@ -62,6 +62,7 @@ public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
         assertEquals(new DoublesSketchAggregator(), new DoublesSketchAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

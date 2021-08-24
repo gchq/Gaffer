@@ -43,6 +43,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
         assertThat(toArray.getInput(), containsInAnyOrder("1", "2"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -45,6 +45,7 @@ public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> 
         assertNotNull(deserialisedOp);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -57,6 +58,7 @@ public class ScoreOperationChainTest extends OperationTest<ScoreOperationChain> 
         assertThat(scoreOperationChain.getOperationChain(), is(notNullValue()));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

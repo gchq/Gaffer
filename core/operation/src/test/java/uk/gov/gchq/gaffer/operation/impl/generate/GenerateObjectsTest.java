@@ -113,6 +113,7 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
         assertEquals(ObjectGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

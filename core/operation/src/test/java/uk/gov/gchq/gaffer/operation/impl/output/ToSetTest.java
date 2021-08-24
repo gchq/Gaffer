@@ -45,6 +45,7 @@ public class ToSetTest extends OperationTest<ToSet> {
         assertThat(toSet.getInput(), containsInAnyOrder("1", "2"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

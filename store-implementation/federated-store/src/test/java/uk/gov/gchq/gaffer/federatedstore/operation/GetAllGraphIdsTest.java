@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
@@ -33,6 +35,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
         return Sets.newHashSet();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()
@@ -42,6 +45,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
         assertThat(operation.getOptions(), hasEntry("a", "b"));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()

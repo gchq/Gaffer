@@ -45,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
