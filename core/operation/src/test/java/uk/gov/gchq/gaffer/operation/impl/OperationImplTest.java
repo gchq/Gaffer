@@ -79,6 +79,7 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
         assertEquals(optionalField2, op.getOptionalField2());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

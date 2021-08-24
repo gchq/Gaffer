@@ -39,11 +39,13 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
     }
 
 
+    @Test
     @Override
     public void shouldSerialiseNull() throws SerialisationException {
         assertNull(serialiser.serialiseNull());
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         assertNull(serialiser.serialiseNull());

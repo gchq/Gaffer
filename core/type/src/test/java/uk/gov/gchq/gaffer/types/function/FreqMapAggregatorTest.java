@@ -51,6 +51,7 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
         assertEquals((Long) 5L, result.get("3"));
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

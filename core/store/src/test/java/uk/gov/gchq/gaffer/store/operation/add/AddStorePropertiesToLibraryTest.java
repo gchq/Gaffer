@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -56,6 +57,7 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
         return new AddStorePropertiesToLibrary();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         //then
@@ -64,6 +66,7 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
         assertEquals(TEST_ID, op.getId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         //when

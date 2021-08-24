@@ -53,6 +53,7 @@ public class HllUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new HllUnionAggregator(), new HllUnionAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

@@ -58,6 +58,7 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
         assertEquals(key, op.getKey());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

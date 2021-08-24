@@ -51,6 +51,7 @@ public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
         return null;
     }
 
+    @Test
     @Override
     public void shouldSerialiseWithHistoricValues() {
         //fail( "This has a byte value that changes, timestamp within the Avro?");

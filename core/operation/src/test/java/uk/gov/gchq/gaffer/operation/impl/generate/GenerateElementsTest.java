@@ -83,6 +83,7 @@ public class GenerateElementsTest extends OperationTest<GenerateElements> {
         assertEquals("Test2", iter.next());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

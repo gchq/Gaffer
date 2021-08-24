@@ -59,6 +59,7 @@ public class StringsUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new StringsUnionAggregator(), new StringsUnionAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
