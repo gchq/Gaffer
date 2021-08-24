@@ -38,6 +38,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,8 +62,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private String operationName;
     private List<String> labels;
     private String description;
-    private List<String> readAccessRoles = new ArrayList<>();
-    private List<String> writeAccessRoles = new ArrayList<>();
+    private List<String> readAccessRoles;
+    private List<String> writeAccessRoles;
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
@@ -173,8 +174,8 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
                 .name(operationName)
                 .labels(labels)
                 .description(description)
-                .readAccessRoles(readAccessRoles.toArray(new String[readAccessRoles.size()]))
-                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .readAccessRoles(isNull(readAccessRoles) ? null : readAccessRoles.toArray(new String[readAccessRoles.size()]))
+                .writeAccessRoles(isNull(writeAccessRoles) ? null : writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
                 .options(options)
@@ -235,7 +236,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private Collection<Operation> getOperationsWithDefaultParams() {
         String opStringWithDefaults = operations;
 
-        if (null != parameters) {
+        if (nonNull(parameters)) {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
 
@@ -301,12 +302,24 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         }
 
         public Builder readAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getReadAccessRoles(), roles);
+            if (isNull(roles)) {
+                _getOp().setReadAccessRoles(null);
+            } else if (isNull(_getOp().getReadAccessRoles())) {
+                _getOp().setReadAccessRoles(Arrays.asList(roles));
+            } else {
+                Collections.addAll(_getOp().getReadAccessRoles(), roles);
+            }
             return _self();
         }
 
         public Builder writeAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            if (isNull(roles)) {
+                _getOp().setWriteAccessRoles(null);
+            } else if (isNull(_getOp().getWriteAccessRoles())) {
+                _getOp().setWriteAccessRoles(Arrays.asList(roles));
+            } else {
+                Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            }
             return _self();
         }
 

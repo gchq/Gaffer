@@ -77,8 +77,6 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
                 .creatorId("UNKNOWN")
-                .readers(Arrays.asList())
-                .writers(Arrays.asList())
                 .parameters(null)
                 .build();
 
