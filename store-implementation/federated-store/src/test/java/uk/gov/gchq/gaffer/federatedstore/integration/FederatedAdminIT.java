@@ -58,8 +58,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
             StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 

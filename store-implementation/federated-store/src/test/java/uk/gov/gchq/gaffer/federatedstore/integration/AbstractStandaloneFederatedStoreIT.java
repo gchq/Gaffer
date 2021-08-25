@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -38,13 +38,13 @@ public abstract class AbstractStandaloneFederatedStoreIT {
         _setUp();
     }
 
-    @AfterClass
-    public void tearDown() throws Exception {
+    @AfterAll
+    public static void tearDown() throws Exception {
         CacheServiceLoader.shutdown();
         _tearDown();
     }
 
-    private void _tearDown() throws Exception {
+    private static void _tearDown() throws Exception {
     }
 
 
