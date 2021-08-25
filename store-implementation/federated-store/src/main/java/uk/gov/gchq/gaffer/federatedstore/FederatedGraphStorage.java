@@ -613,6 +613,9 @@ public class FederatedGraphStorage {
             String storeClass = graphToMove.getStoreProperties().getStoreClass();
             if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
                 /*
+                 * This logic is only for Accumulo derived stores Only.
+                 * For updating table names to match graphs names.
+                 *
                  * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
                  * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
                  */
@@ -625,9 +628,8 @@ public class FederatedGraphStorage {
 
                     if (connection.tableOperations().exists(graphId)) {
                         connection.tableOperations().offline(graphId);
-                        connection.tableOperations().clone(graphId, newGraphId, true, null, null);
+                        connection.tableOperations().rename(graphId, newGraphId);
                         connection.tableOperations().online(newGraphId);
-                        connection.tableOperations().delete(graphId);
                     }
                 } catch (final Exception e) {
                     LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
@@ -647,10 +649,10 @@ public class FederatedGraphStorage {
             //Update cache
             if (isCacheEnabled()) {
                 try {
-                    federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true/*true because graphLibrary should have throw error*/);
+                    //Overwrite cache = true because the graphLibrary should have thrown an error before this point.
+                    federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true);
                 } catch (final CacheOperationException e) {
-                    //TODO FS recovery
-                    String s = "Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
+                    String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
                     LOGGER.error(s + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
                     throw new StorageException(s, e);
                 }
