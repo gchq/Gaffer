@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
+import org.junit.AfterClass;
 import org.junit.jupiter.api.BeforeEach;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -35,6 +37,16 @@ public abstract class AbstractStandaloneFederatedStoreIT {
         createGraph();
         _setUp();
     }
+
+    @AfterClass
+    public void tearDown() throws Exception {
+        CacheServiceLoader.shutdown();
+        _tearDown();
+    }
+
+    private void _tearDown() throws Exception {
+    }
+
 
     protected void _setUp() throws Exception {
         // Override if required;

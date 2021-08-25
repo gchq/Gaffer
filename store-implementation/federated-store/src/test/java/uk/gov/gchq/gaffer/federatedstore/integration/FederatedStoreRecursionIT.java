@@ -64,7 +64,7 @@ public class FederatedStoreRecursionIT {
     private User user = new User();
 
     @Test
-    @Timeout(value = 60)
+    @Timeout(value = 20000)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
