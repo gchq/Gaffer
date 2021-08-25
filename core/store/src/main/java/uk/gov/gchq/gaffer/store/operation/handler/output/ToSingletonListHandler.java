@@ -16,21 +16,29 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ToSingletonListHandler<T> implements OperationHandler<ToSingletonList<T>, List<? extends T>> {
+public class ToSingletonListHandler<T> implements OperationHandler<List<? extends T>> {
     @Override
-    public List<? extends T> doOperation(final ToSingletonList<T> operation, final Context context, final Store store) throws OperationException {
+    public List<? extends T> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         if (null != operation.input()) {
-            return Collections.singletonList(operation.input());
+            return (List<? extends T>) Collections.singletonList(operation.input());
         } else {
             throw new OperationException("Input cannot be null");
         }
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldRequired("input", List.class);
     }
 }

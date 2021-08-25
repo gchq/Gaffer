@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.store.optimiser;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ import java.util.List;
  */
 public abstract class AbstractOperationChainOptimiser implements OperationChainOptimiser {
     @Override
-    public final <O> OperationChain<O> optimise(final OperationChain<O> operationChain) {
-        final List<Operation> ops = operationChain.getOperations();
+    public final <O> Operation optimise(final Operation operationChain) {
+        final List<Operation> ops = (List<Operation>) operationChain.get("operations");
         final int numOps = ops.size();
 
         if (numOps == 0) {

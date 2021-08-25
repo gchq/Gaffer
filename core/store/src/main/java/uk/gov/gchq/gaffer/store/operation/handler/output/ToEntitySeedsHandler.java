@@ -16,19 +16,21 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamMapIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
- * The {@code ToEntitySeedsHandler} handles {@link ToEntitySeeds} operations by
+ * The {@code ToEntitySeedsHandler} handles ToEntitySeeds operations by
  * wrapping each object in the input {@link Iterable} in an {@link EntitySeed} object.
  */
-public class ToEntitySeedsHandler implements OperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
+public class ToEntitySeedsHandler implements OperationHandler<Iterable<? extends EntitySeed>> {
     @Override
-    public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final Store store) throws OperationException {
+    public Iterable<EntitySeed> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         if (null == operation.input()) {
             return null;
         }
@@ -37,5 +39,11 @@ public class ToEntitySeedsHandler implements OperationHandler<ToEntitySeeds, Ite
                 operation.input(),
                 seed -> seed instanceof EntitySeed ? ((EntitySeed) seed) : new EntitySeed(seed)
         );
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldOptional("input", Iterable.class);
     }
 }

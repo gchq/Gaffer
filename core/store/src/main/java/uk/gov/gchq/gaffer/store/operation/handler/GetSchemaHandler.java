@@ -16,28 +16,38 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * A {@code GetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema} operation.
+ * A {@code GetSchemaHandler} handles the GetSchema operation.
  */
-public class GetSchemaHandler implements OperationHandler<GetSchema, Schema> {
+public class GetSchemaHandler implements OperationHandler<Schema> {
+
+    public static final String COMPACT = "compact";
+
     @Override
-    public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
+    public Schema _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         final Schema schema;
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }
 
-        if (operation.isCompact()) {
+        if ((boolean) operation.get(COMPACT)) {
             schema = Schema.fromJson(store.getSchema().toCompactJson());
         } else {
             schema = store.getOriginalSchema();
         }
 
         return schema;
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldOptional(COMPACT, Boolean.class);
     }
 }

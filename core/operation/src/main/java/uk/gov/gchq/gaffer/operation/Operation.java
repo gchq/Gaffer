@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.serialisation.json.JsonSimpleClassName;
@@ -61,7 +62,7 @@ public class Operation implements Closeable {
 
 
     public Operation(final String id) {
-        this.id = requireNonNull(id);
+        this.id = lowercase(id);
     }
 
     @JsonCreator
@@ -92,7 +93,7 @@ public class Operation implements Closeable {
     }
 
     public Operation operationArg(final String operationArg, final Object value) {
-        this.operationArgs.put(operationArg, value);
+        this.operationArgs.put(lowercase(requireNonNull(operationArg)), value);
         return this;
     }
 
@@ -102,7 +103,11 @@ public class Operation implements Closeable {
 
     public Object get(final String key) {
         //TODO FS
-        return operationArgs.get(key);
+        return operationArgs.get(lowercase(requireNonNull(key)));
+    }
+
+    private String lowercase(final String s) {
+        return s.toLowerCase(LOCALE);
     }
 
     public Operation input(final Object input) {
@@ -114,13 +119,23 @@ public class Operation implements Closeable {
         return get(KEY_INPUT);
     }
 
+    public Object getInput() {
+        //TODO FS refactor this out
+        throw new UnsupportedOperationException("refactor this out");
+    }
+
     public Object getOrDefault(final String key, final Object defaultValue) {
         return operationArgs.getOrDefault(key, defaultValue);
     }
 
     @JsonIgnore
-    public TypeReference getOutputTypeReference() {
+    public TypeReference getOutputTypeReferenceOrNull() {
         return (TypeReference) get(KEY_OUTPUT_TYPE_REFERENCE);
+    }
+
+    @JsonIgnore
+    public TypeReference getOutputTypeReferenceOrVoid() {
+        return (TypeReference) getOrDefault(KEY_OUTPUT_TYPE_REFERENCE, new TypeReferenceImpl.Void());
     }
 
     public Operation outputTypeReference(TypeReference typeReference) {
@@ -133,7 +148,7 @@ public class Operation implements Closeable {
     }
 
     public Boolean getIdComparison(final String s) {
-        return getId().toLowerCase(LOCALE).equals(s.toLowerCase(LOCALE));
+        return lowercase(getId()).equals(lowercase(s));
     }
 
     @JsonIgnore
@@ -208,12 +223,6 @@ public class Operation implements Closeable {
 
         if (equalsBuilder.isEquals()) {
             boolean mapsAreEqual = true;
-            // final boolean mapsAreEqual =
-            //         operationArgs.entrySet().stream()
-            //                 .allMatch(e -> that.containsKey(e.getKey())
-            //                         && ( that.get(e.getKey()).equals(e.getValue()))
-            //                 || e.getValue() instanceof Arrays  );
-
 
             for (final Map.Entry<String, Object> entry : this.operationArgs.entrySet()) {
                 final String thisKey = entry.getKey();
@@ -230,7 +239,6 @@ public class Operation implements Closeable {
                     }
                 }
             }
-
 
             equalsBuilder.appendSuper(mapsAreEqual);
         }

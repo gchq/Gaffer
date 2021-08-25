@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.store.operation.validator.function;
 
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.function.Function;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -28,11 +29,10 @@ import java.util.Map;
 /**
  * A <code>FunctionValidator</code> is a superclass of Validators for Gaffer functions.
  *
- * @param <T> The function type under validation, eg. Aggregate
  */
-public abstract class FunctionValidator<T extends Function> {
+public abstract class FunctionValidator {
 
-    public ValidationResult validate(final T operation, final Schema schema) {
+    public ValidationResult validate(final Operation operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
         if (null == operation) {
             result.addError("Operation cannot be null.");
@@ -53,7 +53,7 @@ public abstract class FunctionValidator<T extends Function> {
      * @param schema    The schema to validate with
      * @return Validation Result of all subsequent validation
      */
-    protected abstract ValidationResult validateOperation(final T operation, final Schema schema);
+    protected abstract ValidationResult validateOperation(final Operation operation, final Schema schema);
 
     protected ValidationResult validateEdge(final Map.Entry<String, ?> edgeEntry, final Schema schema) {
         final ValidationResult result = new ValidationResult();

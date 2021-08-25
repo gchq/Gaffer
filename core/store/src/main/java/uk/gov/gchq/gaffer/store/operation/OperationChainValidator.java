@@ -19,9 +19,7 @@ package uk.gov.gchq.gaffer.store.operation;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -33,7 +31,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Set;
 
 /**
- * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
+ * Validation class for validating OperationChains against {@link ViewValidator}s.
  */
 public class OperationChainValidator {
     private final ViewValidator viewValidator;
@@ -43,14 +41,14 @@ public class OperationChainValidator {
     }
 
     /**
-     * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
+     * Validate the provided OperationChain against the {@link ViewValidator}.
      *
      * @param operationChain the operation chain to validate
      * @param user           the user making the request
      * @param store          the target store
      * @return the {@link ValidationResult}
      */
-    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
+    public ValidationResult validate(final Operation operationChain, final User user, final Store store) {
         final ValidationResult validationResult = new ValidationResult();
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");

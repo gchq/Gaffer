@@ -15,23 +15,28 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
+import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
-import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.entryComparators;
+import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.fieldComparators;
 import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getCombinedComparator;
 import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getComparators;
 
@@ -87,13 +92,34 @@ public class SortHandler implements OperationHandler<Iterable<? extends Element>
     @Override
     public FieldDeclaration getFieldDeclaration() {
         return new FieldDeclaration()
-                .fieldRequired(entryComparators)
+                .fieldRequired(fieldComparators)
                 .fieldRequired(INPUT, Iterable.class)
                 .fieldOptional(RESULT_LIMIT, Integer.class)
                 .fieldOptional(DEDUPLICATE, Boolean.class);
     }
 
     static class Builder extends OperationHandler.BuilderSpecificInputOperation<Builder> {
+
+        public SortHandler.Builder resultLimit(final int limit) {
+            operation.operationArg(RESULT_LIMIT, limit);
+            return this;
+        }
+
+        public SortHandler.Builder deduplicate(final boolean isDeduplicate) {
+            operation.operationArg(DEDUPLICATE, isDeduplicate);
+            return this;
+        }
+
+        public SortHandler.Builder comparators(final List<Comparator<Element>> comparators) {
+            operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, comparators);
+            return this;
+        }
+
+        public SortHandler.Builder comparators(final Comparator<Element>... comparators) {
+            operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, Lists.newArrayList(comparators));
+            return this;
+        }
+
         @Override
         protected Builder getBuilder() {
             return this;

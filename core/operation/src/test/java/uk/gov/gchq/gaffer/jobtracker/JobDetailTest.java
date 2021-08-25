@@ -15,10 +15,11 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -31,7 +32,7 @@ public class JobDetailTest {
     @Test
     public void shouldBeSerialisable() throws SerialisationException {
         // Given
-        final OperationChain operationChain = new OperationChain.Builder().first(new GetAllElements()).build();
+        final Operation operationChain = new Operation("opChain").operationArg("operations", Lists.newArrayList(new Operation("getAllElements")));
 
         final JobDetail original = new JobDetail.Builder()
                 .description("thing")

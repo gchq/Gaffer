@@ -23,17 +23,19 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Handler for {@link GetExports} operations.
+ * Handler for GetExports operations.
  */
-public class GetExportsHandler implements OperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
+public class GetExportsHandler implements OperationHandler< Map<String, CloseableIterable<?>>> {
     @Override
-    public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
+    public Map<String, CloseableIterable<?>> _doOperation(final Operation getExports, final Context context, final Store store) throws OperationException {
         final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();
         for (final GetExport getExport : getExports.getGetExports()) {
             final CloseableIterable<?> export = (CloseableIterable<?>) store.execute(new OperationChain((Operation) getExport), context);
@@ -41,5 +43,10 @@ public class GetExportsHandler implements OperationHandler<GetExports, Map<Strin
         }
 
         return exports;
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return null;
     }
 }

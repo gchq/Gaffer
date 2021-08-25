@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -178,11 +178,11 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
      * Gets the OperationChain after adding in default values for any parameters. If a parameter
      * does not have a default, null is inserted.
      *
-     * @return The {@link OperationChain}
+     * @return The OperationChain
      * @throws IllegalArgumentException if substituting the parameters fails
      */
     @JsonIgnore
-    public OperationChain getOperationChainWithDefaultParams() {
+    public Operation getOperationChainWithDefaultParams() {
         String opStringWithDefaults = operations;
 
         if (null != parameters) {
@@ -198,9 +198,9 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
             }
         }
 
-        OperationChain opChain;
+        Operation opChain;
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
+            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), Operation.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -212,10 +212,10 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
      * Gets the OperationChain after adding in any provided parameters.
      *
      * @param executionParams the parameters for the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
-     * @return The {@link OperationChain}
+     * @return The OperationChain
      * @throws IllegalArgumentException if substituting the parameters fails
      */
-    public OperationChain getOperationChain(final Map<String, Object> executionParams) {
+    public Operation getOperationChain(final Map<String, Object> executionParams) {
         String opStringWithParams = operations;
 
         // First check all the parameters supplied are expected parameter names
@@ -249,10 +249,10 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
             }
         }
 
-        OperationChain opChain;
+        Operation opChain;
 
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
+            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), Operation.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -416,7 +416,7 @@ public class NamedOperationDetail implements AccessControlledResource, Serializa
         }
 
         @JsonProperty("operationChain")
-        public Builder operationChain(final OperationChain opChain) {
+        public Builder operationChain(final Operation opChain) {
             this.opChain = serialise(opChain);
             return this;
         }
