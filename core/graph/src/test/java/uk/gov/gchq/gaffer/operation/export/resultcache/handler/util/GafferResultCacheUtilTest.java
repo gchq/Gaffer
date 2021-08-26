@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,11 @@ import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class GafferResultCacheUtilTest {
     private final Edge validEdge = new Edge.Builder()
@@ -60,12 +59,10 @@ public class GafferResultCacheUtilTest {
     @Test
     public void shouldThrowExceptionIfStorePropertiesAreNull() {
         // When / Then
-        try {
-            GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test

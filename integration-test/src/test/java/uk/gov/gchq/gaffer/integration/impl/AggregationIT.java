@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY_2;
 
 public class AggregationIT extends AbstractStoreIT {
@@ -76,8 +75,8 @@ public class AggregationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
 
         // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
+        assertThat(results)
+                .hasSize(2);
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
@@ -146,8 +145,8 @@ public class AggregationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
 
         // Then
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
 
         final Entity expectedEntity2 = new Entity.Builder()
                 .group(ENTITY_2)
@@ -177,8 +176,8 @@ public class AggregationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
+        assertThat(results)
+                .hasSize(2);
         ElementUtil.assertElementEquals(
                 Arrays.asList(
                         getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
@@ -228,9 +227,9 @@ public class AggregationIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
 
-        assertEquals(1, resultList.size());
+        assertThat(resultList).hasSize(1);
         // aggregation is has been replaced with Product
-        assertEquals(10100, resultList.get(0).getProperty(TestPropertyNames.INT));
+        assertThat(resultList.get(0).getProperty(TestPropertyNames.INT)).isEqualTo(10100);
     }
 
     private void addDuplicateElements() throws OperationException {

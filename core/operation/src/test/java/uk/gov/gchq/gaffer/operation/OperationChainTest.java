@@ -55,8 +55,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -288,9 +287,9 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         final Operation second = operations.get(1);
         final Operation third = operations.get(2);
 
-        assertThat(first, instanceOf(AddElements.class));
-        assertThat(second, instanceOf(GetElements.class));
-        assertThat(third, instanceOf(Limit.class));
+        assertThat(first).isInstanceOf(AddElements.class);
+        assertThat(second).isInstanceOf(GetElements.class);
+        assertThat(third).isInstanceOf(Limit.class);
     }
 
     @Test

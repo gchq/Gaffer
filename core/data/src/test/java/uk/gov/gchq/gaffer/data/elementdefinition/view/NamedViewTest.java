@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -83,9 +83,9 @@ public class NamedViewTest {
 
     @Test
     public void shouldThrowExceptionWithNoName() {
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new NamedView.Builder().edge(TestGroups.EDGE).build());
-
-        assertEquals("Name must be set", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new NamedView.Builder().edge(TestGroups.EDGE).build())
+                .withMessage("Name must be set");
     }
 
     @Test
@@ -341,15 +341,16 @@ public class NamedViewTest {
 
     @Test
     public void showAllowMergingOfNamedViewIntoAViewWhenNameIsEmpty() {
-        assertDoesNotThrow(() -> new View.Builder().merge(new NamedView()).build());
+        assertThatNoException().isThrownBy(() -> new View.Builder().merge(new NamedView()).build());
     }
 
     @Test
     public void shouldThrowExceptionWhenMergingNamedViewIntoAViewWhenNameIsSet() {
         final NamedView namedView = new NamedView.Builder().name(TEST_VIEW_NAME).build();
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> new View.Builder().merge(namedView).build());
-        assertEquals("A NamedView cannot be merged into a View", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new View.Builder().merge(namedView).build())
+                .withMessage("A NamedView cannot be merged into a View");
     }
 
     @Test

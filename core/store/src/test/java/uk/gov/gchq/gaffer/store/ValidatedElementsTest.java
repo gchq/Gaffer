@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -131,12 +132,9 @@ public class ValidatedElementsTest {
         assertSame(elements.get(0), next1);
 
         // When 2a / Then 2a
-        try {
-            itr.hasNext();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Some error"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> itr.hasNext())
+                .withMessageContaining("Some error");
 
         verify(filters.get(2), never()).test(elements.get(2));
     }
@@ -158,12 +156,7 @@ public class ValidatedElementsTest {
         assertSame(elements.get(2), next1);
 
         // When 2 / Then 2
-        try {
-            itr.next();
-            fail("Exception expected");
-        } catch (final NoSuchElementException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> itr.next()).extracting("message").isNotNull();
     }
 
     @Test
@@ -174,12 +167,7 @@ public class ValidatedElementsTest {
         final Iterator<Element> itr = validElements.iterator();
 
         // When / Then
-        try {
-            itr.remove();
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> itr.remove()).extracting("message").isNotNull();
     }
 
     @Test

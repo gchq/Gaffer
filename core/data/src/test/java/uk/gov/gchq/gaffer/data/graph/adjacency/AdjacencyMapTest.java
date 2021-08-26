@@ -25,11 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import java.util.Collections;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdjacencyMapTest {
 
@@ -39,7 +35,7 @@ public class AdjacencyMapTest {
 
         final Set<Edge> results = adjacencyMap.getEdges(1, 2);
 
-        assertThat(results, hasItems(makeEdge(1, 2)));
+        assertThat(results).contains(makeEdge(1, 2));
     }
 
     @Test
@@ -48,7 +44,7 @@ public class AdjacencyMapTest {
 
         final Set<Edge> results = adjacencyMap.getEdges(1, 6);
 
-        assertThat(results, is(empty()));
+        assertThat(results).isEmpty();
     }
 
     @Test
@@ -57,7 +53,7 @@ public class AdjacencyMapTest {
 
         final Set<Object> results = adjacencyMap.getDestinations(1);
 
-        assertThat(results, hasItems(1, 2, 5));
+        assertThat(results).contains(1, 2, 5);
     }
 
     @Test
@@ -66,7 +62,7 @@ public class AdjacencyMapTest {
 
         final Set<Object> results = adjacencyMap.getAllDestinations();
 
-        assertThat(results, hasItems(1, 2, 3, 4, 5, 6));
+        assertThat(results).contains(1, 2, 3, 4, 5, 6);
     }
 
     @Test
@@ -75,7 +71,7 @@ public class AdjacencyMapTest {
 
         final Set<Object> results = adjacencyMap.getSources(1);
 
-        assertThat(results, hasItems(1, 4));
+        assertThat(results).contains(1, 4);
     }
 
     @Test
@@ -84,7 +80,7 @@ public class AdjacencyMapTest {
 
         final Set<Object> results = adjacencyMap.getAllSources();
 
-        assertThat(results, hasItems(1, 2, 4, 5, 6));
+        assertThat(results).contains(1, 2, 4, 5, 6);
     }
 
     @Test
@@ -93,7 +89,7 @@ public class AdjacencyMapTest {
 
         final Set<Edge> results = adjacencyMap.getEdges(1, 2);
 
-        assertThat(results, equalTo(Collections.singleton(makeEdge(1, 2))));
+        assertThat(results).isEqualTo(Collections.singleton(makeEdge(1, 2)));
     }
 
     @Test
@@ -108,7 +104,7 @@ public class AdjacencyMapTest {
         final Set<Edge> results = adjacencyMap.getEdges(1, 2);
 
         // Then
-        assertThat(results, hasItems(makeEdge(1, 2), makeEdge(TestGroups.EDGE_2, 1, 2), makeEdge(TestGroups.EDGE_3, 1, 2)));
+        assertThat(results).contains(makeEdge(1, 2), makeEdge(TestGroups.EDGE_2, 1, 2), makeEdge(TestGroups.EDGE_3, 1, 2));
     }
 
     @Test
@@ -124,7 +120,7 @@ public class AdjacencyMapTest {
         final Set<Edge> results = adjacencyMap.getEdges(1, 2);
 
         // Then
-        assertThat(results, hasItems(makeEdge(1, 2), makeEdge(TestGroups.EDGE_2, 1, 2), makeEdge(TestGroups.EDGE_3, 1, 2)));
+        assertThat(results).contains(makeEdge(1, 2), makeEdge(TestGroups.EDGE_2, 1, 2), makeEdge(TestGroups.EDGE_3, 1, 2));
     }
 
     @Test
@@ -136,7 +132,7 @@ public class AdjacencyMapTest {
         final boolean result = adjacencyMap.containsDestination(2);
 
         // Then
-        assertThat(result, is(true));
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -148,7 +144,7 @@ public class AdjacencyMapTest {
         final boolean result = adjacencyMap.containsDestination(7);
 
         // Then
-        assertThat(result, is(false));
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -160,7 +156,7 @@ public class AdjacencyMapTest {
         final boolean result = adjacencyMap.containsSource(2);
 
         // Then
-        assertThat(result, is(true));
+        assertThat(result).isTrue();
     }
 
     @Test
@@ -169,7 +165,7 @@ public class AdjacencyMapTest {
 
         final boolean result = adjacencyMap.containsSource(7);
 
-        assertThat(result, is(false));
+        assertThat(result).isFalse();
     }
 
     private AdjacencyMap getAdjacencyMap() {

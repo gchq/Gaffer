@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@ package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility.quote;
 
 /**
@@ -159,14 +162,17 @@ public class ElementVisibilityTest {
     }
 
     private void getBytesShouldThrowIAX(final String... strings) {
-        for (String s : strings) {
-            assertThrows(IllegalArgumentException.class, () -> new ElementVisibility(s.getBytes()));
-        }
+        Arrays.stream(strings)
+                .map(String::getBytes)
+                .forEach(bytes ->
+                    assertThatIllegalArgumentException()
+                            .isThrownBy(() -> new ElementVisibility(bytes))
+                );
     }
 
     private void getBytesShouldNotThrowIAX(final String... strings) {
         for (String s : strings) {
-            assertDoesNotThrow(() -> new ElementVisibility(s.getBytes()));
+            assertThatNoException().isThrownBy(() -> new ElementVisibility(s.getBytes()));
         }
     }
 
@@ -176,8 +182,11 @@ public class ElementVisibilityTest {
     }
 
     private void assertNode(final ElementVisibility.Node node, final ElementVisibility.NodeType nodeType, final int start, final int end) {
-        assertEquals(node.type, nodeType);
-        assertEquals(start, node.start);
-        assertEquals(end, node.end);
+        assertThat(node).satisfies(n -> {
+                    assertThat(n.type).isEqualTo(nodeType);
+                    assertThat(n.start).isEqualTo(start);
+                    assertThat(n.end).isEqualTo(end);
+                }
+        );
     }
 }

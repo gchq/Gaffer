@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetAdjacentIdsIT extends AbstractStoreIT {
     private static final List<String> SEEDS = Arrays.asList(
@@ -121,10 +121,8 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         }
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
-        assertArrayEquals("InOut=" + inOutType + ", directedType=" + directedType
-                        + ".\nExpected: \n  " + StringUtils.join(expectedResultSeeds, "\n  ")
-                        + " \nbut got: \n  " + StringUtils.join(resultSeeds, "\n  "),
-                expectedResultSeeds.toArray(),
-                resultSeeds.toArray());
+        assertThat(resultSeeds.toArray()).as("InOut=" + inOutType + ", directedType=" + directedType
+                + ".\nExpected: \n  " + StringUtils.join(expectedResultSeeds, "\n  ")
+                + " \nbut got: \n  " + StringUtils.join(resultSeeds, "\n  ")).containsExactly(expectedResultSeeds.toArray());
     }
 }

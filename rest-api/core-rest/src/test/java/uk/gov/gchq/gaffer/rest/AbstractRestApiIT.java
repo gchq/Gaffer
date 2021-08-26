@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
@@ -83,7 +82,7 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
 
     protected void verifyElements(final Element[] expected, final List<Element> actual) {
         assertEquals(expected.length, actual.size());
-        assertThat(actual, IsCollectionContaining.hasItems(expected));
+        assertThat(actual).contains(expected);
     }
 
     protected abstract T getClient();

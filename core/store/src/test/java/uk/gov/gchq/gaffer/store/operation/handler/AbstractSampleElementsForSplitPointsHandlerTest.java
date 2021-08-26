@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -75,13 +76,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .build();
 
         // When / Then
-        try {
-
-            handler.doOperation(operation, new Context(), createStore());
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("input is required"), e.getMessage());
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), createStore()))
+                .withMessageContaining("input is required");
     }
 
     @Test

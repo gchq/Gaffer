@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.IOException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -96,7 +97,7 @@ public class StoreScannerTest {
         final List<GafferScannerProcessor> processors = StoreScanner.createProcessors(SCHEMA, serialisation);
 
         // Then
-        assertEquals(2, processors.size());
+        assertThat(processors).hasSize(2);
         int i = 0;
         assertTrue(processors.get(i) instanceof StoreAggregationProcessor);
         assertEquals(SCHEMA, ((StoreAggregationProcessor) processors.get(i)).getSchema());
@@ -117,7 +118,7 @@ public class StoreScannerTest {
         final List<GafferScannerProcessor> processors = StoreScanner.createProcessors(SCHEMA_NO_AGGREGATION, serialisation);
 
         // Then
-        assertEquals(1, processors.size());
+        assertThat(processors).hasSize(1);
         int i = 0;
         assertTrue(processors.get(i) instanceof ValidationProcessor);
         assertEquals(SCHEMA_NO_AGGREGATION, ((ValidationProcessor) processors.get(i)).getSchema());

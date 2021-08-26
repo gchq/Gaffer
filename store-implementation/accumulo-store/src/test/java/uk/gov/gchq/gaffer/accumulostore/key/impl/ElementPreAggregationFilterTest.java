@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class ElementPreAggregationFilterTest {
     @Test
@@ -54,12 +54,9 @@ public class ElementPreAggregationFilterTest {
                 ByteEntityAccumuloElementConverter.class.getName());
 
         // When / Then
-        try {
-            filter.validateOptions(options);
-            fail("Expected IllegalArgumentException to be thrown on method invocation");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(AccumuloStoreConstants.SCHEMA));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> filter.validateOptions(options))
+                .withMessageContaining(AccumuloStoreConstants.SCHEMA);
     }
 
     @Test
@@ -73,12 +70,9 @@ public class ElementPreAggregationFilterTest {
                 ByteEntityAccumuloElementConverter.class.getName());
 
         // When / Then
-        try {
-            filter.init(null, options, null);
-            fail("Expected IllegalArgumentException to be thrown on method invocation");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(AccumuloStoreConstants.VIEW));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> filter.init(null, options, null))
+                .withMessageContaining(AccumuloStoreConstants.VIEW);
     }
 
     @Test
@@ -91,12 +85,9 @@ public class ElementPreAggregationFilterTest {
         options.put(AccumuloStoreConstants.VIEW, getViewJson());
 
         // When / Then
-        try {
-            filter.validateOptions(options);
-            fail("Expected IllegalArgumentException to be thrown on method invocation");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> filter.validateOptions(options))
+                .withMessageContaining(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
     }
 
     @Test

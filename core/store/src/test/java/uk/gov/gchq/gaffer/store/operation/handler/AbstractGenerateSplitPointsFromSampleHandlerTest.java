@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends Store> {
-
 
     protected Schema schema = new Schema.Builder().build();
 
@@ -47,10 +46,9 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends
                 .numSplits(1)
                 .build();
 
-        OperationException actual = assertThrows(OperationException.class,
-                () -> handler.doOperation(operation, new Context(), createStore()));
-
-        assertTrue(actual.getMessage().contains("input is required"));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), createStore()))
+                .withMessageContaining("input is required");
     }
 
     @Test
@@ -67,7 +65,7 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends
         final List<?> splits = handler.doOperation(operation, new Context(), createStore());
 
         // Then
-        assertTrue(splits.isEmpty());
+        assertThat(splits).isEmpty();
     }
 
     @Test
@@ -108,7 +106,7 @@ public abstract class AbstractGenerateSplitPointsFromSampleHandlerTest<S extends
         final List<?> splits = handler.doOperation(operation, new Context(), createStore());
 
         // Then
-        assertEquals(1, splits.size());
+        assertThat(splits).hasSize(1);
         verifySplits(Collections.singletonList(0), sample, splits, handler);
     }
 

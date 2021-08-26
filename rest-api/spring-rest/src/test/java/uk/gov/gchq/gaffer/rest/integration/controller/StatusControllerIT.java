@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.MockGraphFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 public class StatusControllerIT extends AbstractRestApiIT {
@@ -54,8 +54,8 @@ public class StatusControllerIT extends AbstractRestApiIT {
 
         // Then Check response
         checkResponse(response, 500);
-        assertEquals(500, response.getBody().getStatusCode());
-        assertEquals("Unable to create graph.", response.getBody().getSimpleMessage());
+        assertThat(response.getBody().getStatusCode()).isEqualTo(500);
+        assertThat(response.getBody().getSimpleMessage()).isEqualTo("Unable to create graph.");
     }
 
     @Test
@@ -75,6 +75,6 @@ public class StatusControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals(SystemStatus.UP, response.getBody());
+        assertThat(response.getBody()).isEqualTo(SystemStatus.UP);
     }
 }

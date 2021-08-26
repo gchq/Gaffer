@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES;
 
@@ -77,7 +75,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                         .build())
                 .build(), user);
 
-        assertFalse(edges.iterator().hasNext());
+        assertThat(edges.iterator().hasNext()).isFalse();
 
         final CloseableIterable<? extends Element> entities = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -85,7 +83,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                         .build())
                 .build(), user);
 
-        assertFalse(entities.iterator().hasNext());
+        assertThat(entities.iterator().hasNext()).isFalse();
 
     }
 
@@ -105,7 +103,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                         .build())
                 .build(), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -125,7 +123,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                         .build())
                 .build(), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -146,7 +144,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_EDGES)
                 .build(), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -167,7 +165,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_ENTITIES)
                 .build(), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -191,10 +189,10 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
             fail("exception expected");
         } catch (Exception e) {
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
+            assertThat(e.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n" +
                     "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema", e.getMessage());
+                    "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema");
         }
     }
 
@@ -217,10 +215,10 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                     .build(), user);
             fail("exception expected");
         } catch (Exception e) {
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
+            assertThat(e.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n" +
                     "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n" +
-                    "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema", e.getMessage());
+                    "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema");
         }
 
     }
@@ -243,7 +241,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                 .build(), user);
 
         final ArrayList<? extends Element> elements = Lists.newArrayList(rtn.iterator());
-        assertEquals(2, elements.size());
+        assertThat(elements).hasSize(2);
     }
 
     @Test
@@ -277,7 +275,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         final ArrayList<? extends Element> elements = Lists.newArrayList(rtn.iterator());
 
-        assertEquals(2, elements.size());
+        assertThat(elements).hasSize(2);
     }
 
     @Test
@@ -310,7 +308,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         final ArrayList<? extends Element> elements = Lists.newArrayList(rtn.iterator());
 
-        assertEquals(2, elements.size());
+        assertThat(elements).hasSize(2);
     }
 
     protected void addBasicEdge() throws OperationException {

@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class DiscardOutputTest extends OperationTest<DiscardOutput> {
@@ -34,7 +32,7 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
         final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
 
         // When / Then
-        assertThat(discardOutput.getInput(), is(nullValue()));
+        assertThat(discardOutput.getInput()).isNull();
     }
 
     @Test

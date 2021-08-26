@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,11 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class EntityIdSerialiserTest {
 
@@ -49,12 +50,9 @@ public class EntityIdSerialiserTest {
         schema = new Schema.Builder().build();
 
         // When / Then
-        try {
-            new EntityIdSerialiser(schema);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Vertex serialiser is required"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new EntityIdSerialiser(schema))
+                .withMessage("Vertex serialiser is required");
     }
 
     @Test
@@ -96,7 +94,7 @@ public class EntityIdSerialiserTest {
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, serialiser.deserialiseEmpty());
+        assertThat(serialiser.deserialiseEmpty()).isNull();
     }
 
     @Test

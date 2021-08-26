@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,16 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.GroupCounts;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -43,10 +41,10 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
                 .build();
 
         // Then
-        assertThat(countGroups.getInput(), is(notNullValue()));
-        assertThat(countGroups.getInput(), iterableWithSize(2));
-        assertThat(countGroups.getLimit(), is(1));
-        assertThat(countGroups.getInput(), containsInAnyOrder(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2)));
+        Assertions.<Element>assertThat(countGroups.getInput())
+                .hasSize(2)
+                .containsOnly(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2));
+        assertThat(countGroups.getLimit()).isEqualTo(1);
     }
 
     @Test
@@ -66,7 +64,7 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
         // Then
         assertNotSame(countGroups, clone);
         assertEquals(limit, (int) clone.getLimit());
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

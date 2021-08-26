@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Copied and adapted from the AcummuloStore ElementConverterTests
@@ -202,7 +202,7 @@ public class ElementSerialisationTest {
         Properties properties = serialisation.getPropertiesFromColumnQualifier(TestGroups.EDGE, columnQualifier);
 
         // Then
-        assertEquals(null, properties.get(HBasePropertyNames.COLUMN_QUALIFIER));
+        assertThat(properties.get(HBasePropertyNames.COLUMN_QUALIFIER)).isNull();
     }
 
     @Test
@@ -327,7 +327,7 @@ public class ElementSerialisationTest {
         final byte[] truncatedBytes = serialisation.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
-        assertEquals(0, truncatedBytes.length);
+        assertThat(truncatedBytes).isEmpty();
     }
 
     @Test
@@ -420,7 +420,7 @@ public class ElementSerialisationTest {
         final Properties properties = serialisation.getPropertiesFromTimestamp(group, timestamp);
 
         // Then
-        assertEquals(1, properties.size());
+        assertThat(properties).hasSize(1);
         assertEquals(timestamp, properties.get(HBasePropertyNames.TIMESTAMP));
     }
 
@@ -440,7 +440,7 @@ public class ElementSerialisationTest {
         final Properties properties = serialisation.getPropertiesFromTimestamp(group, timestamp);
 
         // Then
-        assertEquals(0, properties.size());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -453,7 +453,7 @@ public class ElementSerialisationTest {
         final Properties properties = serialisation.getPropertiesFromTimestamp(group, timestamp);
 
         // Then
-        assertEquals(0, properties.size());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -463,12 +463,7 @@ public class ElementSerialisationTest {
         final String group = "unknownGroup";
 
         // When / Then
-        try {
-            serialisation.getPropertiesFromTimestamp(group, timestamp);
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> serialisation.getPropertiesFromTimestamp(group, timestamp)).extracting("message").isNotNull();
     }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class ChainedIterableTest {
 
@@ -38,17 +39,17 @@ public class ChainedIterableTest {
         iterator.next();
 
         // No 2nd element
-        assertThrows(NoSuchElementException.class, () -> iterator.next());
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
     }
 
     @Test
     public void shouldThrowIAXWhenIterablesAreEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>());
+        assertThatIllegalArgumentException().isThrownBy(() -> new ChainedIterable<>());
     }
 
     @Test
     public void shouldThrowIAXWhenIterablesAreNull() {
-        assertThrows(IllegalArgumentException.class, () -> new ChainedIterable<>(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> new ChainedIterable<>(null));
     }
 
     @Test
@@ -60,7 +61,7 @@ public class ChainedIterableTest {
 
         final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
-        assertEquals(Lists.newArrayList(0, 1, 2, 3, 4, 5, 6), Lists.newArrayList(wrappedItr));
+        assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
     }
 
     @Test
@@ -75,15 +76,15 @@ public class ChainedIterableTest {
 
         // When
         final Iterator<String> itr = wrappedItr.iterator();
-        assertEquals("a", itr.next());
+        assertThat(itr.next()).isEqualTo("a");
 
         itr.remove();
 
         // Then
-        assertEquals(0, itr1.size());
-        assertEquals(0, emptyItr2.size());
-        assertEquals(4, itr3.size());
-        assertEquals(2, itr4.size());
+        assertThat(itr1).isEmpty();
+        assertThat(emptyItr2).isEmpty();
+        assertThat(itr3).hasSize(4);
+        assertThat(itr4).hasSize(2);
     }
 
     @Test
@@ -98,15 +99,15 @@ public class ChainedIterableTest {
 
         // When
         final Iterator<String> itr = wrappedItr.iterator();
-        assertEquals("a", itr.next());
-        assertEquals("b", itr.next());
+        assertThat(itr.next()).isEqualTo("a");
+        assertThat(itr.next()).isEqualTo("b");
 
         itr.remove();
 
         // Then
-        assertEquals(1, itr1.size());
-        assertEquals(0, emptyItr2.size());
-        assertEquals(3, itr3.size());
-        assertEquals(2, itr4.size());
+        assertThat(itr1).hasSize(1);
+        assertThat(emptyItr2).isEmpty();
+        assertThat(itr3).hasSize(3);
+        assertThat(itr4).hasSize(2);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * The DoubleProxyTest Test works as follows:
@@ -80,7 +80,7 @@ public class DoubleProxyTest {
 
     @Test
     public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
-        assertDoesNotThrow(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
+        assertThatNoException().isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
     }
 
     @AfterClass

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static org.junit.Assume.assumeTrue;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 /**
  * Logic/config for setting up and running store integration tests.
@@ -202,13 +202,13 @@ public abstract class AbstractStoreIT {
     }
 
     protected void validateTest() throws Exception {
-        assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
-        assumeTrue("Skipping test as only " + singleTestMethod + " is being run.", null == singleTestMethod || singleTestMethod.equals(originalMethodName));
-        assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
+        assumeThat(null != storeProperties).as("Skipping test as no store properties have been defined.").isTrue();
+        assumeThat(null == singleTestMethod || singleTestMethod.equals(originalMethodName)).as("Skipping test as only " + singleTestMethod + " is being run.").isTrue();
+        assumeThat(!skippedTests.containsKey(getClass())).as("Skipping test. Justification: " + skippedTests.get(getClass())).isTrue();
 
         final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
         if (null != skippedMethods && !skippedMethods.isEmpty()) {
-            assumeTrue("Skipping test. Justification: " + skippedMethods.get(method.getName()), !skippedMethods.containsKey(originalMethodName));
+            assumeThat(!skippedMethods.containsKey(originalMethodName)).as("Skipping test. Justification: " + skippedMethods.get(method.getName())).isTrue();
         }
     }
 
@@ -222,7 +222,7 @@ public abstract class AbstractStoreIT {
         }
 
         for (final StoreTrait requiredTrait : requiredTraits) {
-            assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
+            assumeThat(graph.hasTrait(requiredTrait)).as("Skipping test as the store does not implement all required traits.").isTrue();
         }
     }
 

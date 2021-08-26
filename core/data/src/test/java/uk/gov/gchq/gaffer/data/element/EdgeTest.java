@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EdgeTest extends ElementTest {
@@ -52,10 +50,13 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        assertEquals("group", edge.getGroup());
-        assertEquals("source vertex", edge.getSource());
-        assertEquals("destination vertex", edge.getDestination());
-        assertTrue(edge.isDirected());
+        assertThat(edge)
+                .satisfies(e -> {
+                    assertThat(e.getGroup()).isEqualTo("group");
+                    assertThat(e.getSource()).isEqualTo("source vertex");
+                    assertThat(e.getDestination()).isEqualTo("destination vertex");
+                    assertThat(e.isDirected()).isTrue();
+                });
     }
 
     @Test
@@ -454,8 +455,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Vertex("1")));
-        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+        assertThat(edge.getSource()).isEqualTo(new Vertex("1"));
+        assertThat(edge.getDestination()).isEqualTo(new Vertex("2"));
     }
 
     @Test
@@ -468,8 +469,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Vertex("1")));
-        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+        assertThat(edge.getSource()).isEqualTo(new Vertex("1"));
+        assertThat(edge.getDestination()).isEqualTo(new Vertex("2"));
     }
 
     @Test
@@ -482,8 +483,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Integer(1)));
-        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+        assertThat(edge.getSource()).isEqualTo(new Integer(1));
+        assertThat(edge.getDestination()).isEqualTo(new Integer(2));
     }
 
     @Test
@@ -496,8 +497,8 @@ public class EdgeTest extends ElementTest {
                 .build();
 
         // Then
-        assertThat(edge.getSource(), equalTo(new Integer(1)));
-        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+        assertThat(edge.getSource()).isEqualTo(new Integer(1));
+        assertThat(edge.getDestination()).isEqualTo(new Integer(2));
     }
 
     @Test
@@ -530,8 +531,8 @@ public class EdgeTest extends ElementTest {
         }
 
         // Then
-        assertThat(edges.stream().map(Edge::getSource).distinct().count(), greaterThan(1L));
-        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), greaterThan(1L));
+        assertThat(edges.stream().map(Edge::getSource).distinct().count()).isGreaterThan(1L);
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count()).isGreaterThan(1L);
     }
 
     @Test
@@ -564,8 +565,8 @@ public class EdgeTest extends ElementTest {
         }
 
         // Then
-        assertThat(edges.stream().map(Edge::getSource).distinct().count(), equalTo(1L));
-        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), equalTo(1L));
+        assertThat(edges.stream().map(Edge::getSource).distinct().count()).isEqualTo(1L);
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count()).isEqualTo(1L);
     }
 
     @Test
@@ -577,7 +578,7 @@ public class EdgeTest extends ElementTest {
         edge1.setGroup(TestGroups.EDGE_2);
 
         assertEquals(3, edge1.getSource());
-        assertThat(edge1, equalTo(edge2));
+        assertThat(edge1).isEqualTo(edge2);
     }
 
     @Test
@@ -585,7 +586,7 @@ public class EdgeTest extends ElementTest {
         final Edge edge1 = new Edge(TestGroups.EDGE, 1, "2", false);
         final Edge edge2 = new Edge(TestGroups.EDGE, "2", 1, false);
 
-        assertThat(edge1, equalTo(edge2));
+        assertThat(edge1).isEqualTo(edge2);
     }
 
     @Test
@@ -639,10 +640,12 @@ public class EdgeTest extends ElementTest {
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        final Exception exception = assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(json.getBytes(), Edge.class));
         final String expected = "Instantiation of [simple type, class uk.gov.gchq.gaffer.data.element.Edge] " +
                 "value failed: Use either 'directed' or 'directedType' - not both.";
-        assertEquals(expected, exception.getMessage());
+
+        assertThatExceptionOfType(SerialisationException.class)
+                .isThrownBy(() -> JSONSerialiser.deserialise(json.getBytes(), Edge.class))
+                .withMessage(expected);
     }
 
     private Edge cloneCoreFields(final Edge edge) {

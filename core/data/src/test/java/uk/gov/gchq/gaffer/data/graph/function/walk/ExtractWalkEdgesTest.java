@@ -26,8 +26,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExtractWalkEdgesTest {
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
@@ -53,8 +52,6 @@ public class ExtractWalkEdgesTest {
         final Iterable<Set<Edge>> results = function.apply(walk);
 
         // Then
-        assertThat(results, containsInAnyOrder(Sets.newHashSet(EDGE_AB),
-                Sets.newHashSet(EDGE_BC),
-                Sets.newHashSet(EDGE_CA)));
+        assertThat(results).containsOnly(Sets.newHashSet(EDGE_AB), Sets.newHashSet(EDGE_BC), Sets.newHashSet(EDGE_CA));
     }
 }

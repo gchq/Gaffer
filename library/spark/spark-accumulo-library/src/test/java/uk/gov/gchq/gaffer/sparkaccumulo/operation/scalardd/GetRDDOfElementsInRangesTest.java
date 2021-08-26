@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -57,9 +57,9 @@ public class GetRDDOfElementsInRangesTest extends OperationTest<GetRDDOfElements
 
         // Then
         final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();
-        assertEquals(pair1, itrPairs.next());
-        assertEquals(pair2, itrPairs.next());
-        assertFalse(itrPairs.hasNext());
+        assertThat(itrPairs.next()).isEqualTo(pair1);
+        assertThat(itrPairs.next()).isEqualTo(pair2);
+        assertThat(itrPairs).isExhausted();
     }
 
     @SuppressWarnings("unchecked")
@@ -77,7 +77,7 @@ public class GetRDDOfElementsInRangesTest extends OperationTest<GetRDDOfElements
         assertEquals("true", GetRDDOfElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, GetRDDOfElementsInRanges.getIncludeIncomingOutGoing());
         assertEquals(DirectedType.UNDIRECTED, GetRDDOfElementsInRanges.getDirectedType());
-        assertEquals(seed, GetRDDOfElementsInRanges.getInput().iterator().next());
+        assertThat(GetRDDOfElementsInRanges.getInput().iterator().next()).isEqualTo(seed);
         assertNotNull(GetRDDOfElementsInRanges.getView());
     }
 
@@ -103,7 +103,7 @@ public class GetRDDOfElementsInRangesTest extends OperationTest<GetRDDOfElements
         assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
         assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
-        assertEquals(seed, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(seed);
         assertEquals(view, clone.getView());
     }
 
