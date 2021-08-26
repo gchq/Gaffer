@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TransformationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertexWithTransientProperty";
@@ -81,10 +77,10 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isNull();
         }
     }
 
@@ -107,11 +103,11 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertEquals(1L, result.getProperty(TestPropertyNames.COUNT));
-            assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.COUNT)).isEqualTo(1L);
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isNull();
         }
     }
 
@@ -137,10 +133,10 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertEquals("A1,[3]", result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isEqualTo("A1,[3]");
         }
     }
 
@@ -165,9 +161,9 @@ public class TransformationIT extends AbstractStoreIT {
         // When
         final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         for (final Element result : results) {
-            assertEquals(SOURCE_1 + "," + result.getProperty(TestPropertyNames.INT), result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isEqualTo(SOURCE_1 + "," + result.getProperty(TestPropertyNames.INT));
         }
     }
 
@@ -192,10 +188,10 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertEquals("A1,[3]", ((Entity) result).getVertex());
+            assertThat(((Entity) result).getVertex()).isEqualTo("A1,[3]");
         }
     }
 
@@ -241,13 +237,13 @@ public class TransformationIT extends AbstractStoreIT {
         final ArrayList<Element> entities = Lists.newArrayList(edges);
 
         edges.removeIf(e -> e instanceof Entity);
-        assertEquals(111, edges.size());
-        assertTrue(edges.get(0).getProperties().containsKey("propAlt"));
+        assertThat(edges).hasSize(111);
+        assertThat(edges.get(0).getProperties()).containsKey("propAlt");
 
 
         entities.removeIf(e -> e instanceof Edge);
-        assertEquals(89, entities.size());
-        assertFalse(entities.get(0).getProperties().containsKey("propAlt"));
+        assertThat(entities).hasSize(89);
+        assertThat(entities.get(0).getProperties()).doesNotContainKey("propAlt");
     }
 
     @Test
@@ -269,11 +265,11 @@ public class TransformationIT extends AbstractStoreIT {
         final ArrayList<Element> entities = Lists.newArrayList(edges);
 
         edges.removeIf(e -> e instanceof Entity);
-        assertEquals(111, edges.size());
-        assertFalse(edges.get(0).getProperties().containsKey("propAlt"));
+        assertThat(edges).hasSize(111);
+        assertThat(edges.get(0).getProperties()).doesNotContainKey("propAlt");
 
         entities.removeIf(e -> e instanceof Edge);
-        assertEquals(89, entities.size());
-        assertTrue(entities.get(0).getProperties().containsKey("propAlt"));
+        assertThat(entities).hasSize(89);
+        assertThat(entities.get(0).getProperties()).containsKey("propAlt");
     }
 }

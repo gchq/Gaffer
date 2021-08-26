@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,8 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HashMapCacheServiceTest {
 
@@ -51,7 +50,7 @@ public class HashMapCacheServiceTest {
         final ICache cache = service.getCache(CACHE_NAME);
 
         // Then
-        assertTrue(cache instanceof HashMapCache);
+        assertThat(cache).isInstanceOf(HashMapCache.class);
     }
 
     @Test
@@ -60,7 +59,7 @@ public class HashMapCacheServiceTest {
         final ICache cache = service.getCache(CACHE_NAME);
 
         // Then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -73,8 +72,8 @@ public class HashMapCacheServiceTest {
         final ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
         // Then
-        assertEquals(1, sameCache.size());
-        assertEquals(new Integer(1), sameCache.get("key"));
+        assertThat(sameCache.size()).isOne();
+        assertThat(sameCache.get("key")).isOne();
     }
 
     @Test
@@ -92,9 +91,10 @@ public class HashMapCacheServiceTest {
         service.putInCache(CACHE_NAME, "test", 1);
 
         // Then
-        assertThrows(OverwritingException.class, () -> {
+        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> {
             service.putSafeInCache(CACHE_NAME, "test", 2);
         });
+
         assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
 
         // When
@@ -113,7 +113,7 @@ public class HashMapCacheServiceTest {
         service.removeFromCache(CACHE_NAME, "test");
 
         // Then
-        assertEquals(0, service.sizeOfCache(CACHE_NAME));
+        assertThat(service.sizeOfCache(CACHE_NAME)).isZero();
     }
 
     @Test
@@ -125,7 +125,7 @@ public class HashMapCacheServiceTest {
         service.clearCache(CACHE_NAME);
 
         // Then
-        assertEquals(0, service.sizeOfCache(CACHE_NAME));
+        assertThat(service.sizeOfCache(CACHE_NAME)).isZero();
     }
 
     @Test
@@ -134,7 +134,7 @@ public class HashMapCacheServiceTest {
         populateCache();
 
         // Then
-        assertEquals(3, service.sizeOfCache(CACHE_NAME));
+        assertThat(service.sizeOfCache(CACHE_NAME)).isEqualTo(3);
         assertThat(service.getAllKeysFromCache(CACHE_NAME)).contains("test1", "test2", "test3");
     }
 
@@ -147,9 +147,10 @@ public class HashMapCacheServiceTest {
         service.putInCache(CACHE_NAME, "duplicate", 3);
 
         // Then
-        assertEquals(4, service.sizeOfCache(CACHE_NAME));
-        assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
-        assertThat(service.getAllValuesFromCache(CACHE_NAME)).contains(1, 2, 3, 3);
+        assertThat(service.sizeOfCache(CACHE_NAME)).isEqualTo(4);
+        assertThat(service.getAllValuesFromCache(CACHE_NAME))
+                .hasSize(4)
+                .contains(1, 2, 3, 3);
     }
 
     private void populateCache() throws CacheOperationException {

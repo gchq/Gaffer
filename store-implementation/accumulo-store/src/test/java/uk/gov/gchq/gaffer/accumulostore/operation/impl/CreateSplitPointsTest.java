@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateSplitPointsTest {
     private static final String VERTEX_ID_PREFIX = "vertexId";
@@ -134,10 +134,10 @@ public class CreateSplitPointsTest {
         while (br.ready()) {
             fileSplitsDecoded.add(new String(Base64.decodeBase64(br.readLine())));
         }
-        assertEquals(fileSplitsDecoded, stringSplitsOnTable);
-        assertEquals(2, splitsOnTable.size());
-        assertEquals(VERTEX_ID_PREFIX + "53\u0000\u0001", stringSplitsOnTable.get(0));
-        assertEquals(VERTEX_ID_PREFIX + "99\u0000\u0001", stringSplitsOnTable.get(1));
+        assertThat(stringSplitsOnTable).isEqualTo(fileSplitsDecoded);
+        assertThat(splitsOnTable).hasSize(2);
+        assertThat(stringSplitsOnTable.get(0)).isEqualTo(VERTEX_ID_PREFIX + "53\u0000\u0001");
+        assertThat(stringSplitsOnTable.get(1)).isEqualTo(VERTEX_ID_PREFIX + "99\u0000\u0001");
     }
 
     private void createInputFile() throws IOException, StoreException {

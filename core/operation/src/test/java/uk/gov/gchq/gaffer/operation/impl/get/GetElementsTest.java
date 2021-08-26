@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import java.util.Iterator;
 import static junit.framework.TestCase.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetElementsTest extends OperationTest<GetElements> {
@@ -85,9 +84,9 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();
-        assertEquals(elementSeed1, itr.next());
-        assertEquals(elementSeed2, itr.next());
-        assertFalse(itr.hasNext());
+        assertThat(itr.next()).isEqualTo(elementSeed1);
+        assertThat(itr.next()).isEqualTo(elementSeed2);
+        assertThat(itr).isExhausted();
     }
 
     @Test
@@ -172,7 +171,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING,
                 op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
-        assertEquals(seed, op.getInput().iterator().next());
+        assertThat(op.getInput().iterator().next()).isEqualTo(seed);
     }
 
     @Test
@@ -196,8 +195,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .build();
 
         // Then
-        assertThat(op.getOptions()).isNotNull();
-        assertThat(op.getOptions().get("key")).isEqualTo("value");
+        assertThat(op.getOptions()).isNotNull()
+                .containsEntry("key", "value");
     }
 
     @Test

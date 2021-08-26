@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class HazelcastCacheServiceTest {
@@ -72,12 +72,9 @@ public class HazelcastCacheServiceTest {
         final String madeUpFile = "/made/up/file.xml";
         cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, madeUpFile);
 
-        try {
-            service.initialise(cacheProperties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(madeUpFile));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.initialise(cacheProperties))
+                .withMessageContaining(madeUpFile);
     }
 
     private void initialiseWithTestConfig(final Path tempDir) {
@@ -102,7 +99,7 @@ public class HazelcastCacheServiceTest {
         ICache<String, Integer> cache = service.getCache(CACHE_NAME);
 
         // then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -118,7 +115,7 @@ public class HazelcastCacheServiceTest {
         ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
         // then
-        assertEquals(1, sameCache.size());
+        assertThat(cache.size()).isOne();
         assertEquals(new Integer(1), sameCache.get("key"));
     }
 
@@ -156,12 +153,10 @@ public class HazelcastCacheServiceTest {
         initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test", 1);
 
-        try {
-            service.putSafeInCache(CACHE_NAME, "test", 2);
-            fail("Expected an exception");
-        } catch (final OverwritingException e) {
-            assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
-        }
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> service.putSafeInCache(CACHE_NAME, "test", 2));
+
+        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
 
         service.putInCache(CACHE_NAME, "test", 2);
 

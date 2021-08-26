@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,8 +143,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(AccumuloTestData.SEED_A1_SET)
                 .build();
         final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, new User(), loadIntoMemory);
-        assertEquals(1, a1Results.size());
-        assertThat(a1Results).contains(AccumuloTestData.A1_ENTITY);
+        assertThat(a1Results).hasSize(1)
+                .contains(AccumuloTestData.A1_ENTITY);
 
         // Query for all edges in set {A1, A2} - there shouldn't be any edges but will
         // get the two entities
@@ -156,8 +156,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(a1A2Seeds)
                 .build();
         final Set<Element> a1A2Results = returnElementsFromOperation(store, a1A2Operation, new User(), loadIntoMemory);
-        assertEquals(2, a1A2Results.size());
-        assertThat(a1A2Results).contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
+        assertThat(a1A2Results).hasSize(2)
+                .contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
     }
 
     /**
@@ -403,7 +403,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(seeds)
                 .build();
         final Set<Element> entitiesAndEdgesResults = returnElementsFromOperation(store, entitiesAndEdgesOp, new User(), loadIntoMemory);
-        assertEquals(0, entitiesAndEdgesResults.size());
+        assertThat(entitiesAndEdgesResults).isEmpty();
     }
 
     @Test
@@ -446,8 +446,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(AccumuloTestData.SEED_A1_SET)
                 .build();
         final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, new User(), loadIntoMemory);
-        assertEquals(1, a1Results.size());
-        assertThat(a1Results).contains(AccumuloTestData.A1_ENTITY);
+        assertThat(a1Results).hasSize(1)
+                .contains(AccumuloTestData.A1_ENTITY);
 
         // Query for all edges in set {A1, A2} - there shouldn't be any edges but will
         // get the two entities
@@ -459,8 +459,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(a1A2Seeds)
                 .build();
         final Set<Element> a1A23Results = returnElementsFromOperation(store, a1A23Operation, new User(), loadIntoMemory);
-        assertEquals(2, a1A23Results.size());
-        assertThat(a1A23Results).contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
+        assertThat(a1A23Results).hasSize(2)
+                .contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
     }
 
     private static void setupGraph(final AccumuloStore store) {

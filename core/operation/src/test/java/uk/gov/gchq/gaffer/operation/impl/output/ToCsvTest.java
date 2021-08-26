@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ public class ToCsvTest extends OperationTest<ToCsv> {
                 .build();
 
         // Then
-        assertThat(toCsv.getInput()).isNotNull();
-        assertThat(toCsv.getInput()).hasSize(1);
+        assertThat(toCsv.getInput())
+                .hasSize(1);
         assertFalse(toCsv.isIncludeHeader());
         assertEquals(generator, toCsv.getElementGenerator());
     }
@@ -86,7 +86,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
 
         // Then
         assertNotSame(toCsv, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
         assertEquals(generator, clone.getElementGenerator());
         assertFalse(clone.isIncludeHeader());
     }

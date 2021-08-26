@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
                 .build();
 
         // Then
-        assertThat(toVertices.getInput()).isNotNull();
-        assertThat(toVertices.getInput()).hasSize(2);
+        assertThat(toVertices.getInput())
+                .hasSize(2);
         assertThat(toVertices.getEdgeVertices()).isEqualTo(EdgeVertices.BOTH);
     }
 
@@ -96,7 +96,7 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
 
         // Then
         assertNotSame(toVertices, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
         assertEquals(UseMatchedVertex.EQUAL, clone.getUseMatchedVertex());
         assertEquals(EdgeVertices.BOTH, clone.getEdgeVertices());
     }

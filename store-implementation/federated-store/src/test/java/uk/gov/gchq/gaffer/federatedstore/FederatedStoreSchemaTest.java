@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,14 +54,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedStoreSchemaTest {
     private static final String STRING = "string";
@@ -281,17 +280,18 @@ public class FederatedStoreSchemaTest {
         addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
 
         // Then
-        OperationException exception = assertThrows(OperationException.class, () -> {
-            fStore.execute(new AddElements.Builder()
-                .input(new Edge.Builder()
-                        .group("e1")
-                        .source("source1")
-                        .dest("dest2")
-                        .property("prop1", "value1")
-                        .build())
-                .build(), testContext);
-        });
-        assertTrue(exception.getMessage().contains("returned false for properties: {prop2: null}"));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> {
+                    fStore.execute(new AddElements.Builder()
+                            .input(new Edge.Builder()
+                                    .group("e1")
+                                    .source("source1")
+                                    .dest("dest2")
+                                    .property("prop1", "value1")
+                                    .build())
+                            .build(), testContext);
+                })
+                .withMessageContaining("returned false for properties: {prop2: null}");
     }
 
     @Test

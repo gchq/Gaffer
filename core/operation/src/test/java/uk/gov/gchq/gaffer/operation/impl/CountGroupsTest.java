@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.GroupCounts;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -39,10 +41,10 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
                 .build();
 
         // Then
-        assertThat(countGroups.getInput()).isNotNull();
-        assertThat(countGroups.getInput()).hasSize(2);
+        Assertions.<Element>assertThat(countGroups.getInput())
+                .hasSize(2)
+                .containsOnly(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2));
         assertThat(countGroups.getLimit()).isEqualTo(1);
-        assertThat(countGroups.getInput()).containsOnly(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2));
     }
 
     @Test
@@ -62,7 +64,7 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
         // Then
         assertNotSame(countGroups, clone);
         assertEquals(limit, (int) clone.getLimit());
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

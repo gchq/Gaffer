@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class IfTest extends OperationTest<If> {
     @Override
@@ -144,12 +144,9 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Collections.emptyList();
 
         // When / Then
-        try {
-            ifOp.updateOperations(opList);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Unable to update operations - exactly 3 operations are required. Received 0 operations", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> ifOp.updateOperations(opList))
+                .withMessage("Unable to update operations - exactly 3 operations are required. Received 0 operations");
     }
 
     @Test
@@ -166,12 +163,9 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Lists.newArrayList(getElements);
 
         // When / Then
-        try {
-            ifOp.updateOperations(opList);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Unable to update operations - exactly 3 operations are required. Received 1 operations", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> ifOp.updateOperations(opList))
+                .withMessage("Unable to update operations - exactly 3 operations are required. Received 1 operations");
     }
 
     @Test
@@ -191,12 +185,9 @@ public class IfTest extends OperationTest<If> {
         final Collection<Operation> opList = Lists.newArrayList(getElements, getAllElements, limit, limit);
 
         // When / Then
-        try {
-            ifOp.updateOperations(opList);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Unable to update operations - exactly 3 operations are required. Received 4 operations", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> ifOp.updateOperations(opList))
+                .withMessage("Unable to update operations - exactly 3 operations are required. Received 4 operations");
     }
 
     @Test

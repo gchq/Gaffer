@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import uk.gov.gchq.gaffer.access.ResourceType;
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
@@ -39,8 +38,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NamedOperationDetailTest {
 
@@ -284,19 +283,21 @@ public class NamedOperationDetailTest {
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfBothReadAccessRolesAndReadAccessPredicateAreSupplied() {
-        final Executable executable = () -> getBaseNamedOperationDetailBuilder()
-                .readers(asList("readerAuth1", "readerAuth2"))
-                .readAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
-                .build();
-        assertThrows(IllegalArgumentException.class, executable, "Only one of readers or readAccessPredicate should be supplied.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> getBaseNamedOperationDetailBuilder()
+                        .readers(asList("readerAuth1", "readerAuth2"))
+                        .readAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
+                        .build())
+                .withMessageContaining("Only one of readers or readAccessPredicate should be supplied.");
     }
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfBothWriteAccessRolesAndWriteAccessPredicateAreSupplied() {
-        final Executable executable = () -> getBaseNamedOperationDetailBuilder()
-                .writers(asList("writerAuth1", "writerAuth2"))
-                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
-                .build();
-        assertThrows(IllegalArgumentException.class, executable, "Only one of writers or writeAccessPredicate should be supplied.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> getBaseNamedOperationDetailBuilder()
+                        .writers(asList("writerAuth1", "writerAuth2"))
+                        .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
+                        .build())
+                .withMessageContaining("Only one of writers or writeAccessPredicate should be supplied.");
     }
 }

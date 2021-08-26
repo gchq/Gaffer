@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import java.io.IOException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GraphConfigTest {
@@ -50,7 +51,7 @@ public class GraphConfigTest {
         assertEquals("graphId1", config.getGraphId());
         assertEquals(HashMapGraphLibrary.class, config.getLibrary().getClass());
         final List<GraphHook> graphHooks = config.getHooks();
-        assertEquals(1, graphHooks.size());
+        assertThat(graphHooks).hasSize(1);
 
         final AddOperationsToChain addOperationsToChain = (AddOperationsToChain) graphHooks.get(0);
         for (final Class op : new Class[]{ToSet.class, ToArray.class, ToList.class, ExportToSet.class}) {

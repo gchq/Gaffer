@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ public class LimitTest extends OperationTest<Limit> {
         final Limit<String> limit = new Limit.Builder<String>().input("1", "2").resultLimit(1).build();
 
         // Then
-        assertThat(limit.getInput()).isNotNull();
-        assertThat(limit.getInput()).hasSize(2);
+        assertThat(limit.getInput())
+                .hasSize(2);
         assertThat(limit.getResultLimit()).isEqualTo(1);
         assertThat(limit.getInput()).containsOnly("1", "2");
     }
@@ -64,7 +64,7 @@ public class LimitTest extends OperationTest<Limit> {
 
         // Then
         assertNotSame(limit, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
         assertEquals(resultLimit, (int) clone.getResultLimit());
         assertFalse(clone.getTruncate());
     }

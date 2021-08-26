@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -115,20 +115,16 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getFilterFunctions(Long.class.getName());
 
         // Then
-        assertThat(classes).contains(IsLessThan.class);
-        assertThat(classes).contains(IsMoreThan.class);
-        assertThat(classes).contains(Not.class);
+        assertThat(classes).contains(IsLessThan.class, IsMoreThan.class, Not.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() throws IOException {
         // When / Then
-        try {
-            service.getFilterFunctions("an unknown class name");
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.getFilterFunctions("an unknown class name"))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -137,19 +133,14 @@ public class GraphConfigurationServiceTest {
         final Set<String> fields = service.getSerialisedFields(IsA.class.getName());
 
         // Then
-        assertEquals(1, fields.size());
-        assertTrue(fields.contains("type"));
+        assertThat(fields).hasSize(1)
+                .contains("type");
     }
 
     @Test
     public void shouldThrowExceptionWhenGetSerialisedFieldsWithUnknownClassName() throws IOException {
         // When / Then
-        try {
-            service.getSerialisedFields("an unknown class name");
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> service.getSerialisedFields("an unknown class name")).extracting("message").isNotNull();
     }
 
     @Test
@@ -168,23 +159,17 @@ public class GraphConfigurationServiceTest {
     @Test
     public void shouldThrowExceptionWhenGetNextOperationsWithUnknownClassName() throws IOException {
         // When / Then
-        try {
-            service.getNextOperations("an unknown class name");
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation class was not found"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.getNextOperations("an unknown class name"))
+                .withMessageContaining("Operation class was not found");
     }
 
     @Test
     public void shouldThrowExceptionWhenGetNextOperationsWithNonOperationClassName() throws IOException {
         // When / Then
-        try {
-            service.getNextOperations(String.class.getName());
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("does not extend Operation"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.getNextOperations(String.class.getName()))
+                .withMessageContaining("does not extend Operation");
     }
 
     @Test
@@ -193,7 +178,7 @@ public class GraphConfigurationServiceTest {
         final Set<StoreTrait> traits = service.getStoreTraits();
         // Then
         assertNotNull(traits);
-        assertTrue(traits.size() == 6, "Collection size should be 6");
+        assertThat(traits).as("Collection size should be 6").hasSize(6);
         assertTrue(traits.contains(INGEST_AGGREGATION),
                 "Collection should contain INGEST_AGGREGATION trait");
         assertTrue(traits.contains(PRE_AGGREGATION_FILTERING),
@@ -242,7 +227,7 @@ public class GraphConfigurationServiceTest {
 
         // Then
         assertTrue(!supportedOperations.isEmpty());
-        assertEquals(1, supportedOperations.size());
+        assertThat(supportedOperations).hasSize(1);
     }
 
     @Test

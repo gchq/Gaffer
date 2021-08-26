@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-
 public class ToArrayTest extends OperationTest<ToArray> {
 
     @Test
@@ -34,9 +33,9 @@ public class ToArrayTest extends OperationTest<ToArray> {
         final ToArray<String> toArray = new ToArray.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toArray.getInput()).isNotNull();
-        assertThat(toArray.getInput()).hasSize(2);
-        assertThat(toArray.getInput()).containsOnly("1", "2");
+        assertThat(toArray.getInput())
+                .hasSize(2)
+                .containsOnly("1", "2");
     }
 
     @Override
@@ -52,7 +51,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
 
         // Then
         assertNotSame(toArray, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

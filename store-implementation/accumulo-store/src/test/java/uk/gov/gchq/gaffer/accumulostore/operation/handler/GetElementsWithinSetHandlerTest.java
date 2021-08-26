@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-
 
 public class GetElementsWithinSetHandlerTest {
 
@@ -170,7 +169,7 @@ public class GetElementsWithinSetHandlerTest {
 
         //Without query compaction the result size should be 5
         final Set<Element> elementSet = Sets.newHashSet(elements);
-        assertEquals(5, elementSet.size());
+        assertThat(elementSet).hasSize(5);
         assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2), elementSet);
         for (final Element element : elementSet) {
             if (element instanceof Edge) {

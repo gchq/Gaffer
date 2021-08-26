@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -146,20 +147,15 @@ public class GraphConfigurationServiceV2Test {
         final Set<Class> classes = (Set<Class>) service.getFilterFunction(Long.class.getName()).getEntity();
 
         // Then
-        assertThat(classes).contains(IsLessThan.class);
-        assertThat(classes).contains(IsMoreThan.class);
-        assertThat(classes).contains(Not.class);
+        assertThat(classes).contains(IsLessThan.class, IsMoreThan.class, Not.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() {
         // When / Then
-        try {
-            service.getFilterFunction("unknown className");
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Input class was not recognised:"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.getFilterFunction("unknown className"))
+                .withMessageContaining("Input class was not recognised:");
     }
 
     @Test
@@ -168,8 +164,9 @@ public class GraphConfigurationServiceV2Test {
         final Set<String> fields = (Set<String>) service.getSerialisedFields(IsA.class.getName()).getEntity();
 
         // Then
-        assertEquals(1, fields.size());
-        assertTrue(fields.contains("type"));
+        assertThat(fields)
+                .hasSize(1)
+                .contains("type");
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,9 +75,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class GetWalksIT extends AbstractStoreIT {
     final EntitySeed seedA = new EntitySeed("A");
@@ -234,7 +231,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertEquals(0, Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).isEmpty();
     }
 
     @Test
@@ -299,7 +296,7 @@ public class GetWalksIT extends AbstractStoreIT {
         try {
             Lists.newArrayList(graph.execute(op, getUser()));
         } catch (final Exception e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
+            assertThat(e.getMessage()).as(e.getMessage()).contains("must contain a single hop");
         }
     }
 
@@ -643,7 +640,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertEquals(1, Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).hasSize(1);
     }
 
     @Test
@@ -684,9 +681,9 @@ public class GetWalksIT extends AbstractStoreIT {
         @Override
         public Object apply(final Object obj) {
             // Check the vertices have been extracted correctly.
-            assertTrue(obj instanceof Iterable);
+            assertThat(obj).isInstanceOf(Iterable.class);
             for (final Object item : (Iterable) obj) {
-                assertFalse(item instanceof EntityId);
+                assertThat(item).isNotInstanceOf(EntityId.class);
             }
             return obj;
         }

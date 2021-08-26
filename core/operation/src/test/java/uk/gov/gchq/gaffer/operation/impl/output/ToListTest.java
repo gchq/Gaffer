@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ public class ToListTest extends OperationTest<ToList> {
         final ToList<String> toList = new ToList.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toList.getInput()).isNotNull();
-        assertThat(toList.getInput()).hasSize(2);
-        assertThat(toList.getInput()).containsOnly("1", "2");
+        assertThat(toList.getInput())
+                .hasSize(2)
+                .containsOnly("1", "2");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class ToListTest extends OperationTest<ToList> {
 
         // Then
         assertNotSame(toList, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -461,12 +461,9 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        try {
-            fromJson(json.getBytes());
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("not both"));
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> fromJson(json.getBytes()))
+                .withMessageContaining("not both");
     }
 
     @Override

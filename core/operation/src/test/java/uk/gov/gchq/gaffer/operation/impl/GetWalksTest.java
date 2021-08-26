@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -49,14 +51,14 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         public void builderShouldCreatePopulatedOperation() {
                 // Given
                 final GetWalks getWalks = new GetWalks.Builder().input(new EntitySeed("1"), new EntitySeed("2"))
-                                .operations(new GetElements()).resultsLimit(100).build();
+                        .operations(new GetElements()).resultsLimit(100).build();
 
                 // Then
-                assertThat(getWalks.getInput()).isNotNull();
-                assertThat(getWalks.getInput()).hasSize(2);
+                Assertions.<EntityId>assertThat(getWalks.getInput())
+                        .hasSize(2)
+                        .containsOnly(new EntitySeed("1"), new EntitySeed("2"));
                 assertThat(getWalks.getResultsLimit()).isEqualTo(100);
                 assertThat(getWalks.getOperations()).hasSize(1);
-                assertThat(getWalks.getInput()).containsOnly(new EntitySeed("1"), new EntitySeed("2"));
         }
 
         @Override

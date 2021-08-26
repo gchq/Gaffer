@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ public class ToStreamTest extends OperationTest<ToStream> {
         final ToStream<String> toStream = new ToStream.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toStream.getInput()).isNotNull();
-        assertThat(toStream.getInput()).hasSize(2);
-        assertThat(toStream.getInput()).containsOnly("1", "2");
+        assertThat(toStream.getInput())
+                .hasSize(2)
+                .containsOnly("1", "2");
     }
 
     @Override

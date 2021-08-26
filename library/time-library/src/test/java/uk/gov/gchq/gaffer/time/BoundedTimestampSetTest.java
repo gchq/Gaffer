@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -98,7 +99,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         assertEquals(instantsTruncatedToBucket.size(), returnedInstants.size());
         final Iterator<Instant> it = instants.iterator();
         for (final long l : instantsTruncatedToBucket) {
-            assertEquals(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, CommonTimeUtil.TimeBucket.SECOND)), it.next());
+            assertThat(it.next()).isEqualTo(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, CommonTimeUtil.TimeBucket.SECOND)));
         }
     }
 
@@ -117,7 +118,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         // Then
         assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());
         assertEquals(10L, boundedTimestampSet.getNumberOfTimestamps());
-        returnedInstants.forEach(i -> assertTrue(instants.contains(i)));
+        returnedInstants.forEach(i -> assertThat(instants).contains(i));
     }
 
     @Test
@@ -152,8 +153,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         // Then
         assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());
         assertTrue(earliest.isBefore(latest));
-        assertTrue(instants.contains(earliest));
-        assertTrue(instants.contains(latest));
+        assertThat(instants).contains(earliest, latest);
     }
 
     @Test

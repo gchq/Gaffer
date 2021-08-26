@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,11 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EdgeTest extends ElementTest {
@@ -49,9 +50,8 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        assertEquals("group", edge.getGroup());
-        assertEquals("source vertex", edge.getSource());
-        assertEquals("destination vertex", edge.getDestination());
+        assertThat(edge).extracting("group", "source", "destination")
+                .isEqualTo(tuple("group", "source vertex", "destination vertex"));
         assertTrue(edge.isDirected());
     }
 
@@ -632,10 +632,12 @@ public class EdgeTest extends ElementTest {
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        final Exception exception = assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(json.getBytes(), Edge.class));
         final String expected = "Instantiation of [simple type, class uk.gov.gchq.gaffer.data.element.Edge] " +
                 "value failed: Use either 'directed' or 'directedType' - not both.";
-        assertEquals(expected, exception.getMessage());
+
+        assertThatExceptionOfType(SerialisationException.class)
+                .isThrownBy(() -> JSONSerialiser.deserialise(json.getBytes(), Edge.class))
+                .withMessage(expected);
     }
 
     private Edge cloneCoreFields(final Edge edge) {

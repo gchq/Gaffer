@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,9 +57,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class GetAllElementsIT extends AbstractStoreIT {
     @Override
@@ -120,8 +117,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(2, resultList.size());
-        assertThat(resultList).contains((Element) edge1, edge2);
+        assertThat(resultList).hasSize(2)
+                .contains((Element) edge1, edge2);
     }
 
     @Test
@@ -138,9 +135,9 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(getEntities().size(), resultList.size());
+        assertThat(resultList).hasSize(getEntities().size());
         for (final Element element : resultList) {
-            assertEquals(TestGroups.ENTITY, element.getGroup());
+            assertThat(element.getGroup()).isEqualTo(TestGroups.ENTITY);
         }
     }
 
@@ -163,8 +160,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
+        assertThat(resultList).hasSize(1);
+        assertThat(((Entity) resultList.get(0)).getVertex()).isEqualTo("A1");
     }
 
     @Test
@@ -193,11 +190,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        assertEquals(
-                "A1,[3]",
-                resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1)
-        );
+        assertThat(resultList).hasSize(1);
+        assertThat(resultList.get(0).getProperties()).containsEntry(TestPropertyNames.TRANSIENT_1, "A1,[3]");
     }
 
     @Test
@@ -218,8 +212,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -241,8 +235,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -284,11 +278,11 @@ public class GetAllElementsIT extends AbstractStoreIT {
             final ElementId seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;
-                assertTrue("Entity was not expected: " + entity, expectedElements.contains(entity));
+                assertThat(expectedElements).as("Entity was not expected: " + entity).contains(entity);
             } else {
                 Edge edge = (Edge) result;
                 if (edge.isDirected()) {
-                    assertTrue("Edge was not expected: " + edge, expectedElements.contains(edge));
+                    assertThat(expectedElements).as("Edge was not expected: " + edge).contains(edge);
                 } else {
                     final Edge edgeReversed = new Edge.Builder()
                             .group(TestGroups.EDGE)
@@ -297,14 +291,13 @@ public class GetAllElementsIT extends AbstractStoreIT {
                             .directed(edge.isDirected())
                             .build();
                     expectedElementsCopy.remove(edgeReversed);
-                    assertTrue("Edge was not expected: " + seed, expectedElements.contains(result) || expectedElements.contains(edgeReversed));
+                    assertThat(expectedElements.contains(result) || expectedElements.contains(edgeReversed)).as("Edge was not expected: " + seed).isTrue();
                 }
             }
             expectedElementsCopy.remove(result);
         }
 
-        assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy, expectedElements.size(),
-                Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).as("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy).hasSameSizeAs(expectedElements);
     }
 
     @Test
@@ -345,7 +338,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
             final Long expectedResult = (Long) result.getProperty("propLong") + (Long) result.getProperty(TestPropertyNames.COUNT);
             final Long combined = (Long) result.getProperty("combined");
-            assertEquals(expectedResult, combined);
+            assertThat(combined).isEqualTo(expectedResult);
         }
     }
 }

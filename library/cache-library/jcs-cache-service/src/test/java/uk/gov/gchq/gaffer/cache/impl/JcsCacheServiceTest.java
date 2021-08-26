@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class JcsCacheServiceTest {
 
@@ -72,10 +72,9 @@ public class JcsCacheServiceTest {
 
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, badFileName);
 
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> service.initialise(serviceProps));
-
-        assertEquals(expected, actual.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.initialise(serviceProps))
+                .withMessage(expected);
     }
 
     @Test
@@ -104,7 +103,7 @@ public class JcsCacheServiceTest {
         ICache<String, Integer> sameCache = service.getCache(TEST_REGION);
 
         // then
-        assertEquals(1, sameCache.size());
+        assertThat(sameCache.size()).isOne();
         assertEquals(new Integer(1), sameCache.get("key"));
 
         cache.clear();
@@ -144,12 +143,9 @@ public class JcsCacheServiceTest {
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
-        try {
-            service.putSafeInCache(TEST_REGION, "test", 2);
-            fail("Expected an exception");
-        } catch (final OverwritingException e) {
-            assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
-        }
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> service.putSafeInCache(TEST_REGION, "test", 2));
+        assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
 
         service.putInCache(TEST_REGION, "test", 2);
 

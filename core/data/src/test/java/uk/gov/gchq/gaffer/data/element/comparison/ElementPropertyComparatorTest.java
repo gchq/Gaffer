@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isLessThan(0);
+        assertThat(result).isNegative();
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isGreaterThan(0);
+        assertThat(result).isPositive();
     }
 
     @Test
@@ -123,7 +123,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isLessThan(0);
+        assertThat(result).isNegative();
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isGreaterThan(0);
+        assertThat(result).isPositive();
     }
 
     @Test
@@ -180,7 +180,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isLessThan(0);
+        assertThat(result).isNegative();
     }
 
     @Test
@@ -200,7 +200,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isGreaterThan(0);
+        assertThat(result).isPositive();
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
         final int result = comparator.compare(smallEntity, largeEntity);
 
         // Then
-        assertThat(result).isLessThan(0);
+        assertThat(result).isNegative();
     }
 
     private Entity makeEntityWithPropertyValueAsPrimitiveInt(final int propertyValue) {

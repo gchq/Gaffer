@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
@@ -44,9 +43,9 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NamedViewDetailTest {
@@ -301,17 +300,18 @@ public class NamedViewDetailTest {
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfBothWritersAndWriteAccessPredicateAreSupplied() {
-        final Executable executable = () -> new NamedViewDetail.Builder()
-                .creatorId("creator")
-                .name("test")
-                .view(new View.Builder()
-                        .globalElements(new GlobalViewElementDefinition.Builder()
-                                .groupBy()
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new NamedViewDetail.Builder()
+                        .creatorId("creator")
+                        .name("test")
+                        .view(new View.Builder()
+                                .globalElements(new GlobalViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
                                 .build())
+                        .writers(asList("a", "b", "c"))
+                        .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
                         .build())
-                .writers(asList("a", "b", "c"))
-                .writeAccessPredicate(new AccessPredicate(new CustomUserPredicate()))
-                .build();
-        assertThrows(IllegalArgumentException.class, executable, "Only one of writers or writeAccessPredicate should be supplied.");
+                .withMessageContaining("Only one of writers or writeAccessPredicate should be supplied.");
     }
 }

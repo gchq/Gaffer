@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class WalkTest {
 
@@ -102,16 +102,18 @@ public class WalkTest {
     public void shouldFailToAddEdgeWithInvalidEntitySource() {
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.edge(EDGE_BC));
-        assertEquals("Edge must continue the current walk.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.edge(EDGE_BC))
+                .withMessage("Edge must continue the current walk.");
     }
 
     @Test
     public void shouldFailToAddEdgeWithInvalidEdgeSource() {
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.edge(EDGE_AB));
-        assertEquals("Edge must continue the current walk.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.edge(EDGE_AB))
+                .withMessage("Edge must continue the current walk.");
     }
 
     @Test
@@ -119,41 +121,45 @@ public class WalkTest {
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
         // When
-        final Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> builder.entity(ENTITY_A));
-        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entity(ENTITY_A))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
     public void shouldFailToAddEntityWithInvalidEntitySource() {
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entity(ENTITY_B));
-        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entity(ENTITY_B))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
     public void shouldFailToAddEntitiesWithDifferentVertices() {
         final Walk.Builder builder = new Walk.Builder();
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entities(ENTITY_A, ENTITY_B));
-        assertEquals("Entities must all have the same vertex.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entities(ENTITY_A, ENTITY_B))
+                .withMessage("Entities must all have the same vertex.");
     }
 
     @Test
     public void shouldFailToAddEntitiesWithInvalidEdgeSource() {
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entities(ENTITY_A, ENTITY_A));
-        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entities(ENTITY_A, ENTITY_A))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
     public void shouldFailToAddEntitiesWithInvalidEntitySource() {
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.entities(ENTITY_B, ENTITY_B));
-        assertEquals("Entity must be added to correct vertex.", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entities(ENTITY_B, ENTITY_B))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
@@ -287,8 +293,8 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesForVertex("E")).hasSize(1);
-        assertThat(walk.getEntitiesForVertex("E")).containsExactly(ENTITY_E);
+        assertThat(walk.getEntitiesForVertex("E")).hasSize(1)
+                .containsExactly(ENTITY_E);
     }
 
     @Test
@@ -308,8 +314,8 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAtDistance(2)).hasSize(1);
-        assertThat(walk.getEntitiesAtDistance(2)).containsExactly(ENTITY_D);
+        assertThat(walk.getEntitiesAtDistance(2)).hasSize(1)
+                .containsExactly(ENTITY_D);
     }
 
     @Test

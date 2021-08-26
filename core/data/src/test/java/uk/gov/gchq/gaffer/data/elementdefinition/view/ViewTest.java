@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -200,10 +201,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertNull(entityDef.getTransformer());
         assertEquals(2, entityDef.getPreAggregationFilter().getComponents().size());
         assertTrue(entityDef.getPreAggregationFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, entityDef.getPreAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getComponents().get(1).getSelection()[0]);
-        assertEquals(1, entityDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(IdentifierType.VERTEX.name(), entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
@@ -211,20 +212,20 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
         assertEquals(1, edgeDef.getPreAggregationFilter().getComponents().size());
         assertTrue(edgeDef.getPreAggregationFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(1, edgeDef.getTransformer().getComponents().size());
         assertTrue(edgeDef.getTransformer().getComponents().get(0).getFunction() instanceof ExampleTransformFunction);
-        assertEquals(2, edgeDef.getTransformer().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getSelection()).hasSize(2);
         assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getComponents().get(0).getSelection()[0]);
         assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getComponents().get(0).getSelection()[1]);
-        assertEquals(1, edgeDef.getTransformer().getComponents().get(0).getProjection().length);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getProjection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getComponents().get(0).getProjection()[0]);
         assertEquals(1, edgeDef.getPostTransformFilter().getComponents().size());
         assertTrue(edgeDef.getPostTransformFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]);
-        assertEquals(1, edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
 
         assertEquals(view.getConfig(), deserialisedView.getConfig());

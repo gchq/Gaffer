@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,8 +59,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils.getParquetStoreProperties;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
@@ -225,9 +223,9 @@ public class ParquetStoreTest {
         Iterator<? extends Element> iter = results.iterator();
 
         assertEquals(1, Iterables.size(results));
-        assertTrue(iter.hasNext());
-        assertEquals(knownEntity, iter.next());
-        assertFalse(iter.hasNext());
+        assertThat(iter).hasNext();
+        assertThat(iter.next()).isEqualTo(knownEntity);
+        assertThat(iter).isExhausted();
     }
 
     @Test

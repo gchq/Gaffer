@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HashMapCacheTest {
 
@@ -39,7 +38,7 @@ public class HashMapCacheTest {
     @Test
     public void shouldAddKeyValuePairToCache() {
         cache.put("key", 1);
-        assertEquals(1, cache.size());
+        assertThat(cache.size()).isOne();
     }
 
     @Test
@@ -55,7 +54,7 @@ public class HashMapCacheTest {
 
         cache.remove("key");
 
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -64,7 +63,7 @@ public class HashMapCacheTest {
 
         cache.put("key", 5);
 
-        assertEquals(1, cache.size());
+        assertThat(cache.size()).isOne();
         assertEquals(new Integer(5), cache.get("key"));
     }
 
@@ -76,7 +75,7 @@ public class HashMapCacheTest {
 
         cache.clear();
 
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -85,7 +84,7 @@ public class HashMapCacheTest {
         cache.put("test2", 2);
         cache.put("test3", 3);
 
-        assertEquals(3, cache.size());
+        assertThat(cache.size()).isEqualTo(3);
         assertThat(cache.getAllKeys()).contains("test1", "test2", "test3");
     }
 
@@ -96,10 +95,11 @@ public class HashMapCacheTest {
         cache.put("test3", 3);
         cache.put("duplicate", 3);
 
-        assertEquals(4, cache.size());
-        assertEquals(4, cache.getAllValues().size());
 
-        assertThat(cache.getAllValues()).contains(1, 2, 3, 3);
+        assertThat(cache.size()).isEqualTo(4);
+        assertThat(cache.getAllValues())
+                .hasSize(4)
+                .contains(1, 2, 3, 3);
     }
 
     @DisplayName("Should cause JavaSerialisableException when serialisation flag is true")
@@ -114,8 +114,9 @@ public class HashMapCacheTest {
 
         TempClass tempClass = new TempClass();
 
-        final Exception exception = assertThrows(RuntimeException.class, () -> map.put("test1", tempClass));
-        assertTrue(exception.getCause() instanceof SerialisationException);
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> map.put("test1", tempClass))
+                .withCauseInstanceOf(SerialisationException.class);
     }
 
     @DisplayName("Should not cause JavaSerialisableException when serialisation flag is false")

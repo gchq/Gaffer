@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class HazelcastCacheTest {
 
@@ -51,39 +51,28 @@ public class HazelcastCacheTest {
 
     @Test
     public void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe() {
-        try {
-            cache.put("test", 1);
-        } catch (final CacheOperationException e) {
-            fail("Did not expect Exception to occur here");
-        }
-        try {
-            cache.putSafe("test", 1);
-            fail();
-        } catch (final OverwritingException e) {
-            assertEquals("Cache entry already exists for key: test", e.getMessage());
-        } catch (final CacheOperationException e) {
-            fail("Should have thrown an OverwritingException");
-        }
+
+        assertThatNoException().isThrownBy(() -> cache.put("test", 1));
+
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() ->  cache.putSafe("test", 1))
+                .withMessage("Cache entry already exists for key: test");
     }
 
     @Test
     public void shouldThrowExceptionWhenAddingNullKeyToCache() {
-        try {
-            cache.put(null, 2);
-            fail("Expected an exception");
-        } catch (final CacheOperationException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(CacheOperationException.class)
+                .isThrownBy(() -> cache.put(null, 2))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
     public void shouldThrowExceptionIfAddingNullValue() {
-        try {
-            cache.put("test", null);
-            fail("Expected an exception");
-        } catch (final CacheOperationException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(CacheOperationException.class)
+                .isThrownBy(() -> cache.put("test", null))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -93,7 +82,7 @@ public class HazelcastCacheTest {
         cache.put("key", 1);
 
         // then
-        assertEquals(1, cache.size());
+        assertThat(cache.size()).isOne();
     }
 
     @Test
@@ -116,7 +105,7 @@ public class HazelcastCacheTest {
         cache.remove("key");
 
         // then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -129,7 +118,7 @@ public class HazelcastCacheTest {
         cache.put("key", 5);
 
         // then
-        assertEquals(1, cache.size());
+        assertThat(cache.size()).isOne();
         assertEquals(new Integer(5), cache.get("key"));
     }
 
@@ -145,7 +134,7 @@ public class HazelcastCacheTest {
         cache.clear();
 
         // then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -154,7 +143,7 @@ public class HazelcastCacheTest {
         cache.put("test2", 2);
         cache.put("test3", 3);
 
-        assertEquals(3, cache.size());
+        assertThat(cache.size()).isEqualTo(3);
         assertThat(cache.getAllKeys()).contains("test1", "test2", "test3");
     }
 
@@ -165,7 +154,7 @@ public class HazelcastCacheTest {
         cache.put("test3", 3);
         cache.put("duplicate", 3);
 
-        assertEquals(4, cache.size());
+        assertThat(cache.size()).isEqualTo(4);
         assertEquals(4, cache.getAllValues().size());
 
         assertThat(cache.getAllValues()).contains(1, 2, 3);

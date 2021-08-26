@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ public class AddElementsHandlerTest {
         verify(table, times(2)).put(putsCaptor.capture());
         verify(table, times(2)).flushCommits();
         final List<List<Put>> allPuts = putsCaptor.getAllValues();
-        assertEquals(2, allPuts.size());
+        assertThat(allPuts).hasSize(2);
         final List<Put> combinedPuts = new ArrayList<>();
         combinedPuts.addAll(allPuts.get(0));
         combinedPuts.addAll(allPuts.get(1));

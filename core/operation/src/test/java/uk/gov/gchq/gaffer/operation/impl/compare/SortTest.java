@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,8 @@ public class SortTest extends OperationTest<Sort> {
         }).build();
 
         // Then
-        assertThat(sort.getInput()).isNotNull();
-        assertThat(sort.getInput()).hasSize(2);
+        assertThat(sort.getInput())
+                .hasSize(2);
         List properties = Streams.toStream(sort.getInput()).map(e -> e.getProperty("property")).collect(toList());
         assertThat(properties).containsOnly(1, 2);
     }
@@ -89,8 +89,8 @@ public class SortTest extends OperationTest<Sort> {
 
         // Then
         assertNotSame(sort, clone);
-        assertEquals(input, clone.getInput().iterator().next());
-        assertEquals(comparator, clone.getComparators().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
+        assertThat(clone.getComparators().iterator().next()).isEqualTo(comparator);
         assertEquals(deDuplicate, clone.isDeduplicate());
         assertTrue(clone.getResultLimit().equals(resultLimit));
     }

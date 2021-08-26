@@ -26,16 +26,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DefaultResponseDeserialiserTest {
 
     @Test
     public void shouldThrowSerialisationExceptionWhenResponseIsInvalid() {
-        assertThrows(SerialisationException.class, () -> new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.StoreTraits()).deserialise("[\"JUNK_TRAIT\"]"));
-        assertThrows(SerialisationException.class, () -> new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.Schema()).deserialise("[\"MATCHED_VERTEX\"]"));
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.StoreTraits()).deserialise("[\"JUNK_TRAIT\"]"));
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> new DefaultResponseDeserialiser<>(new TypeReferenceStoreImpl.Schema()).deserialise("[\"MATCHED_VERTEX\"]"));
     }
 
     @Test

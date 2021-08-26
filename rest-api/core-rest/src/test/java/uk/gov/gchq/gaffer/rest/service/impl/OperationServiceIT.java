@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -80,7 +81,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .parameters(null)
                 .build();
 
-        assertEquals(expected, namedOperationDetails.iterator().next());
+        assertThat(namedOperationDetails.iterator().next()).isEqualTo(expected);
     }
 
     @Test
@@ -158,7 +159,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         final List<GroupCounts> results =
                 readChunkedResults(response, new GenericType<ChunkedInput<GroupCounts>>() { });
 
-        assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
 
         final GroupCounts groupCounts = results.get(0);
 
@@ -173,7 +174,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         // Then
         final List<Element> results = readChunkedElements(response);
 
-        assertEquals(0, results.size());
+        assertThat(results).isEmpty();
     }
 
     @Test
@@ -184,7 +185,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         // Then
         final List<Element> results = readChunkedElements(response);
 
-        assertEquals(0, results.size());
+        assertThat(results).isEmpty();
     }
 
     @Test
