@@ -205,7 +205,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         final Element[] returnedElements = (Element[]) rdd.collect();
         // Check the number of elements returned is correct to ensure edges
         // aren't returned twice
-        assertThat(returnedElements).isEmpty();
+        assertThat(returnedElements).hasSize(30);
         final Set<Element> results = new HashSet<>(Arrays.asList(returnedElements));
         assertEquals(expectedElements, results);
     }

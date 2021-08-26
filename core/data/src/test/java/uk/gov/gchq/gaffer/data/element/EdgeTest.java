@@ -33,7 +33,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -51,9 +50,13 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        assertThat(edge).extracting("group", "source", "destination")
-                .isEqualTo(tuple("group", "source vertex", "destination vertex"));
-        assertTrue(edge.isDirected());
+        assertThat(edge)
+                .satisfies(e -> {
+                    assertThat(e.getGroup()).isEqualTo("group");
+                    assertThat(e.getSource()).isEqualTo("source vertex");
+                    assertThat(e.getDestination()).isEqualTo("destination vertex");
+                    assertThat(e.isDirected()).isTrue();
+                });
     }
 
     @Test

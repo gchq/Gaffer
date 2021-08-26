@@ -17,11 +17,8 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import org.assertj.core.api.Assertions;
-
 import org.apache.accumulo.core.client.Connector;
-
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
@@ -48,17 +45,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
