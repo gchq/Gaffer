@@ -46,8 +46,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
@@ -94,7 +92,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .build(), user);
 
         //then
-        assertTrue(removed);
+        assertThat(removed).isTrue();
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).isEmpty();
 
     }
@@ -118,7 +116,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .build(), user);
 
         //then
-        assertTrue(removed);
+        assertThat(removed).isTrue();
         GraphSerialisable graphSerialisableFromCache = federatedStoreCache.getGraphSerialisableFromCache(graphA);
         assertThat(graphSerialisableFromCache)
                 .as(new String(JSONSerialiser.serialise(graphSerialisableFromCache, true)))
@@ -467,10 +465,10 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         assertThat(changed).isTrue();
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).doesNotContain(graphA)
                 .contains(graphB);
-        assertTrue(tableGraphABefore);
-        assertFalse(tableGraphBBefore);
-        assertFalse(tableGraphAfter);
-        assertTrue(tableGraphBAfter);
+        assertThat(tableGraphABefore).isTrue();
+        assertThat(tableGraphBBefore).isFalse();
+        assertThat(tableGraphAfter).isFalse();
+        assertThat(tableGraphBAfter).isTrue();
     }
 
     @Test
@@ -585,7 +583,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //then
         ArrayList<String> graphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), user));
 
-        assertTrue(changed);
+        assertThat(changed).isTrue();
         assertThat(graphIds).hasSize(1);
         assertThat(graphIds.toArray()).containsExactly(new String[]{newName});
     }
@@ -612,7 +610,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         //then
         Set<String> graphIds = federatedStoreCache.getAllGraphIds();
 
-        assertTrue(changed);
+        assertThat(changed).isTrue();
         assertThat(graphIds.toArray())
                 .as(graphIds.toString())
                 .containsExactly(new String[]{newName});
@@ -639,7 +637,7 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         ArrayList<String> userGraphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), user));
         ArrayList<String> otherUserGraphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), NOT_ADMIN_USER));
 
-        assertTrue(changed);
+        assertThat(changed).isTrue();
         assertThat(userGraphIds).isEmpty();
         assertThat(otherUserGraphIds).hasSize(1);
         assertThat(otherUserGraphIds.toArray()).containsExactly(new String[]{graphA});
