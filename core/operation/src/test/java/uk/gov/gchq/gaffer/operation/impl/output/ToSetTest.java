@@ -41,6 +41,7 @@ public class ToSetTest extends OperationTest<ToSet> {
                 .containsOnly("1", "2");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -66,6 +66,7 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
         assertEquals(5, (int) operation.getEnd());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -75,6 +75,7 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

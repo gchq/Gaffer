@@ -17,12 +17,18 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import org.assertj.core.api.Assertions;
+
+import org.apache.accumulo.core.client.Connector;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreCache;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -31,14 +37,28 @@ import uk.gov.gchq.gaffer.federatedstore.operation.ChangeGraphId;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
@@ -66,6 +86,55 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         graph.execute(new RemoveGraph.Builder()
                 .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
                 .build(), user);
+    }
+
+    @Test
+    public void shouldRemoveGraphFromStorage() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .build(), user);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+
+        //when
+        final Boolean removed = graph.execute(new RemoveGraph.Builder()
+                .graphId(graphA)
+                .build(), user);
+
+        //then
+        assertTrue(removed);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).isEmpty();
+
+    }
+
+    @Test
+    public void shouldRemoveGraphFromCache() throws Exception {
+        //given
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .build(), user);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+
+        //when
+        assertThat(federatedStoreCache.getGraphSerialisableFromCache(graphA)).isNotNull();
+        final Boolean removed = graph.execute(new RemoveGraph.Builder()
+                .graphId(graphA)
+                .build(), user);
+
+        //then
+        assertTrue(removed);
+        GraphSerialisable graphSerialisableFromCache = federatedStoreCache.getGraphSerialisableFromCache(graphA);
+        assertThat(graphSerialisableFromCache)
+                .as(new String(JSONSerialiser.serialise(graphSerialisableFromCache, true)))
+                .isNull();
+        assertThat(federatedStoreCache.getAllGraphIds()).isEmpty();
     }
 
     @Test
@@ -346,7 +415,6 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         assertThat(changed).isFalse();
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
-
     }
 
     @Test
@@ -379,8 +447,13 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
-        final String graphA = "graphA";
-        final String graphB = "graphB";
+        final String graphA = "graphTableA";
+        final String graphB = "graphTableB";
+        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
+                ACCUMULO_PROPERTIES.getZookeepers(),
+                ACCUMULO_PROPERTIES.getUser(),
+                ACCUMULO_PROPERTIES.getPassword());
+
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
@@ -390,16 +463,25 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
+        boolean tableGraphABefore = connector.tableOperations().exists(graphA);
+        boolean tableGraphBBefore = connector.tableOperations().exists(graphB);
+
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
                 .build(), user);
 
+        boolean tableGraphAfter = connector.tableOperations().exists(graphA);
+        boolean tableGraphBAfter = connector.tableOperations().exists(graphB);
+
         //then
         assertThat(changed).isTrue();
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).doesNotContain(graphA)
                 .contains(graphB);
-
+        assertTrue(tableGraphABefore);
+        assertFalse(tableGraphBBefore);
+        assertFalse(tableGraphAfter);
+        assertTrue(tableGraphBAfter);
     }
 
     @Test
@@ -483,4 +565,122 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
                 .doesNotContain(graphB);
         assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser))).doesNotContain(graphA, graphB);
     }
+
+    @Test
+    public void shouldStartWithEmptyCache() throws Exception {
+        //given
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+
+        //then
+        assertThat(federatedStoreCache.getAllGraphIds()).isEmpty();
+    }
+
+    @Test
+    public void shouldChangeGraphIdInStorage() throws Exception {
+        //given
+        String newName = "newName";
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .build(), user);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphId.Builder()
+                .graphId(graphA)
+                .newGraphId(newName)
+                .build(), user);
+
+        //then
+        ArrayList<String> graphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), user));
+
+        assertTrue(changed);
+        assertThat(graphIds).hasSize(1);
+        assertThat(graphIds.toArray()).containsExactly(new String[]{newName});
+    }
+
+    @Test
+    public void shouldChangeGraphIdInCache() throws Exception {
+        //given
+        String newName = "newName";
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .build(), user);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphId.Builder()
+                .graphId(graphA)
+                .newGraphId(newName)
+                .build(), user);
+
+        //then
+        Set<String> graphIds = federatedStoreCache.getAllGraphIds();
+
+        assertTrue(changed);
+        assertThat(graphIds.toArray())
+                .as(graphIds.toString())
+                .containsExactly(new String[]{newName});
+    }
+
+    @Test
+    public void shouldChangeGraphAccessIdInStorage() throws Exception {
+        //given
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .build(), user);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+
+        //when
+        final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
+                .graphId(graphA)
+                .ownerUserId(NOT_ADMIN_USER.getUserId())
+                .build(), user);
+
+        //then
+        ArrayList<String> userGraphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), user));
+        ArrayList<String> otherUserGraphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), NOT_ADMIN_USER));
+
+        assertTrue(changed);
+        assertThat(userGraphIds).isEmpty();
+        assertThat(otherUserGraphIds).hasSize(1);
+        assertThat(otherUserGraphIds.toArray()).containsExactly(new String[]{graphA});
+    }
+
+    @Test
+    public void shouldChangeGraphAccessIdInCache() throws Exception {
+        //given
+        FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
+        final String graphA = "graphA";
+        graph.execute(new AddGraph.Builder()
+                .graphId(graphA)
+                .schema(new Schema())
+                .storeProperties(ACCUMULO_PROPERTIES)
+                .build(), user);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+
+        //when
+        FederatedAccess before = federatedStoreCache.getAccessFromCache(graphA);
+        final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
+                .graphId(graphA)
+                .ownerUserId(ADMIN_USER.getUserId())
+                .build(), user);
+        FederatedAccess after = federatedStoreCache.getAccessFromCache(graphA);
+
+        //then
+        assertThat(changed).isTrue();
+        assertThat(after).isNotEqualTo(before);
+        assertThat(before.getAddingUserId()).isEqualTo(user.getUserId());
+        assertThat(after.getAddingUserId()).isEqualTo(ADMIN_USER.getUserId());
+    }
+
 }

@@ -55,6 +55,7 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
         assertEquals("key", op.getKey());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

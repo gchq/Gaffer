@@ -82,6 +82,7 @@ public class GenerateElementsTest extends OperationTest<GenerateElements> {
         assertThat(iter.next()).isEqualTo("Test2");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

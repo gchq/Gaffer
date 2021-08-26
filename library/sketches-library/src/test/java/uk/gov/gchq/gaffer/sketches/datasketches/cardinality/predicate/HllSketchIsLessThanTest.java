@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,6 +111,7 @@ public class HllSketchIsLessThanTest extends PredicateTest {
         assertFalse(accepted);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -151,6 +152,7 @@ public class HllSketchIsLessThanTest extends PredicateTest {
         );
     }
 
+    @Test
     @Override
     public void shouldHaveSummaryAnnotation() {
         /* TODO: look at why this is not passing unless we include the overriden method whereas with HyperLogLogPlusIsLessThanTest it is without the override */

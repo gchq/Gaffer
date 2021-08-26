@@ -94,7 +94,7 @@ public class FederatedStoreCacheTest {
                 .hasSize(1)
                 .contains(testGraph.getGraphId());
 
-        federatedStoreCache.deleteFromCache(testGraph.getGraphId());
+        federatedStoreCache.deleteGraphFromCache(testGraph.getGraphId());
         Set<String> cachedGraphIdsAfterDelete = federatedStoreCache.getAllGraphIds();
         assertThat(cachedGraphIdsAfterDelete).isEmpty();
     }
@@ -113,7 +113,7 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldThrowExceptionIfGraphIdToBeRemovedIsNull() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
-        federatedStoreCache.deleteFromCache(null);
+        federatedStoreCache.deleteGraphFromCache(null);
         assertEquals(1, federatedStoreCache.getAllGraphIds().size());
     }
 

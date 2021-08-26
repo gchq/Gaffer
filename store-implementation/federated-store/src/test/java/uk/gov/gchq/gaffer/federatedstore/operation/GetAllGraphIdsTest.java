@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
@@ -32,6 +34,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
         return Sets.newHashSet();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()
@@ -41,6 +44,7 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
         assertThat(operation.getOptions()).containsEntry("a", "b");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()

@@ -48,6 +48,7 @@ public class LimitTest extends OperationTest<Limit> {
         assertThat(limit.getInput()).containsOnly("1", "2");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

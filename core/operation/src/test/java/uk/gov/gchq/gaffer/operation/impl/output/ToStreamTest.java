@@ -41,6 +41,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
                 .containsOnly("1", "2");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

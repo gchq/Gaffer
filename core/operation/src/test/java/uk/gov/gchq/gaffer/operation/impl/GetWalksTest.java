@@ -61,6 +61,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
                 assertThat(getWalks.getOperations()).hasSize(1);
         }
 
+        @Test
         @Override
         public void shouldValidateRequiredFields() throws Exception {
                 // We replace this test with the validation test below instead
@@ -194,6 +195,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
                                 result.getErrorString());
         }
 
+        @Test
         @Override
         public void shouldShallowCloneOperation() {
                 // Given

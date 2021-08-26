@@ -65,6 +65,7 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
         assertEquals(opAuths, op.getOpAuths());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

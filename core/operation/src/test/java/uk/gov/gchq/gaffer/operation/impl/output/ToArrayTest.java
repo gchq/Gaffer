@@ -38,6 +38,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
                 .containsOnly("1", "2");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
