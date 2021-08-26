@@ -139,9 +139,6 @@ public class ElementTransformerTest {
                 .build();
 
         // Then
-
-
-
         int i = 0;
         TupleAdaptedFunction<String, ?, ?> context = transformer.getComponents().get(i++);
         assertThat(context.getSelection()).hasSize(1);
