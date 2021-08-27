@@ -19,8 +19,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.rdd.RDD;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
@@ -59,7 +59,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         elements = createElements();

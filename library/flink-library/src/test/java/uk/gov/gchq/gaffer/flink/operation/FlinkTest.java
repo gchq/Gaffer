@@ -16,10 +16,9 @@
 
 package uk.gov.gchq.gaffer.flink.operation;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -35,6 +34,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
@@ -44,14 +44,8 @@ import java.util.stream.StreamSupport;
 import static java.util.stream.Collectors.toList;
 
 public abstract class FlinkTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Before
-    public void createFreshTemporaryArea() throws IOException {
-        testFolder.delete();
-        testFolder.create();
-    }
+    @TempDir
+    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -108,5 +102,18 @@ public abstract class FlinkTest {
         return consumeAs == String.class ? (List<T>) Stream.of(DATA_VALUES).collect(toList()) : (List<T>) (Stream.of(DATA_VALUES).map(String::getBytes).collect(toList()));
     }
 
+    protected File createTemporaryDirectory(final String directoryName) throws IOException {
+        File directory = new File(testFolder, directoryName);
+        if (directory.exists()) {
+            FileUtils.forceDelete(directory);
+        }
+        if (!directory.mkdir()) {
+            throw new IOException("Error creating temp directory '" + directoryName);
+        }
+        return directory;
+    }
 
+    protected TestFileSink createTestFileSink() throws IOException {
+        return new TestFileSink(createTemporaryDirectory("testFileSink").toPath().toString());
+    }
 }

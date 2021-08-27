@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import org.assertj.core.api.Assertions;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
@@ -194,7 +194,7 @@ public class FederatedStoreRecursionIT {
         this.proxyToRestServiceFederatedGraph = proxyToRestServiceFederatedGraph;
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         SingleUseFederatedStore.cleanUp();
     }
