@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,10 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -160,7 +160,7 @@ public abstract class RoadTrafficTestQueries {
 
         try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
             CloseableIterator<? extends Element> iter = elements.iterator();
-            assertTrue(iter.hasNext());
+            assertThat(iter).hasNext();
 
             final Element element = iter.next();
             assertFalse(iter.hasNext(), "Expected query to return only 1 element, but it has returned multiple!");
@@ -210,7 +210,7 @@ public abstract class RoadTrafficTestQueries {
 
         try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
             CloseableIterator<? extends Element> iter = elements.iterator();
-            assertTrue(iter.hasNext());
+            assertThat(iter).hasNext();
 
             final Element element = iter.next();
             assertFalse(iter.hasNext(), "Expected query to return only 1 element, but it has returned multiple!");

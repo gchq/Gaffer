@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JcsDistributedCacheTest {
@@ -86,7 +87,7 @@ public class JcsDistributedCacheTest {
 
         // then
         Set<String> keys = cache2.getAllKeys();
-        assertEquals(3, keys.size());
+        assertThat(keys).hasSize(3);
         assert (keys.contains("test1"));
         assert (keys.contains("test2"));
         assert (keys.contains("test3"));
@@ -103,7 +104,7 @@ public class JcsDistributedCacheTest {
 
         // then
         Collection<Integer> keys = cache2.getAllValues();
-        assertEquals(3, keys.size());
+        assertThat(keys).hasSize(3);
         assert (keys.contains(4));
         assert (keys.contains(5));
         assert (keys.contains(6));

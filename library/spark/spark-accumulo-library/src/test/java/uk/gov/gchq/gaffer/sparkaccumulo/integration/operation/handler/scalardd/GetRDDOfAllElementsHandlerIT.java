@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-17 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -204,7 +205,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         final Element[] returnedElements = (Element[]) rdd.collect();
         // Check the number of elements returned is correct to ensure edges
         // aren't returned twice
-        assertEquals(30, returnedElements.length);
+        assertThat(returnedElements).hasSize(30);
         final Set<Element> results = new HashSet<>(Arrays.asList(returnedElements));
         assertEquals(expectedElements, results);
     }
@@ -284,7 +285,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         }
         results.clear();
         returnedElements = (Element[]) rdd.collect();
-        assertEquals(0, returnedElements.length);
+        assertThat(returnedElements).isEmpty();
     }
 
     private void testGetAllElementsInRDDWithValidationApplied(final Graph graph, final GetRDDOfAllElements getRDD)
@@ -299,7 +300,7 @@ public final class GetRDDOfAllElementsHandlerIT {
 
         // Should get Entity B but not Entity A
         final Element[] returnedElements = (Element[]) rdd.collect();
-        assertEquals(1, returnedElements.length);
+        assertThat(returnedElements).hasSize(1);
         assertEquals(entityRetainedAfterValidation, returnedElements[0]);
     }
 
@@ -313,7 +314,7 @@ public final class GetRDDOfAllElementsHandlerIT {
         // Should get aggregated data
         final Element[] returnedElements = (Element[]) rdd.collect();
 
-        assertEquals(1, returnedElements.length);
+        assertThat(returnedElements).hasSize(1);
         final Entity entity1 = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex("A")

@@ -28,10 +28,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -54,7 +51,7 @@ public class ToEntitySeedsHandlerTest {
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, containsInAnyOrder(new EntitySeed(vertex1), new EntitySeed(vertex2)));
+        assertThat(results).containsOnly(new EntitySeed(vertex1), new EntitySeed(vertex2));
     }
 
     @Test
@@ -91,6 +88,6 @@ public class ToEntitySeedsHandlerTest {
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 }

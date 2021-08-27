@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,12 @@ import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -116,28 +117,28 @@ public class ViewElementDefinitionTest {
         assertNull(deserialisedElementDef.getExcludeProperties());
 
         final List<TupleAdaptedPredicate<String, ?>> preFilterComponents = deserialisedElementDef.getPreAggregationFilter().getComponents();
-        assertEquals(1, preFilterComponents.size());
+        assertThat(preFilterComponents).hasSize(1);
         assertArrayEquals(new String[] {TestPropertyNames.COUNT}, preFilterComponents.get(0).getSelection());
         assertEquals(new IsMoreThan(5), preFilterComponents.get(0).getPredicate());
 
         final List<TupleAdaptedBinaryOperator<String, ?>> aggComponents = deserialisedElementDef.getAggregator().getComponents();
-        assertEquals(1, aggComponents.size());
+        assertThat(aggComponents).hasSize(1);
         assertArrayEquals(new String[] {TestPropertyNames.COUNT}, aggComponents.get(0).getSelection());
         assertEquals(new Max(), aggComponents.get(0).getBinaryOperator());
 
         final List<TupleAdaptedPredicate<String, ?>> postFilterComponents = deserialisedElementDef.getPostAggregationFilter().getComponents();
-        assertEquals(1, postFilterComponents.size());
+        assertThat(postFilterComponents).hasSize(1);
         assertArrayEquals(new String[] {TestPropertyNames.COUNT}, postFilterComponents.get(0).getSelection());
         assertEquals(new IsLessThan(10), postFilterComponents.get(0).getPredicate());
 
         final List<TupleAdaptedFunction<String, ?, ?>> transformComponents = deserialisedElementDef.getTransformer().getComponents();
-        assertEquals(1, transformComponents.size());
+        assertThat(transformComponents).hasSize(1);
         assertArrayEquals(new String[] {TestPropertyNames.COUNT}, transformComponents.get(0).getSelection());
         assertEquals(new TestTransform(), transformComponents.get(0).getFunction());
         assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, transformComponents.get(0).getProjection());
 
         final List<TupleAdaptedPredicate<String, ?>> postTransformFilterComponents = deserialisedElementDef.getPostTransformFilter().getComponents();
-        assertEquals(1, postTransformFilterComponents.size());
+        assertThat(postTransformFilterComponents).hasSize(1);
         assertArrayEquals(new String[] {TestPropertyNames.PROP_1}, postTransformFilterComponents.get(0).getSelection());
         assertEquals(new IsEqual("9"), postTransformFilterComponents.get(0).getPredicate());
 
@@ -155,7 +156,7 @@ public class ViewElementDefinitionTest {
         final ElementTransformer transformer = mock(ElementTransformer.class);
         final ElementFilter filter = mock(ElementFilter.class);
 
-        assertThrows(IllegalArgumentException.class, () -> new ViewElementDefinition.Builder()
+        assertThatIllegalArgumentException().isThrownBy(() -> new ViewElementDefinition.Builder()
                 .transientProperty(TestPropertyNames.PROP_1, String.class)
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
                 .transformer(transformer)
@@ -169,7 +170,7 @@ public class ViewElementDefinitionTest {
         final ElementTransformer transformer = mock(ElementTransformer.class);
         final ElementFilter filter = mock(ElementFilter.class);
 
-        assertThrows(IllegalArgumentException.class, () -> new ViewElementDefinition.Builder()
+        assertThatIllegalArgumentException().isThrownBy(() -> new ViewElementDefinition.Builder()
                 .transientProperty(TestPropertyNames.PROP_1, String.class)
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
                 .transformer(transformer)
@@ -183,7 +184,7 @@ public class ViewElementDefinitionTest {
         final ElementTransformer transformer = mock(ElementTransformer.class);
         final ElementFilter postFilter = mock(ElementFilter.class);
 
-        assertThrows(IllegalArgumentException.class, () -> new ViewElementDefinition.Builder()
+        assertThatIllegalArgumentException().isThrownBy(() -> new ViewElementDefinition.Builder()
                 .transientProperty(TestPropertyNames.PROP_1, String.class)
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
                 .transformer(transformer)
@@ -198,8 +199,9 @@ public class ViewElementDefinitionTest {
 
         builder.properties(TestPropertyNames.PROP_1);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.excludeProperties(TestPropertyNames.PROP_1));
-        assertEquals("You cannot set both properties and excludeProperties", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.excludeProperties(TestPropertyNames.PROP_1))
+                .withMessage("You cannot set both properties and excludeProperties");
     }
 
     @Test
@@ -208,7 +210,8 @@ public class ViewElementDefinitionTest {
 
         builder.excludeProperties(TestPropertyNames.PROP_1);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> builder.properties(TestPropertyNames.PROP_1));
-        assertEquals("You cannot set both properties and excludeProperties", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.properties(TestPropertyNames.PROP_1))
+                .withMessage("You cannot set both properties and excludeProperties");
     }
 }

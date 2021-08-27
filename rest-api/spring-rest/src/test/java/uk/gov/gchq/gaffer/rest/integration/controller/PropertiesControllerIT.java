@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_COLOUR;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
@@ -84,7 +82,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals(DEFAULT_PROPERTIES, response.getBody());
+        assertThat(response.getBody()).isEqualTo(DEFAULT_PROPERTIES);
     }
 
     @Test
@@ -97,8 +95,8 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals(11, response.getBody().size());
-        assertEquals("My super graph", response.getBody().get(APP_DESCRIPTION));
+        assertThat(response.getBody()).hasSize(11)
+                .containsEntry(APP_DESCRIPTION, "My super graph");
     }
 
     @Test
@@ -111,8 +109,8 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals(11, response.getBody().size());
-        assertFalse("Expected the property not to be returned", response.getBody().containsKey("gaffer.random.property"));
+        assertThat(response.getBody()).hasSize(11)
+                .as("Expected the property not to be returned").doesNotContainKey("gaffer.random.property");
     }
 
     @Test
@@ -126,8 +124,8 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals(12, response.getBody().size());
-        assertTrue("Expected the property to be returned", response.getBody().containsKey("gaffer.random.property"));
+        assertThat(response.getBody()).hasSize(12)
+                .as("Expected the property to be returned").containsKey("gaffer.random.property");
 
     }
 
@@ -141,7 +139,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 404);
-        assertEquals("Property: gaffer.random.property could not be found.", response.getBody().getSimpleMessage());
+        assertThat(response.getBody().getSimpleMessage()).isEqualTo("Property: gaffer.random.property could not be found.");
     }
 
     @Test
@@ -151,7 +149,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 404);
-        assertEquals("Property: gaffer.non-existent.property could not be found.", response.getBody().getSimpleMessage());
+        assertThat(response.getBody().getSimpleMessage()).isEqualTo("Property: gaffer.non-existent.property could not be found.");
     }
 
     @Test
@@ -161,7 +159,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals("PropertiesIntegrationTest", response.getBody());
+        assertThat(response.getBody()).isEqualTo("PropertiesIntegrationTest");
     }
 
     @Test
@@ -175,6 +173,6 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals("test", response.getBody());
+        assertThat(response.getBody()).isEqualTo("test");
     }
 }

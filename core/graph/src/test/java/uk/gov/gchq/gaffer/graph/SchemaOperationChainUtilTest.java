@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
@@ -98,7 +99,8 @@ public class SchemaOperationChainUtilTest {
 
         // Then
         assertFalse(validationResult.isValid());
-        assertTrue(validationResult.getErrorString().contains("elementGenerator is required for: AddElementsFromSocket"));
-        assertTrue(validationResult.getErrorString().contains("hostname is required for: AddElementsFromSocket"));
+        assertThat(validationResult.getErrorString())
+                .contains("elementGenerator is required for: AddElementsFromSocket")
+                .contains("hostname is required for: AddElementsFromSocket");
     }
 }

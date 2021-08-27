@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.serialisation.util.JsonSerialisationUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonSerialisationUtilTest {
@@ -84,7 +85,7 @@ public class JsonSerialisationUtilTest {
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
         // Then
-        assertEquals(8, result.size());
+        assertThat(result).hasSize(8);
         assertEquals(expectedFields.entrySet(), result.entrySet());
     }
 }

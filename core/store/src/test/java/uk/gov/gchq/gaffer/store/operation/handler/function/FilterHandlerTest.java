@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -565,12 +565,9 @@ public class FilterHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Edge group: " + TestGroups.EDGE + " does not exist in the schema"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() ->  handler.doOperation(filter, context, store))
+                .withMessageContaining("Edge group: " + TestGroups.EDGE + " does not exist in the schema");
     }
 
     @Test
@@ -605,12 +602,9 @@ public class FilterHandlerTest {
                         .build())
                 .build();
 
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains(filter.getClass().getSimpleName() + " contains a null function."));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(filter, context, store))
+                .withMessageContaining(filter.getClass().getSimpleName() + " contains a null function.");
     }
 
     @Test
@@ -657,12 +651,9 @@ public class FilterHandlerTest {
                         .build())
                 .build();
 
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("is not compatible with the input type:"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(filter, context, store))
+                .withMessageContaining("is not compatible with the input type:");
     }
 
     @Test

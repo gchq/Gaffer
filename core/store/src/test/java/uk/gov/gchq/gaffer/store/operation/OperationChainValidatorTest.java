@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Arrays;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -87,7 +88,7 @@ public class OperationChainValidatorTest {
         // Then
         assertEquals(false, validationResult.isValid());
         Set<String> errors = validationResult.getErrors();
-        assertEquals(1, errors.size());
+        assertThat(errors).hasSize(1);
         errors.contains(Max.class.getName()
                 + " references BasicEntity group that does not exist in the schema");
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
 import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -174,8 +174,10 @@ public class JobControllerIT extends AbstractRestApiIT {
 
         ResponseEntity<List> resultResponse = get("/graph/jobs/" + jobId + "/results", List.class);
         List<? extends Element> results = Lists.newArrayList(deserialiseElementIterable(resultResponse.getBody()));
-        assertEquals(3, results.size());
-        assertTrue("Results did not contain expected elements", results.containsAll(elements));
+        Assertions.<Element>assertThat(results)
+                .hasSize(3)
+                .as("Results did not contain expected elements")
+                .containsAll(elements);
     }
 
     private Iterable<JobDetail> deserialiseJobDetailIterable(final Iterable body) {

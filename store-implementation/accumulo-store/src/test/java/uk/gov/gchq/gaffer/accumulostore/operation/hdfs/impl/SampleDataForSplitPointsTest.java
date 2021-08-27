@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSplitPoints> {
     private static final String INPUT_DIRECTORY = "/input";
@@ -98,12 +97,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     @Test
     public void expectIllegalArgumentExceptionWhenTryingToSetReducers() {
         final SampleDataForSplitPoints op = getTestObject();
-        try {
-            op.setNumReduceTasks(10);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> op.setNumReduceTasks(10)).extracting("message").isNotNull();
     }
 
     @Test

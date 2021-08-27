@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,10 +53,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractOperationsTest extends StandaloneIT {
 
@@ -345,12 +344,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
-            fail("IllegalArgumentException Exception: POST_AGGREGATION_FILTERING expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("POST_AGGREGATION_FILTERING"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user))
+                .withMessageContaining("POST_AGGREGATION_FILTERING");
     }
 
     @Test
@@ -371,12 +367,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
-            fail("IllegalArgumentException Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("POST_TRANSFORMATION_FILTERING"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user))
+                .withMessageContaining("POST_TRANSFORMATION_FILTERING");
     }
 
     @Test
@@ -420,9 +413,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
         // Then1
         Iterator<? extends Element> resultsIterator = results.iterator();
-        assertTrue(resultsIterator.hasNext());
-        assertEquals(edge, resultsIterator.next());
-        assertFalse(resultsIterator.hasNext());
+        assertThat(resultsIterator).hasNext();
+        assertThat(resultsIterator.next()).isEqualTo(edge);
+        assertThat(resultsIterator).isExhausted();
         results.close();
 
         // When2
@@ -430,9 +423,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
         // Then2
         resultsIterator = results.iterator();
-        assertTrue(resultsIterator.hasNext());
-        assertEquals(edge, resultsIterator.next());
-        assertFalse(resultsIterator.hasNext());
+        assertThat(resultsIterator).hasNext();
+        assertThat(resultsIterator.next()).isEqualTo(edge);
+        assertThat(resultsIterator).isExhausted();
         results.close();
     }
 }

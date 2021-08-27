@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,17 +44,16 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-
 public class FederatedAggregateHandlerTest {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @Test
     public void shouldDelegateToHandler() throws OperationException {
@@ -89,10 +88,13 @@ public class FederatedAggregateHandlerTest {
                 .storeProperties(federatedStoreProperties)
                 .build();
 
+        final String graphNameA = "a";
+        final String graphNameB = "b";
+
         final Context context = new Context(new User());
         fed.execute(new OperationChain.Builder()
                 .first(new AddGraph.Builder()
-                        .graphId("a")
+                        .graphId(graphNameA)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
                                         .source("string")
@@ -103,7 +105,7 @@ public class FederatedAggregateHandlerTest {
                         .storeProperties(PROPERTIES)
                         .build())
                 .then(new AddGraph.Builder()
-                        .graphId("b")
+                        .graphId(graphNameB)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
                                         .source("string")
@@ -121,7 +123,7 @@ public class FederatedAggregateHandlerTest {
                         .source("s1")
                         .dest("d1")
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "a")
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameA)
                 .build(), context);
 
         fed.execute(new AddElements.Builder()
@@ -130,7 +132,7 @@ public class FederatedAggregateHandlerTest {
                         .source("s1")
                         .dest("d1")
                         .build())
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "b")
+                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameB)
                 .build(), context);
 
         final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
@@ -138,7 +140,7 @@ public class FederatedAggregateHandlerTest {
         List<Element> list = new ArrayList<>();
         getAll.forEach(list::add);
 
-        assertEquals(2, list.size());
+        assertThat(list).hasSize(2);
 
         final Iterable<? extends Element> getAggregate = fed.execute(new OperationChain.Builder()
                 .first(new GetAllElements())
@@ -148,6 +150,6 @@ public class FederatedAggregateHandlerTest {
         list.clear();
         getAggregate.forEach(list::add);
 
-        assertEquals(1, list.size());
+        assertThat(list).hasSize(1);
     }
 }

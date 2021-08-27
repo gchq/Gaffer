@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -136,7 +137,7 @@ public class CachingIterableTest {
         assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
 
         final CloseableIterator<Integer> itr5 = cachingIterable.iterator();
-        assertEquals((Integer) 0, itr5.next());
+        assertThat(itr5.next()).isEqualTo((Integer) 0);
         verify(iterable, times(4)).iterator();
     }
 }

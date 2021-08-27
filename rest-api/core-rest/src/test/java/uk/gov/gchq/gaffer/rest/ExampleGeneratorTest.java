@@ -40,8 +40,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExampleGeneratorTest {
 
@@ -84,7 +83,7 @@ public class ExampleGeneratorTest {
         final Operation operation = generator.generateExample(opClass);
 
         // Then
-        assertThat(operation, notNullValue());
+        assertThat(operation).isNotNull();
     }
 
     @ParameterizedTest
@@ -94,7 +93,7 @@ public class ExampleGeneratorTest {
         final Operation operation = generator.generateExample(ExampleCharOperation.class);
 
         //Then
-        assertThat(operation, notNullValue());
+        assertThat(operation).isNotNull();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class RFileReaderRddIT {
 
@@ -82,8 +82,8 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // Then
-        assertEquals(dataInput.size(), rdd.count());
-        assertEquals(1, rdd.getPartitions().length);
+        assertThat(rdd.count()).isEqualTo(dataInput.size());
+        assertThat(rdd.getPartitions()).hasSize(1);
     }
 
     @Test
@@ -101,8 +101,8 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(config));
 
         // Then
-        assertEquals(dataInput.size(), rdd.count());
-        assertEquals(1, rdd.getPartitions().length);
+        assertThat(rdd.count()).isEqualTo(dataInput.size());
+        assertThat(rdd.getPartitions()).hasSize(1);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class RFileReaderRddIT {
                 serialiseConfiguration(job.getConfiguration()));
 
         // Then
-        assertEquals(1L, rdd.count());
+        assertThat(rdd.count()).isEqualTo(1L);
     }
 
     public void throwRTX_whenGetPartitionsForFileReaderWithInvalidTableName() throws IOException,
@@ -139,11 +139,10 @@ public class RFileReaderRddIT {
                 MiniAccumuloClusterProvider.PASSWORD, "Invalid Table Name", new HashSet<>(),
                 serialiseConfiguration(config));
 
-        // When
-        RuntimeException thrown = assertThrows(RuntimeException.class, rdd::getPartitions);
-
-        // Then
-        assertEquals("User user does not have access to table Invalid Table Name", thrown.getMessage());
+        // When / Then
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(rdd::getPartitions)
+                .withMessage("User user does not have access to table Invalid Table Name");
     }
 
     @Test
@@ -157,11 +156,10 @@ public class RFileReaderRddIT {
                 MiniAccumuloClusterProvider.PASSWORD, tableName, new HashSet<>(),
                 serialiseConfiguration(config));
 
-        // When
-        RuntimeException thrown = assertThrows(RuntimeException.class, rdd::getPartitions);
-
-        // Then
-        assertEquals("User user2 does not have access to table " + tableName, thrown.getMessage());
+        // When / Then
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(rdd::getPartitions)
+                .withMessage("User user2 does not have access to table " + tableName);
     }
 
     @Test
@@ -174,11 +172,10 @@ public class RFileReaderRddIT {
                 cluster.getInstanceName(), cluster.getZooKeepers(), "Incorrect Username", "", tableName,
                 new HashSet<>(), serialiseConfiguration(config));
 
-        // When
-        RuntimeException thrown = assertThrows(RuntimeException.class, rdd::getPartitions);
-
-        // Then
-        assertEquals("Exception connecting to Accumulo", thrown.getMessage());
+        // When / Then
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(rdd::getPartitions)
+                .withMessage("Exception connecting to Accumulo");
     }
 
     private MiniAccumuloCluster createAccumuloCluster(final String tableName, final Configuration configuration, final List<String> data)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,11 @@ import uk.gov.gchq.koryphe.util.TimeUnit;
 import java.io.IOException;
 import java.time.Instant;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class RBMBackedTimestampSetInRangeTest {
 
@@ -78,12 +79,9 @@ public class RBMBackedTimestampSetInRangeTest {
         predicate.startTime(0L).endTime(Instant.now().toEpochMilli()).timeUnit(TimeUnit.DAY);
 
         // Then
-        try {
-            predicate.test(timestamps);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertEquals("Failed to convert end time to SECOND as the resulting value was outside the range of Integer", e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> predicate.test(timestamps))
+                .withMessage("Failed to convert end time to SECOND as the resulting value was outside the range of Integer");
     }
 
     @Test
@@ -125,12 +123,9 @@ public class RBMBackedTimestampSetInRangeTest {
         predicate.startTime(-5L).endTime(5L);
 
         // When / Then
-        try {
-            predicate.test(null);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("TimestampSet cannot be null", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> predicate.test(null))
+                .withMessage("TimestampSet cannot be null");
     }
 
     @Test
@@ -142,12 +137,9 @@ public class RBMBackedTimestampSetInRangeTest {
         RBMBackedTimestampSet emptySet = new RBMBackedTimestampSet.Builder()
                 .timeBucket(CommonTimeUtil.TimeBucket.SECOND)
                 .build();
-        try {
-            predicate.test(emptySet);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("TimestampSet must contain at least one value", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> predicate.test(emptySet))
+                .withMessage("TimestampSet must contain at least one value");
     }
 
     @Test
