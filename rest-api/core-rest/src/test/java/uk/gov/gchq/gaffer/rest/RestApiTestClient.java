@@ -80,7 +80,7 @@ public abstract class RestApiTestClient {
             if (tempSchema.exists()) {
                 FileUtils.forceDelete(tempSchema);
             }
-            if (tempSchema.exists()) {
+            if (tempStoreProperties.exists()) {
                 FileUtils.forceDelete(tempStoreProperties);
             }
         } catch (IOException e) {

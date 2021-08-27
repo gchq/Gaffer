@@ -80,7 +80,7 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
         return store;
     }
 
-    protected TestFileOutput createTestFileOutput() throws IOException {
+    private TestFileOutput createTestFileOutput() throws IOException {
         return new TestFileOutput(createTemporaryDirectory("testFileOutput").toPath().toString());
     }
 }
