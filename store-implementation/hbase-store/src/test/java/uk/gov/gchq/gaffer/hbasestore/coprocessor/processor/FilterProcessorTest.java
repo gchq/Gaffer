@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -109,7 +110,7 @@ public class FilterProcessorTest {
         final List<LazyElementCell> result = processor.process(lazyCells);
 
         // When / Then
-        assertEquals(2, result.size());
+        assertThat(result).hasSize(2);
         assertEquals(ELEMENTS.get(0), result.get(0).getElement());
         assertEquals(deletedCell, result.get(1).getCell());
     }

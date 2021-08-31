@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -50,7 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -156,7 +155,7 @@ public class AddElementsHandlerTest {
         verify(table, times(2)).put(putsCaptor.capture());
         verify(table, times(2)).flushCommits();
         final List<List<Put>> allPuts = putsCaptor.getAllValues();
-        assertEquals(2, allPuts.size());
+        assertThat(allPuts).hasSize(2);
         final List<Put> combinedPuts = new ArrayList<>();
         combinedPuts.addAll(allPuts.get(0));
         combinedPuts.addAll(allPuts.get(1));
@@ -171,7 +170,7 @@ public class AddElementsHandlerTest {
         final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
         final List<Element> elementsAdded = CellUtil.getElements(combinedPuts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
-        assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
+        assertThat(elementsAdded).contains(expectedElementsArr);
     }
 
     @Test

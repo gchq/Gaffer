@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,11 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
 
 public class FederatedAggregateHandlerTest {
 
@@ -141,7 +140,7 @@ public class FederatedAggregateHandlerTest {
         List<Element> list = new ArrayList<>();
         getAll.forEach(list::add);
 
-        assertEquals(2, list.size());
+        assertThat(list).hasSize(2);
 
         final Iterable<? extends Element> getAggregate = fed.execute(new OperationChain.Builder()
                 .first(new GetAllElements())
@@ -151,6 +150,6 @@ public class FederatedAggregateHandlerTest {
         list.clear();
         getAggregate.forEach(list::add);
 
-        assertEquals(1, list.size());
+        assertThat(list).hasSize(1);
     }
 }

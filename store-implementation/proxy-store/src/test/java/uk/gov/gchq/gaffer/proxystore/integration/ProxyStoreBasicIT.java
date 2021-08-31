@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,11 +59,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ProxyStoreBasicIT {
     private Graph graph;
@@ -141,8 +138,8 @@ public class ProxyStoreBasicIT {
         final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
-        assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItems(DEFAULT_ELEMENTS));
+        assertThat(Iterables.size(results)).isEqualTo(DEFAULT_ELEMENTS.length);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS);
     }
 
     @Test
@@ -160,8 +157,8 @@ public class ProxyStoreBasicIT {
         CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
-        assertEquals(1, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat(results).hasSize(1);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
     }
 
     @Test
@@ -191,9 +188,8 @@ public class ProxyStoreBasicIT {
         CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
-        assertEquals(2, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[2]));
+        assertThat(results).hasSize(2);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
     }
 
     @Test
@@ -211,10 +207,10 @@ public class ProxyStoreBasicIT {
                             .build(), USER);
             fail("Exception expected");
         } catch (final GafferWrappedErrorRuntimeException e) {
-            assertEquals(new Error.ErrorBuilder()
+            assertThat(e.getError()).isEqualTo(new Error.ErrorBuilder()
                     .simpleMessage("Limit of 1 exceeded.")
                     .status(Status.INTERNAL_SERVER_ERROR)
-                    .build(), e.getError());
+                    .build());
         }
     }
 
@@ -228,7 +224,7 @@ public class ProxyStoreBasicIT {
         final Set<StoreTrait> storeTraits = graph.getStoreTraits();
 
         // Then
-        assertEquals(expectedTraits, storeTraits);
+        assertThat(storeTraits).isEqualTo(expectedTraits);
     }
 
     private void addDefaultElements() throws OperationException {

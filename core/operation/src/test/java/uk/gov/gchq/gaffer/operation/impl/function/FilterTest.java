@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -70,7 +71,7 @@ public class FilterTest extends OperationTest<Filter> {
 
         // Then
         assertNotSame(filter, clone);
-        assertEquals(edge, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(edge);
     }
 
     @Test

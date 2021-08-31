@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graph1";
@@ -171,12 +172,7 @@ public class TableUtilsTest {
         invalidateTable.run();
 
         // When / Then
-        try {
-            TableUtils.ensureTableExists(store);
-            fail("Exception expected");
-        } catch (final StoreException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(StoreException.class).isThrownBy(() -> TableUtils.ensureTableExists(store)).extracting("message").isNotNull();
     }
 
     @Test
@@ -198,9 +194,9 @@ public class TableUtilsTest {
         TableUtils.createTable(store);
 
         final Map<String, Set<Text>> localityGroups = store.getConnection().tableOperations().getLocalityGroups(LOCALITY_GRAPH_ID);
-        assertEquals(1, localityGroups.size());
+        assertThat(localityGroups).hasSize(1);
         Set<Text> localityGroup = localityGroups.get(TestGroups.EDGE);
-        assertEquals(1, localityGroup.size());
+        assertThat(localityGroup).hasSize(1);
         assertEquals(new Text(TestGroups.EDGE), localityGroup.toArray()[0]);
     }
 
@@ -229,7 +225,7 @@ public class TableUtilsTest {
 
         // Then
         final Map<String, EnumSet<IteratorScope>> itrs = store.getConnection().tableOperations().listIterators(NO_AGGREGATORS_GRAPH_ID);
-        assertEquals(1, itrs.size());
+        assertThat(itrs).hasSize(1);
 
         final EnumSet<IteratorScope> validator = itrs.get(AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
         assertEquals(EnumSet.allOf(IteratorScope.class), validator);
@@ -273,12 +269,10 @@ public class TableUtilsTest {
         properties.setZookeepers(PROPERTIES.getZookeepers());
 
         final AccumuloStore store = new MiniAccumuloStore();
-        assertThrows(IllegalArgumentException.class,
-                () -> store.initialise(null, schema, properties));
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties));
 
         // When
-        assertThrows(AccumuloRuntimeException.class,
-                () -> TableUtils.ensureTableExists(store));
+        assertThatExceptionOfType(AccumuloRuntimeException.class).isThrownBy(() -> TableUtils.ensureTableExists(store));
     }
 
     @Test
@@ -300,12 +294,10 @@ public class TableUtilsTest {
         properties.setZookeepers((PROPERTIES.getZookeepers()));
 
         final AccumuloStore store = new MiniAccumuloStore();
-        assertThrows(IllegalArgumentException.class,
-                () -> store.initialise(null, schema, properties));
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties));
 
         // When
-        assertThrows(AccumuloRuntimeException.class,
-                () -> TableUtils.createTable(store));
+        assertThatExceptionOfType(AccumuloRuntimeException.class).isThrownBy(() -> TableUtils.createTable(store));
     }
 
     @Test
@@ -327,7 +319,7 @@ public class TableUtilsTest {
         properties.setZookeepers(PROPERTIES.getZookeepers());
 
         // When
-        assertThrows(IllegalArgumentException.class,
+        assertThatIllegalArgumentException().isThrownBy(
                 () -> new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(null)

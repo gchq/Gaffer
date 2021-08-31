@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -95,7 +96,7 @@ public class GafferResultCacheExporterTest {
         // Then
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(store).execute(opChain.capture(), Mockito.any(Context.class));
-        assertEquals(1, opChain.getValue().getOperations().size());
+        assertThat(opChain.getValue().getOperations()).hasSize(1);
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");

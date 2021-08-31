@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -48,9 +49,9 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FederatedStoreRecursionIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
@@ -64,7 +65,7 @@ public class FederatedStoreRecursionIT {
     private User user = new User();
 
     @Test
-    @Timeout(value = 60)
+    @Timeout(value = 1, unit = TimeUnit.MINUTES)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -111,8 +112,8 @@ public class FederatedStoreRecursionIT {
                 new GetAllElements.Builder()
                         .build(),
                 user));
-        assertEquals(elements.toString(), 1, elements.size());
-        assertEquals(expected, elements.get(0).getProperties().get(PROPERTY_NAME));
+        assertThat(elements).as(elements.toString()).hasSize(1);
+        assertThat(elements.get(0).getProperties()).containsEntry(PROPERTY_NAME, expected);
     }
 
     protected void createEntityGraph() throws OperationException {
@@ -142,17 +143,17 @@ public class FederatedStoreRecursionIT {
                                 new GetAllGraphIds()
                         )).build(),
                 user));
-        assertEquals(ids.length, list.size());
+        assertThat(list).hasSameSizeAs(ids);
         for (String id : ids) {
-            assertTrue(list.toString(), list.contains(id));
+            Assertions.<String>assertThat(list).as(list.toString()).contains(id);
         }
     }
 
     protected void testOuterGetGraphIds(final String... ids) throws OperationException {
         ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), user));
-        assertEquals(ids.length, list.size());
+        assertThat(list).hasSameSizeAs(ids);
         for (String id : ids) {
-            assertTrue(list.toString(), list.contains(id));
+            Assertions.<String>assertThat(list).as(list.toString()).contains(id);
         }
     }
 

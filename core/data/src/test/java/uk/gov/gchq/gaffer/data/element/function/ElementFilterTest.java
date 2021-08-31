@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,12 @@ import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -195,19 +196,19 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
         // Then
         int i = 0;
         TupleAdaptedPredicate<String, ?> adaptedFunction = filter.getComponents().get(i++);
-        assertEquals(1, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(1);
         assertEquals(property1, adaptedFunction.getSelection()[0]);
         assertSame(func1, adaptedFunction.getPredicate());
 
         adaptedFunction = filter.getComponents().get(i++);
-        assertEquals(2, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(2);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
         assertSame(func2, adaptedFunction.getPredicate());
 
         adaptedFunction = filter.getComponents().get(i++);
         assertSame(func3, adaptedFunction.getPredicate());
-        assertEquals(1, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(1);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
         assertEquals(i, filter.getComponents().size());
@@ -280,7 +281,7 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
         filter.lock();
         final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
 
-        assertThrows(UnsupportedOperationException.class, () -> components.add(null));
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> components.add(null));
     }
 
     @Test
@@ -289,7 +290,7 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
 
         final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
 
-        assertDoesNotThrow(() -> components.add(null));
+        assertThatNoException().isThrownBy(() -> components.add(null));
     }
 
     private Entity makeEntity(final Object property1, final String property2) {

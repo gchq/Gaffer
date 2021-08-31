@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,11 +61,10 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
-
 
 public class RowIdAggregatorTest {
 
@@ -292,7 +291,7 @@ public class RowIdAggregatorTest {
             assertEquals(5, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(3, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             // Check we get the Result of the second provided range
-            assertTrue(it.hasNext());
+            assertThat(it).hasNext();
             entry = it.next();
             readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             expectedEdge = new Edge.Builder()

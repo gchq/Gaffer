@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WhileIT extends AbstractStoreIT {
 
@@ -63,7 +63,7 @@ public class WhileIT extends AbstractStoreIT {
                         .build())
                 .build(), getUser()));
 
-        assertEquals(1, results.size());
-        assertEquals(10L, results.get(0).getProperty(TestPropertyNames.COUNT));
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getProperty(TestPropertyNames.COUNT)).isEqualTo(10L);
     }
 }

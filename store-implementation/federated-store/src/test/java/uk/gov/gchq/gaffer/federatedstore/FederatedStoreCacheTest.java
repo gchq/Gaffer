@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 
 public class FederatedStoreCacheTest {
     private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseAccumuloStore.properties";
@@ -81,20 +81,22 @@ public class FederatedStoreCacheTest {
     public void shouldGetAllGraphIdsFromCache() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
         Set<String> cachedGraphIds = federatedStoreCache.getAllGraphIds();
-        assertEquals(1, cachedGraphIds.size());
-        assertTrue(cachedGraphIds.contains(testGraph.getGraphId()));
+        assertThat(cachedGraphIds)
+                .hasSize(1)
+                .contains(testGraph.getGraphId());
     }
 
     @Test
     public void shouldDeleteFromCache() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
         Set<String> cachedGraphIds = federatedStoreCache.getAllGraphIds();
-        assertEquals(1, cachedGraphIds.size());
-        assertTrue(cachedGraphIds.contains(testGraph.getGraphId()));
+        assertThat(cachedGraphIds)
+                .hasSize(1)
+                .contains(testGraph.getGraphId());
 
-        federatedStoreCache.deleteFromCache(testGraph.getGraphId());
+        federatedStoreCache.deleteGraphFromCache(testGraph.getGraphId());
         Set<String> cachedGraphIdsAfterDelete = federatedStoreCache.getAllGraphIds();
-        assertEquals(0, cachedGraphIdsAfterDelete.size());
+        assertThat(cachedGraphIdsAfterDelete).isEmpty();
     }
 
     @Test
@@ -111,7 +113,7 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldThrowExceptionIfGraphIdToBeRemovedIsNull() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
-        federatedStoreCache.deleteFromCache(null);
+        federatedStoreCache.deleteGraphFromCache(null);
         assertEquals(1, federatedStoreCache.getAllGraphIds().size());
     }
 

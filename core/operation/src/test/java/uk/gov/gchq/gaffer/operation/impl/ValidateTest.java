@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,7 +77,7 @@ public class ValidateTest extends OperationTest<Validate> {
         assertEquals(1, elm2.getProperties().size());
         assertEquals("property 2 value", elm2.getProperty("property 2"));
 
-        assertFalse(itr.hasNext());
+        assertThat(itr).isExhausted();
 
         assertTrue(deserialisedOp.isSkipInvalidElements());
     }
@@ -93,9 +93,10 @@ public class ValidateTest extends OperationTest<Validate> {
                 .skipInvalidElements(true)
                 .build();
         assertTrue(validate.isSkipInvalidElements());
-        assertEquals(edge, validate.getInput().iterator().next());
+        assertThat(validate.getInput().iterator().next()).isEqualTo(edge);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -115,7 +116,7 @@ public class ValidateTest extends OperationTest<Validate> {
         assertNotSame(validate, clone);
         assertTrue(clone.isSkipInvalidElements());
         assertTrue(clone.isValidate());
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

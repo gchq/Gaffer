@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -77,9 +77,7 @@ public class FederatedGraphWriteAccessPredicateTest implements AccessPredicateTe
 
     @Test
     public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
-        assertNotEquals(
-                createAccessPredicate("anotherUserId"),
-                createAccessPredicate(TEST_USER.getUserId()));
+        assertThat(createAccessPredicate(TEST_USER.getUserId())).isNotEqualTo(createAccessPredicate("anotherUserId"));
     }
 
     private AccessPredicate createAccessPredicate(final String creatingUserId) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FederatedGraphWriteUserPredicateTest {
 
@@ -41,6 +41,6 @@ class FederatedGraphWriteUserPredicateTest {
 
         // Then
         JsonAssert.assertEquals(json, serialised);
-        assertEquals(predicate, deserialised);
+        assertThat(deserialised).isEqualTo(predicate);
     }
 }

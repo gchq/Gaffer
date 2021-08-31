@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
@@ -99,7 +100,7 @@ public class ProxyStoreIT extends AbstractRestApiIT {
 
         // Then
         ArrayList<Element> elements = Lists.newArrayList(proxy.execute(new GetAllElements(), new User()));
-        assertEquals(1, elements.size());
+        assertThat(elements).hasSize(1);
 
         assertEquals("vertex1", elements.get(0).getIdentifier(IdentifierType.VERTEX));
     }

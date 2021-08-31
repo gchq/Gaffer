@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,14 @@
  */
 package uk.gov.gchq.gaffer.commonutil;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OneOrMoreTest {
 
@@ -39,8 +33,8 @@ public class OneOrMoreTest {
         collection.add(1);
         collection.add(1);
 
-        assertEquals(1, collection.size());
-        assertEquals(1, (int) collection.iterator().next());
+        assertThat(collection).hasSize(1);
+        assertThat((int) collection.iterator().next()).isEqualTo(1);
     }
 
     @Test
@@ -49,8 +43,8 @@ public class OneOrMoreTest {
 
         final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
-        assertEquals(1, collection.size());
-        assertEquals(1, (int) collection.iterator().next());
+        assertThat(collection).hasSize(1);
+        assertThat((int) collection.iterator().next()).isEqualTo(1);
     }
 
     @Test
@@ -60,8 +54,7 @@ public class OneOrMoreTest {
 
         collection.removeAnyItem();
 
-        assertTrue(collection.isEmpty());
-        assertEquals(0, collection.size());
+        assertThat(collection).isEmpty();
     }
 
     @Test
@@ -73,8 +66,9 @@ public class OneOrMoreTest {
 
         collection.removeAnyItem();
 
-        assertEquals(2, collection.size());
-        assertEquals(Arrays.asList(1, 2), Lists.newArrayList(collection));
+        assertThat(collection)
+                .hasSize(2)
+                .containsExactly(1, 2);
     }
 
     @Test
@@ -93,8 +87,9 @@ public class OneOrMoreTest {
         }
 
         // Then
-        assertEquals(400, collection.size());
-        assertEquals(expectedItems, Sets.newHashSet(collection));
+        assertThat(collection)
+                .hasSize(400)
+                .containsAll(expectedItems);
     }
 
     @Test
@@ -112,7 +107,7 @@ public class OneOrMoreTest {
         }
 
         // Then
-        assertEquals(expectedItems, Sets.newHashSet(collection));
+        assertThat(collection).containsExactlyElementsOf(expectedItems);
     }
 
     @Test
@@ -129,8 +124,9 @@ public class OneOrMoreTest {
         collection.addAll(expectedItems);
 
         // Then
-        assertEquals(expectedItems.size() * 2, collection.size());
-        assertEquals(expectedItems, Sets.newHashSet(collection));
+        assertThat(collection)
+                .hasSize(expectedItems.size() * 2)
+                .containsAll(expectedItems);
     }
 
     @Test
@@ -147,7 +143,7 @@ public class OneOrMoreTest {
         collection.addAll(expectedItems);
 
         // Then
-        assertEquals(expectedItems, Sets.newHashSet(collection));
+        assertThat(collection).containsExactlyElementsOf(expectedItems);
     }
 
     @Test
@@ -159,7 +155,7 @@ public class OneOrMoreTest {
         final Iterator<Integer> itr = collection.iterator();
 
         // Then
-        assertFalse(itr.hasNext());
+        assertThat(itr).isExhausted();
     }
 
     @Test
@@ -172,9 +168,9 @@ public class OneOrMoreTest {
         final Iterator<Integer> itr = collection.iterator();
 
         // Then
-        assertTrue(itr.hasNext());
-        assertEquals(1, (int) itr.next());
-        assertFalse(itr.hasNext());
+        assertThat(itr).hasNext();
+        assertThat(itr.next()).isEqualTo(1);
+        assertThat(itr).isExhausted();
     }
 
     @Test
@@ -182,8 +178,9 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
 
-        assertEquals(collection1, collection2);
-        assertEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isEqualTo(collection2)
+                .hasSameHashCodeAs(collection2);
     }
 
     @Test
@@ -191,8 +188,9 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
-        assertEquals(collection1, collection2);
-        assertEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isEqualTo(collection2)
+                .hasSameHashCodeAs(collection2);
     }
 
     @Test
@@ -202,8 +200,9 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
         collection2.add(2);
 
-        assertEquals(collection1, collection2);
-        assertEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isEqualTo(collection2)
+                .hasSameHashCodeAs(collection2);
     }
 
     @Test
@@ -213,8 +212,9 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
         collection2.add(2);
 
-        assertEquals(collection1, collection2);
-        assertEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isEqualTo(collection2)
+                .hasSameHashCodeAs(collection2);
     }
 
     @Test
@@ -222,8 +222,9 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 2);
 
-        assertNotEquals(collection1, collection2);
-        assertNotEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isNotEqualTo(collection2)
+                .doesNotHaveSameHashCodeAs(collection2);
     }
 
     @Test
@@ -231,8 +232,9 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
-        assertNotEquals(collection1, collection2);
-        assertNotEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isNotEqualTo(collection2)
+                .doesNotHaveSameHashCodeAs(collection2);
     }
 
     @Test
@@ -242,7 +244,8 @@ public class OneOrMoreTest {
         final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
         collection2.add(3);
 
-        assertNotEquals(collection1, collection2);
-        assertNotEquals(collection1.hashCode(), collection2.hashCode());
+        assertThat(collection1)
+                .isNotEqualTo(collection2)
+                .doesNotHaveSameHashCodeAs(collection2);
     }
 }

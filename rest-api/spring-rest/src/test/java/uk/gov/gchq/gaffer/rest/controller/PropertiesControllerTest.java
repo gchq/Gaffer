@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import uk.gov.gchq.gaffer.rest.PropertiesUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.gchq.gaffer.core.exception.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_COLOUR;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
@@ -109,9 +110,11 @@ public class PropertiesControllerTest {
         PropertiesController propertiesController = new PropertiesController();
 
         // When / Then
-        GafferRuntimeException gafferRuntimeException = assertThrows(GafferRuntimeException.class, () -> propertiesController.getProperty("made.up.property"));
-        assertEquals(404, gafferRuntimeException.getStatus().getStatusCode());
-        assertEquals("Property: made.up.property could not be found.", gafferRuntimeException.getMessage());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> propertiesController.getProperty("made.up.property"))
+                .withMessage("Property: made.up.property could not be found.")
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(NOT_FOUND);
     }
 
     @Test

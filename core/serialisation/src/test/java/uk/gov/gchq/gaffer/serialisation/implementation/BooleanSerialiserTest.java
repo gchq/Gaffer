@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
+
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -38,6 +40,7 @@ public class BooleanSerialiserTest extends ToBytesSerialisationTest<Boolean> {
         };
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         assertFalse(serialiser.deserialiseEmpty());

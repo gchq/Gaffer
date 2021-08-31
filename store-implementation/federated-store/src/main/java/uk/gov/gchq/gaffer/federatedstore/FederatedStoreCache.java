@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,13 +55,29 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
-        String graphId = graph.getGraphId();
-        Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(new GraphSerialisable.Builder().graph(graph).build(), access);
+        addGraphToCache(new GraphSerialisable.Builder().graph(graph).build(), access, overwrite);
+    }
+
+    /**
+     * Add the specified {@link Graph} to the cache.
+     *
+     * @param graphSerialisable the serialised {@link Graph} to be added
+     * @param access            Access for the graph being stored.
+     * @param overwrite         if true, overwrite any graphs already in the cache with the same ID
+     * @throws CacheOperationException if there was an error trying to add to the cache
+     */
+    public void addGraphToCache(final GraphSerialisable graphSerialisable, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+        String graphId = graphSerialisable.getDeserialisedConfig().getGraphId();
+        Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(graphSerialisable, access);
         try {
             addToCache(graphId, pair, overwrite);
         } catch (final CacheOperationException e) {
             throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graphId), e.getCause());
         }
+    }
+
+    public void deleteGraphFromCache(final String graphId) {
+        super.deleteFromCache(graphId);
     }
 
     /**
@@ -88,6 +104,6 @@ public class FederatedStoreCache extends Cache<Pair<GraphSerialisable, Federated
 
     public FederatedAccess getAccessFromCache(final String graphId) {
         final Pair<GraphSerialisable, FederatedAccess> fromCache = getFromCache(graphId);
-        return fromCache.getSecond();
+        return (isNull(fromCache)) ? null : fromCache.getSecond();
     }
 }

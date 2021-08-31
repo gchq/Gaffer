@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
@@ -41,7 +42,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
         Map o = serialiser.deserialise(b);
 
         assertEquals(HashMap.class, o.getClass());
-        assertEquals(6, o.size());
+        assertThat(o).hasSize(6);
         assertEquals(map, o);
         assertEquals((Long) 123298333L, o.get("one"));
         assertEquals((Long) 342903339L, o.get("two"));
@@ -79,7 +80,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
 
 
         assertEquals(LinkedHashMap.class, o.getClass());
-        assertEquals(3, o.size());
+        assertThat(o).hasSize(3);
         assertEquals(3, o.get(1));
         assertEquals(7, o.get(2));
         assertEquals(11, o.get(3));

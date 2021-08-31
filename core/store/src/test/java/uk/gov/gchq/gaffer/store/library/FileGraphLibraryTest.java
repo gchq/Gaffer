@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
 
@@ -46,11 +45,6 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
     @Test
     public void shouldThrowExceptionWithInvalidPath() {
         // When / Then
-        try {
-            new FileGraphLibrary(TEST_INVALID_FINAL_PATH);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> new FileGraphLibrary(TEST_INVALID_FINAL_PATH)).extracting("message").isNotNull();
     }
 }
