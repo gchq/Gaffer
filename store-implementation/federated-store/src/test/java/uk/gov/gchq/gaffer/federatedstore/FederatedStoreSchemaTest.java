@@ -117,10 +117,7 @@ public class FederatedStoreSchemaTest {
         Collection<String> graphIds = fStore.getAllGraphIds(testUser);
 
         // Then
-        ArrayList<String> expected = new ArrayList<>();
-        expected.addAll(Arrays.asList("a", "b", "c"));
-
-        assertEquals(expected, graphIds);
+        assertThat(graphIds).containsExactlyInAnyOrder("a", "b", "c");
     }
 
     @Test
