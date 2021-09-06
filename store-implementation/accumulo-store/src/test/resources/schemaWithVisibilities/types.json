@@ -31,6 +31,9 @@
       "class": "java.lang.String",
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
       }
     }
   }
