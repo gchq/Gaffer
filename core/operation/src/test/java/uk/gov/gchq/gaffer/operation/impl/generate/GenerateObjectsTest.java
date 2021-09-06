@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     @Override
@@ -96,7 +95,7 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
         assertEquals(1, elm2.getProperties().size());
         assertEquals("property 2 value", elm2.getProperty("property 2"));
 
-        assertFalse(itr.hasNext());
+        assertThat(itr).isExhausted();
 
         assertTrue(deserialisedOp.getElementGenerator() instanceof ObjectGeneratorImpl);
     }
@@ -109,10 +108,11 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
                 .input(entity)
                 .generator(new ObjectGeneratorImpl())
                 .build();
-        assertEquals(entity, generateObjects.getInput().iterator().next());
+        assertThat(generateObjects.getInput().iterator().next()).isEqualTo(entity);
         assertEquals(ObjectGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -128,7 +128,7 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
 
         // Then
         assertNotSame(generateObjects, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
         assertEquals(generator, clone.getElementGenerator());
     }
 

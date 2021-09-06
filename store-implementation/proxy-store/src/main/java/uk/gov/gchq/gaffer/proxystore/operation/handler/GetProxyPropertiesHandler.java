@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_CONTEXT_ROOT;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_HOST;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.GAFFER_PORT;
 import static uk.gov.gchq.gaffer.proxystore.ProxyProperties.READ_TIMEOUT;
-
 
 public class GetProxyPropertiesHandler implements OutputOperationHandler<GetProxyProperties, Map<String, Object>> {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SplitStoreFromJavaRDDOfElementsHandlerIT {
 
@@ -58,7 +58,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         elements = createElements();
@@ -127,9 +127,9 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
         final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getTableName(), 10));
         final int expectedSplitCount = tabletServerCount - 1;
 
-        assertEquals(expectedSplitCount, splitsOnTable.size());
-        assertEquals("3A==", Base64.encodeBase64String(splitsOnTable.get(0).getBytes()));
-        assertEquals("6A==", Base64.encodeBase64String(splitsOnTable.get(1).getBytes()));
+        assertThat(splitsOnTable).hasSize(expectedSplitCount);
+        assertThat(Base64.encodeBase64String(splitsOnTable.get(0).getBytes())).isEqualTo("3A==");
+        assertThat(Base64.encodeBase64String(splitsOnTable.get(1).getBytes())).isEqualTo("6A==");
     }
 
     private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {

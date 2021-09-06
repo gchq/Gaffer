@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * This test class is copied from org.apache.accumulo.core.data.ArrayByteSequenceTest.
@@ -40,32 +40,32 @@ public class ArrayByteSequenceTest {
 
     @Test
     public void testInvalidByteBufferBounds0ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs = new ArrayByteSequence(data, -1, 0));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, -1, 0));
     }
 
     @Test
     public void testInvalidByteBufferBounds1ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs = new ArrayByteSequence(data, data.length + 1, 0));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, data.length + 1, 0));
     }
 
     @Test
     public void testInvalidByteBufferBounds2ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs = new ArrayByteSequence(data, 0, -1));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, 0, -1));
     }
 
     @Test
     public void testInvalidByteBufferBounds3ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs = new ArrayByteSequence(data, 6, 2));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, 6, 2));
     }
 
     @Test
     public void testInvalidByteAt0ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs.byteAt(-1));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.byteAt(-1));
     }
 
     @Test
     public void testInvalidByteAt1ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs.byteAt(data.length));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.byteAt(data.length));
     }
 
     @Test
@@ -76,19 +76,17 @@ public class ArrayByteSequenceTest {
 
     @Test
     public void testInvalidSubsequence0ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            abs.subSequence(5, 1);
-        });
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(5, 1));
     }
 
     @Test
     public void testInvalidSubsequence1ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs.subSequence(-1, 1));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(-1, 1));
     }
 
     @Test
     public void testInvalidSubsequence3ShouldThrowIAX() {
-        assertThrows(IllegalArgumentException.class, () -> abs.subSequence(0, 10));
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(0, 10));
     }
 
     @Test

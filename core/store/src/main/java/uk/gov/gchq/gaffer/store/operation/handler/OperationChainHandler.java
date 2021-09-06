@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
@@ -26,6 +25,8 @@ import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 /**
  * A {@code OperationChainHandler} handles {@link OperationChain}s.
@@ -65,31 +66,9 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
         return optimisedOperationChain;
     }
 
-    protected void updateOperationInput(final Operation op, final Object result) {
-        if (null != result) {
-            if (op instanceof OperationChain) {
-                if (!((OperationChain) op).getOperations().isEmpty()) {
-                    final Operation firstOp = (Operation) ((OperationChain) op).getOperations()
-                            .get(0);
-                    if (firstOp instanceof Input) {
-                        setOperationInput(firstOp, result);
-                    }
-                }
-            } else if (op instanceof Input) {
-                setOperationInput(op, result);
-            }
-        }
-    }
-
     public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
         this.opChainValidator = opChainValidator;
         this.opChainOptimisers = opChainOptimisers;
-    }
-
-    private void setOperationInput(final Operation op, final Object result) {
-        if (null == ((Input) op).getInput()) {
-            ((Input) op).setInput(result);
-        }
     }
 
     protected OperationChainValidator getOpChainValidator() {

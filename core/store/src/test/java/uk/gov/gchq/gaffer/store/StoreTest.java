@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,6 +147,8 @@ import java.util.concurrent.TimeUnit;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -249,12 +251,7 @@ public class StoreTest {
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        try {
-            store.initialise(null, schema, properties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties)).extracting("message").isNotNull();
     }
 
     @Test
@@ -273,12 +270,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
-        try {
-            store.initialise("graphId", mySchema, properties);
-            fail();
-        } catch (final SchemaException exception) {
-            assertNotNull(exception.getMessage());
-        }
+        assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> store.initialise("graphId", mySchema, properties)).extracting("message").isNotNull();
     }
 
     @Test

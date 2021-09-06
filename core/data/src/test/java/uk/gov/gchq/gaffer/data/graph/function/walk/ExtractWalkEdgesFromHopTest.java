@@ -25,8 +25,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExtractWalkEdgesFromHopTest {
 
@@ -53,6 +52,6 @@ public class ExtractWalkEdgesFromHopTest {
         final Set<Edge> results = function.apply(walk);
 
         // Then
-        assertThat(results, contains(EDGE_BC));
+        assertThat(results).containsExactly(EDGE_BC);
     }
 }

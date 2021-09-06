@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStoreTest;
@@ -45,7 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class GetElementsInRangesIT {
@@ -116,8 +116,8 @@ public class GetElementsInRangesIT {
             final List<? extends Element> classicResults = Lists.newArrayList(graphClassic.execute(op, new User()));
 
             // Then
-            assertEquals(byteEntityResults.size(), classicResults.size());
-            assertEquals(new HashSet<>(byteEntityResults), new HashSet<>(classicResults));
+            assertThat(classicResults).hasSameSizeAs(byteEntityResults);
+            assertThat(new HashSet<>(classicResults)).isEqualTo(new HashSet<>(byteEntityResults));
         }
     }
 }

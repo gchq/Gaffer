@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builde
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddStorePropertiesToLibraryHandlerTest {
 
@@ -54,12 +54,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
     @Test
     public void shouldThrowWithNoGraphLibrary() throws Exception {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-        try {
-            store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertEquals(String.format("Operation class %s is not supported by the %s.", AddStorePropertiesToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()), e.getMessage());
-        }
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()))).withMessage(String.format("Operation class %s is not supported by the %s.", AddStorePropertiesToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()));
     }
 
     @Test

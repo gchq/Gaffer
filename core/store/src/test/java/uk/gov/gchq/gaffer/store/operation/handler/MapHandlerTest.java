@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,13 +50,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -364,7 +362,7 @@ public class MapHandlerTest {
         final Iterable<?> results = opChainHandler.doOperation(opChain, context, store);
 
         // Then
-        assertThat(results, containsInAnyOrder("A", "C"));
+        assertThat((Iterable<String>) results).containsOnly("A", "C");
     }
 
     @Test
@@ -406,7 +404,7 @@ public class MapHandlerTest {
         final Iterable<?> results = opChainHandler.doOperation(opChain, context, store);
 
         // Then
-        assertThat(results, contains("B"));
+        assertThat((Iterable<String>) results).contains("B");
     }
 
     @Test
@@ -426,11 +424,8 @@ public class MapHandlerTest {
         final MapHandler handler = new MapHandler();
 
         // When / Then
-        try {
-            final Object result = handler.doOperation(map, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("The input/output types of the functions were incompatible"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(map, context, store))
+                .withMessage("The input/output types of the functions were incompatible");
     }
 }

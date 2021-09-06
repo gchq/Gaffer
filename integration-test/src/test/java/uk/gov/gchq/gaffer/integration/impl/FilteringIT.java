@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FilteringIT extends AbstractStoreIT {
 
@@ -76,8 +75,8 @@ public class FilteringIT extends AbstractStoreIT {
         final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
-        assertNotNull(resultsWithoutFiltering);
-        assertEquals(9, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering)
+                .hasSize(9);
         ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
@@ -92,8 +91,8 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A3")));
 
         // Then - with filtering
-        assertNotNull(resultsWithFiltering);
-        assertEquals(1, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering)
+                .hasSize(1);
         ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 (Element) getEntity("A3")
         ));
@@ -130,8 +129,8 @@ public class FilteringIT extends AbstractStoreIT {
         final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
-        assertNotNull(resultsWithoutFiltering);
-        assertEquals(9, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering)
+                .hasSize(9);
         ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
@@ -146,8 +145,8 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A3")));
 
         // Then - with filtering
-        assertNotNull(resultsWithFiltering);
-        assertEquals(3, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering)
+                .hasSize(3);
         ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 getEdge("A3", "B3", false),
                 getEdge("A3", "B3", true),
@@ -258,8 +257,8 @@ public class FilteringIT extends AbstractStoreIT {
         final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
-        assertNotNull(resultsWithoutFiltering);
-        assertEquals(9, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering)
+                .hasSize(9);
         ElementUtil.assertElementEquals(resultsWithoutFiltering, Arrays.asList(
                 getEdge("A3", "A3", false),
                 getEdge("A3", "B3", false),
@@ -274,8 +273,8 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A3")));
 
         // Then - with filtering
-        assertNotNull(resultsWithFiltering);
-        assertEquals(3, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering)
+                .hasSize(3);
         ElementUtil.assertElementEquals(resultsWithFiltering, Arrays.asList(
                 getEdge("A3", "B3", false),
                 getEdge("A3", "B3", true),

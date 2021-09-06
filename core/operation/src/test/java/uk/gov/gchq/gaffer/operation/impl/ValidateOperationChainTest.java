@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
         assertEquals(validateOperationChain.getOperationChain(), deserialisedOp.getOperationChain());
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final ValidateOperationChain validateOperationChain = new ValidateOperationChain.Builder()
@@ -63,6 +64,7 @@ public class ValidateOperationChainTest extends OperationTest<ValidateOperationC
         assertEquals(operationChain, validateOperationChain.getOperationChain());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

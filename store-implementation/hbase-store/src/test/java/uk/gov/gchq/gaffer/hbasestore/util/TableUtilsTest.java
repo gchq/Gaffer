@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,10 +45,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class TableUtilsTest {
     private static final String GRAPH_ID = "graphId";
@@ -124,12 +124,7 @@ public class TableUtilsTest {
         }
 
         // When / Then
-        try {
-            TableUtils.ensureTableExists(store);
-            fail("Exception expected");
-        } catch (final StoreException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(StoreException.class).isThrownBy(() -> TableUtils.ensureTableExists(store)).extracting("message").isNotNull();
     }
 
     @Test

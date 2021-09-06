@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NamedOperationCacheTest {
 
@@ -108,29 +108,29 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        assertThrows(OverwritingException.class, () -> cache.addNamedOperation(alternative, false, advancedUser));
+        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException { // needs work
         cache.addNamedOperation(standard, false, standardUser);
-        assertThrows(CacheOperationFailedException.class, () -> cache.deleteNamedOperation(null, advancedUser));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.deleteNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationFailedException {
-        assertThrows(CacheOperationFailedException.class, () -> cache.getNamedOperation(null, advancedUser));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.getNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionIfNamedOperationIsNull() throws CacheOperationFailedException {
-        assertThrows(CacheOperationFailedException.class, () -> cache.addNamedOperation(null, false, standardUser));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.addNamedOperation(null, false, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToReadOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        assertThrows(CacheOperationFailedException.class, () -> cache.getNamedOperation(OPERATION_NAME, new User()));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.getNamedOperation(OPERATION_NAME, new User()));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToOverwriteOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(alternative, false, advancedUser);
-        assertThrows(CacheOperationFailedException.class, () -> cache.addNamedOperation(standard, true, standardUser));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.addNamedOperation(standard, true, standardUser));
     }
 
     @Test
@@ -186,7 +186,7 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToDeleteOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(alternative, false, advancedUser);
-        assertThrows(CacheOperationFailedException.class, () -> cache.deleteNamedOperation(OPERATION_NAME, standardUser));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.deleteNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
@@ -200,7 +200,7 @@ public class NamedOperationCacheTest {
                 .writeAccessPredicate(new NoAccessPredicate())
                 .build();
         cache.addNamedOperation(noWriteAccess, false, standardUser);
-        assertThrows(CacheOperationFailedException.class, () -> cache.deleteNamedOperation("test", standardUser));
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.deleteNamedOperation("test", standardUser));
     }
 
     @Test

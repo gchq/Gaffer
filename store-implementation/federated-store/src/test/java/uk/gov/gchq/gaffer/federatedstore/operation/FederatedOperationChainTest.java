@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class FederatedOperationChainTest extends OperationTest<FederatedOperationChain> {
 
@@ -123,12 +122,9 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
                 "}");
 
         // When / Then
-        try {
-            fromJson(StringUtil.toBytes(json));
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("operationChain is required"));
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(StringUtil.toBytes(json)))
+                .withMessageContaining("operationChain is required");
     }
 
     @Test
@@ -148,12 +144,9 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
                 "}");
 
         // When / Then
-        try {
-            fromJson(StringUtil.toBytes(json));
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("Class name should be"));
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(StringUtil.toBytes(json)))
+                .withMessageContaining("Class name should be");
     }
 
     @Test

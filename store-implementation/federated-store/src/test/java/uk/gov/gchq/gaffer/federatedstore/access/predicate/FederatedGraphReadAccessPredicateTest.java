@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -98,15 +98,9 @@ public class FederatedGraphReadAccessPredicateTest implements AccessPredicateTes
 
     @Test
     public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
-        assertNotEquals(
-                createAccessPredicate(TEST_USER.getUserId(), asList("auth1", "auth2"), NON_PUBLIC),
-                createAccessPredicate(TEST_USER.getUserId(), asList("auth2", "auth1"), PUBLIC));
-        assertNotEquals(
-                createAccessPredicate("anotherUserId", asList("auth1", "auth2"), PUBLIC),
-                createAccessPredicate(TEST_USER.getUserId(), asList("auth2", "auth1"), PUBLIC));
-        assertNotEquals(
-                createAccessPredicate(TEST_USER.getUserId(), NO_AUTHS, PUBLIC),
-                createAccessPredicate(TEST_USER.getUserId(), asList("auth2", "auth1"), PUBLIC));
+        assertThat(createAccessPredicate(TEST_USER.getUserId(), asList("auth2", "auth1"), PUBLIC)).isNotEqualTo(createAccessPredicate(TEST_USER.getUserId(), asList("auth1", "auth2"), NON_PUBLIC))
+                .isNotEqualTo(createAccessPredicate("anotherUserId", asList("auth1", "auth2"), PUBLIC))
+                .isNotEqualTo(createAccessPredicate(TEST_USER.getUserId(), NO_AUTHS, PUBLIC));
     }
 
     private AccessPredicate createAccessPredicate(final String creatingUserId, final List<String> auths, final boolean isPublic) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.rest.factory.MockUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.integration.controller.AbstractRestApiIT;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class FactoryConfigIT extends AbstractRestApiIT {
 
@@ -51,12 +51,12 @@ public class FactoryConfigIT extends AbstractRestApiIT {
 
     @Test
     public void shouldUseGraphFactoryDefinedInApplicationProperties() {
-        assertEquals(MockGraphFactory.class, graphFactory.getClass());
+        assertThat(graphFactory.getClass()).isEqualTo(MockGraphFactory.class);
     }
 
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void shouldUseSystemPropertyToDefineFactories() {
-        assertEquals(MockUserFactory.class, userFactory.getClass());
+        assertThat(userFactory.getClass()).isEqualTo(MockUserFactory.class);
     }
 }

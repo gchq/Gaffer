@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CorsIT extends AbstractRestApiIT {
     @Test
@@ -41,6 +41,6 @@ public class CorsIT extends AbstractRestApiIT {
 
         // Then
         checkResponse(response, 200);
-        assertEquals("http://my-ui.com/ui", response.getHeaders().getAccessControlAllowOrigin());
+        assertThat(response.getHeaders().getAccessControlAllowOrigin()).isEqualTo("http://my-ui.com/ui");
     }
 }

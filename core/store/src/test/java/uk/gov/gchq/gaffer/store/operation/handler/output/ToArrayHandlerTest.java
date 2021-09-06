@@ -31,9 +31,7 @@ import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.Arrays;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
@@ -185,7 +183,7 @@ public class ToArrayHandlerTest {
         final Integer[] results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 
     @Test
@@ -203,6 +201,6 @@ public class ToArrayHandlerTest {
         final Integer[] results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 }

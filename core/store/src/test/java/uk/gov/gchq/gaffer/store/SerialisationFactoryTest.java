@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,9 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class SerialisationFactoryTest {
     @Test
@@ -98,12 +97,7 @@ public class SerialisationFactoryTest {
         final Class<?> clazz = null;
 
         // When / Then
-        try {
-            factory.getSerialiser(clazz);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> factory.getSerialiser(clazz)).extracting("message").isNotNull();
     }
 
     @Test
@@ -113,12 +107,7 @@ public class SerialisationFactoryTest {
         final Class<?> clazz = Object.class;
 
         // When / Then
-        try {
-            factory.getSerialiser(clazz);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> factory.getSerialiser(clazz)).extracting("message").isNotNull();
     }
 
     @Test

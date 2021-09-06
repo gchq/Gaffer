@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -142,9 +143,9 @@ public class NamedViewCacheTest {
 
         Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews());
 
-        assertTrue(allViews.contains(standard));
-        assertTrue(allViews.contains(alternative));
-        assertEquals(2, allViews.size());
+        assertThat(allViews)
+                .contains(standard, alternative)
+                .hasSize(2);
     }
 
     @Test

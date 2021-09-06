@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,15 +39,15 @@ public class CollectionUtilTest {
 
         final TreeSet<String> treeSet = CollectionUtil.treeSet(item);
 
-        assertEquals(1, treeSet.size());
-        assertTrue(treeSet.contains(item));
+        assertThat(treeSet)
+                .containsExactly(item);
     }
 
     @Test
     public void shouldReturnTreeSetWithWithOutNullItem() {
         final TreeSet<String> treeSet = CollectionUtil.treeSet(null);
 
-        assertEquals(0, treeSet.size());
+        assertThat(treeSet).isEmpty();
     }
 
     @Test
@@ -55,10 +56,10 @@ public class CollectionUtilTest {
 
         final TreeSet<String> treeSet = CollectionUtil.treeSet(items);
 
-        assertEquals(2, treeSet.size());
+        assertThat(treeSet).hasSize(2);
         for (final String item : items) {
             if (null != item) {
-                assertTrue(treeSet.contains(item));
+                assertThat(treeSet).contains(item);
             }
         }
     }
@@ -67,7 +68,7 @@ public class CollectionUtilTest {
     public void shouldReturnTreeSetWithNoItemsForNullArray() {
         final TreeSet<String> treeSet = CollectionUtil.treeSet(null);
 
-        assertEquals(0, treeSet.size());
+        assertThat(treeSet).isEmpty();
     }
 
     @Test

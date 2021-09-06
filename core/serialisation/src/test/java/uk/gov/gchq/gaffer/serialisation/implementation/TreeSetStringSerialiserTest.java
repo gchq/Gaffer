@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -99,7 +100,7 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
 
         // Then
         assertNotNull(tree);
-        assertTrue(tree.isEmpty());
+        assertThat(tree).isEmpty();
     }
 
     @Override
