@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PropertiesTest {
 
@@ -33,7 +33,7 @@ public class PropertiesTest {
     public void shouldConstructEmptyProperties() {
         final Properties properties = new Properties();
 
-        assertTrue(properties.isEmpty());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -43,7 +43,7 @@ public class PropertiesTest {
 
         final Properties properties = new Properties(otherProperties);
 
-        assertEquals(1, properties.size());
+        assertThat(properties).hasSize(1);
         assertEquals("property value", properties.get("propertyName"));
     }
 
@@ -51,7 +51,7 @@ public class PropertiesTest {
     public void shouldConstructPropertiesWithProperty() {
         final Properties properties = new Properties("propertyName", "property value");
 
-        assertEquals(1, properties.size());
+        assertThat(properties).hasSize(1);
         assertEquals("property value", properties.get("propertyName"));
     }
 
@@ -78,7 +78,7 @@ public class PropertiesTest {
         properties.remove(propertiesToRemove);
 
         // Then
-        assertEquals(2, properties.size());
+        assertThat(properties).hasSize(2);
         assertEquals(propertyValue1, properties.get(property1));
         assertEquals(propertyValue3, properties.get(property3));
     }
@@ -106,7 +106,7 @@ public class PropertiesTest {
         properties.keepOnly(propertiesToKeep);
 
         // Then
-        assertEquals(2, properties.size());
+        assertThat(properties).hasSize(2);
         assertEquals(propertyValue1, properties.get(property1));
         assertEquals(propertyValue3, properties.get(property3));
     }
@@ -122,8 +122,8 @@ public class PropertiesTest {
         properties.put("property1", null);
 
         // Then
-        assertEquals(1, properties.size());
-        assertEquals(null, properties.get("property1"));
+        assertThat(properties).hasSize(1);
+        assertThat(properties.get("property1")).isNull();
     }
 
     @Test
@@ -131,7 +131,7 @@ public class PropertiesTest {
         final Properties properties = new Properties();
         properties.put(null, "propertyValue1");
 
-        assertEquals(0, properties.size());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -149,7 +149,7 @@ public class PropertiesTest {
         final Properties clone = properties.clone();
 
         // Then
-        assertEquals(2, clone.size());
+        assertThat(clone).hasSize(2);
         assertNotSame(properties, clone);
         assertEquals(propertyValue1, clone.get(property1));
         assertEquals(propertyValue2, clone.get(property2));
@@ -170,9 +170,8 @@ public class PropertiesTest {
         final String toString = properties.toString();
 
         // Then
-        assertTrue(toString.contains("property 2="
-                + "<java.lang.String>property value 2"));
-        assertTrue(toString.contains("property 1="
-                + "<java.lang.String>property value 1"));
+        assertThat(toString)
+                .contains("property 1=<java.lang.String>property value 1")
+                .contains("property 2=<java.lang.String>property value 2");
     }
 }

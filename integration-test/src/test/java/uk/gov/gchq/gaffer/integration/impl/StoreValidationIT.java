@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StoreValidationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
@@ -67,8 +66,8 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // Then 1
         final List<Element> results1List = Lists.newArrayList(results1);
-        assertEquals(1, results1List.size());
-        assertEquals(VERTEX, ((Entity) results1List.get(0)).getVertex());
+        assertThat(results1List).hasSize(1);
+        assertThat(((Entity) results1List.get(0)).getVertex()).isEqualTo(VERTEX);
 
 
         // Wait until after the age off time
@@ -86,7 +85,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // Then 2
         final List<Element> results2List = Lists.newArrayList(results2);
-        assertTrue(results2List.isEmpty());
+        assertThat(results2List).isEmpty();
     }
 
     @Test
@@ -113,6 +112,6 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // Then
         final List<Element> results1List = Lists.newArrayList(results1);
-        assertTrue(results1List.isEmpty());
+        assertThat(results1List).isEmpty();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -211,7 +212,7 @@ public class GroupPartitionerTest {
         final List<Partition> partitions = partitioner.getPartitions();
 
         // Then
-        assertEquals(1, partitions.size());
+        assertThat(partitions).hasSize(1);
         assertEquals(new Partition(0, new NegativeInfinityPartitionKey(), new PositiveInfinityPartitionKey()), partitions.get(0));
     }
 
@@ -228,7 +229,7 @@ public class GroupPartitionerTest {
         final List<Partition> partitions = partitioner.getPartitions();
 
         // Then
-        assertEquals(4, partitions.size());
+        assertThat(partitions).hasSize(4);
         assertEquals(new Partition(0, new NegativeInfinityPartitionKey(), key1), partitions.get(0));
         assertEquals(new Partition(1, key1, key2), partitions.get(1));
         assertEquals(new Partition(2, key2, key3), partitions.get(2));

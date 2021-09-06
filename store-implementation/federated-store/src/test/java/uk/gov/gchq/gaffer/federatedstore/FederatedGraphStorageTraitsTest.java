@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.nullUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedGraphStorageTraitsTest {
 

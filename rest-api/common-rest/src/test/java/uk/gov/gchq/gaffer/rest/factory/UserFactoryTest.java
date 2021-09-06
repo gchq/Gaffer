@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserFactoryTest {
 
@@ -63,7 +63,6 @@ public class UserFactoryTest {
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, "InvalidClassName");
 
         // When
-        assertThrows(IllegalArgumentException.class,
-                () -> UserFactory.createUserFactory());
+        assertThatIllegalArgumentException().isThrownBy(() -> UserFactory.createUserFactory());
     }
 }

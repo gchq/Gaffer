@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import org.junit.Test;
 
@@ -47,8 +46,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GraphHooksIT extends AbstractStoreIT {
     @Override
@@ -117,8 +115,7 @@ public class GraphHooksIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        assertThat(resultList, IsCollectionContaining.hasItems(
-                (Element) edge1));
+        assertThat(resultList).hasSize(1)
+                .contains((Element) edge1);
     }
 }

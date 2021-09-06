@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Contains unit tests for {@link AccumuloStoreRelation}.
@@ -252,7 +252,7 @@ public class AccumuloStoreRelationTest {
         final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
 
         // Then
-        assertTrue(rdd.isEmpty());
+        assertThat(rdd.isEmpty()).isTrue();
     }
 
     private static Schema getSchema() {

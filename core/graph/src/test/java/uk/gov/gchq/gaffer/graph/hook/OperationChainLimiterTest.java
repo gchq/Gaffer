@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimiter> {
@@ -98,12 +97,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // When/Then
 
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -140,12 +137,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -160,12 +155,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test

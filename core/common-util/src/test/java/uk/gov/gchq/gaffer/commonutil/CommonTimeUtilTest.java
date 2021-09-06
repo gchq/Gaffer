@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,5 +51,4 @@ public class CommonTimeUtilTest {
         assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, MONTH));
         assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(yearTime, YEAR));
     }
-
 }

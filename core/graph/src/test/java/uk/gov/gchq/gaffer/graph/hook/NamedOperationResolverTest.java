@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,14 +40,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-
 
 public class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
@@ -251,12 +250,13 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThrows(IllegalArgumentException.class, () -> resolver.preExecute(new OperationChain.Builder()
-                .first(new NamedOperation.Builder<>()
-                        .name(opName)
-                        .parameters(paramMap)
-                        .build())
-                .build(), new Context(user)));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
+                        .first(new NamedOperation.Builder<>()
+                                .name(opName)
+                                .parameters(paramMap)
+                                .build())
+                        .build(), new Context(user)));
     }
 
     @Test
@@ -291,7 +291,7 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThrows(IllegalArgumentException.class, () -> resolver.preExecute(new OperationChain.Builder()
+        assertThatIllegalArgumentException().isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
                 .first(new NamedOperation.Builder<>()
                         .name(opName)
                         .parameters(paramMap)
@@ -330,12 +330,13 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
 
         // When
-        assertThrows(IllegalArgumentException.class, () -> resolver.preExecute(new OperationChain.Builder()
-                .first(new NamedOperation.Builder<>()
-                        .name(opName)
-                        .parameters(paramMap)
-                        .build())
-                .build(), new Context(user)));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> resolver.preExecute(new OperationChain.Builder()
+                        .first(new NamedOperation.Builder<>()
+                                .name(opName)
+                                .parameters(paramMap)
+                                .build())
+                        .build(), new Context(user)));
     }
 
     @Test

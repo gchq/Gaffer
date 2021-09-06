@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,11 +53,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -492,12 +492,9 @@ public class ScoreOperationChainHandlerTest {
         opScores.put(Operation.class.getName(), 1);
 
         // When / Then
-        try {
-            handler.setOpScoresFromStrings(opScores);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation scores are configured incorrectly."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> handler.setOpScoresFromStrings(opScores))
+                .withMessageContaining("Operation scores are configured incorrectly.");
     }
 
     @Test

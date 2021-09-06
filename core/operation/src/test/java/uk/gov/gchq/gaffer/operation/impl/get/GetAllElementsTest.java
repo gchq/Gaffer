@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,10 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-
 
 public class GetAllElementsTest extends OperationTest<GetAllElements> {
 
@@ -62,8 +59,8 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
                 .build();
 
         // Then
-        assertThat(op.getOptions(), is(notNullValue()));
-        assertThat(op.getOptions().get("key"), is("value"));
+        assertThat(op.getOptions()).isNotNull()
+                .containsEntry("key", "value");
     }
 
     @Test
@@ -78,6 +75,7 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

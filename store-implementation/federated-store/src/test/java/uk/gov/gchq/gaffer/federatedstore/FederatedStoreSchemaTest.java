@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,17 +51,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedStoreSchemaTest {
     private static final String STRING = "string";
@@ -179,8 +178,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(elements);
-        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+        final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -214,9 +212,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(4, resultsList.size());
-        assertEquals(3, resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
@@ -251,8 +247,7 @@ public class FederatedStoreSchemaTest {
         final CloseableIterable<? extends Element> allElements = fStore.execute(new GetAllElements.Builder()
                 .build(), testContext);
         assertNotNull(allElements);
-        final Set<? extends Element> resultsSet = Streams.toStream(allElements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(allElements).collect(Collectors.toList());
+        final List results = Streams.toStream(allElements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -272,8 +267,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
@@ -282,17 +276,18 @@ public class FederatedStoreSchemaTest {
         addOverlappingPropertiesGraphs(STRING_REQUIRED_TYPE);
 
         // Then
-        OperationException exception = assertThrows(OperationException.class, () -> {
-            fStore.execute(new AddElements.Builder()
-                .input(new Edge.Builder()
-                        .group("e1")
-                        .source("source1")
-                        .dest("dest2")
-                        .property("prop1", "value1")
-                        .build())
-                .build(), testContext);
-        });
-        assertTrue(exception.getMessage().contains("returned false for properties: {prop2: null}"));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> {
+                    fStore.execute(new AddElements.Builder()
+                            .input(new Edge.Builder()
+                                    .group("e1")
+                                    .source("source1")
+                                    .dest("dest2")
+                                    .property("prop1", "value1")
+                                    .build())
+                            .build(), testContext);
+                })
+                .withMessageContaining("returned false for properties: {prop2: null}");
     }
 
     @Test
@@ -332,8 +327,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(elements);
-        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+        final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -355,8 +349,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2,value2")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
@@ -394,8 +387,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(elements);
-        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+        final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -416,9 +408,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop1", "value1,value1")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(2, resultsList.size());
-        assertEquals(1, resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
@@ -459,8 +449,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(elements);
-        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+        final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -495,8 +484,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
@@ -540,8 +528,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(elements);
-        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+        final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -564,8 +551,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
@@ -606,8 +592,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         assertNotNull(elements);
-        final Set<? extends Element> resultsSet = Streams.toStream(elements).collect(Collectors.toSet());
-        final List<? extends Element> resultsList = Streams.toStream(elements).collect(Collectors.toList());
+        final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
         HashSet<Edge> expected = new HashSet<>();
@@ -646,8 +631,7 @@ public class FederatedStoreSchemaTest {
                 .property("prop2", "value2")
                 .build());
 
-        assertEquals(expected, resultsSet);
-        assertEquals(resultsList.size(), resultsSet.size());
+        assertThat(results).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     private SchemaEdgeDefinition getProp(final String propName) {

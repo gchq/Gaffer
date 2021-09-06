@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
@@ -112,7 +111,7 @@ public abstract class AbstractRestApiIT {
     }
 
     protected void checkResponse(final ResponseEntity<?> response, final int expectedCode) {
-        assertEquals(expectedCode, response.getStatusCode().value());
-        assertTrue("Gaffer header was not present", response.getHeaders().containsKey(GAFFER_MEDIA_TYPE_HEADER));
+        assertThat(response.getStatusCode().value()).isEqualTo(expectedCode);
+        assertThat(response.getHeaders()).as("Gaffer header was not present").containsKey(GAFFER_MEDIA_TYPE_HEADER);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ByteUtilsTest {
@@ -122,8 +122,8 @@ public class ByteUtilsTest {
     public void shouldThrowExceptionFailWithCorrectBackingArraysButInvalidMatchingLength() throws Exception {
         br1 = new BytesAndRange(a, 0, 999);
         br2 = new BytesAndRange(d, 0, 999);
-        assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> assertFalse(ByteUtils.areKeyBytesEqual(br1, br2)));
+        assertThatExceptionOfType(ArrayIndexOutOfBoundsException.class)
+                .isThrownBy(() -> assertFalse(ByteUtils.areKeyBytesEqual(br1, br2)));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ByteUtilsTest {
     public void shouldThrowExceptionEmptyArrayWithLength() throws Exception {
         br1 = new BytesAndRange(f, 0, 1);
         br2 = new BytesAndRange(f, 0, 1);
-        assertThrows(ArrayIndexOutOfBoundsException.class,
+        assertThatExceptionOfType(ArrayIndexOutOfBoundsException.class).isThrownBy(
                 () -> assertFalse(ByteUtils.areKeyBytesEqual(br1, br2)));
     }
 

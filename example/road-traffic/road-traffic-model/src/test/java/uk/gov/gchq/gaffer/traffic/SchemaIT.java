@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class SchemaIT {
 
@@ -39,7 +39,7 @@ public class SchemaIT {
         final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);
 
         // When / Then
-        assertDoesNotThrow(() -> new Graph.Builder()
+        assertThatNoException().isThrownBy(() ->  new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
                         .build())

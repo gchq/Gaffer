@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,12 +50,10 @@ public class SimpleMapFactoryTest {
         given(properties.get(SimpleMapFactory.MAP_CLASS, SimpleMapFactory.MAP_CLASS_DEFAULT)).willReturn(mapClass.getName());
 
         // When / Then
-        try {
-            factory.initialise(schema, properties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> factory.initialise(schema, properties))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -92,10 +90,12 @@ public class SimpleMapFactoryTest {
         final Map<Object, Object> map2 = factory.getMap("mapName2", Object.class, Object.class);
 
         // Then
-        assertTrue(map1.isEmpty());
-        assertTrue(map1 instanceof LinkedHashMap);
-        assertTrue(map2.isEmpty());
-        assertTrue(map2 instanceof LinkedHashMap);
+        assertThat(map1)
+                .isInstanceOf(LinkedHashMap.class)
+                .isEmpty();
+        assertThat(map2)
+                .isInstanceOf(LinkedHashMap.class)
+                .isEmpty();
         assertNotSame(map1, map2);
     }
 
@@ -112,12 +112,7 @@ public class SimpleMapFactoryTest {
         factory.initialise(schema, properties);
 
         // When / Then
-        try {
-            factory.getMap("mapName1", Object.class, Object.class);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> factory.getMap("mapName1", Object.class, Object.class)).extracting("message").isNotNull();
     }
 
     @Test

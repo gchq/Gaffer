@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
         assertEquals(new StringsSketchAggregator(), new StringsSketchAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

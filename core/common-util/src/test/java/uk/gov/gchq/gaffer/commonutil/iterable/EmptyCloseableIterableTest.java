@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmptyCloseableIterableTest {
 
@@ -29,8 +26,6 @@ public class EmptyCloseableIterableTest {
     public void shouldBeEmpty() {
         final EmptyClosableIterable iterable = new EmptyClosableIterable();
 
-        final List list = Lists.newArrayList(iterable);
-
-        assertTrue(list.isEmpty());
+        assertThat(iterable).isEmpty();
     }
 }

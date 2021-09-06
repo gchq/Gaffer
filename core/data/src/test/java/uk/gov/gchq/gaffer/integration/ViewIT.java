@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViewIT {
 
@@ -33,7 +33,7 @@ public class ViewIT {
 
         final byte[] json2 = view2.toCompactJson();
 
-        assertEquals(new String(json1), new String(json2));
+        assertThat(new String(json2)).isEqualTo(new String(json1));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ViewIT {
 
         final byte[] json2 = view2.toJson(true);
 
-        assertEquals(new String(json1), new String(json2));
+        assertThat(new String(json2)).isEqualTo(new String(json1));
     }
 
     private View loadView() {

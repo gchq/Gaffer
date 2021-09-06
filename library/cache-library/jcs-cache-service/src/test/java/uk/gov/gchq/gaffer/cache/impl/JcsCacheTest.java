@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class JcsCacheTest {
@@ -60,22 +59,18 @@ public class JcsCacheTest {
 
     @Test
     public void shouldThrowExceptionWhenAddingNullKeyToCache() {
-        try {
-            cache.put(null, 2);
-            fail("Expected an exception");
-        } catch (final CacheOperationException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(CacheOperationException.class)
+                .isThrownBy(() -> cache.put(null, 2))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
     public void shouldThrowExceptionIfAddingNullValue() {
-        try {
-            cache.put("test", null);
-            fail("Expected an exception");
-        } catch (final CacheOperationException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(CacheOperationException.class)
+                .isThrownBy(() -> cache.put("test", null))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -85,7 +80,7 @@ public class JcsCacheTest {
         cache.put("key", 1);
 
         // then
-        assertEquals(1, cache.size());
+        assertThat(cache.size()).isOne();
     }
 
     @Test
@@ -108,7 +103,7 @@ public class JcsCacheTest {
         cache.remove("key");
 
         // then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -121,7 +116,7 @@ public class JcsCacheTest {
         cache.put("key", 5);
 
         // then
-        assertEquals(1, cache.size());
+        assertThat(cache.size()).isOne();
         assertEquals(new Integer(5), cache.get("key"));
     }
 
@@ -137,7 +132,7 @@ public class JcsCacheTest {
         cache.clear();
 
         // then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -146,8 +141,8 @@ public class JcsCacheTest {
         cache.put("test2", 2);
         cache.put("test3", 3);
 
-        assertEquals(3, cache.size());
-        assertThat(cache.getAllKeys(), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(cache.size()).isEqualTo(3);
+        assertThat(cache.getAllKeys()).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -157,9 +152,9 @@ public class JcsCacheTest {
         cache.put("test3", 3);
         cache.put("duplicate", 3);
 
-        assertEquals(4, cache.size());
+        assertThat(cache.size()).isEqualTo(4);
         assertEquals(4, cache.getAllValues().size());
 
-        assertThat(cache.getAllValues(), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(cache.getAllValues()).contains(1, 2, 3);
     }
 }

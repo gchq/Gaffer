@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * This test class is copied from org.apache.accumulo.core.security.AuthorizationsTest.
@@ -103,7 +103,7 @@ public class AuthorisationsTest {
 
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
 
-        assertThrows(UnsupportedOperationException.class, () -> {
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> {
             actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
         });
     }

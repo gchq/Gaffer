@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-
 
 public class ExportToSetTest extends OperationTest<ExportToSet> {
     @Test
@@ -56,6 +55,7 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
         assertEquals("key", op.getKey());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

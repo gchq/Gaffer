@@ -24,16 +24,15 @@ import org.apache.curator.test.TestingServer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.jmx.JMXReporter;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +53,12 @@ import uk.gov.gchq.gaffer.user.User;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
@@ -69,8 +68,6 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     private static final String GROUP_ID = "groupId";
     private static final String TOPIC = UUID.randomUUID().toString();
 
-    @Rule
-    public final RetryRule rule = new RetryRule();
     private final MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
 
     private KafkaProducer<Integer, String> producer;
@@ -79,7 +76,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     private String bootstrapServers;
     private TestFileSink testFileSink;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         bootstrapServers = "localhost:" + getOpenPort();
 
@@ -95,7 +92,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         MapStore.resetStaticMap();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         if (null != producer) {
             producer.close();
@@ -112,12 +109,14 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         unregisterMBeans();
     }
 
-    @Test(timeout = TEST_TIMEOUT_MS)
+    @Test()
+    @Timeout(value = TEST_TIMEOUT_MS, unit = TimeUnit.MILLISECONDS)
     public void shouldAddElementsWithStringConsumer() throws Exception {
         shouldAddElements(String.class, TestGeneratorImpl.class, StringSerializer.class);
     }
 
-    @Test(timeout = TEST_TIMEOUT_MS)
+    @Test()
+    @Timeout(value = TEST_TIMEOUT_MS, unit = TimeUnit.MILLISECONDS)
     public void shouldAddElementsWithByteArrayConsumer() throws Exception {
         shouldAddElements(byte[].class, TestBytesGeneratorImpl.class, ByteArraySerializer.class);
     }
@@ -165,10 +164,6 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
 
     private <T> T convert(final Class<T> valueClass, final String value) {
         return (valueClass.equals(String.class)) ? (T) value : (T) value.getBytes();
-    }
-
-    private File createTemporaryDirectory(final String directoryName) throws IOException {
-        return testFolder.newFolder(directoryName);
     }
 
     private Properties producerProps(final Class<? extends Serializer> valueSerialiser) {
@@ -224,10 +219,6 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         configuration.setString("metrics.reporters", "jmx");
         configuration.setString("metrics.reporter.jmx.class", JMXReporter.class.getName());
         return StreamExecutionEnvironment.createLocalEnvironment(1, configuration);
-    }
-
-    private TestFileSink createTestFileSink() throws IOException {
-        return new TestFileSink(testFolder.newFolder("testFileSink").toPath().toString());
     }
 
     private void unregisterMBeans() {

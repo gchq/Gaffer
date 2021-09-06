@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -49,9 +48,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AccumuloAggregationIT extends StandaloneIT {
     private static final String VERTEX = "vertex";
@@ -105,8 +102,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
+        assertThat(results)
+                .hasSize(2);
 
         final Entity expectedSummarisedEntity = new Entity.Builder()
                 .vertex(VERTEX)
@@ -124,9 +121,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedSummarisedEntity, expectedEntity
-        ));
+        assertThat(results).contains(expectedSummarisedEntity, expectedEntity);
     }
 
     @Test
@@ -176,8 +171,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
+        assertThat(results)
+                .hasSize(2);
 
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
@@ -189,10 +184,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PUBLIC_VISIBILITY + "," + PRIVATE_VISIBILITY)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity,
-                entity3
-        ));
+        assertThat(results).contains(expectedEntity, entity3);
     }
 
     @Test
@@ -229,8 +221,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
 
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
@@ -238,7 +230,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
-        assertEquals(expectedEntity, results.get(0));
+        assertThat(results.get(0)).isEqualTo(expectedEntity);
     }
 
     @Test
@@ -273,8 +265,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
 
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
@@ -282,7 +274,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
                 .build();
-        assertEquals(expectedEntity, results.get(0));
+        assertThat(results.get(0)).isEqualTo(expectedEntity);
     }
 
     @Test
@@ -317,8 +309,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
 
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
@@ -326,7 +318,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
-        assertEquals(expectedEntity, results.get(0));
+        assertThat(results.get(0)).isEqualTo(expectedEntity);
     }
 
     @Test
@@ -411,8 +403,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getElements, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(4, results.size());
+        assertThat(results)
+                .hasSize(4);
 
         final Entity expectedEntity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -444,12 +436,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+        assertThat(results).contains(expectedEntity1, expectedEntity2, expectedEntity3, expectedEntity4);
     }
 
     @Test
@@ -533,8 +520,8 @@ public class AccumuloAggregationIT extends StandaloneIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getAllEntities, user));
 
         // Then
-        assertNotNull(results);
-        assertEquals(14, results.size());
+        assertThat(results)
+                .hasSize(14);
 
         final Entity expectedEntity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -566,12 +553,7 @@ public class AccumuloAggregationIT extends StandaloneIT {
                 .property(TestPropertyNames.PROP_3, "test 3")
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+        assertThat(results).contains(expectedEntity1, expectedEntity2, expectedEntity3, expectedEntity4);
     }
 
     protected Graph createGraphNoVisibility() {
