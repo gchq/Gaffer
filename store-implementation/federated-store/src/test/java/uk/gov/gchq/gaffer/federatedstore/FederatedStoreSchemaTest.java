@@ -47,9 +47,9 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,7 +117,7 @@ public class FederatedStoreSchemaTest {
         Collection<String> graphIds = fStore.getAllGraphIds(testUser);
 
         // Then
-        HashSet<String> expected = new HashSet<>();
+        ArrayList<String> expected = new ArrayList<>();
         expected.addAll(Arrays.asList("a", "b", "c"));
 
         assertEquals(expected, graphIds);
@@ -181,7 +181,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph a, element 1: prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -250,7 +250,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(allElements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph a
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -330,7 +330,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph a: prop1 aggregated, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -390,7 +390,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph a: prop1 aggregated, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -452,7 +452,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph a, element 1: prop1 omitted, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -531,7 +531,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph b, element 1
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -595,7 +595,7 @@ public class FederatedStoreSchemaTest {
         final List results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        ArrayList<Edge> expected = new ArrayList<>();
         // Graph a, element 1: prop1 present, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
