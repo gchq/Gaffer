@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
@@ -36,7 +36,7 @@ public class NamedViewCacheBackwardCompatibilityTest {
     private static final User ADDING_USER = new User("user1");
     private static final String VIEW_NAME = "TestView";
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         final Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, JcsCacheService.class.getName());

@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import org.junit.rules.TemporaryFolder;
-
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
@@ -26,6 +24,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -37,10 +36,10 @@ import java.io.IOException;
  * server will not be restarted every time.
  * <p>
  * After using this store you must remember to call
- * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
+ * SingleUseProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
 public abstract class SingleUseProxyStore extends ProxyStore {
-    public static final TemporaryFolder TEST_FOLDER = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    public static final File TEST_FOLDER = CommonTestConstants.TMP_DIRECTORY;
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
     @Override
@@ -50,13 +49,6 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     }
 
     protected void startMapStoreRestApi(final Schema schema) throws StoreException {
-        try {
-            TEST_FOLDER.delete();
-            TEST_FOLDER.create();
-        } catch (final IOException e) {
-            throw new StoreException("Unable to create temporary folder", e);
-        }
-
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), getPathToDelegateProperties()));
         try {
@@ -67,8 +59,8 @@ public abstract class SingleUseProxyStore extends ProxyStore {
     }
 
     public static void cleanUp() {
-        TEST_FOLDER.delete();
         CLIENT.stopServer();
+        CLIENT.cleanUpTempFiles(TEST_FOLDER);
     }
 
     protected abstract String getPathToDelegateProperties();
