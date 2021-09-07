@@ -88,7 +88,7 @@ public class ElementSerialisation {
                             bytes = serialiser.serialise(value);
                         } else if (null != this.schema.getVisibilityProperty()) {
                             if (this.schema.getVisibilityProperty().equals(propertyName)) {
-                                bytes = serialiser.serialise("");
+                                bytes = serialiser.EMPTY_BYTES;
                             } else {
                                 bytes = serialiser.serialiseNull();
                             }
