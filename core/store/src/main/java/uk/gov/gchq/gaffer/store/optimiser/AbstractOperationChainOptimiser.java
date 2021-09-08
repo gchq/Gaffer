@@ -47,7 +47,7 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
             optimisedOps.addAll(addPostOperations(currentOp, nextOp));
         }
 
-        return new OperationChain<>(optimiseAll(optimisedOps));
+        return new Operation("operationChain").operationArg("operations",optimiseAll(optimisedOps));
     }
 
     /**

@@ -28,6 +28,8 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -50,11 +52,12 @@ public class OperationChainValidator {
      */
     public ValidationResult validate(final Operation operationChain, final User user, final Store store) {
         final ValidationResult validationResult = new ValidationResult();
-        if (operationChain.getOperations().isEmpty()) {
+        List<Operation> operations = (List<Operation>) operationChain.get("Operations");
+        if (operations.isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
         } else {
             Class<? extends Output> output = null;
-            for (final Operation op : operationChain.getOperations()) {
+            for (final Operation op : operations) {
                 output = validate(op, user, store, validationResult, output);
             }
         }
@@ -100,7 +103,7 @@ public class OperationChainValidator {
 
     protected Operation getFirstOperation(final Operation operation) {
         final Operation firstOp;
-        if (operation instanceof OperationChain && !((OperationChain) operation).getOperations().isEmpty()) {
+        if (!((List<Operation>) operation.getOrDefault("Operations", Collections.EMPTY_LIST)).isEmpty()) {
             firstOp = ((OperationChain<?>) operation).getOperations().get(0);
         } else {
             firstOp = operation;
@@ -121,9 +124,9 @@ public class OperationChainValidator {
     }
 
     protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
-        if (op instanceof ElementComparison) {
+        if (op.getIdComparison("elementComparison")) {
             final Schema schema = getSchema(op, user, store);
-            for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
+            for (final Pair<String, String> pair :  op.get("ComparableGroupPropertyPairs")) {
                 final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
                 if (null == elementDef) {
                     validationResult.addError(op.getClass().getName()
