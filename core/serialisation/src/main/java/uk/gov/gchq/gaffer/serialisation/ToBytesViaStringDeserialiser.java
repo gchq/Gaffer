@@ -57,11 +57,10 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
     @Override
     public final T deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         try {
-            T rtn = null;
-            if (!Arrays.equals(Arrays.copyOfRange(allBytes, offset, offset + length), NULL_BYTES)) {
-                rtn = deserialiseString(new String(allBytes, offset, length, charset));
+            if (Arrays.equals(Arrays.copyOfRange(allBytes, offset, offset + length), NULL_BYTES)) {
+                return null;
             }
-            return rtn;
+            return deserialiseString(new String(allBytes, offset, length, charset));
         } catch (final UnsupportedEncodingException | StringIndexOutOfBoundsException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
