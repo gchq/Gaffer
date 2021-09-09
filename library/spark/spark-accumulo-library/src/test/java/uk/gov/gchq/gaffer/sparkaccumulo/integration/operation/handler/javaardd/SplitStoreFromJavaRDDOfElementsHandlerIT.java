@@ -20,8 +20,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
@@ -58,7 +58,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
 
-    @BeforeEach
+    @Before
     public void setUp() {
 
         elements = createElements();
