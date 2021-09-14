@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,9 +55,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 /**
@@ -96,7 +94,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
             if (!msg.contains("Element of type Entity") && null != e.getCause()) {
                 msg = e.getCause().getMessage();
             }
-            assertTrue("Message was: " + msg, msg.contains("UnknownGroup"));
+            assertThat(msg).as("Message was: " + msg).contains("UnknownGroup");
         }
     }
 
@@ -151,8 +149,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         // When
         final Consumer<Iterable<? extends Element>> resultTest = iter -> {
             iter.forEach(element -> {
-                assertEquals(1, element.getProperties().size());
-                assertEquals((long) DUPLICATES, element.getProperties().get(TestPropertyNames.COUNT));
+                assertThat(element.getProperties()).hasSize(1)
+                        .containsEntry(TestPropertyNames.COUNT, (long) DUPLICATES);
             });
         };
 
@@ -195,7 +193,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
 
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
-        assertFalse(results.iterator().hasNext());
+        assertThat(results.iterator().hasNext()).isFalse();
     }
 
     @TraitRequirement({StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION})
@@ -248,9 +246,9 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(getEntities().size(), resultList.size());
+        assertThat(resultList).hasSize(getEntities().size());
         for (final Element element : resultList) {
-            assertEquals(TestGroups.ENTITY, element.getGroup());
+            assertThat(element.getGroup()).isEqualTo(TestGroups.ENTITY);
         }
     }
 
@@ -272,8 +270,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
+        assertThat(resultList).hasSize(1);
+        assertThat(((Entity) resultList.get(0)).getVertex()).isEqualTo("A1");
     }
 
     @TraitRequirement({StoreTrait.MATCHED_VERTEX, StoreTrait.QUERY_AGGREGATION})

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,11 @@ import uk.gov.gchq.koryphe.tuple.n.Tuple3;
 import java.util.List;
 import java.util.function.BinaryOperator;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -177,8 +178,9 @@ public class ElementAggregatorTest {
         state = aggregator.apply(state, properties3);
 
         // Then
-        assertEquals(1000, state.get("max"));
-        assertEquals(10, state.get("min"));
+        assertThat(state)
+                .hasFieldOrPropertyWithValue("max", 1000)
+                .hasFieldOrPropertyWithValue("min", 10);
     }
 
     @Test
@@ -213,9 +215,10 @@ public class ElementAggregatorTest {
         state = aggregator.apply(state, properties3);
 
         // Then
-        assertEquals(1000, state.get("max"));
-        assertEquals(10, state.get("min"));
-        assertEquals(1000 - 10, state.get("range"));
+        assertThat(state)
+                .hasFieldOrPropertyWithValue("max", 1000)
+                .hasFieldOrPropertyWithValue("min", 10)
+               .hasFieldOrPropertyWithValue("range", 990);
     }
 
     @Test
@@ -264,14 +267,14 @@ public class ElementAggregatorTest {
         assertSame(func1, adaptedFunction.getBinaryOperator());
 
         adaptedFunction = aggregator.getComponents().get(i++);
-        assertEquals(2, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(2);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
         assertSame(func2, adaptedFunction.getBinaryOperator());
 
         adaptedFunction = aggregator.getComponents().get(i++);
         assertSame(func3, adaptedFunction.getBinaryOperator());
-        assertEquals(1, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(1);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
         assertEquals(i, aggregator.getComponents().size());
@@ -316,7 +319,7 @@ public class ElementAggregatorTest {
         aggregator.lock();
         final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
 
-        assertThrows(UnsupportedOperationException.class, () -> components.add(null));
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> components.add(null));
     }
 
     @Test
@@ -325,6 +328,6 @@ public class ElementAggregatorTest {
 
         final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
 
-        assertDoesNotThrow(() -> components.add(null));
+        assertThatNoException().isThrownBy(() -> components.add(null));
     }
 }

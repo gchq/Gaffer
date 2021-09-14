@@ -339,6 +339,7 @@ public abstract class Store {
      * @param storeTrait the Class of the Processor to be checked.
      * @return true if the Processor can be handled and false if it cannot.
      */
+    @Deprecated
     public boolean hasTrait(final StoreTrait storeTrait) {
         final Set<StoreTrait> traits = getTraits();
         return null != traits && traits.contains(storeTrait);
@@ -353,7 +354,9 @@ public abstract class Store {
      * </p>
      *
      * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
      */
+    @Deprecated
     public abstract Set<StoreTrait> getTraits();
 
     /**

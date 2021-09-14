@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@ package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -64,12 +63,10 @@ public class LazyElementCellTest {
         given(cell.getTypeByte()).willReturn(KeyValue.Type.Delete.getCode());
 
         // When / Then
-        try {
-            lazyElementCell.getElement();
-            fail("Exception expected");
-        } catch (final IllegalStateException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> lazyElementCell.getElement())
+                .extracting("message")
+                .isNotNull();
 
         assertTrue(lazyElementCell.isDeleted());
     }

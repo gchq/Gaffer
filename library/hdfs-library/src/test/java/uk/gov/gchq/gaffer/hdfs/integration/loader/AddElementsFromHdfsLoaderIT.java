@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,8 @@ import java.io.OutputStreamWriter;
 import java.util.Map;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElementsFromHdfs> {
     @Rule
@@ -103,7 +102,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
             setup();
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Failure directory is not empty: " + failureDir, e.getCause().getMessage());
+            assertThat(e.getCause().getMessage()).isEqualTo("Failure directory is not empty: " + failureDir);
         } finally {
             tearDown();
         }
@@ -137,7 +136,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
             setup();
             fail("Exception expected");
         } catch (final Exception e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("Output directory exists and is not empty: " + outputDir));
+            assertThat(e.getMessage()).as(e.getMessage()).contains("Output directory exists and is not empty: " + outputDir);
         } finally {
             tearDown();
         }

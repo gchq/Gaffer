@@ -32,6 +32,7 @@ jobs:
         git config user.email github-actions@github.com
 
     - name: Merge develop into master
+      if: ${{ ! contains(github.event.milestone.description, 'hotfix') }}
       run: |
         git remote set-branches --add origin develop
         git pull
@@ -145,7 +146,7 @@ jobs:
       run: |
         git remote set-branches --add origin master
         git pull
-        git merge origin/master
+        git merge origin/master --strategy-option theirs -m "Hotfix: Merge master into develop"
         mvn release:update-versions -B
         NEW_GAFFER_VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=pom.version)
         sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$NEW_GAFFER_VERSION/" rest-api/common-rest/src/main/resources/version.properties
@@ -162,14 +163,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.m2/repository
-          !~/.m2/repository/uk
-        key: gaffer-dependencies
 
     - name: Checkout master
       uses: actions/checkout@v2

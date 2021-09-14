@@ -77,6 +77,7 @@ public class FederatedOperationHandlerTest {
         final Operation op = mock(Operation.class);
         final Operation opClone = mock(Operation.class);
         given(op.shallowClone()).willReturn(opClone);
+        given(opClone.shallowClone()).willReturn(opClone);
         final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -114,6 +115,7 @@ public class FederatedOperationHandlerTest {
         final Operation opClone = mock(Operation.class);
         given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn("1,3");
         given(op.shallowClone()).willReturn(opClone);
+        given(opClone.shallowClone()).willReturn(opClone);
 
         final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
 
@@ -162,6 +164,7 @@ public class FederatedOperationHandlerTest {
         final Operation op = mock(Operation.class);
         final String graphID = "1,3";
         given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn(graphID);
+        given(op.shallowClone()).willReturn(op);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -189,6 +192,7 @@ public class FederatedOperationHandlerTest {
         when(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).thenReturn(graphID);
         when(op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE)).thenReturn(String.valueOf(true));
         when(op.getOption(eq(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE), any(String.class))).thenReturn(String.valueOf(true));
+        given(op.shallowClone()).willReturn(op);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();

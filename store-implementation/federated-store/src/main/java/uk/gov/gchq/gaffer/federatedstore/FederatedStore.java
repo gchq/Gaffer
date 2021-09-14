@@ -333,13 +333,23 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * @return {@link Store#getTraits()}
+     * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
+     * @see Store#getTraits()
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
      */
+    @Deprecated
     @Override
     public Set<StoreTrait> getTraits() {
         return StoreTrait.ALL_TRAITS;
     }
 
+    /**
+     * @param getTraits GetTrait op with graph scope.
+     * @param context   context of the query
+     * @return the set of {@link StoreTrait} that are common for all visible graphs
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
+     */
+    @Deprecated
     public Set<StoreTrait> getTraits(final GetTraits getTraits, final Context context) {
         return graphStorage.getTraits(getTraits, context);
     }

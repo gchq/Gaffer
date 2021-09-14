@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class DefaultGraphFactoryTest {
 
@@ -52,7 +51,8 @@ public class DefaultGraphFactoryTest {
         System.setProperty(SystemProperty.GRAPH_LIBRARY_CLASS, "invalid.class.name");
 
         // Then
-        RuntimeException exception = assertThrows(RuntimeException.class, graphFactory::getGraph);
-        assertEquals("Error creating GraphLibrary class", exception.getMessage());
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(graphFactory::getGraph)
+                .withMessage("Error creating GraphLibrary class");
     }
 }

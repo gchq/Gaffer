@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -77,12 +77,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Cannot export to the same Graph"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("Cannot export to the same Graph");
     }
 
     @Test
@@ -93,12 +90,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Store GraphLibrary is null"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("Store GraphLibrary is null");
     }
 
     @Test
@@ -170,12 +164,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is not authorised to export using graphId"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("User is not authorised to export using graphId");
     }
 
     @Test
@@ -196,12 +187,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is not authorised to export using schemaId"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("User is not authorised to export using schemaId");
     }
 
     @Test
@@ -222,12 +210,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is not authorised to export using storePropertiesId"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("User is not authorised to export using storePropertiesId");
     }
 
     @Test
@@ -247,12 +232,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("parentStorePropertiesId must be specified with parentSchemaId"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("parentStorePropertiesId must be specified with parentSchemaId");
     }
 
     @Test
@@ -273,14 +255,10 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("parentSchemaIds must be specified with parentStorePropertiesId"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("parentSchemaIds must be specified with parentStorePropertiesId");
     }
-
 
     @Test
     public void shouldThrowExceptionWhenGraphIdCannotBeFound(@TempDir Path tmpPath) {
@@ -295,12 +273,9 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            createGraph(export);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("GraphLibrary cannot be found with graphId"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createGraph(export))
+                .withMessageContaining("GraphLibrary cannot be found with graphId");
     }
 
     @Test
@@ -311,7 +286,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         OperationHandler handler = opDeclaration.getHandler();
 
         // When / Then
-        assertTrue(handler.getClass().getName().contains("AuthorisedGraph"));
+        assertThat(handler.getClass().getName()).contains("AuthorisedGraph");
     }
 
     private Graph createGraph(final ExportToOtherAuthorisedGraph export) {

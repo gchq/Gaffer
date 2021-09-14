@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.net.URI;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class StreamUtilTest {
@@ -37,8 +36,9 @@ public class StreamUtilTest {
 
         final InputStream[] inputStreams = StreamUtil.openStreams(resource);
 
-        assertNotNull(inputStreams);
-        assertFalse(0 == inputStreams.length, "InputStreams length is 0");
+        assertThat(inputStreams)
+                .isNotEmpty()
+                .overridingErrorMessage("InputStreams length is %s", 0);
 
         StreamUtil.closeStreams(inputStreams);
     }

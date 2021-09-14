@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -113,7 +114,7 @@ public class SortGroupSplitTest {
         //  - Check output directory exists and contains one Parquet file
         assertTrue(fs.exists(new Path(outputDir)));
         final FileStatus[] outputFiles = fs.listStatus(new Path(outputDir), path1 -> path1.getName().endsWith(".parquet"));
-        assertEquals(1, outputFiles.length);
+        assertThat(outputFiles).hasSize(1);
         //  - Read results and check in correct order
         final Row[] results = (Row[]) sparkSession
                 .read()

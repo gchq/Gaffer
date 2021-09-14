@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
@@ -1131,8 +1131,8 @@ public class GetElementsHandlerTest {
                 .build();
 
         // Then
-        assertThrows(OperationException.class,
-                () -> graph.execute(getElements, new User()));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> graph.execute(getElements, new User()));
     }
 
     @Test

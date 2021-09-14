@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
 import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -52,14 +52,14 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
 
         // Then
         final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
-        assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
-        assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
-        assertFalse(itrSeedsA.hasNext());
+        assertThat(itrSeedsA.next()).isEqualTo(AccumuloTestData.SEED_SOURCE_1);
+        assertThat(itrSeedsA.next()).isEqualTo(AccumuloTestData.SEED_DESTINATION_1);
+        assertThat(itrSeedsA).isExhausted();
 
         final Iterator itrSeedsB = deserialisedOp.getInputB().iterator();
-        assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsB.next());
-        assertEquals(AccumuloTestData.SEED_DESTINATION_2, itrSeedsB.next());
-        assertFalse(itrSeedsB.hasNext());
+        assertThat(itrSeedsB.next()).isEqualTo(AccumuloTestData.SEED_SOURCE_2);
+        assertThat(itrSeedsB.next()).isEqualTo(AccumuloTestData.SEED_DESTINATION_2);
+        assertThat(itrSeedsB).isExhausted();
 
     }
 
@@ -79,8 +79,8 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
-        assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
-        assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getInputB().iterator().next());
+        assertThat(getElementsBetweenSets.getInput().iterator().next()).isEqualTo(AccumuloTestData.SEED_B);
+        assertThat(getElementsBetweenSets.getInputB().iterator().next()).isEqualTo(AccumuloTestData.SEED_A);
         assertNotNull(getElementsBetweenSets.getView());
     }
 
@@ -110,8 +110,8 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
         assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
         assertEquals(SeedMatchingType.EQUAL, clone.getSeedMatching());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, clone.getIncludeIncomingOutGoing());
-        assertEquals(AccumuloTestData.SEED_B, clone.getInput().iterator().next());
-        assertEquals(AccumuloTestData.SEED_A, clone.getInputB().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(AccumuloTestData.SEED_B);
+        assertThat(clone.getInputB().iterator().next()).isEqualTo(AccumuloTestData.SEED_A);
         assertEquals(view, clone.getView());
     }
 

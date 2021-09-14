@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
         return null;
     }
 
+    @Test
     @Override
     public void shouldSerialiseWithHistoricValues() {
         //fail( "This has a byte value that changes, timestamp within the Avro?");

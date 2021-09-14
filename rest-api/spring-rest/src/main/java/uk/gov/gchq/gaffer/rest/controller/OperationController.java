@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,17 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -33,8 +37,10 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.rest.service.v2.AbstractOperationService;
 
+import java.io.IOException;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_ID_HEADER;
@@ -45,6 +51,8 @@ public class OperationController extends AbstractOperationService implements IOp
     private final GraphFactory graphFactory;
     private final UserFactory userFactory;
     private final ExamplesFactory examplesFactory;
+
+    public final ObjectMapper mapper = createDefaultMapper();
 
     @Autowired
     public OperationController(final GraphFactory graphFactory, final UserFactory userFactory, final ExamplesFactory examplesFactory) {
@@ -115,11 +123,51 @@ public class OperationController extends AbstractOperationService implements IOp
 
     @Override
     public ResponseEntity<Object> execute(@RequestBody final Operation operation) {
-        Pair<Object, String> resultAndGraphId = _execute(operation, userFactory.createContext());
+        Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .header(JOB_ID_HEADER, resultAndGraphId.getSecond())
-                .body(resultAndGraphId.getFirst());
+                .header(JOB_ID_HEADER, resultAndJobId.getSecond())
+                .body(resultAndJobId.getFirst());
+    }
+
+    @Override
+    public ResponseEntity<StreamingResponseBody> executeChunked(@RequestBody final Operation operation) {
+        StreamingResponseBody responseBody = response -> {
+            try {
+                Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
+                Object result = resultAndJobId.getFirst();
+                if (result instanceof Iterable) {
+                    final Iterable itr = (Iterable) result;
+                    try {
+                        for (final Object item : itr) {
+                            String itemString = mapper.writeValueAsString(item) + "\r\n";
+                            response.write(itemString.getBytes());
+                            response.flush();
+                        }
+                    } catch (final IOException ioe) {
+                        throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);
+                    } finally {
+                        CloseableUtil.close(itr);
+                    }
+                } else {
+                    try {
+                        response.write(mapper.writeValueAsString(result).getBytes());
+                        response.flush();
+                    } catch (final IOException ioe) {
+                        throw new GafferRuntimeException("Unable to serialise chunk: ", ioe, Status.INTERNAL_SERVER_ERROR);
+                    }
+                }
+            } catch (final Exception e) {
+                throw new GafferRuntimeException("Unable to create chunk: ", e, Status.INTERNAL_SERVER_ERROR);
+            } finally {
+                CloseableUtil.close(operation);
+            }
+        };
+
+        return ResponseEntity.ok()
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
     }
 
     @Override

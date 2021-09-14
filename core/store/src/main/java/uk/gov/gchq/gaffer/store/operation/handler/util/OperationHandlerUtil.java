@@ -52,17 +52,17 @@ public final class OperationHandlerUtil {
             if (!((OperationChain) operation).getOperations().isEmpty()) {
                 final Operation firstOp = (Operation) ((OperationChain) operation).getOperations().get(0);
                 if (firstOp instanceof Input) {
-                    setOperationInput((Input) firstOp, input);
+                    setOperationInputIfNull((Input) firstOp, input);
                 } else if (firstOp instanceof OperationChain) {
                     updateOperationInput(firstOp, input);
                 }
             }
         } else if (operation instanceof Input) {
-            setOperationInput((Input) operation, input);
+            setOperationInputIfNull((Input) operation, input);
         }
     }
 
-    private static void setOperationInput(final Input operation, final Object input) {
+    private static void setOperationInputIfNull(final Input operation, final Object input) {
         if (null == operation.getInput()) {
             operation.setInput(input);
         }

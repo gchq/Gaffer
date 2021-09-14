@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,11 +82,12 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Collection;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -201,12 +202,10 @@ public class AccumuloStoreTest {
         final AccumuloStore store = new AccumuloStore();
 
         // When
-        IllegalArgumentException actual =
-                assertThrows(IllegalArgumentException.class, () -> store.initialise("graphId", SCHEMA, properties));
-
-        assertEquals("The table in store.properties should no longer be used. Please use a graphId instead " +
-                "or for now just set the graphId to be the same value as the store.properties table.",
-                actual.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> store.initialise("graphId", SCHEMA, properties))
+                .withMessage("The table in store.properties should no longer be used. Please use a graphId instead " +
+                        "or for now just set the graphId to be the same value as the store.properties table.");
     }
 
     @Test
@@ -453,15 +452,14 @@ public class AccumuloStoreTest {
         final AccumuloStore store = new AccumuloStore();
 
         // When & Then
-        SchemaException actual = assertThrows(SchemaException.class,
-                () -> store.preInitialise("graphId", inconsistentSchema, PROPERTIES));
-        assertEquals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.",
-                actual.getMessage());
+        assertThatExceptionOfType(SchemaException.class)
+                .isThrownBy(() -> store.preInitialise("graphId", inconsistentSchema, PROPERTIES))
+                .withMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
 
         // When & Then
-        actual = assertThrows(SchemaException.class, () -> store.validateSchemas());
-        assertEquals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.",
-                actual.getMessage());
+        assertThatExceptionOfType(SchemaException.class)
+                .isThrownBy(() -> store.validateSchemas())
+                .withMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
     }
 
     @Test
@@ -562,14 +560,14 @@ public class AccumuloStoreTest {
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
 
-        // When
-        SchemaException actual = assertThrows(SchemaException.class,
-                () -> store.initialise("graphId", schema, PROPERTIES));
-
-        // Then
-        assertEquals("Schema is not valid. Validation errors: \n" +
+        // When / Then
+        final String expectedMessage = "Schema is not valid. Validation errors: \n" +
                 "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max " +
                 "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property " +
-                "in the timestamp column.", actual.getMessage());
+                "in the timestamp column.";
+
+         assertThatExceptionOfType(SchemaException.class)
+                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
+                 .withMessage(expectedMessage);
     }
 }

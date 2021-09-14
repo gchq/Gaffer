@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,12 @@
 
 package uk.gov.gchq.gaffer.user;
 
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class UserTest {
     @Test
@@ -47,15 +43,13 @@ public class UserTest {
                 .build();
 
         // Then
-        assertEquals(userId, user.getUserId());
-        assertEquals(2, user.getDataAuths().size());
-        assertThat(user.getDataAuths(), IsCollectionContaining.hasItems(
-                dataAuth1, dataAuth2
-        ));
-        assertEquals(2, user.getOpAuths().size());
-        assertThat(user.getOpAuths(), IsCollectionContaining.hasItems(
-                opAuth1, opAuth1
-        ));
+        assertThat(user.getUserId()).isEqualTo(userId);
+        assertThat(user.getDataAuths())
+                .hasSize(2)
+                .contains(dataAuth1, dataAuth2);
+        assertThat(user.getOpAuths())
+                .hasSize(2)
+                .contains(opAuth1, opAuth1);
     }
 
     @Test
@@ -69,7 +63,7 @@ public class UserTest {
                 .build();
 
         // Then
-        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+        assertThat(user.getUserId()).isEqualTo(User.UNKNOWN_USER_ID);
     }
 
     @Test
@@ -83,7 +77,7 @@ public class UserTest {
                 .build();
 
         // Then
-        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+        assertThat(user.getUserId()).isEqualTo(User.UNKNOWN_USER_ID);
     }
 
     @Test
@@ -94,7 +88,7 @@ public class UserTest {
                 .build();
 
         // Then
-        assertEquals(User.UNKNOWN_USER_ID, user.getUserId());
+        assertThat(user.getUserId()).isEqualTo(User.UNKNOWN_USER_ID);
     }
 
     @Test
@@ -111,15 +105,11 @@ public class UserTest {
                 .build();
 
         // When
-        try {
-            user.getDataAuths().add(newDataAuth);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        final Set<String> dataAuths = user.getDataAuths();
 
         // Then
-        assertFalse(user.getDataAuths().contains(newDataAuth));
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> dataAuths.add(newDataAuth));
+        assertThat(dataAuths).doesNotContain(newDataAuth);
     }
 
     @Test
@@ -136,15 +126,11 @@ public class UserTest {
                 .build();
 
         // When
-        try {
-            user.getOpAuths().add(newOpAuth);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        final Set<String> opAuths = user.getOpAuths();
 
         // Then
-        assertFalse(user.getOpAuths().contains(newOpAuth));
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> opAuths.add(newOpAuth));
+        assertThat(opAuths).doesNotContain(newOpAuth);
     }
 
     @Test
@@ -172,12 +158,10 @@ public class UserTest {
                 .opAuth(opAuth2)
                 .build();
 
-        // When
-        final boolean isEqual = userLocked.equals(userUnlocked);
-
         // Then
-        assertTrue(isEqual);
-        assertEquals(userLocked.hashCode(), userUnlocked.hashCode());
+        assertThat(userLocked)
+                .isEqualTo(userUnlocked)
+                .hasSameHashCodeAs(userUnlocked);
     }
 
     @Test
@@ -206,12 +190,10 @@ public class UserTest {
                 .opAuth(opAuth2)
                 .build();
 
-        // When
-        final boolean isEqual = user1.equals(user2);
-
         // Then
-        assertFalse(isEqual);
-        assertNotEquals(user1.hashCode(), user2.hashCode());
+        assertThat(user1)
+                .isNotEqualTo(user2)
+                .doesNotHaveSameHashCodeAs(user2);
     }
 
     @Test
@@ -233,12 +215,10 @@ public class UserTest {
                 .dataAuth(dataAuth2b)
                 .build();
 
-        // When
-        final boolean isEqual = user1.equals(user2);
-
         // Then
-        assertFalse(isEqual);
-        assertNotEquals(user1.hashCode(), user2.hashCode());
+        assertThat(user1)
+                .isNotEqualTo(user2)
+                .doesNotHaveSameHashCodeAs(user2);
     }
 
     @Test
@@ -260,11 +240,9 @@ public class UserTest {
                 .opAuth(opAuth2b)
                 .build();
 
-        // When
-        final boolean isEqual = user1.equals(user2);
-
         // Then
-        assertFalse(isEqual);
-        assertNotEquals(user1.hashCode(), user2.hashCode());
+        assertThat(user1)
+                .isNotEqualTo(user2)
+                .doesNotHaveSameHashCodeAs(user2);
     }
 }

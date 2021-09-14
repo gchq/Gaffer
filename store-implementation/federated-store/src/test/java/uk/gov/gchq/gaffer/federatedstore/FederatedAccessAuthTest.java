@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -34,22 +33,22 @@ import uk.gov.gchq.koryphe.predicate.AdaptedPredicate;
 import java.util.Collections;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_2;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
+import static uk.gov.gchq.gaffer.user.StoreUser.UNUSED_AUTH_STRING;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    private static final String AUTH_X = "X";
     private static final User TEST_USER = testUser();
     public static final User AUTH_USER = authUser();
 
@@ -108,7 +107,7 @@ public class FederatedAccessAuthTest {
 
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addGraphAuths(asList(AUTH_1))
-                .addGraphAuths(asList(AUTH_X))
+                .addGraphAuths(asList(UNUSED_AUTH_STRING))
                 .build();
 
         assertTrue(access.hasReadAccess(AUTH_USER));
@@ -214,28 +213,31 @@ public class FederatedAccessAuthTest {
 
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndMatchAuths() {
-        final Executable executable = () -> new FederatedAccess.Builder()
-                .graphAuths(AUTH_1)
-                .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
-                .build();
-        assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FederatedAccess.Builder()
+                        .graphAuths(AUTH_1)
+                        .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
+                        .build())
+                .withMessageContaining("Only one of graphAuths or readAccessPredicate should be supplied.");
     }
 
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndMismatchedAuths() {
-        final Executable executable = () -> new FederatedAccess.Builder()
-                .graphAuths(AUTH_2)
-                .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
-                .build();
-        assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FederatedAccess.Builder()
+                        .graphAuths(AUTH_2)
+                        .readAccessPredicate(new AccessPredicate(AUTH_USER_ID, Collections.singletonList(AUTH_1)))
+                        .build())
+                .withMessageContaining("Only one of graphAuths or readAccessPredicate should be supplied.");
     }
 
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenBothGraphAuthsAndReadAccessPredicateAreSuppliedAndOnlyOneSetsAuth() {
-        final Executable executable = () -> new FederatedAccess.Builder()
-                .graphAuths(AUTH_1)
-                .readAccessPredicate(new AccessPredicate(TEST_USER_ID, null))
-                .build();
-        assertThrows(IllegalArgumentException.class, executable, "Only one of graphAuths or readAccessPredicate should be supplied.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new FederatedAccess.Builder()
+                        .graphAuths(AUTH_1)
+                        .readAccessPredicate(new AccessPredicate(TEST_USER_ID, null))
+                        .build())
+                .withMessageContaining("Only one of graphAuths or readAccessPredicate should be supplied.");
     }
 }

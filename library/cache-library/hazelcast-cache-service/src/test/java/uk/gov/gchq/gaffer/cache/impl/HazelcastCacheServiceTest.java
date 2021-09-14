@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,10 +34,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class HazelcastCacheServiceTest {
@@ -73,12 +72,9 @@ public class HazelcastCacheServiceTest {
         final String madeUpFile = "/made/up/file.xml";
         cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, madeUpFile);
 
-        try {
-            service.initialise(cacheProperties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(madeUpFile));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.initialise(cacheProperties))
+                .withMessageContaining(madeUpFile);
     }
 
     private void initialiseWithTestConfig(final Path tempDir) {
@@ -103,7 +99,7 @@ public class HazelcastCacheServiceTest {
         ICache<String, Integer> cache = service.getCache(CACHE_NAME);
 
         // then
-        assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
@@ -119,7 +115,7 @@ public class HazelcastCacheServiceTest {
         ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
         // then
-        assertEquals(1, sameCache.size());
+        assertThat(cache.size()).isOne();
         assertEquals(new Integer(1), sameCache.get("key"));
     }
 
@@ -157,12 +153,10 @@ public class HazelcastCacheServiceTest {
         initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test", 1);
 
-        try {
-            service.putSafeInCache(CACHE_NAME, "test", 2);
-            fail("Expected an exception");
-        } catch (final OverwritingException e) {
-            assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
-        }
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> service.putSafeInCache(CACHE_NAME, "test", 2));
+
+        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
 
         service.putInCache(CACHE_NAME, "test", 2);
 
@@ -202,7 +196,7 @@ public class HazelcastCacheServiceTest {
         service.putInCache(CACHE_NAME, "test3", 3);
 
         assertEquals(3, service.sizeOfCache(CACHE_NAME));
-        assertThat(service.getAllKeysFromCache(CACHE_NAME), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(service.getAllKeysFromCache(CACHE_NAME)).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -217,6 +211,6 @@ public class HazelcastCacheServiceTest {
         assertEquals(4, service.sizeOfCache(CACHE_NAME));
         assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
 
-        assertThat(service.getAllValuesFromCache(CACHE_NAME), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(service.getAllValuesFromCache(CACHE_NAME)).contains(1, 2, 3);
     }
 }

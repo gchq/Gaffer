@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,24 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.SingleUseFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -44,16 +43,17 @@ import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FederatedStoreRecursionIT extends AbstractStoreIT {
+public class FederatedStoreRecursionIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
     public static final String INNER_FEDERATED_GRAPH = "innerFederatedGraph";
     public static final String INNER_PROXY = "innerProxy";
@@ -62,21 +62,10 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
     public static final String ENT_GROUP = "ent1";
     public static final String PROPERTY_NAME = "count";
     private Graph proxyToRestServiceFederatedGraph;
+    private User user = new User();
 
-    @Before
-    public void setUp() throws Exception {
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
-                .build(), user);
-        graph.execute(new RemoveGraph.Builder()
-                .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES)
-                .build(), user);
-
-        graph = null;
-    }
-
-
-    @Test(timeout = 60000)
+    @Test
+    @Timeout(value = 1, unit = TimeUnit.MINUTES)
     public void shouldNotInfinityLoopWhenAddingElements() throws Exception {
         /*
          * Structure:
@@ -89,6 +78,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
          *                                                                      v                   |
          *                                                                      innerProxy -------->
          */
+        CacheServiceLoader.shutdown();
 
         createProxyToRestServiceFederatedGraph();
         createTheInnerFederatedStore();
@@ -122,8 +112,8 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                 new GetAllElements.Builder()
                         .build(),
                 user));
-        assertEquals(elements.toString(), 1, elements.size());
-        assertEquals(expected, elements.get(0).getProperties().get(PROPERTY_NAME));
+        assertThat(elements).as(elements.toString()).hasSize(1);
+        assertThat(elements.get(0).getProperties()).containsEntry(PROPERTY_NAME, expected);
     }
 
     protected void createEntityGraph() throws OperationException {
@@ -153,17 +143,17 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
                                 new GetAllGraphIds()
                         )).build(),
                 user));
-        assertEquals(ids.length, list.size());
+        assertThat(list).hasSameSizeAs(ids);
         for (String id : ids) {
-            assertTrue(list.toString(), list.contains(id));
+            Assertions.<String>assertThat(list).as(list.toString()).contains(id);
         }
     }
 
     protected void testOuterGetGraphIds(final String... ids) throws OperationException {
         ArrayList<? extends String> list = Lists.newArrayList(proxyToRestServiceFederatedGraph.execute(new GetAllGraphIds(), user));
-        assertEquals(ids.length, list.size());
+        assertThat(list).hasSameSizeAs(ids);
         for (String id : ids) {
-            assertTrue(list.toString(), list.contains(id));
+            Assertions.<String>assertThat(list).as(list.toString()).contains(id);
         }
     }
 
@@ -204,7 +194,7 @@ public class FederatedStoreRecursionIT extends AbstractStoreIT {
         this.proxyToRestServiceFederatedGraph = proxyToRestServiceFederatedGraph;
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         SingleUseFederatedStore.cleanUp();
     }

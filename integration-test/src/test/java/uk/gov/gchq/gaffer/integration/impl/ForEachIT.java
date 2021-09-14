@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ForEachIT extends AbstractStoreIT {
 
@@ -83,7 +83,7 @@ public class ForEachIT extends AbstractStoreIT {
         final Iterable<? extends Long> output = graph.execute(op, getUser());
 
         // Then
-        assertEquals(Arrays.asList(3, 2, 0), Lists.newArrayList(output));
+        assertThat(Lists.newArrayList(output)).isEqualTo(Arrays.asList(3, 2, 0));
     }
 
     @Test
@@ -111,11 +111,8 @@ public class ForEachIT extends AbstractStoreIT {
         final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
-        assertEquals(1, results.size());
-        assertEquals(
-                Sets.newHashSet(SOURCE_DIR_1 + ",", "," + DEST_DIR_1),
-                Sets.newHashSet(results.get(0))
-        );
+        assertThat(results).hasSize(1);
+        assertThat(Sets.newHashSet(results.get(0))).isEqualTo(Sets.newHashSet(SOURCE_DIR_1 + ",", "," + DEST_DIR_1));
     }
 
     @Test
@@ -141,7 +138,7 @@ public class ForEachIT extends AbstractStoreIT {
         final List<Iterable<String>> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
-        assertEquals(1, results.size());
-        assertEquals(Collections.emptyList(), Lists.newArrayList(results.get(0)));
+        assertThat(results).hasSize(1);
+        assertThat(Lists.newArrayList(results.get(0))).isEqualTo(Collections.emptyList());
     }
 }

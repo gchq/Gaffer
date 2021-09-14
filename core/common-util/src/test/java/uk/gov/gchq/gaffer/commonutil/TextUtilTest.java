@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TextUtilTest {
 
     @Test
     public void testGetByteBufferReturnsNullWhenTextIsNull() {
-        assertEquals(null, TextUtil.getByteBuffer(null));
+        assertThat(TextUtil.getByteBuffer(null)).isNull();
     }
 
     @Test
@@ -41,7 +42,8 @@ public class TextUtilTest {
     public void testGetBytes() {
         final Text text = new Text("Some text");
 
-        assertEquals(9, TextUtil.getBytes(text).length);
-        assertEquals(new Text("Some text"), new Text(TextUtil.getBytes(text)));
+        assertThat(TextUtil.getBytes(text)).hasSize(9);
+        assertThat(new Text(TextUtil.getBytes(text)))
+                .isEqualTo(new Text("Some text"));
     }
 }

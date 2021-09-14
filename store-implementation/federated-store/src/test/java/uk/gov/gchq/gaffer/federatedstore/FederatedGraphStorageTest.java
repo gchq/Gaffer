@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -46,11 +45,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -62,7 +62,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedGraphStorageTest {
 
@@ -155,7 +154,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldStartWithNoGraphs() throws Exception {
         final Collection<Graph> graphs = graphStorage.get(nullUser, null);
-        assertEquals(0, graphs.size());
+        assertThat(graphs).isEmpty();
     }
 
 
@@ -163,38 +162,38 @@ public class FederatedGraphStorageTest {
     public void shouldGetIdForAddingUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<String> allIds = graphStorage.getAllIds(testUser);
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
     @Test
     public void shouldNotGetIdForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, blockingReadAccess);
         final Collection<String> allIds = graphStorage.getAllIds(testUser);
-        assertTrue(allIds.isEmpty());
+        assertThat(allIds).isEmpty();
     }
 
     @Test
     public void shouldGetIdForDisabledGraphs() throws Exception {
         graphStorage.put(a, disabledByDefaultAccess);
         final Collection<String> allIds = graphStorage.getAllIds(testUser);
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
     @Test
     public void shouldGetIdForAuthUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<String> allIds = graphStorage.getAllIds(authUser);
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
     @Test
     public void shouldNotGetIdForBlankUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<String> allIds = graphStorage.getAllIds(blankUser);
-        assertEquals(0, allIds.size());
+        assertThat(allIds).isEmpty();
         assertFalse(allIds.iterator().hasNext());
     }
 
@@ -202,46 +201,46 @@ public class FederatedGraphStorageTest {
     public void shouldGetIdForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, permissiveReadAccess);
         final Collection<String> allIds = graphStorage.getAllIds(blankUser);
-        assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID_A, allIds.iterator().next());
+        assertThat(allIds).hasSize(1);
+        assertThat(allIds.iterator().next()).isEqualTo(GRAPH_ID_A);
     }
 
     @Test
     public void shouldGetGraphForAddingUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.getAll(testUser);
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldNotGetGraphForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, blockingReadAccess);
         final Collection<Graph> allGraphs = graphStorage.getAll(testUser);
-        assertTrue(allGraphs.isEmpty());
+        assertThat(allGraphs).isEmpty();
     }
 
     @Test
     public void shouldGetGraphForAuthUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.getAll(authUser);
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldGetDisabledGraphWhenGetAll() throws Exception {
         graphStorage.put(a, disabledByDefaultAccess);
         final Collection<Graph> allGraphs = graphStorage.getAll(authUser);
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldNotGetGraphForBlankUser() throws Exception {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.getAll(blankUser);
-        assertEquals(0, allGraphs.size());
+        assertThat(allGraphs).isEmpty();
         assertFalse(allGraphs.iterator().hasNext());
     }
 
@@ -249,100 +248,87 @@ public class FederatedGraphStorageTest {
     public void shouldGetGraphForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, permissiveReadAccess);
         final Collection<Graph> allGraphs = graphStorage.getAll(blankUser);
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldGetGraphForAddingUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.get(testUser, Lists.newArrayList(GRAPH_ID_A));
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldNotGetGraphForAddingUserWithCorrectIdWhenBlockingReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, blockingReadAccess);
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> graphStorage.get(testUser, Lists.newArrayList(GRAPH_ID_A)),
-                String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graphStorage.get(testUser, Lists.newArrayList(GRAPH_ID_A)))
+                .withMessageContaining(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
     }
 
     @Test
     public void shouldGetGraphForAuthUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
         final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldGetDisabledGraphForAuthUserWithCorrectId() throws Exception {
         graphStorage.put(a, disabledByDefaultAccess);
         final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldNotGetDisabledGraphForAuthUserWhenNoIdsProvided() throws Exception {
         graphStorage.put(a, disabledByDefaultAccess);
         final Collection<Graph> allGraphs = graphStorage.get(authUser, null);
-        assertEquals(0, allGraphs.size());
+        assertThat(allGraphs).isEmpty();
     }
 
     @Test
     public void shouldNotGetGraphForBlankUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
-        try {
-            graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID_A));
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)), e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID_A)))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)));
     }
 
     @Test
     public void shouldGetGraphForBlankUserWithCorrectIdWhenPermissiveReadAccessPredicateConfigured() throws Exception {
         graphStorage.put(a, permissiveReadAccess);
         final Collection<Graph> allGraphs = graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID_A));
-        assertEquals(1, allGraphs.size());
-        assertEquals(a.getGraph(), allGraphs.iterator().next());
+        assertThat(allGraphs).hasSize(1);
+        assertThat(allGraphs.iterator().next()).isEqualTo(a.getGraph());
     }
 
     @Test
     public void shouldNotGetGraphForAddingUserWithIncorrectId() throws Exception {
         graphStorage.put(a, access);
-        try {
-            graphStorage.get(testUser, Lists.newArrayList(X));
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graphStorage.get(testUser, Lists.newArrayList(X)))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
     }
 
     @Test
     public void shouldNotGetGraphForAuthUserWithIncorrectId() throws Exception {
         graphStorage.put(a, access);
-        try {
-            graphStorage.get(authUser, Lists.newArrayList(X));
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graphStorage.get(authUser, Lists.newArrayList(X)))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
     }
 
     @Test
     public void shouldNotGetGraphForBlankUserWithIncorrectId() throws Exception {
         graphStorage.put(a, access);
-        try {
-            graphStorage.get(blankUser, Lists.newArrayList(X));
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graphStorage.get(blankUser, Lists.newArrayList(X)))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)));
     }
 
     @Test
@@ -415,49 +401,6 @@ public class FederatedGraphStorageTest {
     }
 
     @Test
-    public void shouldGetTraitsForAddingUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForAddingUserWhenBlockingReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, blockingReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals(0, traits.size(), "Revealing hidden traits");
-    }
-
-    @Test
-    public void shouldGetTraitsForAuthUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForBlankUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertEquals(0, traits.size(), "Revealing hidden traits");
-    }
-
-    @Test
-    public void shouldGetTraitsForBlankUserWhenPermissiveReadAccessPredicateConfigured() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, permissiveReadAccess);
-        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
-        assertNotEquals(5, traits.size(), "Revealing hidden traits");
-        assertEquals(10, traits.size());
-    }
-
-    @Test
     public void shouldRemoveForAddingUser() throws Exception {
         graphStorage.put(a, access);
         final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser);
@@ -508,12 +451,12 @@ public class FederatedGraphStorageTest {
         final Iterator<Graph> itrAB = graphsAB.iterator();
         assertSame(a.getGraph(), itrAB.next());
         assertSame(b.getGraph(), itrAB.next());
-        assertFalse(itrAB.hasNext());
+        assertThat(itrAB).isExhausted();
         // B A
         final Iterator<Graph> itrBA = graphsBA.iterator();
         assertSame(b.getGraph(), itrBA.next());
         assertSame(a.getGraph(), itrBA.next());
-        assertFalse(itrBA.hasNext());
+        assertThat(itrBA).isExhausted();
     }
 
     @Test

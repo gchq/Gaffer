@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,8 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
@@ -80,8 +77,8 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();
-        assertEquals(entitySeed, itr.next());
-        assertFalse(itr.hasNext());
+        assertThat(itr.next()).isEqualTo(entitySeed);
+        assertThat(itr).isExhausted();
     }
 
     private void builderShouldCreatePopulatedOperationAll() {
@@ -119,8 +116,8 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
                 .build();
 
         // Then
-        assertThat(op.getOptions(), is(notNullValue()));
-        assertThat(op.getOptions().get("key"), is("value"));
+        assertThat(op.getOptions()).isNotNull()
+                .containsEntry("key", "value");
     }
 
     private void builderShouldCreatePopulatedOperationIncoming() {
@@ -135,7 +132,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         assertEquals(IncludeIncomingOutgoingType.INCOMING,
                 op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
-        assertEquals(seed, op.getInput().iterator().next());
+        assertThat(op.getInput().iterator().next()).isEqualTo(seed);
     }
 
     @Test

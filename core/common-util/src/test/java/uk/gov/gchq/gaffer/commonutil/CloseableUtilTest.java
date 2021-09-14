@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -55,6 +55,6 @@ public class CloseableUtilTest {
     @NullSource
     @ValueSource(strings = {"Some string"})
     public void shouldNotThrowExceptionForNullOrStringObject(Object obj) {
-        assertDoesNotThrow(() -> CloseableUtil.close(obj));
+        assertThatNoException().isThrownBy(() -> CloseableUtil.close(obj));
     }
 }

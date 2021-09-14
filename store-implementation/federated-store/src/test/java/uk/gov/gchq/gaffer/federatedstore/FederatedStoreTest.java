@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -194,7 +197,7 @@ public class FederatedStoreTest {
         assertEquals(2, after);
         ArrayList<String> graphNames = Lists.newArrayList(ACC_ID_1, ACC_ID_2);
         for (Graph graph : graphs) {
-            assertTrue(graphNames.contains(graph.getGraphId()));
+            assertThat(graphNames).contains(graph.getGraphId());
         }
     }
 
@@ -396,11 +399,14 @@ public class FederatedStoreTest {
 
         final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
 
+        StoreProperties TestStoreImp = new StoreProperties();
+        TestStoreImp.setStoreClass(FederatedGetTraitsHandlerTest.TestStoreImpl.class);
+
         store.execute(new AddGraph.Builder()
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(MAP_ID_1)
-                .storeProperties(new FederatedGetTraitsHandlerTest.TestStorePropertiesImpl())
+                .storeProperties(TestStoreImp)
                 .build(), new Context(testUser()));
 
         final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
@@ -413,7 +419,7 @@ public class FederatedStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX)));
-        assertEquals(StoreTrait.ALL_TRAITS, before);
+        assertEquals(Collections.emptySet(), before, "No traits should be found for an empty FederatedStore");
         assertEquals(Sets.newHashSet(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,
@@ -438,7 +444,7 @@ public class FederatedStoreTest {
         Set<Element> after = getElements();
 
         // Then
-        assertEquals(0, after.size());
+        assertThat(after).isEmpty();
     }
 
     @Test
@@ -472,9 +478,9 @@ public class FederatedStoreTest {
         Collection<String> allGraphIds = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(2, allGraphIds.size());
-        assertTrue(allGraphIds.contains(ACC_ID_1));
-        assertTrue(allGraphIds.contains(ACC_ID_2));
+        assertThat(allGraphIds)
+                .hasSize(2)
+                .contains(ACC_ID_1, ACC_ID_2);
 
     }
 
@@ -488,8 +494,8 @@ public class FederatedStoreTest {
         Collection<String> allGraphId = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(1, allGraphId.size());
-        assertTrue(allGraphId.contains(ACC_ID_1));
+        assertThat(allGraphId).hasSize(1)
+                .contains(ACC_ID_1);
         assertFalse(allGraphId.contains(ACC_ID_2));
 
         // When
@@ -497,18 +503,16 @@ public class FederatedStoreTest {
         Collection<String> allGraphId2 = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(2, allGraphId2.size());
-        assertTrue(allGraphId2.contains(ACC_ID_1));
-        assertTrue(allGraphId2.contains(ACC_ID_2));
+        assertThat(allGraphId2).hasSize(2).contains(ACC_ID_1, ACC_ID_2);
 
         // When
         store.remove(ACC_ID_1, blankUser);
         Collection<String> allGraphId3 = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(1, allGraphId3.size());
+        assertThat(allGraphId3).hasSize(1);
         assertFalse(allGraphId3.contains(ACC_ID_1));
-        assertTrue(allGraphId3.contains(ACC_ID_2));
+        assertThat(allGraphId3).contains(ACC_ID_2);
 
     }
 
@@ -948,7 +952,7 @@ public class FederatedStoreTest {
         final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId1", ignore);
 
         // Then
-        assertEquals(1, returnedGraphs.size());
+        assertThat(returnedGraphs).hasSize(1);
         assertTrue(returnedGraphs.containsAll(toGraphs(expectedGraphs)));
         assertFalse(checkUnexpected(toGraphs(unexpectedGraphs), returnedGraphs));
     }
@@ -1026,12 +1030,9 @@ public class FederatedStoreTest {
         clearCache();
 
         // When / Then
-        try {
-            store.addGraphs(null, TEST_USER_ID, false, graphToAdd);
-            fail(EXCEPTION_NOT_THROWN);
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("No cache has been set"));
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.addGraphs(null, TEST_USER_ID, false, graphToAdd))
+                .withMessageContaining("No cache has been set");
     }
 
     @Test
@@ -1070,7 +1071,7 @@ public class FederatedStoreTest {
 
         // Then
         assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
-        assertTrue(storeGraphs.contains(graphToAdd.getGraph()));
+        assertThat(storeGraphs).contains(graphToAdd.getGraph());
 
         // When
         store = new FederatedStore();
@@ -1125,7 +1126,7 @@ public class FederatedStoreTest {
 
         // Then
         final Collection<Graph> graphs = store.getGraphs(userContext.getUser(), ACC_ID_2, ignore);
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         JsonAssert.assertEquals(
                 JSONSerialiser.serialise(Schema.fromJson(StreamUtil.openStream(getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))),
                 JSONSerialiser.serialise(graphs.iterator().next().getSchema())

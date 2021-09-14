@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
@@ -140,26 +141,26 @@ public class ElementTransformerTest {
         // Then
         int i = 0;
         TupleAdaptedFunction<String, ?, ?> context = transformer.getComponents().get(i++);
-        assertEquals(1, context.getSelection().length);
+        assertThat(context.getSelection()).hasSize(1);
         assertEquals(property1, context.getSelection()[0]);
         assertSame(func1, context.getFunction());
-        assertEquals(1, context.getProjection().length);
+        assertThat(context.getProjection()).hasSize(1);
         assertEquals(property1Proj, context.getProjection()[0]);
 
         context = transformer.getComponents().get(i++);
-        assertEquals(2, context.getSelection().length);
+        assertThat(context.getSelection()).hasSize(2);
         assertEquals(property2a, context.getSelection()[0]);
         assertEquals(property2b, context.getSelection()[1]);
         assertSame(func2, context.getFunction());
-        assertEquals(2, context.getProjection().length);
+        assertThat(context.getProjection()).hasSize(2);
         assertEquals(property2aProj, context.getProjection()[0]);
         assertEquals(property2bProj, context.getProjection()[1]);
 
         context = transformer.getComponents().get(i++);
         assertSame(func3, context.getFunction());
-        assertEquals(1, context.getSelection().length);
+        assertThat(context.getSelection()).hasSize(1);
         assertEquals(identifier3.name(), context.getSelection()[0]);
-        assertEquals(1, context.getProjection().length);
+        assertThat(context.getProjection()).hasSize(1);
         assertEquals(identifier3Proj.name(), context.getProjection()[0]);
 
         assertEquals(i, transformer.getComponents().size());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
-import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -28,14 +27,11 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -60,7 +56,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
     protected static final String[] VERTICES = {"1", "2", "3"};
@@ -69,10 +65,6 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
 
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
-
-    @ClassRule
-    public static TemporaryFolder storeBaseFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
 
     protected void assertElements(final Iterable<ElementId> expected, final O actual) {
         ElementUtil.assertElementEquals(expected, (Iterable) actual);
@@ -156,12 +148,12 @@ public abstract class AbstractDeletedElementsIT<OP extends Output<O>, O> {
 
                 // Check the element exists.
                 Scanner scanner = getRow(accStore, expectedElement.getKey().getRow());
-                assertEquals(1, Iterables.size(scanner));
+                assertThat(scanner).hasSize(1);
 
                 delete(accStore, scanner);
 
                 // Check the element has been deleted.
-                assertEquals(0, Iterables.size(scanner));
+                assertThat(scanner).isEmpty();
             }
         }
     }

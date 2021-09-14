@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,12 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -280,8 +278,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeSeed edgeSeed = new EdgeSeed(new Vertex("2"), new Vertex("1"), false);
 
         // Then
-        assertThat(edgeSeed.getSource(), equalTo(new Vertex("1")));
-        assertThat(edgeSeed.getDestination(), equalTo(new Vertex("2")));
+        assertThat(edgeSeed.getSource()).isEqualTo(new Vertex("1"));
+        assertThat(edgeSeed.getDestination()).isEqualTo(new Vertex("2"));
     }
 
     @Test
@@ -290,8 +288,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeSeed edgeSeed = new EdgeSeed(new Vertex("1"), new Vertex("2"), false);
 
         // Then
-        assertThat(edgeSeed.getSource(), equalTo(new Vertex("1")));
-        assertThat(edgeSeed.getDestination(), equalTo(new Vertex("2")));
+        assertThat(edgeSeed.getSource()).isEqualTo(new Vertex("1"));
+        assertThat(edgeSeed.getDestination()).isEqualTo(new Vertex("2"));
     }
 
     @Test
@@ -300,8 +298,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeSeed edgeSeed = new EdgeSeed(2, 1, false);
 
         // Then
-        assertThat(edgeSeed.getSource(), equalTo(1));
-        assertThat(edgeSeed.getDestination(), equalTo(2));
+        assertThat(edgeSeed.getSource()).isEqualTo(1);
+        assertThat(edgeSeed.getDestination()).isEqualTo(2);
     }
 
     @Test
@@ -310,8 +308,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeSeed edgeSeed = new EdgeSeed(1, 2, false);
 
         // Then
-        assertThat(edgeSeed.getSource(), equalTo(1));
-        assertThat(edgeSeed.getDestination(), equalTo(2));
+        assertThat(edgeSeed.getSource()).isEqualTo(1);
+        assertThat(edgeSeed.getDestination()).isEqualTo(2);
     }
 
     @Test
@@ -339,8 +337,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         }
 
         // Then
-        assertThat(edgeSeeds.stream().map(EdgeSeed::getSource).distinct().count(), greaterThan(1L));
-        assertThat(edgeSeeds.stream().map(EdgeSeed::getDestination).distinct().count(), greaterThan(1L));
+        assertThat(edgeSeeds.stream().map(EdgeSeed::getSource).distinct().count()).isGreaterThan(1L);
+        assertThat(edgeSeeds.stream().map(EdgeSeed::getDestination).distinct().count()).isGreaterThan(1L);
     }
 
     @Test
@@ -369,8 +367,8 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         }
 
         // Then
-        assertThat(edgeSeeds.stream().map(EdgeSeed::getSource).distinct().count(), equalTo(1L));
-        assertThat(edgeSeeds.stream().map(EdgeSeed::getDestination).distinct().count(), equalTo(1L));
+        assertThat(edgeSeeds.stream().map(EdgeSeed::getSource).distinct().count()).isEqualTo(1L);
+        assertThat(edgeSeeds.stream().map(EdgeSeed::getDestination).distinct().count()).isEqualTo(1L);
     }
 
     @Test
@@ -384,7 +382,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
         // Then
         assertEquals(3, edgeSeed1.getSource());
-        assertThat(edgeSeed1, equalTo(edgeSeed2));
+        assertThat(edgeSeed1).isEqualTo(edgeSeed2);
     }
 
     @Test
@@ -394,7 +392,7 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final EdgeSeed edgeSeed2 = new EdgeSeed("2", 1, false);
 
         // Then
-        assertThat(edgeSeed1, equalTo(edgeSeed2));
+        assertThat(edgeSeed1).isEqualTo(edgeSeed2);
     }
 
     @Test
@@ -463,12 +461,9 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        try {
-            fromJson(json.getBytes());
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("not both"));
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> fromJson(json.getBytes()))
+                .withMessageContaining("not both");
     }
 
     @Override

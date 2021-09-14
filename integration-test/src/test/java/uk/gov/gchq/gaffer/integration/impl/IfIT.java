@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IfIT extends AbstractStoreIT {
 
@@ -51,8 +50,8 @@ public class IfIT extends AbstractStoreIT {
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(Lists.newArrayList(INPUT_CAMEL_CASE.toUpperCase()), output);
-        assertTrue(output instanceof List);
+        assertThat(output).isEqualTo(Lists.newArrayList(INPUT_CAMEL_CASE.toUpperCase()))
+                .isInstanceOf(List.class);
     }
 
     @Test
@@ -68,24 +67,24 @@ public class IfIT extends AbstractStoreIT {
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(Lists.newArrayList(INPUT_CAMEL_CASE.toLowerCase()), output);
-        assertTrue(output instanceof List);
+        assertThat(output).isEqualTo(Lists.newArrayList(INPUT_CAMEL_CASE.toLowerCase()))
+                .isInstanceOf(List.class);
     }
 
     @Test
     public void shouldReturnOriginalInputWhenConditionIsFalseAndNoOtherwise() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
-        ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
-        ifOperation.setConditional(new Conditional(new IsA("java.lang.String")));
+        ifOperation.setInput(INPUT_CAMEL_CASE);
+        ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
         ifOperation.setThen(new Map<>(Lists.newArrayList(new ToLong(), new ToList())));
 
         // When
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(404, output);
-        assertTrue(output instanceof Integer);
+        assertThat(output).isEqualTo(INPUT_CAMEL_CASE)
+                .isInstanceOf(String.class);
     }
 
     @Test
@@ -100,23 +99,23 @@ public class IfIT extends AbstractStoreIT {
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(Lists.newArrayList(INPUT_CAMEL_CASE.toLowerCase()), output);
-        assertTrue(output instanceof List);
+        assertThat(output).isEqualTo(Lists.newArrayList(INPUT_CAMEL_CASE.toLowerCase()))
+                .isInstanceOf(List.class);
     }
 
     @Test
     public void shouldReturnOriginalInputWhenConditionIsTrueAndNoThen() throws OperationException {
         // Given
         final If<Object, Object> ifOperation = new If<>();
-        ifOperation.setInput(404); //This test input has been changed to an integer to avoid triggering a bug JSONSerialisation.
-        ifOperation.setConditional(new Conditional(new IsA("java.lang.Integer")));
+        ifOperation.setInput(INPUT_CAMEL_CASE);
+        ifOperation.setConditional(new Conditional(new IsA("java.lang.String")));
         ifOperation.setOtherwise(new Map<>(Lists.newArrayList(new ToLong(), new ToList())));
 
         // When
         final Object output = graph.execute(ifOperation, getUser());
 
         // Then
-        assertEquals(404, output);
-        assertTrue(output instanceof Integer);
+        assertThat(output).isEqualTo(INPUT_CAMEL_CASE)
+                .isInstanceOf(String.class);
     }
 }

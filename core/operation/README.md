@@ -75,7 +75,25 @@ that extends the `OperationTest` class.
 Operation implementations should override the close method and ensure all
 closeable fields are closed.
 
+The core Gaffer operations need to be registered in the `Store` class,
+with their respective handlers. The `StoreTest` unit test also needs similar information.
+
+#### Annotations
+
 Any fields that are required should be annotated with the Required annotation.
+As well, each `Operation` class now also requires the Since annotation, 
+detailing to which version of Gaffer it was introduced. To demonstrate:
+```java
+@Since("1.4.0")
+public class NewOperation extends Operation {
+
+    @Required
+    private String requiredField;
+    ...
+}
+```
+
+#### Builder
 
 All implementations should also have a static inner `Builder` class that
 implements the required builders. For example:
@@ -92,6 +110,28 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
     }
 }
 ```
+
+#### Operation Scores
+
+For use with a `ScoreOperationChain`, some `Operation`s may require a custom
+way of calculating an associated score, therefore an implementation of
+the `ScoreResolver` interface may be required. There is a `DefaultScoreResolver`
+to which the custom implementation should delegate, in a manner specific to the
+new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/components/core/store.html#scoreoperationchain) and [ScoreOperationChainExample](https://gchq.github.io/gaffer-doc/getting-started/operations/scoreoperationchain.html).
+
+#### Documentation
+
+Class-level Javadoc should be provided for each `Operation`, giving a description of the functionality,
+and any configuration information that may not immediately be obvious. Member-level Javadoc
+is not strictly necessary, but good practice for explanations/clarifications of complex methods.
+
+To assist users of the new Operation, it is best practice to provide documentation,
+and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
+
+Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
+it is good practice to add it into the
+Python-Shell of [Gaffer-tools](https://github.com/gchq/gaffer-tools).
+For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/components/tool/python-shell.html).
 
 ## Lazy Results
 Operation results are lazy (where possible) so that results are lazily

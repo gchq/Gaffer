@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 
 public class ParameterDetailTest {
 
@@ -31,7 +31,7 @@ public class ParameterDetailTest {
         final List options = Arrays.asList("option1", "option2", "option3");
 
         // When / Then
-        assertDoesNotThrow(() -> new ParameterDetail.Builder()
+        assertThatNoException().isThrownBy(() ->  new ParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
                 .description("test ParamDetail")
@@ -46,7 +46,7 @@ public class ParameterDetailTest {
         final List options = Arrays.asList("option1", 2, true);
 
         // When / Then
-        assertDoesNotThrow(() -> new ParameterDetail.Builder()
+        assertThatNoException().isThrownBy(() ->  new ParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
                 .description("test ParamDetail")
@@ -58,7 +58,7 @@ public class ParameterDetailTest {
     @Test
     public void shouldBuildFullParameterDetailWithNullOptions() {
         // Given / When / Then
-        assertDoesNotThrow(() -> new ParameterDetail.Builder()
+        assertThatNoException().isThrownBy(() ->  new ParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
                 .description("test ParamDetail")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ParquetStorePropertiesTest {
@@ -46,14 +47,14 @@ public class ParquetStorePropertiesTest {
 
     @Test
     public void dataDirTest() {
-        assertEquals(null, props.getDataDir());
+        assertThat(props.getDataDir()).isNull();
         props.setDataDir("Test");
         assertEquals("Test", props.getDataDir());
     }
 
     @Test
     public void tempFilesDirTest() {
-        assertEquals(null, props.getTempFilesDir());
+        assertThat(props.getTempFilesDir()).isNull();
         props.setTempFilesDir("Test");
         assertEquals("Test", props.getTempFilesDir());
     }

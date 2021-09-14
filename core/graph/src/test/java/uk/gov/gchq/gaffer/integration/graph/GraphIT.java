@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.graph;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -25,9 +25,8 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -46,24 +45,22 @@ public class GraphIT {
         final InputStream validationSchemaStream = createMockStream();
 
         // When
-        try {
-            new Graph.Builder()
-                    .storeProperties(storePropertiesStream)
-                    .addSchema(elementsSchemaStream)
-                    .addSchema(typesSchemaStream)
-                    .addSchema(aggregationSchemaStream)
-                    .addSchema(validationSchemaStream)
-                    .build();
-            fail("Exception expected");
-        } catch (final Exception e) {
-            // Then
-            assertNotNull(e.getMessage());
-            verify(storePropertiesStream, atLeastOnce()).close();
-            verify(elementsSchemaStream, atLeastOnce()).close();
-            verify(typesSchemaStream, atLeastOnce()).close();
-            verify(aggregationSchemaStream, atLeastOnce()).close();
-            verify(validationSchemaStream, atLeastOnce()).close();
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> new Graph.Builder()
+                        .storeProperties(storePropertiesStream)
+                        .addSchema(elementsSchemaStream)
+                        .addSchema(typesSchemaStream)
+                        .addSchema(aggregationSchemaStream)
+                        .addSchema(validationSchemaStream)
+                        .build())
+                .extracting("message")
+                .isNotNull();
+
+        verify(storePropertiesStream, atLeastOnce()).close();
+        verify(elementsSchemaStream, atLeastOnce()).close();
+        verify(typesSchemaStream, atLeastOnce()).close();
+        verify(aggregationSchemaStream, atLeastOnce()).close();
+        verify(validationSchemaStream, atLeastOnce()).close();
     }
 
     @Test
@@ -76,26 +73,24 @@ public class GraphIT {
         final InputStream aggregationSchemaStream = createMockStream();
 
         // When
-        try {
-            new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId("graph1")
-                            .build())
-                    .storeProperties(storePropertiesStream)
-                    .addSchema(elementSchemaStream)
-                    .addSchema(typesSchemaStream)
-                    .addSchema(serialisationSchemaStream)
-                    .addSchema(aggregationSchemaStream)
-                    .build();
-            fail("Exception expected");
-        } catch (final Exception e) {
-            // Then
-            assertNotNull(e.getMessage());
-            verify(elementSchemaStream, atLeastOnce()).close();
-            verify(typesSchemaStream, atLeastOnce()).close();
-            verify(serialisationSchemaStream, atLeastOnce()).close();
-            verify(aggregationSchemaStream, atLeastOnce()).close();
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> new Graph.Builder()
+                        .config(new GraphConfig.Builder()
+                                .graphId("graph1")
+                                .build())
+                        .storeProperties(storePropertiesStream)
+                        .addSchema(elementSchemaStream)
+                        .addSchema(typesSchemaStream)
+                        .addSchema(serialisationSchemaStream)
+                        .addSchema(aggregationSchemaStream)
+                        .build())
+                .extracting("message")
+                .isNotNull();
+
+        verify(elementSchemaStream, atLeastOnce()).close();
+        verify(typesSchemaStream, atLeastOnce()).close();
+        verify(serialisationSchemaStream, atLeastOnce()).close();
+        verify(aggregationSchemaStream, atLeastOnce()).close();
     }
 
     @Test
@@ -108,22 +103,21 @@ public class GraphIT {
         final InputStream serialisationSchemaStream = createMockStream();
 
         // When
-        try {
-            new Graph.Builder()
-                    .storeProperties(storePropertiesStream)
-                    .addSchema(elementSchemaStream)
-                    .addSchema(typesSchemaStream)
-                    .addSchema(aggregationSchemaStream)
-                    .addSchema(serialisationSchemaStream)
-                    .build();
-            fail("Exception expected");
-        } catch (final Exception e) {
-            // Then
-            assertNotNull(e.getMessage());
-            verify(typesSchemaStream, atLeastOnce()).close();
-            verify(aggregationSchemaStream, atLeastOnce()).close();
-            verify(serialisationSchemaStream, atLeastOnce()).close();
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> new Graph.Builder()
+                        .storeProperties(storePropertiesStream)
+                        .addSchema(elementSchemaStream)
+                        .addSchema(typesSchemaStream)
+                        .addSchema(aggregationSchemaStream)
+                        .addSchema(serialisationSchemaStream)
+                        .build())
+                .extracting("message")
+                .isNotNull();
+
+        verify(typesSchemaStream, atLeastOnce()).close();
+        verify(aggregationSchemaStream, atLeastOnce()).close();
+        verify(serialisationSchemaStream, atLeastOnce()).close();
+
     }
 
     @Test
@@ -148,12 +142,9 @@ public class GraphIT {
     }
 
     private void checkClosed(final InputStream stream) {
-        try {
-            int result = stream.read();
-            fail("Exception expected");
-        } catch (final IOException e) {
-            assertEquals("Stream closed", e.getMessage());
-        }
+        assertThatIOException()
+                .isThrownBy(() -> stream.read())
+                .withMessage("Stream closed");
     }
 
     private InputStream createMockStream() {

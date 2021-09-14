@@ -6,9 +6,9 @@
     <display-name>Road Traffic Rest Api</display-name>
 
     <listener>
-        <listener-class>uk.gov.gchq.gaffer.traffic.listeners.DataLoader
-        </listener-class>
+        <listener-class>uk.gov.gchq.gaffer.traffic.listeners.DataLoader</listener-class>
         <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener</listener-class>
+        <listener-class>uk.gov.gchq.gaffer.traffic.listeners.ConsoleBanner</listener-class>
     </listener>
 
     <!-- Copied from Gaffer rest api web.xml-->

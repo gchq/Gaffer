@@ -61,6 +61,27 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
     }
 
     @Test
+    public void shouldSerialiseWithHistoricPropertiesAsBytesFromFullColumnQualifier() throws Exception {
+        // Given
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_3, 3);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
+            }
+        };
+        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0};
+        final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
+
+        // When
+        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 5);
+
+        // Then
+        assertArrayEquals(historicPropertyBytes, propertiesBytes.getBytes());
+    }
+
+    @Test
     public void shouldSerialiseWithHistoricColumnQualifier() throws Exception {
 
         // Given

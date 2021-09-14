@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LimitedCloseableIterableTest {
@@ -38,7 +40,7 @@ public class LimitedCloseableIterableTest {
 
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        assertEquals(values.subList(start, end), Lists.newArrayList(limitedValues));
+        assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, end));
     }
 
     @Test
@@ -80,7 +82,7 @@ public class LimitedCloseableIterableTest {
         final int start = 3;
         final int end = 1;
 
-        assertThrows(IllegalArgumentException.class, () -> new LimitedCloseableIterable<>(values, start, end));
+        assertThatIllegalArgumentException().isThrownBy(() -> new LimitedCloseableIterable<>(values, start, end));
     }
 
     @Test
@@ -94,13 +96,11 @@ public class LimitedCloseableIterableTest {
         // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end, truncate);
 
-        final Exception exception = assertThrows(LimitExceededException.class, () -> {
+        assertThatExceptionOfType(LimitExceededException.class).isThrownBy(() -> {
             for (final Integer i : limitedValues) {
                 // Do nothing until LimitExceededException is thrown
             }
-        });
-
-        assertEquals("Limit of 2 exceeded.", exception.getMessage());
+        }).withMessage("Limit of 2 exceeded.");
     }
 
     @Test
@@ -123,6 +123,5 @@ public class LimitedCloseableIterableTest {
 
         // Then
         assertEquals(values, Lists.newArrayList(equalValues));
-
     }
 }
