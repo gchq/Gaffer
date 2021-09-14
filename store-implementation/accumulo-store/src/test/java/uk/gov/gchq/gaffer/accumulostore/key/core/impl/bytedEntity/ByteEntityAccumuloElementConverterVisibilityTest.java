@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,51 +15,32 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.bytedEntity;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverterTest;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.accumulostore.utils.ByteUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Tests are inherited from AbstractAccumuloElementConverterTest.
- */
-public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccumuloElementConverterTest {
+public class ByteEntityAccumuloElementConverterVisibilityTest extends ByteEntityAccumuloElementConverterTest {
+
     @Override
-    protected ByteEntityAccumuloElementConverter createConverter(final Schema schema) {
-        return new ByteEntityAccumuloElementConverter(schema);
+    @BeforeEach
+    public void setUp() throws SchemaException, IOException {
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
+        converter = createConverter(schema);
     }
 
-    @Test
-    public void shouldSerialiseWithHistoricPropertiesAsBytesFromColumnQualifier() throws Exception {
-        // Given
-        final Properties properties = new Properties() {
-            {
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER_3, 3);
-                put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
-            }
-        };
-        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0};
-        final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
-
-        // When
-        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 2);
-
-        // Then
-        assertTrue(ByteUtils.areKeyBytesEqual(new BytesAndRange(historicPropertyBytes, 0, historicPropertyBytes.length), propertiesBytes));
-    }
-
+    @Override
     @Test
     public void shouldSerialiseWithHistoricPropertiesAsBytesFromFullColumnQualifier() throws Exception {
         // Given
@@ -71,7 +52,9 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
             }
         };
-        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0};
+        // An extra 0 at the end of the byte array compared to the parent method accounts for the fact that
+        // this schema has one extra property: visibility, which when not set is serialised as EMPTY_BYTES
+        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0, 0};
         final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
@@ -81,6 +64,7 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
         assertArrayEquals(historicPropertyBytes, propertiesBytes.getBytes());
     }
 
+    @Override
     @Test
     public void shouldSerialiseWithHistoricColumnQualifier() throws Exception {
 
@@ -93,7 +77,9 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, Integer.MIN_VALUE);
             }
         };
-        byte[] historicColumnQualifierBytes = {4, 1, 0, 0, 0, 4, -1, -1, -1, 127, 4, 3, 0, 0, 0, 4, 0, 0, 0, -128};
+        // An extra 0 at the end of the byte array compared to the parent method accounts for the fact that
+        // this schema has one extra property: visibility, which when not set is serialised as EMPTY_BYTES
+        byte[] historicColumnQualifierBytes = {4, 1, 0, 0, 0, 4, -1, -1, -1, 127, 4, 3, 0, 0, 0, 4, 0, 0, 0, -128, 0};
 
         // When
         final byte[] columnQualifier = converter.buildColumnQualifier(TestGroups.EDGE, properties);
@@ -101,8 +87,9 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
 
         // Then
         assertArrayEquals(historicColumnQualifierBytes, columnQualifier);
+        // Properties will not set default visibility but when they are
+        // made from Accumulo, they will set visibility to "" if not given
+        properties.put(AccumuloPropertyNames.VISIBILITY, "");
         assertEquals(propertiesFromHistoric, properties);
     }
-
-
 }
