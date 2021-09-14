@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -238,27 +239,27 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
                         .dest(vertex2b)
                         .directed(true)
                         .group(TestGroups.EDGE)
-                        .property(VISIBILITY, Sets.newHashSet("public"))
+                        .property(VISIBILITY, Sets.newHashSet("public", "private"))
                         .property("sourceRelatedVertices", Sets.newHashSet(vertex1b))
-                        .property("destinationRelatedVertices", Sets.newHashSet(vertex2a))
+                        .property("destinationRelatedVertices", Sets.newHashSet(vertex3b, vertex3a, vertex2a, vertex4b))
                         .build(),
                 new Edge.Builder()
                         .source(vertex1a)
-                        .dest(vertex3b)
+                        .dest(vertex2b)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public", "private"))
                         .property("sourceRelatedVertices", Sets.newHashSet(vertex1b))
-                        .property("destinationRelatedVertices", Sets.newHashSet(vertex3a))
+                        .property("destinationRelatedVertices", Sets.newHashSet(vertex3b, vertex3a, vertex2a, vertex4b))
                         .build(),
                 new Entity.Builder()
                         .vertex(vertex2b)
                         .group(TestGroups.ENTITY)
-                        .property(VISIBILITY, Sets.newHashSet("public"))
-                        .property("relatedVertices", Sets.newHashSet(vertex2a))
+                        .property(VISIBILITY, Sets.newHashSet("public", "private"))
+                        .property("relatedVertices", Sets.newHashSet(vertex3b, vertex3a, vertex2a, vertex4b))
                         .build()
         );
-//        assertElementEquals(expectedElements, result);
+        assertElementEquals(expectedElements, result);
     }
 
     @Test

@@ -31,6 +31,9 @@ import static java.util.Objects.isNull;
 @Summary("Tuple object for TypeSubTypeValue")
 public class TypeSubTypeValueTuple implements Tuple<String> {
     private final TypeSubTypeValue tsv;
+    public static final String TYPE = "type";
+    public static final String SUBTYPE = "subType";
+    public static final String VALUE = "value";
 
     public TypeSubTypeValueTuple() {
         this.tsv = new TypeSubTypeValue();
@@ -47,24 +50,24 @@ public class TypeSubTypeValueTuple implements Tuple<String> {
     @Override
     public void put(final String key, final Object value) {
         final String stringValue = isNull(value) ? null : value.toString();
-        if ("type".equalsIgnoreCase(key)) {
+        if (TYPE.equalsIgnoreCase(key)) {
             tsv.setType(stringValue);
-        } else if ("subType".equalsIgnoreCase(key)) {
+        } else if (SUBTYPE.equalsIgnoreCase(key)) {
             tsv.setSubType(stringValue);
-        } else if ("value".equalsIgnoreCase(key)) {
+        } else if (VALUE.equalsIgnoreCase(key)) {
             tsv.setValue(stringValue);
         }
     }
 
     @Override
     public Object get(final String key) {
-        if ("type".equalsIgnoreCase(key)) {
+        if (TYPE.equalsIgnoreCase(key)) {
             return tsv.getType();
         }
-        if ("subType".equalsIgnoreCase(key)) {
+        if (SUBTYPE.equalsIgnoreCase(key)) {
             return tsv.getSubType();
         }
-        if ("value".equalsIgnoreCase(key)) {
+        if (VALUE.equalsIgnoreCase(key)) {
             return tsv.getValue();
         }
         return null;

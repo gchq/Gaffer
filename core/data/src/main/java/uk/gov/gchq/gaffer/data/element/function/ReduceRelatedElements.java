@@ -43,7 +43,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 /**
- * A {@code ReduceRelatedElements} is a {@link KorypheFunction} which takes an {@link Iterable} or {@link Element}s and
+ * A {@code ReduceRelatedElements} is a {@link KorypheFunction} which takes an {@link Iterable} of {@link Element}s and
  * combines all related elements using the provided aggregator functions.
  */
 @Since("1.19.0")
