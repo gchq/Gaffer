@@ -33,16 +33,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElements> {
     public static final String RELATES_TO = "relatesTo";
     public static final String VISIBILITY = "visibility";
+
+    public static final Object VERTEX1A = "vertex1a longest";
+    public static final Object VERTEX1B = "vertex1b";
+    public static final Object VERTEX2A = "vertex2a";
+    public static final Object VERTEX2B = "vertex2b longest";
+    public static final Object VERTEX3A = "vertex3a";
+    public static final Object VERTEX3B = "vertex3b longest";
+    public static final Object VERTEX4A = "vertex4a";
+    public static final Object VERTEX4B = "vertex4b longest";
+    public static final Object VERTEX5A = "vertex5a";
+    public static final Object VERTEX5B = "vertex5b longest";
 
     @Test
     public void shouldReturnNullForNullValue() {
@@ -58,52 +67,45 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
 
     @Test
     public void shouldReduceRelatedElements() {
-        Object vertex1a = "vertex1a longest";
-        Object vertex1b = "vertex1b";
-        Object vertex2a = "vertex2a";
-        Object vertex2b = "vertex2b longest";
-        Object vertex3a = "vertex3a";
-        Object vertex3b = "vertex3b longest";
-
         // Given
         final ReduceRelatedElements function = getInstance();
         final List<Element> elements = Arrays.asList(
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2a)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1b)
-                        .dest(vertex3a)
+                        .source(VERTEX1B)
+                        .dest(VERTEX3A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Entity.Builder()
-                        .vertex(vertex2a)
+                        .vertex(VERTEX2A)
                         .group(TestGroups.ENTITY)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex1b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX1B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex2a)
-                        .dest(vertex2b)
+                        .source(VERTEX2A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex3a)
-                        .dest(vertex3b)
+                        .source(VERTEX3A)
+                        .dest(VERTEX3B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("private"))
@@ -116,28 +118,28 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
         // Then
         final List<Element> expectedElements = Arrays.asList(
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
-                        .property("sourceRelatedVertices", Sets.newHashSet(vertex1b))
-                        .property("destinationRelatedVertices", Sets.newHashSet(vertex2a))
+                        .property("sourceRelatedVertices", Sets.newHashSet(VERTEX1B))
+                        .property("destinationRelatedVertices", Sets.newHashSet(VERTEX2A))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex3b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX3B)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public", "private"))
-                        .property("sourceRelatedVertices", Sets.newHashSet(vertex1b))
-                        .property("destinationRelatedVertices", Sets.newHashSet(vertex3a))
+                        .property("sourceRelatedVertices", Sets.newHashSet(VERTEX1B))
+                        .property("destinationRelatedVertices", Sets.newHashSet(VERTEX3A))
                         .build(),
                 new Entity.Builder()
-                        .vertex(vertex2b)
+                        .vertex(VERTEX2B)
                         .group(TestGroups.ENTITY)
                         .property(VISIBILITY, Sets.newHashSet("public"))
-                        .property("relatedVertices", Sets.newHashSet(vertex2a))
+                        .property("relatedVertices", Sets.newHashSet(VERTEX2A))
                         .build()
         );
         assertElementEquals(expectedElements, result);
@@ -145,84 +147,73 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
 
     @Test
     public void shouldReduceRelatedElementsWithManyRelationships() {
-        Object vertex1a = "vertex1a longest";
-        Object vertex1b = "vertex1b";
-        Object vertex2a = "vertex2a";
-        Object vertex2b = "vertex2b longest";
-        Object vertex3a = "vertex3a";
-        Object vertex3b = "vertex3b longest";
-        Object vertex4a = "vertex4a";
-        Object vertex4b = "vertex4b longest";
-        Object vertex5a = "vertex5a";
-        Object vertex5b = "vertex5b longest";
-
         // Given
         final ReduceRelatedElements function = getInstance();
         final List<Element> elements = Arrays.asList(
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2a)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1b)
-                        .dest(vertex3a)
+                        .source(VERTEX1B)
+                        .dest(VERTEX3A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Entity.Builder()
-                        .vertex(vertex2a)
+                        .vertex(VERTEX2A)
                         .group(TestGroups.ENTITY)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex1b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX1B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex2a)
-                        .dest(vertex2b)
+                        .source(VERTEX2A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex3a)
-                        .dest(vertex3b)
+                        .source(VERTEX3A)
+                        .dest(VERTEX3B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("private"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex2a)
-                        .dest(vertex3b)
+                        .source(VERTEX2A)
+                        .dest(VERTEX3B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("private"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex2b)
-                        .dest(vertex3a)
+                        .source(VERTEX2B)
+                        .dest(VERTEX3A)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex3a)
-                        .dest(vertex4b)
+                        .source(VERTEX3A)
+                        .dest(VERTEX4B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("private"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex5b)
-                        .dest(vertex4a)
+                        .source(VERTEX5B)
+                        .dest(VERTEX4A)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
@@ -235,28 +226,28 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
         // Then
         final List<Element> expectedElements = Arrays.asList(
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public", "private"))
-                        .property("sourceRelatedVertices", Sets.newHashSet(vertex1b))
-                        .property("destinationRelatedVertices", Sets.newHashSet(vertex3b, vertex3a, vertex2a, vertex4b))
+                        .property("sourceRelatedVertices", Sets.newHashSet(VERTEX1B))
+                        .property("destinationRelatedVertices", Sets.newHashSet(VERTEX3B, VERTEX3A, VERTEX2A, VERTEX4B))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public", "private"))
-                        .property("sourceRelatedVertices", Sets.newHashSet(vertex1b))
-                        .property("destinationRelatedVertices", Sets.newHashSet(vertex3b, vertex3a, vertex2a, vertex4b))
+                        .property("sourceRelatedVertices", Sets.newHashSet(VERTEX1B))
+                        .property("destinationRelatedVertices", Sets.newHashSet(VERTEX3B, VERTEX3A, VERTEX2A, VERTEX4B))
                         .build(),
                 new Entity.Builder()
-                        .vertex(vertex2b)
+                        .vertex(VERTEX2B)
                         .group(TestGroups.ENTITY)
                         .property(VISIBILITY, Sets.newHashSet("public", "private"))
-                        .property("relatedVertices", Sets.newHashSet(vertex3b, vertex3a, vertex2a, vertex4b))
+                        .property("relatedVertices", Sets.newHashSet(VERTEX3B, VERTEX3A, VERTEX2A, VERTEX4B))
                         .build()
         );
         assertElementEquals(expectedElements, result);
@@ -264,52 +255,45 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
 
     @Test
     public void shouldReturnInputIfNoRelatedVertexGroups() {
-        Object vertex1a = "vertex1a longest";
-        Object vertex1b = "vertex1b";
-        Object vertex2a = "vertex2a";
-        Object vertex2b = "vertex2b longest";
-        Object vertex3a = "vertex3a";
-        Object vertex3b = "vertex3b longest";
-
         // Given
         final ReduceRelatedElements function = new ReduceRelatedElements();
         final List<Element> elements = Arrays.asList(
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2a)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1b)
-                        .dest(vertex3a)
+                        .source(VERTEX1B)
+                        .dest(VERTEX3A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Entity.Builder()
-                        .vertex(vertex2a)
+                        .vertex(VERTEX2A)
                         .group(TestGroups.ENTITY)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex1b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX1B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex2a)
-                        .dest(vertex2b)
+                        .source(VERTEX2A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex3a)
-                        .dest(vertex3b)
+                        .source(VERTEX3A)
+                        .dest(VERTEX3B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("private"))
@@ -325,13 +309,6 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
 
     @Test
     public void shouldFailIfNoVisibilityAggregatorProvided() {
-        Object vertex1a = "vertex1a longest";
-        Object vertex1b = "vertex1b";
-        Object vertex2a = "vertex2a";
-        Object vertex2b = "vertex2b longest";
-        Object vertex3a = "vertex3a";
-        Object vertex3b = "vertex3b longest";
-
         // Given
         final ReduceRelatedElements function = new ReduceRelatedElements();
         function.setVisibilityProperty(VISIBILITY);
@@ -341,41 +318,41 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
 
         final List<Element> elements = Arrays.asList(
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex2a)
+                        .source(VERTEX1A)
+                        .dest(VERTEX2A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1b)
-                        .dest(vertex3a)
+                        .source(VERTEX1B)
+                        .dest(VERTEX3A)
                         .directed(true)
                         .group(TestGroups.EDGE)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Entity.Builder()
-                        .vertex(vertex2a)
+                        .vertex(VERTEX2A)
                         .group(TestGroups.ENTITY)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex1a)
-                        .dest(vertex1b)
+                        .source(VERTEX1A)
+                        .dest(VERTEX1B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex2a)
-                        .dest(vertex2b)
+                        .source(VERTEX2A)
+                        .dest(VERTEX2B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("public"))
                         .build(),
                 new Edge.Builder()
-                        .source(vertex3a)
-                        .dest(vertex3b)
+                        .source(VERTEX3A)
+                        .dest(VERTEX3B)
                         .directed(true)
                         .group(RELATES_TO)
                         .property(VISIBILITY, Sets.newHashSet("private"))
@@ -383,14 +360,11 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
         );
 
         // When
-        try {
-            function.apply(elements);
-
-            fail();
-        } catch (final IllegalArgumentException e) {
-            // Then
-            assertTrue(e.getMessage().contains("No visibility aggregator provided, so visibilities cannot be combined."));
-        }
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> {
+                function.apply(elements);
+            })
+            .withMessageContaining("No visibility aggregator provided, so visibilities cannot be combined.");
     }
 
     @Override
