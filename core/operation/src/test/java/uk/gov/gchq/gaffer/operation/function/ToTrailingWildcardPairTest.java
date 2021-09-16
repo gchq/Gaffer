@@ -55,6 +55,20 @@ public class ToTrailingWildcardPairTest extends FunctionTest<ToTrailingWildcardP
         assertEquals("value1~", result.getSecond().getVertex());
     }
 
+    @Test
+    public void shouldCreateEntityIdPairWithNullEndOfRange() {
+        // Given
+        final ToTrailingWildcardPair function = new ToTrailingWildcardPair();
+
+        // When
+        function.setEndOfRange(null);
+        final Pair<EntityId, EntityId> result = function.apply("value1");
+
+        // Then
+        assertEquals("value1", result.getFirst().getVertex());
+        assertEquals("value1", result.getSecond().getVertex());
+    }
+
     @Override
     protected ToTrailingWildcardPair getInstance() {
         return new ToTrailingWildcardPair();

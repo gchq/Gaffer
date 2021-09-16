@@ -47,7 +47,11 @@ public class ToTrailingWildcardPair extends KorypheFunction<String, Pair<EntityI
     }
 
     public void setEndOfRange(final String endOfRange) {
-        this.endOfRange = endOfRange;
+        if (endOfRange == null) {
+            this.endOfRange = "";
+        } else {
+            this.endOfRange = endOfRange;
+        }
     }
 
     private Pair<EntityId, EntityId> createPair(final String vertex) {
