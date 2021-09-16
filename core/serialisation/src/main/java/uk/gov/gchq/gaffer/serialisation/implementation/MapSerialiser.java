@@ -70,8 +70,8 @@ public class MapSerialiser implements ToBytesSerialiser<Map> {
     }
 
     protected void checkSerialiers(final ToBytesSerialiser keySerialiser, final ToBytesSerialiser valueSerialiser) {
-        requireNonNull(keySerialiser, "keySerialiser has to been set.");
-        requireNonNull(valueSerialiser, "valueSerialiser has to been set.");
+        requireNonNull(keySerialiser, "keySerialiser can't be null");
+        requireNonNull(valueSerialiser, "valueSerialiser can't be null");
     }
 
     @Override
