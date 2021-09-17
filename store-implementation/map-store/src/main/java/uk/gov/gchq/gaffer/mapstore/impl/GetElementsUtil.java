@@ -99,12 +99,13 @@ public final class GetElementsUtil {
         } else {
             relevantElements = new HashSet<>();
 
-            final EdgeId edgeId = (EdgeSeed) elementId;
+            final EdgeId edgeId = (EdgeId) elementId;
+
             if (DirectedType.isEither(edgeId.getDirectedType())) {
                 relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
                 relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
             } else {
-                relevantElements.addAll(mapImpl.lookup(edgeId));
+                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
             }
 
             mapImpl.lookup(new EntitySeed(edgeId.getSource()))
