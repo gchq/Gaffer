@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -32,8 +33,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -279,11 +278,11 @@ public class QueryGenerator {
         } else {
             column = ParquetStore.SOURCE;
         }
-        if (seed instanceof EntitySeed) {
-            return new ParquetEntitySeed(seed, converter.gafferObjectToParquetObjects(column, ((EntitySeed) seed).getVertex()));
+        if (seed instanceof EntityId) {
+            return new ParquetEntitySeed(seed, converter.gafferObjectToParquetObjects(column, ((EntityId) seed).getVertex()));
 
         } else {
-            return converter.edgeIdToParquetObjects((EdgeSeed) seed);
+            return converter.edgeIdToParquetObjects((EdgeId) seed);
         }
     }
 

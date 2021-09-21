@@ -56,6 +56,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
@@ -546,7 +548,7 @@ public class GetElementsIT extends AbstractStoreIT {
             viewBuilder.edge(TestGroups.EDGE);
         }
 
-        final GetElements op = new GetElements.Builder()
+        final GetElements opSeed = new GetElements.Builder()
                 .input(seeds)
                 .directedType(directedType)
                 .inOutType(inOutType)
@@ -554,11 +556,24 @@ public class GetElementsIT extends AbstractStoreIT {
                 .seedMatching(seedMatching)
                 .build();
 
+        Collection<ElementId> seedCollection = StreamSupport.stream(seeds.spliterator(), false)
+                .collect(Collectors.toList());
+
+        final GetElements opElement = new GetElements.Builder()
+                .input(getElements(seedCollection, null))
+                .directedType(directedType)
+                .inOutType(inOutType)
+                .view(viewBuilder.build())
+                .seedMatching(seedMatching)
+                .build();
+
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> resultsSeed = graph.execute(opSeed, user);
+        final CloseableIterable<? extends Element> resultsElement = graph.execute(opElement, user);
 
         // Then
-        ElementUtil.assertElementEquals(expectedElements, results, true);
+        ElementUtil.assertElementEquals(expectedElements, resultsSeed, true);
+        ElementUtil.assertElementEquals(expectedElements, resultsElement, true);
     }
 
     private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {
