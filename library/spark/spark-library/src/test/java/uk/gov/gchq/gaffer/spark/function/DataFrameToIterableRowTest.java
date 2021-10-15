@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,14 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.graphframes.examples.Graphs$;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 
 import java.util.List;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataFrameToIterableRowTest {
 
@@ -47,6 +46,6 @@ public class DataFrameToIterableRowTest {
         final List<Row> resultList = Lists.newArrayList(result);
 
         // Then
-        assertThat(resultList, hasSize(7));
+        assertThat(resultList).hasSize(7);
     }
 }

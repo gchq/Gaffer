@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNam
     @Override
     public CloseableIterable<NamedViewDetail> doOperation(final GetAllNamedViews operation, final Context context, final Store store) throws OperationException {
         try {
-            return cache.getAllNamedViews();
+            return cache.getAllNamedViews(context.getUser());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

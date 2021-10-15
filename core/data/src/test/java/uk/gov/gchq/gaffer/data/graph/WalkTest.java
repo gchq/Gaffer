@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,43 +17,28 @@
 package uk.gov.gchq.gaffer.data.graph;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WalkTest {
 
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
     private static final Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
     private static final Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
-    private static final Edge EDGE_FC = new Edge.Builder().group(TestGroups.EDGE).source("F").dest("C").directed(true).build();
-    private static final Edge EDGE_EF = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("F").directed(true).build();
     private static final Edge EDGE_ED = new Edge.Builder().group(TestGroups.EDGE).source("E").dest("D").directed(true).build();
     private static final Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
     private static final Edge EDGE_AE = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("E").directed(true).build();
@@ -63,8 +48,6 @@ public class WalkTest {
     private static final Entity ENTITY_C = new Entity.Builder().group(TestGroups.ENTITY).vertex("C").build();
     private static final Entity ENTITY_D = new Entity.Builder().group(TestGroups.ENTITY).vertex("D").build();
     private static final Entity ENTITY_E = new Entity.Builder().group(TestGroups.ENTITY).vertex("E").build();
-    private static final Entity ENTITY_F = new Entity.Builder().group(TestGroups.ENTITY).vertex("F").build();
-    private static final Entity ENTITY_G = new Entity.Builder().group(TestGroups.ENTITY).vertex("G").build();
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws Exception {
@@ -81,8 +64,8 @@ public class WalkTest {
 
 
         // Then
-        assertThat(walk, is(equalTo(deserialisedWalk)));
-        JsonAssert.assertEquals(String.format("{" +
+        assertThat(walk).isEqualTo(deserialisedWalk);
+        final String expected = "{" +
                 "  \"edges\": [" +
                 "  [" +
                 "    {\"group\": \"BasicEdge\"," +
@@ -111,126 +94,72 @@ public class WalkTest {
                 "    }," +
                 "    {\"C\": []}" +
                 "  ]" +
-                "}\n"), new String(json));
+                "}\n";
+                JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
     public void shouldFailToAddEdgeWithInvalidEntitySource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        // When
-        try {
-            builder.edge(EDGE_BC);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid edge.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Edge must continue the current walk."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.edge(EDGE_BC))
+                .withMessage("Edge must continue the current walk.");
     }
 
     @Test
     public void shouldFailToAddEdgeWithInvalidEdgeSource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
-        // When
-        try {
-            builder.edge(EDGE_AB);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid edge.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Edge must continue the current walk."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.edge(EDGE_AB))
+                .withMessage("Edge must continue the current walk.");
     }
 
     @Test
     public void shouldFailToAddEntityWithInvalidEdgeSource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
         // When
-        try {
-            builder.entity(ENTITY_A);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entity(ENTITY_A))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
     public void shouldFailToAddEntityWithInvalidEntitySource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        // When
-        try {
-            builder.entity(ENTITY_B);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entity(ENTITY_B))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
     public void shouldFailToAddEntitiesWithDifferentVertices() {
-        // Given
         final Walk.Builder builder = new Walk.Builder();
 
-        // When
-        try {
-            builder.entities(ENTITY_A, ENTITY_B);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entities must all have the same vertex."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entities(ENTITY_A, ENTITY_B))
+                .withMessage("Entities must all have the same vertex.");
     }
 
     @Test
     public void shouldFailToAddEntitiesWithInvalidEdgeSource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().edge(EDGE_AB);
 
-        // When
-        try {
-            builder.entities(ENTITY_A, ENTITY_A);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entities(ENTITY_A, ENTITY_A))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
     public void shouldFailToAddEntitiesWithInvalidEntitySource() {
-        // Given
         final Walk.Builder builder = new Walk.Builder().entity(ENTITY_A);
 
-        // When
-        try {
-            builder.entities(ENTITY_B, ENTITY_B);
-
-            fail("Expecting exception to be thrown when attempting to add an invalid entity.");
-        } catch (final Exception e) {
-            // Then
-            assertThat(e, is(instanceOf(IllegalArgumentException.class)));
-            assertThat(e.getMessage(), containsString("Entity must be added to correct vertex."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> builder.entities(ENTITY_B, ENTITY_B))
+                .withMessage("Entity must be added to correct vertex.");
     }
 
     @Test
@@ -248,11 +177,11 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(3)); // A, B, C
-        assertThat(walk.getEdges(), hasSize(2)); // A -> B, B -> C
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AB, EDGE_BC));
-        assertThat(walk.getEntities(), contains(Collections.emptySet(), Sets.newHashSet(ENTITY_B), Collections.emptySet()));
-        assertThat(walk.getVerticesOrdered(), contains("A", "B", "C"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(3); // A, B, C
+        assertThat(walk.getEdges()).hasSize(2); // A -> B, B -> C
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AB, EDGE_BC);
+        assertThat(walk.getEntities()).containsExactly(Collections.emptySet(), Sets.newHashSet(ENTITY_B), Collections.emptySet());
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "B", "C");
     }
 
     @Test
@@ -270,11 +199,11 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(3)); // A, B, C
-        assertThat(walk.getEdges(), hasSize(2)); // A -> B, B -> C
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AB, EDGE_BC));
-        assertThat(walk.getEntities(), contains(Sets.newHashSet(ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C)));
-        assertThat(walk.getVerticesOrdered(), contains("A", "B", "C"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(3); // A, B, C
+        assertThat(walk.getEdges()).hasSize(2); // A -> B, B -> C
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AB, EDGE_BC);
+        assertThat(walk.getEntities()).containsExactly(Sets.newHashSet(ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C));
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "B", "C");
     }
 
     @Test
@@ -292,11 +221,11 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(3)); // A, B, C
-        assertThat(walk.getEdges(), hasSize(2)); // A -> B, B -> C
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AB, EDGE_BC));
-        assertThat(walk.getEntities(), contains(Sets.newHashSet(ENTITY_A, ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C)));
-        assertThat(walk.getVerticesOrdered(), contains("A", "B", "C"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(3); // A, B, C
+        assertThat(walk.getEdges()).hasSize(2); // A -> B, B -> C
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AB, EDGE_BC);
+        assertThat(walk.getEntities()).containsExactly(Sets.newHashSet(ENTITY_A, ENTITY_A), Collections.emptySet(), Sets.newHashSet(ENTITY_C));
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "B", "C");
     }
 
     @Test
@@ -315,12 +244,12 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(4)); // A, D, E, A
-        assertThat(walk.getEdges(), hasSize(3)); // A -> E, E -> D, D -> A
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AE, EDGE_ED, EDGE_DA));
-        assertThat(walk.getEntities(), contains(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
-                Collections.emptySet(), Sets.newHashSet(ENTITY_A, ENTITY_A)));
-        assertThat(walk.getVerticesOrdered(), contains("A", "E", "D", "A"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(4); // A, D, E, A
+        assertThat(walk.getEdges()).hasSize(3); // A -> E, E -> D, D -> A
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AE, EDGE_ED, EDGE_DA);
+        assertThat(walk.getEntities()).containsExactly(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
+                Collections.emptySet(), Sets.newHashSet(ENTITY_A, ENTITY_A));
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "E", "D", "A");
     }
 
     @Test
@@ -339,12 +268,12 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAsEntries(), hasSize(4)); // A, D, E, A
-        assertThat(walk.getEdges(), hasSize(3)); // A -> E, E -> D, D -> A
-        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList()), contains(EDGE_AE, EDGE_ED, EDGE_DA));
-        assertThat(walk.getEntities(), contains(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
-                Collections.emptySet(), Collections.emptySet()));
-        assertThat(walk.getVerticesOrdered(), contains("A", "E", "D", "A"));
+        assertThat(walk.getEntitiesAsEntries()).hasSize(4); // A, D, E, A
+        assertThat(walk.getEdges()).hasSize(3); // A -> E, E -> D, D -> A
+        assertThat(walk.getEdges().stream().flatMap(Set::stream).collect(Collectors.toList())).containsExactly(EDGE_AE, EDGE_ED, EDGE_DA);
+        assertThat(walk.getEntities()).containsExactly(Collections.emptySet(), Sets.newHashSet(ENTITY_E),
+                Collections.emptySet(), Collections.emptySet());
+        assertThat(walk.getVerticesOrdered()).containsExactly("A", "E", "D", "A");
     }
 
     @Test
@@ -364,8 +293,8 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesForVertex("E"), hasSize(1));
-        assertThat(walk.getEntitiesForVertex("E"), contains(ENTITY_E));
+        assertThat(walk.getEntitiesForVertex("E")).hasSize(1)
+                .containsExactly(ENTITY_E);
     }
 
     @Test
@@ -385,8 +314,8 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getEntitiesAtDistance(2), hasSize(1));
-        assertThat(walk.getEntitiesAtDistance(2), contains(ENTITY_D));
+        assertThat(walk.getEntitiesAtDistance(2)).hasSize(1)
+                .containsExactly(ENTITY_D);
     }
 
     @Test
@@ -406,7 +335,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.getVertexSet(), hasItems("A", "E", "D"));
+        assertThat(walk.getVertexSet()).contains("A", "E", "D");
     }
 
     @Test
@@ -426,7 +355,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.length(), is(2));
+        assertThat(walk.length()).isEqualTo(2);
     }
 
     @Test
@@ -446,7 +375,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isTrail(), is(true));
+        assertThat(walk.isTrail()).isTrue();
     }
 
     @Test
@@ -463,7 +392,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isTrail(), is(false));
+        assertThat(walk.isTrail()).isFalse();
     }
 
     @Test
@@ -483,7 +412,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isPath(), is(true));
+        assertThat(walk.isPath()).isTrue();
     }
 
     @Test
@@ -499,7 +428,7 @@ public class WalkTest {
                 .build();
 
         // Then
-        assertThat(walk.isPath(), is(false));
+        assertThat(walk.isPath()).isFalse();
     }
 
     @Test
@@ -576,33 +505,4 @@ public class WalkTest {
         // Then
         assertEquals("C", result);
     }
-
-    private List<EdgeId> getEdges() {
-        return IntStream.range(0, 10).mapToObj(i -> {
-            return new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source(i)
-                    .dest(i + 1)
-                    .build();
-        }).collect(toList());
-    }
-
-    private List<EntityId> getEntities() {
-        return IntStream.range(0, 10).mapToObj(i -> {
-            return new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex(i)
-                    .build();
-        }).collect(Collectors.toList());
-    }
-
-    private List<EntityId> getEntities(final Object vertex) {
-        final List<Entity> entities = new ArrayList<>();
-
-        entities.add(new Entity.Builder().group(TestGroups.ENTITY).vertex(vertex).build());
-        entities.add(new Entity.Builder().group(TestGroups.ENTITY_2).vertex(vertex).build());
-
-        return Collections.unmodifiableList(entities);
-    }
-
 }

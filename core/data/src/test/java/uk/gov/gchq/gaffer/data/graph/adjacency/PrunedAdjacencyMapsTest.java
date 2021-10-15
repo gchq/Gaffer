@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrunedAdjacencyMapsTest {
 
@@ -50,8 +49,8 @@ public class PrunedAdjacencyMapsTest {
         final AdjacencyMap firstPruned = adjacencyMaps.get(0);
         final AdjacencyMap secondPruned = adjacencyMaps.get(1);
 
-        assertThat(firstPruned.getDestinations(1), hasSize(1));
-        assertThat(secondPruned.getDestinations(2), hasSize(2));
+        assertThat(firstPruned.getDestinations(1)).hasSize(1);
+        assertThat(secondPruned.getDestinations(2)).hasSize(2);
     }
 
     @Test
@@ -89,10 +88,10 @@ public class PrunedAdjacencyMapsTest {
         final AdjacencyMap secondPruned = adjacencyMaps.get(1);
         final AdjacencyMap thirdPruned = adjacencyMaps.get(2);
 
-        assertThat(firstPruned.getDestinations(1), hasSize(1));
-        assertThat(secondPruned.getDestinations(2), hasSize(2));
-        assertThat(thirdPruned.getDestinations(4), hasSize(2));
-        assertThat(thirdPruned.getDestinations(5), hasSize(2));
+        assertThat(firstPruned.getDestinations(1)).hasSize(1);
+        assertThat(secondPruned.getDestinations(2)).hasSize(2);
+        assertThat(thirdPruned.getDestinations(4)).hasSize(2);
+        assertThat(thirdPruned.getDestinations(5)).hasSize(2);
     }
 
     private Edge makeEdge(final Object source, final Object destination) {

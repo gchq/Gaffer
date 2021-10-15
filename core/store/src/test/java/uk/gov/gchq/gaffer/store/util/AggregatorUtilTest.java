@@ -1,8 +1,24 @@
+/*
+ * Copyright 2017-2021 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.store.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -13,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
@@ -35,10 +52,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class AggregatorUtilTest {
@@ -48,12 +65,7 @@ public class AggregatorUtilTest {
         final Schema schema = null;
 
         // When / Then
-        try {
-            AggregatorUtil.ingestAggregate(Collections.emptyList(), schema);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> AggregatorUtil.ingestAggregate(Collections.emptyList(), schema)).extracting("message").isNotNull();
     }
 
     @Test
@@ -358,12 +370,9 @@ public class AggregatorUtilTest {
         final View view = new View();
 
         // When / Then
-        try {
-            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Schema"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view))
+                .withMessageContaining("Schema");
     }
 
     @Test
@@ -373,12 +382,9 @@ public class AggregatorUtilTest {
         final View view = null;
 
         // When / Then
-        try {
-            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("View"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view))
+                .withMessageContaining("View");
     }
 
     @Test
@@ -742,7 +748,7 @@ public class AggregatorUtilTest {
                 fn.apply(input.get(1)));
         final Map<Element, List<Element>> results = input.stream()
                 .collect(Collectors.groupingBy(fn));
-        assertEquals(2, results.size());
+        assertThat(results).hasSize(2);
         assertEquals(input.get(0), results.get(input.get(0)).get(0));
         assertEquals(input.get(1), results.get(input.get(1)).get(0));
     }
@@ -859,12 +865,7 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
-        try {
-            fn.apply(element);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> fn.apply(element)).extracting("message").isNotNull();
     }
 
     @Test
@@ -881,12 +882,7 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToQueryElementKey(schema, new View());
 
         // then
-        try {
-            fn.apply(element);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> fn.apply(element)).extracting("message").isNotNull();
     }
 
     @Test
@@ -918,7 +914,7 @@ public class AggregatorUtilTest {
                 );
 
         // then
-        assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
         assertEquals(input, results.get(new Entity.Builder()
                 .group(TestGroups.ENTITY_2)
                 .vertex("vertex1")
@@ -983,5 +979,128 @@ public class AggregatorUtilTest {
                         .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
+    }
+
+    @Test
+    public void shouldQueryAggregateDirectedEdgesIncludingMatchedVertexGroupBy() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        final List<Element> elements = createElementsForIncludeMatchedVertexTest();
+
+        final Set<Element> expectedIncludingMatchedVertex = Sets.newHashSet(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 21)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 4300)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build()
+        );
+
+        // when
+        final CloseableIterable<Element> aggregatedElementsIncludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, true);
+
+        // then
+        assertElementEquals(expectedIncludingMatchedVertex, aggregatedElementsIncludingMatchedVertex);
+    }
+
+    @Test
+    public void shouldQueryAggregateDirectedEdgesExcludingMatchedVertexGroupBy() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        final List<Element> elements = createElementsForIncludeMatchedVertexTest();
+
+        final Set<Element> expectedExcludingMatchedVertex = Sets.newHashSet(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .property("count", 4321)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build()
+        );
+
+        // when
+        final CloseableIterable<Element> aggregatedElementsExcludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, false);
+
+        // then
+        assertElementEquals(expectedExcludingMatchedVertex, aggregatedElementsExcludingMatchedVertex);
+    }
+
+    private List<Element> createElementsForIncludeMatchedVertexTest() {
+        return Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 1)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                        .property("count", 20)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 300)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("1-sourceDir3")
+                        .dest("2-destDir3")
+                        .directed(true)
+                        .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                        .property("count", 4000)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build());
     }
 }

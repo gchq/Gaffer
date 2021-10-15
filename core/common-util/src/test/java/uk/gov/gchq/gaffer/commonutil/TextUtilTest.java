@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,33 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.apache.hadoop.io.Text;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import java.nio.ByteBuffer;
 
-/**
- * This test class is copied from org.apache.accumulo.core.util.TextUtilTest.
- */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class TextUtilTest {
 
     @Test
-    public void testGetBytes() {
-        // Given
-        String longMessage = "This is some text";
-        Text longMessageText = new Text(longMessage);
-        String smallerMessage = "a";
-        Text smallerMessageText = new Text(smallerMessage);
-        Text someText = new Text(longMessage);
+    public void testGetByteBufferReturnsNullWhenTextIsNull() {
+        assertThat(TextUtil.getByteBuffer(null)).isNull();
+    }
 
-        // When / Then
-        assertTrue(someText.equals(longMessageText));
-        someText.set(smallerMessageText);
-        assertTrue(someText.getLength() != someText.getBytes().length);
-        assertTrue(TextUtil.getBytes(someText).length == smallerMessage.length());
-        assertTrue((new Text(TextUtil.getBytes(someText))).equals(smallerMessageText));
+    @Test
+    public void testGetByteBuffer() {
+        final Text text = new Text("Some text");
+
+        assertEquals(ByteBuffer.wrap(text.getBytes()), TextUtil.getByteBuffer(text));
+    }
+
+    @Test
+    public void testGetBytes() {
+        final Text text = new Text("Some text");
+
+        assertThat(TextUtil.getBytes(text)).hasSize(9);
+        assertThat(new Text(TextUtil.getBytes(text)))
+                .isEqualTo(new Text("Some text"));
     }
 }

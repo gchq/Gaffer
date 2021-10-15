@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HyperLogLogPlusConverterTest {
     private static final HyperLogLogPlusConverter HYPER_LOG_LOG_PLUS_CONVERTER = new HyperLogLogPlusConverter();

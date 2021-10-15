@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,94 +17,76 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LimitedCloseableIterableTest {
 
     @Test
     public void shouldLimitResultsToFirstItem() {
-        // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
         final int end = 1;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
-        assertEquals(values.subList(start, end), Lists.newArrayList(limitedValues));
+        assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, end));
     }
 
     @Test
     public void shouldLimitResultsToLastItem() {
-        // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 2;
         final int end = Integer.MAX_VALUE;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertEquals(values.subList(start, values.size()), Lists.newArrayList(limitedValues));
     }
 
     @Test
     public void shouldNotLimitResults() {
-        // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
         final int end = Integer.MAX_VALUE;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertEquals(values, Lists.newArrayList(limitedValues));
     }
 
     @Test
-    public void shouldReturnNoValuesIfStartIsBiggerThanSize() {
-        // Given
+    public void shouldReturnNoValuesWhenStartIsBiggerThanSize() {
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 5;
         final int end = Integer.MAX_VALUE;
 
-        // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end);
 
-        // Then
         assertTrue(Lists.newArrayList(limitedValues).isEmpty());
     }
 
     @Test
-    public void shouldThrowExceptionIfStartIsBiggerThanEnd() {
-        // Given
+    public void shouldThrowIAXWhenStartIsBiggerThanEnd() {
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 3;
         final int end = 1;
 
-        // When / Then
-        try {
-            new LimitedCloseableIterable<>(values, start, end);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> new LimitedCloseableIterable<>(values, start, end));
     }
 
     @Test
-    public void shouldThrowExceptionIfDataIsTruncated() {
+    public void shouldThrowExceptionWhenDataIsTruncated() {
         // Given
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
@@ -114,24 +96,17 @@ public class LimitedCloseableIterableTest {
         // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end, truncate);
 
-        // Then
-        try {
+        assertThatExceptionOfType(LimitExceededException.class).isThrownBy(() -> {
             for (final Integer i : limitedValues) {
-                // Do nothing
+                // Do nothing until LimitExceededException is thrown
             }
-            fail("Exception expected");
-        } catch (final LimitExceededException e) {
-            assertEquals("Limit of " + end + " exceeded.", e
-                    .getMessage());
-        }
+        }).withMessage("Limit of 2 exceeded.");
     }
 
     @Test
     public void shouldHandleNullIterable() {
-        // Given
         final CloseableIterable<Integer> nullIterable = new LimitedCloseableIterable<>(null, 0, 1, true);
 
-        // Then
         assertTrue(Lists.newArrayList(nullIterable).isEmpty());
     }
 
@@ -148,6 +123,5 @@ public class LimitedCloseableIterableTest {
 
         // Then
         assertEquals(values, Lists.newArrayList(equalValues));
-
     }
 }

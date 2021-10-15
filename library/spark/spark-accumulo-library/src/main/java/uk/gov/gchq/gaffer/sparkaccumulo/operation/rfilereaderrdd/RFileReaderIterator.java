@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.sample.SamplerConfiguration;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
-import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.SiteConfiguration;
 import org.apache.accumulo.core.data.ArrayByteSequence;
 import org.apache.accumulo.core.data.ByteSequence;
@@ -103,7 +102,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private void init() throws IOException {
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
         LOGGER.info("Initialising RFileReaderIterator for files {}", StringUtils.join(accumuloTablet.getFiles(), ','));
-        final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance(DefaultConfiguration.getInstance());
+        final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance();
 
         // Required column families according to the configuration
         final Set<ByteSequence> requiredColumnFamilies = InputConfigurator
@@ -129,7 +128,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         // Apply visibility filtering iterator
         if (null != auths) {
             final Authorizations authorizations = new Authorizations(auths.toArray(new String[auths.size()]));
-            final VisibilityFilter visibilityFilter = new VisibilityFilter(mergedIterator, authorizations, new byte[]{});
+            final SortedKeyValueIterator<Key, Value> visibilityFilter = VisibilityFilter.wrap(mergedIterator, authorizations, new byte[]{});
             final IteratorSetting visibilityIteratorSetting = new IteratorSetting(1, "auth", VisibilityFilter.class);
             visibilityFilter.init(mergedIterator, visibilityIteratorSetting.getOptions(), null);
             iteratorAfterIterators = visibilityFilter;
@@ -159,7 +158,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
                     .asSubclass(SortedKeyValueIterator.class).newInstance();
             result.init(source, is.getOptions(), new IteratorEnvironment() {
                 @Override
-                public SortedKeyValueIterator<Key, Value> reserveMapFileReader(final String mapFileName) throws IOException {
+                public SortedKeyValueIterator<Key, Value> reserveMapFileReader(final String mapFileName) {
                     return null;
                 }
 

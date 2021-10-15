@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test class is copied from org.apache.accumulo.core.data.ArrayByteSequenceTest.
@@ -31,40 +32,40 @@ public class ArrayByteSequenceTest {
     ArrayByteSequence abs;
     byte[] data;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        data = new byte[]{'s', 'm', 'i', 'l', 'e', 's'};
+        data = new byte[] {'s', 'm', 'i', 'l', 'e', 's'};
         abs = new ArrayByteSequence(data);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidByteBufferBounds0() {
-        abs = new ArrayByteSequence(data, -1, 0);
+    @Test
+    public void testInvalidByteBufferBounds0ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, -1, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidByteBufferBounds1() {
-        abs = new ArrayByteSequence(data, data.length + 1, 0);
+    @Test
+    public void testInvalidByteBufferBounds1ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, data.length + 1, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidByteBufferBounds2() {
-        abs = new ArrayByteSequence(data, 0, -1);
+    @Test
+    public void testInvalidByteBufferBounds2ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, 0, -1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidByteBufferBounds3() {
-        abs = new ArrayByteSequence(data, 6, 2);
+    @Test
+    public void testInvalidByteBufferBounds3ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs = new ArrayByteSequence(data, 6, 2));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidByteAt0() {
-        abs.byteAt(-1);
+    @Test
+    public void testInvalidByteAt0ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.byteAt(-1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidByteAt1() {
-        abs.byteAt(data.length);
+    @Test
+    public void testInvalidByteAt1ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.byteAt(data.length));
     }
 
     @Test
@@ -73,29 +74,32 @@ public class ArrayByteSequenceTest {
         assertEquals("mile", abs.subSequence(1, 5).toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidSubsequence0() {
-        abs.subSequence(5, 1);
+    @Test
+    public void testInvalidSubsequence0ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(5, 1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidSubsequence1() {
-        abs.subSequence(-1, 1);
+    @Test
+    public void testInvalidSubsequence1ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(-1, 1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidSubsequence3() {
-        abs.subSequence(0, 10);
+    @Test
+    public void testInvalidSubsequence3ShouldThrowIAX() {
+        assertThatIllegalArgumentException().isThrownBy(() -> abs.subSequence(0, 10));
     }
 
     @Test
     public void testFromByteBuffer() {
-        ByteBuffer bb = ByteBuffer.wrap(data, 1, 4);
+        final ByteBuffer bb = ByteBuffer.wrap(data, 1, 4);
         abs = new ArrayByteSequence(bb);
 
         assertEquals("mile", abs.toString());
+    }
 
-        bb = bb.asReadOnlyBuffer();
+    @Test
+    public void testFromReadOnlyByteBuffer() {
+        final ByteBuffer bb = ByteBuffer.wrap(data, 1, 4).asReadOnlyBuffer();
         abs = new ArrayByteSequence(bb);
 
         assertEquals("mile", abs.toString());
@@ -103,6 +107,6 @@ public class ArrayByteSequenceTest {
 
     @Test
     public void testToString() {
-        assertEquals("String conversion should round trip correctly", "", new ArrayByteSequence("").toString());
+        assertEquals("", new ArrayByteSequence("").toString(), "String conversion should round trip correctly");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,28 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LongUtilTest {
+
     @Test
     public void shouldGetDifferentPositiveTimeBasedRandoms() {
-        // Given
-        int n = 1000;
+        final int n = 1000;
 
-        // When
         final Set<Long> timestamps = new HashSet<>(n);
         for (int i = 0; i < n; i++) {
             timestamps.add(LongUtil.getTimeBasedRandom());
         }
 
-        // Then
-        assertEquals(n, timestamps.size());
-        timestamps.forEach(t -> assertTrue("random number was negative " + t, t >= 0L));
+        assertThat(timestamps).hasSize(1000)
+                .allSatisfy(t -> assertThat(t)
+                        .isNotNegative()
+                        .overridingErrorMessage("random number was negative %s", t));
+
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.BloomFilterIteratorException;
@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CoreKeyBloomFilterIteratorTest {
     @Test
@@ -38,12 +38,9 @@ public class CoreKeyBloomFilterIteratorTest {
         final Map<String, String> options = new HashMap<>();
 
         // When / Then
-        try {
-            filter.validateOptions(options);
-            fail("Exception expected");
-        } catch (final BloomFilterIteratorException e) {
-            assertTrue(e.getMessage().contains(AccumuloStoreConstants.BLOOM_FILTER));
-        }
+        assertThatExceptionOfType(BloomFilterIteratorException.class)
+                .isThrownBy(() -> filter.validateOptions(options))
+                .withMessageContaining(AccumuloStoreConstants.BLOOM_FILTER);
     }
 
     @Test

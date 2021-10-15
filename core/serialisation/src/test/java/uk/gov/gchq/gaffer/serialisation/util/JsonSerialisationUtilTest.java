@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import uk.gov.gchq.koryphe.impl.predicate.range.InDateRange;
@@ -32,14 +32,14 @@ import uk.gov.gchq.koryphe.impl.predicate.range.InTimeRange;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JsonSerialisationUtilTest {
+
     @Test
     public void testClassWithNoFields() {
         // Given
-
         final String className = ClassWithNoFields.class.getName();
 
         // When
@@ -53,13 +53,13 @@ public class JsonSerialisationUtilTest {
     public void testClassWithJsonAnnotations() {
         // Given
         final String className = ClassWithAnnotations.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("field1", String.class.getName());
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
-        // Then]
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("field1", String.class.getName());
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
@@ -67,13 +67,13 @@ public class JsonSerialisationUtilTest {
     public void testClassWithCreator() {
         // Given
         final String className = ClassWithCreator.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("field1", String.class.getName());
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
-        // Then]
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("field1", String.class.getName());
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
@@ -81,13 +81,13 @@ public class JsonSerialisationUtilTest {
     public void testClassWithBuilder() {
         // Given
         final String className = ClassWithBuilder.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("field1", String.class.getName());
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
-        // Then]
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("field1", String.class.getName());
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
@@ -95,13 +95,13 @@ public class JsonSerialisationUtilTest {
     public void testIsIn() {
         // Given
         final String className = IsIn.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("values", "java.lang.Object[]");
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
         // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("values", "java.lang.Object[]");
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
@@ -109,16 +109,16 @@ public class JsonSerialisationUtilTest {
     public void testInRange() {
         // Given
         final String className = InRange.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("start", "java.lang.Comparable<T>");
-        expectedValues.put("end", "java.lang.Comparable<T>");
-        expectedValues.put("startInclusive", Boolean.class.getName());
-        expectedValues.put("endInclusive", Boolean.class.getName());
 
         // When
         final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(className);
 
         // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("start", "java.lang.Comparable<T>");
+        expectedValues.put("end", "java.lang.Comparable<T>");
+        expectedValues.put("startInclusive", Boolean.class.getName());
+        expectedValues.put("endInclusive", Boolean.class.getName());
         assertEquals(expectedValues.entrySet(), result.entrySet());
     }
 
@@ -127,6 +127,64 @@ public class JsonSerialisationUtilTest {
         // Given
         final String classNameIDR = InDateRange.class.getName();
         final String classNameITR = InTimeRange.class.getName();
+
+        // When
+        final Map<String, String> resultIDR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameIDR);
+        final Map<String, String> resultITR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameITR);
+
+        // Then
+        final Map<String, String> expected = getExpectedIDRStringStringMap();
+        assertEquals(expected.entrySet(), resultIDR.entrySet());
+        assertEquals(resultIDR.entrySet(), resultITR.entrySet());
+    }
+
+    @Test
+    public void testClassWithTypeParamAndOtherField() {
+        // Given
+        final String classWithTypeParamAndOtherFieldName = ClassWithTypeParamAndOtherField.class.getName();
+
+        // When
+        final Map<String, String> result =
+                JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamAndOtherFieldName);
+
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("test", String.class.getName());
+        expectedValues.put("t", Object.class.getName());
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testClassWithJustTypeParam() {
+        // Given
+        final String classWithTypeParamName = ClassWithTypeParam.class.getName();
+
+        // When
+        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamName);
+
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("t", Object.class.getName());
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    @Test
+    public void testClassWithTypeParamExtendingComparable() {
+        // Given
+        final String classWithTypeParamExtendingComparableName =
+                ClassWithTypeParamExtendingComparable.class.getName();
+
+        // When
+        final Map<String, String> result =
+                JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamExtendingComparableName);
+
+        // Then
+        final Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("t", Comparable.class.getName());
+        assertEquals(expectedValues.entrySet(), result.entrySet());
+    }
+
+    private Map<String, String> getExpectedIDRStringStringMap() {
         final Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put("timeUnit", String.class.getName());
         expectedValues.put("offsetUnit", String.class.getName());
@@ -137,57 +195,7 @@ public class JsonSerialisationUtilTest {
         expectedValues.put("endOffset", Long.class.getName());
         expectedValues.put("endInclusive", Boolean.class.getName());
         expectedValues.put("timeZone", String.class.getName());
-
-        // When
-        final Map<String, String> resultIDR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameIDR);
-        final Map<String, String> resultITR = JsonSerialisationUtil.getSerialisedFieldClasses(classNameITR);
-
-        // Then
-        assertEquals(expectedValues.entrySet(), resultIDR.entrySet());
-        assertEquals(resultIDR.entrySet(), resultITR.entrySet());
-    }
-
-    @Test
-    public void testClassWithTypeParamAndOtherField() {
-        // Given
-        final String ClassWithTypeParamAndOtherFieldName = ClassWithTypeParamAndOtherField.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("test", String.class.getName());
-        expectedValues.put("t", Object.class.getName());
-
-        // When
-        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(ClassWithTypeParamAndOtherFieldName);
-
-        // Then
-        assertEquals(expectedValues.entrySet(), result.entrySet());
-    }
-
-    @Test
-    public void testClassWithJustTypeParam() {
-        // Given
-        final String classWithTypeParamName = ClassWithTypeParam.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("t", Object.class.getName());
-
-        // When
-        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(classWithTypeParamName);
-
-        // Then
-        assertEquals(expectedValues.entrySet(), result.entrySet());
-    }
-
-    @Test
-    public void testClassWithTypeParamExtendingComparable() {
-        // Given
-        final String ClassWithTypeParamExtendingComparableName = ClassWithTypeParamExtendingComparable.class.getName();
-        final Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("t", Comparable.class.getName());
-
-        // When
-        final Map<String, String> result = JsonSerialisationUtil.getSerialisedFieldClasses(ClassWithTypeParamExtendingComparableName);
-
-        // Then
-        assertEquals(expectedValues.entrySet(), result.entrySet());
+        return expectedValues;
     }
 
     private static final class ClassWithNoFields {
@@ -229,7 +237,7 @@ public class JsonSerialisationUtilTest {
         private String field1;
 
         @JsonCreator
-        public ClassWithCreator(@JsonProperty("field1") final String field1) {
+        ClassWithCreator(@JsonProperty("field1") final String field1) {
             this.field1 = field1;
         }
 

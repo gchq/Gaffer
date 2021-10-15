@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -29,16 +29,14 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ToCsvTest extends OperationTest<ToCsv> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
@@ -52,6 +50,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
         assertNotNull(deserialisedOp);
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -64,12 +63,13 @@ public class ToCsvTest extends OperationTest<ToCsv> {
                 .build();
 
         // Then
-        assertThat(toCsv.getInput(), is(notNullValue()));
-        assertThat(toCsv.getInput(), iterableWithSize(1));
+        assertThat(toCsv.getInput())
+                .hasSize(1);
         assertFalse(toCsv.isIncludeHeader());
         assertEquals(generator, toCsv.getElementGenerator());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -86,7 +86,7 @@ public class ToCsvTest extends OperationTest<ToCsv> {
 
         // Then
         assertNotSame(toCsv, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
         assertEquals(generator, clone.getElementGenerator());
         assertFalse(clone.isIncludeHeader());
     }

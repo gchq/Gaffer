@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -45,9 +45,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -65,7 +65,7 @@ public class FilterHandlerTest {
     private Context context;
     private FilterHandler handler;
 
-    @Before
+    @BeforeEach
     public void setup() {
         input = new ArrayList<>();
         expected = new ArrayList<>();
@@ -565,12 +565,9 @@ public class FilterHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Edge group: " + TestGroups.EDGE + " does not exist in the schema"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() ->  handler.doOperation(filter, context, store))
+                .withMessageContaining("Edge group: " + TestGroups.EDGE + " does not exist in the schema");
     }
 
     @Test
@@ -605,12 +602,9 @@ public class FilterHandlerTest {
                         .build())
                 .build();
 
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains(filter.getClass().getSimpleName() + " contains a null function."));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(filter, context, store))
+                .withMessageContaining(filter.getClass().getSimpleName() + " contains a null function.");
     }
 
     @Test
@@ -657,12 +651,9 @@ public class FilterHandlerTest {
                         .build())
                 .build();
 
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("is not compatible with the input type:"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(filter, context, store))
+                .withMessageContaining("is not compatible with the input type:");
     }
 
     @Test

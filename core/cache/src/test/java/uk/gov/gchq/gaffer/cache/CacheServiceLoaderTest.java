@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,94 +16,73 @@
 
 package uk.gov.gchq.gaffer.cache;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CacheServiceLoaderTest {
 
     private Properties serviceLoaderProperties = new Properties();
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void before() {
         serviceLoaderProperties.clear();
     }
 
-
+    @DisplayName("Should not throw NullPointer when Loader is initialised with null properties")
     @Test
-    public void shouldDoNothingOnInitialiseIfNoPropertiesAreGiven() {
-        try {
-            CacheServiceLoader.initialise(null);
-        } catch (final NullPointerException e) {
-            fail("Should not have thrown an exception");
-        }
+    public void shouldINotThrowNullPointerExceptionOnInitialiseLoader() {
+        CacheServiceLoader.initialise(null);
     }
 
     @Test
     public void shouldLoadServiceFromSystemVariable() {
-
-        // given
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        // when
-        ICacheService service = CacheServiceLoader.getService();
+        final ICacheService service = CacheServiceLoader.getService();
 
-        // then
-        assert(service instanceof EmptyCacheService);
+        assertThat(service).isInstanceOf(EmptyCacheService.class);
     }
 
     @Test
-    public void shouldThrowAnExceptionWhenSystemVariableMisconfigured() {
-
-        // given
-        String invalidClassName = "invalid.cache.name";
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(invalidClassName);
-
-        // when
+    public void shouldThrowAnExceptionWhenSystemVariableIsInvalid() {
+        final String invalidClassName = "invalid.cache.name";
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, invalidClassName);
-        CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        // then Exception is thrown
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> CacheServiceLoader.initialise(serviceLoaderProperties))
+                .withMessage("Failed to instantiate cache using class invalid.cache.name");
     }
 
     @Test
     public void shouldUseTheSameServiceAcrossDifferentComponents() {
-        // given
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        // when
-        ICacheService component1Service = CacheServiceLoader.getService();
-        ICacheService component2Service = CacheServiceLoader.getService();
+        final ICacheService component1Service = CacheServiceLoader.getService();
+        final ICacheService component2Service = CacheServiceLoader.getService();
 
-        // then
         assertEquals(component1Service, component2Service);
     }
 
     @Test
     public void shouldSetServiceToNullAfterCallingShutdown() {
-        // given
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
         CacheServiceLoader.initialise(serviceLoaderProperties);
 
-        // when
         CacheServiceLoader.shutdown();
 
-        // then
         assertNull(CacheServiceLoader.getService());
     }
 }

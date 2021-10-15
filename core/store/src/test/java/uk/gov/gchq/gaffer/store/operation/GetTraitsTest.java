@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetTraitsTest extends OperationTest<GetTraits> {
 
@@ -28,32 +30,29 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         return new GetTraits();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new Builder().currentTraits(false).build();
 
         assertEquals(false, op.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
-        GetTraits op = new Builder()
-                .currentTraits(false)
-                .build();
+        GetTraits op = new Builder().currentTraits(false).build();
 
         GetTraits clone = op.shallowClone();
 
         assertEquals(op.isCurrentTraits(), clone.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final GetTraits obj = new GetTraits.Builder()
-                .currentTraits(true)
-                .build();
+        final GetTraits obj = new GetTraits.Builder().currentTraits(true).build();
 
         // When
         final byte[] json = toJson(obj);
@@ -61,5 +60,19 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
         // Then
         assertEquals(obj.isCurrentTraits(), deserialisedObj.isCurrentTraits());
+    }
+
+    @Test
+    @Override
+    public void shouldHaveSinceAnnotation() {
+        // TODO Auto-generated method stub
+        super.shouldHaveSinceAnnotation();
+    }
+
+    @Test
+    @Override
+    public void shouldHaveSummaryAnnotation() {
+        // TODO Auto-generated method stub
+        super.shouldHaveSummaryAnnotation();
     }
 }

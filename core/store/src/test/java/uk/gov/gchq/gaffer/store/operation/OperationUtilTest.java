@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,42 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OperationUtilTest {
+
     @Test
     public void shouldGetInputOutputTypes() {
+        // Given
         final GetElements operation = new GetElements();
 
+        // When / Then
         final Class<?> inputType = OperationUtil.getInputType(operation);
         assertEquals(Iterable.class, inputType);
 
+        // When / Then
         final Class<?> outputType = OperationUtil.getOutputType(operation);
         assertEquals(CloseableIterable.class, outputType);
     }
 
     @Test
     public void shouldCheckGenericInputOutputTypes() {
+        // Given
         final ExportToSet operation = new ExportToSet();
 
+        // When / Then
         final Class<?> inputType = OperationUtil.getInputType(operation);
         assertEquals(OperationUtil.UnknownGenericType.class, inputType);
 
+        // When / Then
         final Class<?> outputType = OperationUtil.getOutputType(operation);
         assertEquals(OperationUtil.UnknownGenericType.class, outputType);
     }
@@ -52,6 +59,7 @@ public class OperationUtilTest {
 
     @Test
     public void shouldValidateOutputInputTypes() {
+        // When / Then
         assertTrue(OperationUtil.isValid(Iterable.class, Iterable.class).isValid());
         assertTrue(OperationUtil.isValid(CloseableIterable.class, Iterable.class).isValid());
         assertTrue(OperationUtil.isValid(Iterable.class, Object.class).isValid());

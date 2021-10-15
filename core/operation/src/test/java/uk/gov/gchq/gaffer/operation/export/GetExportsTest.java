@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -26,9 +26,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetExportsTest extends OperationTest<GetExports> {
     @Test
@@ -70,6 +70,7 @@ public class GetExportsTest extends OperationTest<GetExports> {
         assertEquals("key2", op.getGetExports().get(1).getKey());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -86,7 +87,7 @@ public class GetExportsTest extends OperationTest<GetExports> {
 
         // Then
         assertNotSame(getExports, clone);
-        assertEquals(getSetExport, clone.getGetExports().iterator().next());
+        assertThat(clone.getGetExports().iterator().next()).isEqualTo(getSetExport);
     }
 
     @Test

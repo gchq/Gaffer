@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,41 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class ViewParameterDetailTest {
 
-    private static final String EXCEPTION_EXPECTED = "Exception expected";
-
     @Test
     public void shouldBuildFullViewParameterDetail() {
-        // When
-        new ViewParameterDetail.Builder()
+        assertThatNoException().isThrownBy(() -> new ViewParameterDetail.Builder()
                 .defaultValue(2L)
                 .valueClass(Long.class)
                 .description("test ParamDetail")
                 .required(false)
-                .build();
-
-        // Then - No exceptions
+                .build());
     }
 
     @Test
     public void shouldThrowExceptionWhenDefaultAndRequiredIsSet() {
-        // When / Then
-        try {
-            new ViewParameterDetail.Builder()
-                    .defaultValue(2L)
-                    .valueClass(Long.class)
-                    .description("test ParamDetail")
-                    .required(true)
-                    .build();
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("required is true but a default value has been provided"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new ViewParameterDetail.Builder()
+                        .defaultValue(2L)
+                        .valueClass(Long.class)
+                        .description("test ParamDetail")
+                        .required(true)
+                        .build())
+                .withMessage("required is true but a default value has been provided");
     }
 
     @Test
     public void shouldThrowExceptionWithNoClassSet() {
-        // When / Then
-        try {
-            new ViewParameterDetail.Builder()
-                    .defaultValue(2L)
-                    .description("test paramDetail")
-                    .build();
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("class must not be empty"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new ViewParameterDetail.Builder()
+                        .defaultValue(2L)
+                        .description("test paramDetail")
+                        .build()).withMessage("class must not be empty");
     }
 }

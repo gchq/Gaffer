@@ -40,14 +40,14 @@
 #   - property is required
 #   - no default value provided
 # Examples:
-# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
-#   - specifies that an instance of org.apache.accumulo.core.client.mock.MockInstance will be used to obtain an instance of org.apache.accumulo.core.client.Connector as a data store and that, after the first call to initialise, subsequent calls will result in the existing tables being deleted rather than a new instance of org.apache.accumulo.core.client.mock.MockInstance being created.
-# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
-#   - specifies that an instance of org.apache.accumulo.core.client.mock.MockInstance will be used to obtain an instance of org.apache.accumulo.core.client.Connector and that each time initialise is called a new instance of org.apache.accumulo.core.client.mock.MockInstance is created.
+# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore
+#   - specifies that a pre-existing instance of org.apache.accumulo.minicluster.MiniAccumuloCluster will be used to obtain an instance of org.apache.accumulo.core.client.Connector as a data store and that, after the first call to initialise, subsequent calls will result in the existing tables being deleted in the instance.
+# gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore
+#   - specifies that a pre-existing instance of org.apache.accumulo.minicluster.MiniAccumuloCluster will be used to obtain an instance of org.apache.accumulo.core.client.Connector and that each time initialise is called the instance is re-used as is.
 # gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.AccumuloStore
 #   - specifies that an instance of org.apache.accumulo.core.client.ZooKeeperInstance will be used to obtain an instance of org.apache.accumulo.core.client.Connector
 
-gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore
+gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore
 
 ################################################################################
 # generic store property - gaffer.store.properties.class

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.data.graph.function.walk;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -26,8 +26,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExtractWalkEdgesTest {
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
@@ -53,8 +52,6 @@ public class ExtractWalkEdgesTest {
         final Iterable<Set<Edge>> results = function.apply(walk);
 
         // Then
-        assertThat(results, containsInAnyOrder(Sets.newHashSet(EDGE_AB),
-                Sets.newHashSet(EDGE_BC),
-                Sets.newHashSet(EDGE_CA)));
+        assertThat(results).containsOnly(Sets.newHashSet(EDGE_AB), Sets.newHashSet(EDGE_BC), Sets.newHashSet(EDGE_CA));
     }
 }

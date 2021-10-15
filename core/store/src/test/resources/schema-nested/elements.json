@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "id.string",
+      "description": "Entity description",
+      "properties": {
+        "property1": "prop.string",
+        "visibility": "prop.string",
+        "timestamp": "timestamp"
+      },
+      "validateFunctions": [
+        {
+          "selection": [
+            "property1",
+            "visibility"
+          ],
+          "predicate": {
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY"
+          }
+        }
+      ]
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "id.string",
+      "destination": "id.string",
+      "directed": "directed.true",
+      "description": "Edge description",
+      "properties": {
+        "property2": "prop.string",
+        "dateProperty": "prop.date",
+        "timestamp": "timestamp"
+      },
+      "groupBy": [
+        "dateProperty"
+      ]
+    }
+  },
+  "visibilityProperty": "visibility",
+  "timestampProperty": "timestamp",
+  "config": {
+    "key": "value"
+  }
+}

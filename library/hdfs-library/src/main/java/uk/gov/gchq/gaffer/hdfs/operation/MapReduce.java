@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,6 +118,10 @@ public interface MapReduce {
 
     void setPartitioner(final Class<? extends Partitioner> partitioner);
 
+    String[] getCommandLineArgs();
+
+    void setCommandLineArgs(final String[] commandLineArgs);
+
     interface Builder<OP extends MapReduce, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
         default B inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
@@ -215,6 +219,11 @@ public interface MapReduce {
 
         default B partitioner(final Class<? extends Partitioner> partitioner) {
             _getOp().setPartitioner(partitioner);
+            return _self();
+        }
+
+        default B commandLineArgs(final String[] commandLineArgs) {
+            _getOp().setCommandLineArgs(commandLineArgs);
             return _self();
         }
     }

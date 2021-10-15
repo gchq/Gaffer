@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.integration.domain;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
+import java.util.Objects;
 
 /**
  * Please note that this object has been created in order to test the ElementGenerator code in the Gaffer framework.
@@ -94,17 +96,28 @@ public class EdgeDomainObject extends DomainObject {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
 
         final EdgeDomainObject that = (EdgeDomainObject) obj;
 
-        if (!source.equals(that.source)) return false;
-        if (!destination.equals(that.destination)) return false;
-        if (!directed.equals(that.directed)) return false;
-        if (intProperty != null ? !intProperty.equals(that.intProperty) : that.intProperty != null)
+        if (!source.equals(that.source)) {
             return false;
-        return !(count != null ? !count.equals(that.count) : that.count != null);
+        }
+        if (!destination.equals(that.destination)) {
+            return false;
+        }
+        if (!directed.equals(that.directed)) {
+            return false;
+        }
+        if (!Objects.equals(intProperty, that.intProperty)) {
+            return false;
+        }
+        return !(!Objects.equals(count, that.count));
 
     }
 

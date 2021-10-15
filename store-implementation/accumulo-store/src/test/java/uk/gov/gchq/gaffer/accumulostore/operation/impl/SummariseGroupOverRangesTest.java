@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -32,12 +32,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOverRanges> {
+
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -57,12 +58,13 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
 
         // Then
         final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();
-        assertEquals(pair1, itrPairs.next());
-        assertEquals(pair2, itrPairs.next());
-        assertFalse(itrPairs.hasNext());
+        assertThat(itrPairs.next()).isEqualTo(pair1);
+        assertThat(itrPairs.next()).isEqualTo(pair2);
+        assertThat(itrPairs).isExhausted();
 
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -79,10 +81,11 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
         assertEquals("true", summariseGroupOverRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, summariseGroupOverRanges.getIncludeIncomingOutGoing());
         assertEquals(DirectedType.UNDIRECTED, summariseGroupOverRanges.getDirectedType());
-        assertEquals(seed, summariseGroupOverRanges.getInput().iterator().next());
+        assertThat(summariseGroupOverRanges.getInput().iterator().next()).isEqualTo(seed);
         assertNotNull(summariseGroupOverRanges.getView());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -104,7 +107,7 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
         assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
         assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
-        assertEquals(seed, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(seed);
         assertEquals(view, clone.getView());
 
     }

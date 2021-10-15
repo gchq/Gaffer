@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
@@ -23,14 +23,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -56,21 +54,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddElementsHandlerTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Logger.getRootLogger().setLevel(Level.INFO);
     }
 
     @Test
-    public void testOnePartitionOneGroup() throws OperationException, IOException, StoreException {
+    public void testOnePartitionOneGroup(@TempDir java.nio.file.Path tempDir)
+            throws OperationException, IOException, StoreException {
         // Given
         final List<Element> elementsToAdd = new ArrayList<>();
         elementsToAdd.addAll(AggregateAndSortDataTest.generateData());
@@ -81,7 +79,7 @@ public class AddElementsHandlerTest {
         final Context context = new Context();
         final Schema schema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        final String testDir = testFolder.newFolder().getPath();
+        final String testDir = tempDir.toString();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
@@ -105,7 +103,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(40, results.length);
+        assertThat(results).hasSize(40);
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
@@ -128,7 +126,8 @@ public class AddElementsHandlerTest {
     }
 
     @Test
-    public void testOnePartitionAllGroups() throws IOException, OperationException, StoreException {
+    public void testOnePartitionAllGroups(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException, StoreException {
         // Given
         final List<Element> elementsToAdd = new ArrayList<>();
         //  - Data for TestGroups.ENTITY
@@ -159,7 +158,7 @@ public class AddElementsHandlerTest {
         final Context context = new Context();
         final Schema schema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        final String testDir = testFolder.newFolder().getPath();
+        final String testDir = tempDir.toString();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
@@ -177,13 +176,13 @@ public class AddElementsHandlerTest {
         // - There should be 1 file named partition-0.parquet (and an associated .crc file) in the "group=BasicEntity"
         //   directory.
         assertTrue(fs.exists(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0))));
-        assertTrue(fs.exists(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/." + ParquetStore.getFile( 0) + ".crc")));
+        assertTrue(fs.exists(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/." + ParquetStore.getFile(0) + ".crc")));
         // - The files should contain the data sorted by vertex and date.
         Row[] results = (Row[]) sparkSession
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(40, results.length);
+        assertThat(results).hasSize(40);
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
@@ -212,7 +211,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, "graph/group=BasicEntity2/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(4, results.length);
+        assertThat(results).hasSize(4);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(1L), results[0]);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(10L), results[1]);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(100L), results[2]);
@@ -228,7 +227,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(6, results.length);
+        assertThat(results).hasSize(6);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 2L, false, new Date(400L)),
                 results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 10L, false, new Date(400L)),
@@ -245,7 +244,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(6, results.length);
+        assertThat(results).hasSize(6);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 2L, false, new Date(400L)),
                 results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 10L, false, new Date(400L)),
@@ -268,7 +267,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(4, results.length);
+        assertThat(results).hasSize(4);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(100L, 200L, false), results[2]);
@@ -277,7 +276,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(4, results.length);
+        assertThat(results).hasSize(4);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(100L, 200L, false), results[2]);
@@ -325,7 +324,8 @@ public class AddElementsHandlerTest {
     }
 
     @Test
-    public void testRepeatedCallsOfAddElementsHandler() throws IOException, OperationException, StoreException {
+    public void testRepeatedCallsOfAddElementsHandler(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException, StoreException {
         // Given
         final List<Element> elementsToAdd = new ArrayList<>();
         //  - Data for TestGroups.ENTITY
@@ -356,7 +356,7 @@ public class AddElementsHandlerTest {
         final Context context = new Context();
         final Schema schema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         final ParquetStoreProperties storeProperties = new ParquetStoreProperties();
-        final String testDir = testFolder.newFolder().getPath();
+        final String testDir = tempDir.toString();
         storeProperties.setDataDir(testDir + "/data");
         storeProperties.setTempFilesDir(testDir + "/tmpdata");
         final ParquetStore store = (ParquetStore) ParquetStore.createStore("graphId", schema, storeProperties);
@@ -381,7 +381,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(40, results.length);
+        assertThat(results).hasSize(40);
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
@@ -410,7 +410,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(1L), results[0]);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(1L), results[1]);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(10L), results[2]);
@@ -428,7 +428,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(6, results.length);
+        assertThat(results).hasSize(6);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 2L, false, new Date(400L), (short) 2),
                 results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 10L, false, new Date(400L), (short) 2),
@@ -445,7 +445,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(6, results.length);
+        assertThat(results).hasSize(6);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 2L, false, new Date(400L), (short) 2),
                 results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 10L, false, new Date(400L), (short) 2),
@@ -467,7 +467,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[2]);
@@ -480,7 +480,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[2]);
@@ -512,7 +512,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(40, results.length);
+        assertThat(results).hasSize(40);
         for (int i = 0; i < 40; i++) {
             assertEquals((long) i / 2, (long) results[i].getAs(ParquetStore.VERTEX));
             assertEquals(i % 2 == 0 ? 'b' : 'a', ((byte[]) results[i].getAs("byte"))[0]);
@@ -541,7 +541,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.ENTITY_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(12, results.length);
+        assertThat(results).hasSize(12);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(1L), results[0]);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(1L), results[1]);
         checkEntityGroup2(WriteUnsortedDataTest.createEntityForEntityGroup_2(1L), results[2]);
@@ -563,7 +563,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(6, results.length);
+        assertThat(results).hasSize(6);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 2L, false, new Date(400L), (short) 2),
                 results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 10L, false, new Date(400L), (short) 2),
@@ -580,7 +580,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(6, results.length);
+        assertThat(results).hasSize(6);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 2L, false, new Date(400L), (short) 2),
                 results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup(1L, 10L, false, new Date(400L), (short) 2),
@@ -602,7 +602,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[2]);
@@ -615,7 +615,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[2]);
@@ -634,7 +634,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, false) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(1L, 2000L, false), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[2]);
@@ -647,7 +647,7 @@ public class AddElementsHandlerTest {
                 .read()
                 .parquet(new Path(snapshotPath, ParquetStore.getGroupSubDir(TestGroups.EDGE_2, true) + "/" + ParquetStore.getFile(0)).toString())
                 .collect();
-        assertEquals(8, results.length);
+        assertThat(results).hasSize(8);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[0]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10000L, 20L, true), results[1]);
         checkEdge(WriteUnsortedDataTest.createEdgeForEdgeGroup_2(10L, 50L, true), results[2]);

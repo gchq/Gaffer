@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
@@ -27,14 +27,11 @@ public class StreamIteratorTest {
 
     @Test
     public void shouldDelegateCloseToWrappedIterator() {
-        // Given
         final Stream<Object> stream = mock(Stream.class);
         final StreamIterator<Object> streamIterator = new StreamIterator<>(stream);
 
-        // When
         streamIterator.close();
 
-        // Then
         verify(stream).close();
     }
 }

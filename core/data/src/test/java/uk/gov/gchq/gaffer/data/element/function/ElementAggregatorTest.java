@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,11 +29,12 @@ import uk.gov.gchq.koryphe.tuple.n.Tuple3;
 import java.util.List;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -53,13 +54,8 @@ public class ElementAggregatorTest {
                 .execute(function)
                 .build();
 
-        final Edge edge1 = new Edge.Builder()
-                .property(reference, 1)
-                .build();
-
-        final Edge edge2 = new Edge.Builder()
-                .property(reference, 2)
-                .build();
+        final Edge edge1 = createEdge(reference, 1);
+        final Edge edge2 = createEdge(reference, 2);
 
         // When
         final Element result = aggregator.apply(edge1, edge2);
@@ -71,27 +67,27 @@ public class ElementAggregatorTest {
     @Test
     public void shouldAggregateElementUsingLambdaBinaryOperator() {
         // Given
-        final String reference = "reference1";
+        final String propertyReference = "reference1";
 
         final BinaryOperator<String> function = (a, b) -> a + "," + b;
         final ElementAggregator aggregator = new ElementAggregator.Builder()
-                .select(reference)
+                .select(propertyReference)
                 .execute(function)
                 .build();
 
-        final Edge edge1 = new Edge.Builder()
-                .property(reference, "value1")
-                .build();
-
-        final Edge edge2 = new Edge.Builder()
-                .property(reference, "value2")
-                .build();
+        final Edge edge1 = createEdge(propertyReference, "value1");
+        final Edge edge2 = createEdge(propertyReference, "value2");
 
         // When
         final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        assertEquals("value1,value2", result.getProperty(reference));
+        assertEquals("value1,value2", result.getProperty(propertyReference));
+    }
+
+    private Edge createEdge(final String reference, final Object value) {
+        return new Edge.Builder().property(reference, value)
+                .build();
     }
 
     @Test
@@ -182,8 +178,9 @@ public class ElementAggregatorTest {
         state = aggregator.apply(state, properties3);
 
         // Then
-        assertEquals(1000, state.get("max"));
-        assertEquals(10, state.get("min"));
+        assertThat(state)
+                .hasFieldOrPropertyWithValue("max", 1000)
+                .hasFieldOrPropertyWithValue("min", 10);
     }
 
     @Test
@@ -218,9 +215,10 @@ public class ElementAggregatorTest {
         state = aggregator.apply(state, properties3);
 
         // Then
-        assertEquals(1000, state.get("max"));
-        assertEquals(10, state.get("min"));
-        assertEquals(1000 - 10, state.get("range"));
+        assertThat(state)
+                .hasFieldOrPropertyWithValue("max", 1000)
+                .hasFieldOrPropertyWithValue("min", 10)
+               .hasFieldOrPropertyWithValue("range", 990);
     }
 
     @Test
@@ -269,14 +267,14 @@ public class ElementAggregatorTest {
         assertSame(func1, adaptedFunction.getBinaryOperator());
 
         adaptedFunction = aggregator.getComponents().get(i++);
-        assertEquals(2, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(2);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
         assertSame(func2, adaptedFunction.getBinaryOperator());
 
         adaptedFunction = aggregator.getComponents().get(i++);
         assertSame(func3, adaptedFunction.getBinaryOperator());
-        assertEquals(1, adaptedFunction.getSelection().length);
+        assertThat(adaptedFunction.getSelection()).hasSize(1);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
         assertEquals(i, aggregator.getComponents().size());
@@ -316,31 +314,20 @@ public class ElementAggregatorTest {
 
     @Test
     public void shouldReturnUnmodifiableComponentsWhenLocked() {
-        // Given
         final ElementAggregator aggregator = new ElementAggregator();
 
-        // When
         aggregator.lock();
         final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
 
-        // Then
-        try {
-            components.add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> components.add(null));
     }
 
     @Test
     public void shouldReturnModifiableComponentsWhenNotLocked() {
-        // Given
         final ElementAggregator aggregator = new ElementAggregator();
 
-        // When
         final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
 
-        // Then - no exceptions
-        components.add(null);
+        assertThatNoException().isThrownBy(() -> components.add(null));
     }
 }

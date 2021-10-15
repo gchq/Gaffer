@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,27 @@ package uk.gov.gchq.gaffer.store;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
@@ -104,6 +107,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
+import uk.gov.gchq.gaffer.store.Store.ScheduledJobRunnable;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
@@ -118,6 +122,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
+import uk.gov.gchq.gaffer.store.optimiser.AbstractOperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -127,8 +132,8 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -139,18 +144,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -175,7 +187,7 @@ public class StoreTest {
     private StoreImpl store;
     private OperationChainValidator operationChainValidator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -227,7 +239,7 @@ public class StoreTest {
                 .build();
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
         System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
@@ -239,12 +251,7 @@ public class StoreTest {
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        try {
-            store.initialise(null, schema, properties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties)).extracting("message").isNotNull();
     }
 
     @Test
@@ -263,12 +270,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
-        try {
-            store.initialise("graphId", mySchema, properties);
-            fail();
-        } catch (final SchemaException exception) {
-            assertNotNull(exception.getMessage());
-        }
+        assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> store.initialise("graphId", mySchema, properties)).extracting("message").isNotNull();
     }
 
     @Test
@@ -761,7 +763,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldExecuteOperationJobAndWrapJobOperationInChain() throws OperationException, InterruptedException, StoreException {
+    public void shouldExecuteOperationJobAndWrapJobOperationInChain() throws OperationException, InterruptedException, StoreException, SerialisationException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -840,7 +842,7 @@ public class StoreTest {
 
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
-        StorePropertiesTest.TestCustomJsonModules1.modules = Arrays.asList(
+        StorePropertiesTest.TestCustomJsonModules1.modules = asList(
                 mock(Module.class),
                 mock(Module.class)
         );
@@ -879,7 +881,7 @@ public class StoreTest {
     }
 
 
-    @Test(expected = SchemaException.class)
+    @Test
     public void shouldFindInvalidSerialiser() throws Exception {
         final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
         Schema invalidSchema = new Schema.Builder()
@@ -912,11 +914,10 @@ public class StoreTest {
                     return validSerialiserInterface;
                 }
             }.initialise("graphId", invalidSchema, properties);
+            fail("Should have thrown exception");
         } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
-            throw e;
         }
-        fail("Exception wasn't caught");
     }
 
     @Test
@@ -936,7 +937,8 @@ public class StoreTest {
                 .first(new DiscardOutput())
                 .build();
         final Context context = new Context(user);
-        final String opChainOverviewString = opChain.toOverviewString();
+        final String operationChainOverviewString = opChain.toOverviewString();
+        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CommonConstants.UTF_8));
 
         // When - setup job
         JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
@@ -944,7 +946,7 @@ public class StoreTest {
         ScheduledExecutorService service = store.getExecutorService();
 
         // Then - assert scheduled
-        verify(service, times(1)).scheduleAtFixedRate(
+        verify(service).scheduleAtFixedRate(
                 any(Runnable.class),
                 eq(repeat.getInitialDelay()),
                 eq(repeat.getRepeatPeriod()),
@@ -952,12 +954,142 @@ public class StoreTest {
 
         // Then - assert job detail is as expected
         assertEquals(JobStatus.SCHEDULED_PARENT, parentJobDetail.getStatus());
-        assertEquals(opChainOverviewString, parentJobDetail.getOpChain());
-        assertEquals(context.getUser().getUserId(), parentJobDetail.getUserId());
+        assertEquals(operationChainOverviewString, parentJobDetail.getOpChain());
+        assertEquals(serialisedOperationChain, parentJobDetail.getSerialisedOperationChain());
+        assertEquals(context.getUser(), parentJobDetail.getUser());
     }
 
+    @Test
+    public void shouldCorrectlyRescheduleJobsOnInitialisation() throws Exception {
+
+        shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(1);
+    }
+
+    @Test
+    public void shouldOnlyRescheduleJobsOnceWhenInitialisationCalledMultipleTimes() throws Exception {
+
+        shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(5);
+    }
+
+    private void shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(final int initialisationCount) throws Exception {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
+        final OperationChain opChain = new OperationChain
+                .Builder()
+                .first(new DiscardOutput())
+                .build();
+
+        final User user = new User.Builder()
+                .userId("testUser")
+                .opAuth("opAuth")
+                .dataAuth("dataAuth")
+                .build();
+
+        final JobDetail scheduledJobDetail = new JobDetail.Builder()
+                .jobId("jobId")
+                .user(user)
+                .opChain(opChain.toOverviewString())
+                .serialisedOperationChain(opChain)
+                .repeat(repeat)
+                .build();
+
+        given(jobTracker.getAllScheduledJobs()).willReturn(new WrappedCloseableIterable(singletonList(scheduledJobDetail)));
+
+        StoreImpl2 store = new StoreImpl2();
+
+        // When - initialise store
+        for (int i = 0; i < initialisationCount; i++) {
+            store.initialise("graphId", schema, properties);
+        }
+
+        ScheduledExecutorService service = store.getExecutorService();
+
+        // Then - assert scheduled
+        final ArgumentCaptor<ScheduledJobRunnable> scheduledJobRunnableCaptor = ArgumentCaptor.forClass(ScheduledJobRunnable.class);
+
+        verify(service).scheduleAtFixedRate(
+                scheduledJobRunnableCaptor.capture(),
+                eq(repeat.getInitialDelay()),
+                eq(repeat.getRepeatPeriod()),
+                eq(repeat.getTimeUnit()));
+
+        assertEquals(scheduledJobDetail, scheduledJobRunnableCaptor.getValue().getJobDetail());
+        assertEquals(user, scheduledJobRunnableCaptor.getValue().getContext().getUser());
+        assertArrayEquals(
+                JSONSerialiser.serialise(opChain),
+                JSONSerialiser.serialise(scheduledJobRunnableCaptor.getValue().getOperationChain()));
+    }
+
+    @Test
+    public void shouldOptimiseOperationChains() throws Exception {
+        // Given
+        final StoreImpl store = new StoreImpl();
+        store.initialise("graphId", createSchemaMock(), mock(StoreProperties.class));
+
+        final CloseableIterable expectedResult = mock(CloseableIterable.class);
+
+        // An input OperationChain
+        final AddElements addElements = new AddElements();
+        final GetElements getElements = new GetElements();
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(addElements)
+                .then(getElements)
+                .build();
+
+        // The Operation contained in the optimised OperationChain
+        final GetAllElements getAllElements = new GetAllElements();
+        given(getAllElementsHandler.doOperation(getAllElements, context, store))
+                .willReturn(expectedResult);
+
+        // Create OperationChain optimiser
+        store.addOperationChainOptimisers(asList(new TestOperationChainOptimiser(asList(getAllElements))));
+
+        // When
+        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
+
+        // Then
+        assertSame(expectedResult, result);
+        verify(getAllElementsHandler).doOperation(getAllElements, context, store);
+        verify(addElementsHandler, never()).doOperation(addElements, context, store);
+        verify(getElementsHandler, never()).doOperation(getElements, context, store);
+    }
+
+    private class TestOperationChainOptimiser extends AbstractOperationChainOptimiser {
+
+        private final List<Operation> optimisedOperationList;
+
+        TestOperationChainOptimiser(final List<Operation> optimisedOperationList) {
+            this.optimisedOperationList = optimisedOperationList;
+        }
+
+        @Override
+        protected List<Operation> addPreOperations(final Operation previousOp, final Operation currentOp) {
+            return emptyList();
+        }
+
+        @Override
+        protected List<Operation> optimiseCurrentOperation(final Operation previousOp, final Operation currentOp, final Operation nextOp) {
+            return emptyList();
+        }
+
+        @Override
+        protected List<Operation> addPostOperations(final Operation currentOp, final Operation nextOp) {
+            return emptyList();
+        }
+
+        @Override
+        protected List<Operation> optimiseAll(final List<Operation> ops) {
+            return optimisedOperationList;
+        }
+    }
+
+
     private class StoreImpl extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
@@ -969,7 +1101,7 @@ public class StoreTest {
 
         @Override
         public Set<StoreTrait> getTraits() {
-            return TRAITS;
+            return traits;
         }
 
         public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
@@ -1052,7 +1184,7 @@ public class StoreTest {
     // Second store implementation with overriding ExecutorService.
     // This cannot be done in the first because the other tests for Jobs will fail due to mocking.
     private class StoreImpl2 extends Store {
-        private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
@@ -1064,7 +1196,7 @@ public class StoreTest {
 
         @Override
         public Set<StoreTrait> getTraits() {
-            return TRAITS;
+            return traits;
         }
 
         public OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
 public class OneToOneElementGeneratorTest {
@@ -37,7 +37,7 @@ public class OneToOneElementGeneratorTest {
     private final String obj1 = "object 1";
     private final String obj2 = "object 2";
 
-    @Before
+    @BeforeEach
     public void setup() {
         elm1 = mock(Element.class);
         elm2 = mock(Element.class);
@@ -45,56 +45,44 @@ public class OneToOneElementGeneratorTest {
 
     @Test
     public void getElementShouldReturnGeneratedElement() {
-        // Given
         final OneToOneElementGenerator<String> generator = new OneToOneElementGeneratorImpl();
 
-        // When
         final Element result = generator._apply(obj1);
 
-        // Then
         assertSame(elm1, result);
     }
 
     @Test
     public void getObjectShouldReturnGeneratedObject() {
-        // Given
         final OneToOneObjectGenerator<String> generator = new OneToOneObjectGeneratorImpl();
 
-        // When
         final String result = generator._apply(elm1);
 
-        // Then
         assertSame(obj1, result);
     }
 
     @Test
     public void getObjectsShouldReturnGeneratedObjectTransformIterable() {
-        // Given
         final OneToOneObjectGenerator<String> generator = new OneToOneObjectGeneratorImpl();
 
-        // When
         final TransformIterable<Element, String> result = (TransformIterable<Element, String>) generator.apply(Arrays.asList(elm1, elm2));
 
-        // Then
         final Iterator<String> itr = result.iterator();
         assertSame(obj1, itr.next());
         assertSame(obj2, itr.next());
-        assertFalse(itr.hasNext());
+        assertThat(itr).isExhausted();
     }
 
     @Test
     public void getElementsShouldReturnGeneratedElementTransformIterable() {
-        // Given
         final OneToOneElementGenerator<String> generator = new OneToOneElementGeneratorImpl();
 
-        // When
         final TransformIterable<String, Element> result = (TransformIterable<String, Element>) generator.apply(Arrays.asList(obj1, obj2));
 
-        // Then
         final Iterator<Element> itr = result.iterator();
         assertSame(elm1, itr.next());
         assertSame(elm2, itr.next());
-        assertFalse(itr.hasNext());
+        assertThat(itr).isExhausted();
     }
 
     private class OneToOneElementGeneratorImpl implements OneToOneElementGenerator<String> {

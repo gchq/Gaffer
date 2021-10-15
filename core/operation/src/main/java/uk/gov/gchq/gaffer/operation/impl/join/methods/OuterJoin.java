@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,56 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code OuterJoin} is a Join function which returns values from an iterable (together with an empty list)
- * where they do not match with any value in the list.
+ * {@code OuterJoin} is a Join function which returns MapTuples containing the keys which have no matches with the other
+ * side.
  */
 public class OuterJoin extends JoinFunction {
-    @Override
-    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
 
+    /**
+     * Returns a list containing a single value if the key does not match. Returns an empty list otherwise.
+     * @param key The key
+     * @param matches a list containing the matches
+     * @param keyName the name of the keyed side (LEFT or RIGHT)
+     * @param matchingValuesName the corresponding value side (LEFT or RIGHT)
+     * @return a list which may contain a single non matching key
+     */
+    @Override
+    protected List<MapTuple> joinFlattened(final Object key, final List matches, final String keyName, final String matchingValuesName) {
         List<MapTuple> resultList = new ArrayList<>();
 
-        for (final Object keyObj : keys) {
-            List matching = match.matching(keyObj);
-            if (matching.isEmpty()) {
-
-                MapTuple<String> tuple = new MapTuple<>();
-                tuple.put(keyName, keyObj);
-
-                // flattening will output a null value instead of an empty list
-                if (flatten) {
-                    tuple.put(matchingValuesName, null);
-                } else {
-                    tuple.put(matchingValuesName, matching);
-                }
-                resultList.add(tuple);
-            }
+        if (matches.isEmpty()) {
+            MapTuple<String> unMatchedPair = new MapTuple<>();
+            unMatchedPair.put(keyName, key);
+            unMatchedPair.put(matchingValuesName, null);
+            resultList.add(unMatchedPair);
         }
 
         return resultList;
+    }
+
+    /**
+     * Returns a {@code MapTuple} if the key has no matches. If it does, null is returned.
+     * @param key The key
+     * @param matches a list containing the matches
+     * @param keyName the name of the keyed side (LEFT or RIGHT)
+     * @param matchingValuesName the corresponding value side (LEFT or RIGHT)
+     * @return A MapTuple if the key has not matches. If it does, null is returned
+     */
+    @Override
+    protected MapTuple joinAggregated(final Object key, final List matches, final String keyName, final String matchingValuesName) {
+        if (matches.isEmpty()) {
+            MapTuple<String> allMatchingValues = new MapTuple<>();
+            allMatchingValues.put(keyName, key);
+            allMatchingValues.put(matchingValuesName, matches);
+            return allMatchingValues;
+        } else {
+            return null;
+        }
     }
 }

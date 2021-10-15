@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,54 +16,42 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PropertiesTest {
+
     @Test
     public void shouldConstructEmptyProperties() {
-        // Given
-
-        // When
         final Properties properties = new Properties();
 
-        // Then
-        assertTrue(properties.isEmpty());
+        assertThat(properties).isEmpty();
     }
 
     @Test
     public void shouldConstructPropertiesWithOtherProperties() {
-        // Given
         final Map<String, Object> otherProperties = new HashMap<>();
         otherProperties.put("propertyName", "property value");
 
-        // When
         final Properties properties = new Properties(otherProperties);
 
-        // Then
-        assertEquals(1, properties.size());
+        assertThat(properties).hasSize(1);
         assertEquals("property value", properties.get("propertyName"));
     }
 
     @Test
     public void shouldConstructPropertiesWithProperty() {
-        // Given
-        // When
         final Properties properties = new Properties("propertyName", "property value");
 
-        // Then
-        assertEquals(1, properties.size());
+        assertThat(properties).hasSize(1);
         assertEquals("property value", properties.get("propertyName"));
     }
 
@@ -90,7 +78,7 @@ public class PropertiesTest {
         properties.remove(propertiesToRemove);
 
         // Then
-        assertEquals(2, properties.size());
+        assertThat(properties).hasSize(2);
         assertEquals(propertyValue1, properties.get(property1));
         assertEquals(propertyValue3, properties.get(property3));
     }
@@ -118,7 +106,7 @@ public class PropertiesTest {
         properties.keepOnly(propertiesToKeep);
 
         // Then
-        assertEquals(2, properties.size());
+        assertThat(properties).hasSize(2);
         assertEquals(propertyValue1, properties.get(property1));
         assertEquals(propertyValue3, properties.get(property3));
     }
@@ -134,18 +122,16 @@ public class PropertiesTest {
         properties.put("property1", null);
 
         // Then
-        assertEquals(1, properties.size());
-        assertEquals(null, properties.get("property1"));
+        assertThat(properties).hasSize(1);
+        assertThat(properties.get("property1")).isNull();
     }
 
     @Test
     public void shouldNotAddPropertyIfPropertyNameIsNull() {
-        // When
         final Properties properties = new Properties();
         properties.put(null, "propertyValue1");
 
-        // Then
-        assertEquals(0, properties.size());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -163,7 +149,7 @@ public class PropertiesTest {
         final Properties clone = properties.clone();
 
         // Then
-        assertEquals(2, clone.size());
+        assertThat(clone).hasSize(2);
         assertNotSame(properties, clone);
         assertEquals(propertyValue1, clone.get(property1));
         assertEquals(propertyValue2, clone.get(property2));
@@ -184,9 +170,8 @@ public class PropertiesTest {
         final String toString = properties.toString();
 
         // Then
-        assertTrue(toString.contains("property 2="
-                + "<java.lang.String>property value 2"));
-        assertTrue(toString.contains("property 1="
-                + "<java.lang.String>property value 1"));
+        assertThat(toString)
+                .contains("property 1=<java.lang.String>property value 1")
+                .contains("property 2=<java.lang.String>property value 2");
     }
 }

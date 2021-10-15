@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,73 @@
 package uk.gov.gchq.gaffer.rest.service.impl;
 
 import org.glassfish.jersey.client.ChunkedInput;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class OperationServiceIT extends AbstractRestApiIT {
+
+    @BeforeEach
+    @AfterEach
+    public void clearUserFactoryClassSystemProperty() {
+        System.clearProperty(SystemProperty.USER_FACTORY_CLASS);
+    }
+
+    @Test
+    public void shouldReturnNamedOpDetailWithLabelWhenLabelIsAddedToNamedOp() throws Exception {
+        // Given
+        final AddNamedOperation namedOperation = new AddNamedOperation.Builder()
+                .name("My Operation With Label")
+                .labels(Arrays.asList("test label"))
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .build();
+        client.executeOperation(namedOperation);
+
+        // When
+        final Response response = client.executeOperation(new GetAllNamedOperations());
+        final List<NamedOperationDetail> namedOperationDetails =
+                response.readEntity(new GenericType<List<NamedOperationDetail>>() { });
+
+        // Then
+        final NamedOperationDetail expected = new NamedOperationDetail.Builder()
+                .operationName("My Operation With Label")
+                .labels(Arrays.asList("test label"))
+                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
+                .creatorId("UNKNOWN")
+                .parameters(null)
+                .build();
+
+        assertThat(namedOperationDetails.iterator().next()).isEqualTo(expected);
+    }
+
     @Test
     public void shouldReturnAllElements() throws IOException {
         // Given
@@ -50,8 +93,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         final Response response = client.executeOperation(new GetAllElements());
 
         // Then
-        final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
-        });
+        final List<Element> results = response.readEntity(new GenericType<List<Element>>() { });
 
         verifyElements(DEFAULT_ELEMENTS, results);
     }
@@ -68,8 +110,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .build());
 
         // Then
-        final GroupCounts groupCounts = response.readEntity(new GenericType<GroupCounts>() {
-        });
+        final GroupCounts groupCounts = response.readEntity(new GenericType<GroupCounts>() { });
 
         verifyGroupCounts(groupCounts);
     }
@@ -80,10 +121,12 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
+        final Response response =
+                client.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
+
         verifyElements(DEFAULT_ELEMENTS, results);
     }
 
@@ -97,6 +140,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // Then
         final List<Element> results = readChunkedElements(response);
+
         verifyElements(DEFAULT_ELEMENTS, results);
     }
 
@@ -112,10 +156,13 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
                 .build());
 
         // Then
-        final List<GroupCounts> results = readChunkedResults(response, new GenericType<ChunkedInput<GroupCounts>>() {
-        });
-        assertEquals(1, results.size());
+        final List<GroupCounts> results =
+                readChunkedResults(response, new GenericType<ChunkedInput<GroupCounts>>() { });
+
+        assertThat(results).hasSize(1);
+
         final GroupCounts groupCounts = results.get(0);
+
         verifyGroupCounts(groupCounts);
     }
 
@@ -126,7 +173,8 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // Then
         final List<Element> results = readChunkedElements(response);
-        assertEquals(0, results.size());
+
+        assertThat(results).isEmpty();
     }
 
     @Test
@@ -136,7 +184,8 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
         // Then
         final List<Element> results = readChunkedElements(response);
-        assertEquals(0, results.size());
+
+        assertThat(results).isEmpty();
     }
 
     @Test
@@ -156,13 +205,12 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     public void shouldThrowErrorOnEmptyOperationChain() throws IOException {
         // When
         final Response response = client.executeOperationChain(new OperationChain());
+
         assertEquals(500, response.getStatus());
     }
 
-
     private List<Element> readChunkedElements(final Response response) {
-        return readChunkedResults(response, new GenericType<ChunkedInput<Element>>() {
-        });
+        return readChunkedResults(response, new GenericType<ChunkedInput<Element>>() { });
     }
 
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
@@ -183,8 +231,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     }
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
-        assertEquals(2, (int) groupCounts.getEntityGroups()
-                .get(TestGroups.ENTITY));
+        assertEquals(2, (int) groupCounts.getEntityGroups().get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

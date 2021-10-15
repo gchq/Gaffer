@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.NamespaceExistsException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
@@ -30,6 +31,7 @@ import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +98,7 @@ public final class TableUtils {
      */
     public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
-        // Create table
+        // Create table and namespace (if provided)
         final String tableName = store.getTableName();
         if (null == tableName) {
             throw new AccumuloRuntimeException("Table name is required.");
@@ -107,6 +109,19 @@ public final class TableUtils {
             return;
         }
         try {
+            final String namespace = store.getProperties().getNamespace();
+            if (StringUtils.isNotBlank(namespace)) {
+                if (!connector.namespaceOperations().exists(namespace)) {
+                    LOGGER.info("Creating namespace {} as user {}", namespace, connector.whoami());
+                    try {
+                        connector.namespaceOperations().create(namespace);
+                    } catch (final NamespaceExistsException e) {
+                        // This method is synchronised, if you are using the same store only
+                        // through one client in one JVM you shouldn't get here
+                        // Someone else got there first, never mind...
+                    }
+                }
+            }
             LOGGER.info("Creating table {} as user {}", tableName, connector.whoami());
             connector.tableOperations().create(tableName);
             final String repFactor = store.getProperties().getTableFileReplicationFactor();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,26 +31,26 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.List;
 
 public class AccumuloSchemaHidingIT extends SchemaHidingIT {
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSchemaHidingIT.class, "accumuloStore.properties"));
+
     public AccumuloSchemaHidingIT() {
-        super("mockAccumuloStore.properties");
+        super(PROPERTIES);
     }
 
     @Override
     protected void cleanUp() {
-        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
-
         final AccumuloStore store;
         try {
-            store = Class.forName(storeProps.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
+            store = Class.forName(PROPERTIES.getStoreClass()).asSubclass(AccumuloStore.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeProps.getStoreClass(), e);
+            throw new IllegalArgumentException("Could not create store of type: " + PROPERTIES.getStoreClass(), e);
         }
 
         try {
             store.preInitialise(
                     "graphId",
                     createFullSchema(),
-                    storeProps
+                    PROPERTIES
             );
             store.getConnection().tableOperations().delete(store.getTableName());
         } catch (final Exception e) {

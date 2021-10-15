@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,46 @@
  */
 package uk.gov.gchq.gaffer.commonutil.pair;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PairTest {
 
     @Test
-    public void shouldCreateMutablePair() throws Exception {
-        // Given
+    public void shouldCreateMutablePair() {
         final Pair<Integer, String> pair = new Pair<>(0, "foo");
-        final Pair<Object, String> pair2 = new Pair<>(null, "bar");
-
-        // Then
-        assertTrue(pair instanceof Pair<?, ?>);
-        assertTrue(pair2 instanceof Pair<?, ?>);
 
         assertEquals(0, pair.getFirst().intValue());
-        assertNull(pair2.getFirst());
-
         assertEquals("foo", pair.getSecond());
-        assertEquals("bar", pair2.getSecond());
     }
 
     @Test
-    public void shouldBeAbleToMutateMutablePair() {
-        // Given
+    public void shouldCreateMutablePair2() {
+        final Pair<Object, String> pair = new Pair<>(null, "bar");
+
+        assertNull(pair.getFirst());
+        assertEquals("bar", pair.getSecond());
+    }
+
+    @Test
+    public void shouldBeAbleToMutateFirstInPair() {
         final Pair<Integer, String> pair = new Pair<>(0);
-        final Pair<Object, String> pair2 = new Pair<>();
 
-        // When
         pair.setFirst(1);
-        pair2.setSecond("baz");
-
-        // Then
-        assertTrue(pair instanceof Pair<?, ?>);
-        assertTrue(pair2 instanceof Pair<?, ?>);
 
         assertEquals(1, pair.getFirst().intValue());
-        assertEquals("baz", pair2.getSecond());
-
         assertNull(pair.getSecond());
-        assertNull(pair2.getFirst());
+    }
+
+    @Test
+    public void shouldBeAbleToMutateSecondInPair() {
+        final Pair<Object, String> pair = new Pair<>();
+
+        pair.setSecond("2nd");
+
+        assertNull(pair.getFirst());
+        assertEquals("2nd", pair.getSecond());
     }
 }

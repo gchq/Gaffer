@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package uk.gov.gchq.gaffer.bitmap.function.aggregate;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.roaringbitmap.RoaringBitmap;
 
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
@@ -26,12 +24,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void aggregatorDealsWithNullInput() {
@@ -113,10 +109,16 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Override
+    protected Iterable<RoaringBitmapAggregator> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends BinaryOperator> getFunctionClass() {
         return RoaringBitmapAggregator.class;
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
 

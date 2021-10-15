@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,12 +63,15 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
             final NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
                     .operationChain(operation.getOperationChainAsString())
                     .operationName(operation.getOperationName())
+                    .labels(operation.getLabels())
                     .creatorId(context.getUser().getUserId())
                     .readers(operation.getReadAccessRoles())
                     .writers(operation.getWriteAccessRoles())
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
                     .score(operation.getScore())
+                    .readAccessPredicate(operation.getReadAccessPredicate())
+                    .writeAccessPredicate(operation.getWriteAccessPredicate())
                     .build();
 
             validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);

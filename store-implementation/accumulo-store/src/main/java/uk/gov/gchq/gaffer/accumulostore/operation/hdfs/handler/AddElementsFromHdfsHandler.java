@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,11 +202,16 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)
             throws OperationException {
-        final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
+
         final int response;
+
         try {
+            /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
+            final Configuration configuration = new GenericOptionsParser(operation.getCommandLineArgs()).getConfiguration();
+            final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(configuration), operation, store);
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            response = ToolRunner.run(fetchTool.getConfig(), fetchTool, new String[0]);
+
+            response = ToolRunner.run(fetchTool, operation.getCommandLineArgs());
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class DiscardOutputTest extends OperationTest<DiscardOutput> {
 
@@ -34,10 +31,11 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
         // Given
         final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
 
-        // Then
-        assertThat(discardOutput.getInput(), is(nullValue()));
+        // When / Then
+        assertThat(discardOutput.getInput()).isNull();
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

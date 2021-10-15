@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import com.fasterxml.jackson.databind.Module;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AccumuloPropertiesTest {
     @Test
@@ -69,6 +69,7 @@ public class AccumuloPropertiesTest {
         final String MAX_BLOOM_FILTER = "7864320";
         final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
         final String REPLICATION_FACTOR = "accumulo.file.replication";
+        final String NAMESPACE = "gaffer.namespace";
 
         // When
         props.setNumThreadsForBatchWriter(NUM_THREADS_WRITER);
@@ -83,6 +84,7 @@ public class AccumuloPropertiesTest {
         props.setKeyPackageClass(KEY_PACKAGE_CLASS);
         props.setTableFileReplicationFactor(REPLICATION_FACTOR);
         props.setEnableValidatorIterator(true);
+        props.setNamespace(NAMESPACE);
 
         // Then
         assertEquals(Integer.parseInt(NUM_THREADS_WRITER), props.getNumThreadsForBatchWriter());
@@ -97,6 +99,7 @@ public class AccumuloPropertiesTest {
         assertEquals(KEY_PACKAGE_CLASS, props.getKeyPackageClass());
         assertEquals(REPLICATION_FACTOR, props.getTableFileReplicationFactor());
         assertTrue(props.getEnableValidatorIterator());
+        assertEquals(NAMESPACE, props.getNamespace());
 
     }
 

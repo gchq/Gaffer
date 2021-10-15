@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
@@ -26,17 +26,17 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RestApiV2IT extends AbstractRestApiIT {
 
-    private static final Client client = ClientBuilder.newClient();
+    private static final Client CLIENT = ClientBuilder.newClient();
 
     @Test
     public void shouldReturnOkStatusMessage() {
         // When
-        final SystemStatus status = client.target("http://localhost:8080/rest/v2")
+        final SystemStatus status = CLIENT.target("http://localhost:8080/rest/v2")
                 .path("graph/status")
                 .request()
                 .get(SystemStatus.class);
@@ -48,7 +48,7 @@ public class RestApiV2IT extends AbstractRestApiIT {
     @Test
     public void shouldRetrieveSchema() {
         // Given
-        final Response response = client.target("http://localhost:8080/rest/v2")
+        final Response response = CLIENT.target("http://localhost:8080/rest/v2")
                 .path("graph/config/schema")
                 .request()
                 .get();

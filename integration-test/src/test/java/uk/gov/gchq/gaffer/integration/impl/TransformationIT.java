@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,21 +29,24 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TransformationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertexWithTransientProperty";
@@ -74,10 +77,10 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isNull();
         }
     }
 
@@ -100,11 +103,11 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertEquals(1L, result.getProperty(TestPropertyNames.COUNT));
-            assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.COUNT)).isEqualTo(1L);
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isNull();
         }
     }
 
@@ -130,10 +133,10 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertEquals("A1,[3]", result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isEqualTo("A1,[3]");
         }
     }
 
@@ -158,9 +161,9 @@ public class TransformationIT extends AbstractStoreIT {
         // When
         final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
-        assertNotNull(results);
+        assertThat(results).isNotNull();
         for (final Element result : results) {
-            assertEquals(SOURCE_1 + "," + result.getProperty(TestPropertyNames.INT), result.getProperty(TestPropertyNames.TRANSIENT_1));
+            assertThat(result.getProperty(TestPropertyNames.TRANSIENT_1)).isEqualTo(SOURCE_1 + "," + result.getProperty(TestPropertyNames.INT));
         }
     }
 
@@ -185,10 +188,10 @@ public class TransformationIT extends AbstractStoreIT {
         final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
-        assertNotNull(results);
-        assertEquals(1, results.size());
+        assertThat(results)
+                .hasSize(1);
         for (final Element result : results) {
-            assertEquals("A1,[3]", ((Entity) result).getVertex());
+            assertThat(((Entity) result).getVertex()).isEqualTo("A1,[3]");
         }
     }
 
@@ -213,5 +216,60 @@ public class TransformationIT extends AbstractStoreIT {
         graph.execute(new AddElements.Builder()
                 .input(elements)
                 .build(), getUser());
+    }
+
+    @Test
+    public void shouldNotErrorWhenEdgeTransformReceivesEntities() throws OperationException {
+        final Iterable<? extends Element> result = graph.execute(new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .then(new Transform.Builder()
+                        .edge(TestGroups.EDGE, new ElementTransformer.Builder()
+                                .select(TestPropertyNames.COUNT)
+                                .execute(new ToString())
+                                .project("propAlt")
+                                .build())
+                        .build())
+                .build(), getUser());
+
+        //Resolve the lazy iterator, by adding the contents to a list, No exception should have been thrown here.
+        final ArrayList<Element> edges = Lists.newArrayList(result);
+        final ArrayList<Element> entities = Lists.newArrayList(edges);
+
+        edges.removeIf(e -> e instanceof Entity);
+        assertThat(edges).hasSize(111);
+        assertThat(edges.get(0).getProperties()).containsKey("propAlt");
+
+
+        entities.removeIf(e -> e instanceof Edge);
+        assertThat(entities).hasSize(89);
+        assertThat(entities.get(0).getProperties()).doesNotContainKey("propAlt");
+    }
+
+    @Test
+    public void shouldNotErrorWhenEntityTransformReceivesEdges() throws OperationException {
+        final Iterable<? extends Element> result = graph.execute(new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .then(new Transform.Builder()
+                        .entity(TestGroups.ENTITY, new ElementTransformer.Builder()
+                                .select(TestPropertyNames.COUNT)
+                                .execute(new ToString())
+                                .project("propAlt")
+                                .build())
+                        .build())
+                .build(), getUser());
+
+        //Resolve the lazy iterator, by adding the contents to a list, No exception should have been thrown here.
+        final ArrayList<Element> edges = Lists.newArrayList(result);
+        final ArrayList<Element> entities = Lists.newArrayList(edges);
+
+        edges.removeIf(e -> e instanceof Entity);
+        assertThat(edges).hasSize(111);
+        assertThat(edges.get(0).getProperties()).doesNotContainKey("propAlt");
+
+        entities.removeIf(e -> e instanceof Edge);
+        assertThat(entities).hasSize(89);
+        assertThat(entities.get(0).getProperties()).containsKey("propAlt");
     }
 }

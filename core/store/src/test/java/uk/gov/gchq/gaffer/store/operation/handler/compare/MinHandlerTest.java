@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -30,28 +29,20 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MinHandlerTest {
 
     @Test
-    public void shouldFindMinBasedOnProperty() throws OperationException, JsonProcessingException {
+    public void shouldFindMinBasedOnProperty() throws OperationException {
         // Given
-        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property", 1)
-                .build();
-        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property", 2)
-                .build();
-        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property", 3)
-                .build();
-        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property", 1)
-                .build();
+        final Entity entity1 = makeEntity("property", 1);
+        final Entity entity2 = makeEntity("property", 2);
+        final Entity entity3 = makeEntity("property", 3);
+        final Entity entity4 = makeEntity("property", 1);
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
@@ -73,24 +64,12 @@ public class MinHandlerTest {
     }
 
     @Test
-    public void shouldFindMinBasedOnMultipleProperties() throws OperationException, JsonProcessingException {
+    public void shouldFindMinBasedOnMultipleProperties() throws OperationException {
         // Given
-        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 1)
-                .property("property2", 1)
-                .build();
-        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 1)
-                .property("property2", 2)
-                .build();
-        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 2)
-                .property("property2", 2)
-                .build();
-        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 2)
-                .property("property2", 1)
-                .build();
+        final Entity entity1 = makeEntity(1, 1);
+        final Entity entity2 = makeEntity(1, 2);
+        final Entity entity3 = makeEntity(2, 2);
+        final Entity entity4 = makeEntity(2, 1);
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
@@ -115,23 +94,13 @@ public class MinHandlerTest {
     }
 
     @Test
-    public void shouldFindMinBasedOnPropertyWithMissingProperty() throws OperationException, JsonProcessingException {
+    public void shouldFindMinBasedOnPropertyWithMissingProperty() throws OperationException {
         // Given
-        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 1)
-                .build();
-        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 2)
-                .build();
-        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 3)
-                .build();
-        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property2", 1)
-                .build();
-        final Entity entity5 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property2", 2)
-                .build();
+        final Entity entity1 = makeEntity("property1", 1);
+        final Entity entity2 = makeEntity("property1", 2);
+        final Entity entity3 = makeEntity("property1", 3);
+        final Entity entity4 = makeEntity("property2", 1);
+        final Entity entity5 = makeEntity("property2", 2);
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
 
@@ -165,22 +134,10 @@ public class MinHandlerTest {
     @Test
     public void shouldFindMinBasedOnElement() throws OperationException {
         // Given
-        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 1)
-                .property("property2", 1)
-                .build();
-        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 2)
-                .property("property2", 2)
-                .build();
-        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 3)
-                .property("property2", 3)
-                .build();
-        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                .property("property1", 4)
-                .property("property2", 4)
-                .build();
+        final Entity entity1 = makeEntity(1, 1);
+        final Entity entity2 = makeEntity(2, 2);
+        final Entity entity3 = makeEntity(3, 3);
+        final Entity entity4 = makeEntity(4, 4);
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
@@ -203,7 +160,6 @@ public class MinHandlerTest {
     public void shouldReturnNullIfOperationInputIsNull() throws OperationException {
         // Given
         final Min min = new Min.Builder().build();
-
         final MinHandler handler = new MinHandler();
 
         // When
@@ -217,7 +173,6 @@ public class MinHandlerTest {
     public void shouldReturnNullIfBothComparatorsAreNull() throws OperationException {
         // Given
         final List<Entity> input = Lists.newArrayList();
-
         final Min min = new Min.Builder().input(input)
                 .build();
 
@@ -228,6 +183,19 @@ public class MinHandlerTest {
 
         // Then
         assertNull(result);
+    }
+
+    private Entity makeEntity(final int property1, final int property2) {
+        return new Entity.Builder().group(TestGroups.ENTITY)
+                .property("property1", property1)
+                .property("property2", property2)
+                .build();
+    }
+
+    private Entity makeEntity(final String propertyName1, final int property1) {
+        return new Entity.Builder().group(TestGroups.ENTITY)
+                .property(propertyName1, property1)
+                .build();
     }
 
     private static class SimpleElementComparator implements Comparator<Element> {

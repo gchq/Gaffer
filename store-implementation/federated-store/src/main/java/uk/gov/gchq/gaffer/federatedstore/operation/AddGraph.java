@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -80,6 +81,8 @@ public class AddGraph implements FederatedOperation {
     private Map<String, String> options;
     private boolean isPublic = false;
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
+    private AccessPredicate readAccessPredicate;
+    private AccessPredicate writeAccessPredicate;
 
     public AddGraph() {
         addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
@@ -111,7 +114,9 @@ public class AddGraph implements FederatedOperation {
                 .parentPropertiesId(parentPropertiesId)
                 .disabledByDefault(disabledByDefault)
                 .options(this.options)
-                .isPublic(this.isPublic);
+                .isPublic(this.isPublic)
+                .readAccessPredicate(this.readAccessPredicate)
+                .writeAccessPredicate(this.writeAccessPredicate);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -194,6 +199,22 @@ public class AddGraph implements FederatedOperation {
         return isPublic;
     }
 
+    public AccessPredicate getWriteAccessPredicate() {
+        return writeAccessPredicate;
+    }
+
+    public void setWriteAccessPredicate(final AccessPredicate writeAccessPredicate) {
+        this.writeAccessPredicate = writeAccessPredicate;
+    }
+
+    public AccessPredicate getReadAccessPredicate() {
+        return readAccessPredicate;
+    }
+
+    public void setReadAccessPredicate(final AccessPredicate readAccessPredicate) {
+        this.readAccessPredicate = readAccessPredicate;
+    }
+
     public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {
 
         protected GraphBuilder(final OP addGraph) {
@@ -241,6 +262,16 @@ public class AddGraph implements FederatedOperation {
 
         public B disabledByDefault(final boolean disabledByDefault) {
             _getOp().setDisabledByDefault(disabledByDefault);
+            return _self();
+        }
+
+        public B readAccessPredicate(final AccessPredicate readAccessPredicate) {
+            _getOp().setReadAccessPredicate(readAccessPredicate);
+            return _self();
+        }
+
+        public B writeAccessPredicate(final AccessPredicate writeAccessPredicate) {
+            _getOp().setWriteAccessPredicate(writeAccessPredicate);
             return _self();
         }
     }

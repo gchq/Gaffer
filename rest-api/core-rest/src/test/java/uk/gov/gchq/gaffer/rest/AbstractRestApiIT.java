@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,25 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
+
     protected static final Element[] DEFAULT_ELEMENTS = {
             new uk.gov.gchq.gaffer.data.element.Entity.Builder()
                     .group(TestGroups.ENTITY)
@@ -54,8 +53,9 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 3)
                     .build()};
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @TempDir
+    public File testFolder;
     protected final T client = getClient();
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;
@@ -69,20 +69,20 @@ public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
         this.storePropertiesResourcePath = storePropertiesResourcePath;
     }
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
         client.startServer();
         client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
     }
 
-    @After
+    @AfterEach
     public void after() {
         client.stopServer();
     }
 
     protected void verifyElements(final Element[] expected, final List<Element> actual) {
         assertEquals(expected.length, actual.size());
-        assertThat(actual, IsCollectionContaining.hasItems(expected));
+        assertThat(actual).contains(expected);
     }
 
     protected abstract T getClient();

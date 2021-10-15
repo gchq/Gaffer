@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -27,28 +28,29 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplitPointsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplitPointsHandlerTest;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleElementsForSplitPointsHandlerTest<AccumuloStore> {
     public static final int NUM_TABLET_SERVERS = 4;
 
     private AccumuloStore store;
 
-    @Before
+    @BeforeEach
     public void before() throws StoreException {
         store = mock(AccumuloStore.class);
         final AccumuloKeyPackage keyPackage = mock(AccumuloKeyPackage.class);
@@ -58,11 +60,6 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
         given(store.getKeyPackage()).willReturn(keyPackage);
         given(keyPackage.getKeyConverter()).willReturn(converter);
         given(store.getTabletServers()).willReturn(tabletServers);
-    }
-
-    @Override
-    public void shouldThrowExceptionIfNumSplitsIsNull() {
-        // Num splits can never be null
     }
 
     @Test
@@ -80,11 +77,14 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
                 .build();
 
         // When
-        final List<String> splits = createHandler().doOperation(operation, new Context(), createStore());
+        createHandler().doOperation(operation, new Context(), store);
 
         // Then
-        assertEquals(NUM_TABLET_SERVERS, splits.size() + 1);
-        verifySplits(Arrays.asList(14, 29, 44), elements, splits, handler);
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        final int expectedNumOfSplits = NUM_TABLET_SERVERS - 1;
+        final int expectedElementCount = elements.size() * 2;
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, expectedNumOfSplits, expectedElementCount);
     }
 
     @Test
@@ -102,10 +102,13 @@ public class SampleElementsForSplitPointsHandlerTest extends AbstractSampleEleme
                 .build();
 
         // When
-        final List<String> splits = createHandler().doOperation(operation, new Context(), createStore());
+        createHandler().doOperation(operation, new Context(), store);
 
         // Then
-        verifySplits(Arrays.asList(14, 29, 44), elements, splits, handler);
+        final ArgumentCaptor<GenerateSplitPointsFromSample> generateSplitPointsFromSampleCaptor = ArgumentCaptor.forClass(GenerateSplitPointsFromSample.class);
+        verify(store).execute(generateSplitPointsFromSampleCaptor.capture(), any(Context.class));
+        final int expectedElementCount = elements.size() * 2;
+        assertExpectedNumberOfSplitPointsAndSampleSize(generateSplitPointsFromSampleCaptor, numSplits, expectedElementCount);
     }
 
     @Override

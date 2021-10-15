@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,45 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class SetVariableTest extends OperationTest<SetVariable> {
+
     private final String varName = "varName";
     private final int varVal = 4;
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given / When
         final SetVariable setVariableOp = new SetVariable.Builder()
                 .variableName("varName")
                 .input(varVal)
                 .build();
 
+        // Then
         assertEquals(varName, setVariableOp.getVariableName());
         assertEquals(varVal, setVariableOp.getInput());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         final SetVariable op = new SetVariable.Builder()
                 .variableName("varName")
                 .input(varVal)
                 .build();
 
+        // When
         final SetVariable opClone = op.shallowClone();
 
+        // Then
         assertNotSame(op, opClone);
         assertEquals(op.getVariableName(), opClone.getVariableName());
         assertEquals(op.getInput(), opClone.getInput());

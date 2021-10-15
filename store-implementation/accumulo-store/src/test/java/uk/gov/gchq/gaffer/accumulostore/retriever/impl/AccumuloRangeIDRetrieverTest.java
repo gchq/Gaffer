@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -41,51 +40,43 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccumuloRangeIDRetrieverTest {
 
-    private static final int numEntries = 1000;
-    private static View defaultView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
+    private static final int NUM_ENTRIES = 1000;
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloRangeIDRetrieverTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloRangeIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @BeforeClass
-    public static void setup() throws StoreException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
-        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
-        setupGraph(byteEntityStore, numEntries);
-        setupGraph(gaffer1KeyStore, numEntries);
-    }
+    private static View defaultView;
 
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
+    @BeforeAll
+    public static void setup() throws StoreException {
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+
+        setupGraph(BYTE_ENTITY_STORE, NUM_ENTRIES);
+        setupGraph(GAFFER_1_KEY_STORE, NUM_ENTRIES);
     }
 
     @Test
     public void shouldRetrieveElementsInRangeBetweenSeedsByteEntityStore() throws Exception {
-        shouldRetrieveElementsInRangeBetweenSeeds(byteEntityStore);
+        shouldRetrieveElementsInRangeBetweenSeeds(BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldRetrieveElementsInRangeBetweenSeedsGaffer1Store() throws Exception {
-        shouldRetrieveElementsInRangeBetweenSeeds(gaffer1KeyStore);
+        shouldRetrieveElementsInRangeBetweenSeeds(GAFFER_1_KEY_STORE);
     }
 
     private void shouldRetrieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws Exception {
@@ -106,7 +97,7 @@ public class AccumuloRangeIDRetrieverTest {
             }
         }
 
-        assertEquals(numEntries, elements.size());
+        assertEquals(NUM_ENTRIES, elements.size());
     }
 
     private static void setupGraph(final AccumuloStore store, final int numEntries) {

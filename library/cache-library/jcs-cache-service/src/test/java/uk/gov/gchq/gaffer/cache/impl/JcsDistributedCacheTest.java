@@ -1,10 +1,26 @@
+/*
+ * Copyright 2017-2021 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.cache.impl;
 
 import org.apache.commons.jcs.engine.control.CompositeCache;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
@@ -14,14 +30,15 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JcsDistributedCacheTest {
 
     private static JcsCache<String, Integer> cache1;
     private static JcsCache<String, Integer> cache2;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         Properties cacheProperties = new Properties();
         cacheProperties.load(new FileInputStream("src/test/resources/distributed.ccf"));
@@ -42,7 +59,7 @@ public class JcsDistributedCacheTest {
         cache2 = new JcsCache<>(tmp);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cache1.clear();
     }
@@ -70,7 +87,7 @@ public class JcsDistributedCacheTest {
 
         // then
         Set<String> keys = cache2.getAllKeys();
-        assertEquals(3, keys.size());
+        assertThat(keys).hasSize(3);
         assert (keys.contains("test1"));
         assert (keys.contains("test2"));
         assert (keys.contains("test3"));
@@ -87,7 +104,7 @@ public class JcsDistributedCacheTest {
 
         // then
         Collection<Integer> keys = cache2.getAllValues();
-        assertEquals(3, keys.size());
+        assertThat(keys).hasSize(3);
         assert (keys.contains(4));
         assert (keys.contains(5));
         assert (keys.contains(6));

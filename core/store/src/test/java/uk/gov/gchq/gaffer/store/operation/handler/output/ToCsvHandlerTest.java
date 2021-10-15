@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ToCsvHandlerTest {
 
@@ -38,28 +38,10 @@ public class ToCsvHandlerTest {
     public void shouldConvertToCsv() throws OperationException {
         // Given
         final List<Element> elements = Lists.newArrayList(
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex1")
-                        .property("count", 1)
-                        .build(),
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex2")
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source1")
-                        .dest("dest1")
-                        .directed(true)
-                        .property("count", 1)
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source2")
-                        .dest("dest2")
-                        .directed(true)
-                        .build()
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
         );
 
         final ToCsv operation = new ToCsv.Builder()
@@ -82,40 +64,21 @@ public class ToCsvHandlerTest {
 
         //Then
         final List<String> resultList = Lists.newArrayList(results);
-        assertEquals(Arrays.asList(
-                "Foo,vertex1,,1,A Constant",
-                "Foo,vertex2,,,A Constant",
-                "Bar,,source1,1,A Constant",
-                "Bar,,source2,,A Constant"
-        ), resultList);
+        final List<String> expected = Arrays.asList(
+                "Foo,vertex1,,1,A Constant", "Foo,vertex2,,,A Constant",
+                "Bar,,source1,1,A Constant", "Bar,,source2,,A Constant"
+        );
+        assertEquals(expected, resultList);
     }
 
     @Test
     public void shouldConvertToQuotedCsv() throws OperationException {
         // Given
         final List<Element> elements = Lists.newArrayList(
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex1")
-                        .property("count", 1)
-                        .build(),
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex2")
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source1")
-                        .dest("dest1")
-                        .directed(true)
-                        .property("count", 1)
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source2")
-                        .dest("dest2")
-                        .directed(true)
-                        .build()
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
         );
 
         final ToCsv operation = new ToCsv.Builder()
@@ -138,40 +101,21 @@ public class ToCsvHandlerTest {
 
         //Then
         final List<String> resultList = Lists.newArrayList(results);
-        assertEquals(Arrays.asList(
-                "\"Foo\",\"vertex1\",,\"1\",\"A Constant\"",
-                "\"Foo\",\"vertex2\",,,\"A Constant\"",
-                "\"Bar\",,\"source1\",\"1\",\"A Constant\"",
-                "\"Bar\",,\"source2\",,\"A Constant\""
-        ), resultList);
+        final List<String> expected = Arrays.asList(
+                "\"Foo\",\"vertex1\",,\"1\",\"A Constant\"", "\"Foo\",\"vertex2\",,,\"A Constant\"",
+                "\"Bar\",,\"source1\",\"1\",\"A Constant\"", "\"Bar\",,\"source2\",,\"A Constant\""
+        );
+        assertEquals(expected, resultList);
     }
 
     @Test
     public void shouldConvertToCsvWithCommaReplacement() throws OperationException {
         // Given
         final List<Element> elements = Lists.newArrayList(
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex1,with comma")
-                        .property("count", 1)
-                        .build(),
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex2")
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source1,with comma")
-                        .dest("dest1")
-                        .directed(true)
-                        .property("count", 1)
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source2")
-                        .dest("dest2")
-                        .directed(true)
-                        .build()
+                makeEntity("vertex1,with comma", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1,with comma", "count", 1),
+                makeEdge("source2")
         );
 
         final ToCsv operation = new ToCsv.Builder()
@@ -195,40 +139,21 @@ public class ToCsvHandlerTest {
 
         //Then
         final List<String> resultList = Lists.newArrayList(results);
-        assertEquals(Arrays.asList(
-                "Foo,vertex1-with comma,,1,A Constant",
-                "Foo,vertex2,,,A Constant",
-                "Bar,,source1-with comma,1,A Constant",
-                "Bar,,source2,,A Constant"
-        ), resultList);
+        final List<String> expected = Arrays.asList(
+                "Foo,vertex1-with comma,,1,A Constant", "Foo,vertex2,,,A Constant",
+                "Bar,,source1-with comma,1,A Constant", "Bar,,source2,,A Constant"
+        );
+        assertEquals(expected, resultList);
     }
 
     @Test
     public void shouldConvertToCsvWithHeader() throws OperationException {
         // Given
         final List<Element> elements = Lists.newArrayList(
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex1")
-                        .property("count", 1)
-                        .build(),
-                new Entity.Builder()
-                        .group("Foo")
-                        .vertex("vertex2")
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source1")
-                        .dest("dest1")
-                        .directed(true)
-                        .property("count", 1)
-                        .build(),
-                new Edge.Builder()
-                        .group("Bar")
-                        .source("source2")
-                        .dest("dest2")
-                        .directed(true)
-                        .build()
+                makeEntity("vertex1", "count", 1),
+                makeEntity("vertex2"),
+                makeEdge("source1", "count", 1),
+                makeEdge("source2")
         );
 
         final ToCsv operation = new ToCsv.Builder()
@@ -251,13 +176,47 @@ public class ToCsvHandlerTest {
 
         //Then
         final List<String> resultList = Lists.newArrayList(results);
-        assertEquals(Arrays.asList(
+        final List<String> expected = Arrays.asList(
                 "Group Label,Vertex Label,Source Label,Count Label,Some constant value",
                 "Foo,vertex1,,1,A Constant",
                 "Foo,vertex2,,,A Constant",
                 "Bar,,source1,1,A Constant",
                 "Bar,,source2,,A Constant"
-        ), resultList);
+        );
+        assertEquals(expected, resultList);
     }
 
+    private Entity makeEntity(final String vertex, final String propertyName, final int propertyValue) {
+        return new Entity.Builder()
+                .group("Foo")
+                .vertex(vertex)
+                .property(propertyName, propertyValue)
+                .build();
+    }
+
+    private Entity makeEntity(final String vertex) {
+        return new Entity.Builder()
+                .group("Foo")
+                .vertex(vertex)
+                .build();
+    }
+
+    private Edge makeEdge(final String source, final String propertyName, final int propertyValue) {
+        return new Edge.Builder()
+                .group("Bar")
+                .source(source)
+                .dest("dest1")
+                .directed(true)
+                .property(propertyName, propertyValue)
+                .build();
+    }
+
+    private Edge makeEdge(final String source) {
+        return new Edge.Builder()
+                .group("Bar")
+                .source(source)
+                .dest("dest2")
+                .directed(true)
+                .build();
+    }
 }

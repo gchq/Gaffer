@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,18 @@
 
 package uk.gov.gchq.gaffer.parquetstore.partitioner;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GroupPartitionerTest {
 
@@ -79,26 +82,26 @@ public class GroupPartitionerTest {
     /**
      * e.g. if we have an edge group, the partition keys will consist of source, destination and directed flags. If the
      * data consists of edges 1-2, 1-3, ..., 1-10, 5-4 the partitions might be:
-     *      Partition 0: 1-2, 1-3
-     *      Partition 1: 1-4, 1-5, 1-6
-     *      Partition 2: 1-7, 1-8
-     *      Partition 3: 1-9
-     *      Partition 4: 5-4
+     * Partition 0: 1-2, 1-3
+     * Partition 1: 1-4, 1-5, 1-6
+     * Partition 2: 1-7, 1-8
+     * Partition 3: 1-9
+     * Partition 4: 5-4
      * The partition keys would be 1-4, 1-7, 1-9 and 5-4. Some examples of the partition keys for given partial keys:
-     *      Partial key    Partition ids
-     *         0             0
-     *         1             0,1,2,3
-     *         2             3
-     *         6             4
-     *         1,2           0
-     *         1,4           1
-     *         1,6           1
-     *         1,7           2
-     *         1,10          3
-     *         2,10          3
-     *         5,3           3
-     *         5,4           4
-     *         10,10         4
+     * Partial key    Partition ids
+     * 0             0
+     * 1             0,1,2,3
+     * 2             3
+     * 6             4
+     * 1,2           0
+     * 1,4           1
+     * 1,6           1
+     * 1,7           2
+     * 1,10          3
+     * 2,10          3
+     * 5,3           3
+     * 5,4           4
+     * 10,10         4
      */
     @Test
     public void testGetPartitionIds() {
@@ -127,7 +130,7 @@ public class GroupPartitionerTest {
 
         // Then
         assertEquals(Arrays.asList(0), partitionIds1);
-        assertEquals(Arrays.asList(0,1,2,3), partitionIds2);
+        assertEquals(Arrays.asList(0, 1, 2, 3), partitionIds2);
         assertEquals(Arrays.asList(3), partitionIds3);
         assertEquals(Arrays.asList(4), partitionIds4);
         assertEquals(Arrays.asList(0), partitionIds5);
@@ -209,7 +212,7 @@ public class GroupPartitionerTest {
         final List<Partition> partitions = partitioner.getPartitions();
 
         // Then
-        assertEquals(1, partitions.size());
+        assertThat(partitions).hasSize(1);
         assertEquals(new Partition(0, new NegativeInfinityPartitionKey(), new PositiveInfinityPartitionKey()), partitions.get(0));
     }
 
@@ -226,7 +229,7 @@ public class GroupPartitionerTest {
         final List<Partition> partitions = partitioner.getPartitions();
 
         // Then
-        assertEquals(4, partitions.size());
+        assertThat(partitions).hasSize(4);
         assertEquals(new Partition(0, new NegativeInfinityPartitionKey(), key1), partitions.get(0));
         assertEquals(new Partition(1, key1, key2), partitions.get(1));
         assertEquals(new Partition(2, key2, key3), partitions.get(2));

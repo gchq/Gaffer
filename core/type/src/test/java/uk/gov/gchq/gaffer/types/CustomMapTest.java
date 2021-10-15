@@ -1,8 +1,25 @@
+/*
+ * Copyright 2016-2020 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.types;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.bitmap.serialisation.json.BitmapJsonModules;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -20,9 +37,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CustomMapTest {
 
@@ -40,8 +56,8 @@ public class CustomMapTest {
         final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
         //then
-        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
-        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
+        assertEquals(jsonMap, deserialiseMap, "The expected map from Json doesn't match");
+        assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
     }
 
     @Test
@@ -65,8 +81,8 @@ public class CustomMapTest {
         final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
         //then
-        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
-        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
+        assertEquals(jsonMap, deserialiseMap, "The expected map from Json doesn't match");
+        assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
     }
 
     @Test
@@ -90,8 +106,8 @@ public class CustomMapTest {
         final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
         //then
-        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
-        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
+        assertEquals(jsonMap, deserialiseMap, "The expected map from Json doesn't match");
+        assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
     }
 
     @Test
@@ -121,13 +137,11 @@ public class CustomMapTest {
         final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
 
         //then
-        assertEquals("The expected map from Json doesn't match", jsonMap, deserialiseMap);
-        assertEquals("The expected map doesn't match", expectedMap, deserialiseMap);
+        assertEquals(jsonMap, deserialiseMap, "The expected map from Json doesn't match");
+        assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
     }
 
     protected String jsonFromFile(final String path) throws IOException {
-        return IOUtils.readLines(StreamUtil.openStream(getClass(), path))
-                .stream()
-                .collect(Collectors.joining("\n"));
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
     }
 }

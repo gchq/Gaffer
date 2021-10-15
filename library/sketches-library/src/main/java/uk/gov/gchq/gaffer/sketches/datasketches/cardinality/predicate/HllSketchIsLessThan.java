@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
@@ -31,6 +32,7 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
  * to the nearest long.
  */
 @Since("1.0.0")
+@Summary("A predicate that checks the HllSketch input cardinality is less than a control value")
 public class HllSketchIsLessThan extends KoryphePredicate<HllSketch> {
     private long controlValue;
     private boolean orEqualTo;
@@ -72,15 +74,10 @@ public class HllSketchIsLessThan extends KoryphePredicate<HllSketch> {
         }
         final long cardinality = Math.round(input.getEstimate());
         if (orEqualTo) {
-            if (cardinality <= controlValue) {
-                return true;
-            }
+            return cardinality <= controlValue;
         } else {
-            if (cardinality < controlValue) {
-                return true;
-            }
+            return cardinality < controlValue;
         }
-        return false;
     }
 
     @Override

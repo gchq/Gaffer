@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,8 +46,35 @@ public abstract class JoinFunction {
             match.init(left);
         }
 
-        return join(keys, keyName, matchingValuesName, match, flatten);
+        List<MapTuple> resultList = new ArrayList<>();
+        List matching;
+
+        if (flatten) {
+            for (final Object keyObj : keys) {
+                matching = match.matching(keyObj);
+                final List<MapTuple> mapTuples = joinFlattened(keyObj, matching, keyName, matchingValuesName);
+                if (!mapTuples.isEmpty()) {
+                    resultList.addAll(mapTuples);
+                }
+            }
+        } else {
+            for (final Object keyObj : keys) {
+                matching = match.matching(keyObj);
+                final MapTuple mapTuple = joinAggregated(keyObj, matching, keyName, matchingValuesName);
+                if (mapTuple != null) {
+                    resultList.add(mapTuple);
+                }
+            }
+        }
+        return resultList;
     }
 
-    protected abstract List<MapTuple> join(Iterable keys, String keyName, String matchingValuesName, Match match, Boolean flatten);
+    @Deprecated
+    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
+        throw new NotImplementedException();
+    }
+
+    protected abstract List<MapTuple> joinFlattened(Object key, List matches, String keyName, String matchingValuesName);
+
+    protected abstract MapTuple joinAggregated(Object key, List matches, String keyName, String matchingValuesName);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.Operations;
-import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
@@ -32,6 +31,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 /**
  * A {@link GraphHook} to resolve named operations.
@@ -93,19 +94,5 @@ public class NamedOperationResolver implements GraphHook {
         // Call resolveNamedOperations again to check there are no nested named operations
         resolveNamedOperations(namedOperationChain, user);
         return namedOperationChain.getOperations();
-    }
-
-    /**
-     * Injects the input of the NamedOperation into the first operation in the OperationChain. This is used when
-     * chaining NamedOperations together.
-     *
-     * @param opChain the resolved operation chain
-     * @param input   the input of the NamedOperation
-     */
-    private void updateOperationInput(final OperationChain<?> opChain, final Object input) {
-        final Operation firstOp = opChain.getOperations().get(0);
-        if (null != input && (firstOp instanceof Input) && null == ((Input) firstOp).getInput()) {
-            ((Input) firstOp).setInput(input);
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 
 import static java.time.OffsetDateTime.parse;
-import static org.junit.Assert.assertEquals;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MILLISECOND;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.DAY;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MILLISECOND;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MONTH;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.YEAR;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.timeToBucket;
 
@@ -51,5 +51,4 @@ public class CommonTimeUtilTest {
         assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(time, MONTH));
         assertEquals(parse("2000-01-01T00:00:00.000Z").toInstant().toEpochMilli(), timeToBucket(yearTime, YEAR));
     }
-
 }

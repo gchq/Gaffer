@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import scala.collection.Seq;
 import scala.collection.mutable.WrappedArray$;
 
@@ -35,16 +35,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExtractKeyFromRowTest {
     private LinkedHashSet<String> groupByColumns;
     private Map<String, String[]> columnsToPaths;
     private SchemaUtils utils;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         groupByColumns = new LinkedHashSet<>();
         groupByColumns.add("double");
@@ -88,7 +87,7 @@ public class ExtractKeyFromRowTest {
         expected.add("vertex");
         expected.add(TestUtils.DATE.getTime());
         expected.add(WrappedArray$.MODULE$.make(TestUtils.getTreeSet1().toArray()));
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        assertThat(expected).containsOnly(actual.toArray());
     }
 
     @Test
@@ -109,7 +108,7 @@ public class ExtractKeyFromRowTest {
         expected.add("src");
         expected.add(true);
         expected.add(TestUtils.DATE.getTime());
-        assertThat(expected, containsInAnyOrder(actual.toArray()));
+        assertThat(expected).containsOnly(actual.toArray());
     }
 
     @Test

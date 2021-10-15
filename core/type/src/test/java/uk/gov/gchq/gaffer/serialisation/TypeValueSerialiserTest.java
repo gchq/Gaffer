@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,34 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue> {
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectly() throws SerialisationException {
-        TypeValue typeValue = new TypeValue("testType", "testValue");
-        byte[] bytes = serialiser.serialise(typeValue);
-        String serialisedForm = new String(bytes);
+        // Given
+        final TypeValue typeValue = new TypeValue("testType", "testValue");
+
+        // When
+        final byte[] bytes = serialiser.serialise(typeValue);
+        final String serialisedForm = new String(bytes);
+
+        // Then
         assertEquals("testType\0testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
+
+        // When
+        final TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
+
+        // Then
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -41,12 +50,21 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectlyValueOnly() throws SerialisationException {
-        TypeValue typeValue = new TypeValue();
+        // Given
+        final TypeValue typeValue = new TypeValue();
         typeValue.setValue("testValue");
-        byte[] bytes = serialiser.serialise(typeValue);
-        String serialisedForm = new String(bytes);
+
+        // When
+        final byte[] bytes = serialiser.serialise(typeValue);
+        final String serialisedForm = new String(bytes);
+
+        // Then
         assertEquals("\0testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
+
+        // When
+        final TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
+
+        // Then
         assertNull(deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -54,12 +72,21 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectlyTypeOnly() throws SerialisationException {
-        TypeValue typeValue = new TypeValue();
+        // Given
+        final TypeValue typeValue = new TypeValue();
         typeValue.setType("testType");
-        byte[] bytes = serialiser.serialise(typeValue);
-        String serialisedForm = new String(bytes);
+
+        // When
+        final byte[] bytes = serialiser.serialise(typeValue);
+        final String serialisedForm = new String(bytes);
+
+        // Then
         assertEquals("testType\0", serialisedForm);
-        TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
+
+        // When
+        final TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
+
+        // When
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertNull(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -67,23 +94,31 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
 
     @Test
     public void testCanSerialiseDeserialiseCorrectlyAndBeEscaped() throws SerialisationException {
-        TypeValue typeValue = new TypeValue("testType", "testValue");
-        byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeValue));
-        String serialisedForm = new String(bytes);
+        // Given
+        final TypeValue typeValue = new TypeValue("testType", "testValue");
+
+        // When
+        final byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeValue));
+        final String serialisedForm = new String(bytes);
+
+        // Then
         assertEquals("testType\1\1testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = serialiser.deserialise(ByteArrayEscapeUtils
+
+        // When
+        final TypeValue deSerialisedTypeValue = serialiser.deserialise(ByteArrayEscapeUtils
                 .unEscape(bytes));
+
+        // Then
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
-        // When
         final TypeValue value = serialiser.deserialiseEmpty();
 
-        // Then
         assertNull(value);
     }
 
@@ -95,8 +130,8 @@ public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue>
     @Override
     public Pair<TypeValue, byte[]>[] getHistoricSerialisationPairs() {
         TypeValue typeValue = new TypeValue("testType", "testValue");
-        return new Pair[]{
-                new Pair(typeValue, new byte[]{116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 86, 97, 108, 117, 101})
+        return new Pair[] {
+                new Pair(typeValue, new byte[] {116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 86, 97, 108, 117, 101})
         };
 
     }

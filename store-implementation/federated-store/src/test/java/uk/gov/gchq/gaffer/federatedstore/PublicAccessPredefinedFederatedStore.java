@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -35,6 +36,9 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
     public static final String ACCUMULO_GRAPH_WITH_ENTITIES = "AccumuloStoreContainingEntities";
     public static final String ALL_GRAPH_IDS = ACCUMULO_GRAPH_WITH_EDGES + "," + ACCUMULO_GRAPH_WITH_ENTITIES;
 
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         HashMapGraphLibrary.clear();
@@ -43,15 +47,15 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
 
         super.initialise(graphId, schema, properties);
 
-        // Accumulo store just contains edges
         try {
+            // Accumulo store just contains edges
             addGraphs(null, User.UNKNOWN_USER_ID, true, new GraphSerialisable.Builder()
                     .config(new GraphConfig(ACCUMULO_GRAPH_WITH_EDGES))
                     .schema(new Schema.Builder()
                             .merge(schema.clone())
                             .entities(Collections.emptyMap())
                             .build())
-                    .properties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties"))
+                    .properties(PROPERTIES)
                     .build());
 
             // Accumulo store just contains entities
@@ -61,7 +65,7 @@ public class PublicAccessPredefinedFederatedStore extends FederatedStore {
                             .merge(schema.clone())
                             .edges(Collections.emptyMap())
                             .build())
-                    .properties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties"))
+                    .properties(PROPERTIES)
                     .build());
         } catch (final StorageException e) {
             throw new StoreException(e.getMessage(), e);

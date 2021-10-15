@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -27,21 +27,17 @@ import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MapGeneratorTest {
+
     @Test
     public void shouldGenerateMapFromElementFieldsAndConstants() {
         // Given
         final Object vertex = "source vertex";
         final String prop1 = "property 1";
         final int count = 10;
-        final Element element = new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex(vertex)
-                .property(TestPropertyNames.PROP_1, prop1)
-                .property(TestPropertyNames.COUNT, count)
-                .build();
+        final Element element = makeEntity(vertex, prop1, count);
 
         final MapGenerator generator = new MapGenerator.Builder()
                 .vertex("field1")
@@ -57,7 +53,6 @@ public class MapGeneratorTest {
         final Map<String, Object> map = generator._apply(element);
 
         // Then
-
         final Map<String, Object> expectedMap = new LinkedHashMap<>();
         expectedMap.put("field1", vertex);
         expectedMap.put("field2", TestGroups.ENTITY);
@@ -73,12 +68,7 @@ public class MapGeneratorTest {
         final Object vertex = "source vertex";
         final String prop1 = "property 1";
         final int count = 10;
-        final Element element = new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex(vertex)
-                .property(TestPropertyNames.PROP_1, prop1)
-                .property(TestPropertyNames.COUNT, count)
-                .build();
+        final Element element = makeEntity(vertex, prop1, count);
 
         final MapGenerator generator = new MapGenerator.Builder()
                 .property(TestPropertyNames.PROP_1, "field1")
@@ -88,7 +78,6 @@ public class MapGeneratorTest {
         final Map<String, Object> map = generator._apply(element);
 
         // Then
-
         final Map<String, Object> expectedMap = new LinkedHashMap<>();
         expectedMap.put("field1", prop1);
         assertEquals(expectedMap, map);
@@ -100,12 +89,7 @@ public class MapGeneratorTest {
         final Object vertex = "source vertex";
         final String prop1 = "property 1";
         final int count = 10;
-        final Element element = new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex(vertex)
-                .property(TestPropertyNames.PROP_1, prop1)
-                .property(TestPropertyNames.COUNT, count)
-                .build();
+        final Element element = makeEntity(vertex, prop1, count);
 
         final MapGenerator generator = new MapGenerator();
 
@@ -113,8 +97,16 @@ public class MapGeneratorTest {
         final Map<String, Object> map = generator._apply(element);
 
         // Then
-
         final Map<String, Object> expectedMap = new LinkedHashMap<>();
         assertEquals(expectedMap, map);
+    }
+
+    private Element makeEntity(Object vertex, String prop1, int count) {
+        return new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex(vertex)
+                .property(TestPropertyNames.PROP_1, prop1)
+                .property(TestPropertyNames.COUNT, count)
+                .build();
     }
 }

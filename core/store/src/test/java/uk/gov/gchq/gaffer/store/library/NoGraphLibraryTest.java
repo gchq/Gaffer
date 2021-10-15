@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NoGraphLibraryTest {
 
@@ -34,7 +34,6 @@ public class NoGraphLibraryTest {
 
     @Test
     public void shouldReturnNullWhenGettingIds() {
-
         // When / Then
         noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getIds(GRAPH_ID));
@@ -42,7 +41,6 @@ public class NoGraphLibraryTest {
 
     @Test
     public void shouldReturnNullWhenGettingSchema() {
-
         // When / Then
         noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getSchema(SCHEMA_ID));
@@ -50,7 +48,6 @@ public class NoGraphLibraryTest {
 
     @Test
     public void shouldReturnNullWhenGettingProperties() {
-
         // When / Then
         noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getProperties(PROPERTIES_ID));

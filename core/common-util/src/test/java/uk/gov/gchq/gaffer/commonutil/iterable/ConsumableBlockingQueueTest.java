@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConsumableBlockingQueueTest {
+
     @Test
     public void shouldConsumeResultsWhenIterating() {
         // Given
@@ -49,12 +48,12 @@ public class ConsumableBlockingQueueTest {
         final List<Integer> items = queue.stream().collect(Collectors.toList());
 
         // Then
-        assertEquals(Arrays.asList(0, 1, 2, 3), items);
-        assertTrue(queue.isEmpty());
+        assertThat(items).containsExactly(0, 1, 2, 3);
+        assertThat(queue).isEmpty();
 
         // Iterate a second time and the queue should not have any values
         final List<Integer> items2 = queue.stream().collect(Collectors.toList());
-        assertEquals(Collections.emptyList(), items2);
+        assertThat(items2).isEmpty();
     }
 
     @Test
@@ -62,7 +61,7 @@ public class ConsumableBlockingQueueTest {
         // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-        final boolean[] finishedAdding = new boolean[]{false};
+        final boolean[] finishedAdding = new boolean[] {false};
         new Thread(() -> {
             IntStream.range(0, 10)
                     .forEach(i -> {
@@ -83,7 +82,7 @@ public class ConsumableBlockingQueueTest {
         final Iterator<Integer> consumer = queue.iterator();
         final List<Integer> items = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            assertTrue(consumer.hasNext());
+            assertThat(consumer).hasNext();
             items.add(consumer.next());
         }
 
@@ -93,7 +92,7 @@ public class ConsumableBlockingQueueTest {
 
         // Consume some more results
         for (int i = 0; i < 4; i++) {
-            assertTrue(consumer.hasNext());
+            assertThat(consumer).hasNext();
             items.add(consumer.next());
         }
 
@@ -107,18 +106,15 @@ public class ConsumableBlockingQueueTest {
         }
 
         // Then
-        assertEquals(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), items);
+        assertThat(items).containsExactly(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
 
     @Test
     public void shouldNotBlockWhenConsumingWhenQueueIsEmpty() {
-        // Given
         final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
 
-        // When
         final Iterator<Integer> iterator = queue.iterator();
 
-        // Then
-        assertFalse(iterator.hasNext());
+        assertThat(iterator).isExhausted();
     }
 }

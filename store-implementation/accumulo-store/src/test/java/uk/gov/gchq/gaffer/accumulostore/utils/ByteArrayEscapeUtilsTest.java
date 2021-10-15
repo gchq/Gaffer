@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 
@@ -26,14 +26,14 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ByteArrayEscapeUtilsTest {
 
-    private byte ESCAPE_CHAR = (byte) 1;
-    private byte REPLACEMENT_CHAR = (byte) 2;
+    private static final byte ESCAPE_CHAR = (byte) 1;
+    private static final byte REPLACEMENT_CHAR = (byte) 2;
 
     @Test
     public void testNoDelims() {

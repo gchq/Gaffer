@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
+
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.operation.impl.join.JoinFunctionTest;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
@@ -25,7 +27,7 @@ import java.util.List;
 
 public class InnerJoinTest extends JoinFunctionTest {
     @Override
-    protected List<MapTuple> getExpectedLeftKeyResults() {
+    protected List<MapTuple> getExpectedLeftKeyResultsForElementMatch() {
         return Arrays.asList(
                 createMapTuple(getElement(1), Collections.singletonList(getElement(1))),
                 createMapTuple(getElement(2), Lists.newArrayList(getElement(2), getElement(2))),
@@ -36,7 +38,7 @@ public class InnerJoinTest extends JoinFunctionTest {
     }
 
     @Override
-    protected List<MapTuple> getExpectedRightKeyResults() {
+    protected List<MapTuple> getExpectedRightKeyResultsForElementMatch() {
         return Arrays.asList(
                 createMapTuple(Collections.singletonList(getElement(1)), getElement(1)),
                 createMapTuple(Collections.singletonList(getElement(2)), getElement(2)),
@@ -47,7 +49,7 @@ public class InnerJoinTest extends JoinFunctionTest {
     }
 
     @Override
-    protected List<MapTuple> getExpectedLeftKeyResultsFlattened() {
+    protected List<MapTuple> getExpectedLeftKeyResultsFlattenedForElementMatch() {
         return Arrays.asList(
                 createMapTuple(getElement(1), getElement(1)),
                 createMapTuple(getElement(2), getElement(2)),
@@ -59,7 +61,7 @@ public class InnerJoinTest extends JoinFunctionTest {
     }
 
     @Override
-    protected List<MapTuple> getExpectedRightKeyResultsFlattened() {
+    protected List<MapTuple> getExpectedRightKeyResultsFlattenedForElementMatch() {
         return Arrays.asList(
                 createMapTuple(getElement(1), getElement(1)),
                 createMapTuple(getElement(2), getElement(2)),
@@ -67,6 +69,47 @@ public class InnerJoinTest extends JoinFunctionTest {
                 createMapTuple(getElement(3), getElement(3)),
                 createMapTuple(getElement(3), getElement(3)),
                 createMapTuple(getElement(4), getElement(4))
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedLeftKeyResultsForCustomMatch() {
+        return Arrays.asList(
+                createMapTuple(getElement(1), Arrays.asList(getElement(2), getElement(2))),
+                createMapTuple(getElement(2), Collections.singletonList(getElement(4))),
+                createMapTuple(getElement(3), Collections.singletonList(getElement(6))),
+                createMapTuple(getElement(3), Collections.singletonList(getElement(6)))
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedRightKeyResultsForCustomMatch() {
+        return Arrays.asList(
+                createMapTuple(Collections.singletonList(getElement(2)), getElement(1)),
+                createMapTuple(Collections.singletonList(getElement(4)), getElement(2)),
+                createMapTuple(Collections.singletonList(getElement(4)), getElement(2)),
+                createMapTuple(Collections.singletonList(getElement(8)), getElement(4))
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedLeftKeyResultsFlattenedForCustomMatch() {
+        return Arrays.asList(
+                createMapTuple(getElement(1), getElement(2)),
+                createMapTuple(getElement(1), getElement(2)),
+                createMapTuple(getElement(2), getElement(4)),
+                createMapTuple(getElement(3), getElement(6)),
+                createMapTuple(getElement(3), getElement(6))
+        );
+    }
+
+    @Override
+    protected List<MapTuple> getExpectedRightKeyResultsFlattenedForCustomMatch() {
+        return Arrays.asList(
+                createMapTuple(getElement(2), getElement(1)),
+                createMapTuple(getElement(4), getElement(2)),
+                createMapTuple(getElement(4), getElement(2)),
+                createMapTuple(getElement(8), getElement(4))
         );
     }
 

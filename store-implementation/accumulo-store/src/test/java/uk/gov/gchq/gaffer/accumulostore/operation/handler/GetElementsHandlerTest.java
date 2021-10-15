@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 public class GetElementsHandlerTest {
@@ -40,12 +40,9 @@ public class GetElementsHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(getElements, new Context(), null);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("return_matched_id_as_edge_source"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> handler.doOperation(getElements, new Context(), null))
+                .withMessageContaining("return_matched_id_as_edge_source");
     }
 
     @Test
@@ -56,12 +53,9 @@ public class GetElementsHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(op, new Context(), null);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(op, new Context(), null))
+                .withMessageContaining("Operation input is undefined - please specify an input.");
     }
 
     @Test
@@ -72,11 +66,8 @@ public class GetElementsHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(op, new Context(), null);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(op, new Context(), null))
+                .withMessageContaining("Operation input is undefined - please specify an input.");
     }
 }

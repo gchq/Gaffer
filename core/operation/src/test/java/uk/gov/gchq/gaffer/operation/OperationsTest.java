@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package uk.gov.gchq.gaffer.operation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 
 /**
  * Provides a common interface for testing implementations of the {@link Operations} class.
- * @param <T>   The implementation of {@link Operations} to be tested
+ *
+ * @param <T> The implementation of {@link Operations} to be tested
  */
 public abstract class OperationsTest<T extends Operation> extends JSONSerialisationTest<T> {
 

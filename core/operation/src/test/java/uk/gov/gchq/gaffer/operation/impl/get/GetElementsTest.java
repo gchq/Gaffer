@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,14 +39,12 @@ import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetElementsTest extends OperationTest<GetElements> {
+
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
@@ -86,9 +84,9 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();
-        assertEquals(elementSeed1, itr.next());
-        assertEquals(elementSeed2, itr.next());
-        assertFalse(itr.hasNext());
+        assertThat(itr.next()).isEqualTo(elementSeed1);
+        assertThat(itr.next()).isEqualTo(elementSeed2);
+        assertThat(itr).isExhausted();
     }
 
     @Test
@@ -173,7 +171,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING,
                 op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
-        assertEquals(seed, op.getInput().iterator().next());
+        assertThat(op.getInput().iterator().next()).isEqualTo(seed);
     }
 
     @Test
@@ -197,8 +195,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .build();
 
         // Then
-        assertThat(op.getOptions(), is(notNullValue()));
-        assertThat(op.getOptions().get("key"), is("value"));
+        assertThat(op.getOptions()).isNotNull()
+                .containsEntry("key", "value");
     }
 
     @Test
@@ -208,6 +206,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         builderShouldCreatePopulatedOperationIncoming();
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

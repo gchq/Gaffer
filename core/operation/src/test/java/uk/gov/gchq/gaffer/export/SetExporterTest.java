@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.export;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SetExporterTest {
 
@@ -58,7 +57,7 @@ public class SetExporterTest {
 
         // When
         exporter.add("key1", valuesA);
-        exporter.add( "key2", valuesB);
+        exporter.add("key2", valuesB);
 
         // Then
         final CloseableIterable<?> export1 = exporter.get("key1");

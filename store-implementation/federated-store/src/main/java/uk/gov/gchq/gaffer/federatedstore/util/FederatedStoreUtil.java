@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,23 +23,27 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
@@ -101,9 +105,11 @@ public final class FederatedStoreUtil {
      * @return cloned operation with modified View for the given graph.
      */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
-        OP resultOp = operation;
-        if (operation instanceof Operations) {
-            resultOp = (OP) operation.shallowClone();
+        OP resultOp = (OP) operation.shallowClone();
+        if (nonNull(resultOp.getOptions())) {
+            resultOp.setOptions(new HashMap<>(resultOp.getOptions()));
+        }
+        if (resultOp instanceof Operations) {
             final Operations<Operation> operations = (Operations) resultOp;
             final List<Operation> resultOperations = new ArrayList<>();
             for (final Operation nestedOp : operations.getOperations()) {
@@ -115,25 +121,24 @@ public final class FederatedStoreUtil {
                 resultOperations.add(updatedNestedOp);
             }
             operations.updateOperations(resultOperations);
-        } else if (operation instanceof OperationView) {
-            final View view = ((OperationView) operation).getView();
+        } else if (resultOp instanceof OperationView) {
+            final View view = ((OperationView) resultOp).getView();
             if (null != view && view.hasGroups()) {
                 final View validView = createValidView(view, graph.getSchema());
                 if (view != validView) {
                     // If the view is not the same instance as the original view
                     // then clone the operation and add the new view.
-                    resultOp = (OP) operation.shallowClone();
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
-                    } else {
+                    } else if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
                         // The view has no groups so the operation would return
                         // nothing, so we shouldn't execute the operation.
                         resultOp = null;
                     }
                 }
             }
-        } else if (operation instanceof AddElements) {
-            final AddElements addElements = ((AddElements) operation);
+        } else if (resultOp instanceof AddElements) {
+            final AddElements addElements = ((AddElements) resultOp);
             if (null == addElements.getInput()) {
                 if (!addElements.isValidate() || !addElements.isSkipInvalidElements()) {
                     LOGGER.debug("Invalid elements will be skipped when added to {}", graph.getGraphId());
@@ -176,5 +181,9 @@ public final class FederatedStoreUtil {
             }
         }
         return newView;
+    }
+
+    public static boolean isUserRequestingAdminUsage(final Operation operation) {
+        return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "false"));
     }
 }

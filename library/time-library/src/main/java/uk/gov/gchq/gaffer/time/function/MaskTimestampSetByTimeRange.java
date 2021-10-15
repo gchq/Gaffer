@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.util.TimeUnit;
+
+import java.util.Objects;
 
 /**
  * A {@code MaskTimestampSetByTimeRange} is a {@link uk.gov.gchq.koryphe.function.KorypheFunction} that takes in a
@@ -75,6 +77,29 @@ public class MaskTimestampSetByTimeRange extends KorypheFunction<RBMBackedTimest
 
     public void setTimeUnit(final TimeUnit timeUnit) {
         this.timeUnit = timeUnit;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        final MaskTimestampSetByTimeRange that = (MaskTimestampSetByTimeRange) o;
+        return Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                timeUnit == that.timeUnit;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), startTime, endTime, timeUnit);
     }
 
     public static final class Builder {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -47,11 +47,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -183,7 +183,7 @@ public class FederatedStoreUtilTest {
         final GetElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
 
         // Then
-        assertSame(operation, updatedOp);
+        assertEquals(operation, updatedOp);
         assertSame(operation.getView(), updatedOp.getView());
     }
 
@@ -303,7 +303,7 @@ public class FederatedStoreUtilTest {
         final AddElements updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
 
         // Then
-        assertSame(operation, updatedOp);
+        assertEquals(operation, updatedOp);
         assertNull(updatedOp.getInput());
     }
 

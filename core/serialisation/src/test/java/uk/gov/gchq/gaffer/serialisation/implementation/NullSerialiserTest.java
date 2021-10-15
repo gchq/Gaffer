@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,50 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NullSerialiserTest extends ToBytesSerialisationTest<Object> {
+
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertNull(serialiser.deserialiseEmpty());
+    }
+
+    @Test
+    public void shouldHandleAnyClass() {
+        assertTrue(serialiser.canHandle(String.class));
+        assertTrue(serialiser.canHandle(Object.class));
+        assertTrue(serialiser.canHandle(Integer.class));
+    }
+
+    @Test
+    public void shouldBeConsistent() {
+        assertTrue(serialiser.isConsistent());
+    }
+
+    @Test
+    public void shouldPreserveOrdering() {
+        assertTrue(serialiser.preservesObjectOrdering());
+    }
+
+    @Test
+    @Override
+    public void shouldSerialiseWithHistoricValues() throws Exception {
+        for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
+            serialiseFirst(pair);
+
+            assertNull(serialiser.deserialise(pair.getSecond()));
+        }
+    }
 
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
@@ -35,45 +68,14 @@ public class NullSerialiserTest extends ToBytesSerialisationTest<Object> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair("", new byte[]{}),
-                new Pair(null, new byte[]{}),
-                new Pair("some string", new byte[]{}),
-                new Pair(1L, new byte[]{}),
-                new Pair(0, new byte[]{}),
-                new Pair(true, new byte[]{}),
-                new Pair(false, new byte[]{})
+        return new Pair[] {
+                new Pair<>("", new byte[] {}),
+                new Pair<>(null, new byte[] {}),
+                new Pair<>("some string", new byte[] {}),
+                new Pair<>(1L, new byte[] {}),
+                new Pair<>(0, new byte[] {}),
+                new Pair<>(true, new byte[] {}),
+                new Pair<>(false, new byte[] {})
         };
-    }
-
-    @Test
-    @Override
-    public void shouldDeserialiseEmpty() throws SerialisationException {
-        assertNull(serialiser.deserialiseEmpty());
-    }
-
-    @Test
-    public void shouldHandleAnyClass() throws SerialisationException {
-        assertTrue(serialiser.canHandle(String.class));
-        assertTrue(serialiser.canHandle(Object.class));
-        assertTrue(serialiser.canHandle(Integer.class));
-    }
-
-    @Test
-    public void shouldBeConsistent() throws SerialisationException {
-        assertTrue(serialiser.isConsistent());
-    }
-
-    @Test
-    public void shouldPreserveOrdering() throws SerialisationException {
-        assertTrue(serialiser.preservesObjectOrdering());
-    }
-
-    @Override
-    public void shouldSerialiseWithHistoricValues() throws Exception {
-        for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
-            serialiseFirst(pair);
-            assertNull(serialiser.deserialise(pair.getSecond()));
-        }
     }
 }

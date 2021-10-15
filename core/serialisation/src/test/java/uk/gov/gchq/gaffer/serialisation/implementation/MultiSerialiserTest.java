@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -31,17 +31,17 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSeriali
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
-    private static final String path = "multiSerialiser.json";
+    private static final String PATH = "multiSerialiser.json";
 
     @Override
     public Serialiser<Object, byte[]> getSerialisation() {
         MultiSerialiser multiSerialiser;
         try {
-            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), path), MultiSerialiser.class);
+            multiSerialiser = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), PATH), MultiSerialiser.class);
         } catch (SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -66,7 +66,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
 
     @Test
     public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
-        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), path))
+        final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), PATH))
                 .stream()
                 .collect(Collectors.joining("\n"));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HashMapCacheServiceTest {
 
@@ -34,114 +34,128 @@ public class HashMapCacheServiceTest {
 
     private static final String CACHE_NAME = "test";
 
-    @Before
+    @BeforeEach
     public void before() {
         service.initialise(null);
     }
 
-    @After
+    @AfterEach
     public void after() {
         service.shutdown();
     }
 
     @Test
     public void shouldReturnInstanceOfHashMapCache() {
-        // when
-        ICache cache = service.getCache(CACHE_NAME);
+        // When
+        final ICache cache = service.getCache(CACHE_NAME);
 
-        // then
-        assert (cache instanceof HashMapCache);
+        // Then
+        assertThat(cache).isInstanceOf(HashMapCache.class);
     }
 
     @Test
     public void shouldCreateNewHashMapCacheIfOneDoesNotExist() {
+        // When
+        final ICache cache = service.getCache(CACHE_NAME);
 
-        // when
-        ICache cache = service.getCache(CACHE_NAME);
-
-        // then
-        assertEquals(0, cache.size());
+        // Then
+        assertThat(cache.size()).isZero();
     }
 
     @Test
     public void shouldReUseCacheIfOneExists() throws CacheOperationException {
-
-        // given
-        ICache<String, Integer> cache = service.getCache(CACHE_NAME);
+        // Given
+        final ICache<String, Integer> cache = service.getCache(CACHE_NAME);
         cache.put("key", 1);
 
-        // when
-        ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
+        // When
+        final ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
-        // then
-        assertEquals(1, sameCache.size());
-        assertEquals(new Integer(1), sameCache.get("key"));
-
+        // Then
+        assertThat(sameCache.size()).isOne();
+        assertThat(sameCache.get("key")).isOne();
     }
 
     @Test
     public void shouldAddEntriesToCache() throws CacheOperationException {
+       // When
         service.putInCache(CACHE_NAME, "test", 1);
 
+        // Then
         assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
     }
 
     @Test
     public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
+      // When
         service.putInCache(CACHE_NAME, "test", 1);
 
-        try {
+        // Then
+        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> {
             service.putSafeInCache(CACHE_NAME, "test", 2);
-            Assert.fail("Expected an exception");
-        } catch (final OverwritingException e) {
-            assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
-        }
+        });
 
+        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
+
+        // When
         service.putInCache(CACHE_NAME, "test", 2);
 
+        // Then
         assertEquals((Integer) 2, service.getFromCache(CACHE_NAME, "test"));
     }
 
     @Test
     public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
+        // Given
         service.putInCache(CACHE_NAME, "test", 1);
 
+        // When
         service.removeFromCache(CACHE_NAME, "test");
-        assertEquals(0, service.sizeOfCache(CACHE_NAME));
+
+        // Then
+        assertThat(service.sizeOfCache(CACHE_NAME)).isZero();
     }
 
     @Test
     public void shouldBeAbleToClearCache() throws CacheOperationException {
-        service.putInCache(CACHE_NAME, "test1", 1);
-        service.putInCache(CACHE_NAME, "test2", 2);
-        service.putInCache(CACHE_NAME, "test3", 3);
+        // Given
+        populateCache();
 
-
+        // When
         service.clearCache(CACHE_NAME);
 
-        assertEquals(0, service.sizeOfCache(CACHE_NAME));
+        // Then
+        assertThat(service.sizeOfCache(CACHE_NAME)).isZero();
     }
 
     @Test
     public void shouldGetAllKeysFromCache() throws CacheOperationException {
-        service.putInCache(CACHE_NAME, "test1", 1);
-        service.putInCache(CACHE_NAME, "test2", 2);
-        service.putInCache(CACHE_NAME, "test3", 3);
+        // When
+        populateCache();
 
-        assertEquals(3, service.sizeOfCache(CACHE_NAME));
-        Assert.assertThat(service.getAllKeysFromCache(CACHE_NAME), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        // Then
+        assertThat(service.sizeOfCache(CACHE_NAME)).isEqualTo(3);
+        assertThat(service.getAllKeysFromCache(CACHE_NAME)).contains("test1", "test2", "test3");
     }
 
     @Test
     public void shouldGetAllValues() throws CacheOperationException {
+        // Given
+        populateCache();
+
+        // When
+        service.putInCache(CACHE_NAME, "duplicate", 3);
+
+        // Then
+        assertThat(service.sizeOfCache(CACHE_NAME)).isEqualTo(4);
+        assertThat(service.getAllValuesFromCache(CACHE_NAME))
+                .hasSize(4)
+                .contains(1, 2, 3, 3);
+    }
+
+    private void populateCache() throws CacheOperationException {
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
-        service.putInCache(CACHE_NAME, "duplicate", 3);
-
-        assertEquals(4, service.sizeOfCache(CACHE_NAME));
-        assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
-
-        Assert.assertThat(service.getAllValuesFromCache(CACHE_NAME), IsCollectionContaining.hasItems(1, 2, 3));
     }
 }

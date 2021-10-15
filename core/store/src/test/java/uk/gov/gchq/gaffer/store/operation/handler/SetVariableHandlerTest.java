@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SetVariable;
@@ -25,9 +25,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class SetVariableHandlerTest {
@@ -61,12 +61,7 @@ public class SetVariableHandlerTest {
         SetVariable op = new SetVariable();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Variable name cannot be null"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> handler.doOperation(op, context, store)).withMessage("Variable name cannot be null");
     }
 
     @Test
@@ -81,12 +76,7 @@ public class SetVariableHandlerTest {
         SetVariable op = new SetVariable.Builder().variableName(testVarName).input(testVarValue).build();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Variable input value cannot be null"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> handler.doOperation(op, context, store)).withMessage("Variable input value cannot be null");
     }
 
     @Test

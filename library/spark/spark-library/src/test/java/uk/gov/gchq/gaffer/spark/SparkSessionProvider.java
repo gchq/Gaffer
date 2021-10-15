@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,12 @@ package uk.gov.gchq.gaffer.spark;
 
 import org.apache.spark.sql.SparkSession;
 
-public class SparkSessionProvider {
+public final class SparkSessionProvider {
     private static SparkSession sparkSession;
+
+    private SparkSessionProvider() {
+        //private constructor to prevent instantiation
+    }
 
     public static synchronized SparkSession getSparkSession() {
         if (null == sparkSession) {

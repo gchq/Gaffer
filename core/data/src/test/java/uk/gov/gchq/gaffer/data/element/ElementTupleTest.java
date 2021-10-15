@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ElementTupleTest {
+
     @Test
     public void shouldGetValues() {
-        // Given
         final Edge edge = new Edge.Builder()
                 .group("group")
                 .source("source vertex")
@@ -38,7 +38,6 @@ public class ElementTupleTest {
 
         final ElementTuple tuple = new ElementTuple(edge);
 
-        // When / Then
         assertEquals("source vertex", tuple.get(IdentifierType.SOURCE.name()));
         assertEquals("destination vertex", tuple.get(IdentifierType.DESTINATION.name()));
         assertEquals(true, tuple.get(IdentifierType.DIRECTED.name()));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.job;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,9 +25,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -46,12 +44,7 @@ public class CancelScheduledJobHandlerTest {
         given(store.getJobTracker()).willReturn(new JobTracker());
 
         // When / Then
-        try {
-            handler.doOperation(operation, new Context(user), store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("job id must be specified"));
-        }
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(operation, new Context(user), store)).withMessage("job id must be specified");
     }
 
     @Test
@@ -65,11 +58,7 @@ public class CancelScheduledJobHandlerTest {
         given(store.getJobTracker()).willReturn(null);
 
         // When / Then
-        try {
-            handler.doOperation(operation, new Context(user), store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("JobTracker not enabled", e.getMessage());
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(operation, new Context(user), store)).withMessage("JobTracker not enabled");
     }
 }

@@ -1,14 +1,28 @@
+/*
+ * Copyright 2017-2021 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -27,12 +41,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class NamedOperationCacheTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private static NamedOperationCache cache;
     private static final String GAFFER_USER = "gaffer user";
@@ -70,7 +83,7 @@ public class NamedOperationCacheTest {
             .build();
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Properties properties = new Properties();
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
@@ -78,7 +91,7 @@ public class NamedOperationCacheTest {
         cache = new NamedOperationCache();
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationFailedException {
         cache.clear();
     }
@@ -95,40 +108,35 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        exception.expect(OverwritingException.class);
-        cache.addNamedOperation(alternative, false, advancedUser);
+        assertThatExceptionOfType(OverwritingException.class).isThrownBy(() -> cache.addNamedOperation(alternative, false, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException { // needs work
         cache.addNamedOperation(standard, false, standardUser);
-        exception.expect(CacheOperationFailedException.class);
-        cache.deleteNamedOperation(null, advancedUser);
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.deleteNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionWhenGettingIfKeyIsNull() throws CacheOperationFailedException {
-        exception.expect(CacheOperationFailedException.class);
-        cache.getNamedOperation(null, advancedUser);
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.getNamedOperation(null, advancedUser));
     }
 
     @Test
     public void shouldThrowExceptionIfNamedOperationIsNull() throws CacheOperationFailedException {
-        exception.expect(CacheOperationFailedException.class);
-        cache.addNamedOperation(null, false, standardUser);
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.addNamedOperation(null, false, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToReadOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        exception.expect(CacheOperationFailedException.class);
-        cache.getNamedOperation(OPERATION_NAME, new User());
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.getNamedOperation(OPERATION_NAME, new User()));
     }
 
     @Test
     public void shouldAllowUsersWithCorrectOpAuthsReadAccessToTheOperationChain() throws CacheOperationFailedException { // see if this works with standard user - it should do
         cache.addNamedOperation(standard, false, standardUser);
-        Assert.assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, advancedUser));
+        assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, advancedUser));
     }
 
     @Test
@@ -142,7 +150,7 @@ public class NamedOperationCacheTest {
                 .build();
 
         cache.addNamedOperation(op, false, standardUser);
-        Assert.assertEquals(op, cache.getNamedOperation(OPERATION_NAME, standardUser));
+        assertEquals(op, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
@@ -158,14 +166,13 @@ public class NamedOperationCacheTest {
         cache.addNamedOperation(op, false, standardUser);
         cache.addNamedOperation(standard, true, standardUser);
 
-        Assert.assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, standardUser));
+        assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToOverwriteOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(alternative, false, advancedUser);
-        exception.expect(CacheOperationFailedException.class);
-        cache.addNamedOperation(standard, true, standardUser);
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.addNamedOperation(standard, true, standardUser));
     }
 
     @Test
@@ -173,14 +180,27 @@ public class NamedOperationCacheTest {
         cache.addNamedOperation(standard, false, standardUser);
         cache.addNamedOperation(alternative, true, advancedUser);
 
-        Assert.assertEquals(alternative, cache.getNamedOperation(OPERATION_NAME, standardUser));
+        assertEquals(alternative, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
     public void shouldThrowExceptionIfUnauthorisedUserTriesToDeleteOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(alternative, false, advancedUser);
-        exception.expect(CacheOperationFailedException.class);
-        cache.deleteNamedOperation(OPERATION_NAME, standardUser);
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.deleteNamedOperation(OPERATION_NAME, standardUser));
+    }
+
+    @Test
+    public void shouldThrowExceptionTryingToDeleteOperationConfiguredWithWriteNoAccessPredicate() throws CacheOperationFailedException {
+        final NamedOperationDetail noWriteAccess = new NamedOperationDetail.Builder()
+                .creatorId(standardUser.getUserId())
+                .description("an operation that does no allow read access")
+                .operationName("test")
+                .readers(readers)
+                .operationChain(standardOpChain)
+                .writeAccessPredicate(new NoAccessPredicate())
+                .build();
+        cache.addNamedOperation(noWriteAccess, false, standardUser);
+        assertThatExceptionOfType(CacheOperationFailedException.class).isThrownBy(() -> cache.deleteNamedOperation("test", standardUser));
     }
 
     @Test
@@ -228,6 +248,21 @@ public class NamedOperationCacheTest {
 
         assert actual.contains(standard);
         assert actual.size() == 1;
+    }
+
+    @Test
+    public void shouldNotReturnNamedOperationConfiguredWithReadNoAccessPredicate() throws CacheOperationFailedException {
+        final NamedOperationDetail noReadAccess = new NamedOperationDetail.Builder()
+                .creatorId(standardUser.getUserId())
+                .description("an operation that does no allow read access")
+                .operationName("test")
+                .writers(writers)
+                .operationChain(standardOpChain)
+                .readAccessPredicate(new NoAccessPredicate())
+                .build();
+        cache.addNamedOperation(noReadAccess, false, standardUser);
+
+        assertFalse(cache.getAllNamedOperations(standardUser).iterator().hasNext());
     }
 
     @Test

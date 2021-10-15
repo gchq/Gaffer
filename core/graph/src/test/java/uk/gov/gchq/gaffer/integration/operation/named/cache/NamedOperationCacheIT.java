@@ -1,9 +1,25 @@
+/*
+ * Copyright 2017-2021 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -28,9 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -62,14 +77,14 @@ public class NamedOperationCacheIT {
     private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler();
     private GetAllNamedOperations get = new GetAllNamedOperations();
 
-    @Before
+    @BeforeEach
     public void before() throws CacheOperationException {
         cacheProps.clear();
         properties.setAdminAuth(adminAuth);
         given(store.getProperties()).willReturn(properties);
     }
 
-    @After
+    @AfterEach
     public void after() throws CacheOperationException {
         CacheServiceLoader.getService().clearCache(CACHE_NAME);
     }
@@ -114,18 +129,18 @@ public class NamedOperationCacheIT {
                 .operationName(add.getOperationName())
                 .operationChain(add.getOperationChainAsString())
                 .creatorId(user.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .description(add.getDescription())
                 .score(0)
+                .parameters(null)
                 .build();
 
         List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
         List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler().doOperation(get, context, store));
 
         // then
-        assertEquals(1, results.size());
-        assertEquals(expected, results);
+        assertThat(results)
+                .hasSize(1)
+                .isEqualTo(expected);
     }
 
 
@@ -148,7 +163,7 @@ public class NamedOperationCacheIT {
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler1.doOperation(get, context, store));
 
         // then
-        assertEquals(0, results.size());
+        assertThat(results).isEmpty();
 
     }
 
@@ -180,16 +195,16 @@ public class NamedOperationCacheIT {
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(user.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
 
         // then
-        assertEquals(expected.size(), results.size());
-        assertEquals(expected, results);
+        assertThat(results)
+                .hasSameSizeAs(expected)
+                .isEqualTo(expected);
     }
 
     private void shouldAllowUpdatingOfNamedOperationsWithAllowedUsers() throws OperationException {
@@ -219,16 +234,16 @@ public class NamedOperationCacheIT {
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(user.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
 
         // then
-        assertEquals(expected.size(), results.size());
-        assertEquals(expected, results);
+        assertThat(results)
+                .hasSameSizeAs(expected)
+                .isEqualTo(expected);
     }
 
     private void shouldAllowReadingOfNamedOperationsUsingAdminAuth() throws OperationException {
@@ -240,9 +255,8 @@ public class NamedOperationCacheIT {
                 .operationChain(add.getOperationChainAsString())
                 .description(add.getDescription())
                 .creatorId(authorisedUser.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
 
@@ -252,14 +266,15 @@ public class NamedOperationCacheIT {
         List<NamedOperationDetail> resultsWithNoAdminRole = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
         // then
-        assertEquals(0, resultsWithNoAdminRole.size());
+        assertThat(resultsWithNoAdminRole).isEmpty();
 
         // when
         List<NamedOperationDetail> resultsWithAdminRole = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store));
 
         // then
-        assertEquals(1, resultsWithAdminRole.size());
-        assertEquals(expected, resultsWithAdminRole);
+        assertThat(resultsWithAdminRole)
+                .hasSize(1)
+                .isEqualTo(expected);
     }
 
     private void shouldAllowUpdatingOfNamedOperationsUsingAdminAuth() throws OperationException {
@@ -281,20 +296,17 @@ public class NamedOperationCacheIT {
                 .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(adminAuthUser.getUserId())
-                .readers(new ArrayList<>())
-                .writers(new ArrayList<>())
                 .score(0)
+                .parameters(null)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
 
         // when / then
-        try {
-            addNamedOperationHandler.doOperation(update, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("User UNKNOWN does not have permission to overwrite"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> addNamedOperationHandler.doOperation(update, context, store))
+                .withMessageContaining("User UNKNOWN does not have permission to overwrite");
+
 
         // when
         addNamedOperationHandler.doOperation(update, contextWithAdminUser, store);
@@ -302,7 +314,8 @@ public class NamedOperationCacheIT {
         List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, contextWithAdminUser, store));
 
         // then
-        assertEquals(expected.size(), results.size());
-        assertEquals(expected, results);
+        assertThat(results)
+                .hasSameSizeAs(expected)
+                .isEqualTo(expected);
     }
 }

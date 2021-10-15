@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Reduce;
@@ -26,10 +26,9 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReduceHandlerTest {
     @Test
@@ -49,7 +48,7 @@ public class ReduceHandlerTest {
 
         // Then
         assertTrue(result instanceof Integer);
-        assertEquals(expectedResult,result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -71,7 +70,7 @@ public class ReduceHandlerTest {
 
         // Then
         assertTrue(result instanceof Integer);
-        assertEquals(expectedResult,result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -92,7 +91,7 @@ public class ReduceHandlerTest {
 
         // Then
         assertTrue(result instanceof Integer);
-        assertEquals(expectedResult,result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -108,10 +107,10 @@ public class ReduceHandlerTest {
         // When
         try {
             final Integer result = handler.doOperation(reduce, null, null);
-        } catch(final OperationException oe) {
+        } catch (final OperationException oe) {
 
             // Then
-            assertThat(oe.getMessage(), is("Input cannot be null"));
+            assertThat(oe.getMessage()).isEqualTo("Input cannot be null");
         }
     }
 
@@ -123,10 +122,10 @@ public class ReduceHandlerTest {
         // When
         try {
             final Integer result = handler.doOperation(null, null, null);
-        } catch(final OperationException oe) {
+        } catch (final OperationException oe) {
 
             // Then
-            assertThat(oe.getMessage(), is("Operation cannot be null"));
+            assertThat(oe.getMessage()).isEqualTo("Operation cannot be null");
         }
     }
 }

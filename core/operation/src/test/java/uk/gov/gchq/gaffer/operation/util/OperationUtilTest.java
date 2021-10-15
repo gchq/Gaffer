@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.operation.util;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -25,10 +25,12 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class OperationUtilTest {
 
@@ -61,18 +63,16 @@ public class OperationUtilTest {
         final Iterable<? extends ElementId> output = OperationUtil.toElementIds(input);
 
         // Then
-        assertEquals(
-                Lists.newArrayList(
-                        new EntitySeed(1),
-                        new EntitySeed("2"),
-                        new EntitySeed("3"),
-                        new Entity("group", "4"),
-                        new EdgeSeed("5", 6),
-                        new Edge("group", 7L, 8, true),
-                        null
-                ),
-                Lists.newArrayList(output)
+        final ArrayList<ElementId> expected = Lists.newArrayList(
+                new EntitySeed(1),
+                new EntitySeed("2"),
+                new EntitySeed("3"),
+                new Entity("group", "4"),
+                new EdgeSeed("5", 6),
+                new Edge("group", 7L, 8, true),
+                null
         );
+        assertEquals(expected, Lists.newArrayList(output));
     }
 
     @Test
@@ -92,30 +92,21 @@ public class OperationUtilTest {
         final Iterable<? extends ElementId> output = OperationUtil.toElementIds(input);
 
         // Then
-        assertEquals(
-                Lists.newArrayList(
-                        new EntitySeed(1),
-                        new EntitySeed("2"),
-                        new EntitySeed("3"),
-                        new Entity("group", "4"),
-                        new EdgeSeed("5", 6),
-                        new Edge("group", 7L, 8, true),
-                        null
-                ),
-                Lists.newArrayList(output)
+        final ArrayList<ElementId> expected = Lists.newArrayList(
+                new EntitySeed(1),
+                new EntitySeed("2"),
+                new EntitySeed("3"),
+                new Entity("group", "4"),
+                new EdgeSeed("5", 6),
+                new Edge("group", 7L, 8, true),
+                null
         );
+        assertEquals(expected, Lists.newArrayList(output));
     }
 
     @Test
     public void shouldReturnNullIfConvertFromElementIdsWithNullInput() {
-        // Given
-        final Iterable<? extends EntityId> input = null;
-
-        // When
-        final Iterable<?> output = OperationUtil.fromElementIds(input);
-
-        // Then
-        assertNull(output);
+        assertNull(OperationUtil.fromElementIds(null));
     }
 
     @Test
@@ -135,18 +126,16 @@ public class OperationUtilTest {
         final Iterable<?> output = OperationUtil.fromElementIds(input);
 
         // Then
-        assertEquals(
-                Lists.newArrayList(
-                        1,
-                        "2",
-                        "3",
-                        "4",
-                        new EdgeSeed("5", 6),
-                        new Edge("group", 7L, 8, true),
-                        null
-                ),
-                Lists.newArrayList(output)
+        final ArrayList<Serializable> expected = Lists.newArrayList(
+                1,
+                "2",
+                "3",
+                "4",
+                new EdgeSeed("5", 6),
+                new Edge("group", 7L, 8, true),
+                null
         );
+        assertEquals(expected, Lists.newArrayList(output));
     }
 
     @Test
@@ -158,7 +147,7 @@ public class OperationUtilTest {
         final Iterable<? extends EntityId> output = OperationUtil.toEntityIds(input);
 
         // Then
-        assertNull(output);
+        assertNull(OperationUtil.toEntityIds(input));
     }
 
     @Test
@@ -176,16 +165,14 @@ public class OperationUtilTest {
         final Iterable<? extends EntityId> output = OperationUtil.toEntityIds(input);
 
         // Then
-        assertEquals(
-                Lists.newArrayList(
-                        new EntitySeed(1),
-                        new EntitySeed("2"),
-                        new EntitySeed("3"),
-                        new Entity("group", "4"),
-                        null
-                ),
-                Lists.newArrayList(output)
+        final ArrayList<EntityId> expected = Lists.newArrayList(
+                new EntitySeed(1),
+                new EntitySeed("2"),
+                new EntitySeed("3"),
+                new Entity("group", "4"),
+                null
         );
+        assertEquals(expected, Lists.newArrayList(output));
     }
 
     @Test
@@ -203,16 +190,14 @@ public class OperationUtilTest {
         final Iterable<? extends ElementId> output = OperationUtil.toEntityIds(input);
 
         // Then
-        assertEquals(
-                Lists.newArrayList(
-                        new EntitySeed(1),
-                        new EntitySeed("2"),
-                        new EntitySeed("3"),
-                        new Entity("group", "4"),
-                        null
-                ),
-                Lists.newArrayList(output)
+        final ArrayList<EntityId> expected = Lists.newArrayList(
+                new EntitySeed(1),
+                new EntitySeed("2"),
+                new EntitySeed("3"),
+                new Entity("group", "4"),
+                null
         );
+        assertEquals(expected, Lists.newArrayList(output));
     }
 
     @Test
@@ -242,15 +227,13 @@ public class OperationUtilTest {
         final Iterable<?> output = OperationUtil.fromElementIds(input);
 
         // Then
-        assertEquals(
-                Lists.newArrayList(
-                        1,
-                        "2",
-                        "3",
-                        "4",
-                        null
-                ),
-                Lists.newArrayList(output)
+        final ArrayList<? extends Serializable> expected = Lists.newArrayList(
+                1,
+                "2",
+                "3",
+                "4",
+                null
         );
+        assertEquals(expected, Lists.newArrayList(output));
     }
 }

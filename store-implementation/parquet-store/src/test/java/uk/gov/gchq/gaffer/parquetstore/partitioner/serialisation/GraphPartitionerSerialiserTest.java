@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,29 @@
 
 package uk.gov.gchq.gaffer.parquetstore.partitioner.serialisation;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import uk.gov.gchq.gaffer.parquetstore.partitioner.GraphPartitioner;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.GroupPartitioner;
 import uk.gov.gchq.gaffer.parquetstore.partitioner.PartitionKey;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GraphPartitionerSerialiserTest {
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @Test
-    public void shouldGroupMultiplePartitionKeysAndSerialiseCorrectly() throws IOException {
+    public void shouldGroupMultiplePartitionKeysAndSerialiseCorrectly(@TempDir Path tempDir)
+            throws IOException {
         // Given
         final Object[] key1 = new Object[]{1L, 5, "ABC", 10F, (short) 1, (byte) 64, new byte[]{(byte) 1, (byte) 2, (byte) 3}};
         final PartitionKey partitionKey1 = new PartitionKey(key1);
@@ -69,7 +71,7 @@ public class GraphPartitionerSerialiserTest {
         final GraphPartitionerSerialiser serialiser = new GraphPartitionerSerialiser();
 
         // When
-        final String filename = testFolder.newFolder().getAbsolutePath() + "/test";
+        final String filename = tempDir.resolve("test").toString();
         final DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename));
         serialiser.write(graphPartitioner, dos);
         dos.close();

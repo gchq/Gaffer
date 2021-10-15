@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,42 +16,36 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 
 import com.yahoo.sketches.hll.Union;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HllUnionAggregatorTest extends BinaryOperatorTest {
+
     private static final double DELTA = 0.0000001D;
-    private Union sketch1;
-    private Union sketch2;
-
-    @Before
-    public void setup() {
-        sketch1 = new Union(15);
-        sketch1.update("A");
-        sketch1.update("B");
-
-        sketch2 = new Union(15);
-        sketch2.update("C");
-        sketch2.update("D");
-    }
 
     @Test
     public void testAggregate() {
         final HllUnionAggregator sketchAggregator = new HllUnionAggregator();
 
-        Union currentState = sketch1;
-        assertEquals(2.0D, currentState.getEstimate(), DELTA);
+        Union currentSketch = new Union(15);
+        currentSketch.update("A");
+        currentSketch.update("B");
 
-        currentState = sketchAggregator.apply(currentState, sketch2);
-        assertEquals(4.0D, currentState.getEstimate(), DELTA);
+        assertEquals(2.0D, currentSketch.getEstimate(), DELTA);
+
+        Union newSketch = new Union(15);
+        newSketch.update("C");
+        newSketch.update("D");
+
+        currentSketch = sketchAggregator.apply(currentSketch, newSketch);
+        assertEquals(4.0D, currentSketch.getEstimate(), DELTA);
     }
 
     @Test
@@ -59,6 +53,7 @@ public class HllUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new HllUnionAggregator(), new HllUnionAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -86,5 +81,10 @@ public class HllUnionAggregatorTest extends BinaryOperatorTest {
     @Override
     protected HllUnionAggregator getInstance() {
         return new HllUnionAggregator();
+    }
+
+    @Override
+    protected Iterable<HllUnionAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 }

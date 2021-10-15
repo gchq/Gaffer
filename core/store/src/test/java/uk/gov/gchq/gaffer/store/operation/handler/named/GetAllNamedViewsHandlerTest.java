@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import com.google.common.collect.Iterables;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -34,8 +35,8 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -71,31 +72,41 @@ public class GetAllNamedViewsHandlerTest {
             .overwrite(false)
             .build();
 
-    @AfterClass
+    private View viewWithNoAccess = new View.Builder()
+            .entity(TestGroups.ENTITY)
+            .build();
+
+    private AddNamedView addNamedViewWithNoAccess = new AddNamedView.Builder()
+            .name(testNamedViewName + "WithNoAccess")
+            .view(viewWithNoAccess)
+            .overwrite(false)
+            .readAccessPredicate(new NoAccessPredicate())
+            .build();
+
+    @AfterAll
     public static void tearDown() {
         CacheServiceLoader.shutdown();
     }
 
     @Test
-    public void shouldGetAllNamedViewsFromCache() throws OperationException {
+    public void shouldGetAllAccessibleNamedViewsFromCache() throws OperationException {
         // Given
-        given(store.getProperties()).willReturn(new StoreProperties());
-        StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
-        NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
+        initialiseCache();
+        final NamedViewDetail namedViewAsDetail = new NamedViewDetail.Builder()
                 .name(testNamedViewName)
                 .view(view)
                 .creatorId(context.getUser().getUserId())
                 .build();
-        NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder()
+        addNamedViewHandler.doOperation(addNamedView, context, store);
+
+        final NamedViewDetail namedViewAsDetail2 = new NamedViewDetail.Builder()
                 .name(testNamedViewName + 2)
                 .view(view2)
                 .creatorId(context.getUser().getUserId())
                 .build();
-        addNamedViewHandler.doOperation(addNamedView, context, store);
         addNamedViewHandler.doOperation(addNamedView2, context, store);
-        GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
+        addNamedViewHandler.doOperation(addNamedViewWithNoAccess, context, store);
+        final GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
 
         // when
         GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
@@ -105,5 +116,12 @@ public class GetAllNamedViewsHandlerTest {
         assertEquals(2, Iterables.size(namedViewList));
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail));
         assertTrue(Iterables.contains(namedViewList, namedViewAsDetail2));
+    }
+
+    private void initialiseCache() {
+        given(store.getProperties()).willReturn(new StoreProperties());
+        StoreProperties properties = new StoreProperties();
+        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        CacheServiceLoader.initialise(properties.getProperties());
     }
 }

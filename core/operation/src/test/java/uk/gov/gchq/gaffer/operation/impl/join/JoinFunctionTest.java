@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,63 +34,46 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class JoinFunctionTest {
-    private List<Element> leftInput = Arrays.asList(getElement(1), getElement(2), getElement(3), getElement(3), getElement(4), getElement(10));
-    private List<Element> rightInput = Arrays.asList(getElement(1), getElement(2), getElement(2), getElement(3), getElement(4), getElement(12));
+    private List<Element> leftInput = Arrays.asList(getElement(1), getElement(2), getElement(3), getElement(3), getElement(4), getElement(8), getElement(10));
+    private List<Element> rightInput = Arrays.asList(getElement(1), getElement(2), getElement(2), getElement(3), getElement(4), getElement(6), getElement(12));
 
     @Test
     public void shouldCorrectlyJoinTwoIterablesUsingLeftKey() {
-        if (null == getJoinFunction()) {
-            throw new RuntimeException("No JoinFunction specified by the test.");
-        }
-
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT, false);
-        List<MapTuple> expected = getExpectedLeftKeyResults();
-
-        assertEquals(expected.size(), ((List) result).size());
-        assertTupleListsEquality(expected, (List<MapTuple>) result);
+        testJoinFunction(new ElementMatch(), MatchKey.LEFT, false, getExpectedLeftKeyResultsForElementMatch());
+        testJoinFunction(new CustomMatch(), MatchKey.LEFT, false, getExpectedLeftKeyResultsForCustomMatch());
     }
 
     @Test
     public void shouldCorrectlyJoinTwoIterablesUsingRightKey() {
-        if (null == getJoinFunction()) {
-            throw new RuntimeException("No JoinFunction specified by the test.");
-        }
-
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT, false);
-        List<MapTuple> expected = getExpectedRightKeyResults();
-
-        assertEquals(expected.size(), ((List)result).size());
-        assertTupleListsEquality(expected, (List<MapTuple>) result);
+        testJoinFunction(new ElementMatch(), MatchKey.RIGHT, false, getExpectedRightKeyResultsForElementMatch());
+        testJoinFunction(new CustomMatch(), MatchKey.RIGHT, false, getExpectedRightKeyResultsForCustomMatch());
     }
 
     @Test
     public void shouldCorrectlyJoinTwoIterablesUsingLeftKeyAndFlattenResults() {
-        if (null == getJoinFunction()) {
-            throw new RuntimeException("No JoinFunction specified by the test.");
-        }
-
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.LEFT, true);
-        List<MapTuple> expected = getExpectedLeftKeyResultsFlattened();
-
-        assertEquals(expected.size(), ((List)result).size());
-        assertTupleListsEquality(expected, (List<MapTuple>) result);
+        testJoinFunction(new ElementMatch(), MatchKey.LEFT, true, getExpectedLeftKeyResultsFlattenedForElementMatch());
+        testJoinFunction(new CustomMatch(), MatchKey.LEFT, true, getExpectedLeftKeyResultsFlattenedForCustomMatch());
     }
 
     @Test
     public void shouldCorrectlyJoinTwoIterablesUsingRightKeyAndFlattenResults() {
+        testJoinFunction(new ElementMatch(), MatchKey.RIGHT, true, getExpectedRightKeyResultsFlattenedForElementMatch());
+        testJoinFunction(new CustomMatch(), MatchKey.RIGHT, true, getExpectedRightKeyResultsFlattenedForCustomMatch());
+    }
+
+    private void testJoinFunction(final Match match, final MatchKey matchKey, final boolean flatten, List<MapTuple> expectedOutput) {
         if (null == getJoinFunction()) {
             throw new RuntimeException("No JoinFunction specified by the test.");
         }
 
-        Iterable result = getJoinFunction().join(leftInput, rightInput, new ElementMatch(), MatchKey.RIGHT, true);
-        List<MapTuple> expected = getExpectedRightKeyResultsFlattened();
+        Iterable result = getJoinFunction().join(leftInput, rightInput, match, matchKey, flatten);
 
-        assertEquals(expected.size(), ((List)result).size());
-        assertTupleListsEquality(expected, (List<MapTuple>) result);
+        assertEquals(expectedOutput.size(), ((List) result).size());
+        assertTupleListsEquality(expectedOutput, (List<MapTuple>) result);
     }
 
     protected Element getElement(final Integer countProperty) {
@@ -111,13 +94,21 @@ public abstract class JoinFunctionTest {
 
     }
 
-    protected abstract List<MapTuple> getExpectedLeftKeyResults();
+    protected abstract List<MapTuple> getExpectedLeftKeyResultsForElementMatch();
 
-    protected abstract List<MapTuple> getExpectedRightKeyResults();
+    protected abstract List<MapTuple> getExpectedRightKeyResultsForElementMatch();
 
-    protected abstract List<MapTuple> getExpectedLeftKeyResultsFlattened();
+    protected abstract List<MapTuple> getExpectedLeftKeyResultsFlattenedForElementMatch();
 
-    protected abstract List<MapTuple> getExpectedRightKeyResultsFlattened();
+    protected abstract List<MapTuple> getExpectedRightKeyResultsFlattenedForElementMatch();
+
+    protected abstract List<MapTuple> getExpectedLeftKeyResultsForCustomMatch();
+
+    protected abstract List<MapTuple> getExpectedRightKeyResultsForCustomMatch();
+
+    protected abstract List<MapTuple> getExpectedLeftKeyResultsFlattenedForCustomMatch();
+
+    protected abstract List<MapTuple> getExpectedRightKeyResultsFlattenedForCustomMatch();
 
     protected abstract JoinFunction getJoinFunction();
 
@@ -129,6 +120,9 @@ public abstract class JoinFunctionTest {
         actual.forEach(mapTuple -> actualValues.add(mapTuple.getValues()));
 
         assertTrue(actualValues.containsAll(expectedValues));
+        assertTrue(expectedValues.containsAll(actualValues));
+
+        assertEquals(expectedValues, actualValues);
     }
 
     /**
@@ -150,6 +144,30 @@ public abstract class JoinFunctionTest {
             for (Object entry : matchCandidates) {
                 if (elementJoinComparator.test((Element) entry, (Element) testObject)) {
                     matches.add(((Element) entry).shallowClone());
+                }
+            }
+            return matches;
+        }
+    }
+
+    /**
+     * A custom match, which for test purposes will match values with counts double that of the key
+     */
+    private class CustomMatch implements Match {
+        private Iterable<Element> matchCandidates;
+
+        @Override
+        public void init(final Iterable matchCandidates) {
+            this.matchCandidates = matchCandidates;
+        }
+
+        @Override
+        public List matching(final Object testObject) {
+            List matches = new ArrayList<Element>();
+            for (final Element matchCandidate : matchCandidates) {
+                final long countBeingTested = (long) ((Element) testObject).getProperty("count");
+                if (countBeingTested * 2 == (long) matchCandidate.getProperty("count")) {
+                    matches.add(matchCandidate);
                 }
             }
             return matches;

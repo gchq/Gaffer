@@ -1,0 +1,31 @@
+{
+  "entities": {
+    "Cardinality": {
+      "description": "An entity that is added to every vertex representing the connectivity of the vertex.",
+      "vertex": "anyVertex",
+      "properties": {
+        "hllp": "hllp"
+      }
+    }
+  },
+  "types": {
+    "anyVertex": {
+      "description": "An String vertex - used for cardinalities",
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
+        }
+      ]
+    },
+    "hllp": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser"
+      }
+    }
+  }
+}

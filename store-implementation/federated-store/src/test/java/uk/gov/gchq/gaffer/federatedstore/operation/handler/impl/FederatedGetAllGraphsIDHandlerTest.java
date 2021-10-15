@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
@@ -30,6 +29,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetAllGraphsIDHandlerTest {
@@ -37,7 +37,7 @@ public class FederatedGetAllGraphsIDHandlerTest {
 
     private User testUser;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testUser = testUser();
     }
@@ -53,12 +53,12 @@ public class FederatedGetAllGraphsIDHandlerTest {
         FederatedStore store = Mockito.mock(FederatedStore.class);
         Set<String> expected = Sets.newHashSet();
         expected.add("value1");
-        BDDMockito.given(store.getAllGraphIds(testUser)).willReturn(expected);
+        BDDMockito.given(store.getAllGraphIds(testUser, false)).willReturn(expected);
 
         Iterable<? extends String> actual = federatedGetAllGraphIDHandler.doOperation(op, context, store);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
 
-        Mockito.verify(store).getAllGraphIds(testUser);
+        Mockito.verify(store).getAllGraphIds(testUser, false);
     }
 }

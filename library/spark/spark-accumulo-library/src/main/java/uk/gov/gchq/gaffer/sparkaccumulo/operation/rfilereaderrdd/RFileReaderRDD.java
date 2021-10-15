@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
         try {
             // Check user has access
             if (!checkAccess(connector, user, tableName)) {
-                throw new RuntimeException("User " + user + " does not have access to table" + tableName);
+                throw new RuntimeException("User " + user + " does not have access to table " + tableName);
             }
             LOGGER.info("Confirmed user {} has access to table {}", user, tableName);
 
@@ -189,7 +189,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
                 tabletName = LAST_TABLET;
             } else {
                 throw new RuntimeException("Row in accumulo.metadata didn't have the expected number of fields: "
-                + "Expected 1 or 2, got " + fields.length);
+                        + "Expected 1 or 2, got " + fields.length);
             }
 
             // Detect start of a new tablet

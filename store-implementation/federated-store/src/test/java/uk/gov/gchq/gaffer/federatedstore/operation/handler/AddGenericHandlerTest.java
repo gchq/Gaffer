@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,22 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationIterableHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -41,12 +42,15 @@ public class AddGenericHandlerTest {
     private FederatedStore store;
     private Graph graph;
 
-    @Before
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/properties/singleUseAccumuloStore.properties"));
+
+    @BeforeEach
     public void setUp() throws Exception {
         store = mock(FederatedStore.class);
 
         graph = new Graph.Builder()
-                .addStoreProperties(StoreProperties.loadStoreProperties("properties/singleUseMockAccStore.properties"))
+                .addStoreProperties(PROPERTIES)
                 .config(new GraphConfig("TestGraph"))
                 .addSchema(new Schema())
                 .build();
@@ -62,7 +66,8 @@ public class AddGenericHandlerTest {
 
         verify(store, times(1)).addOperationHandler(eq(GetAllElements.class), any(FederatedOperationIterableHandler.class));
     }
- @Test
+
+    @Test
     public void shouldNotHandleAnything() throws Exception {
         given(store.isSupported(any())).willReturn(true);
 
@@ -71,6 +76,4 @@ public class AddGenericHandlerTest {
 
         verify(store, never()).addOperationHandler(any(), any(FederatedOperationIterableHandler.class));
     }
-
-
 }

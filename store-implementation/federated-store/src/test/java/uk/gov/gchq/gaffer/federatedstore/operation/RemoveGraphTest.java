@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
@@ -41,7 +42,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
         byte[] serialise = toJson(op);
         RemoveGraph deserialise = fromJson(serialise);
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
+        assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
     }
 
     @Override
@@ -49,20 +50,22 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
         return Sets.newHashSet("graphId");
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
-        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         final RemoveGraph a = getTestObject();
         final RemoveGraph b = a.shallowClone();
-        Assert.assertEquals(a.getGraphId(), b.getGraphId());
+        assertEquals(a.getGraphId(), b.getGraphId());
     }
 
     @Override

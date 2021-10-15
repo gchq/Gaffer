@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,272 +17,197 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.ByteUtil;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ComparableOrToStringComparatorTest {
+
     @Test
     public void shouldSortValuesUsingComparator() {
         // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
         final List<Object> values = Arrays.asList(
-                null,
-                1,
-                "2",
-                new IntegerWrapper(0),
-                null,
-                7,
-                "5",
-                3,
-                new IntegerWrapper(4)
+                null, 1, "2", new IntegerWrapper(0), null, 7, "5", 3, new IntegerWrapper(4)
         );
 
         // When
         values.sort(comparator);
 
         // Then
-        assertEquals(
-                Arrays.asList(
-                        new IntegerWrapper(0),
-                        1,
-                        "2",
-                        3,
-                        new IntegerWrapper(4),
-                        "5",
-                        7,
-                        null,
-                        null
-                ), values);
+        final List<Object> expected = Arrays.asList(
+                new IntegerWrapper(0), 1, "2", 3, new IntegerWrapper(4), "5", 7, null, null
+        );
+        assertEquals(expected, values);
+    }
+
+    @Test
+    public void shouldMatchStringComparison() {
+        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
+
+        final int result = comparator.compare("1", "2");
+
+        assertTrue(result < 0, "Both should be less than 0");
+    }
+
+    @Test
+    public void shouldMatchStringComparisonInReverse() {
+        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
+
+        final int result = comparator.compare("2", "1");
+
+        assertTrue(result > 0, "Both should be less than 0");
+    }
+
+    @Test
+    public void shouldCompareEqualStrings() {
+        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
+
+        final int result = comparator.compare("1", "1");
+
+        assertEquals(0, result);
     }
 
     @Test
     public void shouldMatchByteComparison() {
-        // Given
-        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
+        final byte[] bytes1 = "1".getBytes();
+        final byte[] bytes2 = "2".getBytes();
 
-        final String item1 = "1";
-        final String item2 = "2";
+        final int bytesResult = ByteUtil.compareSortedBytes(bytes1, bytes2);
 
-        // When
-        final int result = comparator.compare(item1, item2);
-        final int bytesResult = ByteUtil.compareSortedBytes(item1.getBytes(), item2.getBytes());
-
-        // Then
-        assertTrue("Both should be less than 0", result < 0 && bytesResult < 0);
+        assertTrue(bytesResult < 0, "Both should be less than 0");
     }
 
     @Test
-    public void shouldMatchByteComparisonReversed() {
-        // Given
-        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
+    public void shouldMatchByteComparisonInReverse() {
+        final byte[] bytes2 = "2".getBytes();
+        final byte[] bytes1 = "1".getBytes();
 
-        final String item1 = "2";
-        final String item2 = "1";
+        final int bytesResult = ByteUtil.compareSortedBytes(bytes2, bytes1);
 
-        // When
-        final int result = comparator.compare(item1, item2);
-        final int bytesResult = ByteUtil.compareSortedBytes(item1.getBytes(), item2.getBytes());
-
-        // Then
-        assertTrue("Both should be more than 0", result > 0 && bytesResult > 0);
+        assertTrue(bytesResult > 0, "Both should be less than 0");
     }
 
     @Test
     public void shouldCompareNulls() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(null, null);
 
-        // Then
         assertEquals(0, result);
     }
 
     @Test
     public void shouldCompareNullWithValue() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(null, 1);
 
-        // Then
-        assertTrue("Should be more than 0", result > 0);
+        assertTrue(result > 0, "Should be more than 0");
     }
 
     @Test
     public void shouldCompareValueWithNull() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(1, null);
 
-        // Then
-        assertTrue("Should be less than 0", result < 0);
-    }
-
-    @Test
-    public void shouldCompareStrings() {
-        // Given
-        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
-
-        // When
-        final int result = comparator.compare("1", "2");
-
-        // Then
-        assertTrue("Should be less than 0", result < 0);
-    }
-
-    @Test
-    public void shouldCompareStringsReversed() {
-        // Given
-        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
-
-        // When
-        final int result = comparator.compare("2", "1");
-
-        // Then
-        assertTrue("Should be more than 0", result > 0);
-    }
-
-    @Test
-    public void shouldCompareEqualStrings() {
-        // Given
-        final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
-
-        // When
-        final int result = comparator.compare("1", "1");
-
-        // Then
-        assertEquals(0, result);
+        assertTrue(result < 0, "Should be less than 0");
     }
 
     @Test
     public void shouldCompareIntegers() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(1, 2);
 
-        // Then
-        assertTrue("Should be less than 0", result < 0);
+        assertTrue(result < 0, "Should be less than 0");
     }
 
     @Test
     public void shouldCompareIntegersReversed() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(2, 1);
 
-        // Then
-        assertTrue("Should be more than 0", result > 0);
+        assertTrue(result > 0, "Should be more than 0");
     }
 
     @Test
     public void shouldCompareEqualIntegers() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(1, 1);
 
-        // Then
         assertEquals(0, result);
     }
 
     @Test
     public void shouldCompareEqualArrayWithString() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
-        final int result = comparator.compare(new Integer[]{1, 1}, "[1, 1]");
+        final int result = comparator.compare(new Integer[] {1, 1}, "[1, 1]");
 
-        // Then
         assertEquals(0, result);
     }
 
     @Test
     public void shouldCompareIntegerArrays() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
-        final int result = comparator.compare(new Integer[]{1, 1}, new Integer[]{1, 2});
+        final int result = comparator.compare(new Integer[] {1, 1}, new Integer[] {1, 2});
 
-        // Then
-        assertTrue("Should be less than 0", result < 0);
+        assertTrue(result < 0, "Should be less than 0");
     }
 
     @Test
     public void shouldCompareIntegerArraysReversed() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
-        final int result = comparator.compare(new Integer[]{1, 2}, new Integer[]{1, 1});
+        final int result = comparator.compare(new Integer[] {1, 2}, new Integer[] {1, 1});
 
-        // Then
-        assertTrue("Should be more than 0", result > 0);
+        assertTrue(result > 0, "Should be more than 0");
     }
 
     @Test
     public void shouldCompareEqualIntegerArrays() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
-        final int result = comparator.compare(new Integer[]{1, 2}, new Integer[]{1, 2});
+        final int result = comparator.compare(new Integer[] {1, 2}, new Integer[] {1, 2});
 
-        // Then
         assertEquals(0, result);
     }
 
     @Test
     public void shouldCompareCustomObjUsingToString() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(new IntegerWrapper(1), new IntegerWrapper(2));
 
-        // Then
-        assertTrue("Should be less than 0", result < 0);
+        assertTrue(result < 0, "Should be less than 0");
     }
 
     @Test
     public void shouldCompareCustomObjUsingToStringReversed() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(new IntegerWrapper(2), new IntegerWrapper(1));
 
-        // Then
-        assertTrue("Should be more than 0", result > 0);
+        assertTrue(result > 0, "Should be more than 0");
     }
 
     @Test
     public void shouldCompareEqualCustomObjUsingToString() {
-        // Given
         final ComparableOrToStringComparator comparator = new ComparableOrToStringComparator();
 
-        // When
         final int result = comparator.compare(new IntegerWrapper(1), new IntegerWrapper(1));
 
-        // Then
         assertEquals(0, result);
     }
 

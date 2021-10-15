@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,46 @@
 
 package uk.gov.gchq.gaffer.data;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IsElementValidatorTest {
 
     @Test
     public void shouldValidateWhenEntity() {
-        // Given
         final Element element = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .build();
 
-        // When
         final boolean valid = new IsElementValidator().validate(element);
 
-        // Then
         assertTrue(valid);
     }
 
     @Test
     public void shouldValidateWhenEdge() {
-        // Given
         final Element element = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .build();
 
-        // When
         final boolean valid = new IsElementValidator().validate(element);
 
-        // Then
         assertTrue(valid);
     }
 
     @Test
     public void shouldNotValidateWhenNotElement() {
-        // Given
         final Object element = TestGroups.EDGE;
 
-        // When
         final boolean valid = new IsElementValidator().validate(element);
 
-        // Then
         assertFalse(valid);
     }
 }

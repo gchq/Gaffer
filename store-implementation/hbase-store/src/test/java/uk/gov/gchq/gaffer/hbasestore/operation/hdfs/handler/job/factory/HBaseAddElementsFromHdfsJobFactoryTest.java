@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,10 @@ import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -41,33 +39,37 @@ import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMa
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.reducer.AddElementsFromHdfsReducer;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
+import uk.gov.gchq.gaffer.hdfs.operation.hander.job.factory.AbstractJobFactoryTest;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.JobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.JsonMapperGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class HBaseAddElementsFromHdfsJobFactoryTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+public class HBaseAddElementsFromHdfsJobFactoryTest extends AbstractJobFactoryTest {
 
     private String inputDir;
     private String outputDir;
     private String stagingDir;
     private String failureDir;
 
-    @Before
-    public void setup() {
-        inputDir = testFolder.getRoot().getAbsolutePath() + "/inputDir";
-        outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
-        failureDir = testFolder.getRoot().getAbsolutePath() + "/failureDir";
-        stagingDir = testFolder.getRoot().getAbsolutePath() + "/stagingDir";
+    @BeforeEach
+    public void setup(@TempDir java.nio.file.Path tempDir) {
+        inputDir = tempDir.resolve("inputDir").toAbsolutePath().toString();
+        outputDir = tempDir.resolve("outputDir").toAbsolutePath().toString();
+        failureDir = tempDir.resolve("failureDir").toAbsolutePath().toString();
+        stagingDir = tempDir.resolve("stagingDir").toAbsolutePath().toString();
     }
 
     @Test
@@ -77,15 +79,9 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         final FileSystem fs = FileSystem.getLocal(localConf);
         fs.mkdirs(new Path(outputDir));
 
-        final HBaseAddElementsFromHdfsJobFactory factory = new HBaseAddElementsFromHdfsJobFactory();
+        final JobFactory factory = getJobFactory();
         final Job job = mock(Job.class);
-        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
-                .outputPath(outputDir)
-                .failurePath(failureDir)
-                .jobInitialiser(new TextJobInitialiser())
-                .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
-                .build();
+        final MapReduce operation = getMapReduceOperation();
 
         final HBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
@@ -122,6 +118,39 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         conf.set(JTConfig.JT_IPC_ADDRESS, JTConfig.LOCAL_FRAMEWORK_NAME);
 
         return conf;
+    }
+
+    @Override
+    protected Store getStoreConfiguredWith(final Class<JSONSerialiser> jsonSerialiserClass, final String jsonSerialiserModules, final Boolean strictJson) throws IOException, StoreException {
+        final HBaseStore store = new SingleUseMiniHBaseStore();
+        final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+
+        super.configureStoreProperties(properties, jsonSerialiserClass, jsonSerialiserModules, strictJson);
+
+        store.initialise("graphId", schema, properties);
+
+        final JobConf localConf = createLocalConf();
+        final FileSystem fs = FileSystem.getLocal(localConf);
+        fs.mkdirs(new Path(outputDir));
+
+        return store;
+    }
+
+    @Override
+    protected JobFactory getJobFactory() {
+        return new HBaseAddElementsFromHdfsJobFactory();
+    }
+
+    @Override
+    protected MapReduce getMapReduceOperation() {
+        return new AddElementsFromHdfs.Builder()
+                .addInputMapperPair(new Path(inputDir).toString(), JsonMapperGenerator.class.getName())
+                .outputPath(outputDir)
+                .failurePath(failureDir)
+                .jobInitialiser(new TextJobInitialiser())
+                .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
+                .build();
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {

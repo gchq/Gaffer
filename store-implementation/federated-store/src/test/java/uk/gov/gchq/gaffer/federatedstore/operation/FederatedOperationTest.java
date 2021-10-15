@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,48 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import org.junit.Test;
+import org.apache.commons.lang3.exception.CloneFailedException;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FederatedOperationTest {
+
+    private static class TestFederatedOperation implements FederatedOperation {
+
+        @Override
+        public Operation shallowClone() throws CloneFailedException {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getOptions() {
+            return null;
+        }
+
+        @Override
+        public void setOptions(final Map<String, String> options) {
+
+        }
+    }
+
     @Test
     public void shouldReturnTrueWhenOpChainHasFederatedOps() {
         // Given
         final OperationChain<?> opChain = new OperationChain.Builder()
-                .first(mock(Operation.class))
-                .then(mock(FederatedOperation.class))
-                .then(mock(GetElements.class))
+                .first(new GetElements())
+                .then(new DiscardOutput())
+                .then(new TestFederatedOperation())
+                .then(new GetElements())
                 .build();
 
         // When
@@ -47,8 +71,8 @@ public class FederatedOperationTest {
     public void shouldReturnFalseWhenOpChainDoesNotHaveFederatedOps() {
         // Given
         final OperationChain<?> opChain = new OperationChain.Builder()
-                .first(mock(Operation.class))
-                .then(mock(GetElements.class))
+                .first(new GetAdjacentIds())
+                .then(new GetElements())
                 .build();
 
         // When

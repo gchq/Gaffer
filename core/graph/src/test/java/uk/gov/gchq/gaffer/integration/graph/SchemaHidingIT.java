@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.integration.graph;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -55,7 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Integration tests to check that an store can be configured with a schema
+ * Integration tests to check that a store can be configured with a schema
  * containing groups 1 and 2. Then a new Graph can be constructed with a limited
  * schema, perhaps just containing group 1. The graph should then just
  * completely hide group 2 and never read any group 2 data from the store.
@@ -66,17 +66,24 @@ public abstract class SchemaHidingIT {
             .build();
 
     protected final String storePropertiesPath;
+    protected final StoreProperties storeProperties;
 
     public SchemaHidingIT(final String storePropertiesPath) {
         this.storePropertiesPath = storePropertiesPath;
+        this.storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
     }
 
-    @Before
+    public SchemaHidingIT(final StoreProperties storeProperties) {
+        this.storePropertiesPath = "";
+        this.storeProperties = storeProperties;
+    }
+
+    @BeforeEach
     public void before() {
         cleanUp();
     }
 
-    @After
+    @AfterEach
     public void after() {
         cleanUp();
     }
@@ -84,7 +91,7 @@ public abstract class SchemaHidingIT {
     protected abstract void cleanUp();
 
     protected Store createStore(final Schema schema) throws IOException {
-        return Store.createStore("graphId", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        return Store.createStore("graphId", schema, storeProperties);
     }
 
     @SuppressWarnings("unchecked")

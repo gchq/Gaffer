@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,29 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ToStringBuilderTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        setDebugMode(null);
+        clearDebugModeProperty();
     }
 
-    @After
-    public void after() throws Exception {
-        setDebugMode(null);
+    @AfterEach
+    public void after() {
+        clearDebugModeProperty();
     }
 
     @Test
     public void testDebugOffToStringBuilder() {
         setDebugMode("false");
         ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
+
         assertEquals(ToStringBuilder.SHORT_STYLE, toStringBuilder.getStyle());
     }
 
@@ -45,15 +46,17 @@ public class ToStringBuilderTest {
     public void testDebugOnToStringBuilder() {
         setDebugMode("true");
         ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
+
         assertEquals(ToStringBuilder.FULL_STYLE, toStringBuilder.getStyle());
     }
 
     private void setDebugMode(final String value) {
-        if (null == value) {
-            System.clearProperty(DebugUtil.DEBUG);
-        } else {
-            System.setProperty(DebugUtil.DEBUG, value);
-        }
+        System.setProperty(DebugUtil.DEBUG, value);
+        DebugUtil.updateDebugMode();
+    }
+
+    private void clearDebugModeProperty() {
+        System.clearProperty(DebugUtil.DEBUG);
         DebugUtil.updateDebugMode();
     }
 }

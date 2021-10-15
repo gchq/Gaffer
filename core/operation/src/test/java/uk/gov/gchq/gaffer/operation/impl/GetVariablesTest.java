@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,46 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GetVariablesTest extends OperationTest<GetVariables> {
+
     final List<String> variableNames = Arrays.asList("var1", "var2", "var3");
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        // Given
         GetVariables getVariablesOp = new GetVariables.Builder()
                 .variableNames(variableNames)
                 .build();
 
+        // When / Then
         assertEquals(3, getVariablesOp.getVariableNames().size());
         assertTrue(getVariablesOp.getVariableNames().containsAll(variableNames));
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
         GetVariables op = new GetVariables.Builder()
                 .variableNames(variableNames)
                 .build();
 
+        // When
         GetVariables opClone = op.shallowClone();
 
+        // Then
         assertNotSame(op, opClone);
         assertEquals(op.getVariableNames(), opClone.getVariableNames());
 

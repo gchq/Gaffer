@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -55,19 +53,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class ScoreOperationChainHandlerTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {
@@ -496,12 +492,9 @@ public class ScoreOperationChainHandlerTest {
         opScores.put(Operation.class.getName(), 1);
 
         // When / Then
-        try {
-            handler.setOpScoresFromStrings(opScores);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Operation scores are configured incorrectly."));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> handler.setOpScoresFromStrings(opScores))
+                .withMessageContaining("Operation scores are configured incorrectly.");
     }
 
     @Test
@@ -520,10 +513,10 @@ public class ScoreOperationChainHandlerTest {
     public void shouldReAddDefaultScoreResolversWhenCallingSetMethod() {
         // Given
         final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
-        final Map<Class<? extends Operation>, ScoreResolver> DEFAULT_RESOLVERS = ScoreOperationChainHandler.getDefaultScoreResolvers();
+        final Map<Class<? extends Operation>, ScoreResolver> defaultResolvers = ScoreOperationChainHandler.getDefaultScoreResolvers();
 
         final Map<Class<? extends Operation>, ScoreResolver> expectedMap = new HashMap<>();
-        expectedMap.putAll(DEFAULT_RESOLVERS);
+        expectedMap.putAll(defaultResolvers);
 
         final Map<Class<? extends Operation>, ScoreResolver> inputMap = new HashMap<>();
         inputMap.put(GetElements.class, new DefaultScoreResolver(null));

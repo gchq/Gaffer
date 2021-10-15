@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -30,10 +30,10 @@ import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builde
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddStorePropertiesToLibraryHandlerTest {
 
@@ -42,7 +42,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
     private Store store;
     private StoreProperties props;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         store = new TestAddToGraphLibraryImpl();
         HashMapGraphLibrary.clear();
@@ -54,12 +54,7 @@ public class AddStorePropertiesToLibraryHandlerTest {
     @Test
     public void shouldThrowWithNoGraphLibrary() throws Exception {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-        try {
-            store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertEquals(String.format("Operation class %s is not supported by the %s.", AddStorePropertiesToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()), e.getMessage());
-        }
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()))).withMessage(String.format("Operation class %s is not supported by the %s.", AddStorePropertiesToLibrary.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()));
     }
 
     @Test

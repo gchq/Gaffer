@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.data.element;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 
 public final class TestElements {
+
+    private TestElements() {
+        // Private to avoid instantiation
+    }
 
     public static Edge getBasicEdge(final Object source, final Object destination) {
         return new Edge.Builder()

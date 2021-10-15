@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * An {@code ExecutorService} that can schedule commands to run after a given
  * delay, or to execute periodically.
  * <p>
+ *
  * @see java.util.concurrent.ScheduledExecutorService
  **/
 public final class ExecutorService {
@@ -36,13 +37,15 @@ public final class ExecutorService {
         // private constructor to prevent instantiation
     }
 
-    public static void initialise(final int jobExecutorThreadCount) {
-        LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
-        service = Executors.newScheduledThreadPool(jobExecutorThreadCount, runnable -> {
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            return thread;
-        });
+    public static synchronized void initialise(final int jobExecutorThreadCount) {
+        if (service == null) {
+            LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
+            service = Executors.newScheduledThreadPool(jobExecutorThreadCount, runnable -> {
+                final Thread thread = new Thread(runnable);
+                thread.setDaemon(true);
+                return thread;
+            });
+        }
     }
 
     public static ScheduledExecutorService getService() {

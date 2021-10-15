@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -23,13 +24,19 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * An Operation used for getting traits from the Store.
  */
+@JsonPropertyOrder(alphabetic = true)
+@Since("1.5.0")
+@Summary("An Operation used for getting traits from the Store")
 public class GetTraits implements Operation, Output<Set<StoreTrait>> {
     public static final boolean DEFAULT_CURRENT_TRAITS = true;
 
@@ -40,7 +47,7 @@ public class GetTraits implements Operation, Output<Set<StoreTrait>> {
      * By default it will return a list of current traits.
      */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
-    private Map<String, String> options;
+    private Map<String, String> options = new HashMap<>();
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {

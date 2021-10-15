@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,98 +15,57 @@
  */
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JsonUtilTest {
+
     @Test
     public void shouldReturnTrueWhenJsonObjectsAreEqualButInADifferentOrder() {
-        // Given
         final String json1 = "{\"a\": 1, \"b\": 2}";
         final String json2 = "{\"b\": 2, \"a\": 1}";
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2.getBytes());
+        assertTrue(JsonUtil.equals(json1, json2));
+        assertTrue(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        // Then
-        assertTrue(resultStr);
-        assertTrue(resultBytes);
         JsonAssert.assertEquals(json1, json2);
         JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
     }
 
     @Test
     public void shouldReturnFalseWhenJsonObjectsAreDifferentSizes() {
-        // Given
         final String json1 = "{\"a\": 1, \"b\": 2}";
         final String json2 = "{\"a\": 1, \"b\": 2, \"c\": 3}";
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2.getBytes());
+        assertFalse(JsonUtil.equals(json1, json2));
+        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        // Then
-        assertFalse(resultStr);
-        assertFalse(resultBytes);
-        try {
-            JsonAssert.assertEquals(json1, json2);
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
+        JsonAssert.assertNotEqual(json1, json2);
+        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
     }
 
     @Test
     public void shouldReturnFalseWhenJsonObjectsAreNotEqual() {
-        // Given
         final String json1 = "{\"a\": 1, \"b\": 2}";
         final String json2 = "{\"a\": 1, \"b\": 3}";
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2.getBytes());
+        assertFalse(JsonUtil.equals(json1, json2));
+        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        // Then
-        assertFalse(resultStr);
-        assertFalse(resultBytes);
-        try {
-            JsonAssert.assertEquals(json1, json2);
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
+        JsonAssert.assertNotEqual(json1, json2);
+        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
     }
 
     @Test
     public void shouldReturnTrueWhenJsonArraysAreEqual() {
-        // Given
         final String json1 = "[1,2,3]";
         final String json2 = "[1,2,3]";
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2.getBytes());
+        assertTrue(JsonUtil.equals(json1, json2));
+        assertTrue(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        // Then
-        assertTrue(resultStr);
-        assertTrue(resultBytes);
         JsonAssert.assertEquals(json1, json2);
         JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
     }
@@ -117,80 +76,33 @@ public class JsonUtilTest {
         final String json1 = "[1,2,3]";
         final String json2 = "[1,2,4]";
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2.getBytes());
+        assertFalse(JsonUtil.equals(json1, json2));
+        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        // Then
-        assertFalse(resultStr);
-        assertFalse(resultBytes);
-        try {
-            JsonAssert.assertEquals(json1, json2);
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
+        JsonAssert.assertNotEqual(json1, json2);
+        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
     }
 
     @Test
     public void shouldReturnFalseWhenJsonArraysAreDifferentSizes() {
-        // Given
         final String json1 = "[1,2,3]";
         final String json2 = "[1,2,3,4]";
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2.getBytes());
+        assertFalse(JsonUtil.equals(json1, json2));
+        assertFalse(JsonUtil.equals(json1.getBytes(), json2.getBytes()));
 
-        // Then
-        assertFalse(resultStr);
-        assertFalse(resultBytes);
-        try {
-            JsonAssert.assertEquals(json1, json2);
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            JsonAssert.assertEquals(json1.getBytes(), json2.getBytes());
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
+        JsonAssert.assertNotEqual(json1, json2);
+        JsonAssert.assertNotEqual(json1.getBytes(), json2.getBytes());
     }
 
     @Test
-    public void shouldReturnFalseWhenOneJsonObjectIsNull() {
-        // Given
+    public void shouldReturnFalseWhenActualObjectIsNull() {
         final String json1 = "{\"a\": 1, \"b\": 2}";
-        final String json2 = null;
-        // Required as .getBytes() of a null string throws a NullPointer
-        final byte[] json2ToBytes = null;
 
-        // When
-        final boolean resultStr = JsonUtil.equals(json1, json2);
-        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2ToBytes);
+        assertFalse(JsonUtil.equals(json1, null));
+        assertFalse(JsonUtil.equals(json1.getBytes(), null));
 
-        // Then
-        assertFalse(resultStr);
-        assertFalse(resultBytes);
-        try {
-            JsonAssert.assertEquals(json1, json2);
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
-        try {
-            JsonAssert.assertEquals(json1.getBytes(), json2ToBytes);
-            fail("Exception expected");
-        } catch (final AssertionError e) {
-            assertNotNull(e.getMessage());
-        }
+        JsonAssert.assertNotEqual(json1, null);
+        JsonAssert.assertNotEqual(json1.getBytes(), null);
     }
 }

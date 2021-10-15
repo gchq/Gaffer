@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,20 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GroupedPropertiesTest {
 
     @Test
     public void shouldConstructGroupedProperties() {
-        // Given
         final String group = "group1";
 
-        // When
         final GroupedProperties groupedProperties = new GroupedProperties(group);
 
-        // Then
         assertEquals(group, groupedProperties.getGroup());
     }
 
@@ -65,12 +60,10 @@ public class GroupedPropertiesTest {
         final GroupedProperties groupedProperties2 = new GroupedProperties(group);
         groupedProperties2.put("prop1", "value1");
 
-        // When
-        final boolean isEqual = groupedProperties1.equals(groupedProperties2);
-
         // Then
-        assertTrue(isEqual);
-        assertEquals(groupedProperties1.hashCode(), groupedProperties2.hashCode());
+        assertThat(groupedProperties1)
+                .isEqualTo(groupedProperties2)
+                .hasSameHashCodeAs(groupedProperties2);
     }
 
     @Test
@@ -84,12 +77,10 @@ public class GroupedPropertiesTest {
         final GroupedProperties groupedProperties2 = new GroupedProperties(group2);
         groupedProperties2.put("prop1", "value1");
 
-        // When
-        final boolean isEqual = groupedProperties1.equals(groupedProperties2);
-
         // Then
-        assertFalse(isEqual);
-        assertNotEquals(groupedProperties1.hashCode(), groupedProperties2.hashCode());
+        assertThat(groupedProperties1)
+                .isNotEqualTo(groupedProperties2)
+                .doesNotHaveSameHashCodeAs(groupedProperties2);
     }
 
     @Test
@@ -102,11 +93,9 @@ public class GroupedPropertiesTest {
         final GroupedProperties groupedProperties2 = new GroupedProperties(group);
         groupedProperties2.put("a different property", "value2");
 
-        // When
-        final boolean isEqual = groupedProperties1.equals(groupedProperties2);
-
         // Then
-        assertFalse(isEqual);
-        assertNotEquals(groupedProperties1.hashCode(), groupedProperties2.hashCode());
+        assertThat(groupedProperties1)
+                .isNotEqualTo(groupedProperties2)
+                .doesNotHaveSameHashCodeAs(groupedProperties2);
     }
 }

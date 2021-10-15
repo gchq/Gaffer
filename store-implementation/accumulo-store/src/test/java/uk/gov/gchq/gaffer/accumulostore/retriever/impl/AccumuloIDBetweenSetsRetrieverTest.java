@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,13 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -49,69 +47,59 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
+
+    private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
+    private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     private static View defaultView;
     private static View edgeOnlyView;
     private static View entityOnlyView;
-    private static AccumuloStore byteEntityStore;
-    private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloIDBetweenSetsRetrieverTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloIDBetweenSetsRetrieverTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloIDBetweenSetsRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
-    @BeforeClass
-    public static void setup() throws StoreException, IOException {
-        byteEntityStore = new SingleUseMockAccumuloStore();
-        gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
+    @BeforeAll
+    public static void setup() throws StoreException {
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
         edgeOnlyView = new View.Builder().edge(TestGroups.EDGE).build();
         entityOnlyView = new View.Builder().entity(TestGroups.ENTITY).build();
     }
 
-    @Before
+    @BeforeEach
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
-        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
-        setupGraph(byteEntityStore);
-        setupGraph(gaffer1KeyStore);
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
+        setupGraph(BYTE_ENTITY_STORE);
+        setupGraph(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesInMemoryFromByteEntityStore() throws StoreException {
-        shouldGetCorrectEdges(true, byteEntityStore);
+        shouldGetCorrectEdges(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesInMemoryFromGaffer1Store() throws StoreException {
-        shouldGetCorrectEdges(true, gaffer1KeyStore);
+        shouldGetCorrectEdges(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesFromByteEntityStore() throws StoreException {
-        shouldGetCorrectEdges(false, byteEntityStore);
+        shouldGetCorrectEdges(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldGetCorrectEdgesFromGaffer1Store() throws StoreException {
-        shouldGetCorrectEdges(false, gaffer1KeyStore);
+        shouldGetCorrectEdges(false, GAFFER_1_KEY_STORE);
     }
 
 
@@ -124,7 +112,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .build();
 
         final Set<Element> initialResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-        assertThat(initialResults, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
+        assertThat(initialResults).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY);
 
         // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
@@ -135,8 +123,8 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .build();
 
         final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
-        assertEquals(1, secondResults.size());
-        assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
+        assertThat(secondResults).hasSize(1)
+                .contains(AccumuloTestData.A1_ENTITY);
 
         // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
@@ -146,22 +134,24 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .view(defaultView)
                 .build();
         final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
-        assertEquals(1, thirdResults.size());
-        assertThat(thirdResults, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
+        assertThat(thirdResults).hasSize(1)
+                .contains(AccumuloTestData.A1_ENTITY);
     }
 
     @Test
     public void shouldDealWithOutgoingEdgesOnlyOptionGaffer1KeyStore() {
-        shouldDealWithOutgoingEdgesOnlyOption(gaffer1KeyStore);
+        shouldDealWithOutgoingEdgesOnlyOption(GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldDealWithOutgoingEdgesOnlyOptionByteEntityStore() {
-        shouldDealWithOutgoingEdgesOnlyOption(byteEntityStore);
+        shouldDealWithOutgoingEdgesOnlyOption(BYTE_ENTITY_STORE);
     }
 
     /**
      * Tests that the options to set outgoing edges or incoming edges only options work correctly.
+     *
+     * @param store the Store instance
      */
     private void shouldDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
@@ -181,23 +171,23 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             final GetElementsBetweenSets opA1B1 = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A1_SET).inputB(AccumuloTestData.SEED_B1_SET).view(edgeOnlyView).build();
             opA1B1.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
             final Set<Element> a1B1OutgoingEdgeResults = returnElementsFromOperation(store, opA1B1, new User(), false);
-            assertThat(a1B1OutgoingEdgeResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A1_B1));
+            assertThat(a1B1OutgoingEdgeResults).contains(AccumuloTestData.EDGE_A1_B1);
 
             // Query for edges between {A1} and {B1}, with incoming edges only. Should get nothing.
             opA1B1.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
             final Set<Element> a1B1EdgeIncomingResults = returnElementsFromOperation(store, opA1B1, new User(), false);
-            assertEquals(0, a1B1EdgeIncomingResults.size());
+            assertThat(a1B1EdgeIncomingResults).isEmpty();
 
             // Query for edges between {A2} and {B2}, with incoming edges only. Should get the edge B2->A2.
             final GetElementsBetweenSets opA2B2 = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A2_SET).inputB(AccumuloTestData.SEED_B2_SET).view(edgeOnlyView).build();
             opA2B2.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
             final Set<Element> a2B2EdgeIncomingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
-            assertThat(a2B2EdgeIncomingResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_B2_A2));
+            assertThat(a2B2EdgeIncomingResults).contains(AccumuloTestData.EDGE_B2_A2);
 
             // Query for edges between {A2} and {B2}, with outgoing edges only. Should get nothing.
             opA2B2.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
             final Set<Element> a2B2EdgeOutgoingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
-            assertEquals(0, a2B2EdgeOutgoingResults.size());
+            assertThat(a2B2EdgeOutgoingResults).isEmpty();
 
         } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
@@ -209,22 +199,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryByteEntityStore() {
-        shouldDealWithDirectedEdgesOnlyOption(true, byteEntityStore);
+        shouldDealWithDirectedEdgesOnlyOption(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryGaffer1Store() {
-        shouldDealWithDirectedEdgesOnlyOption(true, gaffer1KeyStore);
+        shouldDealWithDirectedEdgesOnlyOption(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldDealWithDirectedEdgesOnlyByteEntityStore() {
-        shouldDealWithDirectedEdgesOnlyOption(false, byteEntityStore);
+        shouldDealWithDirectedEdgesOnlyOption(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithDirectedEdgesOnlyGaffer1Store() {
-        shouldDealWithDirectedEdgesOnlyOption(false, gaffer1KeyStore);
+        shouldDealWithDirectedEdgesOnlyOption(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) {
@@ -240,16 +230,16 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             op.setDirectedType(DirectedType.UNDIRECTED);
 
             final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-            assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_2));
+            assertThat(results).contains(AccumuloTestData.EDGE_A_B_2);
 
             op.setDirectedType(DirectedType.DIRECTED);
             final Set<Element> secondResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-            assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_1));
+            assertThat(secondResults).contains(AccumuloTestData.EDGE_A_B_1);
             // Turn off directed / undirected edges only option and check get both EDGE_A1_B1 and EDGE_B2_A2
             op.setDirectedType(DirectedType.EITHER);
 
             final Set<Element> thirdResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-            assertThat(thirdResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_2));
+            assertThat(thirdResults).contains(AccumuloTestData.EDGE_A_B_2);
         } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
@@ -264,22 +254,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException {
-        shouldDealWithFalsePositives(true, byteEntityStore);
+        shouldDealWithFalsePositives(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithFalsePositivesInMemoryGaffer1Store() throws StoreException {
-        shouldDealWithFalsePositives(true, gaffer1KeyStore);
+        shouldDealWithFalsePositives(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldDealWithFalsePositivesByteEntityStore() throws StoreException {
-        shouldDealWithFalsePositives(false, byteEntityStore);
+        shouldDealWithFalsePositives(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldDealWithFalsePositivesGaffer1Store() throws StoreException {
-        shouldDealWithFalsePositives(false, gaffer1KeyStore);
+        shouldDealWithFalsePositives(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -346,8 +336,8 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         // Check results are as expected
 
-        assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
+        assertThat(results).hasSize(2)
+                .contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY);
     }
 
     /**
@@ -358,22 +348,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     @Test
     public void shouldOtherFilteringStillAppliedByteEntityStoreInMemoryEntities() throws StoreException {
-        shouldStillApplyOtherFilter(true, byteEntityStore);
+        shouldStillApplyOtherFilter(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldOtherFilteringStillAppliedGaffer1StoreInMemoryEntities() throws StoreException {
-        shouldStillApplyOtherFilter(true, gaffer1KeyStore);
+        shouldStillApplyOtherFilter(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldOtherFilteringStillAppliedByteEntityStore() throws StoreException {
-        shouldStillApplyOtherFilter(false, byteEntityStore);
+        shouldStillApplyOtherFilter(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldOtherFilteringStillAppliedGaffer1Store() throws StoreException {
-        shouldStillApplyOtherFilter(false, gaffer1KeyStore);
+        shouldStillApplyOtherFilter(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldStillApplyOtherFilter(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -383,7 +373,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         op.setDirectedType(DirectedType.EITHER);
 
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-        assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A0_A23));
+        assertThat(results).contains(AccumuloTestData.EDGE_A0_A23);
 
         // Set graph to return entities only
         final GetElementsBetweenSets secondOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(entityOnlyView).build();
@@ -391,7 +381,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Query for all edges in set {A0, A23}, should get the entity for A0
         final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
 
-        assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.A0_ENTITY));
+        assertThat(secondResults).contains(AccumuloTestData.A0_ENTITY);
 
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data).
@@ -403,27 +393,27 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         thirdOp.setDirectedType(DirectedType.EITHER);
 
         final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
-        assertEquals(0, thirdResults.size());
+        assertThat(thirdResults).isEmpty();
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerByteStoreInMemory() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, byteEntityStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerGaffer1StoreInMemory() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, gaffer1KeyStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerByteStore() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, byteEntityStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void shouldReturnMoreElementsThanFitInBatchScannerGaffer1Store() throws StoreException {
-        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, gaffer1KeyStore);
+        shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(true, GAFFER_1_KEY_STORE);
     }
 
     private void shouldLoadElementsWhenMoreElementsThanFitInBatchScanner(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -432,62 +422,68 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Query for all edges between the set {A0} and the set {A23}
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(defaultView).build();
         final Set<Element> betweenA0A23results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-        assertEquals(2, betweenA0A23results.size());
-        assertThat(betweenA0A23results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY));
+        assertThat(betweenA0A23results).hasSize(2)
+                .contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY);
 
         // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
         final GetElementsBetweenSets secondOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A1_SET).inputB(AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET).view(defaultView).build();
         final Set<Element> betweenA1andNotPresentResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
-        assertEquals(1, betweenA1andNotPresentResults.size());
-        assertThat(betweenA1andNotPresentResults, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
+        assertThat(betweenA1andNotPresentResults).hasSize(1)
+                .contains(AccumuloTestData.A1_ENTITY);
 
         // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
         final GetElementsBetweenSets thirdOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A1_SET).inputB(AccumuloTestData.SEED_A2_SET).view(defaultView).build();
 
         final Set<Element> betweenA1A2Results = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
-        assertEquals(1, betweenA1A2Results.size());
-        assertThat(betweenA1A2Results, IsCollectionContaining.hasItem(AccumuloTestData.A1_ENTITY));
+        assertThat(betweenA1A2Results).hasSize(1)
+                .contains(AccumuloTestData.A1_ENTITY);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStoreInMemory() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(true, byteEntityStore);
+        testEdgesWithinSetAAreNotReturned(true, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStoreGaffer1StoreInMemory() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(true, gaffer1KeyStore);
+        testEdgesWithinSetAAreNotReturned(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStore() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(false, byteEntityStore);
+        testEdgesWithinSetAAreNotReturned(false, BYTE_ENTITY_STORE);
     }
 
     @Test
     public void testEdgesWithinSetAAreNotReturnedByteStoreGaffer1Store() throws StoreException {
-        testEdgesWithinSetAAreNotReturned(false, gaffer1KeyStore);
+        testEdgesWithinSetAAreNotReturned(false, GAFFER_1_KEY_STORE);
     }
 
     private void testEdgesWithinSetAAreNotReturned(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_A23_SET).inputB(AccumuloTestData.SEED_B_SET).view(defaultView).build();
         final Set<Element> betweenA0A23_B_Results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         //Should have the two entities A0 A23 but not the edge A0-23
-        assertEquals(2, betweenA0A23_B_Results.size());
-        assertThat(betweenA0A23_B_Results, IsCollectionContaining.hasItems(AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));
+        assertThat(betweenA0A23_B_Results).hasSize(2)
+                .contains(AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
     }
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsBetweenSets operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
-        final AccumuloRetriever<?, Element> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory, store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+        AccumuloRetriever<?, Element> retriever = null;
         final Set<Element> results = new HashSet<>();
-
-        for (final Element elm : retriever) {
-            results.add(elm);
+        try {
+            retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory,
+                    store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+            for (final Element elm : retriever) {
+                results.add(elm);
+            }
+        } finally {
+            if (retriever != null) {
+                retriever.close();
+            }
         }
-        retriever.close();
 
         return results;
     }

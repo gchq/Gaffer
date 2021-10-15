@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 
 package uk.gov.gchq.gaffer.operation.job;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
 
@@ -39,11 +38,6 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         assertNotNull(op);
     }
 
-    @Override
-    protected GetAllJobDetails getTestObject() {
-        return new GetAllJobDetails();
-    }
-
     @Test
     public void shouldGetOutputClass() {
         // When
@@ -53,6 +47,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         assertEquals(CloseableIterable.class, outputClass);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -65,5 +60,10 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         // Then
         assertNotSame(getAllJobDetails, clone);
         assertNotNull(clone);
+    }
+
+    @Override
+    protected GetAllJobDetails getTestObject() {
+        return new GetAllJobDetails();
     }
 }

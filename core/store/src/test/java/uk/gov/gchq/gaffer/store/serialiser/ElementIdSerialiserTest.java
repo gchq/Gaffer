@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -28,19 +28,20 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElementIdSerialiserTest {
 
-    private Schema schema;
-    private ElementIdSerialiser serialiser;
+    private static Schema schema;
+    private static ElementIdSerialiser serialiser;
     private static final String TEST_VERTEX = "testVertex";
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new StringSerialiser())
                 .build();
@@ -53,12 +54,7 @@ public class ElementIdSerialiserTest {
         schema = new Schema.Builder().build();
 
         // When / Then
-        try {
-            serialiser = new ElementIdSerialiser(schema);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Vertex serialiser is required"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> new ElementIdSerialiser(schema)).withMessage("Vertex serialiser is required");
     }
 
     @Test
@@ -109,7 +105,7 @@ public class ElementIdSerialiserTest {
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, serialiser.deserialiseEmpty());
+        assertThat(serialiser.deserialiseEmpty()).isNull();
     }
 
     @Test

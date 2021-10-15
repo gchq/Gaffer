@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<SchemaEntityDefinition> {
+
     @Override
     protected SchemaEntityDefinition.Builder createBuilder() {
         return new SchemaEntityDefinition.Builder()
@@ -76,7 +77,7 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
                 .vertex("vertex.string")
                 .build();
 
-        final Schema schema = new Schema.Builder()
+        new Schema.Builder()
                 .entity(TestGroups.ENTITY, elementDef)
                 .type("vertex.string", String.class)
                 .build();

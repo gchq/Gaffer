@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,21 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 /**
  * Abstract test class provided for convenience.
+ *
  * @param <T> the class for which the serialiser is written
  */
 public abstract class KryoSerializerTest<T> {
     private Kryo kryo;
 
-    @Before
+    @BeforeEach
     public void setup() {
         kryo = new Kryo();
         new Registrator().registerClasses(kryo);
@@ -62,17 +63,22 @@ public abstract class KryoSerializerTest<T> {
     /**
      * This method should compare a test object against a deserialised object of the same type,
      * in a manner suitable for the object.
+     *
+     * @param obj          the serialised obj
+     * @param deserialised the deserialised obj
      */
     protected abstract void shouldCompareSerialisedAndDeserialisedObjects(final T obj, final T deserialised);
 
     /**
      * Due to type erasure, this is required for deserialisation.
+     *
      * @return the class of type T, for which the serialiser is written
      */
     protected abstract Class<T> getTestClass();
 
     /**
      * Should return a new object of the class T under test, constructed as necessary.
+     *
      * @return a new object of type T, to be serialised/deserialised
      */
     protected abstract T getTestObject();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,28 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class HazelcastCacheServiceTest {
 
@@ -50,18 +46,12 @@ public class HazelcastCacheServiceTest {
     private Properties cacheProperties = new Properties();
     private static final String CACHE_NAME = "test";
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Before
+    @BeforeEach
     public void beforeEach() {
         cacheProperties.clear();
     }
 
-    @After
+    @AfterEach
     public void afterEach() {
         try {
             service.clearCache(CACHE_NAME);
@@ -70,7 +60,7 @@ public class HazelcastCacheServiceTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         service.shutdown();
     }
@@ -82,44 +72,42 @@ public class HazelcastCacheServiceTest {
         final String madeUpFile = "/made/up/file.xml";
         cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, madeUpFile);
 
-        try {
-            service.initialise(cacheProperties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(madeUpFile));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.initialise(cacheProperties))
+                .withMessageContaining(madeUpFile);
     }
 
-    private void initialiseWithTestConfig() {
-        final File file;
+    private void initialiseWithTestConfig(final Path tempDir) {
+        final Path file;
         try {
-            file = tempFolder.newFile("hazelcast.xml");
-            FileUtils.copyInputStreamToFile(StreamUtil.openStream(getClass(), "hazelcast.xml"), file);
+            file = Files.createFile(tempDir.resolve("hazelcast.xml"));
+            FileUtils.copyInputStreamToFile(StreamUtil.openStream(getClass(), "hazelcast.xml"), file.toFile());
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, file.getAbsolutePath());
+        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, file.toAbsolutePath().toString());
         service.initialise(cacheProperties);
     }
 
     @Test
-    public void shouldAllowUserToConfigureCacheUsingConfigFilePath() {
+    public void shouldAllowUserToConfigureCacheUsingConfigFilePath(@TempDir Path tempDir) {
 
         // given
-        initialiseWithTestConfig();
+        initialiseWithTestConfig(tempDir);
 
         // when
         ICache<String, Integer> cache = service.getCache(CACHE_NAME);
 
         // then
-        Assert.assertEquals(0, cache.size());
+        assertThat(cache.size()).isZero();
     }
 
     @Test
-    public void shouldReUseCacheIfOneExists() throws CacheOperationException {
+    public void shouldReUseCacheIfOneExists(@TempDir Path tempDir)
+            throws CacheOperationException {
 
         // given
-        initialiseWithTestConfig();
+        initialiseWithTestConfig(tempDir);
         ICache<String, Integer> cache = service.getCache(CACHE_NAME);
         cache.put("key", 1);
 
@@ -127,15 +115,16 @@ public class HazelcastCacheServiceTest {
         ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
         // then
-        Assert.assertEquals(1, sameCache.size());
-        Assert.assertEquals(new Integer(1), sameCache.get("key"));
+        assertThat(cache.size()).isOne();
+        assertEquals(new Integer(1), sameCache.get("key"));
     }
 
     @Test
-    public void shouldShareCachesBetweenServices() throws CacheOperationException {
+    public void shouldShareCachesBetweenServices(@TempDir Path tempDir)
+            throws CacheOperationException {
 
         // given
-        initialiseWithTestConfig();
+        initialiseWithTestConfig(tempDir);
         HazelcastCacheService service1 = new HazelcastCacheService();
         service1.initialise(cacheProperties);
 
@@ -143,13 +132,15 @@ public class HazelcastCacheServiceTest {
         service1.getCache(CACHE_NAME).put("Test", 2);
 
         // then
-        assumeTrue("No caches found - probably due to error 'Network is unreachable'", 1 == service.getCache(CACHE_NAME).size());
+        assumeTrue(1 == service.getCache(CACHE_NAME).size(),
+                "No caches found - probably due to error 'Network is unreachable'");
         assertEquals(2, service.getCache(CACHE_NAME).get("Test"));
     }
 
     @Test
-    public void shouldAddEntriesToCache() throws CacheOperationException {
-        initialiseWithTestConfig();
+    public void shouldAddEntriesToCache(@TempDir Path tempDir)
+            throws CacheOperationException {
+        initialiseWithTestConfig(tempDir);
 
         service.putInCache(CACHE_NAME, "test", 1);
 
@@ -157,16 +148,15 @@ public class HazelcastCacheServiceTest {
     }
 
     @Test
-    public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
-        initialiseWithTestConfig();
+    public void shouldOnlyUpdateIfInstructed(@TempDir Path tempDir)
+            throws CacheOperationException {
+        initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test", 1);
 
-        try {
-            service.putSafeInCache(CACHE_NAME, "test", 2);
-            fail("Expected an exception");
-        } catch (final OverwritingException e) {
-            assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
-        }
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> service.putSafeInCache(CACHE_NAME, "test", 2));
+
+        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
 
         service.putInCache(CACHE_NAME, "test", 2);
 
@@ -174,8 +164,9 @@ public class HazelcastCacheServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
-        initialiseWithTestConfig();
+    public void shouldBeAbleToDeleteCacheEntries(@TempDir Path tempDir)
+            throws CacheOperationException {
+        initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test", 1);
 
         service.removeFromCache(CACHE_NAME, "test");
@@ -183,8 +174,9 @@ public class HazelcastCacheServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToClearCache() throws CacheOperationException {
-        initialiseWithTestConfig();
+    public void shouldBeAbleToClearCache(@TempDir Path tempDir)
+            throws CacheOperationException {
+        initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
@@ -196,19 +188,21 @@ public class HazelcastCacheServiceTest {
     }
 
     @Test
-    public void shouldGetAllKeysFromCache() throws CacheOperationException {
-        initialiseWithTestConfig();
+    public void shouldGetAllKeysFromCache(@TempDir Path tempDir)
+            throws CacheOperationException {
+        initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
 
         assertEquals(3, service.sizeOfCache(CACHE_NAME));
-        assertThat(service.getAllKeysFromCache(CACHE_NAME), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertThat(service.getAllKeysFromCache(CACHE_NAME)).contains("test1", "test2", "test3");
     }
 
     @Test
-    public void shouldGetAllValues() throws CacheOperationException {
-        initialiseWithTestConfig();
+    public void shouldGetAllValues(@TempDir Path tempDir)
+            throws CacheOperationException {
+        initialiseWithTestConfig(tempDir);
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
@@ -217,6 +211,6 @@ public class HazelcastCacheServiceTest {
         assertEquals(4, service.sizeOfCache(CACHE_NAME));
         assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
 
-        assertThat(service.getAllValuesFromCache(CACHE_NAME), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(service.getAllValuesFromCache(CACHE_NAME)).contains(1, 2, 3);
     }
 }

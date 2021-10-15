@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This test class is copied from org.apache.accumulo.core.security.AuthorizationsTest.
@@ -30,28 +31,35 @@ public class AuthorisationsTest {
 
     @Test
     public void testEncodeDecode() {
-        Authorisations a = new Authorisations("a", "abcdefg", "hijklmno", ",");
-        byte[] array = a.getAuthorisationsArray();
-        Authorisations b = new Authorisations(array);
-        assertEquals(a, b);
+        final Authorisations a = new Authorisations("a", "abcdefg", "hijklmno", ",");
+        final byte[] array = a.getAuthorisationsArray();
+        final Authorisations b = new Authorisations(array);
 
-        // test encoding empty auths
-        a = new Authorisations();
-        array = a.getAuthorisationsArray();
-        b = new Authorisations(array);
         assertEquals(a, b);
+    }
 
-        // test encoding multi-byte auths
-        a = new Authorisations("五", "b", "c", "九");
-        array = a.getAuthorisationsArray();
-        b = new Authorisations(array);
+    @Test
+    public void testEncodeEmptyAuthorisations() {
+        final Authorisations a = new Authorisations();
+        final byte[] array = a.getAuthorisationsArray();
+        final Authorisations b = new Authorisations(array);
+
+        assertEquals(a, b);
+    }
+
+    @Test
+    public void testEncodeMultiByteAuthorisations() {
+        final Authorisations a = new Authorisations("五", "b", "c", "九");
+        final byte[] array = a.getAuthorisationsArray();
+        final Authorisations b = new Authorisations(array);
+
         assertEquals(a, b);
     }
 
     @Test
     public void testSerialization() {
-        Authorisations a1 = new Authorisations("a", "b");
-        Authorisations a2 = new Authorisations("b", "a");
+        final Authorisations a1 = new Authorisations("a", "b");
+        final Authorisations a2 = new Authorisations("b", "a");
 
         assertEquals(a1, a2);
         assertEquals(a1.serialise(), a2.serialise());
@@ -59,8 +67,8 @@ public class AuthorisationsTest {
 
     @Test
     public void testDefensiveAccess() {
-        Authorisations expected = new Authorisations("foo", "a");
-        Authorisations actual = new Authorisations("foo", "a");
+        final Authorisations expected = new Authorisations("foo", "a");
+        final Authorisations actual = new Authorisations("foo", "a");
 
         // foo to goo; test defensive iterator
         for (byte[] bytes : actual) {
@@ -70,6 +78,7 @@ public class AuthorisationsTest {
 
         // test defensive getter and serializer
         actual.getAuthorisations().get(0)[0]++;
+
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
         assertEquals(expected.serialise(), actual.serialise());
     }
@@ -78,20 +87,24 @@ public class AuthorisationsTest {
     // @Test(expected = ReadOnlyBufferException.class)
     @Test
     public void testReadOnlyByteBuffer() {
-        Authorisations expected = new Authorisations("foo");
-        Authorisations actual = new Authorisations("foo");
+        final Authorisations expected = new Authorisations("foo");
+        final Authorisations actual = new Authorisations("foo");
 
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
+
         actual.getAuthorisationsBB().get(0).array()[0]++;
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testUnmodifiableList() {
-        Authorisations expected = new Authorisations("foo");
-        Authorisations actual = new Authorisations("foo");
+        final Authorisations expected = new Authorisations("foo");
+        final Authorisations actual = new Authorisations("foo");
 
         assertArrayEquals(expected.getAuthorisationsArray(), actual.getAuthorisationsArray());
-        actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[]{'a'}));
+
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> {
+            actual.getAuthorisationsBB().add(ByteBuffer.wrap(new byte[] {'a'}));
+        });
     }
 }

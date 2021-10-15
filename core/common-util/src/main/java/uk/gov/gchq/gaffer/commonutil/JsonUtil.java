@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public final class JsonUtil {
      * Test to see whether two JSON {@link String} representations are equal.
      *
      * @param expectedJson the expected JSON string
-     * @param actualJson the actual JSON string
+     * @param actualJson   the actual JSON string
      * @return true if both strings are equal, otherwise false
      */
     public static boolean equals(final String expectedJson, final String actualJson) {
@@ -67,7 +67,7 @@ public final class JsonUtil {
      * Test to see whether two JSON byte array representations are equal.
      *
      * @param expectedJson the expected JSON byte array
-     * @param actualJson the actual JSON byte array
+     * @param actualJson   the actual JSON byte array
      * @return true if both strings are equal, otherwise false
      */
     public static boolean equals(final byte[] expectedJson, final byte[] actualJson) {

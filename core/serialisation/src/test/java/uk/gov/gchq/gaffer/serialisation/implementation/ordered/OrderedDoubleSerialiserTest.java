@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,28 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (double i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -41,25 +45,35 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
 
     @Test
     public void canSerialiseDoubleMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Double.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseDoubleMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Double.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
+        // Given
         byte[] startBytes = serialiser.serialise(0d);
         for (Double test = 1d; test >= 10d; test++) {
+            // When
             byte[] newTestBytes = serialiser.serialise(test);
+
+            // Then
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }
@@ -94,11 +108,11 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Double.MAX_VALUE, new byte[]{8, 127, -17, -1, -1, -1, -1, -1, -1}),
-                new Pair<>(Double.MIN_VALUE, new byte[]{1, 1}),
-                new Pair<>(0.0, new byte[]{0}),
-                new Pair<>(1.00, new byte[]{8, 63, -16, 0, 0, 0, 0, 0, 0}),
+        return new Pair[] {
+                new Pair<>(Double.MAX_VALUE, new byte[] {8, 127, -17, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(Double.MIN_VALUE, new byte[] {1, 1}),
+                new Pair<>(0.0, new byte[] {0}),
+                new Pair<>(1.00, new byte[] {8, 63, -16, 0, 0, 0, 0, 0, 0}),
         };
     }
 }

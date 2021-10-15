@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
@@ -310,9 +311,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                         } else if (jsonItem instanceof Path) {
                             final Path path = (Path) jsonItem;
                             if (Files.isDirectory(path)) {
-                                for (final Path filePath : Files.newDirectoryStream(path)) {
-                                    merge(JSONSerialiser.deserialise(Files.readAllBytes(filePath), clazz));
-                                }
+                                json(clazz, Files.list(path).collect(Collectors.toList()).toArray());
                             } else {
                                 merge(JSONSerialiser.deserialise(Files.readAllBytes(path), clazz));
                             }

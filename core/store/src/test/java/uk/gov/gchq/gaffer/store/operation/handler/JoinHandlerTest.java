@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
@@ -33,7 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class JoinHandlerTest {
@@ -74,12 +75,9 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(joinOp, context, store);
-            fail("exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getCause().getMessage().contains("exceeded"));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(joinOp, context, store))
+                .withMessageContaining("exceeded");
     }
 
     @Test
@@ -95,11 +93,6 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(joinOp, context, store);
-            fail("exception expected");
-        } catch (final OperationException e) {
-            assertEquals("A match method must be supplied", e.getMessage());
-        }
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(joinOp, context, store)).withMessage("A match method must be supplied");
     }
 }

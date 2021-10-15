@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,9 @@ public abstract class AbstractStoreITs {
         this.schema = schema;
         this.storeProperties = storeProperties;
         this.tests.addAll(extraTests);
+        System.out.println(storeProperties);
+        System.out.println(schema);
+        System.out.println(tests);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
@@ -122,6 +125,7 @@ public abstract class AbstractStoreITs {
                 storeSchema = new Schema();
             }
 
+            System.out.println("store props: " + runner.getStoreProperties());
             AbstractStoreIT.setStoreSchema(storeSchema);
             AbstractStoreIT.setStoreProperties(runner.getStoreProperties());
             AbstractStoreIT.setSkipTests(runner.getSkipTests());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementAggregator getFullAggregator() {
         if (null == fullAggregatorCache) {
+            createFullAggregator();
+        }
+        return fullAggregatorCache;
+    }
+
+    @JsonIgnore
+    private synchronized void createFullAggregator() {
+        if (null == fullAggregatorCache) {
+            // NB Need to check if fullAggregatorCache is null again as there may be two calls to createFullAggregator
+            // in sequence and we don't want to repeat the work of creating the aggregator
             fullAggregatorCache = new ElementAggregator();
             if (aggregate) {
                 if (null != aggregator) {
@@ -212,13 +222,21 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             }
             fullAggregatorCache.lock();
         }
-
-        return fullAggregatorCache;
     }
 
     @JsonIgnore
     public ElementAggregator getIngestAggregator() {
         if (null == ingestAggregatorCache) {
+            createIngestAggregator();
+        }
+        return ingestAggregatorCache;
+    }
+
+    @JsonIgnore
+    private synchronized void createIngestAggregator() {
+        if (null == ingestAggregatorCache) {
+            // NB Need to check if ingestAggregatorCache is null again as there may be two calls to createIngestAggregator
+            // in sequence and we don't want to repeat the work of creating the aggregator
             ingestAggregatorCache = new ElementAggregator();
             if (aggregate) {
                 final Set<String> aggregatorProperties = getAggregatorProperties();
@@ -242,65 +260,79 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             }
             ingestAggregatorCache.lock();
         }
-
-        return ingestAggregatorCache;
     }
 
     @JsonIgnore
     public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy, final ElementAggregator viewAggregator) {
-        ElementAggregator queryAggregator = null;
         if (null == viewAggregator) {
-            queryAggregator = queryAggregatorCacheMap.get(viewGroupBy);
+            return getQueryAggregatorForNullViewAggregator(viewGroupBy);
         }
+        return getQueryAggregatorForNonNullViewAggregator(viewGroupBy, viewAggregator);
+    }
 
-        if (null == queryAggregator) {
-            queryAggregator = new ElementAggregator();
-            if (aggregate) {
-                final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
-                final Set<String> viewAggregatorProps;
-                if (null == viewAggregator) {
-                    viewAggregatorProps = Collections.emptySet();
-                } else {
-                    int size = getPropertyMap().size() - mergedGroupBy.size();
-                    if (size < 0) {
-                        size = 0;
+    @JsonIgnore
+    private ElementAggregator getQueryAggregatorForNullViewAggregator(final Set<String> viewGroupBy) {
+        if (null == queryAggregatorCacheMap.get(viewGroupBy))  {
+            populateQueryAggregatorCache(viewGroupBy);
+        }
+        return queryAggregatorCacheMap.get(viewGroupBy);
+    }
+
+    @JsonIgnore
+    private synchronized void populateQueryAggregatorCache(final Set<String> viewGroupBy) {
+        if (null == queryAggregatorCacheMap.get(viewGroupBy)) {
+           queryAggregatorCacheMap.put(viewGroupBy, createQueryAggregator(viewGroupBy, null));
+        }
+    }
+
+    @JsonIgnore
+    private ElementAggregator getQueryAggregatorForNonNullViewAggregator(final Set<String> viewGroupBy, final ElementAggregator viewAggregator) {
+        return createQueryAggregator(viewGroupBy, viewAggregator);
+    }
+
+    @JsonIgnore
+    private ElementAggregator createQueryAggregator(final Set<String> viewGroupBy, final ElementAggregator viewAggregator) {
+        ElementAggregator queryAggregator = new ElementAggregator();
+        if (aggregate) {
+            final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
+            final Set<String> viewAggregatorProps;
+            if (null == viewAggregator) {
+                viewAggregatorProps = Collections.emptySet();
+            } else {
+                int size = getPropertyMap().size() - mergedGroupBy.size();
+                if (size < 0) {
+                    size = 0;
+                }
+                viewAggregatorProps = new HashSet<>(size);
+                for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
+                    Collections.addAll(viewAggregatorProps, component.getSelection());
+                    queryAggregator.getComponents().add(component);
+                }
+            }
+            if (null == aggregator) {
+                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                    if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey())) {
+                        addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                     }
-                    viewAggregatorProps = new HashSet<>(size);
-                    for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
-                        Collections.addAll(viewAggregatorProps, component.getSelection());
+                }
+            } else {
+                for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
+                    final String[] selection = component.getSelection();
+                    if (selection.length == 1 && !mergedGroupBy.contains(selection[0]) && !viewAggregatorProps.contains(selection[0])) {
+                        queryAggregator.getComponents().add(component);
+                    } else if (CollectionUtil.anyMissing(mergedGroupBy, selection) && CollectionUtil.anyMissing(viewAggregatorProps, selection)) {
                         queryAggregator.getComponents().add(component);
                     }
                 }
-                if (null == aggregator) {
-                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey())) {
-                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
-                        }
-                    }
-                } else {
-                    for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
-                        final String[] selection = component.getSelection();
-                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0]) && !viewAggregatorProps.contains(selection[0])) {
-                            queryAggregator.getComponents().add(component);
-                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection) && CollectionUtil.anyMissing(viewAggregatorProps, selection)) {
-                            queryAggregator.getComponents().add(component);
-                        }
-                    }
-                    final Set<String> aggregatorProperties = getAggregatorProperties();
-                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
-                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
-                        }
+                final Set<String> aggregatorProperties = getAggregatorProperties();
+                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                    if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
+                        addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                     }
                 }
             }
-            queryAggregator.lock();
-            // Don't cache the aggregator if a view aggregator has been provided
-            if (null == viewAggregator) {
-                queryAggregatorCacheMap.put(viewGroupBy, queryAggregator);
-            }
         }
-
+        queryAggregator.lock();
         return queryAggregator;
     }
 

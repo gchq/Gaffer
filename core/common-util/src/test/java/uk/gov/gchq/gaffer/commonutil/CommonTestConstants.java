@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class CommonTestConstants {
+public final class CommonTestConstants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonTestConstants.class);
-    public static File TMP_DIRECTORY;
+    public static final File TMP_DIRECTORY;
 
     static {
         final String tmpDirectoryProperty = System.getProperty("java.io.tmpdir");

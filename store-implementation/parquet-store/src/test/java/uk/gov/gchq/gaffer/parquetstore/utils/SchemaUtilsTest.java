@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,35 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SchemaUtilsTest {
     private SchemaUtils utils;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         utils = new SchemaUtils(schema);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         utils = null;
     }
-    
+
     @Test
     public void getColumnToSerialiserTest() {
         final Map<String, String> columnToSerialiser = utils.getColumnToSerialiser(TestGroups.EDGE);

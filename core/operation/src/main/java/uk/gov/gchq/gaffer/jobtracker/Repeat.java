@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-public class Repeat {
+public class Repeat implements Serializable {
+
+    private static final long serialVersionUID = 8514342090490992995L;
     private long initialDelay;
     private long repeatPeriod;
     private TimeUnit timeUnit = TimeUnit.SECONDS;

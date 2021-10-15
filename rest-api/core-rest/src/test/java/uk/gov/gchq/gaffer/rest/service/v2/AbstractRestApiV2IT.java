@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,13 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 
 public class AbstractRestApiV2IT extends AbstractRestApiIT<RestApiV2TestClient> {
+
+    public AbstractRestApiV2IT() {
+    }
+
+    public AbstractRestApiV2IT(final String schemaResourcePath, final String storePropertiesResourcePath) {
+        super(schemaResourcePath, storePropertiesResourcePath);
+    }
 
     @Override
     protected RestApiV2TestClient getClient() {

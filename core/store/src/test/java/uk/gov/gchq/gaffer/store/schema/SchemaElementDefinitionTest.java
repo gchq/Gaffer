@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -36,13 +36,14 @@ import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import java.util.Collections;
 import java.util.Date;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinition> {
@@ -90,12 +91,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // When / Then
-        try {
-            elementDef.getGroupBy().add("property");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> elementDef.getGroupBy().add("property"))
+                .isNotNull();
     }
 
     @Test
@@ -107,12 +105,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 .build();
 
         // When / Then
-        try {
-            elementDef.getParents().add("parentGroup2");
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> elementDef.getParents().add("parentGroup2"))
+                .isNotNull();
     }
 
     @Test
@@ -301,12 +296,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertArrayEquals(new String[]{"timestamp"},
                 aggregator.getComponents().get(4).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getFullAggregator());
     }
@@ -360,12 +352,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertArrayEquals(new String[]{"timestamp"},
                 aggregator.getComponents().get(5).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getFullAggregator());
     }
@@ -396,12 +385,8 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertArrayEquals(new String[]{"timestamp"},
                 aggregator.getComponents().get(1).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null));
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getIngestAggregator());
     }
@@ -448,12 +433,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(i, aggregator.getComponents().size());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getIngestAggregator());
     }
@@ -490,12 +472,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertArrayEquals(new String[]{"timestamp"},
                 aggregator.getComponents().get(3).getSelection());
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet("property1"), null));
         // check a different aggregator is returned for different groupBys
@@ -548,12 +527,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 aggregator.getComponents().get(4).getSelection());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
@@ -615,12 +591,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(i, aggregator.getComponents().size());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is not cached
         assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator));
     }
@@ -684,12 +657,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(i, aggregator.getComponents().size());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is not cached
         assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator));
     }
@@ -741,12 +711,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                 aggregator.getComponents().get(4).getSelection());
 
         // Check the aggregator is locked.
-        try {
-            aggregator.getComponents().add(null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
+        assertThatExceptionOfType(UnsupportedOperationException.class)
+                .isThrownBy(() -> aggregator.getComponents().add(null))
+                .isNotNull();
         // check the aggregator is cached
         assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }

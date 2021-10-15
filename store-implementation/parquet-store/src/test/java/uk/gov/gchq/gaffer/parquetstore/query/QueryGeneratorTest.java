@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@ package uk.gov.gchq.gaffer.parquetstore.query;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.predicate.FilterApi;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -48,22 +47,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.apache.parquet.filter2.predicate.FilterApi.*;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
+import static org.apache.parquet.filter2.predicate.FilterApi.and;
+import static org.apache.parquet.filter2.predicate.FilterApi.eq;
+import static org.apache.parquet.filter2.predicate.FilterApi.gt;
+import static org.apache.parquet.filter2.predicate.FilterApi.or;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryGeneratorTest {
 
     private Schema schema = new LongVertexOperationsTest().createSchema();
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @Test
-    public void testQueryGeneratorForGetAllElements() throws IOException, OperationException {
+    public void testQueryGeneratorForGetAllElements(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = String.format("file:///%s", tempDir.toString());
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -78,7 +77,7 @@ public class QueryGeneratorTest {
         ParquetQuery query = new QueryGenerator(store).getParquetQuery(getAllElements);
 
         // Then 1
-        final List<ParquetFileQuery> expected = new ArrayList<>();
+        final List expected = new ArrayList<>();
         for (final String group : Arrays.asList(TestGroups.ENTITY, TestGroups.ENTITY_2, TestGroups.EDGE, TestGroups.EDGE_2)) {
             final Path groupFolderPath = store.getGroupPath(group);
             for (int partition = 0; partition < 10; partition++) {
@@ -86,7 +85,7 @@ public class QueryGeneratorTest {
                 expected.add(new ParquetFileQuery(pathForPartitionFile, null, true));
             }
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 2 - simple view that restricts to one group
         getAllElements = new GetAllElements.Builder().view(new View.Builder().edge(TestGroups.EDGE).build()).build();
@@ -99,7 +98,7 @@ public class QueryGeneratorTest {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
             expected.add(new ParquetFileQuery(pathForPartitionFile, null, true));
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 3 - view with filter that can be pushed down to Parquet
         getAllElements = new GetAllElements.Builder()
@@ -120,7 +119,7 @@ public class QueryGeneratorTest {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
             expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10), true));
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 4 - view with filter that can't be pushed down to Parquet
         getAllElements = new GetAllElements.Builder()
@@ -139,9 +138,9 @@ public class QueryGeneratorTest {
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
-            expected.add(new ParquetFileQuery(pathForPartitionFile, null,false));
+            expected.add(new ParquetFileQuery(pathForPartitionFile, null, false));
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 5 - view with one filter that can be pushed down and one that can't
         getAllElements = new GetAllElements.Builder()
@@ -162,16 +161,17 @@ public class QueryGeneratorTest {
         expected.clear();
         for (int partition = 0; partition < 10; partition++) {
             final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
-            expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10),false));
+            expected.add(new ParquetFileQuery(pathForPartitionFile, gt(FilterApi.intColumn("count"), 10), false));
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
     }
 
     @Test
-    public void testQueryGeneratorForGetElementsWithEntitySeeds() throws IOException, OperationException {
+    public void testQueryGeneratorForGetElementsWithEntitySeeds(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = String.format("file:///%s", tempDir.toString());
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -189,7 +189,7 @@ public class QueryGeneratorTest {
         ParquetQuery query = new QueryGenerator(store).getParquetQuery(getElements);
 
         // Then 1
-        final List<ParquetFileQuery> expected = new ArrayList<>();
+        final List expected = new ArrayList<>();
         final FilterPredicate vertex0 = eq(FilterApi.longColumn(ParquetStore.VERTEX), 0L);
         final FilterPredicate source0 = eq(FilterApi.longColumn(ParquetStore.SOURCE), 0L);
         final FilterPredicate destination0 = eq(FilterApi.longColumn(ParquetStore.DESTINATION), 0L);
@@ -206,7 +206,7 @@ public class QueryGeneratorTest {
             final Path pathForReversedPartitionFile = new Path(reversedGroupFolderPath, ParquetStore.getFile(0));
             expected.add(new ParquetFileQuery(pathForReversedPartitionFile, destination0, true));
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 2 - no view, query for vertices 0 and 1000000
         getElements = new GetElements.Builder()
@@ -243,7 +243,7 @@ public class QueryGeneratorTest {
             final Path pathForPartitionFile4 = new Path(reversedGroupFolderPath, ParquetStore.getFile(9));
             expected.add(new ParquetFileQuery(pathForPartitionFile4, destination1000000, true));
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 3 - view with filter that can be pushed down to Parquet, query for vertices 0 and 1000000
         getElements = new GetElements.Builder()
@@ -270,7 +270,7 @@ public class QueryGeneratorTest {
                 eq(FilterApi.longColumn(ParquetStore.DESTINATION), 0L));
         final FilterPredicate destination1000000AndCount = and(gt(FilterApi.intColumn("count"), 10),
                 eq(FilterApi.longColumn(ParquetStore.DESTINATION), 1000000L));
-        final Path groupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, false ));
+        final Path groupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, false));
         final Path reversedGroupFolderPath = new Path(snapshotFolder, ParquetStore.getGroupSubDir(TestGroups.EDGE, true));
         // Partition 0, vertex 0L
         final Path pathForPartitionFile1 = new Path(groupFolderPath, ParquetStore.getFile(0));
@@ -284,7 +284,7 @@ public class QueryGeneratorTest {
         // Partition 9 of reversed, vertex 1000000L
         final Path pathForPartitionFile4 = new Path(reversedGroupFolderPath, ParquetStore.getFile(9));
         expected.add(new ParquetFileQuery(pathForPartitionFile4, destination1000000AndCount, true));
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 4 - view with filter that can't be pushed down to Parquet, query for vertices 0 and 1000000
         getElements = new GetElements.Builder()
@@ -311,14 +311,15 @@ public class QueryGeneratorTest {
         expected.add(new ParquetFileQuery(pathForPartitionFile3, destination0, false));
         // Partition 9 of reversed, vertex 1000000L
         expected.add(new ParquetFileQuery(pathForPartitionFile4, destination1000000, false));
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
     }
 
     @Test
-    public void testQueryGeneratorForGetElementsWithEdgeSeeds() throws IOException, OperationException {
+    public void testQueryGeneratorForGetElementsWithEdgeSeeds(@TempDir java.nio.file.Path tempDir)
+            throws IOException, OperationException {
         // Given
         // - Create snapshot folder
-        final String folder = "file:///" + testFolder.newFolder().toString();
+        final String folder = String.format("file:///%s", tempDir.toString());
         final String snapshotFolder = folder + "/" + ParquetStore.getSnapshotPath(1000L);
         // - Write out Parquet files so know the partitioning
         CalculatePartitionerTest.writeData(snapshotFolder, new SchemaUtils(schema));
@@ -338,7 +339,7 @@ public class QueryGeneratorTest {
         ParquetQuery query = new QueryGenerator(store).getParquetQuery(getElements);
 
         // Then 1
-        final List<ParquetFileQuery> expected = new ArrayList<>();
+        final List expected = new ArrayList<>();
         final FilterPredicate source0 = eq(FilterApi.longColumn(ParquetStore.SOURCE), 0L);
         final FilterPredicate source10 = eq(FilterApi.longColumn(ParquetStore.SOURCE), 10L);
         final FilterPredicate source10000 = eq(FilterApi.longColumn(ParquetStore.SOURCE), 10000L);
@@ -362,7 +363,7 @@ public class QueryGeneratorTest {
             final Path pathForPartition9File = new Path(groupFolderPath, ParquetStore.getFile(9));
             expected.add(new ParquetFileQuery(pathForPartition9File, source10000Destination10DirectedEither, true)); // Comment here that don't need to look in the reversed directory
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
 
         // When 2 - no view, query for edges 0->1, 10--10000, 10000--10 with seed matching type set to RELATED
         getElements = new GetElements.Builder()
@@ -407,7 +408,7 @@ public class QueryGeneratorTest {
             final Path pathForPartition9File = new Path(groupFolderPath, ParquetStore.getFile(9));
             expected.add(new ParquetFileQuery(pathForPartition9File, source10000Destination10DirectedEither, true)); // Comment here that don't need to look in the reversed directory
         }
-        assertThat(expected, containsInAnyOrder(query.getAllParquetFileQueries().toArray()));
+        assertThat(expected).containsOnly(query.getAllParquetFileQueries().toArray());
     }
 
     public static class IsEvenFilter implements Predicate<Integer> {

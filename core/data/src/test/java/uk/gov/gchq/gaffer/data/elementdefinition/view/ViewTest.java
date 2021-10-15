@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -32,36 +32,33 @@ import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldCreateEmptyViewWithBasicConstructor() {
-        //Given
+        final View view = new View();
 
-        //When
-        View view = new View();
-
-        //Then
         assertTrue(view.getEdges().isEmpty());
         assertTrue(view.getEntities().isEmpty());
     }
 
     @Test
     public void shouldCreateNewViewWithEdgeAndEntityGroups() {
-        //Given
-        List<String> entityGroups = new ArrayList<>();
-        List<String> edgeGroups = new ArrayList<>();
+        final List<String> entityGroups = new ArrayList<>();
+        final List<String> edgeGroups = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
             entityGroups.add(TestGroups.ENTITY + i);
@@ -69,7 +66,7 @@ public class ViewTest extends JSONSerialisationTest<View> {
         }
 
         //When
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .entities(entityGroups)
                 .edges(edgeGroups)
                 .build();
@@ -109,27 +106,24 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldSerialiseToJsonSkippingEmptyElementMaps() {
-        // Given
         final View view = new View.Builder()
                 .globalEdges(new GlobalViewElementDefinition.Builder()
                         .groupBy()
                         .build())
                 .build();
 
-        // When
         final byte[] json = toJson(view);
 
-        // Then
-        JsonAssert.assertEquals(String.format("{" +
+        final String expected = String.format("{" +
                 "  \"globalEdges\" : [ {%n" +
                 "    \"groupBy\" : [ ]%n" +
                 "  } ]%n" +
-                "}"), new String(json));
+                "}");
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
     public void shouldSerialiseToJson() {
-        // Given
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
@@ -152,11 +146,9 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 .config("key1", "value1")
                 .build();
 
-        // When
-        byte[] json = view.toJson(true);
+        final byte[] json = view.toJson(true);
 
-        // Then
-        JsonAssert.assertEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -188,7 +180,8 @@ public class ViewTest extends JSONSerialisationTest<View> {
                 "    }%n" +
                 "  },%n" +
                 " \"config\" : { \"key1\": \"value1\"}" +
-                "}"), new String(json));
+                "}");
+        JsonAssert.assertEquals(expected, new String(json));
     }
 
     @Test
@@ -208,10 +201,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertNull(entityDef.getTransformer());
         assertEquals(2, entityDef.getPreAggregationFilter().getComponents().size());
         assertTrue(entityDef.getPreAggregationFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, entityDef.getPreAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getComponents().get(1).getSelection()[0]);
-        assertEquals(1, entityDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(IdentifierType.VERTEX.name(), entityDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
@@ -219,20 +212,20 @@ public class ViewTest extends JSONSerialisationTest<View> {
         assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
         assertEquals(1, edgeDef.getPreAggregationFilter().getComponents().size());
         assertTrue(edgeDef.getPreAggregationFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getComponents().get(0).getSelection()[0]);
         assertEquals(1, edgeDef.getTransformer().getComponents().size());
         assertTrue(edgeDef.getTransformer().getComponents().get(0).getFunction() instanceof ExampleTransformFunction);
-        assertEquals(2, edgeDef.getTransformer().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getSelection()).hasSize(2);
         assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getComponents().get(0).getSelection()[0]);
         assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getComponents().get(0).getSelection()[1]);
-        assertEquals(1, edgeDef.getTransformer().getComponents().get(0).getProjection().length);
+        assertThat(edgeDef.getTransformer().getComponents().get(0).getProjection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getComponents().get(0).getProjection()[0]);
         assertEquals(1, edgeDef.getPostTransformFilter().getComponents().size());
         assertTrue(edgeDef.getPostTransformFilter().getComponents().get(0).getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getComponents().get(0).getSelection()[0]);
-        assertEquals(1, edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection().length);
+        assertThat(edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()).hasSize(1);
         assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getComponents().get(0).getSelection()[0]);
 
         assertEquals(view.getConfig(), deserialisedView.getConfig());
@@ -438,13 +431,10 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
     @Test
     public void shouldSerialiseToCompactJson() {
-        // Given
         final View view = new View();
 
-        // When
         final String compactJson = new String(view.toCompactJson());
 
-        // Then - no description fields or new lines
         assertFalse(compactJson.contains(String.format("%n")));
     }
 
@@ -1471,6 +1461,142 @@ public class ViewTest extends JSONSerialisationTest<View> {
 
         // Then
         assertEquals(Sets.newHashSet(TestGroups.EDGE_2), view.getEdgeGroups());
+    }
+
+    @Test
+    public void shouldCopyAllEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllEdgesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllEdgesEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllEdgesEntitiesNotFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, edgeDef1)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllConfigMapsEdgesEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        HashMap<String, String> config = new HashMap<>();
+        config.put("config.test", "config");
+
+        // When
+        final View view = new View.Builder()
+                .config(config)
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCopyAllConfigEdgesEntitiesFlagsWhenCloned() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .config("config.test", "config")
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        final View clone = view.clone();
+
+        // Check that the objects are equal
+        assertEquals(view.isAllEntities(), clone.isAllEntities());
+    }
+
+    @Test
+    public void shouldCloneUsingBuilderWithViewInJsonFormat() {
+        // Given
+        final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
+
+        // When
+        final View view = new View.Builder()
+                .config("config.test", "config")
+                .edge(TestGroups.EDGE, edgeDef1)
+                .allEntities(true)
+                .allEdges(true)
+                .build();
+
+        // Then
+        byte[] json = view.toJson(true);
+
+        // Check that the objects are equal
+        View clone = new View.Builder().json(json).build();
+        assertEquals(view, clone);
     }
 
     private View createView() {

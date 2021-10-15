@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,20 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import java.io.File;
 import java.io.IOException;
 
-public class MiniAccumuloClusterProvider {
+public final class MiniAccumuloClusterProvider {
     public static final String ROOT = "root";
     public static final String USER = "user";
+    public static final String USER_NO_GRANTED_PERMISSION = "user2";
     public static final String PASSWORD = "password";
     private static File tempFolder = new File(CommonTestConstants.TMP_DIRECTORY + File.separator
             + "MiniAccumuloCluster-spark-accumulo-library-tests");
 
     private static MiniAccumuloCluster cluster;
     private static AccumuloProperties accumuloProperties;
+
+    private MiniAccumuloClusterProvider() {
+        // private to prevent instantiation
+    }
 
     public static synchronized MiniAccumuloCluster getMiniAccumuloCluster() throws IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException {
@@ -75,6 +80,7 @@ public class MiniAccumuloClusterProvider {
         cluster.start();
         // Create user USER with permissions to create a table
         cluster.getConnector(ROOT, PASSWORD).securityOperations().createLocalUser(USER, new PasswordToken(PASSWORD));
+        cluster.getConnector(ROOT, PASSWORD).securityOperations().createLocalUser(USER_NO_GRANTED_PERMISSION, new PasswordToken(PASSWORD));
         cluster.getConnector(ROOT, PASSWORD).securityOperations().grantSystemPermission(USER, SystemPermission.CREATE_TABLE);
         // Create properties
         accumuloProperties = new AccumuloProperties();

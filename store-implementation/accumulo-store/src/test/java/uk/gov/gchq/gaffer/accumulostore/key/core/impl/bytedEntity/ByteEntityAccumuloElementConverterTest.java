@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.bytedEntity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -26,9 +26,9 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.
@@ -58,6 +58,27 @@ public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccum
 
         // Then
         assertTrue(ByteUtils.areKeyBytesEqual(new BytesAndRange(historicPropertyBytes, 0, historicPropertyBytes.length), propertiesBytes));
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricPropertiesAsBytesFromFullColumnQualifier() throws Exception {
+        // Given
+        final Properties properties = new Properties() {
+            {
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_3, 3);
+                put(AccumuloPropertyNames.COLUMN_QUALIFIER_4, 4);
+            }
+        };
+        byte[] historicPropertyBytes = {4, 1, 0, 0, 0, 4, 2, 0, 0, 0, 4, 3, 0, 0, 0, 4, 4, 0, 0, 0};
+        final byte[] columnQualifierBytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
+
+        // When
+        final BytesAndRange propertiesBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, columnQualifierBytes, 5);
+
+        // Then
+        assertArrayEquals(historicPropertyBytes, propertiesBytes.getBytes());
     }
 
     @Test

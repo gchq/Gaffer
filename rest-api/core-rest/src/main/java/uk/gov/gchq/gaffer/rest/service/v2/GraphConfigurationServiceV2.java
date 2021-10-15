@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,6 +157,13 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     @Override
     public Response getDescription() {
         return Response.ok(graphFactory.getGraph().getDescription())
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
+    public Response getGraphId() {
+        return Response.ok(graphFactory.getGraph().getGraphId())
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }

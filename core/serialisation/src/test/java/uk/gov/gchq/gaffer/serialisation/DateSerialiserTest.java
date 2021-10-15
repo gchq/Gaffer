@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,28 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
-
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (long i = 121231232; i < (121231232 + 1000); i++) {
-            byte[] b = serialiser.serialise(new Date(i));
-            Object o = serialiser.deserialise(b);
+            // When
+            final byte[] b = serialiser.serialise(new Date(i));
+            final Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Date.class, o.getClass());
             assertEquals(new Date(i), o);
         }
@@ -41,19 +44,22 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void canSerialiseEpoch() throws SerialisationException {
-        byte[] b = serialiser.serialise(new Date(0));
-        Object o = serialiser.deserialise(b);
+        // Given When
+        final byte[] b = serialiser.serialise(new Date(0));
+        final Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Date.class, o.getClass());
         assertEquals(new Date(0), o);
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseDateClass() throws SerialisationException {
+    public void canSerialiseDateClass() {
         assertTrue(serialiser.canHandle(Date.class));
     }
 
@@ -65,10 +71,10 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(new Date(60460074000000L), new byte[]{54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
-                new Pair<>(new Date(61406234880000L), new byte[]{54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
-                new Pair<>(new Date(59514676680000L), new byte[]{53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
+        return new Pair[] {
+                new Pair<>(new Date(60460074000000L), new byte[] {54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
+                new Pair<>(new Date(61406234880000L), new byte[] {54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
+                new Pair<>(new Date(59514676680000L), new byte[] {53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
         };
     }
 }

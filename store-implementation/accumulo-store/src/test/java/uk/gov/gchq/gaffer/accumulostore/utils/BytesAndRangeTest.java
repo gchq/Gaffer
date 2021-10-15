@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.InvalidParameterException;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class BytesAndRangeTest {
 
@@ -28,14 +30,16 @@ public class BytesAndRangeTest {
         new BytesAndRange(emptyBytes, 1, 1);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test
     public void shouldThrowExceptionForOffset() throws Exception {
-        new BytesAndRange(emptyBytes, -1, 1);
+        assertThatExceptionOfType(InvalidParameterException.class).isThrownBy(
+                () -> new BytesAndRange(emptyBytes, -1, 1));
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test
     public void shouldThrowExceptionForLength() throws Exception {
-        new BytesAndRange(emptyBytes, 1, -1);
+        assertThatExceptionOfType(InvalidParameterException.class).isThrownBy(
+                () -> new BytesAndRange(emptyBytes, 1, -1));
     }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,19 @@
 
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.flink.operation.TestFileSink;
+import uk.gov.gchq.gaffer.flink.operation.handler.AddElementsFromSocketHandler;
+import uk.gov.gchq.gaffer.generator.TestBytesGeneratorImpl;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -31,6 +37,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class AddElementsFromSocketHandlerIT extends FlinkTest {
+
+    private TestFileSink testFileSink;
+
+    @BeforeEach
+    public void create() throws IOException {
+        testFileSink = createTestFileSink();
+    }
+
     @Test
     public void shouldAddElements() throws Exception {
         // Given
@@ -66,6 +80,14 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
         graph.execute(op, new User());
 
         // Then
-        verifyElements(graph);
+        verifyElements(byte[].class, testFileSink, TestBytesGeneratorImpl.class);
     }
+
+    @Override
+    public Store createStore() {
+        final Store store = Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
+        store.addOperationHandler(AddElementsFromSocket.class, new AddElementsFromSocketHandler(testFileSink));
+        return store;
+    }
+
 }

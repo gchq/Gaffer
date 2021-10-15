@@ -3,7 +3,7 @@
         "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
         "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 <!--
-  ~ Copyright 2016-2019 Crown Copyright
+  ~ Copyright 2016-2020 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,20 +19,27 @@
   -->
 
 <module name="Checker">
-    <module name="Translation"/>
-    <module name="FileLength"/>
+    <module name="Translation">
+        <property name="id" value="translation"/>
+    </module>
+    <module name="FileLength">
+        <property name="id" value="fileLength"/>
+    </module>
     <module name="NewlineAtEndOfFile">
+        <property name="id" value="newLineEOF"/>
         <property name="lineSeparator" value="lf_cr_crlf"/>
     </module>
     <module name="FileTabCharacter">
+        <property name="id" value="fileTabChar"/>
         <property name="eachLine" value="true"/>
     </module>
-
     <module name="RegexpHeader">
+        <property name="id" value="headerCheck"/>
         <property name="headerFile" value="${checkstyle.header.file}"/>
     </module>
 
     <module name="RegexpSingleline">
+        <property name="id" value="trailingSpaces"/>
         <property name="format" value="\s+$"/>
         <property name="message" value="Line has trailing spaces."/>
     </module>
@@ -40,83 +47,159 @@
     <module name="TreeWalker">
         <property name="cacheFile" value="${checkstyle.cache.file}"/>
 
-        <module name="SuppressWarningsHolder"/>
-
-        <module name="AtclauseOrder"/>
+        <module name="SuppressWarningsHolder">
+            <property name="id" value="suppressWarnings"/>
+        </module>
+        <module name="AtclauseOrder">
+            <property name="id" value="atClauseOrder"/>
+        </module>
         <module name="JavadocMethod">
+            <property name="id" value="javadocOnMethod"/>
             <property name="allowMissingJavadoc" value="true"/>
         </module>
         <module name="JavadocStyle">
+            <property name="id" value="javadocStyle"/>
             <property name="checkFirstSentence" value="false"/>
         </module>
-        <module name="SingleLineJavadoc"/>
-        <module name="NonEmptyAtclauseDescription"/>
-
-        <module name="ConstantName"/>
-        <module name="LocalFinalVariableName"/>
-        <module name="LocalVariableName"/>
-        <module name="MemberName"/>
-        <module name="PackageName"/>
-        <module name="ParameterName"/>
-        <module name="StaticVariableName"/>
-        <module name="TypeName"/>
-
-        <module name="AvoidStarImport"/>
-        <module name="RedundantImport"/>
-        <module name="UnusedImports"/>
-
+        <module name="SingleLineJavadoc">
+            <property name="id" value="singleLineJavadoc"/>
+        </module>
+        <module name="NonEmptyAtclauseDescription">
+            <property name="id" value="nonEmptyAtClause"/>
+        </module>
+        <module name="ConstantName">
+            <property name="id" value="constantName"/>
+        </module>
+        <module name="LocalFinalVariableName">
+            <property name="id" value="localFinalVariableName"/>
+        </module>
+        <module name="LocalVariableName">
+            <property name="id" value="localVariableName"/>
+        </module>
+        <module name="MemberName">
+            <property name="id" value="memberName"/>
+        </module>
+        <module name="PackageName">
+            <property name="id" value="packageName"/>
+        </module>
+        <module name="ParameterName">
+            <property name="id" value="parameterName"/>
+        </module>
+        <module name="StaticVariableName">
+            <property name="id" value="staticVariableName"/>
+        </module>
+        <module name="TypeName">
+            <property name="id" value="typeName"/>
+        </module>
+        <module name="AvoidStarImport">
+            <property name="id" value="avoidStarImport"/>
+        </module>
+        <module name="RedundantImport">
+            <property name="id" value="redundantImport"/>
+        </module>
+        <module name="UnusedImports">
+            <property name="id" value="unusedImports"/>
+        </module>
         <module name="ImportOrder">
+            <property name="id" value="importOrder"/>
             <property name="groups" value="*,uk.gov.gchq,/^javax\./,java"/>
             <property name="ordered" value="true"/>
             <property name="separated" value="true"/>
             <property name="option" value="bottom"/>
             <property name="sortStaticImportsAlphabetically" value="true"/>
         </module>
-
         <module name="MethodLength">
+            <property name="id" value="methodLengthMax"/>
             <property name="max" value="200"/>
         </module>
-        
+
         <module name="ParameterNumber">
-            <property name="max" value="11"/>
+            <property name="id" value="parameterNumber"/>
+            <property name="max" value="12"/>
+        </module>
+        <module name="EmptyForIteratorPad">
+            <property name="id" value="emptyForIterator"/>
+        </module>
+        <module name="MethodParamPad">
+            <property name="id" value="methodParamPad"/>
+        </module>
+        <module name="NoWhitespaceAfter">
+            <property name="id" value="noWhitespaceAfter"/>
+        </module>
+        <module name="NoWhitespaceBefore">
+            <property name="id" value="noWhitespaceBefore"/>
+        </module>
+        <module name="ParenPad">
+            <property name="id" value="parenPad"/>
+        </module>
+        <module name="TypecastParenPad">
+            <property name="id" value="typecastParenPad"/>
+        </module>
+        <module name="WhitespaceAfter">
+            <property name="id" value="whitespaceAfter"/>
+        </module>
+        <module name="WhitespaceAround">
+            <property name="id" value="whitespaceAround"/>
+        </module>
+        <module name="ModifierOrder">
+            <property name="id" value="modifiedOrder"/>
+        </module>
+        <module name="RedundantModifier">
+            <property name="id" value="redundantModifier"/>
+        </module>
+        <module name="AvoidNestedBlocks">
+            <property name="id" value="avoidNestedBlocks"/>
+        </module>
+        <module name="LeftCurly">
+            <property name="id" value="leftCurly"/>
+        </module>
+        <module name="NeedBraces">
+            <property name="id" value="needBraces"/>
+        </module>
+        <module name="RightCurly">
+            <property name="id" value="rightCurly"/>
+        </module>
+        <module name="EmptyStatement">
+            <property name="id" value="emptyStatement"/>
+        </module>
+        <module name="EqualsHashCode">
+            <property name="id" value="equalsHashCode"/>
+        </module>
+        <module name="IllegalInstantiation">
+            <property name="id" value="illegalInstantiation"/>
+        </module>
+        <module name="MissingSwitchDefault">
+            <property name="id" value="missingSwitchDefault"/>
+        </module>
+        <module name="SimplifyBooleanExpression">
+            <property name="id" value="simplifyBooleanExpression"/>
+        </module>
+        <module name="SimplifyBooleanReturn">
+            <property name="id" value="simplifyBooleanReturn"/>
+        </module>
+        <module name="FinalClass">
+            <property name="id" value="finalClass"/>
+        </module>
+        <module name="HideUtilityClassConstructor">
+            <property name="id" value="hideUtilityClassConstructor"/>
+        </module>
+        <module name="InterfaceIsType">
+            <property name="id" value="interfaceIsType"/>
         </module>
 
-        <module name="EmptyForIteratorPad"/>
-        <module name="MethodParamPad"/>
-        <module name="NoWhitespaceAfter"/>
-        <module name="NoWhitespaceBefore"/>
-        <module name="ParenPad"/>
-        <module name="TypecastParenPad"/>
-        <module name="WhitespaceAfter"/>
-        <module name="WhitespaceAround"/>
-
-        <module name="ModifierOrder"/>
-        <module name="RedundantModifier"/>
-
-        <module name="AvoidNestedBlocks"/>
-        <module name="LeftCurly"/>
-        <module name="NeedBraces"/>
-        <module name="RightCurly"/>
-
-        <module name="EmptyStatement"/>
-        <module name="EqualsHashCode"/>
-        <module name="IllegalInstantiation"/>
-        <module name="MissingSwitchDefault"/>
-        <module name="SimplifyBooleanExpression"/>
-        <module name="SimplifyBooleanReturn"/>
-
-        <module name="FinalClass"/>
-        <module name="HideUtilityClassConstructor"/>
-        <module name="InterfaceIsType"/>
-
-        <module name="ArrayTypeStyle"/>
+        <module name="ArrayTypeStyle">
+            <property name="id" value="arrayTypeStyle"/>
+        </module>
         <module name="FinalParameters">
-            <property name="tokens" value="METHOD_DEF, CTOR_DEF, LITERAL_CATCH, FOR_EACH_CLAUSE"/>
+            <property name="id" value="finalParameters"/>
+            <property name="tokens"
+                      value="METHOD_DEF, CTOR_DEF, LITERAL_CATCH, FOR_EACH_CLAUSE"/>
         </module>
-        <module name="UpperEll"/>
-
+        <module name="UpperEll">
+            <property name="id" value="upperEll"/>
+        </module>
     </module>
-
-    <module name="UniqueProperties"/>
-
+    <module name="UniqueProperties">
+        <property name="id" value="uniqueProperties"/>
+    </module>
 </module>

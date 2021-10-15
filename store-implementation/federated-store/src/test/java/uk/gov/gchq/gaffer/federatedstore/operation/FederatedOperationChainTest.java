@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -29,12 +29,13 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class FederatedOperationChainTest extends OperationTest<FederatedOperationChain> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -76,6 +77,7 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         assertEquals("value", clone.getOption("key"));
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
@@ -120,12 +122,9 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
                 "}");
 
         // When / Then
-        try {
-            fromJson(StringUtil.toBytes(json));
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("operationChain is required"));
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(StringUtil.toBytes(json)))
+                .withMessageContaining("operationChain is required");
     }
 
     @Test
@@ -145,12 +144,9 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
                 "}");
 
         // When / Then
-        try {
-            fromJson(StringUtil.toBytes(json));
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("Class name should be"));
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(StringUtil.toBytes(json)))
+                .withMessageContaining("Class name should be");
     }
 
     @Test

@@ -18,6 +18,6 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
      "class" : "uk.gov.gchq.gaffer.data.element.Edge"
     } ],
      "options": {
-      "gaffer.federatedstore.operation.graphIds": "accEntities,mapEdges"
+      "gaffer.federatedstore.operation.graphIds": "mapEntities,mapEdges"
       }
  }' 'http://localhost:8080/rest/v2/graph/operations/execute'

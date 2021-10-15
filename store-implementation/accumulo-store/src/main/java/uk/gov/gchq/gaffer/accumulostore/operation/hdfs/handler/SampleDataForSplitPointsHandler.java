@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +53,11 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
             throw new OperationException(e.getMessage(), e);
         }
 
-        final SampleDataAndCreateSplitsFileTool sampleTool = new SampleDataAndCreateSplitsFileTool(new AccumuloSampleDataForSplitPointsJobFactory(), operation, store);
         try {
-            ToolRunner.run(sampleTool, new String[0]);
+            /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
+            final Configuration configuration = new GenericOptionsParser(operation.getCommandLineArgs()).getConfiguration();
+            final SampleDataAndCreateSplitsFileTool sampleTool = new SampleDataAndCreateSplitsFileTool(new AccumuloSampleDataForSplitPointsJobFactory(configuration), operation, store);
+            ToolRunner.run(sampleTool, operation.getCommandLineArgs());
         } catch (final Exception e) {
             throw new OperationException(e.getMessage(), e);
         }

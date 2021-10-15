@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -40,7 +43,7 @@ import uk.gov.gchq.gaffer.user.User;
  * @see GraphDelegate
  */
 public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implements OperationHandler<OP> {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedAddGraphHandlerParent.class);
     public static final String ERROR_BUILDING_GRAPH_GRAPH_ID_S = "Error building graph %s";
     public static final String ERROR_ADDING_GRAPH_GRAPH_ID_S = "Error adding graph %s";
     public static final String USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S = "User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties: %s";
@@ -62,7 +65,14 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         }
 
         try {
-            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), operation.isDisabledByDefault(), graphSerialisable);
+            ((FederatedStore) store).addGraphs(
+                    operation.getGraphAuths(),
+                    context.getUser().getUserId(),
+                    operation.getIsPublic(),
+                    operation.isDisabledByDefault(),
+                    operation.getReadAccessPredicate(),
+                    operation.getWriteAccessPredicate(),
+                    graphSerialisable);
         } catch (final StorageException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (final Exception e) {
@@ -77,17 +87,24 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
     protected void addGenericHandler(final FederatedStore store, final Graph graph) {
         for (final Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
             //some operations are not suitable for FederatedOperationGenericOutputHandler
-            if (Output.class.isAssignableFrom(supportedOperation) && !store.isSupported(supportedOperation)) {
-                Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
+            if (!store.isSupported(supportedOperation)) {
+                if (Output.class.isAssignableFrom(supportedOperation)) {
+                    Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
 
-                Class outputClass;
-                try {
-                    outputClass = supportedOutputOperation.newInstance().getOutputClass();
-                } catch (final InstantiationException | IllegalAccessException e) {
-                    continue;
-                }
-                if (CloseableIterable.class.equals(outputClass)) {
-                    store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
+                    Class outputClass;
+                    try {
+                        outputClass = supportedOutputOperation.newInstance().getOutputClass();
+                    } catch (final InstantiationException | IllegalAccessException e) {
+                        LOGGER.warn("Exception occurred while trying to create a newInstance of operation: " + supportedOperation, e);
+                        continue;
+                    }
+                    if (CloseableIterable.class.equals(outputClass)) {
+                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
+                    } else {
+                        LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: " + supportedOutputOperation);
+                    }
+                } else {
+                    store.addOperationHandler(supportedOperation, new FederatedOperationHandler());
                 }
             }
         }

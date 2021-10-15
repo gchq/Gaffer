@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -33,13 +32,10 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 public class IfHandlerTest {
@@ -69,7 +65,7 @@ public class IfHandlerTest {
         given(predicate.test(input)).willReturn(true);
 
         // When
-        final Object result = handler.doOperation(filter, context, store);
+        handler.doOperation(filter, context, store);
 
         // Then
         verify(predicate).test(input);
@@ -99,7 +95,7 @@ public class IfHandlerTest {
         given(predicate.test(input)).willReturn(false);
 
         // When
-        final Object result = handler.doOperation(filter, context, store);
+        handler.doOperation(filter, context, store);
 
         // Then
         verify(predicate).test(input);
@@ -155,7 +151,7 @@ public class IfHandlerTest {
         final IfHandler handler = new IfHandler();
 
         // When
-        final Object result = handler.doOperation(filter, context, store);
+        handler.doOperation(filter, context, store);
 
         // Then
         verify(store).execute(then, context);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -25,17 +26,17 @@ import uk.gov.gchq.gaffer.store.operation.add.AddStorePropertiesToLibrary.Builde
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePropertiesToLibrary> {
 
     public static final String VALUE_1 = "value1";
     public static final String TEST_ID = "testId";
-    private AddStorePropertiesToLibrary op;
-    private StoreProperties storeProperties;
+    private static AddStorePropertiesToLibrary op;
+    private static StoreProperties storeProperties;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
 
         storeProperties = new StoreProperties();
 
@@ -56,6 +57,7 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
         return new AddStorePropertiesToLibrary();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         //then
@@ -64,6 +66,7 @@ public class AddStorePropertiesToLibraryTest extends OperationTest<AddStorePrope
         assertEquals(TEST_ID, op.getId());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         //when

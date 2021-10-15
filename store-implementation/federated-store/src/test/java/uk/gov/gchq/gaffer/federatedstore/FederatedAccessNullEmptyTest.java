@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,21 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class FederatedAccessNullEmptyTest {
 
     User user;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         user = StoreUser.blankUser();
     }
@@ -43,7 +43,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths((Collection) null)
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths((String[]) null)
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths("")
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths(new String[0])
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class FederatedAccessNullEmptyTest {
                 .graphAuths(Sets.newHashSet())
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
 
@@ -92,7 +92,7 @@ public class FederatedAccessNullEmptyTest {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.hasReadAccess(user));
     }
 
 }

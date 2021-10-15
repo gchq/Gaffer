@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         return null;
     }
 
-    public void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
+    private void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
         validateOperation(operation);
 
         try {
@@ -87,10 +88,13 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     private void fetchElements(final AddElementsFromHdfs operation, final HBaseStore store)
             throws OperationException {
-        final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(), operation, store);
         try {
+            /* Parse any Hadoop arguments passed on the command line and use these to configure the Tool */
+            final Configuration configuration = new GenericOptionsParser(store.getConfiguration(), operation.getCommandLineArgs()).getConfiguration();
+            final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(configuration), operation, store);
+
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            ToolRunner.run(fetchTool, new String[0]);
+            ToolRunner.run(fetchTool, operation.getCommandLineArgs());
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.data.graph.adjacency.SimpleAdjacencyMaps;
 import uk.gov.gchq.gaffer.data.graph.entity.EntityMap;
 import uk.gov.gchq.gaffer.data.graph.entity.EntityMaps;
 import uk.gov.gchq.gaffer.data.graph.entity.SimpleEntityMaps;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
@@ -44,6 +46,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 
 import java.util.ArrayList;
@@ -51,7 +54,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
+import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.getResultsOrNull;
 
 /**
  * An operation handler for {@link GetWalks} operations.
@@ -115,7 +123,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             throw new OperationException("GetWalks operation contains " + hops + " hops. The maximum number of hops is: " + maxHops);
         }
 
-        final AdjacencyMaps adjacencyMaps = prune ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
+        final AdjacencyMaps adjacencyMaps = prune && !getWalks.isIncludePartial() ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
         final EntityMaps entityMaps = new SimpleEntityMaps();
 
         List<?> seeds = originalInput;
@@ -144,9 +152,10 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final GraphWindow graphWindow = new GraphWindow(adjacencyMaps, entityMaps);
 
         // Track/recombine the edge objects and convert to return type
-        return Streams.toStream(originalInput)
-                .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>(), hops).stream())
-                .collect(Collectors.toList());
+        final Stream<Walk> walks = Streams.toStream(originalInput)
+                .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>(), hops, getWalks.isIncludePartial()).stream());
+
+        return applyConditionalFiltering(walks, getWalks, context, store);
     }
 
     public Integer getMaxHops() {
@@ -272,7 +281,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return new LimitedCloseableIterable<>(store.execute(convertedOp, context), 0, resultLimit, false);
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue, final int hops) {
+    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue, final int hops, final boolean includePartial) {
         final List<Walk> walks = new ArrayList<>();
 
         if (null != prev && hops != edgeQueue.size()) {
@@ -285,8 +294,16 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             final Walk walk = buildWalk(edgeQueue, entityQueue);
             walks.add(walk);
         } else {
-            for (final Object obj : graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr)) {
-                walks.addAll(walk(obj, curr, graphWindow, edgeQueue, entityQueue, hops));
+            final Set<Object> dests = graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr);
+            if (dests.isEmpty()) {
+                if (includePartial) {
+                    final Walk walk = buildWalk(edgeQueue, entityQueue);
+                    walks.add(walk);
+                }
+            } else {
+                for (final Object obj : dests) {
+                    walks.addAll(walk(obj, curr, graphWindow, edgeQueue, entityQueue, hops, includePartial));
+                }
             }
         }
 
@@ -326,6 +343,57 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
                     "The While Operation delegate must be an operation that returns an Iterable of Elements. "
                             + whileOp.getOperation().getClass().getName() + " does not satisfy this."
             );
+        }
+    }
+
+    private List<Walk> applyConditionalFiltering(
+            final Stream<Walk> walks,
+            final GetWalks getWalks,
+            final Context context,
+            final Store store) {
+        if (null == getWalks.getConditional() || null == getWalks.getConditional().getPredicate()) {
+            return walks.collect(Collectors.toList());
+        }
+
+        final Operation transformOperation = getWalks.getConditional().getTransform();
+        final Predicate conditionalPredicate = getWalks.getConditional().getPredicate();
+        final WalkPredicate walkPredicate = new WalkPredicate(transformOperation, conditionalPredicate, context, store);
+
+        return walks.filter(walkPredicate::test).collect(Collectors.toList());
+    }
+
+    private class WalkPredicate implements Predicate<Walk> {
+        private final Operation transformOperation;
+        private final Predicate predicate;
+        private final Context context;
+        private final Store store;
+
+        WalkPredicate(final Operation transformOperation,
+                      final Predicate predicate,
+                      final Context context,
+                      final Store store) {
+            this.transformOperation = transformOperation;
+            this.predicate = predicate;
+            this.context = context;
+            this.store = store;
+        }
+
+        @Override
+        public boolean test(final Walk walk) {
+            if (null == this.transformOperation) {
+                return (predicate.test(walk));
+            } else {
+                try {
+                    final Operation clonedOperation = transformOperation.shallowClone();
+                    OperationHandlerUtil.updateOperationInput(clonedOperation, walk);
+                    final Object results = getResultsOrNull(clonedOperation, context, store);
+                    return (predicate.test(results));
+                } catch (final OperationException exception) {
+                    throw new GafferRuntimeException(
+                            format("Unable to apply conditional logic to GetWalks output: ", exception.getMessage()),
+                            exception);
+                }
+            }
         }
     }
 }

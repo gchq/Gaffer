@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class FederatedAccessNullUserTest {
 
@@ -29,7 +29,7 @@ public class FederatedAccessNullUserTest {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .build();
 
-        assertFalse(access.isValidToExecute(null));
+        assertFalse(access.hasReadAccess(null));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class FederatedAccessNullUserTest {
                 .graphAuths((String[]) null)
                 .build();
 
-        assertFalse(access.isValidToExecute(null));
+        assertFalse(access.hasReadAccess(null));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class FederatedAccessNullUserTest {
                 .graphAuths((Collection<String>) null)
                 .build();
 
-        assertFalse(access.isValidToExecute(null));
+        assertFalse(access.hasReadAccess(null));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class FederatedAccessNullUserTest {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .addingUserId(null)
                 .build();
-        assertFalse(access.isValidToExecute(null));
+        assertFalse(access.hasReadAccess(null));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class FederatedAccessNullUserTest {
                 .graphAuths((String[]) null)
                 .addingUserId(null)
                 .build();
-        assertFalse(access.isValidToExecute(null));
+        assertFalse(access.hasReadAccess(null));
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 
 import com.google.common.collect.Lists;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,6 +59,19 @@ public interface JobFactory<O extends MapReduce> {
         for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
             final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
             final Job job = Job.getInstance(jobConf);
+
+            final Configuration configuration = job.getConfiguration();
+            final StoreProperties storeProperties = store.getProperties();
+            if (storeProperties.getJsonSerialiserClass() != null) {
+                configuration.set(StoreProperties.JSON_SERIALISER_CLASS, storeProperties.getJsonSerialiserClass());
+            }
+            if (storeProperties.getJsonSerialiserModules() != null) {
+                configuration.set(StoreProperties.JSON_SERIALISER_MODULES, storeProperties.getJsonSerialiserModules());
+            }
+            if (storeProperties.getStrictJson() != null) {
+                configuration.setBoolean(StoreProperties.STRICT_JSON, storeProperties.getStrictJson());
+            }
+
             setupJob(job, operation, mapperGeneratorClassName, store);
 
             if (null != operation.getJobInitialiser()) {

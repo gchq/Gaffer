@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,28 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
+        // Given
         for (int i = 0; i < 1000; i++) {
+            // When
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
+
+            // Then
             assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
@@ -41,25 +45,35 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Integer.MIN_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        // Given When
         byte[] b = serialiser.serialise(Integer.MAX_VALUE);
         Object o = serialiser.deserialise(b);
+
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
+        // Given
         byte[] startBytes = serialiser.serialise(0);
         for (Integer test = 1; test >= 10; test++) {
+            // When
             byte[] newTestBytes = serialiser.serialise(test);
+
+            // Then
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }
@@ -94,11 +108,11 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{8}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{0}),
-                new Pair<>(0, new byte[]{4, -128, 0, 0, 0}),
-                new Pair<>(1, new byte[]{4, -128, 0, 0, 1}),
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {8}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {0}),
+                new Pair<>(0, new byte[] {4, -128, 0, 0, 0}),
+                new Pair<>(1, new byte[] {4, -128, 0, 0, 1}),
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,24 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import javax.ws.rs.core.Response;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PropertyServiceV2IT extends AbstractRestApiV2IT {
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() {
         System.clearProperty("gaffer.properties");
         System.clearProperty("gaffer.test1");
@@ -44,9 +43,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldThrowErrorOnUnknownPropertyWhenNoneSet() throws IOException {
-        //Given
-
+    public void shouldThrowErrorOnUnknownPropertyWhenNoneSet() {
         // When
         final Response response = client.getProperty("UNKNOWN");
 
@@ -55,7 +52,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldThrowErrorOnUnknownProperty() throws IOException {
+    public void shouldThrowErrorOnUnknownProperty() {
         //Given
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
@@ -69,7 +66,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldThrowErrorOnPropertyThatIsNotExposed() throws IOException {
+    public void shouldThrowErrorOnPropertyThatIsNotExposed() {
         //Given
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
@@ -84,7 +81,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetAllProperties() throws IOException {
+    public void shouldGetAllProperties() {
         //Given
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
@@ -107,7 +104,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetAllPropertiesWhenNoCustomPropertiesCsvDefined() throws IOException {
+    public void shouldGetAllPropertiesWhenNoCustomPropertiesCsvDefined() {
         //Given
         System.setProperty("gaffer.test1", "1");
         System.setProperty("gaffer.test2", "2");
@@ -127,7 +124,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetKnownProperty() throws IOException {
+    public void shouldGetKnownProperty() {
         //Given
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
@@ -143,7 +140,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetKnownCoreProperty() throws IOException {
+    public void shouldGetKnownCoreProperty() {
         //Given
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
@@ -159,7 +156,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetOverriddenKnownCoreProperty() throws IOException {
+    public void shouldGetOverriddenKnownCoreProperty() {
         //Given
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
@@ -176,7 +173,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetKorypheVersion() throws IOException {
+    public void shouldGetKorypheVersion() {
         // When
         final Response response = client.getProperty(SystemProperty.KORYPHE_VERSION);
 
@@ -186,7 +183,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
     }
 
     @Test
-    public void shouldGetGafferVersion() throws IOException {
+    public void shouldGetGafferVersion() {
         // When
         final Response response = client.getProperty(SystemProperty.GAFFER_VERSION);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,13 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.data.graph.function.walk.ExtractWalkEntities;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -38,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.ForEach;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks.Builder;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -57,7 +60,9 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
+import uk.gov.gchq.koryphe.impl.predicate.CollectionContains;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -66,16 +71,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetWalksIT extends AbstractStoreIT {
     final EntitySeed seedA = new EntitySeed("A");
@@ -107,7 +106,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -134,7 +133,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -170,7 +169,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -199,7 +198,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -232,7 +231,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertEquals(0, Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).isEmpty();
     }
 
     @Test
@@ -263,9 +262,9 @@ public class GetWalksIT extends AbstractStoreIT {
         final List<Walk> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
         results.forEach(r -> r.getEntities().forEach(l -> {
-            assertThat(l, is(not(empty())));
+            assertThat(l).isNotEmpty();
         }));
     }
 
@@ -297,7 +296,7 @@ public class GetWalksIT extends AbstractStoreIT {
         try {
             Lists.newArrayList(graph.execute(op, getUser()));
         } catch (final Exception e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
+            assertThat(e.getMessage()).as(e.getMessage()).contains("must contain a single hop");
         }
     }
 
@@ -322,7 +321,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC,EDA")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC,EDA");
     }
 
     @Test
@@ -349,7 +348,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,AEF,ABC");
     }
 
     @Test
@@ -376,7 +375,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,EDA,EFC")));
+        assertThat(getPaths(results)).isEqualTo("AED,AEF,ABC,EDA,EFC");
     }
 
     @Test
@@ -403,7 +402,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AEDA,AEFC")));
+        assertThat(getPaths(results)).isEqualTo("AEDA,AEFC");
     }
 
     @Test
@@ -430,7 +429,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
+        assertThat(getPaths(results)).isEqualTo("AEDAE,AEDAB");
     }
 
     @Test
@@ -454,7 +453,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AAAAA")));
+        assertThat(getPaths(results)).isEqualTo("AAAAA");
     }
 
     @Test
@@ -496,7 +495,50 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED")));
+        assertThat(getPaths(results)).isEqualTo("AED");
+    }
+
+    @Test
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
+    public void shouldGetPartialPaths() throws Exception {
+        // Given
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final OperationChain operationChain = new OperationChain.Builder()
+                // only walk down entities which have a property set to an integer
+                //larger than 3.
+                .first(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                        .postAggregationFilter(new ElementFilter.Builder()
+                                                .select(TestPropertyNames.PROP_1)
+                                                .execute(new IsMoreThan(3))
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .then(operation)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seedA)
+                .operations(operation, operationChain)
+                .includePartial()
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, getUser());
+
+        // Then
+        assertThat(getPaths(results)).isEqualTo("AED,AB");
     }
 
     @Test
@@ -538,7 +580,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("ABC")));
+        assertThat(getPaths(results)).isEqualTo("ABC");
     }
 
     @Test
@@ -566,7 +608,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -598,7 +640,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertEquals(1, Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).hasSize(1);
     }
 
     @Test
@@ -632,16 +674,16 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("ABC")));
+        assertThat(getPaths(results)).isEqualTo("ABC");
     }
 
     public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
         @Override
         public Object apply(final Object obj) {
             // Check the vertices have been extracted correctly.
-            assertTrue(obj instanceof Iterable);
+            assertThat(obj).isInstanceOf(Iterable.class);
             for (final Object item : (Iterable) obj) {
-                assertFalse(item instanceof EntityId);
+                assertThat(item).isNotInstanceOf(EntityId.class);
             }
             return obj;
         }
@@ -872,5 +914,131 @@ public class GetWalksIT extends AbstractStoreIT {
             sb.setLength(sb.length() - 1);
         }
         return sb.toString();
+    }
+
+    @Test
+    public void shouldReturnAllWalksWhenConditionalIsNull() throws Exception {
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(null);
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
+    }
+
+    @Test
+    public void shouldReturnAllWalksWhenConditionalIsUnconfigured() throws Exception {
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(new Conditional());
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
+    }
+
+    @Test
+    public void shouldFilterWalksThatDoNotContainProperty5() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(5));
+        assertThat(getPaths(walks)).isEqualTo("AED");
+    }
+
+    @Test
+    public void shouldFilterWalksThatDoNotContainProperty2() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(2));
+        assertThat(getPaths(walks)).isEqualTo("ABC");
+    }
+
+    @Test
+    public void shouldFilterAllWalksWhenNoneContainProperty() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(6));
+        assertThat(getPaths(walks)).isEmpty();
+    }
+
+    @Test
+    public void shouldNotFilterAnyWalksWhenAllContainProperty() throws Exception {
+        final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(1));
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
+    }
+
+    private Iterable<Walk> getWalksThatPassPredicateTest(final Predicate predicate) throws Exception {
+        final Conditional conditional = new Conditional();
+        conditional.setTransform(new OperationChain.Builder()
+                .first(new Map.Builder<>()
+                        .first(new ExtractWalkEntities())
+                        .then(new IterableConcat())
+                        .build())
+                .then(new ForEach.Builder<>()
+                        .operation(new Map.Builder<>()
+                                .first(new ExtractProperty(TestPropertyNames.PROP_1))
+                                .build())
+                        .build())
+                .build());
+        conditional.setPredicate(predicate);
+
+        return executeGetWalksApplyingConditional(conditional);
+    }
+
+    @Test
+    public void shouldFilterWalksUsingWalkPredicateWithoutTransform() throws Exception {
+        final Conditional conditional = new Conditional();
+        conditional.setPredicate(new WalkPredicate());
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
+        assertThat(getPaths(walks)).isEqualTo("AED");
+    }
+
+    public static class WalkPredicate implements Predicate<Walk> {
+        @Override
+        public boolean test(final Walk walk) {
+            return walk.getEntities().stream()
+                    .flatMap(l -> l.stream())
+                    .anyMatch(e -> e.getVertex().equals("E"));
+        }
+    }
+
+    @Test
+    public void shouldNotFilterWalksWhenNoPredicateSupplied() throws Exception {
+        final Conditional conditional = new Conditional();
+        conditional.setTransform(new OperationChain.Builder()
+                .first(new Map.Builder<>()
+                        .first(new ExtractWalkEntities())
+                        .then(new IterableConcat())
+                        .build())
+                .then(new ForEach.Builder<>()
+                        .operation(new Map.Builder<>()
+                                .first(new ExtractProperty(TestPropertyNames.PROP_1))
+                                .build())
+                        .build())
+                .build());
+
+        final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
+    }
+
+    private Iterable<Walk> executeGetWalksApplyingConditional(final Conditional conditional) throws OperationException {
+        final GetWalks op = new GetWalks.Builder()
+                .operations(
+                        new GetElements.Builder()
+                                .directedType(DirectedType.DIRECTED)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                                .properties(TestPropertyNames.COUNT)
+                                                .build())
+                                        .entity(TestGroups.ENTITY)
+                                        .build())
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                                .build(),
+                        new GetElements.Builder()
+                                .directedType(DirectedType.DIRECTED)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                                .properties(TestPropertyNames.COUNT)
+                                                .build())
+                                        .entity(TestGroups.ENTITY)
+                                        .build())
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                                .build(),
+                        new GetElements.Builder()
+                                .view(new View.Builder()
+                                        .entities(Lists.newArrayList(TestGroups.ENTITY))
+                                        .build())
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                                .build())
+                .conditional(conditional)
+                .input(seedA)
+                .build();
+
+        return graph.execute(op, getUser());
     }
 }

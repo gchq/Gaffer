@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,17 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StringToStringSerialiserTest extends SerialisationTest<String, String> {
-
 
     public static final String STRING_VALUE_1 = "StringValue1";
 
@@ -41,14 +39,16 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
     }
 
 
+    @Test
     @Override
     public void shouldSerialiseNull() throws SerialisationException {
         assertNull(serialiser.serialiseNull());
     }
 
+    @Test
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
-        Assert.assertNull(serialiser.serialiseNull());
+        assertNull(serialiser.serialiseNull());
     }
 
     @Override

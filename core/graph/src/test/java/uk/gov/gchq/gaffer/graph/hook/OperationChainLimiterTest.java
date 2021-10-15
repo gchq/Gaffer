@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -27,18 +26,15 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
-import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
 public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimiter> {
@@ -101,12 +97,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // When/Then
 
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -143,12 +137,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -163,12 +155,10 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final List<Element> batch = new ArrayList<>(bufferSize);
             for (final Element element : elements) {
                 if (null != element) {
-                    batch.add(element);
+                    batch.add(mapImpl.cloneElement(element, schema));
                     count++;
                     if (count >= bufferSize) {
                         addBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema));

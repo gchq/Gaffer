@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -58,43 +56,40 @@ import java.util.TimeZone;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class WriteUnsortedDataTest {
     private static FileSystem fs;
-    private static Date DATE0;
-    private static Date DATE1;
-    private static Date DATE2;
-    private static Date DATE3;
+    private static Date date0;
+    private static Date date1;
+    private static Date date2;
+    private static Date date3;
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     static {
         DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
-            DATE0 = DATE_FORMAT.parse("1970-01-01 00:00:00");
-            DATE1 = DATE_FORMAT.parse("1971-01-01 00:00:00");
-            DATE2 = DATE_FORMAT.parse("1972-01-01 00:00:00");
-            DATE3 = DATE_FORMAT.parse("1973-01-01 00:00:00");
+            date0 = DATE_FORMAT.parse("1970-01-01 00:00:00");
+            date1 = DATE_FORMAT.parse("1971-01-01 00:00:00");
+            date2 = DATE_FORMAT.parse("1972-01-01 00:00:00");
+            date3 = DATE_FORMAT.parse("1973-01-01 00:00:00");
         } catch (final ParseException e1) {
             // Won't happen
         }
     }
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         fs = FileSystem.get(new Configuration());
         Logger.getRootLogger().setLevel(Level.WARN);
     }
 
     @Test
-    public void testNoSplitPointsCase() throws IOException, OperationException {
+    public void testNoSplitPointsCase(@TempDir java.nio.file.Path tempDir) throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = tempDir.toAbsolutePath().toString();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         graphPartitioner.addGroupPartitioner(TestGroups.ENTITY, new GroupPartitioner(TestGroups.ENTITY, new ArrayList<>()));
@@ -156,9 +151,9 @@ public class WriteUnsortedDataTest {
     }
 
     @Test
-    public void testOneSplitPointCase() throws IOException, OperationException {
+    public void testOneSplitPointCase(@TempDir java.nio.file.Path tempDir) throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = tempDir.toAbsolutePath().toString();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         final List<Element> elements = new ArrayList<>();
@@ -288,9 +283,9 @@ public class WriteUnsortedDataTest {
     }
 
     @Test
-    public void testMultipleSplitPointsCase() throws IOException, OperationException {
+    public void testMultipleSplitPointsCase(@TempDir java.nio.file.Path tempDir) throws IOException, OperationException {
         // Given
-        final String tempFilesDir = testFolder.newFolder().getAbsolutePath();
+        final String tempFilesDir = tempDir.toAbsolutePath().toString();
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final GraphPartitioner graphPartitioner = new GraphPartitioner();
         final List<Element> elements = new ArrayList<>();
@@ -441,7 +436,7 @@ public class WriteUnsortedDataTest {
 
     private Entity createEntityForEntityGroup(final long vertex) {
         final Entity entity = new Entity(TestGroups.ENTITY, vertex);
-        entity.putProperty("date", DATE0);
+        entity.putProperty("date", date0);
         addPropertiesOtherThanVertexAndDate(entity);
         return entity;
     }
@@ -455,7 +450,7 @@ public class WriteUnsortedDataTest {
 
     public static Edge createEdgeForEdgeGroup(final long source, final long destination, final boolean directed) {
         final Edge edge = new Edge(TestGroups.EDGE, source, destination, directed);
-        edge.putProperty("date", DATE0);
+        edge.putProperty("date", date0);
         addPropertiesOtherThanVertexAndDate(edge);
         return edge;
     }

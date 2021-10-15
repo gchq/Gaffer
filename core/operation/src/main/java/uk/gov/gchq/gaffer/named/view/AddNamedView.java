@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -57,10 +58,12 @@ public class AddNamedView implements Operation {
     private String view;
 
     private String description;
-    private List<String> writeAccessRoles = new ArrayList<>();
+    private List<String> writeAccessRoles;
     private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
+    private AccessPredicate readAccessPredicate;
+    private AccessPredicate writeAccessPredicate;
 
     public String getName() {
         return name;
@@ -154,16 +157,34 @@ public class AddNamedView implements Operation {
         return options;
     }
 
+    public AccessPredicate getWriteAccessPredicate() {
+        return writeAccessPredicate;
+    }
+
+    public void setWriteAccessPredicate(final AccessPredicate writeAccessPredicate) {
+        this.writeAccessPredicate = writeAccessPredicate;
+    }
+
+    public AccessPredicate getReadAccessPredicate() {
+        return readAccessPredicate;
+    }
+
+    public void setReadAccessPredicate(final AccessPredicate readAccessPredicate) {
+        this.readAccessPredicate = readAccessPredicate;
+    }
+
     @Override
     public AddNamedView shallowClone() throws CloneFailedException {
         return new AddNamedView.Builder()
                 .name(name)
                 .view(view)
                 .description(description)
-                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .writeAccessRoles(writeAccessRoles != null ? writeAccessRoles.toArray(new String[writeAccessRoles.size()]) : null)
                 .parameters(parameters)
                 .overwrite(overwriteFlag)
                 .options(options)
+                .readAccessPredicate(readAccessPredicate)
+                .writeAccessPredicate(writeAccessPredicate)
                 .build();
     }
 
@@ -193,7 +214,12 @@ public class AddNamedView implements Operation {
         }
 
         public Builder writeAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            if (roles != null) {
+                if (_getOp().getWriteAccessRoles() == null) {
+                    _getOp().setWriteAccessRoles(new ArrayList<>());
+                }
+                Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            }
             return _self();
         }
 
@@ -204,6 +230,16 @@ public class AddNamedView implements Operation {
 
         public Builder overwrite(final boolean overwriteFlag) {
             _getOp().setOverwriteFlag(overwriteFlag);
+            return _self();
+        }
+
+        public Builder readAccessPredicate(final AccessPredicate readAccessPredicate) {
+            _getOp().setReadAccessPredicate(readAccessPredicate);
+            return _self();
+        }
+
+        public Builder writeAccessPredicate(final AccessPredicate writeAccessPredicate) {
+            _getOp().setWriteAccessPredicate(writeAccessPredicate);
             return _self();
         }
     }

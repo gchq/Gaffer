@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.Job;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
@@ -175,6 +176,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.StreamSupport;
+
+import static java.util.Collections.unmodifiableList;
 
 /**
  * A {@code Store} backs a Graph and is responsible for storing the {@link
@@ -217,6 +221,8 @@ public abstract class Store {
 
     private JobTracker jobTracker;
     private String graphId;
+
+    private boolean jobsRescheduled;
 
     public Store() {
         this(true);
@@ -278,6 +284,36 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService(properties);
+
+        if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
+            try (final CloseableIterable<JobDetail> scheduledJobs = this.jobTracker.getAllScheduledJobs()) {
+                if (scheduledJobs != null) {
+                    StreamSupport.stream(scheduledJobs.spliterator(), false)
+                            .peek(jd -> LOGGER.debug("Rescheduling job: {}", jd))
+                            .forEach(this::rescheduleJob);
+                }
+            }
+            jobsRescheduled = true;
+        }
+    }
+
+    private void rescheduleJob(final JobDetail jobDetail) {
+
+        try {
+
+            final OperationChain<?> operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(), OperationChain.class);
+            final Context context = new Context(jobDetail.getUser());
+            context.setOriginalOpChain(operationChain);
+
+            getExecutorService().scheduleAtFixedRate(
+                    new ScheduledJobRunnable(operationChain, jobDetail, context),
+                    jobDetail.getRepeat().getInitialDelay(),
+                    jobDetail.getRepeat().getRepeatPeriod(),
+                    jobDetail.getRepeat().getTimeUnit());
+
+        } catch (final SerialisationException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
@@ -303,6 +339,7 @@ public abstract class Store {
      * @param storeTrait the Class of the Processor to be checked.
      * @return true if the Processor can be handled and false if it cannot.
      */
+    @Deprecated
     public boolean hasTrait(final StoreTrait storeTrait) {
         final Set<StoreTrait> traits = getTraits();
         return null != traits && traits.contains(storeTrait);
@@ -317,7 +354,9 @@ public abstract class Store {
      * </p>
      *
      * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
+     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
      */
+    @Deprecated
     public abstract Set<StoreTrait> getTraits();
 
     /**
@@ -380,12 +419,13 @@ public abstract class Store {
      * @throws OperationException thrown if there is an error running the job.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        if (job.getOpChainAsOperationChain().getOperations().isEmpty()) {
+        OperationChain opChain = OperationChain.wrap(job.getOperation());
+        if (opChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("An operation is required");
         }
-        final JobDetail jobDetail = addOrUpdateJobDetail(job.getOpChainAsOperationChain(), context, null, JobStatus.RUNNING);
+        final JobDetail jobDetail = addOrUpdateJobDetail(opChain, context, null, JobStatus.RUNNING);
         jobDetail.setRepeat(job.getRepeat());
-        return executeJob(job.getOpChainAsOperationChain(), jobDetail, context);
+        return executeJob(opChain, jobDetail, context);
     }
 
     protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
@@ -426,22 +466,58 @@ public abstract class Store {
                 (operation instanceof Operations)
                         ? (OperationChain) operation.shallowClone()
                         : OperationChain.wrap(operation).shallowClone();
-        getExecutorService().scheduleAtFixedRate(() -> {
-            if ((jobTracker.getJob(parentJobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
+
+        getExecutorService().scheduleAtFixedRate(
+                new ScheduledJobRunnable(clonedOp, parentJobDetail, context),
+                parentJobDetail.getRepeat().getInitialDelay(),
+                parentJobDetail.getRepeat().getRepeatPeriod(),
+                parentJobDetail.getRepeat().getTimeUnit());
+
+        return addOrUpdateJobDetail(clonedOp, context, null,
+                JobStatus.SCHEDULED_PARENT);
+    }
+
+    class ScheduledJobRunnable implements Runnable {
+
+        private final OperationChain<?> operationChain;
+        private final JobDetail jobDetail;
+        private final Context context;
+
+        ScheduledJobRunnable(final OperationChain<?> operationChain, final JobDetail jobDetail, final Context context) {
+
+            this.operationChain = operationChain;
+            this.jobDetail = jobDetail;
+            this.context = context;
+        }
+
+        OperationChain<?> getOperationChain() {
+            return operationChain;
+        }
+
+        JobDetail getJobDetail() {
+            return jobDetail;
+        }
+
+        Context getContext() {
+            return context;
+        }
+
+        @Override
+        public void run() {
+
+            if ((jobTracker.getJob(jobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
                 Thread.currentThread().interrupt();
                 return;
             }
             final Context newContext = context.shallowClone();
             try {
-                executeJob(clonedOp, newContext, parentJobDetail.getJobId());
+                executeJob(operationChain, newContext, jobDetail.getJobId());
             } catch (final OperationException e) {
                 throw new RuntimeException("Exception within scheduled job", e);
             }
-        }, parentJobDetail.getRepeat().getInitialDelay(), parentJobDetail.getRepeat().getRepeatPeriod(), parentJobDetail.getRepeat().getTimeUnit());
-
-        return addOrUpdateJobDetail(clonedOp, context, null,
-                JobStatus.SCHEDULED_PARENT);
+        }
     }
+
 
     private JobDetail runJob(final Operation operation,
                              final JobDetail jobDetail,
@@ -742,6 +818,10 @@ public abstract class Store {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
+    public List<OperationChainOptimiser> getOperationChainOptimisers() {
+        return unmodifiableList(opChainOptimisers);
+    }
+
     /**
      * Any additional operations that a store can handle should be registered in
      * this method by calling addOperationHandler(...)
@@ -842,12 +922,13 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
                     .getUser());
             if (newJobDetail.getStatus().equals(JobStatus.SCHEDULED_PARENT)) {
                 newJobDetail.setRepeat(null);
+                newJobDetail.setSerialisedOperationChain(operationChain);
             }
 
             if (null == oldJobDetail) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class LazyEntityTest {
+
     @Test
     public void shouldLoadPropertyFromLoader() {
         // Given
@@ -39,7 +40,7 @@ public class LazyEntityTest {
         given(entityLoader.getProperty(propertyName, lazyEntity.getProperties())).willReturn(exceptedPropertyValue);
 
         // When
-        Object propertyValue = lazyEntity.getProperty(propertyName);
+        final Object propertyValue = lazyEntity.getProperty(propertyName);
 
         // Then
         assertEquals(exceptedPropertyValue, propertyValue);
@@ -57,7 +58,7 @@ public class LazyEntityTest {
         given(entity.getVertex()).willReturn(exceptedIdentifierValue);
 
         // When
-        Object identifierValue = lazyEntity.getIdentifier(identifierType);
+        final Object identifierValue = lazyEntity.getIdentifier(identifierType);
 
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
@@ -76,8 +77,8 @@ public class LazyEntityTest {
         lazyEntity.setVertex(exceptedIdentifierValue);
 
         // When - should use the loaded value
-        Object identifierValue = lazyEntity.getIdentifier(identifierType);
-        Object identifierValue2 = lazyEntity.getIdentifier(identifierType);
+        final Object identifierValue = lazyEntity.getIdentifier(identifierType);
+        final Object identifierValue2 = lazyEntity.getIdentifier(identifierType);
 
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);

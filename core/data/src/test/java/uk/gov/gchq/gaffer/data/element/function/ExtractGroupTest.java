@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
@@ -26,8 +27,8 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 import java.io.IOException;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ExtractGroupTest extends FunctionTest {
 
@@ -36,7 +37,6 @@ public class ExtractGroupTest extends FunctionTest {
         // Given
         final ExtractGroup function = new ExtractGroup();
         final String group = "testGroup";
-
         final Edge edge = new Edge.Builder()
                 .source("src")
                 .dest("dest")
@@ -55,9 +55,7 @@ public class ExtractGroupTest extends FunctionTest {
     public void shouldReturnGroupFromEntity() {
         // Given
         final ExtractGroup function = new ExtractGroup();
-
         final String group = "testGroup_2";
-
         final Entity entity = new Entity.Builder()
                 .vertex("1")
                 .group(group)
@@ -88,10 +86,26 @@ public class ExtractGroupTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ExtractGroup> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends Function> getFunctionClass() {
         return ExtractGroup.class;
     }
 
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Element.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given
@@ -99,10 +113,9 @@ public class ExtractGroupTest extends FunctionTest {
 
         // When
         final byte[] json = JSONSerialiser.serialise(function);
-        final ExtractGroup deserialised = JSONSerialiser.deserialise(json, ExtractGroup.class);
 
         // Then
-        JsonAssert.assertEquals("{\"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractGroup\"}",
-                new String(json));
+        final String expectedJson = "{\"class\" : \"uk.gov.gchq.gaffer.data.element.function.ExtractGroup\"}";
+        JsonAssert.assertEquals(expectedJson, new String(json));
     }
 }

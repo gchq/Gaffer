@@ -1,0 +1,12 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.SplitStore",
+      "handler": null
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample",
+      "handler": null
+    }
+  ]
+}

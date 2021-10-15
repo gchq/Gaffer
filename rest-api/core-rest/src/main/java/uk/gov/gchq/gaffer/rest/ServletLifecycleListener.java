@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ public class ServletLifecycleListener implements ServletContextListener {
      * Code executed when the servlet starts. The CacheServiceLoader is not initialised here
      * as it requires the store properties file. Therefore it is started when the store
      * is initialised instead.
+     *
      * @param servletContextEvent the context event
      */
     @Override
@@ -58,6 +59,7 @@ public class ServletLifecycleListener implements ServletContextListener {
      * down here to avoid ClassNotFoundExceptions which result from a Servlet's ClassLoader
      * being shut down before the ShutdownHooks run. All Gaffer services should use this class
      * rather than Shutdown hooks if they want to run Gaffer in a servlet such as JBOSS or Tomcat.
+     *
      * @param servletContextEvent the context event
      */
     @Override

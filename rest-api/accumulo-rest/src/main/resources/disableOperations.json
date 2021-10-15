@@ -5,6 +5,10 @@
       "handler": null
     },
     {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample",
+      "handler": null
+    },
+    {
       "operation": "uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs",
       "handler": null
     },

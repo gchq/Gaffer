@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ElementUtil {
+public final class ElementUtil {
+
+    private ElementUtil() {
+        // Private to avoid instantiation
+    }
+
     public static void assertElementEquals(final Iterable<? extends ElementId> expected, final Iterable<? extends ElementId> result) {
         assertElementEquals(expected, result, false);
     }
@@ -81,12 +86,12 @@ public class ElementUtil {
                 }
             }
 
-            assertTrue("\nMissing entities:\n(" + missingEntities.size() + ") " + missingEntities.toString()
-                            + "\nUnexpected entities:\n(" + incorrectEntities.size() + ") " + incorrectEntities.toString()
-                            + "\nMissing edges:\n(" + missingEdges.size() + ")" + missingEdges.toString()
-                            + "\nUnexpected edges:\n(" + incorrectEdges.size() + ")" + incorrectEdges.toString(),
-                    missingEntities.isEmpty() && incorrectEntities.isEmpty()
-                            && missingEdges.isEmpty() && incorrectEdges.isEmpty());
+            final String message = "\nMissing entities:\n(" + missingEntities.size() + ") " + missingEntities.toString()
+                    + "\nUnexpected entities:\n(" + incorrectEntities.size() + ") " + incorrectEntities.toString()
+                    + "\nMissing edges:\n(" + missingEdges.size() + ")" + missingEdges.toString()
+                    + "\nUnexpected edges:\n(" + incorrectEdges.size() + ")" + incorrectEdges.toString();
+            assertTrue(missingEntities.isEmpty() && incorrectEntities.isEmpty()
+                    && missingEdges.isEmpty() && incorrectEdges.isEmpty(), message);
         }
     }
 }

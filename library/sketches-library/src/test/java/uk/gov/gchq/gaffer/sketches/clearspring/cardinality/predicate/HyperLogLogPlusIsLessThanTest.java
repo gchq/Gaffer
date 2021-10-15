@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
 
@@ -37,25 +38,25 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
     private static HyperLogLogPlus hyperLogLogPlusWithCardinality15;
     private static HyperLogLogPlus hyperLogLogPlusWithCardinality31;
 
-    @Before
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         hyperLogLogPlusWithCardinality5 = new HyperLogLogPlus(5, 5);
         for (int i = 1; i <= 5; i++) {
             hyperLogLogPlusWithCardinality5.offer(i);
         }
-        assertEquals(5l, hyperLogLogPlusWithCardinality5.cardinality());
+        assertEquals(5L, hyperLogLogPlusWithCardinality5.cardinality());
 
         hyperLogLogPlusWithCardinality15 = new HyperLogLogPlus(5, 5);
         for (int i = 1; i <= 18; i++) {
             hyperLogLogPlusWithCardinality15.offer(i);
         }
-        assertEquals(15l, hyperLogLogPlusWithCardinality15.cardinality());
+        assertEquals(15L, hyperLogLogPlusWithCardinality15.cardinality());
 
         hyperLogLogPlusWithCardinality31 = new HyperLogLogPlus(5, 5);
         for (int i = 1; i <= 32; i++) {
             hyperLogLogPlusWithCardinality31.offer(i);
         }
-        assertEquals(31l, hyperLogLogPlusWithCardinality31.cardinality());
+        assertEquals(31L, hyperLogLogPlusWithCardinality31.cardinality());
     }
 
     @Test
@@ -108,6 +109,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         assertFalse(accepted);
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -138,5 +140,13 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
     @Override
     protected Predicate getInstance() {
         return new HyperLogLogPlusIsLessThan(10);
+    }
+
+    @Override
+    protected Iterable<HyperLogLogPlusIsLessThan> getDifferentInstancesOrNull() {
+        return Arrays.asList(
+                new HyperLogLogPlusIsLessThan(20),
+                new HyperLogLogPlusIsLessThan(20, true)
+        );
     }
 }

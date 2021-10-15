@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,9 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -34,10 +30,11 @@ import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JcsCacheServiceTest {
 
@@ -47,15 +44,12 @@ public class JcsCacheServiceTest {
     private static final String AGE_OFF_REGION = "ageOff";
     private Properties serviceProps = new Properties();
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void before() {
         serviceProps.clear();
     }
 
-    @After
+    @AfterEach
     public void after() throws CacheOperationException {
         service.clearCache(TEST_REGION);
         service.clearCache(ALTERNATIVE_TEST_REGION);
@@ -74,13 +68,13 @@ public class JcsCacheServiceTest {
     @Test
     public void shouldThrowAnExceptionIfPathIsMisconfigured() {
         String badFileName = "/made/up/file/name";
-
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(badFileName);
+        String expected = String.format("Cannot create cache using config file %s", badFileName);
 
         serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, badFileName);
 
-        service.initialise(serviceProps);
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.initialise(serviceProps))
+                .withMessage(expected);
     }
 
     @Test
@@ -109,7 +103,7 @@ public class JcsCacheServiceTest {
         ICache<String, Integer> sameCache = service.getCache(TEST_REGION);
 
         // then
-        assertEquals(1, sameCache.size());
+        assertThat(sameCache.size()).isOne();
         assertEquals(new Integer(1), sameCache.get("key"));
 
         cache.clear();
@@ -141,7 +135,7 @@ public class JcsCacheServiceTest {
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
-        Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+        assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
     }
 
     @Test
@@ -149,16 +143,13 @@ public class JcsCacheServiceTest {
         service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
-        try {
-            service.putSafeInCache(TEST_REGION, "test", 2);
-            fail("Expected an exception");
-        } catch (final OverwritingException e) {
-            Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
-        }
+        assertThatExceptionOfType(OverwritingException.class)
+                .isThrownBy(() -> service.putSafeInCache(TEST_REGION, "test", 2));
+        assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
 
         service.putInCache(TEST_REGION, "test", 2);
 
-        Assert.assertEquals((Integer) 2, service.getFromCache(TEST_REGION, "test"));
+        assertEquals((Integer) 2, service.getFromCache(TEST_REGION, "test"));
     }
 
     @Test
@@ -167,7 +158,7 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test", 1);
 
         service.removeFromCache(TEST_REGION, "test");
-        Assert.assertEquals(0, service.sizeOfCache(TEST_REGION));
+        assertEquals(0, service.sizeOfCache(TEST_REGION));
     }
 
     @Test
@@ -180,7 +171,7 @@ public class JcsCacheServiceTest {
 
         service.clearCache(TEST_REGION);
 
-        Assert.assertEquals(0, service.sizeOfCache(TEST_REGION));
+        assertEquals(0, service.sizeOfCache(TEST_REGION));
     }
 
     @Test
@@ -190,8 +181,8 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
 
-        Assert.assertEquals(3, service.sizeOfCache(TEST_REGION));
-        assertThat(service.getAllKeysFromCache(TEST_REGION), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+        assertEquals(3, service.sizeOfCache(TEST_REGION));
+        assertThat(service.getAllKeysFromCache(TEST_REGION)).contains("test1", "test2", "test3");
     }
 
     @Test
@@ -202,10 +193,10 @@ public class JcsCacheServiceTest {
         service.putInCache(TEST_REGION, "test3", 3);
         service.putInCache(TEST_REGION, "duplicate", 3);
 
-        Assert.assertEquals(4, service.sizeOfCache(TEST_REGION));
-        Assert.assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
+        assertEquals(4, service.sizeOfCache(TEST_REGION));
+        assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
 
-        assertThat(service.getAllValuesFromCache(TEST_REGION), IsCollectionContaining.hasItems(1, 2, 3));
+        assertThat(service.getAllValuesFromCache(TEST_REGION)).contains(1, 2, 3);
     }
 
     @Test
@@ -233,6 +224,8 @@ public class JcsCacheServiceTest {
         // when
         service.putInCache(AGE_OFF_REGION, "test", 1);
         Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS); // aged off
+        assertNull(service.getFromCache(AGE_OFF_REGION, "test"));
+
         service.putInCache(AGE_OFF_REGION, "test", 1);
 
         // then

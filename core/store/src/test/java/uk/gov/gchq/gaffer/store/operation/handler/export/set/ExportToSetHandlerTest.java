@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,13 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import uk.gov.gchq.gaffer.store.Context;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExportToSetHandlerTest {
 
@@ -34,7 +32,6 @@ public class ExportToSetHandlerTest {
                 .input(null)
                 .key("elements")
                 .build();
-
         final Context context = new Context();
         context.addExporter(new SetExporter());
 
@@ -44,6 +41,6 @@ public class ExportToSetHandlerTest {
         final Object result = handler.doOperation(exportToSet, context, null);
 
         // Then
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
     }
 }

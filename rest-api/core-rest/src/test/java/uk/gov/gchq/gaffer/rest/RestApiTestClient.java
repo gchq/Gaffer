@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.servlet.ServletRegistration;
+import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.rules.TemporaryFolder;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,6 +38,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -70,40 +73,53 @@ public abstract class RestApiTestClient {
         }
     }
 
+    public void cleanUpTempFiles(File folder) {
+        File tempSchema = new File(folder, "/schema.json");
+        File tempStoreProperties = new File(folder, "/store.properties");
+        try {
+            if (tempSchema.exists()) {
+                FileUtils.forceDelete(tempSchema);
+            }
+            if (tempStoreProperties.exists()) {
+                FileUtils.forceDelete(tempStoreProperties);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to clean up temp files from " + folder.getAbsolutePath());
+        }
+    }
+
     public boolean isRunning() {
         return null != server;
     }
 
-    public void reinitialiseGraph(final TemporaryFolder testFolder) throws IOException {
-        reinitialiseGraph(testFolder, StreamUtil.SCHEMA, StreamUtil.STORE_PROPERTIES);
-    }
-
-    public void reinitialiseGraph(final TemporaryFolder testFolder, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
-        reinitialiseGraph(testFolder,
+    public void reinitialiseGraph(final File tempDir, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
+        reinitialiseGraph(tempDir,
                 Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
         );
     }
 
-    public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
-        FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
-                .toJson(true));
+    public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
+        FileUtils.writeByteArrayToFile(new File(testFolder, "/schema.json"), schema.toJson(true));
 
-        try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
+        try (OutputStream out = new FileOutputStream(new File(testFolder, "/store.properties"))) {
             storeProperties.getProperties()
                     .store(out, "This is an optional header comment string");
         }
 
-        // set properties for REST service
-        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
-        System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
-
+        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json");
         reinitialiseGraph();
     }
 
-    public void reinitialiseGraph(final Graph graph) throws IOException {
-        DefaultGraphFactory.setGraph(graph);
+    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
+        // set properties for REST service
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+    }
+
+    public void reinitialiseGraph(final Graph graph) {
+        defaultGraphFactory.setGraph(graph);
 
         startServer();
 
@@ -114,8 +130,7 @@ public abstract class RestApiTestClient {
         }
     }
 
-
-    public void reinitialiseGraph() throws IOException {
+    public void reinitialiseGraph() {
         defaultGraphFactory.setGraph(null);
 
         startServer();
@@ -145,15 +160,26 @@ public abstract class RestApiTestClient {
 
     public abstract Response getOperationDetails(final Class clazz) throws IOException;
 
-    public void startServer() throws IOException {
+    public void startServer() {
         if (null == server) {
-            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);
+            server = createHttpServer();
         }
     }
 
-    public void restartServer() throws IOException {
-        stopServer();
-        startServer();
+    private HttpServer createHttpServer() {
+
+        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString));
+        final String webappContextName = "WebappContext";
+        final WebappContext context = new WebappContext(webappContextName, "/".concat(fullPath));
+        context.addListener(ServletLifecycleListener.class.getName());
+
+        final String servletContainerName = "ServletContainer";
+        final ServletRegistration registration = context.addServlet(servletContainerName, new ServletContainer(new ResourceConfig(config)));
+        registration.addMapping("/*");
+
+        context.deploy(server);
+
+        return server;
     }
 
     public String getPath() {

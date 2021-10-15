@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,8 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
 public class GetElementsIT extends AbstractStoreIT {
@@ -97,7 +96,7 @@ public class GetElementsIT extends AbstractStoreIT {
             Arrays.asList(
                     (ElementId) new EdgeSeed(SOURCE_1, "dest2DoesNotExist", false),
                     new EdgeSeed("source2DoesNotExist", DEST_1, false),
-                    new EdgeSeed(SOURCE_1, DEST_1, true));// does not exist
+                    new EdgeSeed(SOURCE_1, DEST_1, true)); // does not exist
 
     public static final Collection<ElementId> ENTITY_SEEDS_DONT_EXIST =
             Collections.singletonList(
@@ -394,8 +393,8 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -418,8 +417,8 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -434,7 +433,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
-        assertFalse(results.iterator().hasNext());
+        assertThat(results.iterator().hasNext()).isFalse();
     }
 
     @Test
@@ -447,7 +446,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
-        assertFalse(results.iterator().hasNext());
+        assertThat(results.iterator().hasNext()).isFalse();
     }
 
     private void shouldGetElementsBySeed(final boolean includeEntities,

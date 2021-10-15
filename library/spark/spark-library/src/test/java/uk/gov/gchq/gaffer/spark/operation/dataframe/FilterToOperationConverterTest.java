@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
 import org.apache.spark.sql.sources.LessThan;
 import org.apache.spark.sql.sources.Or;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -48,10 +48,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilterToOperationConverterTest {
     private static final String ENTITY_GROUP = "BasicEntity";
@@ -72,8 +73,6 @@ public class FilterToOperationConverterTest {
 
         final Operation operation = converter.getOperation();
         assertNull(operation);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -91,8 +90,6 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfAllElements);
         assertEquals(Collections.singleton(ENTITY_GROUP), ((GraphFilters) operation).getView().getEntityGroups());
         assertEquals(0, ((GraphFilters) operation).getView().getEdgeGroups().size());
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -107,8 +104,6 @@ public class FilterToOperationConverterTest {
 
         final Operation operation = converter.getOperation();
         assertNull(operation);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -127,8 +122,6 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfAllElements);
         assertEquals(Collections.singleton(ENTITY_GROUP), ((GraphFilters) operation).getView().getEntityGroups());
         assertEquals(Collections.singleton(EDGE_GROUP2), ((GraphFilters) operation).getView().getEdgeGroups());
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -150,8 +143,6 @@ public class FilterToOperationConverterTest {
             seeds.add((EntitySeed) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -161,7 +152,7 @@ public class FilterToOperationConverterTest {
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter( getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(getViewFromSchema(schema),
                 schema, filters);
 
         Operation operation = converter.getOperation();
@@ -173,8 +164,6 @@ public class FilterToOperationConverterTest {
             seeds.add((EntitySeed) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -196,8 +185,6 @@ public class FilterToOperationConverterTest {
             seeds.add((EntitySeed) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -216,13 +203,13 @@ public class FilterToOperationConverterTest {
         View opView = ((GraphFilters) operation).getView();
         List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
-        assertEquals(1, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(1);
         assertArrayEquals(new String[]{"property1"}, entityPostAggFilters.get(0).getSelection());
         assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getPredicate());
         for (final String edgeGroup : EDGE_GROUPS) {
             final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
-            assertEquals(1, edgePostAggFilters.size());
+            assertThat(edgePostAggFilters).hasSize(1);
             assertArrayEquals(new String[]{"property1"}, edgePostAggFilters.get(0).getSelection());
             assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getPredicate());
         }
@@ -237,12 +224,12 @@ public class FilterToOperationConverterTest {
         opView = ((GraphFilters) operation).getView();
         entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
-        assertEquals(1, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(1);
         assertArrayEquals(new String[]{"property4"}, entityPostAggFilters.get(0).getSelection());
         assertEquals(new IsLessThan(8L, false), entityPostAggFilters.get(0).getPredicate());
         List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
-        assertEquals(1, edgePostAggFilters.size());
+        assertThat(edgePostAggFilters).hasSize(1);
         assertArrayEquals(new String[]{"property4"}, edgePostAggFilters.get(0).getSelection());
         assertEquals(new IsLessThan(8L, false), edgePostAggFilters.get(0).getPredicate());
 
@@ -257,13 +244,13 @@ public class FilterToOperationConverterTest {
         // Only groups ENTITY_GROUP and EDGE_GROUP should be in the view as only they have property1 and property4
         opView = ((GraphFilters) operation).getView();
         entityPostAggFilters = opView.getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
-        assertEquals(2, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(2);
         final ArrayList<String> expectedProperties = new ArrayList<>();
         expectedProperties.add("property1");
         expectedProperties.add("property4");
-        assertEquals(1, entityPostAggFilters.get(0).getSelection().length);
+        assertThat(entityPostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
-        assertEquals(1, entityPostAggFilters.get(1).getSelection().length);
+        assertThat(entityPostAggFilters.get(1).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection()[0]);
         final ArrayList<Predicate> expectedFunctions = new ArrayList<>();
         expectedFunctions.add(new IsMoreThan(5, false));
@@ -271,13 +258,11 @@ public class FilterToOperationConverterTest {
         assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
         assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
         edgePostAggFilters = opView.getEdge(EDGE_GROUP).getPostAggregationFilterFunctions();
-        assertEquals(2, edgePostAggFilters.size());
-        assertEquals(1, edgePostAggFilters.get(0).getSelection().length);
+        assertThat(edgePostAggFilters).hasSize(2);
+        assertThat(edgePostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), edgePostAggFilters.get(0).getSelection()[0]);
-        assertEquals(1, edgePostAggFilters.get(1).getSelection().length);
+        assertThat(edgePostAggFilters.get(1).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(1), edgePostAggFilters.get(1).getSelection()[0]);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -297,13 +282,13 @@ public class FilterToOperationConverterTest {
         View opView = ((GraphFilters) operation).getView();
         List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView.getEntity(ENTITY_GROUP)
                 .getPostAggregationFilterFunctions();
-        assertEquals(2, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(2);
         final ArrayList<String> expectedProperties = new ArrayList<>();
         expectedProperties.add("property1");
         expectedProperties.add("property4");
-        assertEquals(1, entityPostAggFilters.get(0).getSelection().length);
+        assertThat(entityPostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
-        assertEquals(1, entityPostAggFilters.get(1).getSelection().length);
+        assertThat(entityPostAggFilters.get(1).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection()[0]);
         final ArrayList<Predicate> expectedFunctions = new ArrayList<>();
         expectedFunctions.add(new IsMoreThan(5, false));
@@ -312,13 +297,11 @@ public class FilterToOperationConverterTest {
         assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
         final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
-        assertEquals(2, edgePostAggFilters.size());
-        assertEquals(1, edgePostAggFilters.get(0).getSelection().length);
+        assertThat(edgePostAggFilters).hasSize(2);
+        assertThat(edgePostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), edgePostAggFilters.get(0).getSelection()[0]);
-        assertEquals(1, edgePostAggFilters.get(1).getSelection().length);
+        assertThat(edgePostAggFilters.get(1).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(1), edgePostAggFilters.get(1).getSelection()[0]);
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -345,10 +328,10 @@ public class FilterToOperationConverterTest {
         View opView = ((GraphFilters) operation).getView();
         List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
-        assertEquals(1, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(1);
         final ArrayList<String> expectedProperties = new ArrayList<>();
         expectedProperties.add("property1");
-        assertEquals(1, entityPostAggFilters.get(0).getSelection().length);
+        assertThat(entityPostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
         final ArrayList<Predicate> expectedFunctions = new ArrayList<>();
         expectedFunctions.add(new IsMoreThan(5, false));
@@ -372,13 +355,13 @@ public class FilterToOperationConverterTest {
         opView = ((GraphFilters) operation).getView();
         entityPostAggFilters = opView.getEntity(ENTITY_GROUP)
                 .getPostAggregationFilterFunctions();
-        assertEquals(2, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(2);
         expectedProperties.clear();
         expectedProperties.add("property1");
         expectedProperties.add("property4");
-        assertEquals(1, entityPostAggFilters.get(0).getSelection().length);
+        assertThat(entityPostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
-        assertEquals(1, entityPostAggFilters.get(1).getSelection().length);
+        assertThat(entityPostAggFilters.get(1).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection()[0]);
 
         expectedFunctions.clear();
@@ -386,8 +369,6 @@ public class FilterToOperationConverterTest {
         expectedFunctions.add(new IsLessThan(8, false));
         assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
         assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
-
-        sparkSession.sparkContext().stop();
     }
 
     @Test
@@ -415,7 +396,7 @@ public class FilterToOperationConverterTest {
         for (final String edgeGroup : EDGE_GROUPS) {
             final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
-            assertEquals(1, edgePostAggFilters.size());
+            assertThat(edgePostAggFilters).hasSize(1);
             assertArrayEquals(new String[]{"property1"}, edgePostAggFilters.get(0).getSelection());
             assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getPredicate());
         }
@@ -439,18 +420,16 @@ public class FilterToOperationConverterTest {
         opView = ((GraphFilters) operation).getView();
         final List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEdge(EDGE_GROUP).getPostAggregationFilterFunctions();
-        assertEquals(2, entityPostAggFilters.size());
+        assertThat(entityPostAggFilters).hasSize(2);
         final List<String> expectedProperties = new ArrayList<>();
         expectedProperties.add("property1");
         expectedProperties.add("property4");
-        assertEquals(1, entityPostAggFilters.get(0).getSelection().length);
+        assertThat(entityPostAggFilters.get(0).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
         assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getPredicate());
-        assertEquals(1, entityPostAggFilters.get(1).getSelection().length);
+        assertThat(entityPostAggFilters.get(1).getSelection()).hasSize(1);
         assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection()[0]);
         assertEquals(new IsLessThan(8, false), entityPostAggFilters.get(1).getPredicate());
-
-        sparkSession.sparkContext().stop();
     }
 
     private Schema getSchema() {

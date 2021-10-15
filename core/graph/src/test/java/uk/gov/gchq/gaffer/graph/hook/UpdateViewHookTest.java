@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -42,13 +41,12 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
+public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook> {
 
     public static final String TEST_WITH_VALUE = "withTestValue";
     public static final String TEST_WITHOUT_VALUE = "withoutTestValue";
@@ -66,9 +64,11 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
     private Builder userBuilder;
     private UpdateViewHook updateViewHook;
 
-    public UpdateViewHookTest() { super(UpdateViewHook.class); }
+    public UpdateViewHookTest() {
+        super(UpdateViewHook.class);
+    }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         userAuths.clear();
         validAuths.clear();
@@ -116,13 +116,10 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertEquals(Sets.newHashSet("entity1"), opView.getView().getEntityGroups());
-            assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntityGroups()).containsExactly("entity1");
+        assertThat(((OperationView) op).getView().getEdgeGroups()).containsExactly("edge1");
     }
 
     @Test
@@ -141,13 +138,10 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
-            assertEquals(Sets.newHashSet("edge1"), opView.getView().getEdgeGroups());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntityGroups()).isEmpty();
+        assertThat(((OperationView) op).getView().getEdgeGroups()).containsExactly("edge1");
     }
 
     @Test
@@ -168,13 +162,10 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertEquals(Sets.newHashSet("entity1", "entity2"), opView.getView().getEntityGroups());
-            assertEquals(Sets.newHashSet("edge1", "edge2"), opView.getView().getEdgeGroups());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntityGroups()).containsExactly("entity1", "entity2");
+        assertThat(((OperationView) op).getView().getEdgeGroups()).containsExactly("edge1", "edge2");
     }
 
     @Test
@@ -191,13 +182,10 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertEquals(Sets.newHashSet(), opView.getView().getEntityGroups());
-            assertEquals(Sets.newHashSet(), opView.getView().getEdgeGroups());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntityGroups()).isEmpty();
+        assertThat(((OperationView) op).getView().getEdgeGroups()).isEmpty();
     }
 
     @Test
@@ -208,12 +196,9 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         opChain = new OperationChain<>(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User()));
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertNull(opView.getView());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView()).isNull();
     }
 
     @Test
@@ -224,12 +209,9 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         opChain = new OperationChain(new GetAllElements());
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertTrue(opView.getView().getGroups().contains("testGroup"));
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getGroups()).contains("testGroup");
     }
 
     @Test
@@ -295,13 +277,11 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertTrue(opView.getView().getEntities().keySet().contains("white2"));
-            assertEquals(1, opView.getView().getEntities().keySet().size());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntities().keySet())
+                .containsExactly("white2")
+                .hasSize(1);
     }
 
     @Test
@@ -319,14 +299,11 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertTrue(opView.getView().getEntities().keySet().contains("white2"));
-            assertTrue(opView.getView().getEntities().keySet().contains("white1"));
-            assertEquals(2, opView.getView().getEntities().keySet().size());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntities().keySet())
+                .contains("white1", "white2")
+                .hasSize(2);
     }
 
 
@@ -344,13 +321,11 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.preExecute(opChain, new Context(new User.Builder().opAuth("opA").build()));
 
         Object op = opChain.getOperations().get(0);
-        if (op instanceof OperationView) {
-            OperationView opView = (OperationView) op;
-            assertTrue(opView.getView().getEntities().keySet().contains("white2"));
-            assertEquals(1, opView.getView().getEntities().keySet().size());
-        } else {
-            fail("unexpected operation found.");
-        }
+
+        assertThat(op).isInstanceOf(OperationView.class);
+        assertThat(((OperationView) op).getView().getEntities().keySet())
+                .hasSize(1)
+                .containsExactly("white2");
     }
 
     @Test
@@ -358,7 +333,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         GetAllElements operationView = new GetAllElements();
         operationView.setView(new View());
         View view = updateViewHook.mergeView(operationView, null).build();
-        assertTrue(view.getGroups().isEmpty());
+        assertThat(view.getGroups()).isEmpty();
     }
 
     @Test
@@ -367,8 +342,9 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         operationView.setView(new View());
         View view = updateViewHook.mergeView(operationView, viewToMerge).build();
         Set<String> groups = view.getGroups();
-        assertFalse(groups.isEmpty());
-        assertTrue(groups.contains("testGroup"));
+        assertThat(groups)
+                .isNotEmpty()
+                .contains("testGroup");
     }
 
     @Test
@@ -396,8 +372,8 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
     public void shouldPassWithOnlyData() throws Exception {
         updateViewHook.setWithOpAuth(null);
 
-        assertTrue("updateViewHook.getWithOpAuth() needs to be empty for this test",
-                updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty());
+        assertTrue(updateViewHook.getWithOpAuth() == null || updateViewHook.getWithOpAuth().isEmpty(),
+                "updateViewHook.getWithOpAuth() needs to be empty for this test");
         userDataAuths.add("dA");
         dataAuths.add("dA");
 
@@ -555,10 +531,10 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
 
         byte[] serialise = JSONSerialiser.serialise(updateViewHook, true);
         String s = new String(serialise);
-        assertTrue(s, s.contains(TEST_EDGE));
+        assertTrue(s.contains(TEST_EDGE), s);
 
         UpdateViewHook deserialise = JSONSerialiser.deserialise(serialise, UpdateViewHook.class);
-        assertTrue(deserialise.getViewToMerge().equals(viewToMerge));
+        assertEquals(deserialise.getViewToMerge(), viewToMerge);
     }
 
     public static final String TEST_KEY = "testKey";
@@ -569,7 +545,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+        assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
@@ -577,7 +553,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         UpdateViewHook updateViewHook = new UpdateViewHook();
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertFalse(updateViewHook.removeElementGroups(getEntry()));
+        assertFalse(updateViewHook.removeElementGroups(getEntry()));
     }
 
 
@@ -587,7 +563,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+        assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
@@ -596,7 +572,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(TEST_KEY));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(OTHER));
 
-        Assert.assertFalse(updateViewHook.removeElementGroups(getEntry()));
+        assertFalse(updateViewHook.removeElementGroups(getEntry()));
     }
 
     @Test
@@ -605,7 +581,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
         updateViewHook.setWhiteListElementGroups(Sets.newHashSet(OTHER));
         updateViewHook.setBlackListElementGroups(Sets.newHashSet(TEST_KEY));
 
-        Assert.assertTrue(updateViewHook.removeElementGroups(getEntry()));
+        assertTrue(updateViewHook.removeElementGroups(getEntry()));
     }
 
 
@@ -677,5 +653,7 @@ public class UpdateViewHookTest extends GraphHookTest<UpdateViewHook>{
     }
 
     @Override
-    protected UpdateViewHook getTestObject() { return new UpdateViewHook(); }
+    protected UpdateViewHook getTestObject() {
+        return new UpdateViewHook();
+    }
 }

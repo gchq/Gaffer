@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.google.common.collect.Sets;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -52,13 +51,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.lenient;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -66,7 +66,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GraphConfigurationServiceV2Test {
 
     private static final String GRAPH_ID = "graphId";
@@ -83,30 +83,31 @@ public class GraphConfigurationServiceV2Test {
     @Mock
     private Store store;
 
-    @Before
+    @BeforeEach
     public void setup() {
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
-        given(store.getSchema()).willReturn(new Schema());
-        given(store.getProperties()).willReturn(new StoreProperties());
+        lenient().when(store.getSchema()).thenReturn(new Schema());
+        lenient().when(store.getProperties()).thenReturn(new StoreProperties());
+        lenient().when(store.getGraphId()).thenReturn(GRAPH_ID);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
+                        .graphId(GRAPH_ID) // This graphId is not used as store is mocked
                         .build())
                 .description("test graph")
                 .store(store)
                 .build();
         final StoreProperties props = new StoreProperties();
-        given(store.getProperties()).willReturn(props);
+        lenient().when(store.getProperties()).thenReturn(props);
 
         final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
-        given(graphFactory.getGraph()).willReturn(graph);
-        given(graph.getSupportedOperations()).willReturn(operations);
-        given(graph.isSupported(AddElements.class)).willReturn(true);
+        lenient().when(graphFactory.getGraph()).thenReturn(graph);
+        lenient().when(graph.getSupportedOperations()).thenReturn(operations);
+        lenient().when(graph.isSupported(AddElements.class)).thenReturn(true);
 
-        given(userFactory.createContext()).willReturn(new Context());
+        lenient().when(userFactory.createContext()).thenReturn(new Context());
 
-        given(graph.getStoreTraits()).willReturn(traits);
+        lenient().when(graph.getStoreTraits()).thenReturn(traits);
     }
 
     @Test
@@ -121,12 +122,23 @@ public class GraphConfigurationServiceV2Test {
     }
 
     @Test
+    public void shouldReturnGraphId() {
+        // When
+        final int status = service.getGraphId().getStatus();
+        final String graphId = service.getGraphId().getEntity().toString();
+
+        // Then
+        assertEquals(200, status);
+        assertEquals(GRAPH_ID, graphId);
+    }
+
+    @Test
     public void shouldGetFilterFunctions() {
         // When
         final Set<Class> classes = (Set<Class>) service.getFilterFunction(null).getEntity();
 
         // Then
-        assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
+        assertThat(classes).contains(IsA.class);
     }
 
     @Test
@@ -135,20 +147,15 @@ public class GraphConfigurationServiceV2Test {
         final Set<Class> classes = (Set<Class>) service.getFilterFunction(Long.class.getName()).getEntity();
 
         // Then
-        assertThat(classes, IsCollectionContaining.hasItem(IsLessThan.class));
-        assertThat(classes, IsCollectionContaining.hasItem(IsMoreThan.class));
-        assertThat(classes, IsCollectionContaining.hasItem(Not.class));
+        assertThat(classes).contains(IsLessThan.class, IsMoreThan.class, Not.class);
     }
 
     @Test
     public void shouldThrowExceptionWhenGetFilterFunctionsWithUnknownClassName() {
         // When / Then
-        try {
-            service.getFilterFunction("unknown className");
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Input class was not recognised:"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> service.getFilterFunction("unknown className"))
+                .withMessageContaining("Input class was not recognised:");
     }
 
     @Test
@@ -157,8 +164,9 @@ public class GraphConfigurationServiceV2Test {
         final Set<String> fields = (Set<String>) service.getSerialisedFields(IsA.class.getName()).getEntity();
 
         // Then
-        assertEquals(1, fields.size());
-        assertTrue(fields.contains("type"));
+        assertThat(fields)
+                .hasSize(1)
+                .contains("type");
     }
 
     @Test
@@ -206,8 +214,10 @@ public class GraphConfigurationServiceV2Test {
         final Map<String, String> expectedFields = new HashMap<>();
         expectedFields.put("operations", "java.util.List<uk.gov.gchq.gaffer.operation.io.Output<java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>>>");
         expectedFields.put("input", "java.lang.Object[]");
+        expectedFields.put("includePartial", "java.lang.Boolean");
         expectedFields.put("options", "java.util.Map<java.lang.String,java.lang.String>");
         expectedFields.put("resultsLimit", Integer.class.getName());
+        expectedFields.put("conditional", "uk.gov.gchq.gaffer.operation.util.Conditional");
 
         // Then
         assertEquals(expectedFields, fields);
@@ -232,13 +242,19 @@ public class GraphConfigurationServiceV2Test {
 
         // Then
         assertNotNull(traits);
-        assertEquals("Collection size should be 6", 6, traits.size());
-        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION));
-        assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
-        assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
-        assertTrue("Collection should contain TRANSFORMATION trait", traits.contains(TRANSFORMATION));
-        assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
+        assertEquals(6, traits.size(), "Collection size should be 6");
+        assertTrue(traits.contains(INGEST_AGGREGATION),
+                "Collection should contain INGEST_AGGREGATION trait");
+        assertTrue(traits.contains(PRE_AGGREGATION_FILTERING),
+                "Collection should contain PRE_AGGREGATION_FILTERING trait");
+        assertTrue(traits.contains(POST_AGGREGATION_FILTERING),
+                "Collection should contain POST_AGGREGATION_FILTERING trait");
+        assertTrue(traits.contains(POST_TRANSFORMATION_FILTERING),
+                "Collection should contain POST_TRANSFORMATION_FILTERING trait");
+        assertTrue(traits.contains(TRANSFORMATION),
+                "Collection should contain TRANSFORMATION trait");
+        assertTrue(traits.contains(STORE_VALIDATION),
+                "Collection should contain STORE_VALIDATION trait");
     }
 
     @Test

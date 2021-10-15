@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 
@@ -36,14 +36,15 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class SchemaElementDefinitionValidatorTest {
+
     @Test
     public void shouldValidateComponentTypesAndReturnTrueWhenNoIdentifiersOrProperties() {
         // Given
@@ -444,7 +445,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
+                "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -513,7 +514,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [stringProperty, timestamp], is aggregated by: " + function1.getClass().getName()
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [stringProperty, timestamp], is aggregated by: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -549,7 +550,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -582,7 +583,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "ElementAggregator contains a null function."
+                "ElementAggregator contains a null function."
                 ),
                 result.getErrors());
     }
@@ -616,7 +617,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
+                "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
                 ),
                 result.getErrors());
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -23,10 +23,11 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
+import java.util.Collections;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -34,52 +35,40 @@ public class ExtractPropertyTest extends FunctionTest {
 
     @Test
     public void shouldReturnNullForNullElement() {
-        // Given
         final ExtractProperty extractor = new ExtractProperty();
 
-        // When
         final Object result = extractor.apply(null);
 
-        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldReturnNullWithNoNameProvided() {
-        // Given
         final Element element = mock(Element.class);
-
         final ExtractProperty extractor = new ExtractProperty();
 
-        // When
         final Object result = extractor.apply(element);
 
-        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldReturnNullWhenNameNotFoundInElementProperties() {
-        // Given
         final Element element = mock(Element.class);
         final String propName = "absentProperty";
 
         final ExtractProperty extractor = new ExtractProperty(propName);
 
-        // When
         final Object result = extractor.apply(element);
 
-        // Then
         assertNull(result);
     }
 
     @Test
     public void shouldReturnValueOfProperty() {
-        // Given
         final Element element = mock(Element.class);
         final String propName = "presentProperty";
         final int propValue = 3;
-
         final ExtractProperty extractor = new ExtractProperty(propName);
 
         given(element.getProperty(propName)).willReturn(propValue);
@@ -97,24 +86,35 @@ public class ExtractPropertyTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<ExtractProperty> getDifferentInstancesOrNull() {
+        return Collections.singletonList(new ExtractProperty("property"));
+    }
+
+    @Override
     protected Class<? extends Function> getFunctionClass() {
         return ExtractProperty.class;
     }
 
     @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Element.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Test
+    @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
-        // Given
         final ExtractProperty function = getInstance();
 
-        // When
         final byte[] json = JSONSerialiser.serialise(function);
         final ExtractProperty deserialisedObj = JSONSerialiser.deserialise(json, ExtractProperty.class);
 
-        // Then
-        JsonAssert.assertEquals(
-                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\"name\":\"count\"}",
-                new String(json)
-        );
+        final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.ExtractProperty\",\"name\":\"count\"}";
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertEquals("count", deserialisedObj.getName());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,7 @@ public class AddElementsFromHdfs implements
 
     private Class<? extends Partitioner> partitioner;
     private Map<String, String> options;
+    private String[] commandLineArgs;
 
     public String getFailurePath() {
         return failurePath;
@@ -233,6 +234,16 @@ public class AddElementsFromHdfs implements
         this.partitioner = partitioner;
     }
 
+    @Override
+    public String[] getCommandLineArgs() {
+        return commandLineArgs;
+    }
+
+    @Override
+    public void setCommandLineArgs(final String[] commandLineArgs) {
+        this.commandLineArgs = commandLineArgs;
+    }
+
     public String getWorkingPath() {
         return workingPath;
     }
@@ -269,6 +280,7 @@ public class AddElementsFromHdfs implements
                 .useProvidedSplits(useProvidedSplits)
                 .splitsFilePath(splitsFilePath)
                 .partitioner(partitioner)
+                .commandLineArgs(commandLineArgs)
                 .options(options)
                 .build();
     }

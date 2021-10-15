@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.time;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
@@ -31,11 +31,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
@@ -43,7 +44,7 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     private Instant instant1;
     private Instant instant2;
 
-    @Before
+    @BeforeEach
     public void setup() {
         instant1 = Instant.now();
         instant2 = instant1.plus(Duration.ofDays(100L));
@@ -140,13 +141,9 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
         timestampSet.add(instant1.plus(Duration.ofDays(100L)));
 
         // When / Then
-
-        try {
-            timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofDays(150L)).toEpochMilli(), instant1.plus(Duration.ofDays(50L)).toEpochMilli());
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("The start time should not be chronologically later than the end time", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> timestampSet.applyTimeRangeMask(instant1.plus(Duration.ofDays(150L)).toEpochMilli(), instant1.plus(Duration.ofDays(50L)).toEpochMilli()))
+                .withMessage("The start time should not be chronologically later than the end time");
     }
 
     @Test
@@ -265,7 +262,7 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
         assertEquals(datesTruncatedToBucket.size(), instants.size());
         final Iterator<Instant> it = instants.iterator();
         for (final long l : datesTruncatedToBucket) {
-            assertEquals(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, bucket)), it.next());
+            assertThat(it.next()).isEqualTo(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, bucket)));
         }
     }
 

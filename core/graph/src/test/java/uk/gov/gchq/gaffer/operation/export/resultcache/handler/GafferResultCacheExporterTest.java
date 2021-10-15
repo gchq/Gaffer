@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -46,15 +46,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class GafferResultCacheExporterTest {
+
     private final User user = new User.Builder()
             .userId("user01")
             .opAuths("1", "2", "3")
@@ -64,12 +66,12 @@ public class GafferResultCacheExporterTest {
     private final String key = "key";
     private final Store store = mock(Store.class);
     private final String visibility = "visibility value";
-    private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[]{"1", "2"});
+    private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[] {"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
     private Graph resultCache;
 
-    @Before
+    @BeforeEach
     public void before() {
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
@@ -94,7 +96,7 @@ public class GafferResultCacheExporterTest {
         // Then
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(store).execute(opChain.capture(), Mockito.any(Context.class));
-        assertEquals(1, opChain.getValue().getOperations().size());
+        assertThat(opChain.getValue().getOperations()).hasSize(1);
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
@@ -110,7 +112,7 @@ public class GafferResultCacheExporterTest {
     }
 
     @Test
-    public void shouldAddNotErrorWhenAddingANullResult() throws OperationException, SerialisationException {
+    public void shouldAddNotErrorWhenAddingANullResult() throws OperationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
                 context, jobId, resultCache, visibility, requiredOpAuths
@@ -124,7 +126,7 @@ public class GafferResultCacheExporterTest {
     }
 
     @Test
-    public void shouldGetResults() throws OperationException, SerialisationException {
+    public void shouldGetResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         long timestamp = System.currentTimeMillis();
@@ -143,7 +145,7 @@ public class GafferResultCacheExporterTest {
     }
 
     @Test
-    public void shouldGetEmptyResults() throws OperationException, SerialisationException {
+    public void shouldGetEmptyResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         given(store.execute(opChain.capture(), Mockito.any(Context.class))).willReturn(null);

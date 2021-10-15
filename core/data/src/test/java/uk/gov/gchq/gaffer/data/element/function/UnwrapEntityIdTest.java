@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.data.element.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -24,13 +24,14 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class UnwrapEntityIdTest extends FunctionTest {
+
     @Test
     public void shouldReturnNullForNullValue() {
         // Given
@@ -58,17 +59,14 @@ public class UnwrapEntityIdTest extends FunctionTest {
 
     @Test
     public void shouldUnwrapEntityIds() {
-        // Given
         final EntityId value = mock(EntityId.class);
         final Object vertex = mock(Object.class);
         given(value.getVertex()).willReturn(vertex);
 
         final UnwrapEntityId function = new UnwrapEntityId();
 
-        // When
         final Object result = function.apply(value);
 
-        // Then
         assertSame(vertex, result);
     }
 
@@ -78,10 +76,26 @@ public class UnwrapEntityIdTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable<UnwrapEntityId> getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<? extends UnwrapEntityId> getFunctionClass() {
         return UnwrapEntityId.class;
     }
 
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -92,10 +106,8 @@ public class UnwrapEntityIdTest extends FunctionTest {
         final UnwrapEntityId deserialisedObj = JSONSerialiser.deserialise(json, UnwrapEntityId.class);
 
         // Then
-        JsonAssert.assertEquals(
-                "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}",
-                new String(json)
-        );
+        final String expectedJson = "{\"class\":\"uk.gov.gchq.gaffer.data.element.function.UnwrapEntityId\"}";
+        JsonAssert.assertEquals(expectedJson, new String(json));
         assertNotNull(deserialisedObj);
     }
 }

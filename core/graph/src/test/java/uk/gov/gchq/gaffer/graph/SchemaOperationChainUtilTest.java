@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -34,11 +34,13 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class SchemaOperationChainUtilTest {
+
     Graph graph;
     final StoreProperties storeProperties = new StoreProperties();
     final Schema schema = new Schema.Builder()
@@ -57,7 +59,7 @@ public class SchemaOperationChainUtilTest {
                     .directed(DIRECTED_EITHER)
                     .build())
             .build();
-    final String GRAPH_ID = "graphId";
+    private static final String GRAPH_ID = "graphId";
     final View view = new View.Builder().allEdges(true).build();
     final OperationChain validOperationChain = new OperationChain.Builder()
             .first(new AddElements())
@@ -68,7 +70,7 @@ public class SchemaOperationChainUtilTest {
             .then(new GetElements())
             .build();
 
-    @Before
+    @BeforeEach
     public void setup() {
         storeProperties.setStoreClass(TestStore.class);
         graph = new Graph.Builder()
@@ -84,7 +86,7 @@ public class SchemaOperationChainUtilTest {
     @Test
     public void shouldValidateValidOperationChainAgainstSchema() {
         // When
-        ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain);
+        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, validOperationChain);
 
         // Then
         assertTrue(validationResult.isValid());
@@ -93,11 +95,12 @@ public class SchemaOperationChainUtilTest {
     @Test
     public void shouldValidateInvalidOperationChainAgainstSchema() {
         // When
-        ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain);
+        final ValidationResult validationResult = SchemaOperationChainUtil.validate(schema, invalidOperationChain);
 
         // Then
         assertFalse(validationResult.isValid());
-        assertTrue(validationResult.getErrorString().contains("elementGenerator is required for: AddElementsFromSocket"));
-        assertTrue(validationResult.getErrorString().contains("hostname is required for: AddElementsFromSocket"));
+        assertThat(validationResult.getErrorString())
+                .contains("elementGenerator is required for: AddElementsFromSocket")
+                .contains("hostname is required for: AddElementsFromSocket");
     }
 }

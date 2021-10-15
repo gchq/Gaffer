@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -34,12 +34,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddElementsTest extends OperationTest<AddElements> {
+
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
             "  \"validate\" : true,%n" +
@@ -63,6 +65,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
             "  } ]%n" +
             "}");
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -140,10 +143,8 @@ public class AddElementsTest extends OperationTest<AddElements> {
 
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
-        // Given
-
-        // When
-        AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
+        // Given / When
+        final AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
 
         // Then
         final Iterator<? extends Element> itr = addElements.getInput().iterator();
@@ -160,24 +161,28 @@ public class AddElementsTest extends OperationTest<AddElements> {
         assertEquals(1, elm2.getProperties().size());
         assertEquals("property 2 value", elm2.getProperty("property 2"));
 
-        assertFalse(itr.hasNext());
+        assertThat(itr).isExhausted();
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element element = new Edge.Builder().group("testEdgeGroup").build();
-        AddElements addElements = new AddElements.Builder()
+        // Given
+        final Element element = new Edge.Builder().group("testEdgeGroup").build();
+
+        // When
+        final AddElements addElements = new AddElements.Builder()
                 .input(element)
                 .skipInvalidElements(true)
                 .option("testOption", "true")
                 .validate(false)
                 .build();
 
+        // Then
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());
         assertFalse(addElements.isValidate());
-        assertEquals(element, addElements.getInput().iterator().next());
+        assertThat(addElements.getInput().iterator().next()).isEqualTo(element);
     }
 
     @Override

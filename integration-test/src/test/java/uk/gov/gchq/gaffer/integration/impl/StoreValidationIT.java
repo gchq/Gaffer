@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2021 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
@@ -21,8 +37,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StoreValidationIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
@@ -51,8 +66,8 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // Then 1
         final List<Element> results1List = Lists.newArrayList(results1);
-        assertEquals(1, results1List.size());
-        assertEquals(VERTEX, ((Entity) results1List.get(0)).getVertex());
+        assertThat(results1List).hasSize(1);
+        assertThat(((Entity) results1List.get(0)).getVertex()).isEqualTo(VERTEX);
 
 
         // Wait until after the age off time
@@ -70,7 +85,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // Then 2
         final List<Element> results2List = Lists.newArrayList(results2);
-        assertTrue(results2List.isEmpty());
+        assertThat(results2List).isEmpty();
     }
 
     @Test
@@ -97,6 +112,6 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // Then
         final List<Element> results1List = Lists.newArrayList(results1);
-        assertTrue(results1List.isEmpty());
+        assertThat(results1List).isEmpty();
     }
 }

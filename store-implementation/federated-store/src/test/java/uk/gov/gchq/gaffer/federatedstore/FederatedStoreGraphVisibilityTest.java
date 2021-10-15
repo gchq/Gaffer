@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -37,9 +38,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -58,7 +59,10 @@ public class FederatedStoreGraphVisibilityTest {
     private FederatedStoreProperties fedProperties;
     private HashMapGraphLibrary library;
 
-    @Before
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+
+    @BeforeEach
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
         CacheServiceLoader.shutdown();
@@ -72,6 +76,11 @@ public class FederatedStoreGraphVisibilityTest {
         library = new HashMapGraphLibrary();
     }
 
+    @AfterAll
+    public static void tearDownCache() {
+        CacheServiceLoader.shutdown();
+    }
+
     @Test
     public void shouldNotShowHiddenGraphIdWithIDs() throws Exception {
 
@@ -82,11 +91,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
-
-        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
+        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, PROPERTIES);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
@@ -119,7 +124,7 @@ public class FederatedStoreGraphVisibilityTest {
 
     /*
      * Adhoc test to make sure that the naming of props and schemas without ID's
-     * is still retrievable via the name of the graph that is was added to the library.
+     * is still retrievable via the name of the graph that is was added to the LIBRARY.
      */
     @Test
     public void shouldNotShowHiddenGraphIdWithoutIDs() throws Exception {
@@ -130,11 +135,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .type("string", String.class)
                 .build();
 
-        final AccumuloProperties accProp = new AccumuloProperties(); // <- without ID
-        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
-        accProp.setStorePropertiesClass(AccumuloProperties.class);
-
-        library.add(TEST_GRAPH_ID, aSchema, accProp);
+        library.add(TEST_GRAPH_ID, aSchema, PROPERTIES);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
@@ -177,8 +178,8 @@ public class FederatedStoreGraphVisibilityTest {
             sets.add(iterator.next());
         }
 
-        assertNotNull("Returned iterator should not be null, it should be empty.", graphIds);
-        assertEquals("Showing hidden graphId", 0, sets.size());
+        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
+        assertEquals(0, sets.size(), "Showing hidden graphId");
 
 
         graphIds = fedGraph.execute(
@@ -191,9 +192,9 @@ public class FederatedStoreGraphVisibilityTest {
             sets.add(iterator.next());
         }
 
-        assertNotNull("Returned iterator should not be null, it should be empty.", graphIds);
-        assertEquals("Not Showing graphId with correct auth", 1, sets.size());
-        assertTrue(sets.contains("g2"));
+        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
+        assertEquals(1, sets.size(), "Not Showing graphId with correct auth");
+        assertThat(sets).contains("g2");
 
 
         graphIds = fedGraph.execute(
@@ -207,10 +208,9 @@ public class FederatedStoreGraphVisibilityTest {
             sets.add(iterator.next());
         }
 
-        assertNotNull("Returned iterator should not be null, it should be empty.", graphIds);
-        assertEquals("Not Showing all graphId for adding user", 2, sets.size());
-        assertTrue(sets.contains("g1"));
-        assertTrue(sets.contains("g2"));
+        assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
+        assertEquals(2, sets.size(), "Not Showing all graphId for adding user");
+        assertThat(sets).contains("g1", "g2");
     }
 
 

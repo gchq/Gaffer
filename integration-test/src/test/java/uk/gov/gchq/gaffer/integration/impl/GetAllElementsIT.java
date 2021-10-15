@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -35,23 +34,29 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.function.ApplyBiFunction;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetAllElementsIT extends AbstractStoreIT {
     @Override
@@ -112,9 +117,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(2, resultList.size());
-        assertThat(resultList, IsCollectionContaining.hasItems(
-                (Element) edge1, edge2));
+        assertThat(resultList).hasSize(2)
+                .contains((Element) edge1, edge2);
     }
 
     @Test
@@ -131,9 +135,9 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(getEntities().size(), resultList.size());
+        assertThat(resultList).hasSize(getEntities().size());
         for (final Element element : resultList) {
-            assertEquals(TestGroups.ENTITY, element.getGroup());
+            assertThat(element.getGroup()).isEqualTo(TestGroups.ENTITY);
         }
     }
 
@@ -156,8 +160,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        assertEquals("A1", ((Entity) resultList.get(0)).getVertex());
+        assertThat(resultList).hasSize(1);
+        assertThat(((Entity) resultList.get(0)).getVertex()).isEqualTo("A1");
     }
 
     @Test
@@ -186,11 +190,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertEquals(1, resultList.size());
-        assertEquals(
-                "A1,[3]",
-                resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1)
-        );
+        assertThat(resultList).hasSize(1);
+        assertThat(resultList.get(0).getProperties()).containsEntry(TestPropertyNames.TRANSIENT_1, "A1,[3]");
     }
 
     @Test
@@ -211,8 +212,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -234,8 +235,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -277,11 +278,11 @@ public class GetAllElementsIT extends AbstractStoreIT {
             final ElementId seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;
-                assertTrue("Entity was not expected: " + entity, expectedElements.contains(entity));
+                assertThat(expectedElements).as("Entity was not expected: " + entity).contains(entity);
             } else {
                 Edge edge = (Edge) result;
                 if (edge.isDirected()) {
-                    assertTrue("Edge was not expected: " + edge, expectedElements.contains(edge));
+                    assertThat(expectedElements).as("Edge was not expected: " + edge).contains(edge);
                 } else {
                     final Edge edgeReversed = new Edge.Builder()
                             .group(TestGroups.EDGE)
@@ -290,13 +291,54 @@ public class GetAllElementsIT extends AbstractStoreIT {
                             .directed(edge.isDirected())
                             .build();
                     expectedElementsCopy.remove(edgeReversed);
-                    assertTrue("Edge was not expected: " + seed, expectedElements.contains(result) || expectedElements.contains(edgeReversed));
+                    assertThat(expectedElements.contains(result) || expectedElements.contains(edgeReversed)).as("Edge was not expected: " + seed).isTrue();
                 }
             }
             expectedElementsCopy.remove(result);
         }
 
-        assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy, expectedElements.size(),
-                Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).as("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy).hasSameSizeAs(expectedElements);
+    }
+
+    @Test
+    @TraitRequirement({StoreTrait.TRANSFORMATION})
+    public void shouldAllowBiFunctionInView() throws OperationException {
+
+        final Map<String, Class<?>> transientProperties = new HashMap<>();
+        transientProperties.put("propLong", Long.class);
+        transientProperties.put("combined", Long.class);
+
+        final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions = new ArrayList<>();
+
+        final TupleAdaptedFunction<String, Integer, Long> convertToLong = new TupleAdaptedFunction<>();
+        convertToLong.setSelection(new String[]{TestPropertyNames.INT});
+        convertToLong.setFunction((Function) new ToLong());
+        convertToLong.setProjection(new String[]{"propLong"});
+
+        final TupleAdaptedFunction<String, Integer, Long> sum = new TupleAdaptedFunction<>();
+        sum.setSelection(new String[]{"propLong", TestPropertyNames.COUNT});
+        sum.setFunction(new ApplyBiFunction(new Sum()));
+        sum.setProjection(new String[]{"combined"});
+
+        transformFunctions.add(convertToLong);
+        transformFunctions.add(sum);
+
+        final GetAllElements get = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .transientProperties(transientProperties)
+                                .addTransformFunctions(transformFunctions)
+                                .build())
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> results = graph.execute(get, user);
+
+        for (final Element result : results) {
+
+            final Long expectedResult = (Long) result.getProperty("propLong") + (Long) result.getProperty(TestPropertyNames.COUNT);
+            final Long combined = (Long) result.getProperty("combined");
+            assertThat(combined).isEqualTo(expectedResult);
+        }
     }
 }

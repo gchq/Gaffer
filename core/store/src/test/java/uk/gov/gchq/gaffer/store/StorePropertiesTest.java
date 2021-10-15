@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.databind.Module;
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
@@ -29,13 +29,13 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class StorePropertiesTest {
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void cleanUp() {
         ReflectionUtil.resetReflectionPackages();
     }
@@ -187,10 +187,8 @@ public class StorePropertiesTest {
         props.setJsonSerialiserModules(modules);
 
         // Then
-        assertEquals(
-                TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(),
-                props.getJsonSerialiserModules()
-        );
+        final String expected = TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName();
+        assertEquals(expected, props.getJsonSerialiserModules());
     }
 
     @Test

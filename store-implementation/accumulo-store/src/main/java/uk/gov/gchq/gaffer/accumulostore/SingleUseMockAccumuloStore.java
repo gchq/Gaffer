@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * provide a {@link org.apache.accumulo.core.client.Connector}.
  * For the SingleUseMockAccumuloStore each time initialise is called the underlying table as set in the store properties
  * is deleted.
+ *
+ * @deprecated Use the SingleUseMapStore for in memory graphs.
  */
+@Deprecated
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)

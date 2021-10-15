@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,16 +11,14 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -49,19 +47,17 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public abstract class AbstractOperationsTest extends StandaloneIT {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     protected User user = getUser();
 
@@ -93,6 +89,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
     protected abstract Edge getEdgeWithIdenticalSrcAndDst();
 
+    @TempDir
+    Path tempDir;
+
     @Override
     public User getUser() {
         return new User();
@@ -101,7 +100,7 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
     @Override
     public StoreProperties createStoreProperties() {
         try {
-            return TestUtils.getParquetStoreProperties(testFolder);
+            return TestUtils.getParquetStoreProperties(tempDir);
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -345,12 +344,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
-            fail("IllegalArgumentException Exception: POST_AGGREGATION_FILTERING expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("POST_AGGREGATION_FILTERING"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user))
+                .withMessageContaining("POST_AGGREGATION_FILTERING");
     }
 
     @Test
@@ -371,12 +367,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user);
-            fail("IllegalArgumentException Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("POST_TRANSFORMATION_FILTERING"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), user))
+                .withMessageContaining("POST_TRANSFORMATION_FILTERING");
     }
 
     @Test
@@ -420,9 +413,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
         // Then1
         Iterator<? extends Element> resultsIterator = results.iterator();
-        assertTrue(resultsIterator.hasNext());
-        assertEquals(edge, resultsIterator.next());
-        assertFalse(resultsIterator.hasNext());
+        assertThat(resultsIterator).hasNext();
+        assertThat(resultsIterator.next()).isEqualTo(edge);
+        assertThat(resultsIterator).isExhausted();
         results.close();
 
         // When2
@@ -430,9 +423,9 @@ public abstract class AbstractOperationsTest extends StandaloneIT {
 
         // Then2
         resultsIterator = results.iterator();
-        assertTrue(resultsIterator.hasNext());
-        assertEquals(edge, resultsIterator.next());
-        assertFalse(resultsIterator.hasNext());
+        assertThat(resultsIterator).hasNext();
+        assertThat(resultsIterator.next()).isEqualTo(edge);
+        assertThat(resultsIterator).isExhausted();
         results.close();
     }
 }

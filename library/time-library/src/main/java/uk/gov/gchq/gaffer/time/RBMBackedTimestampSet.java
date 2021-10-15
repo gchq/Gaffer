@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,12 +151,18 @@ public class RBMBackedTimestampSet implements TimestampSet {
             startTime = toInt(getEarliest().toEpochMilli());
         } else {
             startTime = toInt(startMillis);
+            if (startMillis > 0 && startTime < 0) {
+                throw new RuntimeException("Failed to convert start time to " + timeBucket.name() + " as the resulting value was outside the range of Integer");
+            }
         }
 
         if (endMillis == null) {
             endTime = toInt(getLatest().toEpochMilli());
         } else {
             endTime = toInt(endMillis);
+            if (endMillis > 0 && endTime < 0) {
+                throw new RuntimeException("Failed to convert end time to " + timeBucket.name() + " as the resulting value was outside the range of Integer");
+            }
         }
 
         RoaringBitmap timeRange = new RoaringBitmap();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetVariables;
@@ -28,11 +28,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetVariablesHandlerTest {
+
     private final Store store = mock(Store.class);
     private final String key1 = "key1";
     private final String val1 = "val1";
@@ -41,10 +42,10 @@ public class GetVariablesHandlerTest {
     private final String key3 = "key3";
     private final String val3 = "val3";
 
-
     @Test
     public void shouldGetAllVariableValuesWhenAllPresent() throws OperationException {
         final Context context = mock(Context.class);
+        // Given
         given(context.getVariable(key1)).willReturn(val1);
         given(context.getVariable(key2)).willReturn(val2);
         given(context.getVariable(key3)).willReturn(val3);
@@ -53,50 +54,56 @@ public class GetVariablesHandlerTest {
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
+        // When
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
         assertEquals(ImmutableMap.of(key1, val1, key2, val2, key3, val3), resultMap);
     }
 
     @Test
     public void shouldReturnEmptyMapWhenNoValuesPresent() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
         given(context.getVariable(key1)).willReturn(null);
         given(context.getVariable(key2)).willReturn(null);
         given(context.getVariable(key3)).willReturn(null);
 
-        Map expected = new HashMap<>();
-        expected.put(key1, null);
-        expected.put(key2, null);
-        expected.put(key3, null);
-
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(key1, key2, key3)).build();
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
+        // When
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
+        final Map expected = new HashMap<>();
+        expected.put(key1, null);
+        expected.put(key2, null);
+        expected.put(key3, null);
         assertEquals(expected, resultMap);
     }
 
     @Test
     public void shouldReturnPartiallyFilledMapWhenSomeValuesPresent() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
         given(context.getVariable(key1)).willReturn(val1);
         given(context.getVariable(key2)).willReturn(null);
         given(context.getVariable(key3)).willReturn(val3);
 
-        Map expected = new HashMap<>();
-        expected.put(key1, val1);
-        expected.put(key2, null);
-        expected.put(key3, val3);
-
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(key1, key2, key3)).build();
 
         final GetVariablesHandler handler = new GetVariablesHandler();
 
-        Map<String, Object> resultMap = handler.doOperation(op, context, store);
+        // When
+        final Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
+        final Map expected = new HashMap<>();
+        expected.put(key1, val1);
+        expected.put(key2, null);
+        expected.put(key3, val3);
         assertEquals(expected, resultMap);
     }
 
@@ -116,14 +123,15 @@ public class GetVariablesHandlerTest {
 
     @Test
     public void shouldReturnNothingWhenGetVariablesKeysAreNull() throws OperationException {
+        // Given
         final Context context = mock(Context.class);
-
         final GetVariables op = new GetVariables.Builder().variableNames(Arrays.asList(null, null)).build();
 
+        // When
         final GetVariablesHandler handler = new GetVariablesHandler();
-
         Map<String, Object> resultMap = handler.doOperation(op, context, store);
 
+        // Then
         assertEquals(new HashMap<>(), resultMap);
     }
 }

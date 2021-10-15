@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -49,10 +50,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 
 public class OperationServiceV2IT extends OperationServiceIT {
 
@@ -80,6 +83,26 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         // Then
         assertEquals(403, response.getStatus());
+    }
+
+    @Test
+    public void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() throws IOException {
+        // Given
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.STORE_PROPERTIES);
+        storeProperties.set(StoreProperties.JOB_TRACKER_ENABLED, Boolean.FALSE.toString());
+
+        final Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(storeProperties)
+                .addSchema(new Schema())
+                .build();
+        client.reinitialiseGraph(graph);
+
+        // When
+        final Response response = client.executeOperation(new GetAllJobDetails());
+
+        // Then
+        assertEquals(SERVICE_UNAVAILABLE.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -114,7 +137,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         });
         final Set<String> opDetailClasses = opDetails.stream().map(OperationDetailPojo::getName).collect(Collectors.toSet());
         for (final Class<? extends Operation> clazz : expectedOperations) {
-            assertTrue(opDetailClasses.contains(clazz.getName()));
+            assertThat(opDetailClasses).contains(clazz.getName());
         }
     }
 
@@ -156,8 +179,6 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
     @Test
     public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
-        // Given
-
         // When
         Response response = client.getOperationDetails(GetElements.class);
 
@@ -178,6 +199,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
     @Test
     public void shouldAllowUserWithAuthThroughHeaders() throws IOException {
+        // Given
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, TestUserFactory.class.getName());
         client.stopServer();
         client.startServer();
@@ -190,13 +212,17 @@ public class OperationServiceV2IT extends OperationServiceIT {
         client.reinitialiseGraph(graph);
 
         final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+
+        // When
         Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
 
+        // Then
         assertEquals(200, response.getStatus());
     }
 
     @Test
     public void shouldNotAllowUserWithNoAuthThroughHeaders() throws IOException {
+        // Given
         System.setProperty(SystemProperty.USER_FACTORY_CLASS, TestUserFactory.class.getName());
         client.stopServer();
         client.startServer();
@@ -210,8 +236,10 @@ public class OperationServiceV2IT extends OperationServiceIT {
 
         final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
 
+        // When
         Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "BasicUser");
 
+        // Then
         assertEquals(500, response.getStatus());
     }
 
@@ -422,7 +450,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         public User createUser() {
             final String headerAuthVal = httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION);
             return new User.Builder()
-                    .userId("unknown")
+                    .userId("UNKNOWN")
                     .opAuth(headerAuthVal)
                     .build();
         }

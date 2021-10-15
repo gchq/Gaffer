@@ -1,0 +1,7 @@
+{
+  "class": "uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser",
+  "unauthorisedFunctions": [
+    "uk.gov.gchq.koryphe.impl.function.Identity",
+    "uk.gov.gchq.koryphe.impl.function.ToString"
+  ]
+}

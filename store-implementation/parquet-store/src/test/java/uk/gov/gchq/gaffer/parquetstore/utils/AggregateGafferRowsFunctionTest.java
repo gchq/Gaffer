@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018. Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import scala.collection.JavaConversions$;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.operation.handler.utilities.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
@@ -37,19 +36,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AggregateGafferRowsFunctionTest {
     private SchemaUtils utils;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         utils = new SchemaUtils(schema);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         utils = null;
     }
@@ -82,7 +80,7 @@ public class AggregateGafferRowsFunctionTest {
         expected.add(TestUtils.DATE.getTime());
         expected.add(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP));
         expected.add(2);
-        assertThat(expected, contains(actual.toArray()));
+        assertThat(expected).containsExactly(actual.toArray());
     }
 
     @Test
@@ -115,6 +113,6 @@ public class AggregateGafferRowsFunctionTest {
         expected.add(TestUtils.DATE.getTime());
         expected.add(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP));
         expected.add(2);
-        assertThat(expected, contains(actual.toArray()));
+        assertThat(expected).containsExactly(actual.toArray());
     }
 }

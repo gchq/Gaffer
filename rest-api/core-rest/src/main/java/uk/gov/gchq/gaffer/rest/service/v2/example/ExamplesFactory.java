@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.If;
 import uk.gov.gchq.gaffer.operation.impl.While;
@@ -35,8 +35,11 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 /**
  * An {@code ExamplesFactory} creates example operations for use with Gaffer's
  * REST API.
+ *
+ * use {@link uk.gov.gchq.gaffer.rest.factory.ExamplesFactory} instead
  */
-public interface ExamplesFactory {
+@Deprecated
+public interface ExamplesFactory extends uk.gov.gchq.gaffer.rest.factory.ExamplesFactory {
 
     /**
      * Generates an example for the {@link GetAdjacentIds} operation.
@@ -81,16 +84,6 @@ public interface ExamplesFactory {
     GenerateElements generateElements();
 
     /**
-     * Generates an example for any {@link Operation} class.
-     *
-     * @param opClass the operation to create an example for
-     * @return the example class
-     * @throws IllegalAccessException if the operation could not be created
-     * @throws InstantiationException if the operation could not be created
-     */
-    Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
-
-    /**
      * Generates an example for the {@link Sort} operation.
      *
      * @return the example class for Sorts
@@ -124,6 +117,13 @@ public interface ExamplesFactory {
      * @return the example class for GetWalks
      */
     GetWalks getWalks();
+
+    /**
+     * Generates an example for the {@link AddNamedOperation} operation.
+     *
+     * @return the example of a customisable AddNamedOperation
+     */
+    AddNamedOperation addNamedOperation();
 
     /**
      * Generates an example for the {@link AddNamedView} operation.

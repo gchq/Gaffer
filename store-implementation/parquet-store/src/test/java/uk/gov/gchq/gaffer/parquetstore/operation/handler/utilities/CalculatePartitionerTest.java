@@ -1,5 +1,5 @@
 /*
- * Copyright 2018. Crown Copyright
+ * Copyright 2018-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -44,12 +43,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CalculatePartitionerTest {
-
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private Schema getSchema() {
         return TestUtils.gafferSchema("schemaUsingLongVertexType");
@@ -90,7 +86,7 @@ public class CalculatePartitionerTest {
         //   ...
         //   source = i*10 + 9, destination = i*10 + 10
         for (final String group : Arrays.asList(TestGroups.EDGE, TestGroups.EDGE_2)) {
-            final Path groupFolderPath = new Path(folder,ParquetStore.getGroupSubDir(group, false));
+            final Path groupFolderPath = new Path(folder, ParquetStore.getGroupSubDir(group, false));
             for (int partition = 0; partition < 10; partition++) {
                 final Path pathForPartitionFile = new Path(groupFolderPath, ParquetStore.getFile(partition));
                 final ParquetWriter<Element> writer = new ParquetElementWriter.Builder(pathForPartitionFile)
@@ -158,12 +154,13 @@ public class CalculatePartitionerTest {
     }
 
     @Test
-    public void calculatePartitionerTest() throws IOException {
+    public void calculatePartitionerTest(@TempDir java.nio.file.Path tempDir)
+            throws IOException {
         // Given
         final FileSystem fs = FileSystem.get(new Configuration());
         final Schema schema = getSchema();
         final SchemaUtils schemaUtils = new SchemaUtils(schema);
-        final String topLevelFolder = testFolder.newFolder().toPath().toString();
+        final String topLevelFolder = tempDir.toString();
         writeData(topLevelFolder, schemaUtils);
 
         // When

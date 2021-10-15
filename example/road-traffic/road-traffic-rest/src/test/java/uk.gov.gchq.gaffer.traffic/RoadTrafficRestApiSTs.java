@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
+import org.junit.jupiter.api.BeforeEach;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -29,6 +31,7 @@ import uk.gov.gchq.gaffer.user.User;
 public class RoadTrafficRestApiSTs extends RoadTrafficTestQueries {
 
     @Override
+    @BeforeEach
     public void prepareProxy() {
         ProxyProperties props = new ProxyProperties(System.getProperties());
         props.setStoreClass(ProxyStore.class);

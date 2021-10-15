@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
-import com.google.common.collect.Iterables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -43,11 +42,12 @@ import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -129,10 +129,10 @@ public class GetGafferResultCacheExportHandlerTest {
         final Object handlerResult = handler.doOperation(export, context, store);
 
         // Then
-        assertEquals(0, Iterables.size((Iterable) handlerResult));
+        assertThat((Iterable) handlerResult).isEmpty();
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(cacheStore).execute(opChain.capture(), Mockito.any());
-        assertEquals(1, opChain.getValue().getOperations().size());
+        assertThat(opChain.getValue().getOperations()).hasSize(1);
         assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
         assertNotNull(exporter);

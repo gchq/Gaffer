@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,17 +25,13 @@ import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
+
     private HyperLogLogPlus hyperLogLogPlus1;
     private HyperLogLogPlus hyperLogLogPlus2;
-
-    @Before
-    public void setup() {
-        setupHllp(5, 5);
-    }
 
     @Test
     public void shouldAggregateHyperLogLogPlusWithVariousPAndSpValues() {
@@ -53,9 +48,9 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     private void shouldAggregateHyperLogLogPlus() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         HyperLogLogPlus currentState = hyperLogLogPlus1;
-        assertEquals(2l, currentState.cardinality());
+        assertEquals(2L, currentState.cardinality());
         currentState = hyperLogLogPlusAggregator.apply(currentState, hyperLogLogPlus2);
-        assertEquals(4l, currentState.cardinality());
+        assertEquals(4L, currentState.cardinality());
     }
 
     @Test
@@ -63,6 +58,7 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         assertEquals(new HyperLogLogPlusAggregator(), new HyperLogLogPlusAggregator());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -90,6 +86,11 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     @Override
     protected HyperLogLogPlusAggregator getInstance() {
         return new HyperLogLogPlusAggregator();
+    }
+
+    @Override
+    protected Iterable<HyperLogLogPlusAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 
     private void setupHllp(final int p, final int sp) {

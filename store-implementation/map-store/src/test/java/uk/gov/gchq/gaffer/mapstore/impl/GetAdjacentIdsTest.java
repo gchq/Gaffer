@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -38,8 +38,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.mapstore.impl.VisibilityTest.VERTEX_1;
 
 public class GetAdjacentIdsTest {
 
@@ -369,5 +370,14 @@ public class GetAdjacentIdsTest {
         expectedResults.remove(new EntitySeed("A"));
         expectedResults.remove(new EntitySeed("Y2"));
         assertEquals(expectedResults, resultsSet);
+    }
+
+    @Test
+    public void shouldApplyVisibilityTraitToOperationResults() throws OperationException {
+        VisibilityTest.executeOperation(
+                new GetAdjacentIds.Builder()
+                        .input(new EntitySeed(VERTEX_1))
+                        .build(),
+                VisibilityTest::vertex1AdjacentIdsResultConsumer);
     }
 }

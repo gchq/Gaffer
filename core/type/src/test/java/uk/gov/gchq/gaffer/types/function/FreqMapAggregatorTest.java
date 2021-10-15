@@ -1,6 +1,22 @@
+/*
+ * Copyright 2016-2021 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.gchq.gaffer.types.function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -8,10 +24,11 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class FreqMapAggregatorTest extends BinaryOperatorTest {
+
     @Test
     public void shouldMergeFreqMaps() {
         // Given
@@ -34,6 +51,7 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
         assertEquals((Long) 5L, result.get("3"));
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -43,9 +61,10 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
 
         // Then 1
-        JsonAssert.assertEquals(String.format("{%n" +
+        final String expected = String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.types.function.FreqMapAggregator\"%n" +
-                "}"), json);
+                "}");
+        JsonAssert.assertEquals(expected, json);
 
         // When 2
         final FreqMapAggregator deserialisedAggregator = JSONSerialiser.deserialise(json.getBytes(), getFunctionClass());
@@ -57,6 +76,11 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
     @Override
     protected FreqMapAggregator getInstance() {
         return new FreqMapAggregator();
+    }
+
+    @Override
+    protected Iterable<FreqMapAggregator> getDifferentInstancesOrNull() {
+        return null;
     }
 
     @Override

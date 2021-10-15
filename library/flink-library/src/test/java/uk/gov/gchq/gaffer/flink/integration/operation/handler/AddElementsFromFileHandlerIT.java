@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,38 @@
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.flink.operation.TestFileOutput;
+import uk.gov.gchq.gaffer.flink.operation.handler.AddElementsFromFileHandler;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class AddElementsFromFileHandlerIT extends FlinkTest {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;
+    private TestFileOutput testFileOutput;
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
-        file = testFolder.newFile("inputFile.txt");
-        FileUtils.write(file, DATA);
+        String filename = "inputFile.txt";
+        file = new File(testFolder.getAbsolutePath(), filename);
+        file.delete();
+        file.createNewFile();
+
+        FileUtils.write(file, DATA, StandardCharsets.UTF_8);
         MapStore.resetStaticMap();
+        testFileOutput = createTestFileOutput();
     }
 
     @Test
@@ -64,6 +70,17 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
         graph.execute(op, new User());
 
         // Then
-        verifyElements(graph);
+        verifyElements(String.class, testFileOutput, TestGeneratorImpl.class);
+    }
+
+    @Override
+    public Store createStore() {
+        final Store store = Store.createStore("graphId", SCHEMA, MapStoreProperties.loadStoreProperties("store.properties"));
+        store.addOperationHandler(AddElementsFromFile.class, new AddElementsFromFileHandler(testFileOutput));
+        return store;
+    }
+
+    private TestFileOutput createTestFileOutput() throws IOException {
+        return new TestFileOutput(createTemporaryDirectory("testFileOutput").toPath().toString());
     }
 }

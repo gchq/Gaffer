@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,11 @@ public class FederatedStoreITs extends AbstractStoreITs {
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {
-        super(STORE_PROPERTIES);
+        this(STORE_PROPERTIES);
+    }
+
+    protected FederatedStoreITs(final FederatedStoreProperties storeProperties) {
+        super(storeProperties);
         skipTestMethod(GetWalksIT.class, "shouldReturnNoResultsWhenNoEntityResults", "Fails due to the way we split the entities and edges into 2 graphs");
     }
 }

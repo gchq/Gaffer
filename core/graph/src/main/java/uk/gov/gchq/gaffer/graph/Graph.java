@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.FunctionAuthoriserUtil;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.NamedViewResolver;
@@ -64,6 +66,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 /**
  * <p>
@@ -171,7 +175,7 @@ public final class Graph {
     }
 
     /**
-     * Exeutes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
+     * Executes a {@link GraphRequest} on the graph and returns the {@link GraphResult}.
      *
      * @param request the request to execute
      * @param <O>     the result type
@@ -258,10 +262,12 @@ public final class Graph {
             throw new IllegalArgumentException("A job is required");
         }
 
-        context.setOriginalOpChain(job.getOpChainAsOperationChain());
+        OperationChain wrappedOriginal = OperationChain.wrap(job.getOperation());
+
+        context.setOriginalOpChain(wrappedOriginal);
 
         final Context clonedContext = context.shallowClone();
-        final OperationChain clonedOpChain = job.getOpChainAsOperationChain().shallowClone();
+        final OperationChain clonedOpChain = wrappedOriginal.shallowClone();
         JobDetail result = null;
         try {
             updateOperationChainView(clonedOpChain);
@@ -269,6 +275,7 @@ public final class Graph {
                 graphHook.preExecute(clonedOpChain, clonedContext);
             }
             updateOperationChainView(clonedOpChain);
+            job.setOperation(clonedOpChain);
             result = store.executeJob(job, context);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.postExecute(result, clonedOpChain, clonedContext);
@@ -314,18 +321,17 @@ public final class Graph {
             updateOperationChainView(clonedOpChain);
             // Runs the updateGraphHook instance (if set) or if not runs a
             // new instance
-            UpdateViewHook hookInstance = null;
+            ArrayList<UpdateViewHook> hookInstances = new ArrayList<>();
             for (final GraphHook graphHook : config.getHooks()) {
                 if (UpdateViewHook.class.isAssignableFrom(graphHook.getClass())) {
-                    hookInstance = (UpdateViewHook) graphHook;
-                    break;
+                    hookInstances.add((UpdateViewHook) graphHook);
                 }
             }
-            if (null == hookInstance) {
-                UpdateViewHook updateViewHook = new UpdateViewHook();
-                updateViewHook.preExecute(clonedOpChain, clonedContext);
-            } else {
-                hookInstance.preExecute(clonedOpChain, clonedContext);
+            if (hookInstances.size() == 0) {
+                hookInstances.add(new UpdateViewHook());
+            }
+            for (final UpdateViewHook hook : hookInstances) {
+                hook.preExecute(clonedOpChain, clonedContext);
             }
             result = (O) storeExecuter.execute(clonedOpChain, clonedContext);
             for (final GraphHook graphHook : config.getHooks()) {
@@ -347,6 +353,7 @@ public final class Graph {
     }
 
     private void updateOperationChainView(final Operations<?> operations) {
+
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
@@ -355,10 +362,24 @@ public final class Graph {
                 if (null == opView) {
                     opView = config.getView();
                 } else if (!(opView instanceof NamedView) && !opView.hasGroups() && !opView.isAllEdges() && !opView.isAllEntities()) {
-                    opView = new View.Builder()
-                            .merge(config.getView())
-                            .merge(opView)
-                            .build();
+
+                    // If we have either global elements or nothing at all then
+                    // merge with both Entities and Edges
+                    if (!isEmpty(opView.getGlobalElements()) || (isEmpty(opView.getGlobalEdges()) && isEmpty(opView.getGlobalEntities()))) {
+                        opView = new View.Builder().merge(config.getView()).merge(opView).build();
+                    } else { // We have either global edges or entities in
+                             // opView, but not both
+                        final View originalView = opView;
+                        final View partialConfigView = new View.Builder()
+                                .merge(config.getView())
+                                .removeEdges((x -> isEmpty(originalView.getGlobalEdges())))
+                                .removeEntities((x -> isEmpty(originalView.getGlobalEntities())))
+                                .build();
+                        opView = new View.Builder().merge(partialConfigView)
+                                .merge(opView)
+                                .build();
+
+                    }
                 } else if (opView.isAllEdges() || opView.isAllEntities()) {
                     View.Builder opViewBuilder = new View.Builder()
                             .merge(opView);
@@ -394,7 +415,7 @@ public final class Graph {
     /**
      * @param operation the class of the operation to check
      * @return a collection of all the compatible {@link Operation}s that could
-     * be added to an operation chain after the provided operation.
+     *         be added to an operation chain after the provided operation.
      */
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
         return store.getNextOperations(operation);
@@ -436,7 +457,7 @@ public final class Graph {
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
-     * has.
+     *         has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -485,12 +506,13 @@ public final class Graph {
      * schema
      * directory and a store.properties file.
      * For example:
+     *
      * <pre>
      * new Graph.Builder()
-     *     .config(Paths.get("graphConfig.json"))
-     *     .addSchemas(Paths.get("schema"))
-     *     .storeProperties(Paths.get("store.properties"))
-     *     .build();
+     *         .config(Paths.get("graphConfig.json"))
+     *         .addSchemas(Paths.get("schema"))
+     *         .storeProperties(Paths.get("store.properties"))
+     *         .build();
      * </pre>
      */
     public static class Builder {
@@ -632,8 +654,7 @@ public final class Graph {
                 JSONSerialiser.update(
                         properties.getJsonSerialiserClass(),
                         properties.getJsonSerialiserModules(),
-                        properties.getStrictJson()
-                );
+                        properties.getStrictJson());
             }
             return this;
         }
@@ -940,7 +961,7 @@ public final class Graph {
             updateSchema(config);
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
-                //Set Props & Schema if null.
+                // Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
                 properties = (null == properties) ? pair.getSecond() : properties;
                 schema = (null == schema) ? pair.getFirst() : schema;
@@ -964,7 +985,6 @@ public final class Graph {
 
             updateGraphHooks(config);
 
-
             if (addToLibrary) {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
@@ -975,24 +995,25 @@ public final class Graph {
         }
 
         private void updateGraphHooks(final GraphConfig config) {
-            boolean hasNamedOpHook = false;
-            boolean hasNamedViewHook = false;
-            for (final GraphHook graphHook : config.getHooks()) {
-                if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
-                    hasNamedOpHook = true;
-                }
-                if (NamedViewResolver.class.isAssignableFrom(graphHook.getClass())) {
-                    hasNamedViewHook = true;
+            List<GraphHook> hooks = config.getHooks();
+            if (!hasHook(hooks, NamedViewResolver.class)) {
+                hooks.add(0, new NamedViewResolver());
+            }
+            if (store.isSupported(NamedOperation.class) && !hasHook(hooks, NamedOperationResolver.class)) {
+                config.getHooks().add(0, new NamedOperationResolver());
+            }
+            if (!hasHook(hooks, FunctionAuthoriser.class)) {
+                config.getHooks().add(new FunctionAuthoriser(FunctionAuthoriserUtil.DEFAULT_UNAUTHORISED_FUNCTIONS));
+            }
+        }
+
+        private boolean hasHook(final List<GraphHook> hooks, final Class<? extends GraphHook> hookClass) {
+            for (final GraphHook hook : hooks) {
+                if (hookClass.isAssignableFrom(hook.getClass())) {
+                    return true;
                 }
             }
-            if (!hasNamedViewHook) {
-                config.getHooks().add(0, new NamedViewResolver());
-            }
-            if (!hasNamedOpHook) {
-                if (store.isSupported(NamedOperation.class)) {
-                    config.getHooks().add(0, new NamedOperationResolver());
-                }
-            }
+            return false;
         }
 
         private void updateSchema(final GraphConfig config) {
@@ -1099,6 +1120,5 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
-
     }
 }

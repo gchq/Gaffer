@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
@@ -62,18 +62,20 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseIntegerClass() throws SerialisationException {
+    public void canSerialiseIntegerClass() {
         assertTrue(serialiser.canHandle(Integer.class));
     }
 
     private void test(final int value) throws SerialisationException {
+        // When
         final byte[] b = serialiser.serialise(value);
         final Object o = serialiser.deserialise(b);
+        // Then
         assertEquals(Integer.class, o.getClass());
         assertEquals(value, o);
     }
@@ -86,11 +88,11 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{
-                new Pair<>(Integer.MAX_VALUE, new byte[]{-116, 127, -1, -1, -1}),
-                new Pair<>(Integer.MIN_VALUE, new byte[]{-124, 127, -1, -1, -1}),
-                new Pair<>(0, new byte[]{0}),
-                new Pair<>(1, new byte[]{1})
+        return new Pair[] {
+                new Pair<>(Integer.MAX_VALUE, new byte[] {-116, 127, -1, -1, -1}),
+                new Pair<>(Integer.MIN_VALUE, new byte[] {-124, 127, -1, -1, -1}),
+                new Pair<>(0, new byte[] {0}),
+                new Pair<>(1, new byte[] {1})
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,12 @@ package uk.gov.gchq.gaffer.commonutil;
  * @deprecated Please use the equivalent TestTypes class in the store module
  */
 @Deprecated
-public class TestTypes {
+public final class TestTypes {
+
+    private TestTypes() {
+        //Private to prevent instantiation
+    }
+
     public static final String TIMESTAMP = "timestamp";
     public static final String TIMESTAMP_2 = "timestamp2";
     public static final String VISIBILITY = "visibility";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
+import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -37,6 +38,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,16 +56,20 @@ import static java.util.Objects.nonNull;
 @Since("1.0.0")
 @Summary("Adds a new named operation")
 public class AddNamedOperation implements Operation, Operations<Operation> {
+
     @Required
     private String operations;
     private String operationName;
+    private List<String> labels;
     private String description;
-    private List<String> readAccessRoles = new ArrayList<>();
-    private List<String> writeAccessRoles = new ArrayList<>();
+    private List<String> readAccessRoles;
+    private List<String> writeAccessRoles;
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
     private Integer score;
+    private AccessPredicate readAccessPredicate;
+    private AccessPredicate writeAccessPredicate;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -121,6 +127,14 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         this.operationName = operationName;
     }
 
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(final List<String> labels) {
+        this.labels = labels;
+    }
+
     public List<String> getReadAccessRoles() {
         return readAccessRoles;
     }
@@ -158,13 +172,16 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)
                 .name(operationName)
+                .labels(labels)
                 .description(description)
-                .readAccessRoles(readAccessRoles.toArray(new String[readAccessRoles.size()]))
-                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .readAccessRoles(isNull(readAccessRoles) ? null : readAccessRoles.toArray(new String[readAccessRoles.size()]))
+                .writeAccessRoles(isNull(writeAccessRoles) ? null : writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
                 .options(options)
                 .score(score)
+                .readAccessPredicate(readAccessPredicate)
+                .writeAccessPredicate(writeAccessPredicate)
                 .build();
     }
 
@@ -186,6 +203,22 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
         this.score = score;
     }
 
+    public AccessPredicate getWriteAccessPredicate() {
+        return writeAccessPredicate;
+    }
+
+    public void setWriteAccessPredicate(final AccessPredicate writeAccessPredicate) {
+        this.writeAccessPredicate = writeAccessPredicate;
+    }
+
+    public AccessPredicate getReadAccessPredicate() {
+        return readAccessPredicate;
+    }
+
+    public void setReadAccessPredicate(final AccessPredicate readAccessPredicate) {
+        this.readAccessPredicate = readAccessPredicate;
+    }
+
     /**
      * @return a list of the operations in the operation chain resolved using the default parameters.
      */
@@ -203,7 +236,7 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
     private Collection<Operation> getOperationsWithDefaultParams() {
         String opStringWithDefaults = operations;
 
-        if (null != parameters) {
+        if (nonNull(parameters)) {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
 
@@ -258,18 +291,35 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
             return _self();
         }
 
+        public Builder labels(final List<String> labels) {
+            _getOp().setLabels(labels);
+            return _self();
+        }
+
         public Builder description(final String description) {
             _getOp().setDescription(description);
             return _self();
         }
 
         public Builder readAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getReadAccessRoles(), roles);
+            if (isNull(roles)) {
+                _getOp().setReadAccessRoles(null);
+            } else if (isNull(_getOp().getReadAccessRoles())) {
+                _getOp().setReadAccessRoles(Arrays.asList(roles));
+            } else {
+                Collections.addAll(_getOp().getReadAccessRoles(), roles);
+            }
             return _self();
         }
 
         public Builder writeAccessRoles(final String... roles) {
-            Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            if (isNull(roles)) {
+                _getOp().setWriteAccessRoles(null);
+            } else if (isNull(_getOp().getWriteAccessRoles())) {
+                _getOp().setWriteAccessRoles(Arrays.asList(roles));
+            } else {
+                Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            }
             return _self();
         }
 
@@ -299,6 +349,16 @@ public class AddNamedOperation implements Operation, Operations<Operation> {
 
         public Builder score(final Integer score) {
             _getOp().setScore(score);
+            return _self();
+        }
+
+        public Builder readAccessPredicate(final AccessPredicate readAccessPredicate) {
+            _getOp().setReadAccessPredicate(readAccessPredicate);
+            return _self();
+        }
+
+        public Builder writeAccessPredicate(final AccessPredicate writeAccessPredicate) {
+            _getOp().setWriteAccessPredicate(writeAccessPredicate);
             return _self();
         }
     }

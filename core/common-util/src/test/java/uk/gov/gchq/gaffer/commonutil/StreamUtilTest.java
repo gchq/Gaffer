@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.net.URI;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class StreamUtilTest {
 
@@ -30,19 +29,17 @@ public class StreamUtilTest {
 
     @Test
     public void testOpenStreamsURLNotEmpty() throws Exception {
-        //Given
         final URI resource = getClass().getClassLoader().getResource(FILE_NAME).toURI();
-        if (null == resource) fail("Test json file not found:" + FILE_NAME);
+        if (null == resource) {
+            fail("Test json file not found:" + FILE_NAME);
+        }
 
-        //When
         final InputStream[] inputStreams = StreamUtil.openStreams(resource);
 
-        //Then
-        try {
-            assertNotNull(inputStreams);
-            assertFalse("InputStreams length is 0", 0 == inputStreams.length);
-        } finally {
-            StreamUtil.closeStreams(inputStreams);
-        }
+        assertThat(inputStreams)
+                .isNotEmpty()
+                .overridingErrorMessage("InputStreams length is %s", 0);
+
+        StreamUtil.closeStreams(inputStreams);
     }
 }

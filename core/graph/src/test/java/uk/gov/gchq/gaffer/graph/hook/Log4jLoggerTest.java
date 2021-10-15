@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
 public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
 
-    public Log4jLoggerTest() { super(Log4jLogger.class); }
+    public Log4jLoggerTest() {
+        super(Log4jLogger.class);
+    }
 
     @Test
     public void shouldReturnResultWithoutModification() {
@@ -38,9 +39,6 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
-                .build();
-        final User user = new User.Builder()
-                .opAuths("NoScore")
                 .build();
 
         // When
@@ -51,5 +49,7 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
     }
 
     @Override
-    public Log4jLogger getTestObject() { return new Log4jLogger(); }
+    public Log4jLogger getTestObject() {
+        return new Log4jLogger();
+    }
 }

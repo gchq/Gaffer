@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -23,11 +24,13 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -36,13 +39,18 @@ import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.gaffer.operation.impl.join.methods.JoinType;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.operation.handler.join.match.ElementMatch;
+import uk.gov.gchq.gaffer.store.operation.handler.join.match.KeyFunctionMatch;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.koryphe.impl.function.Identity;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JoinIT extends AbstractStoreIT {
     private List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4), getJoinEntity(TestGroups.ENTITY_3, 6)));
@@ -58,6 +66,127 @@ public class JoinIT extends AbstractStoreIT {
     @Override
     public void _setup() throws Exception {
         addJoinEntityElements(TestGroups.ENTITY_3);
+    }
+
+    @Test
+    public void shouldRightSideInnerJoinUsingKeyFunctionMatch() throws OperationException {
+
+        // Given
+        final Map map = new Map.Builder<>().input(Lists.newArrayList(4L)).first(new Identity()).build();
+
+        final ArrayList<Entity> input = Lists.newArrayList(
+                getJoinEntity(TestGroups.ENTITY, 4),
+                getJoinEntity(TestGroups.ENTITY_2, 4),
+                getJoinEntity(TestGroups.ENTITY_3, 4)
+        );
+
+        final Join<Object> rightJoin = new Join.Builder<>()
+                .flatten(true)
+                .matchKey(MatchKey.RIGHT)
+                .joinType(JoinType.INNER)
+                .operation(map)
+                .matchMethod(new KeyFunctionMatch(new Identity(), new ExtractProperty("count")))
+                .input(input)
+                .build();
+        // When
+        final Iterable<? extends MapTuple> rightResults = graph.execute(rightJoin, user);
+
+        final List<java.util.Map> loadedResults = new ArrayList<>();
+        rightResults.forEach(e -> loadedResults.add(e.getValues()));
+
+        // Then
+
+        assertThat(loadedResults).hasSize(3);
+        assertThat(loadedResults.get(0)).containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY, 4))
+                .containsEntry(MatchKey.RIGHT.name(), 4L);
+        assertThat(loadedResults.get(1)).containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_2, 4))
+                .containsEntry(MatchKey.RIGHT.name(), 4L);
+        assertThat(loadedResults.get(2)).containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_3, 4))
+                .containsEntry(MatchKey.RIGHT.name(), 4L);
+    }
+
+    @Test
+    public void shouldLeftSideOuterJoinUsingKeyFunctionMatch() throws OperationException {
+
+        // Given
+        final Map map = new Map.Builder<>().input(Lists.newArrayList(4L, 1L, 2L)).first(new Identity()).build();
+
+        final ArrayList<Entity> input = Lists.newArrayList(
+                getJoinEntity(TestGroups.ENTITY, 4),
+                getJoinEntity(TestGroups.ENTITY_2, 4),
+                getJoinEntity(TestGroups.ENTITY_3, 2),
+                getJoinEntity(TestGroups.ENTITY_4, 5),
+                getJoinEntity(TestGroups.ENTITY_4, 6),
+                getJoinEntity(TestGroups.ENTITY_5, 5)
+        );
+
+        final Join<Object> leftJoin = new Join.Builder<>()
+                .flatten(true)
+                .matchKey(MatchKey.LEFT)
+                .joinType(JoinType.OUTER)
+                .operation(map)
+                .matchMethod(new KeyFunctionMatch(new ExtractProperty("count"), new ToLong()))
+                .input(input)
+                .build();
+        // When
+        final Iterable<? extends MapTuple> results = graph.execute(leftJoin, user);
+        final List<java.util.Map> loadedResults = new ArrayList<>();
+        results.forEach(e -> loadedResults.add(e.getValues()));
+
+        // Then
+        assertThat(loadedResults).hasSize(3);
+        assertThat(loadedResults.get(0))
+                .containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_4, 5))
+                .containsEntry(MatchKey.RIGHT.name(), null);
+        assertThat(loadedResults.get(1))
+                .containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_4, 6))
+                .containsEntry(MatchKey.RIGHT.name(), null);
+        assertThat(loadedResults.get(2))
+                .containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_5, 5))
+                .containsEntry(MatchKey.RIGHT.name(), null);
+    }
+
+    @Test
+    public void shouldRightSideFullJoinUsingKeyFunctionMatch() throws OperationException {
+
+        // Given
+        final Map map = new Map.Builder<>().input(Lists.newArrayList(2L, 1L, 2L, 3L)).first(new Identity()).build();
+
+        final ArrayList<Entity> input = Lists.newArrayList(
+                getJoinEntity(TestGroups.ENTITY, 1),
+                getJoinEntity(TestGroups.ENTITY_2, 2),
+                getJoinEntity(TestGroups.ENTITY_2, 2),
+                getJoinEntity(TestGroups.ENTITY_5, 5)
+        );
+
+        final Join<Object> leftJoin = new Join.Builder<>()
+                .flatten(false)
+                .matchKey(MatchKey.RIGHT)
+                .joinType(JoinType.FULL)
+                .operation(map)
+                .matchMethod(new KeyFunctionMatch(new ToLong(), new ExtractProperty("count")))
+                .input(input)
+                .build();
+        // When
+        final Iterable<? extends MapTuple> results = graph.execute(leftJoin, user);
+        final List<java.util.Map> loadedResults = new ArrayList<>();
+        results.forEach(e -> loadedResults.add(e.getValues()));
+
+        // Then
+
+        assertThat(loadedResults).hasSize(4);
+
+        assertThat(loadedResults.get(0)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)))
+                .containsEntry(MatchKey.RIGHT.name(), 2L);
+
+        assertThat(loadedResults.get(1)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList(getJoinEntity(TestGroups.ENTITY, 1)))
+                .containsEntry(MatchKey.RIGHT.name(), 1L);
+
+        assertThat(loadedResults.get(2)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)))
+                .containsEntry(MatchKey.RIGHT.name(), 2L);
+
+        assertThat(loadedResults.get(3)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList())
+                .containsEntry(MatchKey.RIGHT.name(), 3L);
     }
 
     @Test

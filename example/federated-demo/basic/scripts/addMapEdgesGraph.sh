@@ -2,8 +2,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
     "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
     "graphId": "mapEdges",
     "storeProperties": {
-      "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore",
-      "gaffer.store.mapstore.static":true
+      "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
     },
     "schema": {
          "edges": {

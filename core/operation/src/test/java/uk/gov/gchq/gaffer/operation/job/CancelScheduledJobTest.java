@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,22 @@
 
 package uk.gov.gchq.gaffer.operation.job;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.CancelScheduledJob;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
+
     private final String testJobId = "testJobId";
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -41,6 +45,7 @@ public class CancelScheduledJobTest extends OperationTest<CancelScheduledJob> {
         assertEquals(Collections.singletonMap("testOp", "testOpVal"), op.getOptions());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

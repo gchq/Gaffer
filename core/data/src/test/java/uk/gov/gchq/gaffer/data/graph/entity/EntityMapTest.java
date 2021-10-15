@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,78 +17,60 @@
 package uk.gov.gchq.gaffer.data.graph.entity;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EntityMapTest {
 
     @Test
     public void shouldGetEntities() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final Set<Object> results = entityMap.getVertices();
 
-        // Then
-        assertThat(results, hasItems(1));
+        assertThat(results).contains(1);
     }
 
     @Test
     public void shouldGetEmptyEntitySet() {
-        // Given
         final EntityMap entityMap = new EntityMap();
 
-        // When
         final Set<Object> results = entityMap.getVertices();
 
-        // Then
-        assertThat(results, is(empty()));
+        assertThat(results).isEmpty();
     }
 
     @Test
     public void shouldGetVertices() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final Set<Object> results = entityMap.getVertices();
 
-        // Then
-        assertThat(results, hasItems(1, 2, 3, 4, 5, 6));
+        assertThat(results).contains(1, 2, 3, 4, 5, 6);
     }
 
     @Test
     public void shouldContainVertex() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final boolean results = entityMap.containsVertex(6);
 
-        // Then
-        assertThat(results, is(true));
+        assertThat(results).isTrue();
     }
 
     @Test
     public void shouldNotContainVertex() {
-        // Given
         final EntityMap entityMap = getEntityMap();
 
-        // When
         final boolean results = entityMap.containsVertex(7);
 
-        // Then
-        assertThat(results, is(false));
+        assertThat(results).isFalse();
     }
 
     @Test
@@ -100,9 +82,9 @@ public class EntityMapTest {
         entityMap.putEntity(1, new Entity(TestGroups.ENTITY, 1));
 
         // Then
-        assertThat(entityMap.containsVertex(1), is(true));
-        assertThat(entityMap.get(1), hasItems(new Entity(TestGroups.ENTITY, 1)));
-        assertThat(entityMap.getVertices(), hasItems(1));
+        assertThat(entityMap.containsVertex(1)).isTrue();
+        assertThat(entityMap.get(1)).contains(new Entity(TestGroups.ENTITY, 1));
+        assertThat(entityMap.getVertices()).contains(1);
     }
 
     @Test
@@ -114,9 +96,9 @@ public class EntityMapTest {
         entityMap.putEntities(1, Sets.newHashSet(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3)));
 
         // Then
-        assertThat(entityMap.containsVertex(1), is(true));
-        assertThat(entityMap.get(1), hasItems(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3)));
-        assertThat(entityMap.getVertices(), hasItems(1));
+        assertThat(entityMap.containsVertex(1)).isTrue();
+        assertThat(entityMap.get(1)).contains(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3));
+        assertThat(entityMap.getVertices()).contains(1);
     }
 
     @Test
@@ -129,9 +111,9 @@ public class EntityMapTest {
         entityMap.putEntities(1, Sets.newHashSet(new Entity(TestGroups.ENTITY, 4), new Entity(TestGroups.ENTITY, 5), new Entity(TestGroups.ENTITY, 6)));
 
         // Then
-        assertThat(entityMap.containsVertex(1), is(true));
-        assertThat(entityMap.get(1), hasItems(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3), new Entity(TestGroups.ENTITY, 4), new Entity(TestGroups.ENTITY, 5), new Entity(TestGroups.ENTITY, 6)));
-        assertThat(entityMap.getVertices(), hasItems(1));
+        assertThat(entityMap.containsVertex(1)).isTrue();
+        assertThat(entityMap.get(1)).contains(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3), new Entity(TestGroups.ENTITY, 4), new Entity(TestGroups.ENTITY, 5), new Entity(TestGroups.ENTITY, 6));
+        assertThat(entityMap.getVertices()).contains(1);
     }
 
     @Test
@@ -144,10 +126,10 @@ public class EntityMapTest {
         entityMap.putEntities(2, Sets.newHashSet(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3)));
 
         // Then
-        assertThat(entityMap.containsVertex(1), is(true));
-        assertThat(entityMap.get(1), hasItems(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3)));
-        assertThat(entityMap.get(2), hasItems(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3)));
-        assertThat(entityMap.getVertices(), hasItems(1, 2));
+        assertThat(entityMap.containsVertex(1)).isTrue();
+        assertThat(entityMap.get(1)).contains(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3));
+        assertThat(entityMap.get(2)).contains(new Entity(TestGroups.ENTITY, 1), new Entity(TestGroups.ENTITY, 2), new Entity(TestGroups.ENTITY, 3));
+        assertThat(entityMap.getVertices()).contains(1, 2);
     }
 
     private EntityMap getEntityMap() {

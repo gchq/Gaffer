@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
 
@@ -44,9 +44,9 @@ public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
         graphLibrary.clear();
 
         // Then
-        assertEquals(null, graphLibrary.getIds(TEST_GRAPH_ID));
-        assertEquals(null, graphLibrary.getSchema(TEST_SCHEMA_ID));
-        assertEquals(null, graphLibrary.getProperties(TEST_PROPERTIES_ID));
+        assertThat(graphLibrary.getIds(TEST_GRAPH_ID)).isNull();
+        assertThat(graphLibrary.getSchema(TEST_SCHEMA_ID)).isNull();
+        assertThat(graphLibrary.getProperties(TEST_PROPERTIES_ID)).isNull();
 
     }
 }

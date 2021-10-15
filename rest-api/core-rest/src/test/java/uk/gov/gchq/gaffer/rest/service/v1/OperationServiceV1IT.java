@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.rest.service.v1;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 
+/*
+ * TODO: look in to why this fails when run other integration tests but passes
+ *       when run in isolation.
+ */
 public class OperationServiceV1IT extends OperationServiceIT {
 
     @Override

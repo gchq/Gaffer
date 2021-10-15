@@ -1,4 +1,4 @@
-Copyright 2016-2019 Crown Copyright
+Copyright 2016-2020 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -56,9 +56,9 @@ Accumulo set up
 
 Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommended to use this version, although it should work with any of the 1.8.* versions of Accumulo as well.
 
-For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](https://gchq.github.io/gaffer-doc/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/MockAccumuloStore.html). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
-
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
+
+For the purposes of unit testing and small-scale examples, Gaffer offers the Store subclass [MiniAccumuloStore](https://gchq.github.io/gaffer-doc/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/MiniAccumuloStore.html) and the `MiniAccumuloCluster` can be created using an [AccumuloTestClusterManager](https://gchq.github.io/gaffer-doc/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/AccumuloTestClusterManager.html). This creates the local MiniAccumuloCluster if required by the properties supplied, and updates those properties with the connection details for the MiniAccumuloCluster. The cluster should be closed when finished with. 
 
 All real applications of Gaffer's `AccumuloStore` will use an Accumulo cluster running on a real Hadoop cluster consisting of multiple servers. Instructions on setting up an Accumulo cluster can be found in [Accumulo's User Manual](http://accumulo.apache.org/1.8/accumulo_user_manual).
 
@@ -76,7 +76,7 @@ Properties file
 
 The next stage is to create a properties file that Gaffer will use to instantiate a connection to your Accumulo cluster. This requires the following properties:
 
-- `gaffer.store.class`: The name of the Gaffer class that implements this store. For a full or mini Accumulo cluster this should be `gaffer.accumulostore.AccumuloStore`. To use the `MockAccumuloStore`, it should be `gaffer.accumulostore.MockAccumuloStore`.
+- `gaffer.store.class`: The name of the Gaffer class that implements this store. For a full or pre-existing mini Accumulo cluster this should be `gaffer.accumulostore.AccumuloStore`. To use the `MiniAccumuloStore` in unit tests, it should be `gaffer.accumulostore.MiniAccumuloStore`.
 - `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `gaffer.accumulostore.AccumuloProperties`.
 - `accumulo.instance`: The instance name of your Accumulo cluster.
 - `accumulo.zookeepers`: A comma separated list of the Zookeeper servers that your Accumulo cluster is using. Each server should specify the hostname and port separated by a colon, i.e. host:port.
@@ -268,6 +268,7 @@ The following properties can also be specified in the properties file. If they a
 - `accumulo.numThreadsForBatchWriter`: The number of threads used in Accumulo `BatchWriter`s when data is being ingested. The default value is 10.
 - `accumulo.file.replication`: The number of replicas of each file in tables created by Gaffer. If this is not set then your general Accumulo setting will apply, which is normally the same as the default on your HDFS instance.
 - `gaffer.store.accumulo.enable.validator.iterator`: This specifies whether the validation iterator is applied. The default value is true.
+- `accumulo.namespace`: The namespace to use for the table in Accumulo. The default is to use the default Accumulo namespace, which is the empty string.
 
 Trouble shooting
 -----------------------------------------------
@@ -291,6 +292,13 @@ Check that you have the correct authorisations to see the data you inserted. Che
 Try using a batch scanner to read the data from the tablet server. To enable this for the `GetRDDOfAllElements` or `GetJavaRDDOfAllElements` operation, set the `gaffer.accumulo.spark.rdd.use_batch_scanner` option to true. `GetRDDOfElements` and `GetJavaRDDOfElements` use a batch scanner by default.
 
 If you still don't see a significant improvement, try increasing the value of the `table.scan.max.memory` setting in Accumulo for your table.
+
+**Running accumulo-store Integration Tests and getting error: Error BAD_AUTHORIZATIONS for user root on table integrationTestGraph(ID:1l)**
+
+This means you have correctly set your user (in this case user 'root') in store.properties as ```accumulo.user=root``` however you have not set the correct scan authorisations for the user 'root' required by the integration tests.
+If you have the accumulo cluster shell running, you can set these scan auths directly from the shell by entering the following command:
+
+```root@instance> setauths -u root -s vis1,vis2,publicVisibility,privateVisibility,public,private```
 
 Implementation details
 -----------------------------------------------
@@ -495,17 +503,56 @@ Accumulo's ability to have a large number of different column families allows Ga
 
 ## Tests
 
+By default all our tests use the MiniAccumuloStore. The MiniAccumuloStore automatically sets up or uses an existing
+MiniAccumuloCluster according to your store properties.
+
+Alongside the standard Accumulo properties, you also have the opportunity to add some extra ones for a MiniAccumuloStore:
+
+```
+accumulo.mini.directory=/path/to/directory
+accumulo.mini.root.password=password
+accumulo.mini.visibilities=vis1,vis2,publicVisibility,privateVisibility,public,private
+```
+These properties are optional. By default the MiniAccumuloStore creates the cluster in a temporary directory, uses
+"password" as the root password and adds no extra visibilities to a user.
+
+Because the MiniAccumulo re-uses clusters to be efficient, if two tests use the same user with different visibilities,
+the second one will overwrite the first. Therefore it's advisable to use different users if you want a user with
+different visibilities.
+
 ### Running the integration tests
 
-Update the following store properties files to point to the location of the Accumulo store to test against:
+#### Running a Mini Accumulo Cluster manually
+
+Follow this [README.md](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) in gaffer-tools on how 
+to run a Mini Accumulo Cluster (with a shell) on your local machine.
+
+Note: that when running a mini Accumulo cluster locally a store.properties file is generated, this can help identify the
+values you need to replace in the store.properties used for the integration tests below (such as the username, password,
+instance name and Zookeeper location).
+
+#### Setting up accumulo-store integration tests
+
+Update the following store properties files in src/test/resources/ to point to the location of the Accumulo store to test against:
 - [src/test/resources/store.properties](src/test/resources/store.properties)
+- [src/test/resources/store2.properties](src/test/resources/store2.properties)
 - [src/test/resources/accumuloStoreClassicKeys.properties](src/test/resources/accumuloStoreClassicKeys.properties)
 
-Ensure that one of the following classes is being used for the `gaffer.store.class` property:
-- uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
-- uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore
+If you are running an Accumulo cluster locally, here is what an example test store.properties file should look like:
+```text
+gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore
+gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
+accumulo.instance=instance
+accumulo.user=root
+accumulo.password=password
+accumulo.zookeepers=localhost:58630
 
-Ensure that the Accumulo user specified by the `accumulo.user` property has the `System.CREATE_TABLE` permission and the following scan authorisations:
+gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
+gaffer.store.job.tracker.enabled=true
+gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,ResultCacheExportOperations.json
+```
+
+Ensure that when running an Accumulo instance, the user specified by the `accumulo.user` property has the `System.CREATE_TABLE` and `System.CREATE_NAMESPACE` permissions ('root' user has these set by default) and the following scan authorisations:
 
 | Authorisation     | Required by |
 | ----------------- | ----------- |
@@ -516,9 +563,16 @@ Ensure that the Accumulo user specified by the `accumulo.user` property has the 
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 
+You can set these scan authorisations via the Accumulo shell:
+e.g. if your store.properties have: accumulo.user=root, accumulo.instance=instance
+
+```shell script
+root@instance> setauths -u root -s vis1,vis2,publicVisibility,privateVisibility,public,private
+```
+
 Run the integration tests:
 
-```
+```shell script
 mvn verify
 ```
 

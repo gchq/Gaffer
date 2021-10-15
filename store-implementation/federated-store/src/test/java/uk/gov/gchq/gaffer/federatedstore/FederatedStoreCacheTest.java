@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
@@ -31,31 +32,37 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FederatedStoreCacheTest {
-    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseAccumuloStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String MAP_ID_1 = "mockMapGraphId1";
-    private Graph testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
-            .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
-            .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
-            .build();
+    private static Graph testGraph;
     private static FederatedStoreCache federatedStoreCache;
     private static Properties properties = new Properties();
 
-    @BeforeClass
+    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, PATH_MAP_STORE_PROPERTIES));
+
+
+    @BeforeAll
     public static void setUp() {
         properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         CacheServiceLoader.initialise(properties);
         federatedStoreCache = new FederatedStoreCache();
+        testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
+                .addStoreProperties(PROPERTIES)
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build();
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws CacheOperationException {
         federatedStoreCache.clearCache();
     }
@@ -74,20 +81,22 @@ public class FederatedStoreCacheTest {
     public void shouldGetAllGraphIdsFromCache() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
         Set<String> cachedGraphIds = federatedStoreCache.getAllGraphIds();
-        assertEquals(1, cachedGraphIds.size());
-        assertTrue(cachedGraphIds.contains(testGraph.getGraphId()));
+        assertThat(cachedGraphIds)
+                .hasSize(1)
+                .contains(testGraph.getGraphId());
     }
 
     @Test
     public void shouldDeleteFromCache() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
         Set<String> cachedGraphIds = federatedStoreCache.getAllGraphIds();
-        assertEquals(1, cachedGraphIds.size());
-        assertTrue(cachedGraphIds.contains(testGraph.getGraphId()));
+        assertThat(cachedGraphIds)
+                .hasSize(1)
+                .contains(testGraph.getGraphId());
 
-        federatedStoreCache.deleteFromCache(testGraph.getGraphId());
+        federatedStoreCache.deleteGraphFromCache(testGraph.getGraphId());
         Set<String> cachedGraphIdsAfterDelete = federatedStoreCache.getAllGraphIds();
-        assertEquals(0, cachedGraphIdsAfterDelete.size());
+        assertThat(cachedGraphIdsAfterDelete).isEmpty();
     }
 
     @Test
@@ -104,7 +113,7 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldThrowExceptionIfGraphIdToBeRemovedIsNull() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
-        federatedStoreCache.deleteFromCache(null);
+        federatedStoreCache.deleteGraphFromCache(null);
         assertEquals(1, federatedStoreCache.getAllGraphIds().size());
     }
 

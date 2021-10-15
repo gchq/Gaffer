@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Crown Copyright
+ * Copyright 2017-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -26,14 +26,14 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.function.Predicate;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WhileTest extends OperationTest<While> {
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
@@ -45,7 +45,7 @@ public class WhileTest extends OperationTest<While> {
                 .build();
 
         // When / Then
-        assertThat(operation.getInput(), is(notNullValue()));
+        assertThat(operation.getInput()).isNotNull();
         assertTrue(operation.getOperation() instanceof GetAdjacentIds);
         assertTrue(operation.isCondition());
         assertEquals(10, operation.getMaxRepeats());
@@ -64,6 +64,7 @@ public class WhileTest extends OperationTest<While> {
         }
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

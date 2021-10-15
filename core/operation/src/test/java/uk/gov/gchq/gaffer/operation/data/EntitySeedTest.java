@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -25,14 +25,15 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
+public class EntitySeedTest extends JSONSerialisationTest<EntitySeed> {
+
     @Test
     public void shouldBeRelatedToEdgeIdWhenSourceEqualsVertex() {
         // Given
@@ -44,11 +45,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         given(relatedSeed.getSource()).willReturn(source);
         given(relatedSeed.getDestination()).willReturn(destination);
 
-        // When
-        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
-
         // Then
-        assertTrue(isRelated);
+        assertTrue(seed.isRelated((ElementId) relatedSeed).isMatch());
     }
 
     @Test
@@ -80,11 +78,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         given(relatedSeed.getSource()).willReturn(source);
         given(relatedSeed.getDestination()).willReturn(destination);
 
-        // When
-        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
-
         // Then
-        assertTrue(isRelated);
+        assertTrue(seed.isRelated((ElementId) relatedSeed).isMatch());
     }
 
     @Test
@@ -98,11 +93,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         given(relatedSeed.getSource()).willReturn(source);
         given(relatedSeed.getDestination()).willReturn(destination);
 
-        // When
-        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
-
         // Then
-        assertTrue(isRelated);
+        assertTrue(seed.isRelated((ElementId) relatedSeed).isMatch());
     }
 
     @Test
@@ -118,11 +110,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         given(relatedSeed.getDestination()).willReturn(destination);
         given(relatedSeed.isDirected()).willReturn(directed);
 
-        // When
-        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
-
         // Then
-        assertFalse(isRelated);
+        assertFalse(seed.isRelated((ElementId) relatedSeed).isMatch());
     }
 
     @Test
@@ -131,11 +120,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         final EntityId seed1 = new EntitySeed("vertex");
         final EntityId seed2 = new EntitySeed("vertex");
 
-        // When
-        final boolean isRelated = seed1.isRelated(seed2).isMatch();
-
         // Then
-        assertTrue(isRelated);
+        assertTrue(seed1.isRelated(seed2).isMatch());
     }
 
     @Test
@@ -145,11 +131,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         final EntityId seed1 = new EntitySeed(vertex);
         final EntityId seed2 = new EntitySeed(vertex);
 
-        // When
-        final boolean isEqual = seed1.equals(seed2);
-
         // Then
-        assertTrue(isEqual);
+        assertEquals(seed1, seed2);
         assertEquals(seed1.hashCode(), seed2.hashCode());
     }
 
@@ -159,11 +142,8 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         final EntityId seed1 = new EntitySeed("vertex");
         final EntityId seed2 = new EntitySeed("other vertex");
 
-        // When
-        final boolean isEqual = seed1.equals(seed2);
-
         // Then
-        assertFalse(isEqual);
+        assertNotEquals(seed1, seed2);
         assertNotEquals(seed1.hashCode(), seed2.hashCode());
     }
 
@@ -180,7 +160,6 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         final byte[] bytes2 = JSONSerialiser.serialise(seed2);
         final EntityId seed1Deserialised = JSONSerialiser.deserialise(bytes1, EntityId.class);
         final EntityId seed2Deserialised = JSONSerialiser.deserialise(bytes2, EntityId.class);
-
 
         // Then
         assertEquals(seed1, seed1Deserialised);

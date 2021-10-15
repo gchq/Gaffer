@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Crown Copyright
+ * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,15 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
     public static final String INVALID_FIELD_MUST_BE_GREATER_THAN_OR_EQUAL_TO_ONE_GOT_S = "Invalid field - must be >=1, got %s";
     public static final String INGEST_HDFS_DATA_GENERATOR_S_OUTPUT_S = "Ingest HDFS data: Generator = %s, output = %s";
+    private final Configuration configuration;
+
+    public AccumuloAddElementsFromHdfsJobFactory(final Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public AccumuloAddElementsFromHdfsJobFactory() {
+        this(new Configuration());
+    }
 
     @Override
     public void prepareStore(final Store store) throws StoreException {
@@ -55,7 +64,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
     @Override
     public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
-        final JobConf jobConf = new JobConf(new Configuration());
+        final JobConf jobConf = new JobConf(configuration);
 
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
