@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
@@ -202,12 +204,12 @@ public class MapImpl {
         return Stream.concat(getAllAggElements(groups), getAllNonAggElements(groups));
     }
 
-    void addIndex(final EntityId entityId, final Element element) {
-        entityIdToElements.put(entityId, element);
+    void addIndex(final EntitySeed entitySeed, final Element element) {
+        entityIdToElements.put(entitySeed, element);
     }
 
-    void addIndex(final EdgeId edgeId, final Element element) {
-        edgeIdToElements.put(edgeId, element);
+    void addIndex(final EdgeSeed edgeSeed, final Element element) {
+        edgeIdToElements.put(edgeSeed, element);
     }
 
     boolean isMaintainIndex() {

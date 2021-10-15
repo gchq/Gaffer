@@ -22,8 +22,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -146,20 +144,20 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private void updateElementIndex(final Element element, final MapImpl mapImpl) {
         if (element instanceof Entity) {
             final Entity entity = (Entity) element;
-            final EntityId entityId = new EntitySeed(entity.getVertex());
-            mapImpl.addIndex(entityId, element);
+            final EntitySeed entitySeed = new EntitySeed(entity.getVertex());
+            mapImpl.addIndex(entitySeed, element);
         } else {
             final Edge edge = (Edge) element;
-            edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeId.MatchedVertex.SOURCE);
-            final EntityId sourceEntityId = new EntitySeed(edge.getSource());
-            mapImpl.addIndex(sourceEntityId, edge);
+            edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.SOURCE);
+            final EntitySeed sourceEntitySeed = new EntitySeed(edge.getSource());
+            mapImpl.addIndex(sourceEntitySeed, edge);
 
-            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeId.MatchedVertex.DESTINATION, edge.getProperties());
-            final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
-            mapImpl.addIndex(destinationEntityId, destMatchedEdge);
+            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeSeed.MatchedVertex.DESTINATION, edge.getProperties());
+            final EntitySeed destinationEntitySeed = new EntitySeed(edge.getDestination());
+            mapImpl.addIndex(destinationEntitySeed, destMatchedEdge);
 
-            final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
-            mapImpl.addIndex(edgeId, edge);
+            final EdgeSeed edgeSeed = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
+            mapImpl.addIndex(edgeSeed, edge);
         }
     }
 }
