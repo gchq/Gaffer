@@ -21,6 +21,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.spark.rdd.RDD;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
@@ -41,6 +43,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -105,6 +108,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     }
 
     @Test
+    @Timeout(value = 1, unit = TimeUnit.MINUTES)
     public void shouldCreateSplitPointsFromRDD() throws Exception {
 
         final int tabletServerCount = 3;
