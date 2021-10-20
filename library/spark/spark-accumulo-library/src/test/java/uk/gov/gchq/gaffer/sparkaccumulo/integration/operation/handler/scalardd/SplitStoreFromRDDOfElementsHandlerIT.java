@@ -108,7 +108,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     }
 
     @Test
-    @Timeout(value = 1, unit = TimeUnit.MINUTES)
+    @Timeout(value = 5, unit = TimeUnit.MINUTES)
     public void shouldCreateSplitPointsFromRDD() throws Exception {
 
         final int tabletServerCount = 3;
