@@ -25,10 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.*;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -37,14 +34,21 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
@@ -451,6 +455,28 @@ public class GetElementsIT extends AbstractStoreIT {
         assertThat(results.iterator().hasNext()).isFalse();
     }
 
+    @Test
+    @TraitRequirement(StoreTrait.VISIBILITY)
+    public void shouldHaveConsistentIteratorWithVisibilityAndNoAggregation() throws Exception {
+        // Given
+        Graph noAggregationGraph = createGraphVisbilityNoAggregation();
+
+        Entity testEntity = new Entity(TestGroups.ENTITY, "A");
+
+        noAggregationGraph.execute(new AddElements.Builder()
+                .input(testEntity)
+                .build(), getUser());
+
+        // When
+        final CloseableIterable<? extends Element> elementsIterator = noAggregationGraph.execute(new GetElements.Builder()
+                .input(new EntitySeed("A"))
+                .build(), getUser());
+
+        // Then
+        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+    }
+
     private void shouldGetElementsBySeed(final boolean includeEntities,
                                          final boolean includeEdges,
                                          final DirectedType directedType,
@@ -668,5 +694,34 @@ public class GetElementsIT extends AbstractStoreIT {
         }
 
         return allSeededVertices;
+    }
+
+    private Schema createSchemaVisbilityNoAggregation() {
+        return new Schema.Builder()
+                .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.DIRECTED_EITHER, Boolean.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestTypes.VISIBILITY, TestTypes.VISIBILITY)
+                        .aggregate(false)
+                        .build())
+                .visibilityProperty(TestTypes.VISIBILITY)
+                .build();
+    }
+
+    private Graph createGraphVisbilityNoAggregation() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("GetElementsITVisibilityNoAggergation")
+                        .build())
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchemaVisbilityNoAggregation())
+                .addSchema(getStoreSchema())
+                .build();
     }
 }
