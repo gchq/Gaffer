@@ -20,11 +20,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -58,7 +58,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         elements = createElements();
@@ -107,7 +107,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     public void shouldCreateSplitPointsFromJavaRDD() throws Exception {
 
         final int tabletServerCount = 3;
-        final SingleUseAccumuloStoreWithTabletServers store = new SingleUseAccumuloStoreWithTabletServers(tabletServerCount);
+        final SingleUseMiniAccumuloStoreWithTabletServers store = new SingleUseMiniAccumuloStoreWithTabletServers(tabletServerCount);
         store.initialise(
                 GRAPH_ID,
                 Schema.fromJson(StreamUtil.openStreams(getClass(), "/schema-RDDSplitPointIntegrationTests/")),
@@ -132,11 +132,11 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
         assertThat(Base64.encodeBase64String(splitsOnTable.get(1).getBytes())).isEqualTo("6A==");
     }
 
-    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
+    private static final class SingleUseMiniAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
 
         private final List<String> tabletServers;
 
-        SingleUseAccumuloStoreWithTabletServers(final int size) {
+        SingleUseMiniAccumuloStoreWithTabletServers(final int size) {
             this.tabletServers = IntStream.range(0, size).mapToObj(Integer::toString).collect(Collectors.toList());
         }
 
