@@ -25,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -133,7 +133,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
         assertThat(Base64.encodeBase64String(splitsOnTable.get(1).getBytes())).isEqualTo("6A==");
     }
 
-    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
+    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
 
         private final List<String> tabletServers;
 
