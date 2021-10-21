@@ -107,7 +107,7 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
     public void shouldCreateSplitPointsFromJavaRDD() throws Exception {
 
         final int tabletServerCount = 3;
-        final SingleUseAccumuloStoreWithTabletServers store = new SingleUseAccumuloStoreWithTabletServers(tabletServerCount);
+        final SingleUseMiniAccumuloStoreWithTabletServers store = new SingleUseMiniAccumuloStoreWithTabletServers(tabletServerCount);
         store.initialise(
                 GRAPH_ID,
                 Schema.fromJson(StreamUtil.openStreams(getClass(), "/schema-RDDSplitPointIntegrationTests/")),
@@ -132,11 +132,11 @@ public class SplitStoreFromJavaRDDOfElementsHandlerIT {
         assertThat(Base64.encodeBase64String(splitsOnTable.get(1).getBytes())).isEqualTo("6A==");
     }
 
-    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
+    private static final class SingleUseMiniAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
 
         private final List<String> tabletServers;
 
-        SingleUseAccumuloStoreWithTabletServers(final int size) {
+        SingleUseMiniAccumuloStoreWithTabletServers(final int size) {
             this.tabletServers = IntStream.range(0, size).mapToObj(Integer::toString).collect(Collectors.toList());
         }
 
