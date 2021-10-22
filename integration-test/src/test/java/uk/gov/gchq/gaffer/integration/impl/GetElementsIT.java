@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -467,7 +466,7 @@ public class GetElementsIT extends AbstractStoreIT {
         // This meant that the iterator would work when first used, but returned no results when used again
 
         // Given
-        Graph noAggregationGraph = createGraphVisbilityNoAggregation();
+        Graph noAggregationGraph = createGraphVisibilityNoAggregation();
 
         Entity testEntity = new Entity(TestGroups.ENTITY, "A");
 
@@ -480,18 +479,11 @@ public class GetElementsIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build(), getUser());
 
-        Entity expectedEntity = testEntity;
-        expectedEntity.putProperty(TestTypes.VISIBILITY, new String());
-
         // Then
         // Create a new iterator that should have 1 result, A
-        CloseableIterator<? extends Element> firstIt = elementsIterator.iterator();
-        assertThat(firstIt.hasNext()).isTrue();
-        assertThat(firstIt.next()).isEqualTo(testEntity);
+        assertThat(elementsIterator.iterator().hasNext()).isTrue();
         // Check that a new iterator still has a result and the first GetElements did not change any data
-        CloseableIterator<? extends Element> secondIt = elementsIterator.iterator();
-        assertThat(secondIt.hasNext()).isTrue();
-        assertThat(secondIt.next()).isEqualTo(testEntity);
+        assertThat(elementsIterator.iterator().hasNext()).isTrue();
     }
 
     private void shouldGetElementsBySeed(final boolean includeEntities,
@@ -713,7 +705,7 @@ public class GetElementsIT extends AbstractStoreIT {
         return allSeededVertices;
     }
 
-    private Schema createSchemaVisbilityNoAggregation() {
+    private Schema createSchemaVisibilityNoAggregation() {
         return new Schema.Builder()
                 .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -731,13 +723,13 @@ public class GetElementsIT extends AbstractStoreIT {
                 .build();
     }
 
-    private Graph createGraphVisbilityNoAggregation() {
+    private Graph createGraphVisibilityNoAggregation() {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("GetElementsITVisibilityNoAggergation")
                         .build())
                 .storeProperties(getStoreProperties())
-                .addSchema(createSchemaVisbilityNoAggregation())
+                .addSchema(createSchemaVisibilityNoAggregation())
                 .addSchema(getStoreSchema())
                 .build();
     }
