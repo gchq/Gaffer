@@ -160,12 +160,12 @@ public class MapImpl {
         if (null == count || count < 1) {
             return Collections.emptyList();
         }
-        return new RepeatItemIterable<>(element, count);
+        final Element clone = element.shallowClone();
+        return new RepeatItemIterable<>(clone, count);
     }
 
     Element getAggElement(final Element element) {
-        final Element clone = element.emptyClone();
-        clone.copyProperties(element.getProperties());
+        final Element clone = element.shallowClone();
         clone.copyProperties(aggElements.get(element.getGroup()).get(element));
         return clone;
     }
