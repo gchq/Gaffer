@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -461,6 +462,10 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
     public void shouldHaveConsistentIteratorWithVisibilityAndNoAggregation() throws Exception {
+        // This test checks that the iterators that are returned by GetElements are consistent
+        // Previously there were bugs in some stores (#2519) where calling GetElements would change the data in the store
+        // This meant that the iterator would work when first used, but returned no results when used again
+
         // Given
         Graph noAggregationGraph = createGraphVisbilityNoAggregation();
 
@@ -475,9 +480,18 @@ public class GetElementsIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build(), getUser());
 
+        Entity expectedEntity = testEntity;
+        expectedEntity.putProperty(TestTypes.VISIBILITY, new String());
+
         // Then
-        assertThat(elementsIterator.iterator().hasNext()).isTrue();
-        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+        // Create a new iterator that should have 1 result, A
+        CloseableIterator<? extends Element> firstIt = elementsIterator.iterator();
+        assertThat(firstIt.hasNext()).isTrue();
+        assertThat(firstIt.next()).isEqualTo(testEntity);
+        // Check that a new iterator still has a result and the first GetElements did not change any data
+        CloseableIterator<? extends Element> secondIt = elementsIterator.iterator();
+        assertThat(secondIt.hasNext()).isTrue();
+        assertThat(secondIt.next()).isEqualTo(testEntity);
     }
 
     private void shouldGetElementsBySeed(final boolean includeEntities,
