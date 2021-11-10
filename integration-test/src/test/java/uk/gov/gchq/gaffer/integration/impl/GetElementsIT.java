@@ -37,14 +37,21 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
@@ -56,6 +63,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
@@ -449,6 +458,34 @@ public class GetElementsIT extends AbstractStoreIT {
         assertThat(results.iterator().hasNext()).isFalse();
     }
 
+    @Test
+    @TraitRequirement(StoreTrait.VISIBILITY)
+    public void shouldHaveConsistentIteratorWithVisibilityAndNoAggregation() throws Exception {
+        // This test checks that the iterators that are returned by GetElements are consistent
+        // Previously there were bugs in some stores (#2519) where calling GetElements would change the data in the store
+        // This meant that the iterator would work when first used, but returned no results when used again
+
+        // Given
+        Graph noAggregationGraph = createGraphVisibilityNoAggregation();
+
+        Entity testEntity = new Entity(TestGroups.ENTITY, "A");
+
+        noAggregationGraph.execute(new AddElements.Builder()
+                .input(testEntity)
+                .build(), getUser());
+
+        // When
+        final CloseableIterable<? extends Element> elementsIterator = noAggregationGraph.execute(new GetElements.Builder()
+                .input(new EntitySeed("A"))
+                .build(), getUser());
+
+        // Then
+        // Create a new iterator that should have 1 result, A
+        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+        // Check that a new iterator still has a result and the first GetElements did not change any data
+        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+    }
+
     private void shouldGetElementsBySeed(final boolean includeEntities,
                                          final boolean includeEdges,
                                          final DirectedType directedType,
@@ -546,7 +583,7 @@ public class GetElementsIT extends AbstractStoreIT {
             viewBuilder.edge(TestGroups.EDGE);
         }
 
-        final GetElements op = new GetElements.Builder()
+        final GetElements opSeed = new GetElements.Builder()
                 .input(seeds)
                 .directedType(directedType)
                 .inOutType(inOutType)
@@ -554,11 +591,24 @@ public class GetElementsIT extends AbstractStoreIT {
                 .seedMatching(seedMatching)
                 .build();
 
+        Collection<ElementId> seedCollection = StreamSupport.stream(seeds.spliterator(), false)
+                .collect(Collectors.toList());
+
+        final GetElements opElement = new GetElements.Builder()
+                .input(getElements(seedCollection, null))
+                .directedType(directedType)
+                .inOutType(inOutType)
+                .view(viewBuilder.build())
+                .seedMatching(seedMatching)
+                .build();
+
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> resultsSeed = graph.execute(opSeed, user);
+        final CloseableIterable<? extends Element> resultsElement = graph.execute(opElement, user);
 
         // Then
-        ElementUtil.assertElementEquals(expectedElements, results, true);
+        ElementUtil.assertElementEquals(expectedElements, resultsSeed, true);
+        ElementUtil.assertElementEquals(expectedElements, resultsElement, true);
     }
 
     private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {
@@ -653,5 +703,34 @@ public class GetElementsIT extends AbstractStoreIT {
         }
 
         return allSeededVertices;
+    }
+
+    private Schema createSchemaVisibilityNoAggregation() {
+        return new Schema.Builder()
+                .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.DIRECTED_EITHER, Boolean.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestTypes.VISIBILITY, TestTypes.VISIBILITY)
+                        .aggregate(false)
+                        .build())
+                .visibilityProperty(TestTypes.VISIBILITY)
+                .build();
+    }
+
+    private Graph createGraphVisibilityNoAggregation() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("GetElementsITVisibilityNoAggergation")
+                        .build())
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchemaVisibilityNoAggregation())
+                .addSchema(getStoreSchema())
+                .build();
     }
 }
