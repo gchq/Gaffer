@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -477,13 +478,23 @@ public class GetElementsIT extends AbstractStoreIT {
         // When
         final CloseableIterable<? extends Element> elementsIterator = noAggregationGraph.execute(new GetElements.Builder()
                 .input(new EntitySeed("A"))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build(), getUser());
+
+        Entity expectedEntity = testEntity;
+        expectedEntity.putProperty(TestTypes.VISIBILITY, new String());
 
         // Then
         // Create a new iterator that should have 1 result, A
-        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+        CloseableIterator<? extends Element> firstIt = elementsIterator.iterator();
+        assertThat(firstIt.hasNext()).isTrue();
+        assertThat(firstIt.next()).isEqualTo(expectedEntity);
         // Check that a new iterator still has a result and the first GetElements did not change any data
-        assertThat(elementsIterator.iterator().hasNext()).isTrue();
+        CloseableIterator<? extends Element> secondIt = elementsIterator.iterator();
+        assertThat(secondIt.hasNext()).isTrue();
+        assertThat(secondIt.next()).isEqualTo(expectedEntity);
     }
 
     private void shouldGetElementsBySeed(final boolean includeEntities,
