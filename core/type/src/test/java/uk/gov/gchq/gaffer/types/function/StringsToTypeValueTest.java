@@ -55,7 +55,22 @@ public class StringsToTypeValueTest extends FunctionTest {
     }
 
     @Override
+    protected Iterable getDifferentInstancesOrNull() {
+        return null;
+    }
+
+    @Override
     protected Class<StringsToTypeValue> getFunctionClass() {
         return StringsToTypeValue.class;
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{TypeValue.class};
     }
 }

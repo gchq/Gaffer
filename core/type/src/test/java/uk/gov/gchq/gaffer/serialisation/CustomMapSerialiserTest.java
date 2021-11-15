@@ -16,19 +16,13 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
-import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
-import uk.gov.gchq.gaffer.time.serialisation.RBMBackedTimestampSetSerialiser;
 import uk.gov.gchq.gaffer.types.CustomMap;
-
-import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -48,30 +42,6 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new IntegerSerialiser());
     }
 
-    @Test
-    public void shouldSerialiserStringRBMBackedTimestampSet() throws SerialisationException {
-        // Given
-        final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
-                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(10)))
-                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(20)))
-                .build();
-
-        final RBMBackedTimestampSet timestampSet2 = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
-                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(111)))
-                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222)))
-                .build();
-
-        final CustomMap<String, RBMBackedTimestampSet> expected = new CustomMap<>(new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
-        expected.put("OneTimeStamp", timestampSet1);
-        expected.put("TwoTimeStamp", timestampSet2);
-
-        // When
-        final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
-        // Then
-        detailedEquals(expected, deserialise, String.class, RBMBackedTimestampSet.class, new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
-    }
 
     private void detailedEquals(final CustomMap expected, final CustomMap actual, final Class expectedKClass, final Class expectedVClass, final ToBytesSerialiser kS, final ToBytesSerialiser vS) {
         try {

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time.serialisation;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
@@ -22,7 +23,10 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
+import uk.gov.gchq.gaffer.types.CustomMap;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -89,6 +93,62 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         assertTrue(200 < lengthSet1 && lengthSet1 < 220);
         assertTrue(72000 < lengthSet2 && lengthSet2 < 74000);
         assertTrue(3900000 < lengthSet3 && lengthSet3 < 4100000);
+    }
+
+    @Test
+    public void shouldSerialiserStringRBMBackedTimestampSet() throws SerialisationException {
+        // Given
+        final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
+                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(10)))
+                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(20)))
+                .build();
+
+        final RBMBackedTimestampSet timestampSet2 = new RBMBackedTimestampSet.Builder()
+                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(111)))
+                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222)))
+                .build();
+
+        final CustomMap<String, RBMBackedTimestampSet> expected = new CustomMap<>(new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
+        expected.put("OneTimeStamp", timestampSet1);
+        expected.put("TwoTimeStamp", timestampSet2);
+
+        // When
+        final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
+        // Then
+        detailedEquals(expected, deserialise, String.class, RBMBackedTimestampSet.class, new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
+    }
+
+    private void detailedEquals(final CustomMap expected, final CustomMap actual, final Class expectedKClass, final Class expectedVClass, final ToBytesSerialiser kS, final ToBytesSerialiser vS) {
+        try {
+            assertEquals(expected, actual);
+        } catch (AssertionError e) {
+            //Serialiser
+            assertEquals(kS, expected.getKeySerialiser());
+            assertEquals(kS, actual.getKeySerialiser());
+            assertEquals(vS, expected.getValueSerialiser());
+            assertEquals(vS, actual.getValueSerialiser());
+            assertEquals(expected.getKeySerialiser(), actual.getKeySerialiser());
+            //Key element
+            assertEquals(expectedKClass, expected.keySet().iterator().next().getClass());
+            assertEquals(expectedKClass, actual.keySet().iterator().next().getClass());
+            //Value element
+            assertEquals(expectedVClass, expected.values().iterator().next().getClass());
+            assertEquals(expectedVClass, actual.values().iterator().next().getClass());
+            //ketSets
+            assertEquals(expected.keySet(), actual.keySet());
+            //values
+            for (Object k : expected.keySet()) {
+                final Object expectedV = expected.get(k);
+                final Object actualV = actual.get(k);
+                assertEquals(expectedV.getClass(), actualV.getClass());
+                assertEquals(expectedVClass, actualV.getClass());
+                assertEquals(expectedVClass, expectedV.getClass());
+                assertEquals(expectedV, actualV);
+            }
+            assertEquals(expected, actual);
+        }
     }
 
     @Override

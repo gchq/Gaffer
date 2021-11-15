@@ -20,8 +20,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.bitmap.serialisation.json.BitmapJsonModules;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.DoubleSerialiser;
@@ -29,12 +27,8 @@ import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
-import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
-import uk.gov.gchq.gaffer.time.serialisation.RBMBackedTimestampSetSerialiser;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -110,6 +104,7 @@ public class CustomMapTest {
         assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
     }
 
+
     @Test
     public void shouldJSONSerialiseFloatRDM() throws IOException {
         //given
@@ -144,4 +139,6 @@ public class CustomMapTest {
     protected String jsonFromFile(final String path) throws IOException {
         return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
     }
+
+
 }
