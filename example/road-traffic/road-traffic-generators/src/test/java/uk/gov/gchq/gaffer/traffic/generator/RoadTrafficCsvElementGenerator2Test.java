@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusEntityGenerator;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.function.And;
 import uk.gov.gchq.koryphe.impl.function.ApplyBiFunction;
@@ -95,7 +96,7 @@ public class RoadTrafficCsvElementGenerator2Test {
 
         IterableFunction<Map<String, Object>, Tuple<String>> toTuples = new IterableFunction<>(new MapToTuple<String>());
 
-        IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction<>(new And.Builder<>()
+        IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction(new And.Builder<>()
                 .execute(new String[]{"Road", "A-Junction"}, new Concat(":"), new String[]{"A-Junction"})
                 .execute(new String[]{"Road", "B-Junction"}, new Concat(":"), new String[]{"B-Junction"})
                 .execute(new String[]{"A Ref E", "A Ref N"}, new Concat(), new String[]{"A-Location"})

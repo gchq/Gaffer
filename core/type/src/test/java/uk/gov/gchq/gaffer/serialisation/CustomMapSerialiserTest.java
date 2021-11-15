@@ -42,7 +42,6 @@ public class CustomMapSerialiserTest extends ToBytesSerialisationTest<CustomMap>
         detailedEquals(expected, deserialise, String.class, Integer.class, new StringSerialiser(), new IntegerSerialiser());
     }
 
-
     private void detailedEquals(final CustomMap expected, final CustomMap actual, final Class expectedKClass, final Class expectedVClass, final ToBytesSerialiser kS, final ToBytesSerialiser vS) {
         try {
             assertEquals(expected, actual);

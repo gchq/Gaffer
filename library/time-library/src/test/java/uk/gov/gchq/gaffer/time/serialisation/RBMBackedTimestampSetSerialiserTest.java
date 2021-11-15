@@ -16,18 +16,25 @@
 package uk.gov.gchq.gaffer.time.serialisation;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.bitmap.serialisation.json.BitmapJsonModules;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.serialisation.CustomMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.types.CustomMap;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -98,6 +105,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     @Test
     public void shouldSerialiserStringRBMBackedTimestampSet() throws SerialisationException {
         // Given
+        final Serialiser<CustomMap, byte[]> customMapSerialiser = new CustomMapSerialiser();
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
                 .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(10)))
@@ -110,12 +118,12 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222)))
                 .build();
 
-        final CustomMap<String, RBMBackedTimestampSet> expected = new CustomMap<>(new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
+        final CustomMap<String, RBMBackedTimestampSet> expected = new CustomMap<String, RBMBackedTimestampSet>(new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
         expected.put("OneTimeStamp", timestampSet1);
         expected.put("TwoTimeStamp", timestampSet2);
 
         // When
-        final CustomMap deserialise = serialiser.deserialise(serialiser.serialise(expected));
+        final CustomMap deserialise = customMapSerialiser.deserialise(customMapSerialiser.serialise(expected));
         // Then
         detailedEquals(expected, deserialise, String.class, RBMBackedTimestampSet.class, new StringSerialiser(), new RBMBackedTimestampSetSerialiser());
     }
@@ -151,6 +159,41 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         }
     }
 
+    @Test
+    public void shouldJSONSerialiseFloatRDM() throws IOException {
+        //given
+        System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, BitmapJsonModules.class.getCanonicalName());
+
+        final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
+                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(11)))
+                .build();
+
+        final RBMBackedTimestampSet timestampSet2 = new RBMBackedTimestampSet.Builder()
+                .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
+                .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222222)))
+                .build();
+
+        final CustomMap<Float, RBMBackedTimestampSet> expectedMap = new CustomMap<>(new RawFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
+        expectedMap.put(123.3f, timestampSet1);
+        expectedMap.put(345.6f, timestampSet2);
+
+        final String expectedJson = jsonFromFile("custom-map04.json");
+
+        //when
+        final byte[] serialise = JSONSerialiser.serialise(expectedMap, true);
+        final CustomMap jsonMap = JSONSerialiser.deserialise(expectedJson, CustomMap.class);
+        final CustomMap deserialiseMap = JSONSerialiser.deserialise(serialise, CustomMap.class);
+
+        //then
+        assertEquals(jsonMap, deserialiseMap, "The expected map from Json doesn't match");
+        assertEquals(expectedMap, deserialiseMap, "The expected map doesn't match");
+    }
+
+    protected String jsonFromFile(final String path) throws IOException {
+        return String.join("\n", IOUtils.readLines(StreamUtil.openStream(getClass(), path)));
+    }
+
     @Override
     public Serialiser<RBMBackedTimestampSet, byte[]> getSerialisation() {
         return new RBMBackedTimestampSetSerialiser();
@@ -160,6 +203,5 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     @Override
     public Pair<RBMBackedTimestampSet, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{new Pair(getExampleValue(), new byte[]{0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
-
     }
 }
