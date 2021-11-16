@@ -66,7 +66,7 @@ public class StringsToTypeValueTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Object.class};
+        return new Class[]{String.class, String.class};
     }
 
     @Override

@@ -7,7 +7,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.koryphe.function.FunctionTest;
-import uk.gov.gchq.koryphe.tuple.ArrayTuple;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
 
 import static org.junit.Assert.assertEquals;
@@ -67,7 +66,7 @@ public class StringsToTypeSubTypeValueTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Object.class};
+        return new Class[]{String.class, String.class, String.class};
     }
 
     @Override
