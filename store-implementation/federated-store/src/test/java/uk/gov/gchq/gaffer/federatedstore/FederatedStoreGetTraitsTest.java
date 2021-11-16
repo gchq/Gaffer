@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
@@ -116,7 +116,7 @@ public class FederatedStoreGetTraitsTest {
     private static final StoreProperties MAP_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseMapStore.properties"));
     private FederatedStore federatedStore;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
         federatedStore.initialise("testFed", new Schema(), new FederatedStoreProperties());
