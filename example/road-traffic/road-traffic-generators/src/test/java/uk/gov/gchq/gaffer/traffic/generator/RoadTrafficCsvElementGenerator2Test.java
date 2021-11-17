@@ -33,7 +33,19 @@ import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusEntity
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
-import uk.gov.gchq.koryphe.impl.function.*;
+import uk.gov.gchq.koryphe.impl.function.ApplyBiFunction;
+import uk.gov.gchq.koryphe.impl.function.CallMethod;
+import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
+import uk.gov.gchq.koryphe.impl.function.FunctionChain;
+import uk.gov.gchq.koryphe.impl.function.IterableFunction;
+import uk.gov.gchq.koryphe.impl.function.MapToTuple;
+import uk.gov.gchq.koryphe.impl.function.MultiplyBy;
+import uk.gov.gchq.koryphe.impl.function.ParseDate;
+import uk.gov.gchq.koryphe.impl.function.ParseTime;
+import uk.gov.gchq.koryphe.impl.function.ToInteger;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
