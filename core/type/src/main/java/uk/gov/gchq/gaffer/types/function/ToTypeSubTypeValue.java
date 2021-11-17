@@ -25,7 +25,7 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * value into a {@link TypeSubTypeValue}, by setting the Type and SubType to null (or the provided strings)
  * and the Value to the input value.
  */
-@Since("1.8.0")
+@Since("1.20.1")
 @Summary("Converts a value into a TypeSubTypeValue")
 public class ToTypeSubTypeValue extends KorypheFunction<Object, TypeSubTypeValue> {
     private String type;

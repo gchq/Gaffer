@@ -26,7 +26,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@Since("1.8.0")
+@Since("1.20.1")
 @Summary("Generates HllSketch sketch Entities for each end of an Edge")
 @JsonPropertyOrder(value = {"group", "cardinalityPropertyName", "edgeGroupPropertyName", "propertiesToCopy"}, alphabetic = true)
 public class HllSketchEntityGenerator extends CardinalityEntityGenerator<HllSketch> {

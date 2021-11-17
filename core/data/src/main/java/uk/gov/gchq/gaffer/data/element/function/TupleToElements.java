@@ -44,7 +44,7 @@ import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.GR
 import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.SOURCE;
 import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.VERTEX;
 
-@Since("1.8.0")
+@Since("1.20.1")
 @Summary("Generates elements from a tuple")
 @JsonPropertyOrder(alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
