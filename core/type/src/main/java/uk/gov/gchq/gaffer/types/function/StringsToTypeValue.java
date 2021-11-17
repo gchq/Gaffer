@@ -24,7 +24,7 @@ import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
  * A {@code StringsToTypeSubTypeValue} is a {@link KorypheFunction2} that converts 2 strings: type and value
  * into a {@link TypeValue}.
  */
-@Since("1.20.1")
+@Since("1.21.0")
 @Summary("Converts 2 strings into a TypeValue")
 public class StringsToTypeValue extends KorypheFunction2<String, String, TypeValue> {
     @Override

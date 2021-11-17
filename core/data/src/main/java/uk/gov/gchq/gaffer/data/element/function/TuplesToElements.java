@@ -30,7 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Since("1.20.1")
+@Since("1.21.0")
 @Summary("Generates elements from tuples")
 @JsonPropertyOrder(alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

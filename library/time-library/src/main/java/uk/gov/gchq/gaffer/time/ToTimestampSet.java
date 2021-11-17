@@ -28,7 +28,7 @@ import java.time.Instant;
 /**
  * Creates a {@link TimestampSet} and initialises it with a single timestamp.
  */
-@Since("1.20.1")
+@Since("1.21.0")
 @JsonPropertyOrder(value = {"bucket", "maxSize"}, alphabetic = true)
 public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
     @Required
