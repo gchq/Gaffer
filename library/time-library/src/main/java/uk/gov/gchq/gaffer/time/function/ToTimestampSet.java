@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.time;
+package uk.gov.gchq.gaffer.time.function;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
+import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
+import uk.gov.gchq.gaffer.time.TimestampSet;
 import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.time.Instant;
@@ -29,6 +33,7 @@ import java.time.Instant;
  * Creates a {@link TimestampSet} and initialises it with a single timestamp.
  */
 @Since("1.21.0")
+@Summary("Creates a TimestampSet and initialises it with a single timestamp.")
 @JsonPropertyOrder(value = {"bucket", "maxSize"}, alphabetic = true)
 public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
     @Required

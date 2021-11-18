@@ -25,16 +25,17 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * value into a {@link TypeValue}, by setting the Type to null (or the provided string)
  * and the Value to the input value.
  */
-@Since("1.21.0")
+@Since("1.8.0")
 @Summary("Converts a value into a TypeValue")
 public class ToTypeValue extends KorypheFunction<Object, TypeValue> {
     private String type;
 
-    public ToTypeValue() {
+    public ToTypeValue(final String type) {
+        setType(type);
     }
 
-    public ToTypeValue(final String type) {
-        this.type = type;
+    public ToTypeValue() {
+        this(null);
     }
 
     @Override
