@@ -20,8 +20,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,7 +81,6 @@ public class WriteUnsortedDataTest {
     @BeforeAll
     public static void setUp() throws IOException {
         fs = FileSystem.get(new Configuration());
-        Logger.getRootLogger().setLevel(Level.WARN);
     }
 
     @Test
