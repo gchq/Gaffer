@@ -20,13 +20,10 @@ import com.google.common.collect.Sets;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
@@ -56,11 +53,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * TODO: Test that visibility is implicitly included as a group-by property?
  */
 public class AggregateAndSortDataTest {
-
-    @BeforeEach
-    public void setUp() {
-        Logger.getRootLogger().setLevel(Level.INFO);
-    }
 
     public static void writeData(final String file, final SchemaUtils schemaUtils) throws IOException {
         final ParquetWriter<Element> writer = new ParquetElementWriter
