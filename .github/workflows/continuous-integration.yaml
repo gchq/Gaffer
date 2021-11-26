@@ -1,6 +1,12 @@
 name: Continuous Integration
 
-on: [ pull_request ]
+on:
+  pull_request:
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+      - 'alpha-release/**'
 
 jobs:
   check-all-modules-are-tested:

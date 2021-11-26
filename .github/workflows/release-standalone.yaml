@@ -30,4 +30,3 @@ jobs:
         OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
         OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
       run: mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B
-

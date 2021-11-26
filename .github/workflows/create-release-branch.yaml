@@ -1,0 +1,80 @@
+name: Create Release Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release Branch Version'
+        required: false
+
+env:
+  artifactId: gaffer2
+  MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+
+jobs:
+  create-release-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout develop
+      uses: actions/checkout@v2
+      with:
+        ref: develop
+        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Set version from input
+      if: ${{ github.event.inputs.version }}
+      run: echo "RELEASE_VERSION=$(echo ${{ github.event.inputs.version }} | sed 's/^v//')" >> $GITHUB_ENV
+
+    - name: Get latest tag
+      if: ${{ !github.event.inputs.version }}
+      uses: actions-ecosystem/action-get-latest-tag@v1
+      id: get-latest-tag
+
+    - name: Format latest tag
+      if: ${{ !github.event.inputs.version }}
+      run: echo "CURRENT_VERSION=$(echo ${{ steps.get-latest-tag.outputs.tag }} | sed 's/^gaffer2-//')" >> $GITHUB_ENV
+
+    - name: Bump latest tag variable
+      if: ${{ !github.event.inputs.version }}
+      uses: actions-ecosystem/action-bump-semver@v1
+      id: bump-semver
+      with:
+        current_version: ${{ env.CURRENT_VERSION }}
+        level: minor
+
+    - name: Set version automatically
+      if: ${{ !github.event.inputs.version }}
+      run: echo "RELEASE_VERSION=$(echo ${{ steps.bump-semver.outputs.new_version }} )" >> $GITHUB_ENV
+
+    - name: Verify version regex
+      uses: actions-ecosystem/action-regex-match@v2
+      id: regex-match
+      with:
+        text: ${{ env.RELEASE_VERSION }}
+        # Ensure valid semver version
+        regex: '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+
+    - name: Fail if incorrect version
+      if: ${{ !steps.regex-match.outputs.match }}
+      run: exit 1
+
+    - name: Set release branch
+      run: echo "BRANCH_NAME=$(echo release/${{ env.RELEASE_VERSION }} )" >> $GITHUB_ENV
+
+    - name: Set up Github credentials
+      run: |
+        git config user.name Gaffer
+        git config user.email github-actions@github.com
+
+    - name: Update versions
+      run: |
+        mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
+        sed -i'' -e "s/^gaffer.version=.*/gaffer.version=$RELEASE_VERSION/" rest-api/common-rest/src/main/resources/version.properties
+
+    - name: Push to release branch
+      run: |
+        git checkout -b $BRANCH_NAME
+        git commit -a -m "prepare release $artifactId-$RELEASE_VERSION"
+        git push --set-upstream origin $BRANCH_NAME

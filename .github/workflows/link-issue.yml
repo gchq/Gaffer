@@ -7,9 +7,9 @@ jobs:
   issue-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: tkt-actions/add-issue-links@v1.6.0
-        with:
-          repo-token: '${{ secrets.GITHUB_TOKEN }}'
-          branch-prefix: 'gh-'
-          link-style: 'body'
-          resolve: 'true' 
+    - uses: tkt-actions/add-issue-links@v1.6.0
+      with:
+        repo-token: '${{ secrets.GITHUB_TOKEN }}'
+        branch-prefix: 'gh-'
+        link-style: 'body'
+        resolve: 'true' 
