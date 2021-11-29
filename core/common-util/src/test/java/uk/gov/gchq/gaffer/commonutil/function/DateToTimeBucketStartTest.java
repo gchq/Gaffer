@@ -9,9 +9,9 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DateToTimeBucketStartTest extends FunctionTest {
+class DateToTimeBucketStartTest extends FunctionTest<DateToTimeBucketStart> {
 
     private static Date CURRENT_DATE =java.util.Calendar.getInstance().getTime();
 
@@ -42,10 +42,11 @@ class DateToTimeBucketStartTest extends FunctionTest {
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // TODO
     }
 
     @Override
-    protected Object getInstance() {
+    protected DateToTimeBucketStart getInstance() {
         return new DateToTimeBucketStart();
     }
 

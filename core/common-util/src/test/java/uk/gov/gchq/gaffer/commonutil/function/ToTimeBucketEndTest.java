@@ -6,13 +6,10 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ToTimeBucketEndTest extends FunctionTest {
+class ToTimeBucketEndTest extends FunctionTest<ToTimeBucketEnd> {
     private static Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
 
 
@@ -38,13 +35,15 @@ class ToTimeBucketEndTest extends FunctionTest {
         return new Class[]{Long.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // TODO
 
     }
 
     @Override
-    protected Object getInstance() {
+    protected ToTimeBucketEnd getInstance() {
         return new ToTimeBucketEnd();
     }
 

@@ -1,16 +1,15 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PropertiesTransformerTest extends FunctionTest {
+class PropertiesTransformerTest extends FunctionTest<PropertiesTransformer> {
 
     @Test
     void shouldCreateEmptySetWhenNull() {
@@ -18,6 +17,7 @@ class PropertiesTransformerTest extends FunctionTest {
         final PropertiesTransformer propertiesTransformer =
                 new PropertiesTransformer();
         Properties properties = new Properties("Test","Property");
+
         // When
         Properties result = propertiesTransformer.apply(properties);
 
@@ -28,7 +28,6 @@ class PropertiesTransformerTest extends FunctionTest {
                 .build();
 
         assertEquals(expected, result);
-
     }
 
     @Override
@@ -47,17 +46,18 @@ class PropertiesTransformerTest extends FunctionTest {
         // Given
         final PropertiesTransformer propertiesTransformer =
                 new PropertiesTransformer();
+
         // When
         final String json = new String(JSONSerialiser.serialise(propertiesTransformer));
         PropertiesTransformer deserialisedPropertiesTransformer = JSONSerialiser.deserialise(json, PropertiesTransformer.class);
+
         // Then
         assertEquals(propertiesTransformer, deserialisedPropertiesTransformer);
         assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.ToTimestampSet\",\"bucket\":\"DAY\",\"millisCorrection\":1}", json );
-
     }
 
     @Override
-    protected Object getInstance() {
+    protected PropertiesTransformer getInstance() {
         return new PropertiesTransformer();
     }
 

@@ -6,14 +6,12 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DateToTimeBucketEndTest extends FunctionTest {
+class DateToTimeBucketEndTest extends FunctionTest<DateToTimeBucketEnd> {
     private static Date CURRENT_DATE =java.util.Calendar.getInstance().getTime();
 
     @Test
@@ -43,10 +41,11 @@ class DateToTimeBucketEndTest extends FunctionTest {
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // TODO
     }
 
     @Override
-    protected Object getInstance() {
+    protected DateToTimeBucketEnd getInstance() {
         return new DateToTimeBucketEnd();
     }
 

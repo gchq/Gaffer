@@ -3,15 +3,13 @@ package uk.gov.gchq.gaffer.commonutil.function;
 import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.FunctionTest;
-import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ToTimeBucketTest extends FunctionTest {
+class ToTimeBucketTest extends FunctionTest<ToTimeBucket> {
     private static Long MILLI_TIMESTAMPS = Instant.now().toEpochMilli();
 
     @Test
@@ -37,13 +35,14 @@ class ToTimeBucketTest extends FunctionTest {
         return new Class[]{Long.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
-
+        // TODO
     }
 
     @Override
-    protected Object getInstance() {
+    protected ToTimeBucket getInstance() {
         return new ToTimeBucket();
     }
 

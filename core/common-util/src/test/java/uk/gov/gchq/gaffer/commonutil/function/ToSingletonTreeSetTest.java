@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.TreeSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ToSingletonTreeSetTest extends FunctionTest {
+class ToSingletonTreeSetTest extends FunctionTest<ToSingletonTreeSet> {
 
     @Test
     void shouldCreateATreeSetWithSingleObjectInside() {
@@ -16,10 +16,8 @@ class ToSingletonTreeSetTest extends FunctionTest {
         final ToSingletonTreeSet toSingletonTreeSet = new ToSingletonTreeSet();
         TreeSet expected = new TreeSet();
         expected.add("input");
-
         // When
         TreeSet result = toSingletonTreeSet.apply("input");
-
         // Then
         assertEquals(expected, result);
     }
@@ -37,11 +35,12 @@ class ToSingletonTreeSetTest extends FunctionTest {
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // TODO
 
     }
 
     @Override
-    protected Object getInstance() {
+    protected ToSingletonTreeSet getInstance() {
         return new ToSingletonTreeSet();
     }
 

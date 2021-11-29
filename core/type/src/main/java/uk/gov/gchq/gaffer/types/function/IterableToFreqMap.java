@@ -22,7 +22,7 @@ import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 @Since("1.21.0")
-@Summary("Creates a FreqMap from an Iterable")
+@Summary("Creates a FreqMap from an Iterable of Strings")
 public class IterableToFreqMap extends KorypheFunction<Iterable<String>, FreqMap> {
 
     @Override

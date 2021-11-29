@@ -39,7 +39,7 @@ import java.util.function.Predicate;
 
 @JsonPropertyOrder(alphabetic = true)
 @Since("1.21.0")
-@Summary("Filters on Properties")
+@Summary("A Predicate which evaluates against a Properties")
 public class PropertiesFilter extends TupleAdaptedPredicateComposite<String> {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
     private boolean readOnly;

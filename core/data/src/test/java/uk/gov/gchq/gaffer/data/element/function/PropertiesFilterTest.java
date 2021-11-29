@@ -3,19 +3,12 @@ package uk.gov.gchq.gaffer.data.element.function;
 import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.types.FreqMap;
-import uk.gov.gchq.gaffer.types.function.IterableToFreqMap;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.function.FunctionTest;
 import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PropertiesFilterTest extends JSONSerialisationTest<PropertiesFilter> {
 

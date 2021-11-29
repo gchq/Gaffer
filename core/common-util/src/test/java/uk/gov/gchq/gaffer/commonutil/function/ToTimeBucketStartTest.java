@@ -7,9 +7,9 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 import java.io.IOException;
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ToTimeBucketStartTest extends FunctionTest {
+class ToTimeBucketStartTest extends FunctionTest<ToTimeBucketStart> {
     private static Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
 
     @Test
@@ -34,13 +34,14 @@ class ToTimeBucketStartTest extends FunctionTest {
         return new Class[]{Long.class};
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
-
+        // TODO
     }
 
     @Override
-    protected Object getInstance() {
+    protected ToTimeBucketStart getInstance() {
         return new ToTimeBucketStart();
     }
 

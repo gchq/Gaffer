@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TuplesToElementsTest extends FunctionTest {
+class TuplesToElementsTest extends FunctionTest<TuplesToElements> {
 
     @Test
     void shouldConvertBasicEntity() {
