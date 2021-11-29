@@ -22,6 +22,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
@@ -34,7 +36,10 @@ import java.util.function.Predicate;
  * An {@code PropertiesFilter} is a {@link Predicate} which evaluates a condition against
  * a provided {@link Properties} object.
  */
+
 @JsonPropertyOrder(alphabetic = true)
+@Since("1.21.0")
+@Summary("Filters on Properties")
 public class PropertiesFilter extends TupleAdaptedPredicateComposite<String> {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
     private boolean readOnly;

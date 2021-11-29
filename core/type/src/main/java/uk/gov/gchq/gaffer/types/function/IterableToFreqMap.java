@@ -17,8 +17,12 @@
 package uk.gov.gchq.gaffer.types.function;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
+@Since("1.21.0")
+@Summary("Creates a FreqMap from an Iterable")
 public class IterableToFreqMap extends KorypheFunction<Iterable<String>, FreqMap> {
 
     @Override
