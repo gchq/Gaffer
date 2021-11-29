@@ -27,8 +27,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToTimeBucketEndTest extends FunctionTest<ToTimeBucketEnd> {
-    private static Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
-
+    private static final Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
 
     @Test
     void shouldCreateTimeBucketWithSingleTimeInIt() {
@@ -37,7 +36,7 @@ class ToTimeBucketEndTest extends FunctionTest<ToTimeBucketEnd> {
         toTimeBucketEnd.setBucket(CommonTimeUtil.TimeBucket.SECOND);
         // When
         Long result = toTimeBucketEnd.apply(SECOND_TIMESTAMPS);
-        long expected = (((((long) Math.ceil(SECOND_TIMESTAMPS)) + 999) / 1000) * 1000)-1;
+        long expected = (((((long) Math.ceil(SECOND_TIMESTAMPS)) + 999) / 1000) * 1000) - 1;
         // Then
         assertEquals(expected, result);
     }

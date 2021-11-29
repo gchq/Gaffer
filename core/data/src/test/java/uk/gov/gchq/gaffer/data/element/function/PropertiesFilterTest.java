@@ -32,7 +32,7 @@ class PropertiesFilterTest extends JSONSerialisationTest<PropertiesFilter> {
     @Test
     public void shouldTestPropertiesOnPredicate2() {
         // Given
-        final PropertiesFilter filter = new PropertiesFilter.Builder()
+        final PropertiesFilter propertiesFilter = new PropertiesFilter.Builder()
                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
                 .execute(new KoryphePredicate2<String, String>() {
                     @Override
@@ -42,54 +42,54 @@ class PropertiesFilterTest extends JSONSerialisationTest<PropertiesFilter> {
                 })
                 .build();
 
-        final Properties properties1 = new Properties();
-        final Properties properties2 = new Properties();
-        properties1.put(TestPropertyNames.PROP_1, "value");
-        properties1.put(TestPropertyNames.PROP_2, "value2");
-        properties2.put(TestPropertyNames.PROP_1, "value_incorrect");
-        properties2.put(TestPropertyNames.PROP_2, "value2_incorrect");
+        final Properties correctProperties = new Properties();
+        correctProperties.put(TestPropertyNames.PROP_1, "value");
+        correctProperties.put(TestPropertyNames.PROP_2, "value2");
+
+        final Properties incorrectProperties = new Properties();
+        incorrectProperties.put(TestPropertyNames.PROP_1, "value_incorrect");
+        incorrectProperties.put(TestPropertyNames.PROP_2, "value2_incorrect");
 
         // When
-        final boolean result1 = filter.test(properties1);
-        final boolean result2 = filter.test(properties2);
+        final boolean correctResult = propertiesFilter.test(correctProperties);
+        final boolean incorrectResult = propertiesFilter.test(incorrectProperties);
 
         // Then
-        assertTrue(result1);
-        assertFalse(result2);
+        assertTrue(correctResult);
+        assertFalse(incorrectResult);
     }
 
     @Test
     public void shouldTestPropertiesOnPredicate2WithValidationResult() {
         // Given
-        final KoryphePredicate2<String, String> predicate2 = new KoryphePredicate2<String, String>() {
-            @Override
-            public boolean test(final String o, final String o2) {
-                return "value".equals(o) && "value2".equals(o2);
-            }
-        };
-        final PropertiesFilter filter = new PropertiesFilter.Builder()
-                .select("prop1", "prop2")
-                .execute(predicate2)
+        final PropertiesFilter propertiesFilter = new PropertiesFilter.Builder()
+                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                .execute(new KoryphePredicate2<String, String>() {
+                    @Override
+                    public boolean test(final String o, final String o2) {
+                        return "value".equals(o) && "value2".equals(o2);
+                    }
+                })
                 .build();
 
 
-        final Properties properties1 = new Properties();
-        final Properties properties2 = new Properties();
-        properties1.put("prop1", "value");
-        properties1.put("prop2", "value2");
-        properties2.put("prop1", "value_incorrect");
-        properties2.put("prop2", "value2_incorrect");
+        final Properties correctProperties = new Properties();
+        correctProperties.put(TestPropertyNames.PROP_1, "value");
+        correctProperties.put(TestPropertyNames.PROP_2, "value2");
+
+        final Properties incorrectProperties = new Properties();
+        incorrectProperties.put(TestPropertyNames.PROP_1, "value_incorrect");
+        incorrectProperties.put(TestPropertyNames.PROP_2, "value2_incorrect");
 
         // When
-        final ValidationResult result1 = filter.testWithValidationResult(properties1);
-        final ValidationResult result2 = filter.testWithValidationResult(properties2);
+        final ValidationResult correctResult = propertiesFilter.testWithValidationResult(correctProperties);
+        final ValidationResult incorrectResult = propertiesFilter.testWithValidationResult(incorrectProperties);
 
         // Then
-        assertTrue(result1.isValid());
-        assertFalse(result2.isValid());
-        assertTrue(result2.getErrorString().contains("{prop1: <java.lang.String>value_incorrect, prop2: <java.lang.String>value2_incorrect}"), "Result was: " + result2.getErrorString());
+        assertTrue(correctResult.isValid());
+        assertFalse(incorrectResult.isValid());
+        assertTrue(incorrectResult.getErrorString().contains("{property1: <java.lang.String>value_incorrect, property2: <java.lang.String>value2_incorrect}"), "Result was: " + incorrectResult.getErrorString());
     }
-
 
     @Override
     protected PropertiesFilter getTestObject() {

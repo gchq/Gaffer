@@ -21,6 +21,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
@@ -32,6 +34,8 @@ import java.util.function.Function;
  * An {@code PropertiesTransformer} is a {@link Function} which applies a series of
  * transformations to an {@link Properties} object.
  */
+@Since("1.21.0")
+@Summary("A Function which applies a series of transformations to a Properties object")
 public class PropertiesTransformer extends TupleAdaptedFunctionComposite<String> implements Serializable {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
 

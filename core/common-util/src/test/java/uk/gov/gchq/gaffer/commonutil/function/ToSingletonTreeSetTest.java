@@ -31,10 +31,10 @@ class ToSingletonTreeSetTest extends FunctionTest<ToSingletonTreeSet> {
     void shouldCreateATreeSetWithSingleObjectInside() {
         // Given
         final ToSingletonTreeSet toSingletonTreeSet = new ToSingletonTreeSet();
-        TreeSet expected = new TreeSet();
+        TreeSet<Object> expected = new TreeSet<>();
         expected.add("input");
         // When
-        TreeSet result = toSingletonTreeSet.apply("input");
+        TreeSet<Object> result = toSingletonTreeSet.apply("input");
         // Then
         assertEquals(expected, result);
     }

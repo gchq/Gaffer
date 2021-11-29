@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil.function;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Date;
@@ -24,9 +26,11 @@ import java.util.Date;
 import static java.util.Objects.isNull;
 
 /**
- * Converts a date into the end of a timestamp bucket, based on a provided
+ * Converts a Date into the end of a timestamp bucket, based on a provided
  * {@link CommonTimeUtil.TimeBucket}.
  */
+@Since("1.21.0")
+@Summary("Converts a Date into the end of a timestamp bucket, based on a provided TimeBucket")
 public class DateToTimeBucketEnd extends KorypheFunction<Date, Date> {
     private CommonTimeUtil.TimeBucket bucket;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil.function;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import static java.util.Objects.isNull;
@@ -25,6 +27,8 @@ import static java.util.Objects.isNull;
  * Converts a timestamp into a timestamp bucket, based on a provided
  * {@link CommonTimeUtil.TimeBucket}.
  */
+@Since("1.21.0")
+@Summary("Converts a timestamp into a timestamp bucket, based on a provided TimeBucket")
 public class ToTimeBucket extends KorypheFunction<Long, Long> {
     private CommonTimeUtil.TimeBucket bucket;
 

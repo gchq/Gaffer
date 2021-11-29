@@ -27,7 +27,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToTimeBucketStartTest extends FunctionTest<ToTimeBucketStart> {
-    private static Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
+    private static final Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
 
     @Test
     void shouldCreateTimeBucketWithSingleTimeInIt() {

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DateToTimeBucketEndTest extends FunctionTest<DateToTimeBucketEnd> {
-    private static Date CURRENT_DATE =java.util.Calendar.getInstance().getTime();
+    private static final Date CURRENT_DATE = java.util.Calendar.getInstance().getTime();
 
     @Test
     void shouldConvertDateToEndOfTimeBucket() {
@@ -39,8 +39,8 @@ class DateToTimeBucketEndTest extends FunctionTest<DateToTimeBucketEnd> {
         // When
         Date result = dateToTimeBucketEnd.apply(CURRENT_DATE);
         long days = TimeUnit.MILLISECONDS.toDays(CURRENT_DATE.getTime());
-        long daysToMilliRounded = (days+1)*(1000*60*60*24)-1;
-        Date expected =new Date(new Timestamp(daysToMilliRounded).getTime());
+        long daysToMilliRounded = (days + 1) * (1000 * 60 * 60 * 24) - 1;
+        Date expected = new Date(new Timestamp(daysToMilliRounded).getTime());
         // Then
         assertEquals(expected, result);
     }
@@ -52,7 +52,7 @@ class DateToTimeBucketEndTest extends FunctionTest<DateToTimeBucketEnd> {
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{CommonTimeUtil.TimeBucket.class};
+        return new Class[]{Date.class};
     }
 
     @Test

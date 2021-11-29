@@ -16,18 +16,19 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
 import com.yahoo.sketches.hll.HllSketch;
+
 import org.junit.jupiter.api.Test;
-//import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
-//import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToHllSketchTest extends FunctionTest<ToHllSketch> {
 
+    // TODO: implement
     // @Test
     // void shouldCreateNonBoundedSet() {
     //     // Given
@@ -55,7 +56,6 @@ class ToHllSketchTest extends FunctionTest<ToHllSketch> {
         return new Class[]{HllSketch.class};
     }
 
-
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
@@ -67,7 +67,7 @@ class ToHllSketchTest extends FunctionTest<ToHllSketch> {
         ToHllSketch deserialisedToHllSketch = JSONSerialiser.deserialise(json, ToHllSketch.class);
         // Then
         assertEquals(toHllSketch, deserialisedToHllSketch);
-        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.ToHllSketch\"}", json );
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.ToHllSketch\"}", json);
     }
 
     @Override

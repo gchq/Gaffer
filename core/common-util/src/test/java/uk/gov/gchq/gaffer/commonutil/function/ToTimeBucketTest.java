@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.function;
 
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
@@ -26,7 +27,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToTimeBucketTest extends FunctionTest<ToTimeBucket> {
-    private static Long MILLI_TIMESTAMPS = Instant.now().toEpochMilli();
+    private static final Long MILLI_TIMESTAMPS = Instant.now().toEpochMilli();
 
     @Test
     void shouldCreateTimeBucketWithSingleTimeInIt() {

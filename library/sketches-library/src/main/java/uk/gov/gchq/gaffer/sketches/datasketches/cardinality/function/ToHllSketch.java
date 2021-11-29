@@ -18,14 +18,18 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yahoo.sketches.hll.HllSketch;
 
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import static java.util.Objects.nonNull;
 
 /**
- * Creates a new {@link HllSketch} instances and initialises it with
+ * Creates a new {@link HllSketch} instance and initialises it with
  * the given object.
  */
+@Since("1.21.0")
+@Summary("Creates a new HllSketch instance and initialises it with the given object")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ToHllSketch extends KorypheFunction<Object, HllSketch> {
     private int logK = 5;

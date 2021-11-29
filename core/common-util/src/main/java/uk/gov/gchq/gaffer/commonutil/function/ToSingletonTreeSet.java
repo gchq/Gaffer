@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil.function;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.TreeSet;
@@ -24,9 +26,11 @@ import java.util.TreeSet;
 /**
  * Creates a new {@link TreeSet} and adds the given object.
  */
-public class ToSingletonTreeSet extends KorypheFunction<Object, TreeSet> {
+@Since("1.21.0")
+@Summary("Creates a new TreeSet and adds the given object")
+public class ToSingletonTreeSet extends KorypheFunction<Object, TreeSet<Object>> {
     @Override
-    public TreeSet apply(final Object o) {
+    public TreeSet<Object> apply(final Object o) {
         return CollectionUtil.treeSet(o);
     }
 }
