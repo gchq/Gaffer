@@ -19,11 +19,8 @@ package uk.gov.gchq.gaffer.parquetstore.operation.handler;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import scala.collection.JavaConversions$;
@@ -60,11 +57,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddElementsHandlerTest {
-
-    @BeforeEach
-    public void setUp() {
-        Logger.getRootLogger().setLevel(Level.INFO);
-    }
 
     @Test
     public void testOnePartitionOneGroup(@TempDir java.nio.file.Path tempDir)
