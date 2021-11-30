@@ -75,8 +75,6 @@ class PropertiesTransformerTest extends FunctionTest<PropertiesTransformer> {
 
         final Properties testProperties = new Properties();
         testProperties.put(TestPropertyNames.PROP_1, 1);
-        // TODO: Needed?
-        //propertiesTransformer.apply(testProperties);
 
         // When
         final String json = new String(JSONSerialiser.serialise(propertiesTransformer));
@@ -84,7 +82,6 @@ class PropertiesTransformerTest extends FunctionTest<PropertiesTransformer> {
 
         // Then
         assertEquals(propertiesTransformer, deserialisedPropertiesTransformer);
-        // TODO: Is this correct? Compare to ToTimestampSet
         assertEquals("{\"functions\":[{\"selection\":[\"property1\"],\"function\":{\"class\":\"uk.gov.gchq.koryphe.impl.function.ToLong\"},\"projection\":[\"property2\"]}]}", json);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
@@ -32,6 +34,8 @@ import java.util.function.Function;
  * An {@code ElementTransformer} is a {@link Function} which applies a series of
  * transformations to an {@link Element}.
  */
+@Since("0.3.0")
+@Summary("A Function which applies a series of transformations to a Properties object")
 public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
