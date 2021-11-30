@@ -32,7 +32,7 @@ class DateToTimeBucketEndTest extends FunctionTest<DateToTimeBucketEnd> {
     private static final Date CURRENT_DATE = java.util.Calendar.getInstance().getTime();
 
     @Test
-    void shouldConvertDateToEndOfTimeBucket() {
+    public void shouldConvertDateToEndOfTimeBucket() {
         // Given
         final DateToTimeBucketEnd dateToTimeBucketEnd = new DateToTimeBucketEnd();
         dateToTimeBucketEnd.setBucket(CommonTimeUtil.TimeBucket.DAY);

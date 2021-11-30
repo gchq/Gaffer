@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IterableToFreqMapTest extends FunctionTest<IterableToFreqMap> {
 
     @Test
-    void shouldInitialiseTheValueOfTheKeyToOneIfNotSeenBefore() {
+    public void shouldInitialiseTheValueOfTheKeyToOneIfNotSeenBefore() {
         // Given
         Iterable<String> strings = (Iterable<String>) Arrays.asList("one");
         final IterableToFreqMap iterableToFreqMap =
@@ -46,7 +46,7 @@ class IterableToFreqMapTest extends FunctionTest<IterableToFreqMap> {
     }
 
     @Test
-    void shouldIncrementTheValueOfTheKeyByOne() {
+    public void shouldIncrementTheValueOfTheKeyByOne() {
         // Given
         Iterable<String> strings = (Iterable<String>) Arrays.asList("one", "one");
         final IterableToFreqMap iterableToFreqMap =

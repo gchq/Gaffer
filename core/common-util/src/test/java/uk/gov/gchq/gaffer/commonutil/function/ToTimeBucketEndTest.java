@@ -30,7 +30,7 @@ class ToTimeBucketEndTest extends FunctionTest<ToTimeBucketEnd> {
     private static final Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
 
     @Test
-    void shouldCreateTimeBucketWithSingleTimeInIt() {
+    public void shouldCreateTimeBucketWithSingleTimeInIt() {
         // Given
         final ToTimeBucketEnd toTimeBucketEnd = new ToTimeBucketEnd();
         toTimeBucketEnd.setBucket(CommonTimeUtil.TimeBucket.SECOND);
