@@ -91,7 +91,7 @@ class TuplesToElementsTest extends FunctionTest<TuplesToElements> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<TuplesToElements> getDifferentInstancesOrNull() {
         return null;
     }
 }

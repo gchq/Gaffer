@@ -83,7 +83,7 @@ class ToHllSketchTest extends FunctionTest<ToHllSketch> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ToHllSketch> getDifferentInstancesOrNull() {
         return null;
     }
 }

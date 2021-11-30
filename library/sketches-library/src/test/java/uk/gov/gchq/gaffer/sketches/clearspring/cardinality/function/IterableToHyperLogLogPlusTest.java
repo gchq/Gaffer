@@ -30,7 +30,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class IterableToHyperLogLogPlusTest extends FunctionTest {
+class IterableToHyperLogLogPlusTest extends FunctionTest<IterableToHyperLogLogPlus> {
     @Test
     public void shouldCreateEmptyWhenNull() {
         //Given
@@ -98,7 +98,7 @@ class IterableToHyperLogLogPlusTest extends FunctionTest {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<IterableToHyperLogLogPlus> getDifferentInstancesOrNull() {
         return null;
     }
 }

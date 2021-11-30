@@ -93,7 +93,7 @@ public class TypeValueToTupleTest extends FunctionTest<TypeValueToTuple> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<TypeValueToTuple> getDifferentInstancesOrNull() {
         return null;
     }
 

@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ToTypeValueTest extends FunctionTest {
+public class ToTypeValueTest extends FunctionTest<ToTypeValue> {
 
     @Test
     public void shouldConvertStringToTypeValue() {

@@ -62,7 +62,7 @@ class ToSingletonTreeSetTest extends FunctionTest<ToSingletonTreeSet> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ToSingletonTreeSet> getDifferentInstancesOrNull() {
         return null;
     }
 }

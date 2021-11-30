@@ -115,7 +115,7 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ToTimestampSet> getDifferentInstancesOrNull() {
         return null;
     }
 }

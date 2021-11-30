@@ -210,7 +210,7 @@ public class ElementTransformerTest extends FunctionTest<ElementTransformer> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ElementTransformer> getDifferentInstancesOrNull() {
         return null;
     }
 }

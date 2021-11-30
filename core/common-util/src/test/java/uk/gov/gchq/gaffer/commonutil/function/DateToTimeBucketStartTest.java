@@ -67,7 +67,7 @@ class DateToTimeBucketStartTest extends FunctionTest<DateToTimeBucketStart> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<DateToTimeBucketStart> getDifferentInstancesOrNull() {
         return null;
     }
 }

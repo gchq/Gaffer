@@ -28,7 +28,7 @@ import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class StringsToTypeValueTest extends FunctionTest {
+public class StringsToTypeValueTest extends FunctionTest<StringsToTypeValue> {
     @Test
     public void shouldConvertStringToTypeValue() {
         // Given
@@ -70,7 +70,7 @@ public class StringsToTypeValueTest extends FunctionTest {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<StringsToTypeValue> getDifferentInstancesOrNull() {
         return null;
     }
 

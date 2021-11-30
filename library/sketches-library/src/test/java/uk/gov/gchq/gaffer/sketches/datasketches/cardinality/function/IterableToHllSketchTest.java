@@ -31,7 +31,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class IterableToHllSketchTest extends FunctionTest {
+class IterableToHllSketchTest extends FunctionTest<IterableToHllSketch> {
 
     @Test
     public void shouldCreateEmptyWhenNull() {
@@ -101,7 +101,7 @@ class IterableToHllSketchTest extends FunctionTest {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<IterableToHllSketch> getDifferentInstancesOrNull() {
         return null;
     }
 }

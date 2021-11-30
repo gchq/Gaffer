@@ -91,7 +91,7 @@ class IterableToFreqMapTest extends FunctionTest<IterableToFreqMap> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<IterableToFreqMap> getDifferentInstancesOrNull() {
         return null;
     }
 }

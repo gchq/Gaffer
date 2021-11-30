@@ -83,7 +83,7 @@ class ToHyperLogLogPlusTest extends FunctionTest<ToHyperLogLogPlus> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ToHyperLogLogPlus> getDifferentInstancesOrNull() {
         return null;
     }
 }

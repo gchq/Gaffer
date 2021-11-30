@@ -35,7 +35,7 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
+public class MaskTimestampSetByTimeRangeTest extends FunctionTest<MaskTimestampSetByTimeRange> {
 
     private Instant instant;
     private MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange();
@@ -136,12 +136,12 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     }
 
     @Override
-    protected Function getInstance() {
+    protected MaskTimestampSetByTimeRange getInstance() {
         return maskTimestampSetByTimeRange;
     }
 
     @Override
-    protected Iterable<Function> getDifferentInstancesOrNull() {
+    protected Iterable<MaskTimestampSetByTimeRange> getDifferentInstancesOrNull() {
         return Arrays.asList(
                 new MaskTimestampSetByTimeRange(10L, 20L),
                 new MaskTimestampSetByTimeRange(10L, 20L, TimeUnit.SECOND)

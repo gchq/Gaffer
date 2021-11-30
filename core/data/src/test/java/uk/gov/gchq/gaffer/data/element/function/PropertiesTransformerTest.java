@@ -91,7 +91,7 @@ class PropertiesTransformerTest extends FunctionTest<PropertiesTransformer> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<PropertiesTransformer> getDifferentInstancesOrNull() {
         return null;
     }
 }

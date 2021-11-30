@@ -64,7 +64,7 @@ class ToTimeBucketEndTest extends FunctionTest<ToTimeBucketEnd> {
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ToTimeBucketEnd> getDifferentInstancesOrNull() {
         return null;
     }
 }
