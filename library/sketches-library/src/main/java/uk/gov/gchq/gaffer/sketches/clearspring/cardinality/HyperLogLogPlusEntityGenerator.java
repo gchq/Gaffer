@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import com.yahoo.sketches.hll.HllSketch;
 import uk.gov.gchq.gaffer.sketches.CardinalityEntityGenerator;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function.ToHyperLogLogPlus;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 /**
- * Generates {@link HyperLogLogPlus} Entities for each end of an Edge.
+ * Generates {@link HyperLogLogPlus} sketch Entities for
+ * each end of an Edge.
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Since("1.21.0")
