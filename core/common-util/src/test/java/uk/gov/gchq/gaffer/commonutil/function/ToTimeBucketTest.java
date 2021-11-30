@@ -30,7 +30,7 @@ class ToTimeBucketTest extends FunctionTest<ToTimeBucket> {
     private static final Long MILLI_TIMESTAMPS = Instant.now().toEpochMilli();
 
     @Test
-    void shouldCreateTimeBucketWithSingleTimeInIt() {
+    public void shouldCreateTimeBucketWithSingleTimeInIt() {
         // Given
         final ToTimeBucket toTimeBucket = new ToTimeBucket();
         toTimeBucket.setBucket(CommonTimeUtil.TimeBucket.MILLISECOND);

@@ -32,7 +32,7 @@ class DateToTimeBucketStartTest extends FunctionTest<DateToTimeBucketStart> {
     private static final Date CURRENT_DATE = java.util.Calendar.getInstance().getTime();
 
     @Test
-    void shouldConvertDateToStartOfTimeBucket() {
+    public void shouldConvertDateToStartOfTimeBucket() {
         // Given
         final DateToTimeBucketStart dateToTimeBucketStart = new DateToTimeBucketStart();
         dateToTimeBucketStart.setBucket(CommonTimeUtil.TimeBucket.DAY);

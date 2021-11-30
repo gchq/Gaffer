@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PropertiesTransformerTest extends FunctionTest<PropertiesTransformer> {
 
     @Test
-    void shouldTransformPropertiesType() {
+    public void shouldTransformPropertiesType() {
         // Given
         final PropertiesTransformer propertiesTransformer = new PropertiesTransformer.Builder()
                 .select(TestPropertyNames.PROP_1)

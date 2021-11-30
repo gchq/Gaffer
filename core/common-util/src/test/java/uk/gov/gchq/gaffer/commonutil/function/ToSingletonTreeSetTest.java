@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ToSingletonTreeSetTest extends FunctionTest<ToSingletonTreeSet> {
 
     @Test
-    void shouldCreateATreeSetWithSingleObjectInside() {
+    public void shouldCreateATreeSetWithSingleObjectInside() {
         // Given
         final ToSingletonTreeSet toSingletonTreeSet = new ToSingletonTreeSet();
         TreeSet<Object> expected = new TreeSet<>();

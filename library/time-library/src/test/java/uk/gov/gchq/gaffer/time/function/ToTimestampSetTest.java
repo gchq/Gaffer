@@ -35,7 +35,7 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
     private static final Long TEST_TIMESTAMP = Instant.now().toEpochMilli();
 
     @Test
-    void shouldCreateEmptySetWhenNull() {
+    public void shouldCreateEmptySetWhenNull() {
         // Given
         final ToTimestampSet toTimestampSet =
                 new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, false);
@@ -48,11 +48,10 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
                 .build();
 
         assertEquals(expected, result);
-
     }
 
     @Test
-    void shouldCreateBoundedSet() {
+    public void shouldCreateBoundedSet() {
         // Given
         final ToTimestampSet toTimestampSet =
                 new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, 10);
@@ -67,11 +66,10 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
         expected.add(Instant.ofEpochMilli(TEST_TIMESTAMP));
 
         assertEquals(expected, result);
-
     }
 
     @Test
-    void shouldCreateNonBoundedSet() {
+    public void shouldCreateNonBoundedSet() {
         // Given
         final ToTimestampSet toTimestampSet =
                 new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, false);
@@ -85,7 +83,6 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
         expected.add(Instant.ofEpochMilli(TEST_TIMESTAMP));
 
         assertEquals(expected, result);
-
     }
 
     @Override

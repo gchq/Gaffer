@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TupleToElementsTest extends FunctionTest<TupleToElements> {
 
     @Test
-    void shouldConvertBasicEntity() {
+    public void shouldConvertBasicEntity() {
         // Given
         ElementTupleDefinition elementTupleDefinition = new ElementTupleDefinition(TestGroups.ENTITY);
         elementTupleDefinition.vertex("vertex");
