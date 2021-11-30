@@ -25,6 +25,9 @@ import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function.ToHllSketch
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+/**
+ * Generates {@link HllSketch} Entities for each end of an Edge.
+ */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Since("1.21.0")
 @Summary("Generates HllSketch sketch Entities for each end of an Edge")

@@ -20,11 +20,15 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import com.yahoo.sketches.hll.HllSketch;
 import uk.gov.gchq.gaffer.sketches.CardinalityEntityGenerator;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function.ToHyperLogLogPlus;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
+/**
+ * Generates {@link HyperLogLogPlus} Entities for each end of an Edge.
+ */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Since("1.21.0")
 @Summary("Generates HyperLogLogPlus sketch Entities for each end of an Edge")

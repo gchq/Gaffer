@@ -24,27 +24,34 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToHllSketchTest extends FunctionTest<ToHllSketch> {
 
-    // TODO: implement
-    // @Test
-    // void shouldCreateNonBoundedSet() {
-    //     // Given
-    //     final ToHllSketch toHllSketch =
-    //             new ToHllSketch();
-    //     // When
-    //     HllSketch result = toHllSketch.apply("Input");
+    @Test
+    public void shouldCreateEmptyWhenNull() {
+        //Given
+        ToHllSketch toHllSketch = new ToHllSketch();
 
-    //     // Then
-    //     TimestampSet expected = new RBMBackedTimestampSet.Builder()
-    //             .timeBucket(CommonTimeUtil.TimeBucket.DAY)
-    //             .build();
-    //     expected.add(Instant.ofEpochMilli(TEST_TIMESTAMPS));
+        //When
+        HllSketch result = toHllSketch.apply(null);
 
-    //     assertEquals(expected, result);
-    // }
+        //Then
+        assertThat(result.getEstimate()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldCreateHllSketch() {
+        //Given
+        ToHllSketch toHllSketch = new ToHllSketch();
+
+        //When
+        HllSketch result = toHllSketch.apply("input");
+
+        //Then
+        assertThat(result.getEstimate()).isEqualTo(1);
+    }
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {

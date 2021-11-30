@@ -19,10 +19,18 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yahoo.sketches.hll.HllSketch;
 
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * Creates a new {@link HllSketch} instance and initialises it from
+ * the given iterable.
+ */
+@Since("1.21.0")
+@Summary("Creates a new HllSketch instance and initialises it from the given iterable")
 public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSketch> {
     @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     private int logK = 5;
@@ -37,24 +45,26 @@ public class IterableToHllSketch extends KorypheFunction<Iterable<Object>, HllSk
     @Override
     public HllSketch apply(final Iterable<Object> iterable) {
         final HllSketch hllp = new HllSketch(logK);
-        for (final Object o : iterable) {
-            if (nonNull(o)) {
-                if (o instanceof String) {
-                    hllp.update((String) o);
-                } else if (o instanceof Long) {
-                    hllp.update(((long) o));
-                } else if (o instanceof byte[]) {
-                    hllp.update(((byte[]) o));
-                } else if (o instanceof Double) {
-                    hllp.update(((double) o));
-                } else if (o instanceof char[]) {
-                    hllp.update(((char[]) o));
-                } else if (o instanceof long[]) {
-                    hllp.update(((long[]) o));
-                } else if (o instanceof int[]) {
-                    hllp.update(((int[]) o));
-                } else {
-                    hllp.update(o.toString());
+        if (nonNull(iterable)) {
+            for (final Object o : iterable) {
+                if (nonNull(o)) {
+                    if (o instanceof String) {
+                        hllp.update((String) o);
+                    } else if (o instanceof Long) {
+                        hllp.update(((long) o));
+                    } else if (o instanceof byte[]) {
+                        hllp.update(((byte[]) o));
+                    } else if (o instanceof Double) {
+                        hllp.update(((double) o));
+                    } else if (o instanceof char[]) {
+                        hllp.update(((char[]) o));
+                    } else if (o instanceof long[]) {
+                        hllp.update(((long[]) o));
+                    } else if (o instanceof int[]) {
+                        hllp.update(((int[]) o));
+                    } else {
+                        hllp.update(o.toString());
+                    }
                 }
             }
         }

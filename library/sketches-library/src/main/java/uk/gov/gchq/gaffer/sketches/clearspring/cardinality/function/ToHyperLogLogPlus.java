@@ -18,12 +18,16 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
  * Creates a new {@link HyperLogLogPlus} instances and initialises it with
  * the given object.
  */
+@Since("1.21.0")
+@Summary("Creates a new HyperLogLogPlus instance and initialises it with the given object")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ToHyperLogLogPlus extends KorypheFunction<Object, HyperLogLogPlus> {
     private int p = 5;
