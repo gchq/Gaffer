@@ -40,7 +40,7 @@ class HllSketchEntityGeneratorTest {
     private static final String VALUE1 = "value1";
 
     @Test
-    public void shouldCreateSimpleEntities(){
+    public void shouldCreateSimpleEntities() {
         //Given
         HllSketchEntityGenerator hllSketchEntityGenerator = new HllSketchEntityGenerator();
         Edge edge = new Edge.Builder()
@@ -74,7 +74,7 @@ class HllSketchEntityGeneratorTest {
     }
 
     @Test
-    public void shouldCreateSimpleEntitiesWithProperties(){
+    public void shouldCreateSimpleEntitiesWithProperties() {
         //Given
         HllSketchEntityGenerator hllSketchEntityGenerator = new HllSketchEntityGenerator();
         hllSketchEntityGenerator.propertyToCopy(PROP1);

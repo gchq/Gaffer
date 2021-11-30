@@ -40,7 +40,7 @@ class HyperLogLogPlusEntityGeneratorTest {
     private static final String VALUE1 = "value1";
 
     @Test
-    public void shouldCreateSimpleEntities(){
+    public void shouldCreateSimpleEntities() {
         //Given
         HyperLogLogPlusEntityGenerator hyperLogLogPlusEntityGenerator = new HyperLogLogPlusEntityGenerator();
         Edge edge = new Edge.Builder()
@@ -74,7 +74,7 @@ class HyperLogLogPlusEntityGeneratorTest {
     }
 
     @Test
-    public void shouldCreateSimpleEntitiesWithProperties(){
+    public void shouldCreateSimpleEntitiesWithProperties() {
         //Given
         HyperLogLogPlusEntityGenerator hyperLogLogPlusEntityGenerator = new HyperLogLogPlusEntityGenerator();
         hyperLogLogPlusEntityGenerator.propertyToCopy(PROP1);

@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 

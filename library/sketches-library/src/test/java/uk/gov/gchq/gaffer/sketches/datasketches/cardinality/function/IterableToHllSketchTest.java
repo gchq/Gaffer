@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function;
 
 import com.yahoo.sketches.hll.HllSketch;
+
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
