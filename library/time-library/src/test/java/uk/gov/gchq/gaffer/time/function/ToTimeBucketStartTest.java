@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.time.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
@@ -54,7 +55,15 @@ class ToTimeBucketStartTest extends FunctionTest<ToTimeBucketStart> {
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
-        // TODO
+        // Given
+        final ToTimeBucketStart toTimeBucketStart =
+                new ToTimeBucketStart();
+        // When
+        final String json = new String(JSONSerialiser.serialise(toTimeBucketStart));
+        ToTimeBucketStart deserialisedToTimeBucketStart = JSONSerialiser.deserialise(json, ToTimeBucketStart.class);
+        // Then
+        assertEquals(toTimeBucketStart, deserialisedToTimeBucketStart);
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.ToTimeBucketStart\"}", json);
     }
 
     @Override

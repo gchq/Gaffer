@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.time.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -52,8 +53,15 @@ class ToSingletonTreeSetTest extends FunctionTest<ToSingletonTreeSet> {
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
-        // TODO
-
+        // Given
+        final ToSingletonTreeSet toSingletonTreeSet =
+                new ToSingletonTreeSet();
+        // When
+        final String json = new String(JSONSerialiser.serialise(toSingletonTreeSet));
+        ToSingletonTreeSet deserialisedToSingletonTreeSet = JSONSerialiser.deserialise(json, ToSingletonTreeSet.class);
+        // Then
+        assertEquals(toSingletonTreeSet, deserialisedToSingletonTreeSet);
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.time.function.ToSingletonTreeSet\"}", json);
     }
 
     @Override
