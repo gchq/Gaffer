@@ -17,12 +17,12 @@ package uk.gov.gchq.gaffer.time.serialisation;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.LongTimeSeries;
 
 import java.time.Instant;

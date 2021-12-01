@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 
 import java.time.Instant;
 import java.util.HashSet;
