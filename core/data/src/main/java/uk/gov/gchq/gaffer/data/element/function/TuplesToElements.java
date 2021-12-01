@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A {@code TuplesToElements} is a Function which generates Elements from
+ * an Iterable of Tuples.
+ */
 @Since("1.21.0")
 @Summary("Generates elements from tuples")
 @JsonPropertyOrder(alphabetic = true)

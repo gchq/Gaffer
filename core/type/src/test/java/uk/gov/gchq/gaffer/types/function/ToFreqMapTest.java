@@ -43,6 +43,19 @@ public class ToFreqMapTest extends FunctionTest<ToFreqMap> {
     }
 
     @Test
+    public void shouldConvertEmptyStringToFreqMap() {
+        // Given
+        final ToFreqMap function = new ToFreqMap();
+        final String emptyValue = "";
+
+        // When
+        final FreqMap result = function.apply(emptyValue);
+
+        // Then
+        assertEquals(new FreqMap(emptyValue), result);
+    }
+
+    @Test
     public void shouldConvertObjectToFreqMap() {
         // Given
         final ToFreqMap function = new ToFreqMap();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import java.util.function.Predicate;
  * An {@code PropertiesFilter} is a {@link Predicate} which evaluates a condition against
  * a provided {@link Properties} object.
  */
-
 @JsonPropertyOrder(alphabetic = true)
 @Since("1.21.0")
 @Summary("A Predicate which evaluates against a Properties")

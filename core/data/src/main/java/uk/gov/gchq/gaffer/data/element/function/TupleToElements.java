@@ -44,8 +44,11 @@ import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.GR
 import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.SOURCE;
 import static uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition.VERTEX;
 
+/**
+ * A {@code TupleToElements} is a Function which generates Elements from a Tuple.
+ */
 @Since("1.21.0")
-@Summary("Generates elements from a tuple")
+@Summary("Generates Elements from a Tuple")
 @JsonPropertyOrder(alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Element>> implements Serializable {

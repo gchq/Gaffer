@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.io.Serializable;
 
 /**
- * An {@code PropertiesTuple} implements {@link Tuple} wrapping a
+ * A {@code PropertiesTuple} implements {@link Tuple} wrapping a
  * {@link Properties} and providing a getter and setter for the element's property values.
  * This class allows Properties to be used with the function module whilst minimising dependencies.
  */

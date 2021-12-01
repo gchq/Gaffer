@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,10 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A {@link CardinalityEntityGenerator} is an abstract Generator for
+ * generating cardinality Entities for each end of an Edge.
+ */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public abstract class CardinalityEntityGenerator<T> implements OneToManyElementGenerator<Element> {
     private final Function<Object, T> toSketch;

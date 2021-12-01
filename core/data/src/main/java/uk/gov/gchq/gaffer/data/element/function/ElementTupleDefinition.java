@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,12 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import java.util.HashMap;
 
+/**
+ * An {@code ElementTupleDefinition} is a HashMap that stores a mapping between the
+ * key names and the relevant part of an {@link Element} used for creation of
+ * Elements from data structures like MapTuples. For example, the key "id" in the
+ * MapTuple can be mapped to the vertex for Element creation.
+ */
 public class ElementTupleDefinition extends HashMap<String, Object> {
     public static final String GROUP = "GROUP";
     public static final String VERTEX = "VERTEX";
@@ -28,7 +34,7 @@ public class ElementTupleDefinition extends HashMap<String, Object> {
     private static final long serialVersionUID = -2147030485732699831L;
 
     ElementTupleDefinition() {
-        // constructor for json serialisation
+        // Constructor for json serialisation
     }
 
     public ElementTupleDefinition(final String group) {

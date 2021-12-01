@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 /**
- * An {@code PropertiesTransformer} is a {@link Function} which applies a series of
+ * A {@code PropertiesTransformer} is a {@link Function} which applies a series of
  * transformations to an {@link Properties} object.
  */
 @Since("1.21.0")

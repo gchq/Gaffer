@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,10 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
+/**
+ * An {@code IterableToFreqMap} is a Function which creates a
+ * FreqMap from an Iterable of Strings.
+ */
 @Since("1.21.0")
 @Summary("Creates a FreqMap from an Iterable of Strings")
 public class IterableToFreqMap extends KorypheFunction<Iterable<String>, FreqMap> {
