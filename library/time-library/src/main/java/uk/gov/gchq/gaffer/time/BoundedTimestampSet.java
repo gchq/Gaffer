@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.time.Instant;

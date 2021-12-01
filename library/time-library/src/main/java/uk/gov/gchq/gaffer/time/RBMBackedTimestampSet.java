@@ -28,7 +28,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.time.Instant;
@@ -42,7 +42,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 /**
  * An {@code RBMBackedTimestampSet} is an implementation of {@link TimestampSet} that stores timestamps

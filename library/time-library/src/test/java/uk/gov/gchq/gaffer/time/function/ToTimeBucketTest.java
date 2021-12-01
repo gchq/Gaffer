@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.function;
+package uk.gov.gchq.gaffer.time.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -26,19 +26,20 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ToTimeBucketStartTest extends FunctionTest<ToTimeBucketStart> {
-    private static final Long SECOND_TIMESTAMPS = Instant.now().getEpochSecond();
+class ToTimeBucketTest extends FunctionTest<ToTimeBucket> {
+    private static final Long MILLI_TIMESTAMPS = Instant.now().toEpochMilli();
 
     @Test
     public void shouldCreateTimeBucketWithSingleTimeInIt() {
         // Given
-        final ToTimeBucketStart toTimeBucketStart = new ToTimeBucketStart();
-        toTimeBucketStart.setBucket(CommonTimeUtil.TimeBucket.SECOND);
+        final ToTimeBucket toTimeBucket = new ToTimeBucket();
+        toTimeBucket.setBucket(CommonTimeUtil.TimeBucket.MILLISECOND);
         // When
-        Long result = toTimeBucketStart.apply(SECOND_TIMESTAMPS);
-        long expected = (((long) Math.ceil(SECOND_TIMESTAMPS)) / 1000) * 1000;
+        Long result = toTimeBucket.apply(MILLI_TIMESTAMPS);
+
         // Then
-        assertEquals(expected, result);
+        assertEquals(MILLI_TIMESTAMPS, result);
+
     }
 
     @Override
@@ -58,12 +59,12 @@ class ToTimeBucketStartTest extends FunctionTest<ToTimeBucketStart> {
     }
 
     @Override
-    protected ToTimeBucketStart getInstance() {
-        return new ToTimeBucketStart();
+    protected ToTimeBucket getInstance() {
+        return new ToTimeBucket();
     }
 
     @Override
-    protected Iterable<ToTimeBucketStart> getDifferentInstancesOrNull() {
+    protected Iterable<ToTimeBucket> getDifferentInstancesOrNull() {
         return null;
     }
 }

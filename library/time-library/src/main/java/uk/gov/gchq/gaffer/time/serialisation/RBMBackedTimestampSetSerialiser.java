@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.time.serialisation;
 import org.roaringbitmap.RoaringBitmap;
 
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;

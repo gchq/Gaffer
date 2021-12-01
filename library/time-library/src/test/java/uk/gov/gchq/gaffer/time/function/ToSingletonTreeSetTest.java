@@ -14,57 +14,55 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.function;
+package uk.gov.gchq.gaffer.time.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
-import java.time.Instant;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ToTimeBucketTest extends FunctionTest<ToTimeBucket> {
-    private static final Long MILLI_TIMESTAMPS = Instant.now().toEpochMilli();
+class ToSingletonTreeSetTest extends FunctionTest<ToSingletonTreeSet> {
 
     @Test
-    public void shouldCreateTimeBucketWithSingleTimeInIt() {
+    public void shouldCreateATreeSetWithSingleObjectInside() {
         // Given
-        final ToTimeBucket toTimeBucket = new ToTimeBucket();
-        toTimeBucket.setBucket(CommonTimeUtil.TimeBucket.MILLISECOND);
+        final ToSingletonTreeSet toSingletonTreeSet = new ToSingletonTreeSet();
+        TreeSet<Object> expected = new TreeSet<>();
+        expected.add("input");
         // When
-        Long result = toTimeBucket.apply(MILLI_TIMESTAMPS);
-
+        TreeSet<Object> result = toSingletonTreeSet.apply("input");
         // Then
-        assertEquals(MILLI_TIMESTAMPS, result);
-
+        assertEquals(expected, result);
     }
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{Long.class};
+        return new Class[]{Object.class};
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[]{Long.class};
+        return new Class[]{TreeSet.class};
     }
 
     @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // TODO
+
     }
 
     @Override
-    protected ToTimeBucket getInstance() {
-        return new ToTimeBucket();
+    protected ToSingletonTreeSet getInstance() {
+        return new ToSingletonTreeSet();
     }
 
     @Override
-    protected Iterable<ToTimeBucket> getDifferentInstancesOrNull() {
+    protected Iterable<ToSingletonTreeSet> getDifferentInstancesOrNull() {
         return null;
     }
 }

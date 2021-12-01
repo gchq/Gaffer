@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.time.function;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;

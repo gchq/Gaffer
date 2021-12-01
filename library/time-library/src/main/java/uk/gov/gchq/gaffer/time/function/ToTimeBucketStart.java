@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.function;
+package uk.gov.gchq.gaffer.time.function;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;

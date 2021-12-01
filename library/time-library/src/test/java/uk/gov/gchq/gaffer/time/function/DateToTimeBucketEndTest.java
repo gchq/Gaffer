@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.function;
+package uk.gov.gchq.gaffer.time.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;

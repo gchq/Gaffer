@@ -14,39 +14,37 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.function;
+package uk.gov.gchq.gaffer.time.function;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-import java.util.Date;
-
 import static java.util.Objects.isNull;
 
 /**
- * Converts a Date into the end of a timestamp bucket, based on a provided
+ * Converts a timestamp into the end of a timestamp bucket, based on a provided
  * {@link CommonTimeUtil.TimeBucket}.
  */
 @Since("1.21.0")
-@Summary("Converts a Date into the end of a timestamp bucket, based on a provided TimeBucket")
-public class DateToTimeBucketEnd extends KorypheFunction<Date, Date> {
+@Summary("Converts a timestamp into the end of a timestamp bucket, based on a provided TimeBucket")
+public class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
     private CommonTimeUtil.TimeBucket bucket;
 
-    public DateToTimeBucketEnd() {
+    public ToTimeBucketEnd() {
     }
 
-    public DateToTimeBucketEnd(final CommonTimeUtil.TimeBucket bucket) {
+    public ToTimeBucketEnd(final CommonTimeUtil.TimeBucket bucket) {
         this.bucket = bucket;
     }
 
     @Override
-    public Date apply(final Date date) {
-        if (isNull(date)) {
+    public Long apply(final Long time) {
+        if (isNull(time)) {
             return null;
         }
-        return new Date(CommonTimeUtil.timeToBucketEnd(date.getTime(), bucket));
+        return CommonTimeUtil.timeToBucketEnd(time, bucket);
     }
 
     public CommonTimeUtil.TimeBucket getBucket() {

@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.time.function;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
     private SortedSet<Instant> instants = new TreeSet<>();

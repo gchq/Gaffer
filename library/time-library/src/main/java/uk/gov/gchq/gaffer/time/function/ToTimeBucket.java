@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.function;
+package uk.gov.gchq.gaffer.time.function;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
@@ -24,18 +24,18 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import static java.util.Objects.isNull;
 
 /**
- * Converts a timestamp into the end of a timestamp bucket, based on a provided
+ * Converts a timestamp into a timestamp bucket, based on a provided
  * {@link CommonTimeUtil.TimeBucket}.
  */
 @Since("1.21.0")
-@Summary("Converts a timestamp into the end of a timestamp bucket, based on a provided TimeBucket")
-public class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
+@Summary("Converts a timestamp into a timestamp bucket, based on a provided TimeBucket")
+public class ToTimeBucket extends KorypheFunction<Long, Long> {
     private CommonTimeUtil.TimeBucket bucket;
 
-    public ToTimeBucketEnd() {
+    public ToTimeBucket() {
     }
 
-    public ToTimeBucketEnd(final CommonTimeUtil.TimeBucket bucket) {
+    public ToTimeBucket(final CommonTimeUtil.TimeBucket bucket) {
         this.bucket = bucket;
     }
 
@@ -44,7 +44,7 @@ public class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
         if (isNull(time)) {
             return null;
         }
-        return CommonTimeUtil.timeToBucketEnd(time, bucket);
+        return CommonTimeUtil.timeToBucket(time, bucket);
     }
 
     public CommonTimeUtil.TimeBucket getBucket() {
@@ -55,3 +55,4 @@ public class ToTimeBucketEnd extends KorypheFunction<Long, Long> {
         this.bucket = bucket;
     }
 }
+

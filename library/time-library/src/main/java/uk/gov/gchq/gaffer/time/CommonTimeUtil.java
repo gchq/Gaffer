@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil;
+package uk.gov.gchq.gaffer.time;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
