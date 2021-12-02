@@ -41,7 +41,8 @@ jobs:
     - name: Set branch name
       run: echo "BRANCH_NAME=$(git branch -a | grep $RELEASE_VERSION | tail -n 1 | cut -c 18-)" >> $GITHUB_ENV
 
-    - id: branch
+    - name: Output branch name
+      id: branch
       run: echo "::set-output name=branch_name::$BRANCH_NAME"
 
     - name: Fail if no branch found
