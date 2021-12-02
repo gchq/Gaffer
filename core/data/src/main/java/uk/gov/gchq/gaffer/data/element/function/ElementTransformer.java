@@ -35,7 +35,7 @@ import java.util.function.Function;
  * transformations to an {@link Element}.
  */
 @Since("0.3.0")
-@Summary("A Function which applies a series of transformations to a Properties object")
+@Summary("A Function which applies a series of transformations to an Element")
 public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
