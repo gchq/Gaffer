@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.time.TimestampSet;
 import uk.gov.gchq.koryphe.Since;
@@ -37,7 +37,7 @@ import java.time.Instant;
 @JsonPropertyOrder(value = {"bucket", "maxSize"}, alphabetic = true)
 public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
     @Required
-    private CommonTimeUtil.TimeBucket bucket;
+    private TimeBucket bucket;
     private long millisCorrection = 1L;
 
     private Integer maxSize;
@@ -45,14 +45,14 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
     public ToTimestampSet() {
     }
 
-    public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket, final boolean toMilliseconds) {
+    public ToTimestampSet(final TimeBucket bucket, final boolean toMilliseconds) {
         this.bucket = bucket;
         if (toMilliseconds) {
             this.millisCorrection = 1000L;
         }
     }
 
-    public ToTimestampSet(final CommonTimeUtil.TimeBucket bucket, final Integer maxSize) {
+    public ToTimestampSet(final TimeBucket bucket, final Integer maxSize) {
         this.bucket = bucket;
         this.maxSize = maxSize;
     }
@@ -76,17 +76,17 @@ public class ToTimestampSet extends KorypheFunction<Long, TimestampSet> {
         return timestampSet;
     }
 
-    public CommonTimeUtil.TimeBucket getBucket() {
+    public TimeBucket getBucket() {
         return bucket;
     }
 
-    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
+    public void setBucket(final TimeBucket bucket) {
         this.bucket = bucket;
     }
 
     @JsonSetter
     public void setBucket(final String bucket) {
-        this.bucket = CommonTimeUtil.TimeBucket.valueOf(bucket);
+        this.bucket = TimeBucket.valueOf(bucket);
     }
 
     public long getMillisCorrection() {

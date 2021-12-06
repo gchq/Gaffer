@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.time.function;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ class ToTimeBucketTest extends FunctionTest<ToTimeBucket> {
     public void shouldCreateTimeBucketWithSingleTimeInIt() {
         // Given
         final ToTimeBucket toTimeBucket = new ToTimeBucket();
-        toTimeBucket.setBucket(CommonTimeUtil.TimeBucket.MILLISECOND);
+        toTimeBucket.setBucket(TimeBucket.MILLISECOND);
         // When
         Long result = toTimeBucket.apply(MILLI_TIMESTAMPS);
 

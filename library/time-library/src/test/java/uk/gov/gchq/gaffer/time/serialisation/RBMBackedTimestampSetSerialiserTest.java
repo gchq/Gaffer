@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.types.CustomMap;
 
@@ -61,7 +61,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
     }
 
     private RBMBackedTimestampSet getExampleValue() {
-        final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(TimeBucket.SECOND);
         rbmBackedTimestampSet.add(Instant.ofEpochMilli(1000L));
         rbmBackedTimestampSet.add(Instant.ofEpochMilli(1000000L));
         return rbmBackedTimestampSet;
@@ -79,15 +79,15 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         final Random random = new Random(123456789L);
         final Instant instant = ZonedDateTime.of(2017, 1, 1, 1, 1, 1, 0, ZoneId.of("UTC")).toInstant();
         // Set of 100 minutes in a day and the time bucket is a minute
-        final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+        final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(TimeBucket.MINUTE);
         IntStream.range(0, 100)
                 .forEach(i -> rbmBackedTimestampSet1.add(instant.plusSeconds(random.nextInt(24 * 60) * 60)));
         // Set of every minute in a year and the time bucket is a minute
-        final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+        final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(TimeBucket.MINUTE);
         IntStream.range(0, 365 * 24 * 60)
                 .forEach(i -> rbmBackedTimestampSet2.add(instant.plusSeconds(i * 60)));
         // Set of every second in a year is set and the time bucket is a second
-        final RBMBackedTimestampSet rbmBackedTimestampSet3 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet rbmBackedTimestampSet3 = new RBMBackedTimestampSet(TimeBucket.SECOND);
         IntStream.range(0, 365 * 24 * 60 * 60)
                 .forEach(i -> rbmBackedTimestampSet3.add(instant.plusSeconds(i)));
 
@@ -107,13 +107,13 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         // Given
         final Serialiser<CustomMap, byte[]> customMapSerialiser = new CustomMapSerialiser();
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timeBucket(TimeBucket.MINUTE)
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(10)))
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(20)))
                 .build();
 
         final RBMBackedTimestampSet timestampSet2 = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timeBucket(TimeBucket.MINUTE)
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(111)))
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222)))
                 .build();
@@ -165,12 +165,12 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, BitmapJsonModules.class.getCanonicalName());
 
         final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timeBucket(TimeBucket.MINUTE)
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(11)))
                 .build();
 
         final RBMBackedTimestampSet timestampSet2 = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.HOUR)
+                .timeBucket(TimeBucket.HOUR)
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222222)))
                 .build();
 

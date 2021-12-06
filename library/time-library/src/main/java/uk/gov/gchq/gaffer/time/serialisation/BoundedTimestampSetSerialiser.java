@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 
 import java.io.ByteArrayInputStream;
@@ -79,7 +79,7 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
         final ByteArrayInputStream bais = new ByteArrayInputStream(allBytes, offset, length);
         final DataInputStream dis = new DataInputStream(bais);
         final int bucketInt = (int) CompactRawSerialisationUtils.read(dis);
-        final CommonTimeUtil.TimeBucket bucket = CommonTimeUtil.TimeBucket.values()[bucketInt];
+        final TimeBucket bucket = TimeBucket.values()[bucketInt];
         final int maxSize = (int) CompactRawSerialisationUtils.read(dis);
         final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(bucket, maxSize);
         try {

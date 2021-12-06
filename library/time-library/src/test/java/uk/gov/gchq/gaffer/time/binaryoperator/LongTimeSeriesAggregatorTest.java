@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.LongTimeSeries;
 
 import java.time.Instant;
@@ -31,10 +31,10 @@ public class LongTimeSeriesAggregatorTest {
     @Test
     public void testAggregate() {
         // Given
-        final LongTimeSeries timeSeries1 = new LongTimeSeries(CommonTimeUtil.TimeBucket.SECOND);
+        final LongTimeSeries timeSeries1 = new LongTimeSeries(TimeBucket.SECOND);
         timeSeries1.put(Instant.ofEpochMilli(1_000L), 100L);
         timeSeries1.put(Instant.ofEpochMilli(10_000L), 200L);
-        final LongTimeSeries timeSeries2 = new LongTimeSeries(CommonTimeUtil.TimeBucket.SECOND);
+        final LongTimeSeries timeSeries2 = new LongTimeSeries(TimeBucket.SECOND);
         timeSeries2.put(Instant.ofEpochMilli(1_000L), 100L);
         timeSeries2.put(Instant.ofEpochMilli(10_000L), 200L);
         timeSeries2.put(Instant.ofEpochMilli(100_000L), 500L);
@@ -42,7 +42,7 @@ public class LongTimeSeriesAggregatorTest {
         // When
         final LongTimeSeries aggregated = LONG_TIME_SERIES_AGGREGATOR
                 ._apply(timeSeries1, timeSeries2);
-        final LongTimeSeries expected = new LongTimeSeries(CommonTimeUtil.TimeBucket.SECOND);
+        final LongTimeSeries expected = new LongTimeSeries(TimeBucket.SECOND);
         expected.put(Instant.ofEpochMilli(1_000L), 200L);
         expected.put(Instant.ofEpochMilli(10_000L), 400L);
         expected.put(Instant.ofEpochMilli(100_000L), 500L);
@@ -54,8 +54,8 @@ public class LongTimeSeriesAggregatorTest {
     @Test
     public void testCantMergeIfDifferentTimeBucket() {
         try {
-            final LongTimeSeries timeSeries1 = new LongTimeSeries(CommonTimeUtil.TimeBucket.SECOND);
-            final LongTimeSeries timeSeries2 = new LongTimeSeries(CommonTimeUtil.TimeBucket.MINUTE);
+            final LongTimeSeries timeSeries1 = new LongTimeSeries(TimeBucket.SECOND);
+            final LongTimeSeries timeSeries2 = new LongTimeSeries(TimeBucket.MINUTE);
             LONG_TIME_SERIES_AGGREGATOR._apply(timeSeries1, timeSeries2);
         } catch (final RuntimeException e) {
             // Expected

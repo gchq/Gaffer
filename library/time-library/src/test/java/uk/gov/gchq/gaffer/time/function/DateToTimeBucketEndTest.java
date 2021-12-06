@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.time.function;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ class DateToTimeBucketEndTest extends FunctionTest<DateToTimeBucketEnd> {
     public void shouldConvertDateToEndOfTimeBucket() {
         // Given
         final DateToTimeBucketEnd dateToTimeBucketEnd = new DateToTimeBucketEnd();
-        dateToTimeBucketEnd.setBucket(CommonTimeUtil.TimeBucket.DAY);
+        dateToTimeBucketEnd.setBucket(TimeBucket.DAY);
         // When
         Date result = dateToTimeBucketEnd.apply(CURRENT_DATE);
         long days = TimeUnit.MILLISECONDS.toDays(CURRENT_DATE.getTime());

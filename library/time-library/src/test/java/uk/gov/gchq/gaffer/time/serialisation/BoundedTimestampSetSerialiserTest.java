@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class BoundedTimestampSetSerialiserTest extends ToBytesSerialisationTest<
     }
 
     private BoundedTimestampSet getExampleValue() {
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         boundedTimestampSet.add(Instant.ofEpochMilli(1000L));
         boundedTimestampSet.add(Instant.ofEpochMilli(1000000L));
         return boundedTimestampSet;
@@ -65,7 +65,7 @@ public class BoundedTimestampSetSerialiserTest extends ToBytesSerialisationTest<
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         instants.forEach(boundedTimestampSet::add);
 
         // When

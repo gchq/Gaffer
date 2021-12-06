@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.HyperLogLogPlusEntityGenerator;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.function.DateToTimeBucketEnd;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
@@ -105,7 +105,7 @@ public class RoadTrafficCsvElementGenerator2Test {
                 .execute(new String[]{"dCount"}, new ParseTime().timeZone("UTC"), new String[]{"timestamp"})
                 .execute(new String[]{"Hour"}, new FunctionChain(new ToInteger(), new MultiplyBy(60 * 60 * 1000), new ToLong()), new String[]{"hoursInMilliseconds"})
                 .execute(new String[]{"timestamp", "hoursInMilliseconds"}, new FunctionChain(new ApplyBiFunction<>(new Sum()), new ToString(), new ParseDate()), new String[]{"startDate"})
-                .execute(new String[]{"startDate"}, new DateToTimeBucketEnd(CommonTimeUtil.TimeBucket.HOUR), new String[]{"endDate"})
+                .execute(new String[]{"startDate"}, new DateToTimeBucketEnd(TimeBucket.HOUR), new String[]{"endDate"})
                 .build());
 
         TuplesToElements toElements = new TuplesToElements()

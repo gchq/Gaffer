@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.time.TimestampSet;
 import uk.gov.gchq.koryphe.function.FunctionTest;
@@ -38,13 +38,13 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
     public void shouldCreateEmptySetWhenNull() {
         // Given
         final ToTimestampSet toTimestampSet =
-                new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, false);
+                new ToTimestampSet(TimeBucket.DAY, false);
         // When
         TimestampSet result = toTimestampSet.apply(null);
 
         // Then
         TimestampSet expected = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.DAY)
+                .timeBucket(TimeBucket.DAY)
                 .build();
 
         assertEquals(expected, result);
@@ -54,13 +54,13 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
     public void shouldCreateBoundedSet() {
         // Given
         final ToTimestampSet toTimestampSet =
-                new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, 10);
+                new ToTimestampSet(TimeBucket.DAY, 10);
         // When
         TimestampSet result = toTimestampSet.apply(TEST_TIMESTAMP);
 
         // Then
         TimestampSet expected = new BoundedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.DAY)
+                .timeBucket(TimeBucket.DAY)
                 .maxSize(10)
                 .build();
         expected.add(Instant.ofEpochMilli(TEST_TIMESTAMP));
@@ -72,13 +72,13 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
     public void shouldCreateNonBoundedSet() {
         // Given
         final ToTimestampSet toTimestampSet =
-                new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, false);
+                new ToTimestampSet(TimeBucket.DAY, false);
         // When
         TimestampSet result = toTimestampSet.apply(TEST_TIMESTAMP);
 
         // Then
         TimestampSet expected = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.DAY)
+                .timeBucket(TimeBucket.DAY)
                 .build();
         expected.add(Instant.ofEpochMilli(TEST_TIMESTAMP));
 
@@ -100,7 +100,7 @@ class ToTimestampSetTest extends FunctionTest<ToTimestampSet> {
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given
         final ToTimestampSet toTimestampSet =
-                new ToTimestampSet(CommonTimeUtil.TimeBucket.DAY, false);
+                new ToTimestampSet(TimeBucket.DAY, false);
         // When
         final String json = new String(JSONSerialiser.serialise(toTimestampSet));
         ToTimestampSet deserialisedToTimestampSet = JSONSerialiser.deserialise(json, ToTimestampSet.class);

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -92,13 +93,13 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
         final SortedSet<Instant> returnedInstants = boundedTimestampSet.getTimestamps();
         final SortedSet<Long> instantsTruncatedToBucket = new TreeSet<>();
         instants.forEach(i -> instantsTruncatedToBucket.add(CommonTimeUtil.timeToBucket(i.toEpochMilli(),
-                CommonTimeUtil.TimeBucket.SECOND)));
+                TimeBucket.SECOND)));
 
         // Then
         assertEquals(instantsTruncatedToBucket.size(), returnedInstants.size());
         final Iterator<Instant> it = instants.iterator();
         for (final long l : instantsTruncatedToBucket) {
-            assertThat(it.next()).isEqualTo(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, CommonTimeUtil.TimeBucket.SECOND)));
+            assertThat(it.next()).isEqualTo(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, TimeBucket.SECOND)));
         }
     }
 
@@ -123,7 +124,7 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
     @Test
     public void testGetEarliestAndGetLatestWhenNotFull() {
         // Given
-        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.SECOND);
         timestampSet.add(Instant.ofEpochMilli(1000L));
         timestampSet.add(Instant.ofEpochMilli(2000L));
 
@@ -192,6 +193,6 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
 
     @Override
     protected BoundedTimestampSet getTestObject() {
-        return new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        return new BoundedTimestampSet(TimeBucket.SECOND, 10);
     }
 }

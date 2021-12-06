@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.time.function;
 
 import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
@@ -25,17 +26,17 @@ import static java.util.Objects.isNull;
 
 /**
  * Converts a timestamp into a timestamp bucket, based on a provided
- * {@link CommonTimeUtil.TimeBucket}.
+ * {@link TimeBucket}.
  */
 @Since("1.21.0")
 @Summary("Converts a timestamp into a timestamp bucket, based on a provided TimeBucket")
 public class ToTimeBucket extends KorypheFunction<Long, Long> {
-    private CommonTimeUtil.TimeBucket bucket;
+    private TimeBucket bucket;
 
     public ToTimeBucket() {
     }
 
-    public ToTimeBucket(final CommonTimeUtil.TimeBucket bucket) {
+    public ToTimeBucket(final TimeBucket bucket) {
         this.bucket = bucket;
     }
 
@@ -47,11 +48,11 @@ public class ToTimeBucket extends KorypheFunction<Long, Long> {
         return CommonTimeUtil.timeToBucket(time, bucket);
     }
 
-    public CommonTimeUtil.TimeBucket getBucket() {
+    public TimeBucket getBucket() {
         return bucket;
     }
 
-    public void setBucket(final CommonTimeUtil.TimeBucket bucket) {
+    public void setBucket(final TimeBucket bucket) {
         this.bucket = bucket;
     }
 }

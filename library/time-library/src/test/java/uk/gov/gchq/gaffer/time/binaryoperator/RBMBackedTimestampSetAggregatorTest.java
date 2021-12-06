@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.time.CommonTimeUtil;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 
 import java.time.Instant;
@@ -31,17 +31,17 @@ public class RBMBackedTimestampSetAggregatorTest {
     @Test
     public void testAggregate() {
         // Given
-        final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(TimeBucket.SECOND);
         rbmBackedTimestampSet1.add(Instant.ofEpochMilli(1000L));
         rbmBackedTimestampSet1.add(Instant.ofEpochMilli(1000000L));
-        final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(TimeBucket.SECOND);
         rbmBackedTimestampSet2.add(Instant.ofEpochMilli(1000L));
         rbmBackedTimestampSet2.add(Instant.ofEpochMilli(2000000L));
 
         // When
         final RBMBackedTimestampSet aggregated = RBM_BACKED_TIMESTAMP_SET_AGGREGATOR._apply(rbmBackedTimestampSet1,
                 rbmBackedTimestampSet2);
-        final RBMBackedTimestampSet expected = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet expected = new RBMBackedTimestampSet(TimeBucket.SECOND);
         expected.add(Instant.ofEpochMilli(1000L));
         expected.add(Instant.ofEpochMilli(1000000L));
         expected.add(Instant.ofEpochMilli(2000000L));
@@ -54,8 +54,8 @@ public class RBMBackedTimestampSetAggregatorTest {
     @Test
     public void testCantMergeIfDifferentTimeBucket() {
         try {
-            final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
-            final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+            final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(TimeBucket.SECOND);
+            final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(TimeBucket.MINUTE);
             RBM_BACKED_TIMESTAMP_SET_AGGREGATOR._apply(rbmBackedTimestampSet1, rbmBackedTimestampSet2);
         } catch (final RuntimeException e) {
             // Expected
