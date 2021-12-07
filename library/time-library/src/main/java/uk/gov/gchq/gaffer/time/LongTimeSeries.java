@@ -23,9 +23,8 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 import java.time.Instant;
 import java.util.Map;
@@ -35,14 +34,14 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.DAY;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MILLISECOND;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MONTH;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.YEAR;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.DAY;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.HOUR;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.MILLISECOND;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.MINUTE;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.MONTH;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.SECOND;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.WEEK;
+import static uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket.YEAR;
 
 /**
  * This is a time series where the values are {@link Long}s. When the time series

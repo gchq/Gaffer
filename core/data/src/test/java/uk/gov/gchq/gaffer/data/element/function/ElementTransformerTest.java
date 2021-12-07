@@ -18,13 +18,19 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 import uk.gov.gchq.koryphe.impl.function.Identity;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
+import java.io.IOException;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ElementTransformerTest {
+public class ElementTransformerTest extends FunctionTest<ElementTransformer> {
 
     @Test
     public void shouldTransformElementUsingMockFunction() {
@@ -164,5 +170,47 @@ public class ElementTransformerTest {
         assertEquals(identifier3Proj.name(), context.getProjection()[0]);
 
         assertEquals(i, transformer.getComponents().size());
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureInputClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Override
+    protected Class[] getExpectedSignatureOutputClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Test
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        // Given
+        final ElementTransformer ElementTransformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new ToLong())
+                .project(TestPropertyNames.PROP_2)
+                .build();
+
+        final Properties testProperties = new Properties();
+        testProperties.put(TestPropertyNames.PROP_1, 1);
+
+        // When
+        final String json = new String(JSONSerialiser.serialise(ElementTransformer));
+        ElementTransformer deserialisedElementTransformer = JSONSerialiser.deserialise(json, ElementTransformer.class);
+
+        // Then
+        assertEquals(ElementTransformer, deserialisedElementTransformer);
+        assertEquals("{\"functions\":[{\"selection\":[\"property1\"],\"function\":{\"class\":\"uk.gov.gchq.koryphe.impl.function.ToLong\"},\"projection\":[\"property2\"]}]}", json);
+    }
+
+    @Override
+    protected ElementTransformer getInstance() {
+        return new ElementTransformer();
+    }
+
+    @Override
+    protected Iterable<ElementTransformer> getDifferentInstancesOrNull() {
+        return null;
     }
 }

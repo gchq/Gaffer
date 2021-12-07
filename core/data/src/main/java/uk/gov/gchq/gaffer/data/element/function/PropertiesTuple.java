@@ -24,12 +24,15 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
+import java.io.Serializable;
+
 /**
- * An {@code PropertiesTuple} implements {@link Tuple} wrapping a
+ * A {@code PropertiesTuple} implements {@link Tuple} wrapping a
  * {@link Properties} and providing a getter and setter for the element's property values.
  * This class allows Properties to be used with the function module whilst minimising dependencies.
  */
-public class PropertiesTuple implements Tuple<String> {
+public class PropertiesTuple implements Tuple<String>, Serializable {
+    public static final String PROPERTIES = "PROPERTIES";
 
     private Properties properties;
 
@@ -42,6 +45,9 @@ public class PropertiesTuple implements Tuple<String> {
 
     @Override
     public Object get(final String propertyName) {
+        if (PROPERTIES.equals(propertyName)) {
+            return properties;
+        }
         return properties.get(propertyName);
     }
 
@@ -64,23 +70,16 @@ public class PropertiesTuple implements Tuple<String> {
     }
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("properties", properties)
-                .build();
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
-        final PropertiesTuple objects = (PropertiesTuple) o;
+        final PropertiesTuple objects = (PropertiesTuple) obj;
 
         return new EqualsBuilder()
                 .append(properties, objects.properties)
@@ -89,8 +88,17 @@ public class PropertiesTuple implements Tuple<String> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(5, 41)
+        return new HashCodeBuilder(61, 3)
                 .append(properties)
                 .toHashCode();
     }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("properties", properties)
+                .build();
+    }
+
+
 }

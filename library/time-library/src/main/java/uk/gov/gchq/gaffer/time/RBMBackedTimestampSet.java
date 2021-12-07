@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.time;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -27,19 +28,19 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 /**
  * An {@code RBMBackedTimestampSet} is an implementation of {@link TimestampSet} that stores timestamps
@@ -303,8 +304,29 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return this;
         }
 
+        public Builder timestamp(final Instant timestamp) {
+            if (null == timestamps) {
+                timestamps = new ArrayList<>();
+            }
+            timestamps.add(timestamp);
+            return this;
+        }
+
+        @JsonSetter("timestamps")
+        public Builder timestamps(final Instant... timestamps) {
+            if (null == this.timestamps) {
+                this.timestamps = new ArrayList<>();
+            }
+            Collections.addAll(this.timestamps, timestamps);
+            return this;
+        }
+
         public Builder timestamps(final Collection<Instant> timestamps) {
-            this.timestamps = timestamps;
+            if (null == this.timestamps) {
+                this.timestamps = timestamps;
+            } else {
+                this.timestamps.addAll(timestamps);
+            }
             return this;
         }
 

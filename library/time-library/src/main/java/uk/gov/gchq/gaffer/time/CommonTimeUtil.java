@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil;
+package uk.gov.gchq.gaffer.time;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -29,6 +29,8 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
+import static java.time.temporal.TemporalAdjusters.lastDayOfYear;
 
 /**
  * Utility methods for dates and times.
@@ -38,6 +40,7 @@ public final class CommonTimeUtil {
     public static final long MILLISECONDS_IN_MINUTE = 60 * MILLISECONDS_IN_SECOND;
     public static final long MILLISECONDS_IN_HOUR = 60 * MILLISECONDS_IN_MINUTE;
     public static final long MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
+    public static final long MILLISECONDS_IN_WEEK = 7 * MILLISECONDS_IN_DAY;
 
     private CommonTimeUtil() {
         // Private constructor to prevent instantiation.
@@ -86,6 +89,46 @@ public final class CommonTimeUtil {
         }
 
         return timeBucket;
+    }
+
+    public static long timeToBucketStart(final long time, final TimeBucket bucket) {
+        return timeToBucket(time, bucket);
+    }
+
+    public static long timeToBucketEnd(final long time, final TimeBucket bucket) {
+        final long startTime = timeToBucketStart(time, bucket);
+
+        final long endTime;
+        switch (bucket) {
+            case MILLISECOND:
+                endTime = startTime;
+                break;
+            case SECOND:
+                endTime = startTime + MILLISECONDS_IN_SECOND - 1;
+                break;
+            case MINUTE:
+                endTime = startTime + MILLISECONDS_IN_MINUTE - 1;
+                break;
+            case HOUR:
+                endTime = startTime + MILLISECONDS_IN_HOUR - 1;
+                break;
+            case DAY:
+                endTime = startTime + MILLISECONDS_IN_DAY - 1;
+                break;
+            case WEEK:
+                endTime = startTime + MILLISECONDS_IN_WEEK - 1;
+                break;
+            case MONTH:
+                endTime = Instant.ofEpochMilli(startTime).atOffset(ZoneOffset.UTC).with(lastDayOfMonth()).toInstant().toEpochMilli() + MILLISECONDS_IN_DAY - 1;
+                break;
+            case YEAR:
+                endTime = Instant.ofEpochMilli(startTime).atOffset(ZoneOffset.UTC).with(lastDayOfYear()).toInstant().toEpochMilli() + MILLISECONDS_IN_DAY - 1;
+                break;
+            default:
+                endTime = time;
+        }
+
+        return endTime;
     }
 
     /**

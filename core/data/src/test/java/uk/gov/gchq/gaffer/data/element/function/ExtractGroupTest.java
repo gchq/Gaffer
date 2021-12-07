@@ -30,7 +30,7 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ExtractGroupTest extends FunctionTest {
+public class ExtractGroupTest extends FunctionTest<ExtractGroup> {
 
     @Test
     public void shouldReturnGroupFromEdge() {

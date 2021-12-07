@@ -58,7 +58,7 @@ public class RoadTrafficCsvElementGenerator extends RoadTrafficElementGenerator<
 
         final FreqMap vehicleCountsByType = getVehicleCounts(record);
         final Date startDate = getDate(record.get(dCount.fieldName()), record.get(Hour.fieldName()));
-        final Date endDate = null != startDate ? DateUtils.addHours(startDate, 1) : null;
+        final Date endDate = null != startDate ? DateUtils.addMilliseconds(DateUtils.addHours(startDate, 1), -1) : null;
         final String region = record.get(Region_Name.fieldName());
         final String location = record.get(ONS_LA_Name.fieldName());
         final String road = record.get(Road.fieldName());

@@ -378,7 +378,7 @@ public class ReduceRelatedElementsTest extends FunctionTest<ReduceRelatedElement
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ReduceRelatedElements> getDifferentInstancesOrNull() {
         return null;
     }
 
