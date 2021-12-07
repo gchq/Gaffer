@@ -19,8 +19,8 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.koryphe.util.JsonSerialiser;
 import uk.gov.gchq.koryphe.util.TimeUnit;
@@ -47,7 +47,7 @@ public class RBMBackedTimestampSetInRangeTest {
                         secondsAfterEpoch(5L),
                         secondsAfterEpoch(10L)
                 ))
-                .timeBucket(CommonTimeUtil.TimeBucket.SECOND)
+                .timeBucket(TimeBucket.SECOND)
                 .build();
 
         predicate = new RBMBackedTimestampSetInRange().timeUnit(TimeUnit.SECOND);
@@ -135,7 +135,7 @@ public class RBMBackedTimestampSetInRangeTest {
 
         // When / Then
         RBMBackedTimestampSet emptySet = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.SECOND)
+                .timeBucket(TimeBucket.SECOND)
                 .build();
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> predicate.test(emptySet))

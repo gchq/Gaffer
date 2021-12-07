@@ -22,14 +22,32 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
  * A {@code ToTypeValue} is a {@link KorypheFunction} that converts a
- * value into a {@link TypeValue}, by setting the Type to null
+ * value into a {@link TypeValue}, by setting the Type to null (or the provided string)
  * and the Value to the input value.
  */
 @Since("1.8.0")
 @Summary("Converts a value into a TypeValue")
 public class ToTypeValue extends KorypheFunction<Object, TypeValue> {
+    private String type;
+
+    public ToTypeValue(final String type) {
+        setType(type);
+    }
+
+    public ToTypeValue() {
+        this(null);
+    }
+
     @Override
     public TypeValue apply(final Object value) {
-        return new TypeValue(null, null != value ? value.toString() : null);
+        return new TypeValue(type, null != value ? value.toString() : null);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
     }
 }

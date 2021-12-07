@@ -75,7 +75,7 @@ public class ToTrailingWildcardPairTest extends FunctionTest<ToTrailingWildcardP
     }
 
     @Override
-    protected Iterable getDifferentInstancesOrNull() {
+    protected Iterable<ToTrailingWildcardPair> getDifferentInstancesOrNull() {
         return null;
     }
 

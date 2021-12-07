@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FreqMapTests {
+public class FreqMapTest {
 
     private FreqMap freqMap;
 
@@ -32,7 +32,7 @@ public class FreqMapTests {
     }
 
     @Test
-    public void testUpsertCreatesNewKeyValue() {
+    public void shouldCreateNewKeyValue() {
         // Given
         final String key = "test";
         final Long value = 6L;
@@ -46,7 +46,7 @@ public class FreqMapTests {
     }
 
     @Test
-    public void testUpsertUpdatesExistingKeyValue() {
+    public void shouldUpdateExistingKeyValue() {
         // Given
         final String key = "test";
         final Long initialValue = 3L;
@@ -62,7 +62,7 @@ public class FreqMapTests {
     }
 
     @Test
-    public void testUpsertOverloadedCreateDefaultValue() {
+    public void shouldCreateDefaultKeyValue() {
         // Given
         final String key = "test";
         final Long expected = 1L;
@@ -76,7 +76,7 @@ public class FreqMapTests {
     }
 
     @Test
-    public void testUpsertOverloadedIncrementsDefaultValue() {
+    public void shouldIncrementDefaultValue() {
         // Given
         final String key = "test";
         final Long initialValue = 57L;
@@ -91,7 +91,7 @@ public class FreqMapTests {
     }
 
     @Test
-    public void testKeyExistsButValueNullIsHandled() {
+    public void shouldHandleNull() {
         // Given
         final String key = "test";
         freqMap.put(key, null);

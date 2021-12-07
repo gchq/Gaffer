@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExtractPropertyTest extends FunctionTest {
+public class ExtractPropertyTest extends FunctionTest<ExtractProperty> {
 
     @Test
     public void shouldReturnNullForNullElement() {

@@ -19,9 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
     private SortedSet<Instant> instants = new TreeSet<>();
@@ -55,7 +54,7 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     @Test
     public void shouldSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final RBMBackedTimestampSet boundedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        final RBMBackedTimestampSet boundedTimestampSet = new RBMBackedTimestampSet(TimeBucket.SECOND);
         IntStream.range(0, 20)
                 .forEach(i -> {
                     boundedTimestampSet.add(Instant.ofEpochMilli(i * 1000L));
