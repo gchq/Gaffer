@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 /**
  * An {@code ElementTupleDefinition} is a HashMap that stores a mapping between the
- * key names and the relevant part of an {@link Element} used for creation of
+ * key names and the relevant part of an {@code Element} used for creation of
  * Elements from data structures like MapTuples. For example, the key "id" in the
  * MapTuple can be mapped to the vertex for Element creation.
  */
