@@ -18,6 +18,22 @@ jobs:
     - name: Check all modules are tested
       run: ./cd/check_modules.sh
 
+  build-javadoc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+
+    - name: Build Javadoc
+      run: |
+        mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
+        mvn -q javadoc:javadoc -Pquick
+
   build:
     runs-on: ubuntu-latest
     strategy:
