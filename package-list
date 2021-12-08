@@ -183,11 +183,16 @@ uk.gov.gchq.gaffer.serialisation.implementation.ordered
 uk.gov.gchq.gaffer.serialisation.implementation.raw
 uk.gov.gchq.gaffer.serialisation.implementation.tostring
 uk.gov.gchq.gaffer.serialisation.util
+uk.gov.gchq.gaffer.sketches
+uk.gov.gchq.gaffer.sketches.clearspring.cardinality
 uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator
+uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function
 uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate
 uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation
 uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json
+uk.gov.gchq.gaffer.sketches.datasketches.cardinality
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator
+uk.gov.gchq.gaffer.sketches.datasketches.cardinality.function
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.predicate
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
 uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.json
