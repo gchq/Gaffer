@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.rest.controller;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.gchq.gaffer.jobtracker.Job;
@@ -26,16 +28,13 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RequestMapping("/graph/jobs")
 public interface IJobController {
 
-    @RequestMapping(
+    @PostMapping(
             consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE,
-            method = POST
+            produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(
             value = "Kicks off an asynchronous job",
@@ -43,11 +42,10 @@ public interface IJobController {
     )
     ResponseEntity<JobDetail> startJob(final Operation operation) throws OperationException;
 
-    @RequestMapping(
+    @PostMapping(
             path = "/schedule",
             consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE,
-            method = POST
+            produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(
             value = "schedules an asynchronous job",
@@ -55,10 +53,9 @@ public interface IJobController {
     )
     ResponseEntity<JobDetail> scheduleJob(final Job job) throws OperationException;
 
-    @RequestMapping(
+    @GetMapping(
             path = "/{id}",
-            produces = APPLICATION_JSON_VALUE,
-            method = GET
+            produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(
             value = "Retrieves the details of an asynchronous job",
@@ -66,9 +63,8 @@ public interface IJobController {
     )
     JobDetail getDetails(final String id) throws OperationException;
 
-    @RequestMapping(
-            produces = APPLICATION_JSON_VALUE,
-            method = GET
+    @GetMapping(
+            produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation(
             value = "Retrieves the details of all the asynchronous jobs",
@@ -77,10 +73,9 @@ public interface IJobController {
     )
     Iterable<JobDetail> getAllDetails() throws OperationException;
 
-    @RequestMapping(
+    @GetMapping(
             path = "/{id}/results",
-            produces = APPLICATION_JSON_VALUE,
-            method = GET
+            produces = APPLICATION_JSON_VALUE
     )
     @ApiOperation("Retrieves the results of an asynchronous job")
     Object getResults(final String id) throws OperationException;

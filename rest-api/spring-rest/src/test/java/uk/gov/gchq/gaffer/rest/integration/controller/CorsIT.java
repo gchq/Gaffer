@@ -31,7 +31,7 @@ public class CorsIT extends AbstractRestApiIT {
     @Test
     public void shouldBeAbleToRequestFromADifferentOrigin() {
         // Given
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap();
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Origin", "http://my-ui.com/ui");
 
         HttpEntity httpEntity = new HttpEntity<>(headers);
