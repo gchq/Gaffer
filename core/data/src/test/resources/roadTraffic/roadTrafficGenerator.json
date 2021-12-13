@@ -1,0 +1,345 @@
+{
+    "class": "uk.gov.gchq.gaffer.csv.data.generator.CsvElementGenerator",
+    "quoted": true,
+    "header": [
+      "count_point_id",
+      "direction_of_travel",
+      "year",
+      "count_date",
+      "hour",
+      "region_id",
+      "region_name",
+      "region_ons_code",
+      "local_authority_id",
+      "local_authority_name",
+      "local_authoirty_ons_code",
+      "road_name",
+      "road_category",
+      "road_type",
+      "start_junction_road_name",
+      "end_junction_road_name",
+      "easting",
+      "northing",
+      "latitude",
+      "longitude",
+      "link_length_km",
+      "link_length_miles",
+      "pedal_cycles",
+      "two_wheeled_motor_vehicles",
+      "cars_and_taxis",
+      "buses_and_coaches",
+      "lgvs",
+      "hgvs_2_rigid_axle",
+      "hgvs_3_rigid_axle",
+      "hgvs_4_or_more_rigid_axle",
+      "hgvs_3_or_4_articulated_axle",
+      "hgvs_5_articulated_axle",
+      "hgvs_6_articulated_axle",
+      "all_hgvs",
+      "all_motor_vehicles"
+    ],
+    "requiredFields": [
+      "year",
+      "count_date",
+      "hour",
+      "region_name",
+      "local_authority_name",
+      "road_name",
+      "start_junction_road_name",
+      "end_junction_road_name",
+      "latitude",
+      "longitude",
+      "pedal_cycles",
+      "two_wheeled_motor_vehicles",
+      "cars_and_taxis",
+      "buses_and_coaches",
+      "lgvs",
+      "all_hgvs",
+      "all_motor_vehicles"
+    ],
+    "skipInvalid": true,
+    "csvTransforms": [
+      {
+        "selection": [ "road_name", "start_junction_road_name"],
+        "function": {
+          "class": "Concat",
+          "separator": ":"
+        },
+        "projection": ["start_junction_name"]
+      },
+      {
+        "selection": [ "road_name", "end_junction_road_name"],
+        "function": {
+          "class": "Concat",
+          "separator": ":"
+        },
+        "projection": ["end_junction_name"]
+      },
+      {
+        "selection": ["hour"],
+        "function": {
+          "class": "FunctionChain",
+          "functions": [
+            {
+              "class": "ToInteger"
+            },
+            {
+              "class": "Increment"
+            }
+          ]
+        },
+        "projection": [ "end_hour" ]
+      },
+      {
+        "selection": ["count_date", "hour"],
+        "function": {
+          "class": "FunctionChain",
+          "functions": [
+            {
+              "class": "Concat",
+              "separator": " "
+            },
+            {
+              "class": "ParseDate",
+              "format": "yyyy-MM-dd HH"
+            }
+          ]
+        },
+        "projection": [ "start_date" ]
+      },
+      {
+        "selection": ["count_date", "end_hour"],
+        "function": {
+          "class": "FunctionChain",
+          "functions": [
+            {
+              "class": "Concat",
+              "separator": " "
+            },
+            {
+              "class": "ParseDate",
+              "format": "yyyy-MM-dd HH"
+            }
+          ]
+        },
+        "projection": [ "end_date" ]
+      },
+      {
+        "selection": [ "pedal_cycles", "cars_and_taxis", "buses_and_coaches", "lgvs", "all_hgvs", "all_motor_vehicles", "two_wheeled_motor_vehicles" ],
+        "function": {
+          "class": "IterableFunction",
+          "functions": [
+            {
+              "class": "ToLong"
+            }
+          ]
+        },
+        "projection": [ "pedal_cycles", "cars_and_taxis", "buses_and_coaches", "lgvs", "all_hgvs", "all_motor_vehicles", "two_wheeled_motor_vehicles" ]
+      },
+      {
+        "selection": ["pedal_cycles", "all_motor_vehicles"],
+        "function": {
+          "class": "ApplyBiFunction",
+          "function": {
+            "class": "Sum"
+          }
+        },
+        "projection": [ "count" ]
+      },
+      {
+        "selection": [ "pedal_cycles", "two_wheeled_motor_vehicles", "cars_and_taxis", "buses_and_coaches", "lgvs", "all_hgvs" ],
+        "function": {
+          "class": "FunctionChain",
+          "functions": [
+            {
+              "class": "ToList"
+            },
+            {
+              "class": "CountsToFreqMap",
+              "freqMapKeys": [ "bicycles", "motorbikes", "cars", "buses", "LGVs", "HGVs"]
+            }
+          ]
+        },
+        "projection": [ "count_by_vehicle_type" ]
+      },
+      {
+        "selection": [ "latitude", "longitude" ],
+        "function": {
+          "class": "Concat"
+        },
+        "projection": [ "lat_long" ]
+      },
+      {
+        "selection": [ "start_junction_name", "end_junction_name" ],
+        "function": {
+          "class": "IterableToHyperLogLogPlus"
+        },
+        "projection": [ "junctions_hllp" ]
+      },
+      {
+        "selection": [ "road_name", "start_junction_name", "end_junction_name", "local_authority_name", "region_name", "lat_long" ],
+        "function": {
+          "class": "IterableFunction",
+          "functions": [ {
+            "class": "ToHyperLogLogPlus"
+          }]
+        },
+        "projection": [ "road_hllp", "start_junction_hllp", "end_junction_hllp", "location_hllp", "region_hllp", "lat_long_hllp" ]
+      },
+      {
+        "selection": [ "RoadHasJunction", "RoadUse", "RegionContainsLocation", "LocationContainsRoad", "JunctionLocatedAt" ],
+        "function": {
+          "class": "IterableFunction",
+          "functions": [ {
+            "class": "ToTreeSet"
+          }]
+        },
+        "projection": ["road_has_junction_set", "road_use_set", "region_contains_location_set", "location_contains_road_set", "junction_located_at_set"]
+      },
+      {
+        "selection": [ "null_value" ],
+        "function": {
+          "class": "Increment",
+          "increment": {
+            "Long": 1
+          }
+        },
+        "projection": [ "count_one" ]
+      }
+    ],
+    "elements": [
+      {
+        "GROUP": "RoadHasJunction",
+        "SOURCE": "road_name",
+        "DESTINATION": "start_junction_name",
+        "DIRECTED": true
+      },
+      {
+        "GROUP": "RoadHasJunction",
+        "SOURCE": "road_name",
+        "DESTINATION": "end_junction_name",
+        "DIRECTED": true
+      },
+      {
+        "GROUP": "RoadUse",
+        "SOURCE": "start_junction_name",
+        "DESTINATION": "end_junction_name",
+        "DIRECTED": true,
+        "startDate": "start_date",
+        "endDate": "end_date",
+        "count": "count",
+        "countByVehicleType": "count_by_vehicle_type"
+      },
+      {
+        "GROUP": "RegionContainsLocation",
+        "SOURCE": "region_name",
+        "DESTINATION": "local_authority_name",
+        "DIRECTED": true
+      },
+      {
+        "GROUP": "LocationContainsRoad",
+        "SOURCE": "local_authority_name",
+        "DESTINATION": "road_name",
+        "DIRECTED": true
+      },
+      {
+        "GROUP": "JunctionLocatedAt",
+        "SOURCE": "start_junction_name",
+        "DESTINATION": "lat_long",
+        "DIRECTED": true
+      },
+      {
+        "GROUP": "JunctionUse",
+        "VERTEX": "start_junction_name",
+        "startDate": "start_date",
+        "endDate": "end_date",
+        "count": "count",
+        "countByVehicleType": "count_by_vehicle_type"
+      },
+      {
+        "GROUP": "JunctionUse",
+        "VERTEX": "end_junction_name",
+        "startDate": "start_date",
+        "endDate": "end_date",
+        "count": "count",
+        "countByVehicleType": "count_by_vehicle_type"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "road_name",
+        "hllp": "junctions_hllp",
+        "edgeGroup": "road_has_junction_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "start_junction_name",
+        "hllp": "road_hllp",
+        "edgeGroup": "road_has_junction_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "end_junction_name",
+        "hllp": "road_hllp",
+        "edgeGroup": "road_has_junction_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "end_junction_name",
+        "hllp": "start_junction_hllp",
+        "edgeGroup": "road_use_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "start_junction_name",
+        "hllp": "end_junction_hllp",
+        "edgeGroup": "road_use_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "region_name",
+        "hllp": "location_hllp",
+        "edgeGroup": "region_contains_location_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "local_authority_name",
+        "hllp": "region_hllp",
+        "edgeGroup": "region_contains_location_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "local_authority_name",
+        "hllp": "road_hllp",
+        "edgeGroup": "location_contains_road_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "road_name",
+        "hllp": "location_hllp",
+        "edgeGroup": "location_contains_road_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "start_junction_name",
+        "hllp": "lat_long_hllp",
+        "edgeGroup": "junction_located_at_set",
+        "count": "count_one"
+      },
+      {
+        "GROUP": "Cardinality",
+        "VERTEX": "lat_long",
+        "hllp": "start_junction_hllp",
+        "edgeGroup": "junction_located_at_set",
+        "count": "count_one"
+      }
+    ]
+}
