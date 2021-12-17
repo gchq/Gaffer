@@ -23,43 +23,27 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
-import uk.gov.gchq.gaffer.data.element.function.PropertiesFilter;
 import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
-import uk.gov.gchq.koryphe.impl.function.Concat;
-import uk.gov.gchq.koryphe.impl.function.FunctionChain;
-import uk.gov.gchq.koryphe.impl.function.Identity;
-import uk.gov.gchq.koryphe.impl.function.SetValue;
-import uk.gov.gchq.koryphe.impl.function.ToList;
-import uk.gov.gchq.koryphe.impl.function.ToLong;
+
+import uk.gov.gchq.gaffer.types.function.CountsToFreqMap;
+import uk.gov.gchq.koryphe.impl.function.*;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvElementGeneratorTest {
 
@@ -84,8 +68,7 @@ public class CsvElementGeneratorTest {
         CsvElementGenerator generator = new CsvElementGenerator()
                 .header(header)
                 .firstRow(1)
-                .element(new ElementTupleDefinition()
-                        .group("LocationContainsRoad")
+                .element(new ElementTupleDefinition("LocationContainsRoad")
                         .directed(true)
                         .source("Cardiff")
                         .destination("M4"));
@@ -109,11 +92,10 @@ public class CsvElementGeneratorTest {
         CsvElementGenerator generator = new CsvElementGenerator()
                 .header(header)
                 .firstRow(1)
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition("JunctionUse")
                     .source("start_junction")
                     .destination("end_junction")
                     .directed(true)
-                    .group("JunctionUse")
                     .property("direction", "heading"));
 
         Iterable<? extends Element> generated = generator.apply(lines);
@@ -136,16 +118,14 @@ public class CsvElementGeneratorTest {
         CsvElementGenerator generator = new CsvElementGenerator()
                 .header("start_junction", "end_junction", "road")
                 .firstRow(1)
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition( "RoadHasJunction")
                         .source("road")
                         .destination("start_junction")
-                        .directed(false)
-                        .group("RoadHasJunction"))
-                .element(new ElementTupleDefinition()
+                        .directed(false))
+                .element(new ElementTupleDefinition("RoadHasJunction")
                         .source("road")
                         .destination("end_junction")
-                        .directed(false)
-                        .group("RoadHasJunction"));
+                        .directed(false));
 
         Iterable<? extends Element> generated = generator.apply(lines);
 
@@ -177,8 +157,7 @@ public class CsvElementGeneratorTest {
                         .execute(new ToLong())
                         .project("count")
                         .build())
-                .element(new ElementTupleDefinition()
-                        .group("RoadCounts")
+                .element(new ElementTupleDefinition("RoadCounts")
                         .vertex("road")
                         .property("count"));
 
@@ -208,9 +187,8 @@ public class CsvElementGeneratorTest {
                         .project("length")
                         .build()
                 )
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition("Road")
                         .vertex("road")
-                        .group("Road")
                         .property("length")
                 );
 
@@ -262,9 +240,8 @@ public class CsvElementGeneratorTest {
                         .execute(new FunctionChain.Builder<Iterable<String>, FreqMap>().execute(new ToList()).execute(new CountsToFreqMap(Arrays.asList("Motorbikes", "Bicycles", "Cars", "Buses", "Vans", "Lorries"))).build())
                         .project("countByVehicleType")
                         .build())
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition("RoadUse")
                         .vertex("road")
-                        .group("RoadUse")
                         .property("countByVehicleType"));
 
         Iterable<? extends Element> generated = generator.apply(lines);
@@ -284,145 +261,25 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    public void shouldBeAbleToCreateCardinalityEntities() {
+    public void shouldJsonSerialise() throws SerialisationException {
         // Given
-        List<String> header = Arrays.asList("road","start_junction","end_junction");
         List<String> lines = new ArrayList<>();
-        lines.add("M5,1,2");
+        lines.add("road,count");
+        lines.add("M32,2");
 
         // When
         CsvElementGenerator generator = new CsvElementGenerator()
-                .header(header)
+                .header("road", "count")
+                .firstRow(1)
                 .transformer(new PropertiesTransformer.Builder()
-                        .select("start_junction", "end_junction")
-                        .execute(new IterableToHyperLogLogPlus())
-                        .project("hllp_road_has_junction")
-                        .select("start_junction")
-                        .execute(new ToHyperLogLogPlus())
-                        .project("hllp_junction_use_end")
-                        .select("end_junction")
-                        .execute(new ToHyperLogLogPlus())
-                        .project("hllp_junction_use_start")
-                        .build()
-                )
-                .element(new ElementTupleDefinition()
-                        .group("Cardinality")
-                        .vertex("start_junction")
-                        .property("edgeGroup", Sets.newHashSet("JunctionUse"))
-                        .property("hllp", "hllp_junction_use_start"))
-                .element(new ElementTupleDefinition()
-                        .vertex("end_junction")
-                        .group("Cardinality")
-                        .property("edgeGroup", Sets.newHashSet("JunctionUse"))
-                        .property("hllp", "hllp_junction_use_end"))
-                .element(new ElementTupleDefinition()
-                        .vertex("road")
-                        .group("Cardinality")
-                        .property("edgeGroup", Sets.newHashSet("RoadHasJunction"))
-                        .property("hllp", "hllp_road_has_junction"));
-
-        Iterable<? extends Element> generated = generator.apply(lines);
-        List<Element> generatedElements = new ArrayList<>();
-        generated.forEach(generatedElements::add);
-
-        // Then
-        HyperLogLogPlus startJunctionHllp = new HyperLogLogPlus(5, 5);
-        HyperLogLogPlus endJunctionHllp = new HyperLogLogPlus(5, 5);
-        HyperLogLogPlus roadHllp = new HyperLogLogPlus(5, 5);
-
-        startJunctionHllp.offer("2");
-        endJunctionHllp.offer("1");
-        roadHllp.offer("1");
-        roadHllp.offer("2");
-
-        List<Entity> expected = Arrays.asList(
-                new Entity.Builder()
-                        .vertex("1")
-                        .property("hllp", startJunctionHllp)
-                        .property("edgeGroup", Sets.newHashSet("JunctionUse"))
-                        .group("Cardinality")
-                        .build(),
-                new Entity.Builder()
-                        .vertex("2")
-                        .property("hllp", endJunctionHllp)
-                        .property("edgeGroup", Sets.newHashSet("JunctionUse"))
-                        .group("Cardinality")
-                        .build(),
-                new Entity.Builder()
-                        .vertex("M5")
-                        .property("hllp", roadHllp)
-                        .property("edgeGroup", Sets.newHashSet("RoadHasJunction"))
-                        .group("Cardinality")
-                        .build()
-        );
-
-        assertEquals(3, generatedElements.size());
-        for (int i = 0; i < generatedElements.size(); i++) {
-            assertEquals(expected.get(i).getVertex(), ((Entity) (generatedElements.get(i))).getVertex());
-            assertEquals(expected.get(i).getGroup(), generatedElements.get(i).getGroup());
-            assertEquals(expected.get(i).getProperty("edgeGroup"), generatedElements.get(i).getProperty("edgeGroup"));
-            assertEquals(((HyperLogLogPlus) expected.get(i).getProperty("hllp")).cardinality(), ((HyperLogLogPlus) generatedElements.get(i).getProperty("hllp")).cardinality());
-        }
-
-    }
-
-    @Test
-    public void shouldJsonSerialise() throws SerialisationException {
-        // Given
-        List<String> header = Arrays.asList("road","start_junction","end_junction", "heading", "latitude", "longitude", "count");
-        CsvElementGenerator generator = new CsvElementGenerator()
-                .header(header)
-                .transformer(new PropertiesTransformer.Builder()
-                        .select("start_junction", "end_junction")
-                        .execute(new IterableToHyperLogLogPlus())
-                        .project("hllp_road_has_junction")
-                        .select("start_junction")
-                        .execute(new ToHyperLogLogPlus())
-                        .project("hllp_junction_use_end")
-                        .select("end_junction")
-                        .execute(new ToHyperLogLogPlus())
-                        .project("hllp_junction_use_start")
                         .select("count")
                         .execute(new ToLong())
                         .project("count")
-                        .select("latitude", "longitude")
-                        .execute(new Concat())
-                        .project("latLong")
-                        .select()
-                        .execute(new SetValue(Sets.newHashSet("JunctionUse")))
-                        .project("edge_group_junction_use")
-                        .build()
-                )
-                .element(new ElementTupleDefinition()
-                        .source("road")
-                        .destination("start_junction")
-                        .group("RoadHasJunction")
-                        .directed(true)
-                )
-                .element(new ElementTupleDefinition()
-                        .source("road")
-                        .destination("end_junction")
-                        .group("RoadHasJunction")
-                        .directed(true)
-                )
-                .element(new ElementTupleDefinition()
-                        .source("start_junction")
-                        .destination("end_junction")
-                        .group("RoadUse")
-                        .directed(true)
-                        .property("heading")
-                        .property("count")
-                )
-                .element(new ElementTupleDefinition()
-                        .group("JunctionUse")
-                        .vertex("start_junction")
-                        .property("latLong")
-                )
-                .element(new ElementTupleDefinition()
-                        .group("Cardinality")
-                        .vertex("start_junction")
-                        .property("edgeGroup", "edge_group_junction_use")
-                        .property("hllp", "hllp_junction_use_start"));
+                        .build())
+                .element(new ElementTupleDefinition("RoadCounts")
+                        .vertex("road")
+                        .property("count"));
+
 
         // When
         String serialised = new String(JSONSerialiser.serialise(generator, true));
@@ -459,9 +316,8 @@ public class CsvElementGeneratorTest {
                         .project("length")
                         .build()
                 )
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition("Road")
                         .vertex("road")
-                        .group("Road")
                         .property("length")
                 );
 
@@ -498,9 +354,8 @@ public class CsvElementGeneratorTest {
                         .project("length")
                         .build()
                 )
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition("Road")
                         .vertex("road")
-                        .group("Road")
                         .property("length")
                 );
 
@@ -535,9 +390,8 @@ public class CsvElementGeneratorTest {
                         .project("length")
                         .build()
                 )
-                .element(new ElementTupleDefinition()
+                .element(new ElementTupleDefinition("Road")
                         .vertex("road")
-                        .group("Road")
                         .property("length")
                 );
 
@@ -575,60 +429,23 @@ public class CsvElementGeneratorTest {
      */
     public void shouldJsonDeserialise() throws SerialisationException {
         // Given
-        List<String> header = Arrays.asList("road","start_junction","end_junction", "heading", "latitude", "longitude", "count");
+        List<String> lines = new ArrayList<>();
+        lines.add("road,count");
+        lines.add("M32,2");
+
+        // When
         CsvElementGenerator generator = new CsvElementGenerator()
-                .header(header)
+                .header("road", "count")
+                .firstRow(1)
                 .transformer(new PropertiesTransformer.Builder()
-                        .select("start_junction", "end_junction")
-                        .execute(new IterableToHyperLogLogPlus())
-                        .project("hllp_road_has_junction")
-                        .select("start_junction")
-                        .execute(new ToHyperLogLogPlus())
-                        .project("hllp_junction_use_end")
-                        .select("end_junction")
-                        .execute(new ToHyperLogLogPlus())
-                        .project("hllp_junction_use_start")
                         .select("count")
                         .execute(new ToLong())
                         .project("count")
-                        .select("latitude", "longitude")
-                        .execute(new Concat())
-                        .project("latLong")
-                        .select()
-                        .execute(new SetValue(Sets.newHashSet("JunctionUse")))
-                        .project("edge_group_junction_use")
-                        .build()
-                )
-                .element(new ElementTupleDefinition()
-                        .source("road")
-                        .destination("start_junction")
-                        .group("RoadHasJunction")
-                        .directed(true)
-                )
-                .element(new ElementTupleDefinition()
-                        .source("road")
-                        .destination("end_junction")
-                        .group("RoadHasJunction")
-                        .directed(true)
-                )
-                .element(new ElementTupleDefinition()
-                        .source("start_junction")
-                        .destination("end_junction")
-                        .group("RoadUse")
-                        .directed(true)
-                        .property("heading")
-                        .property("count")
-                )
-                .element(new ElementTupleDefinition()
-                        .group("JunctionUse")
-                        .vertex("start_junction")
-                        .property("latLong")
-                )
-                .element(new ElementTupleDefinition()
-                        .group("Cardinality")
-                        .vertex("start_junction")
-                        .property("edgeGroup", "edge_group_junction_use")
-                        .property("hllp", "hllp_junction_use_start"));
+                        .build())
+                .element(new ElementTupleDefinition("RoadCounts")
+                        .vertex("road")
+                        .property("count"));
+
 
         // When
         String expectedSerialised;

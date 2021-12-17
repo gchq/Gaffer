@@ -68,7 +68,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <version>${koryphe.version}</version>
+            <version>git</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -83,6 +83,12 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>exception</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.clearspring.analytics</groupId>
+            <artifactId>stream</artifactId>
+            <version>2.7.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

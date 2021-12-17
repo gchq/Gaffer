@@ -1,74 +1,17 @@
 {
-    "class" : "uk.gov.gchq.gaffer.csv.data.generator.CsvElementGenerator",
-    "header" : [ "road", "start_junction", "end_junction", "heading", "latitude", "longitude", "count" ],
-    "csvTransforms" : [ {
-      "selection" : [ "start_junction", "end_junction" ],
-      "function" : {
-        "class" : "uk.gov.gchq.gaffer.csv.data.functions.IterableToHyperLogLogPlus",
-        "p" : 5,
-        "sp" : 5
-      },
-      "projection" : [ "hllp_road_has_junction" ]
-    }, {
-      "selection" : [ "start_junction" ],
-      "function" : {
-        "class" : "uk.gov.gchq.gaffer.csv.data.functions.ToHyperLogLogPlus"
-      },
-      "projection" : [ "hllp_junction_use_end" ]
-    }, {
-      "selection" : [ "end_junction" ],
-      "function" : {
-        "class" : "uk.gov.gchq.gaffer.csv.data.functions.ToHyperLogLogPlus"
-      },
-      "projection" : [ "hllp_junction_use_start" ]
-    }, {
-      "selection" : [ "count" ],
-      "function" : {
-        "class" : "uk.gov.gchq.koryphe.impl.function.ToLong"
-      },
-      "projection" : [ "count" ]
-    }, {
-      "selection" : [ "latitude", "longitude" ],
-      "function" : {
-        "class" : "uk.gov.gchq.koryphe.impl.function.Concat",
-        "separator" : ","
-      },
-      "projection" : [ "latLong" ]
-    }, {
-      "selection" : [ ],
-      "function" : {
-        "class" : "uk.gov.gchq.koryphe.impl.function.SetValue",
-        "value" : {
-          "java.util.HashSet" : [ "JunctionUse" ]
-        }
-      },
-      "projection" : [ "edge_group_junction_use" ]
-    } ],
-    "elements" : [ {
-      "GROUP" : "RoadHasJunction",
-      "DESTINATION" : "start_junction",
-      "SOURCE" : "road",
-      "DIRECTED" : true
-    }, {
-      "GROUP" : "RoadHasJunction",
-      "DESTINATION" : "end_junction",
-      "SOURCE" : "road",
-      "DIRECTED" : true
-    }, {
-      "GROUP" : "RoadUse",
-      "heading" : "heading",
-      "DESTINATION" : "end_junction",
-      "SOURCE" : "start_junction",
-      "DIRECTED" : true,
-      "count" : "count"
-    }, {
-      "GROUP" : "JunctionUse",
-      "latLong" : "latLong",
-      "VERTEX" : "start_junction"
-    }, {
-      "GROUP" : "Cardinality",
-      "VERTEX" : "start_junction",
-      "hllp" : "hllp_junction_use_start",
-      "edgeGroup" : "edge_group_junction_use"
-    } ]
+  "class" : "uk.gov.gchq.gaffer.data.generator.CsvElementGenerator",
+  "header" : [ "road", "count" ],
+  "firstRow" : 1,
+  "csvTransforms" : [ {
+    "selection" : [ "count" ],
+    "function" : {
+      "class" : "uk.gov.gchq.koryphe.impl.function.ToLong"
+    },
+    "projection" : [ "count" ]
+  } ],
+  "elements" : [ {
+    "GROUP" : "RoadCounts",
+    "VERTEX" : "road",
+    "count" : "count"
+  } ]
 }
