@@ -68,7 +68,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <version>git</version>
+            <version>${koryphe.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
