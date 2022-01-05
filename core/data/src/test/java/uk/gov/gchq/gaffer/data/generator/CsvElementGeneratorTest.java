@@ -404,10 +404,6 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    @Disabled
-    /**
-     * Once this passes, the Deserialisation test can be enabled.
-     */
     public void testTupleAdaptedFunction() {
         // Given
         TupleAdaptedFunction a = new TupleAdaptedFunction(new String[] {"thing"},
@@ -422,11 +418,6 @@ public class CsvElementGeneratorTest {
     }
 
     @Test
-    @Disabled
-    /**
-     * Ignored as Equality is hard to judge as TupleAdaptedFunction doesn't correctly
-     * Invoke an Equals / Hashcode
-     */
     public void shouldJsonDeserialise() throws SerialisationException {
         // Given
         List<String> lines = new ArrayList<>();

@@ -42,13 +42,13 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
                             final Context context,
                             final Store store) throws OperationException {
 
-        if(operation.getElementGeneratorClassName().equals(NONE) && operation.getElementGeneratorFilePath().equals(NONE) && operation.getElementGeneratorJson().equals("none")){
+        if (operation.getElementGeneratorClassName().equals(NONE) && operation.getElementGeneratorFilePath().equals(NONE) && operation.getElementGeneratorJson().equals("none")) {
             throw new IllegalArgumentException("You must specify either and element generator classname, and element generator file path or some element generator json");
         }
 
         ElementGenerator generator = null;
 
-        if(!operation.getElementGeneratorJson().equals(NONE)){
+        if (!operation.getElementGeneratorJson().equals(NONE)) {
             try {
                 generator = (ElementGenerator) Class.forName(operation.getElementGeneratorClassName()).newInstance();
             } catch (InstantiationException e) {
@@ -58,7 +58,7 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-        }else if(!operation.getElementGeneratorFilePath().equals(NONE)){
+        } else if (!operation.getElementGeneratorFilePath().equals(NONE)) {
 
             CsvElementGenerator csvElementGenerator;
             try {
@@ -80,7 +80,7 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
 
             generator = csvElementGenerator;
 
-        }else if(!operation.getElementGeneratorJson().equals(NONE)){
+        } else if (!operation.getElementGeneratorJson().equals(NONE)) {
 
             CsvElementGenerator csvElementGenerator = null;
             try {

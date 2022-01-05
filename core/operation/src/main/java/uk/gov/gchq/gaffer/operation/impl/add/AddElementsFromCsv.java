@@ -26,12 +26,12 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-/*
-
+/**
+ * AddElementsFromCsv is an operation that generates elements from a csv file
  */
 
 @JsonPropertyOrder(value = {"class", "filename", "elementGeneratorFilePath"}, alphabetic = true)
-@Since("1.6.0")
+@Since("2.0.0")
 @Summary("Adds elements from a csv file. Configure with a csv-to-element mappings file")
 public class AddElementsFromCsv implements
         Operation,
