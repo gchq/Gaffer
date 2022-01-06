@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -24,10 +25,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChainedIterableTest {
 
@@ -36,31 +40,50 @@ public class ChainedIterableTest {
         final Iterable<Integer> chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
         final Iterator<Integer> iterator = chainedIterable.iterator();
 
-        iterator.next();
-
+        assertEquals(1, iterator.next());
         // No 2nd element
         assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
     }
 
     @Test
-    public void shouldThrowIAXWhenIterablesAreEmpty() {
+    public void shouldThrowIAXWhenArrayOfIterablesAreEmpty() {
         assertThatIllegalArgumentException().isThrownBy(() -> new ChainedIterable<>());
     }
 
     @Test
-    public void shouldThrowIAXWhenIterablesAreNull() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new ChainedIterable<>(null));
+    public void shouldThrowIAXWhenArrayOfIterablesAreNull() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new ChainedIterable<>((Iterable<Integer>[]) null));
     }
 
     @Test
-    public void shouldWrapAllIterables() {
+    public void shouldWrapAllIterableOfIterables() {
+        // Given
         final List<Integer> itr1 = Collections.singletonList(0);
         final List<Integer> emptyItr2 = new ArrayList<>(0);
         final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, 4);
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
+        // When
+        List<List<Integer>> collect = Stream.of(itr1, emptyItr2, itr3, itr4).collect(Collectors.toList());
+
+        final Iterable<Integer> wrappedItr = new ChainedIterable<>(collect);
+
+        // Then
+        assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
+    }
+
+    @Test
+    public void shouldWrapAllArrayOfIterables() {
+        // Given
+        final List<Integer> itr1 = Collections.singletonList(0);
+        final List<Integer> emptyItr2 = new ArrayList<>(0);
+        final List<Integer> itr3 = Lists.newArrayList(1, 2, 3, 4);
+        final List<Integer> itr4 = Lists.newArrayList(5, 6);
+
+        // When
         final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
+        // Then
         assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
     }
 
