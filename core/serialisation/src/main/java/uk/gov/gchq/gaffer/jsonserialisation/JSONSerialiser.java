@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
+import uk.gov.gchq.gaffer.jsonserialisation.jackson.IterableDeserializer;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -220,7 +220,7 @@ public class JSONSerialiser {
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
-        mapper.registerModule(CloseableIterableDeserializer.getModule());
+        mapper.registerModule(IterableDeserializer.getModule());
 
         // Allow unknown properties. This will help to avoid conflicts between Gaffer versions.
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, STRICT_JSON_DEFAULT);
