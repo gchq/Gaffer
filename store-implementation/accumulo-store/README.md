@@ -203,7 +203,7 @@ See [the visibility walkthrough](https://gchq.github.io/gaffer-doc/getting-start
 Timestamp
 -----------------------------------------------
 
-Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
+Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema's config to the name of the property.
 If the timestamp is not set then it will be populated automatically:
 
 - Constant value - aggregated groups

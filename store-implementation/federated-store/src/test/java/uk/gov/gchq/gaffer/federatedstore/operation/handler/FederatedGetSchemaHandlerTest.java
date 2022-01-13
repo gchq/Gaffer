@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -110,7 +110,7 @@ public class FederatedGetSchemaHandlerTest {
 
         library.addSchema(EDGE_SCHEMA_ID, edgeSchema);
 
-        fStore.execute(Operation.asOperationChain(
+        fStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("schema")
                         .parentPropertiesId(ACC_PROP_ID)
@@ -162,7 +162,7 @@ public class FederatedGetSchemaHandlerTest {
 
         library.addSchema("edgeSchema2", edgeSchema2);
 
-        fStore.execute(Operation.asOperationChain(
+        fStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("schemaEnabled")
                         .parentPropertiesId(ACC_PROP_ID)
@@ -170,7 +170,7 @@ public class FederatedGetSchemaHandlerTest {
                         .disabledByDefault(false)
                         .build()), context);
 
-        fStore.execute(Operation.asOperationChain(
+        fStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("schemaDisabled")
                         .parentPropertiesId(ACC_PROP_ID)

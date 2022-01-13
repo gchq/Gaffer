@@ -63,7 +63,6 @@ Here is a list of some of the common interfaces:
 and Output if your operation takes both input and output.
 - uk.gov.gchq.gaffer.operation.io.MultiInput - Use this in addition if you
 operation takes multiple inputs. This will help with JSON serialisation
-- uk.gov.gchq.gaffer.operation.SeedMatching
 - uk.gov.gchq.gaffer.operation.Validatable
 - uk.gov.gchq.gaffer.operation.graph.OperationView
 - uk.gov.gchq.gaffer.operation.graph.GraphFilters
@@ -103,7 +102,6 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
         implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
         MultiInput.Builder<GetElements, ElementId, Builder>,
         SeededGraphFilters.Builder<GetElements, Builder>,
-        SeedMatching.Builder<GetElements, Builder>,
         Options.Builder<GetElements, Builder> {
     public Builder() {
             super(new GetElements());
@@ -345,10 +343,10 @@ above for general query optimisation.
 
 
 #### How can I optimise my AddElementsFromHdfs?
-Try using the SampleDataForSplitPoints and SplitStore operations to calculate 
+Try using the SampleDataForSplitPoints and SplitStoreFromFile operations to calculate 
 splits points. These can then be used to partition your data in the map reduce job
 used to import the data. If adding elements into an empty Accumulo table or a table 
-without any splits then the SampleDataForSplitPoints and SplitStore operations will
+without any splits then the SampleDataForSplitPoints and SplitStoreFromFile operations will
 be executed automatically for you. You can also optionally provide your own splits 
 points for your AddElementsFromHdfs operation.
 

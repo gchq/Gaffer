@@ -243,7 +243,6 @@ public class OperationControllerTest {
                 new OperationField("input", null, "java.lang.Object[]", null, false),
                 new OperationField("view", null, "uk.gov.gchq.gaffer.data.elementdefinition.view.View", null, false),
                 new OperationField("includeIncomingOutGoing", "Should the edges point towards, or away from your seeds", "java.lang.String", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING"), false),
-                new OperationField("seedMatching", "How should the seeds be matched?", "java.lang.String", Sets.newHashSet("RELATED", "EQUAL"), false),
                 new OperationField("options", null, "java.util.Map<java.lang.String,java.lang.String>", null, false),
                 new OperationField("directedType", "Is the Edge directed?", "java.lang.String", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER"), false),
                 new OperationField("views", null, "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", null, false)

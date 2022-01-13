@@ -1,5 +1,8 @@
 {
   "graphId": "graphId1",
+  "library": {
+    "class": "invalid.class.name"
+  },
   "hooks": [
     {
       "class": "uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter",

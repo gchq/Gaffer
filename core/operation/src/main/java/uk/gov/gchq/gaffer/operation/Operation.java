@@ -56,7 +56,6 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.operation.io.Output}
  * {@link uk.gov.gchq.gaffer.operation.io.InputOutput} (Use this instead of Input and Output if your operation takes both input and output.)
  * {@link uk.gov.gchq.gaffer.operation.io.MultiInput} (Use this in addition if you operation takes multiple inputs. This will help with json  serialisation)
- * {@link uk.gov.gchq.gaffer.operation.SeedMatching}
  * {@link uk.gov.gchq.gaffer.operation.Validatable}
  * {@link uk.gov.gchq.gaffer.operation.graph.OperationView}
  * {@link uk.gov.gchq.gaffer.operation.graph.GraphFilters}
@@ -77,8 +76,7 @@ import java.util.Map;
  * public static class Builder extends Operation.BaseBuilder&lt;GetElements, Builder&gt;
  *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, CloseableIterable&lt;? extends Element&gt;, Builder&gt;,
  *         MultiInput.Builder&lt;GetElements, ElementId, Builder&gt;,
- *         SeededGraphFilters.Builder&lt;GetElements, Builder&gt;,
- *         SeedMatching.Builder&lt;GetElements, Builder&gt; {
+ *         SeededGraphFilters.Builder&lt;GetElements, Builder&gt; {
  *     public Builder() {
  *             super(new GetElements());
  *     }
@@ -226,19 +224,6 @@ public interface Operation extends Closeable {
         if (null == value) {
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }
-    }
-
-    /**
-     * This has been replaced with {@link OperationChain#wrap(Operation)}
-     *
-     * @param operation the operation to wrap into a chain
-     * @param <O>       the output type of the operation chain
-     * @return the operation chain
-     * @deprecated see {@link OperationChain#wrap(Operation)}
-     */
-    @Deprecated
-    static <O> OperationChain<O> asOperationChain(final Operation operation) {
-        return (OperationChain<O>) OperationChain.wrap(operation);
     }
 
     interface Builder<OP, B extends Builder<OP, ?>> {

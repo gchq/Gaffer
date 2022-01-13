@@ -55,7 +55,7 @@ public class NamedViewCacheBackwardCompatibilityTest {
                 .view(new View.Builder().build())
                 .build();
 
-        final NamedViewDetail namedViewDetailFromCacheVersion1_12 = viewCache.getNamedView(namedViewDetail.getName());
+        final NamedViewDetail namedViewDetailFromCacheVersion1_12 = viewCache.getNamedView(namedViewDetail.getName(), ADDING_USER);
 
         assertEquals(namedViewDetail.getOrDefaultReadAccessPredicate(), namedViewDetailFromCacheVersion1_12.getOrDefaultReadAccessPredicate());
         assertEquals(namedViewDetail.getOrDefaultWriteAccessPredicate(), namedViewDetailFromCacheVersion1_12.getOrDefaultWriteAccessPredicate());

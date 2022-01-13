@@ -70,7 +70,9 @@ Here is an example of a `GraphConfig`:
  
 ```java
 new GraphConfig.Builder()
-    .graphId("exampleGraphId")
+    .config(new GraphConfig.Builder()
+            .graphId("exampleGraphId")
+            .build())
     .description("Example Graph description")
     .view(new View.Builder()
             .globalElements(new GlobalViewElementDefinition.Builder()

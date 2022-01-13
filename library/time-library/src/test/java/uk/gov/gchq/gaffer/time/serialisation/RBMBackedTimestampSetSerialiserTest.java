@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
 import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.types.CustomMap;
@@ -174,7 +174,7 @@ public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTes
                 .timestamps(Lists.newArrayList(Instant.ofEpochSecond(222222)))
                 .build();
 
-        final CustomMap<Float, RBMBackedTimestampSet> expectedMap = new CustomMap<>(new RawFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
+        final CustomMap<Float, RBMBackedTimestampSet> expectedMap = new CustomMap<>(new OrderedFloatSerialiser(), new RBMBackedTimestampSetSerialiser());
         expectedMap.put(123.3f, timestampSet1);
         expectedMap.put(345.6f, timestampSet2);
 
