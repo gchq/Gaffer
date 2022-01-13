@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EmptyCloseableIterableTest {
+public class EmptyIterableTest {
 
     @Test
     public void shouldBeEmpty() {
-        final EmptyClosableIterable iterable = new EmptyClosableIterable();
+        final EmptyIterable<Object> iterable = new EmptyIterable<>();
 
         assertThat(iterable).isEmpty();
     }

@@ -19,23 +19,26 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.io.Closeable;
+import java.util.Iterator;
+
 /**
- * An {@code EmptyCloseableIterable} is an {@link java.lang.Iterable} which is backed by a
- * {@link EmptyCloseableIterator}, and contains no objects.
+ * An {@code EmptyIterable} is an {@link java.io.Closeable} {@link java.lang.Iterable}
+ * which is backed by a {@link EmptyIterator}, and contains no objects.
  *
  * This is useful when a {@link java.lang.Iterable} is required, but there is no data present.
  *
  * @param <T> the type of items in the iterable.
  */
-public class EmptyClosableIterable<T> implements CloseableIterable<T> {
+public class EmptyIterable<T> implements Closeable, Iterable<T> {
 
     @Override
     public void close() {
     }
 
     @Override
-    public CloseableIterator<T> iterator() {
-        return new EmptyCloseableIterator<>();
+    public Iterator<T> iterator() {
+        return new EmptyIterator<>();
     }
 
     @Override
@@ -48,7 +51,8 @@ public class EmptyClosableIterable<T> implements CloseableIterable<T> {
             return false;
         }
 
-        final EmptyClosableIterable<?> that = (EmptyClosableIterable<?>) obj;
+        // TODO: ? Just remove?
+        final EmptyIterable<?> that = (EmptyIterable<?>) obj;
 
         return new EqualsBuilder()
                 .isEquals();

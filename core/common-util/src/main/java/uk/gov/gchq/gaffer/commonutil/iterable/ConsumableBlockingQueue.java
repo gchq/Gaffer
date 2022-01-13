@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -71,11 +72,11 @@ public class ConsumableBlockingQueue<T> extends ArrayBlockingQueue<T> {
             return true;
         }
 
-        if (null == obj || getClass() != obj.getClass()) {
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ConsumableBlockingQueue queue = (ConsumableBlockingQueue) obj;
+        final ConsumableBlockingQueue<?> queue = (ConsumableBlockingQueue<?>) obj;
 
         return new EqualsBuilder()
                 .append(toArray(), queue.toArray())

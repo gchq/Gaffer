@@ -17,10 +17,10 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-
+import java.io.Closeable;
+import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 
@@ -31,30 +31,33 @@ import static org.mockito.Mockito.verify;
 
 public class StreamsTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldCloseIteratorWhenStreamIsClosed() throws Throwable {
         // Given
-        final CloseableIterator<String> iterator = mock(CloseableIterator.class);
+        final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         given(iterator.hasNext()).willReturn(true, false);
         final String first = "first item";
         given(iterator.next()).willReturn(first, null, null);
 
         // When
         final Object firstResult;
-        try (final Stream stream = Streams.toStream(iterator)) {
+        try (final Stream<?> stream = Streams.toStream(iterator)) {
             firstResult = stream.findFirst().orElseThrow(RuntimeException::new);
         }
 
         // Then
         assertEquals(first, firstResult);
-        verify(iterator).close();
+        verify((Closeable) iterator).close();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldCloseIterableWhenStreamIsClosed() throws Throwable {
         // Given
-        final CloseableIterable<String> iterable = mock(CloseableIterable.class);
-        final CloseableIterator<String> iterator = mock(CloseableIterator.class);
+        final Iterable<String> iterable = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
+        final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
+
         given(iterable.spliterator()).willReturn(Spliterators.spliteratorUnknownSize(iterator, 0));
         given(iterator.hasNext()).willReturn(true, false);
         final String first = "first item";
@@ -62,40 +65,41 @@ public class StreamsTest {
 
         // When
         final Object firstResult;
-        try (final Stream stream = Streams.toStream(iterable)) {
+        try (final Stream<?> stream = Streams.toStream(iterable)) {
             firstResult = stream.findFirst().orElseThrow(RuntimeException::new);
         }
 
         // Then
         assertEquals("first item", firstResult);
-        verify(iterable).close();
+        verify((Closeable) iterable).close();
     }
 
-
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldCloseIteratorWhenParallelStreamIsClosed() throws Throwable {
         // Given
-        final CloseableIterator<String> iterator = mock(CloseableIterator.class);
+        final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         given(iterator.hasNext()).willReturn(true, false);
         final String first = "first item";
         given(iterator.next()).willReturn(first, null, null);
 
         // When
         final Object firstResult;
-        try (final Stream stream = Streams.toParallelStream(iterator)) {
+        try (final Stream<?> stream = Streams.toParallelStream(iterator)) {
             firstResult = stream.findFirst().orElseThrow(RuntimeException::new);
         }
 
         // Then
         assertEquals("first item", firstResult);
-        verify(iterator).close();
+        verify((Closeable) iterator).close();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldCloseIterableWhenParallelStreamIsClosed() throws Throwable {
         // Given
-        final CloseableIterable<String> iterable = mock(CloseableIterable.class);
-        final CloseableIterator<String> iterator = mock(CloseableIterator.class);
+        final Iterable<String> iterable = mock(Iterable.class, Mockito.withSettings().extraInterfaces(Closeable.class));
+        final Iterator<String> iterator = mock(Iterator.class, Mockito.withSettings().extraInterfaces(Closeable.class));
         given(iterable.spliterator()).willReturn(Spliterators.spliteratorUnknownSize(iterator, 0));
         given(iterator.hasNext()).willReturn(true, false);
         final String first = "first item";
@@ -103,12 +107,12 @@ public class StreamsTest {
 
         // When
         final Object firstResult;
-        try (final Stream stream = Streams.toParallelStream(iterable)) {
+        try (final Stream<?> stream = Streams.toParallelStream(iterable)) {
             firstResult = stream.findFirst().orElseThrow(RuntimeException::new);
         }
 
         // Then
         assertEquals("first item", firstResult);
-        verify(iterable).close();
+        verify((Closeable) iterable).close();
     }
 }

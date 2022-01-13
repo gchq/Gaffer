@@ -18,24 +18,28 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A {@code TransformIterable} allows {@link java.lang.Iterable}s to be lazily validated and transformed without
- * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
+ * A {@code TransformIterable} allows {@link java.lang.Iterable}s to be lazily
+ * validated and transformed without
+ * loading the entire iterable into memory. The easiest way to use this class is
+ * to create an anonymous inner class.
  *
  * @param <I> The input iterable type.
  * @param <O> the output iterable type.
  */
-public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
+public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> {
     private final Iterable<? extends I> input;
     private final Validator<I> validator;
     private final boolean skipInvalid;
     private final boolean autoClose;
 
     /**
-     * Constructs an {@code TransformIterable} with the given input {@link java.lang.Iterable} and no validation.
+     * Constructs an {@code TransformIterable} with the given input
+     * {@link java.lang.Iterable} and no validation.
      *
      * @param input the input {@link java.lang.Iterable}
      */
@@ -44,8 +48,10 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     }
 
     /**
-     * Constructs an {@code TransformIterable} with the given input {@link java.lang.Iterable} and
-     * {@link Validator}. Invalid items will throw an {@link java.lang.IllegalArgumentException} to be thrown.
+     * Constructs an {@code TransformIterable} with the given input
+     * {@link java.lang.Iterable} and
+     * {@link Validator}. Invalid items will throw an
+     * {@link java.lang.IllegalArgumentException} to be thrown.
      *
      * @param input     the input {@link java.lang.Iterable}
      * @param validator the {@link Validator}
@@ -55,14 +61,17 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     }
 
     /**
-     * Constructs an {@code TransformIterable} with the given input {@link java.lang.Iterable},
-     * {@link Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
+     * Constructs an {@code TransformIterable} with the given input
+     * {@link java.lang.Iterable},
+     * {@link Validator} and a skipInvalid flag to determine whether invalid items
+     * should be skipped.
      *
      * @param input       the input {@link java.lang.Iterable}
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
+    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator,
+            final boolean skipInvalid) {
         this(input, validator, skipInvalid, true);
     }
 
@@ -72,9 +81,11 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
      * @param input       the input {@link java.lang.Iterable}
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
-     * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
+     * @param autoClose   if true then the input iterable will be closed when any
+     *                    iterators reach the end.
      */
-    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid, final boolean autoClose) {
+    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
+            final boolean autoClose) {
         if (null == input) {
             throw new IllegalArgumentException("Input iterable is required");
         }
@@ -84,68 +95,13 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
         this.autoClose = autoClose;
     }
 
-
     /**
-     * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
+     * @return an {@link java.util.Iterator} that lazy transforms the I items to O
+     *         items
      */
     @Override
-    public CloseableIterator<O> iterator() {
-        return new CloseableIterator<O>() {
-            @Override
-            public void close() {
-                CloseableUtil.close(inputItr);
-            }
-
-            private final Iterator<? extends I> inputItr = input.iterator();
-
-            private O nextElement;
-            private Boolean hasNext;
-
-            @Override
-            public boolean hasNext() {
-                if (null == hasNext) {
-                    while (inputItr.hasNext()) {
-                        final I possibleNext = inputItr.next();
-                        if (validator.validate(possibleNext)) {
-                            nextElement = transform(possibleNext);
-                            hasNext = true;
-                            return Boolean.TRUE.equals(hasNext);
-                        } else if (skipInvalid) {
-                            continue;
-                        } else {
-                            handleInvalidItem(possibleNext);
-                        }
-                    }
-                    hasNext = false;
-                    nextElement = null;
-                }
-
-                final boolean hasNextResult = Boolean.TRUE.equals(hasNext);
-                if (autoClose && !hasNextResult) {
-                    close();
-                }
-
-                return hasNextResult;
-            }
-
-            @Override
-            public O next() {
-                if ((null == hasNext) && (!hasNext())) {
-                    throw new NoSuchElementException("Reached the end of the iterator");
-                }
-
-                final O elementToReturn = nextElement;
-                nextElement = null;
-                hasNext = null;
-
-                return elementToReturn;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Cannot call remove on a " + getIterableClass().getSimpleName() + " iterator");
-            }
-        };
+    public Iterator<O> iterator() {
+        return new TransformIterator(input.iterator());
     }
 
     @Override
@@ -162,11 +118,13 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     protected abstract O transform(final I item);
 
     /**
-     * Handles an invalid item. Simply throws an {@link java.lang.IllegalArgumentException} explaining that the item is
+     * Handles an invalid item. Simply throws an
+     * {@link java.lang.IllegalArgumentException} explaining that the item is
      * invalid. Override this method to handle invalid items differently.
      *
      * @param item the invalid I item
-     * @throws IllegalArgumentException always thrown unless this method is overridden.
+     * @throws IllegalArgumentException always thrown unless this method is
+     *                                  overridden.
      */
     protected void handleInvalidItem(final I item) {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
@@ -181,7 +139,70 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
         return validator;
     }
 
-    private Class<? extends TransformIterable> getIterableClass() {
+    private Class<?> getIterableClass() {
         return getClass();
+    }
+
+    private final class TransformIterator implements Closeable, Iterator<O> {
+
+        private final Iterator<? extends I> iterator;
+
+        private O nextElement;
+        private Boolean hasNext;
+
+        private TransformIterator(final Iterator<? extends I> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public void close() {
+            CloseableUtil.close(iterator);
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (null == hasNext) {
+                while (iterator.hasNext()) {
+                    final I possibleNext = iterator.next();
+                    if (validator.validate(possibleNext)) {
+                        nextElement = transform(possibleNext);
+                        hasNext = true;
+                        return Boolean.TRUE.equals(hasNext);
+                    } else if (skipInvalid) {
+                        continue;
+                    } else {
+                        handleInvalidItem(possibleNext);
+                    }
+                }
+                hasNext = false;
+                nextElement = null;
+            }
+
+            final boolean hasNextResult = Boolean.TRUE.equals(hasNext);
+            if (autoClose && !hasNextResult) {
+                close();
+            }
+
+            return hasNextResult;
+        }
+
+        @Override
+        public O next() {
+            if ((null == hasNext) && (!hasNext())) {
+                throw new NoSuchElementException("Reached the end of the iterator");
+            }
+
+            final O elementToReturn = nextElement;
+            nextElement = null;
+            hasNext = null;
+
+            return elementToReturn;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException(
+                    "Cannot call remove on a " + getIterableClass().getSimpleName() + " iterator");
+        }
     }
 }

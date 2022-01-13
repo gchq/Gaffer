@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,16 +37,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChainedIterableTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowNSEXWhenNoNextIterableWhenOneElementAndNo2ndNext() {
-        final Iterable<Integer> chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
-        final Iterator<Integer> iterator = chainedIterable.iterator();
+        ChainedIterable<Integer> chainedIterable = null;
+        try {
+            chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
+            final Iterator<Integer> iterator = chainedIterable.iterator();
 
-        assertEquals(1, iterator.next());
-        // No 2nd element
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
+            assertEquals(1, iterator.next());
+            // No 2nd element
+            assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
+        }  finally {
+            CloseableUtil.close(chainedIterable);
+        }
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowIAXWhenArrayOfIterablesAreEmpty() {
         assertThatIllegalArgumentException().isThrownBy(() -> new ChainedIterable<>());
@@ -66,12 +75,18 @@ public class ChainedIterableTest {
         // When
         List<List<Integer>> collect = Stream.of(itr1, emptyItr2, itr3, itr4).collect(Collectors.toList());
 
-        final Iterable<Integer> wrappedItr = new ChainedIterable<>(collect);
+        ChainedIterable<Integer> wrappedItr = null;
+        try {
+            wrappedItr = new ChainedIterable<>(collect);
 
-        // Then
-        assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
+            // Then
+            assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
+        } finally {
+            CloseableUtil.close(wrappedItr);
+        }
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldWrapAllArrayOfIterables() {
         // Given
@@ -81,12 +96,17 @@ public class ChainedIterableTest {
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
         // When
-        final Iterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
-
-        // Then
-        assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
+        ChainedIterable<Integer> wrappedItr = null;
+        try {
+            wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
+            // Then
+            assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
+        } finally {
+            CloseableUtil.close(wrappedItr);
+        }
     }
 
+    @SuppressWarnings({"resource", "unchecked"})
     @Test
     public void shouldRemoveElementFromFirstIterable() {
         // Given
@@ -95,21 +115,29 @@ public class ChainedIterableTest {
         final List<String> itr3 = Lists.newArrayList("b", "c", "d", "e");
         final List<String> itr4 = Lists.newArrayList("f", "g");
 
-        final Iterable<String> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
+        ChainedIterable<String> wrappedItr = null;
+        Iterator<String> itr = null;
+        try {
+            wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
-        // When
-        final Iterator<String> itr = wrappedItr.iterator();
-        assertThat(itr.next()).isEqualTo("a");
+            // When
+            itr = wrappedItr.iterator();
+            assertThat(itr.next()).isEqualTo("a");
 
-        itr.remove();
+            itr.remove();
 
-        // Then
-        assertThat(itr1).isEmpty();
-        assertThat(emptyItr2).isEmpty();
-        assertThat(itr3).hasSize(4);
-        assertThat(itr4).hasSize(2);
+            // Then
+            assertThat(itr1).isEmpty();
+            assertThat(emptyItr2).isEmpty();
+            assertThat(itr3).hasSize(4);
+            assertThat(itr4).hasSize(2);
+        } finally {
+            CloseableUtil.close(itr);
+            CloseableUtil.close(wrappedItr);
+        }
     }
 
+    @SuppressWarnings({"resource", "unchecked"})
     @Test
     public void shouldRemoveElementFromThirdIterable() {
         // Given
@@ -118,19 +146,27 @@ public class ChainedIterableTest {
         final List<String> itr3 = Lists.newArrayList("b", "c", "d", "e");
         final List<String> itr4 = Lists.newArrayList("f", "g");
 
-        final Iterable<String> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
-
         // When
-        final Iterator<String> itr = wrappedItr.iterator();
-        assertThat(itr.next()).isEqualTo("a");
-        assertThat(itr.next()).isEqualTo("b");
+        ChainedIterable<String> wrappedItr = null;
+        Iterator<String> itr = null;
+        try {
+            wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
 
-        itr.remove();
+            // When
+            itr = wrappedItr.iterator();
+            assertThat(itr.next()).isEqualTo("a");
+            assertThat(itr.next()).isEqualTo("b");
 
-        // Then
-        assertThat(itr1).hasSize(1);
-        assertThat(emptyItr2).isEmpty();
-        assertThat(itr3).hasSize(3);
-        assertThat(itr4).hasSize(2);
+            itr.remove();
+
+            // Then
+            assertThat(itr1).hasSize(1);
+            assertThat(emptyItr2).isEmpty();
+            assertThat(itr3).hasSize(3);
+            assertThat(itr4).hasSize(2);
+        } finally {
+            CloseableUtil.close(itr);
+            CloseableUtil.close(wrappedItr);
+        }
     }
 }

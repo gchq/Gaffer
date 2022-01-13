@@ -18,59 +18,86 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
+@ExtendWith(MockitoExtension.class)
 public class SuppliedIterableTest {
 
     @Test
-    public void shouldRequestNewIterableFromSupplierWhenIteratorInvoked() {
+    public void shouldRequestNewIterableFromSupplierWhenIteratorInvoked(
+            @Mock final Supplier<Iterable<Integer>> supplier) {
         // Given
-        final Supplier<Iterable<Integer>> supplier = mock(Supplier.class);
         final Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3);
         final Iterable<Integer> iterable2 = Arrays.asList(4, 5, 6);
-        given(supplier.get()).willReturn(iterable1, iterable2);
 
-        final SuppliedIterable<Integer> suppliedItr = new SuppliedIterable<>(supplier);
+        when(supplier.get())
+                .thenReturn(iterable1)
+                .thenReturn(iterable2);
 
         // When 1
-        final CloseableIterator<Integer> result1 = suppliedItr.iterator();
-        final CloseableIterator<Integer> result2 = suppliedItr.iterator();
+        SuppliedIterable<Integer> suppliedItr = null;
+        Iterator<Integer> result1 = null;
+        Iterator<Integer> result2 = null;
+        try {
+            suppliedItr = new SuppliedIterable<>(supplier);
+            result1 = suppliedItr.iterator();
+            result2 = suppliedItr.iterator();
 
-        // Then 2
-        verify(supplier, times(2)).get();
-        assertEquals(iterable1, Lists.newArrayList(result1));
-        assertEquals(iterable2, Lists.newArrayList(result2));
+            // Then 2
+            verify(supplier, times(2)).get();
+            assertEquals(iterable1, Lists.newArrayList(result1));
+            assertEquals(iterable2, Lists.newArrayList(result2));
+        } finally {
+            CloseableUtil.close(result2);
+            CloseableUtil.close(result1);
+            CloseableUtil.close(suppliedItr);
+        }
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void shouldCloseIterables() {
+    public void shouldCloseIterables(@Mock final Supplier<Iterable<Integer>> supplier) throws IOException {
         // Given
-        final Supplier<Iterable<Integer>> supplier = mock(Supplier.class);
-        final CloseableIterable<Integer> iterable1 = mock(CloseableIterable.class);
-        final CloseableIterable<Integer> iterable2 = mock(CloseableIterable.class);
-        final CloseableIterator<Integer> iterator1 = mock(CloseableIterator.class);
-        final CloseableIterator<Integer> iterator2 = mock(CloseableIterator.class);
-        given(iterable1.iterator()).willReturn(iterator1);
-        given(iterable2.iterator()).willReturn(iterator2);
-        given(supplier.get()).willReturn(iterable1, iterable2);
+        final Iterable<Integer> iterable1 = mock(Iterable.class, withSettings().extraInterfaces(Closeable.class));
+        final Iterable<Integer> iterable2 = mock(Iterable.class, withSettings().extraInterfaces(Closeable.class));
+        final Iterator<Integer> iterator1 = mock(Iterator.class, withSettings().extraInterfaces(Closeable.class));
+        final Iterator<Integer> iterator2 = mock(Iterator.class, withSettings().extraInterfaces(Closeable.class));
 
-        final SuppliedIterable<Integer> suppliedIter = new SuppliedIterable<>(supplier);
-        suppliedIter.iterator();
-        suppliedIter.iterator();
+        when(iterable1.iterator()).thenReturn(iterator1);
+        when(iterable2.iterator()).thenReturn(iterator2);
+        when(supplier.get()).thenReturn(iterable1, iterable2);
 
-        // When 1
-        suppliedIter.close();
+        SuppliedIterable<Integer> suppliedItr = null;
+        try {
+            suppliedItr = new SuppliedIterable<>(supplier);
+            suppliedItr.iterator();
+            suppliedItr.iterator();
 
-        // Then 2
-        verify(iterable1).close();
-        verify(iterable2).close();
+            // When 1
+            suppliedItr.close();
+
+            // Then 2
+            verify((Closeable) iterable1).close();
+            verify((Closeable) iterable2).close();
+        } finally {
+            CloseableUtil.close(suppliedItr);
+        }
     }
 }

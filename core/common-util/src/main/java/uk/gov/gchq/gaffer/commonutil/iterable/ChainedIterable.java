@@ -20,21 +20,22 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
+import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 
 /**
- * A {@code ChainedIterable} is an iterable composed of other
- * {@link java.lang.Iterable}s.
+ * A {@code ChainedIterable} is an {@link java.io.Closeable}
+ * {@link java.lang.Iterable} composed of other {@link java.lang.Iterable}s.
  *
  * As a client iterates through this iterable, the child iterables are consumed
  * sequentially.
  *
  * @param <T> the type of items in the iterable.
  */
-public class ChainedIterable<T> implements CloseableIterable<T> {
+public class ChainedIterable<T> implements Closeable, Iterable<T> {
 
     private final Iterable<? extends Iterable<? extends T>> iterables;
 
@@ -50,7 +51,7 @@ public class ChainedIterable<T> implements CloseableIterable<T> {
     }
 
     @Override
-    public CloseableIterator<T> iterator() {
+    public Iterator<T> iterator() {
         return new ChainedIterator<>(iterables.iterator());
     }
 
@@ -61,7 +62,7 @@ public class ChainedIterable<T> implements CloseableIterable<T> {
         }
     }
 
-    private static class ChainedIterator<T> implements CloseableIterator<T> {
+    private static class ChainedIterator<T> implements Closeable, Iterator<T> {
 
         private final Iterator<? extends Iterable<? extends T>> iterablesIterator;
 

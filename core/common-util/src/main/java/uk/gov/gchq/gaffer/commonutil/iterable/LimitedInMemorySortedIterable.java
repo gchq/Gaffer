@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -26,11 +27,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
  * <p>
- * An {@link Iterable} which can sort, limit and deduplicate its elements.
+ * An {@link java.lang.Iterable} which can sort, limit and deduplicate its elements.
  * Sorting is achieved with a provided {@link Comparator}.
  * </p>
  * <p>
@@ -59,8 +61,9 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         this(comparator, limit, false);
     }
 
-    public LimitedInMemorySortedIterable(final Comparator<E> comparator, final Integer limit, final boolean deduplicate) {
-        if (null == comparator) {
+    public LimitedInMemorySortedIterable(final Comparator<E> comparator, final Integer limit,
+            final boolean deduplicate) {
+        if (Objects.isNull(comparator)) {
             throw new IllegalArgumentException("Comparator is required");
         }
         if (null != limit && 1 > limit) {
@@ -131,12 +134,14 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
             return Collections.emptyIterator();
         }
 
-        final Iterable[] values = Iterables.toArray(backingMap.values(), Iterable.class);
-        if (0 == values.length) {
+        @SuppressWarnings("unchecked")
+        final Iterable<? extends E>[] values = Iterables.toArray(backingMap.values(), Iterable.class);
+        if (ArrayUtils.isEmpty(values)) {
             return Collections.emptyIterator();
+        } else {
+            // TODO: look into why
+            return new ChainedIterable<E>(values).iterator();
         }
-
-        return new ChainedIterable<E>(values).iterator();
     }
 
     @Override
