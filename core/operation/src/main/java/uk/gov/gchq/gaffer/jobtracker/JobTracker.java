@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.jobtracker;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
@@ -66,9 +65,9 @@ public class JobTracker {
      * Get all jobs from the job tracker cache.
      *
      * @param user the user making the request to the job tracker
-     * @return a {@link CloseableIterable} containing all of the job details
+     * @return a {@link Iterable} containing all of the job details
      */
-    public CloseableIterable<JobDetail> getAllJobs(final User user) {
+    public Iterable<JobDetail> getAllJobs(final User user) {
 
         return getAllJobsMatching(user, jd -> true);
     }
@@ -76,14 +75,14 @@ public class JobTracker {
     /**
      * Get all scheduled jobs from the job tracker cache.
      *
-     * @return a {@link CloseableIterable} containing all of the scheduled job details
+     * @return a {@link Iterable} containing all of the scheduled job details
      */
-    public CloseableIterable<JobDetail> getAllScheduledJobs() {
+    public Iterable<JobDetail> getAllScheduledJobs() {
 
         return getAllJobsMatching(new User(), jd -> jd.getStatus().equals(JobStatus.SCHEDULED_PARENT));
     }
 
-    private CloseableIterable<JobDetail> getAllJobsMatching(final User user, final Predicate<JobDetail> jobDetailPredicate) {
+    private Iterable<JobDetail> getAllJobsMatching(final User user, final Predicate<JobDetail> jobDetailPredicate) {
 
         final Set<String> jobIds = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
         final List<JobDetail> jobs = jobIds.stream()
@@ -93,7 +92,7 @@ public class JobTracker {
                 .filter(jobDetailPredicate)
                 .collect(Collectors.toList());
 
-        return new WrappedCloseableIterable<>(jobs);
+        return jobs;
     }
 
     /**

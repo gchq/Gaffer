@@ -51,11 +51,14 @@ import java.util.Map;
  * Any fields that are required should be annotated with the {@link Required} annotation.
  * </p>
  * <p>
- * Operation implementations need to implement this Operation interface and any of the following interfaces they wish to make use of:
+ * Operation implementations need to implement this Operation interface and any of the following interfaces they wish to
+ * make use of:
  * {@link uk.gov.gchq.gaffer.operation.io.Input}
  * {@link uk.gov.gchq.gaffer.operation.io.Output}
- * {@link uk.gov.gchq.gaffer.operation.io.InputOutput} (Use this instead of Input and Output if your operation takes both input and output.)
- * {@link uk.gov.gchq.gaffer.operation.io.MultiInput} (Use this in addition if you operation takes multiple inputs. This will help with json  serialisation)
+ * {@link uk.gov.gchq.gaffer.operation.io.InputOutput} (Use this instead of Input and Output if your operation takes
+ * both input and output.)
+ * {@link uk.gov.gchq.gaffer.operation.io.MultiInput} (Use this in addition if you operation takes multiple inputs. This
+ * will help with json serialisation)
  * {@link uk.gov.gchq.gaffer.operation.SeedMatching}
  * {@link uk.gov.gchq.gaffer.operation.Validatable}
  * {@link uk.gov.gchq.gaffer.operation.graph.OperationView}
@@ -75,7 +78,7 @@ import java.util.Map;
  * </p>
  * <pre>
  * public static class Builder extends Operation.BaseBuilder&lt;GetElements, Builder&gt;
- *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, CloseableIterable&lt;? extends Element&gt;, Builder&gt;,
+ *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, Iterable&lt;? extends Element&gt;, Builder&gt;,
  *         MultiInput.Builder&lt;GetElements, ElementId, Builder&gt;,
  *         SeededGraphFilters.Builder&lt;GetElements, Builder&gt;,
  *         SeedMatching.Builder&lt;GetElements, Builder&gt; {
@@ -101,15 +104,18 @@ public interface Operation extends Closeable {
 
     /**
      * @return the operation options. This may contain store specific options such as authorisation strings or and
-     * other properties required for the operation to be executed. Note these options will probably not be interpreted
-     * in the same way by every store implementation.
+     *         other properties required for the operation to be executed. Note these options will probably not be
+     *         interpreted
+     *         in the same way by every store implementation.
      */
     @JsonIgnore
     Map<String, String> getOptions();
 
     /**
-     * @param options the operation options. This may contain store specific options such as authorisation strings or and
-     *                other properties required for the operation to be executed. Note these options will probably not be interpreted
+     * @param options the operation options. This may contain store specific options such as authorisation strings or
+     *                and
+     *                other properties required for the operation to be executed. Note these options will probably not
+     *                be interpreted
      *                in the same way by every store implementation.
      */
     @JsonSetter
@@ -190,7 +196,7 @@ public interface Operation extends Closeable {
     default ValidationResult validate() {
         final ValidationResult result = new ValidationResult();
 
-        HashSet<Field> fields = Sets.<Field>newHashSet();
+        final HashSet<Field> fields = Sets.<Field>newHashSet();
         Class<?> currentClass = this.getClass();
         while (null != currentClass) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
@@ -249,7 +255,7 @@ public interface Operation extends Closeable {
 
     abstract class BaseBuilder<OP extends Operation, B extends BaseBuilder<OP, ?>>
             implements Builder<OP, B> {
-        private OP op;
+        private final OP op;
 
         protected BaseBuilder(final OP op) {
             this.op = op;
@@ -295,7 +301,5 @@ public interface Operation extends Closeable {
         public B _self() {
             return (B) this;
         }
-
     }
 }
-

@@ -22,7 +22,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -69,7 +69,7 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets elements related to provided seeds")
 public class GetElements implements
-        InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
+        InputOutput<Iterable<? extends ElementId>, Iterable<? extends Element>>,
         MultiElementIdInput,
         SeededGraphFilters,
         SeedMatching {
@@ -216,13 +216,13 @@ public class GetElements implements
     }
 
     /**
-     * Get the output type which in this case is {@link CloseableIterable} of {@link Element}s
+     * Get the output type which in this case is {@link Iterable} of {@link Element}s
      *
      * @return the ClosableIterable of Elements type reference
      */
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -301,7 +301,7 @@ public class GetElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
-            implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
+            implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, Iterable<? extends Element>, Builder>,
             MultiElementIdInput.Builder<GetElements, Builder>,
             SeededGraphFilters.Builder<GetElements, Builder>,
             SeedMatching.Builder<GetElements, Builder> {

@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.export.set;
 import com.google.common.collect.Iterables;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
+
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import java.util.Set;
  * a predictable iteration order.
  */
 public class SetExporter implements Exporter {
-    private Map<String, Set<Object>> exports = new HashMap<>();
+    private final Map<String, Set<Object>> exports = new HashMap<>();
 
     @Override
     public void add(final String key, final Iterable<?> results) {
@@ -43,25 +43,24 @@ public class SetExporter implements Exporter {
     }
 
     @Override
-    public CloseableIterable<?> get(final String key) {
+    public Iterable<?> get(final String key) {
         return get(key, 0, null);
     }
 
-    public CloseableIterable<?> get(final String key, final int start, final Integer end) {
-        return new LimitedCloseableIterable<>(getExport(key), start, end);
+    public Iterable<?> get(final String key, final int start, final Integer end) {
+        return new LimitedIterable<>(getExport(key), start, end);
     }
 
     private Set<Object> getExport(final String key) {
-        Set<Object> export = exports.computeIfAbsent(key, k -> new LinkedHashSet<>());
+        final Set<Object> export = exports.computeIfAbsent(key, k -> new LinkedHashSet<>());
 
         return export;
     }
 
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("exports", exports)
                 .toString();
     }
-
-
 }

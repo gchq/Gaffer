@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -48,7 +48,7 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(CloseableIterable.class, outputClass);
+        assertEquals(Iterable.class, outputClass);
     }
 
     @Test

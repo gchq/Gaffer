@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 /**
@@ -25,5 +25,5 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 public interface Exporter {
     void add(final String key, final Iterable<?> results) throws OperationException;
 
-    CloseableIterable<?> get(final String key) throws OperationException;
+    Iterable<?> get(final String key) throws OperationException;
 }

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -43,7 +43,7 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Fetches multiple exports")
 public class GetExports implements
-        Output<Map<String, CloseableIterable<?>>> {
+        Output<Map<String, Iterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();
     private Map<String, String> options;
 
@@ -69,7 +69,7 @@ public class GetExports implements
     }
 
     @Override
-    public TypeReference<Map<String, CloseableIterable<?>>> getOutputTypeReference() {
+    public TypeReference<Map<String, Iterable<?>>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.MapStringSet();
     }
 
@@ -85,7 +85,7 @@ public class GetExports implements
 
     public static class Builder
             extends Operation.BaseBuilder<GetExports, Builder>
-            implements Output.Builder<GetExports, Map<String, CloseableIterable<?>>, Builder> {
+            implements Output.Builder<GetExports, Map<String, Iterable<?>>, Builder> {
         public Builder() {
             super(new GetExports());
         }

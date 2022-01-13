@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.view.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -36,11 +36,11 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.3.0")
 @Summary("Gets all available named views")
-public class GetAllNamedViews implements Output<CloseableIterable<NamedViewDetail>> {
+public class GetAllNamedViews implements Output<Iterable<NamedViewDetail>> {
     private Map<String, String> options;
 
     @Override
-    public TypeReference<CloseableIterable<NamedViewDetail>> getOutputTypeReference() {
+    public TypeReference<Iterable<NamedViewDetail>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableNamedView();
     }
 
@@ -62,7 +62,7 @@ public class GetAllNamedViews implements Output<CloseableIterable<NamedViewDetai
     }
 
     public static class Builder extends BaseBuilder<GetAllNamedViews, Builder>
-            implements Output.Builder<GetAllNamedViews, CloseableIterable<NamedViewDetail>, Builder> {
+            implements Output.Builder<GetAllNamedViews, Iterable<NamedViewDetail>, Builder> {
         public Builder() {
             super(new GetAllNamedViews());
         }

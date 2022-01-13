@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -64,6 +66,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class OperationChainTest extends OperationsTest<OperationChain> {
 
     @Test
@@ -75,7 +78,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 .build();
 
         // When
-        byte[] json = JSONSerialiser.serialise(opChain, true);
+        final byte[] json = JSONSerialiser.serialise(opChain, true);
         final OperationChain deserialisedOp = JSONSerialiser.deserialise(json, OperationChain.class);
 
         // Then
@@ -90,25 +93,20 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
     }
 
     @Test
-    public void shouldBuildOperationChain() {
+    public void shouldBuildOperationChain(@Mock final AddElements addElements1, @Mock final AddElements addElements2,
+            @Mock final GetAdjacentIds getAdj1, @Mock final GetAdjacentIds getAdj2, @Mock final GetAdjacentIds getAdj3,
+            @Mock final GetElements getElements1, @Mock final GetElements getElements2,
+            @Mock final GetAllElements getAllElements,
+            @Mock final DiscardOutput discardOutput,
+            @Mock final GetJobDetails getJobDetails,
+            @Mock final GenerateObjects<EntityId> generateEntitySeeds,
+            @Mock final Limit<Element> limit,
+            @Mock final ToSet<Element> deduplicate,
+            @Mock final CountGroups countGroups,
+            @Mock final ExportToSet<GroupCounts> exportToSet,
+            @Mock final ExportToGafferResultCache<Iterable<? extends Element>> exportToGafferCache,
+            @Mock final If<Iterable<? extends EntityId>, Iterable<? extends EntityId>> ifOp) {
         // Given
-        final AddElements addElements1 = mock(AddElements.class);
-        final AddElements addElements2 = mock(AddElements.class);
-        final GetAdjacentIds getAdj1 = mock(GetAdjacentIds.class);
-        final GetAdjacentIds getAdj2 = mock(GetAdjacentIds.class);
-        final GetAdjacentIds getAdj3 = mock(GetAdjacentIds.class);
-        final GetElements getElements1 = mock(GetElements.class);
-        final GetElements getElements2 = mock(GetElements.class);
-        final GetAllElements getAllElements = mock(GetAllElements.class);
-        final DiscardOutput discardOutput = mock(DiscardOutput.class);
-        final GetJobDetails getJobDetails = mock(GetJobDetails.class);
-        final GenerateObjects<EntityId> generateEntitySeeds = mock(GenerateObjects.class);
-        final Limit<Element> limit = mock(Limit.class);
-        final ToSet<Element> deduplicate = mock(ToSet.class);
-        final CountGroups countGroups = mock(CountGroups.class);
-        final ExportToSet<GroupCounts> exportToSet = mock(ExportToSet.class);
-        final ExportToGafferResultCache<CloseableIterable<? extends Element>> exportToGafferCache = mock(ExportToGafferResultCache.class);
-        final If<Iterable<? extends EntityId>, Iterable<? extends EntityId>> ifOp = mock(If.class);
 
         // When
         final OperationChain<JobDetail> opChain = new Builder()
@@ -158,19 +156,19 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
     public void shouldBuildOperationChainWithTypeUnsafe() {
         // When
         final GetAdjacentIds getAdjIds1 = new GetAdjacentIds();
-        final ExportToSet<CloseableIterable<? extends EntityId>> exportToSet1 = new ExportToSet<>();
+        final ExportToSet<Iterable<? extends EntityId>> exportToSet1 = new ExportToSet<>();
         final DiscardOutput discardOutput1 = new DiscardOutput();
         final GetSetExport getSetExport1 = new GetSetExport();
         final GetAdjacentIds getAdjIds2 = new GetAdjacentIds();
-        final ExportToSet<CloseableIterable<? extends EntityId>> exportToSet2 = new ExportToSet<>();
+        final ExportToSet<Iterable<? extends EntityId>> exportToSet2 = new ExportToSet<>();
         final DiscardOutput discardOutput2 = new DiscardOutput();
         final GetSetExport getSetExport2 = new GetSetExport();
-        final OperationChain<CloseableIterable<? extends EntityId>> opChain = new Builder()
+        final OperationChain<Iterable<? extends EntityId>> opChain = new Builder()
                 .first(getAdjIds1)
                 .then(exportToSet1)
                 .then(discardOutput1)
                 .then(getSetExport1)
-                .thenTypeUnsafe(getAdjIds2)  // we can use the type unsafe here as we know the output from the set export will be an Iterable of EntityIds
+                .thenTypeUnsafe(getAdjIds2) // we can use the type unsafe here as we know the output from the set export will be an Iterable of EntityIds
                 .then(exportToSet2)
                 .then(discardOutput2)
                 .then(getSetExport2)
@@ -191,9 +189,8 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
     }
 
     @Test
-    public void shouldBuildOperationChainWithSingleOperation() {
+    public void shouldBuildOperationChainWithSingleOperation(@Mock final GetAdjacentIds getAdjacentIds) {
         // Given
-        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
@@ -206,10 +203,9 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
     }
 
     @Test
-    public void shouldBuildOperationChain_AdjEntitySeedsThenElements() {
+    public void shouldBuildOperationChain_AdjEntitySeedsThenElements(@Mock final GetAdjacentIds getAdjacentIds,
+            @Mock final GetElements getEdges) {
         // Given
-        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
-        final GetElements getEdges = mock(GetElements.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
@@ -224,11 +220,9 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
     }
 
     @Test
-    public void shouldDetermineOperationChainOutputType() {
+    public void shouldDetermineOperationChainOutputType(@Mock final Operation operation1,
+            @Mock final GetElements operation2, @Mock final TypeReference typeRef) {
         // Given
-        final Operation operation1 = mock(Operation.class);
-        final GetElements operation2 = mock(GetElements.class);
-        final TypeReference typeRef = mock(TypeReference.class);
 
         given(operation2.getOutputTypeReference()).willReturn(typeRef);
 
@@ -300,15 +294,13 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 mock(Input.class),
                 mock(Input.class),
                 mock(MultiInput.class),
-                mock(Input.class)
-        );
+                mock(Input.class));
         final List<Operation> clonedOps = Arrays.asList(
                 mock(Operation.class),
                 mock(Input.class),
                 mock(Input.class),
                 mock(MultiInput.class),
-                mock(Input.class)
-        );
+                mock(Input.class));
         for (int i = 0; i < ops.size(); i++) {
             given(ops.get(i).shallowClone()).willReturn(clonedOps.get(i));
         }
@@ -387,7 +379,6 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         assertSame(operation.getOptions(), wrappedChain.getOptions());
     }
 
-
     @Override
     protected OperationChain getTestObject() {
         return new OperationChain();
@@ -401,8 +392,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 mock(Operation.class),
                 mock(GetAllElements.class),
                 mock(Aggregate.class),
-                mock(Limit.class)
-        );
+                mock(Limit.class));
 
         final OperationChain<Operation> opChain = new OperationChain<>(ops);
 

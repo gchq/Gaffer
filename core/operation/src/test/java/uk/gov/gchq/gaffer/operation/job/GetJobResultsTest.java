@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -93,7 +93,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(CloseableIterable.class, outputClass);
+        assertEquals(Iterable.class, outputClass);
     }
 
     @Override

@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -60,7 +60,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(CloseableIterable.class, outputClass);
+        assertEquals(Iterable.class, outputClass);
     }
 
     @Test
