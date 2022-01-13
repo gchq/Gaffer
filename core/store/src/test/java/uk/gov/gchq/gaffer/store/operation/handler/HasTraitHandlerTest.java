@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -37,7 +36,10 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class HasTraitHandlerTest {
@@ -45,7 +47,9 @@ public class HasTraitHandlerTest {
     public static final String STORE_ID = "StoreId";
     public static final String STRING = "string";
     private Store store;
-    private StoreTrait TRAIT = StoreTrait.TRANSFORMATION;
+    private StoreTrait VISIBILITY = StoreTrait.VISIBILITY;
+    private StoreTrait QUERY_AGGREGATION = StoreTrait.QUERY_AGGREGATION;
+    private StoreTrait TRANSFORMATION = StoreTrait.TRANSFORMATION;
     private Set<StoreTrait> expectedTraits;
     private Schema string;
 
@@ -71,35 +75,70 @@ public class HasTraitHandlerTest {
         assertEquals(temp, this.expectedTraits);
         assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);
     }
+    @Test
+    public void shouldHighlightDifferenceWhenSettingCurrentTraitsOption() throws Exception {
+        // Given
+        store.initialise(STORE_ID, new Schema(), new StoreProperties());
+
+        // When
+        Boolean presentInDefaultTraits = store.execute(
+                new HasTrait.Builder()
+                        .currentTraits(false)
+                        .trait(QUERY_AGGREGATION)
+                        .build(),
+                new Context(testUser()));
+
+        Boolean presentInCurrentTraits = store.execute(
+                new HasTrait.Builder()
+                        .currentTraits(true)
+                        .trait(QUERY_AGGREGATION)
+                        .build(),
+                new Context(testUser()));
+
+        // Then
+        assertNotEquals(presentInDefaultTraits, presentInCurrentTraits);
+
+    }
 
     @Test
     public void shouldCheckForTraitForSchemaEmpty() throws Exception {
         // When
-        final Boolean actual = hasStoreTrait(new Schema(), TRAIT);
+        final Boolean present = hasStoreTrait(new Schema(), TRANSFORMATION, true);
+        final Boolean absent = hasStoreTrait(new Schema(),  QUERY_AGGREGATION, true);
 
         // Then
-        assertTrue(actual);
+        assertTrue(present);
+        assertFalse(absent);
     }
 
     @Test
     public void shouldCheckForTraitForSchemaWithGroupBy() throws Exception {
         // When
-        final Boolean actual = hasStoreTrait(new Schema.Builder()
+        final Boolean present = hasStoreTrait(new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .groupBy("gb")
                         .vertex(STRING)
                         .build())
                 .merge(string)
-                .build(), TRAIT);
+                .build(), TRANSFORMATION, true);
+
+        final Boolean absent = hasStoreTrait(new Schema.Builder()
+                .entity("e1", new SchemaEntityDefinition.Builder()
+                        .groupBy("gb")
+                        .vertex(STRING)
+                        .build())
+                .merge(string)
+                .build(), VISIBILITY, true);
 
         //Then
-        assertTrue(actual);
+        assertTrue(present);
+        assertFalse(absent);
     }
 
     @Test
     public void shouldCheckForTraitForSchemaWithValidator() throws Exception {
         // When
-        final Boolean actual = hasStoreTrait(new Schema.Builder()
+        final Boolean present = hasStoreTrait(new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .property("p1", STRING)
                         .validator(new ElementFilter.Builder()
@@ -110,28 +149,47 @@ public class HasTraitHandlerTest {
                         .vertex(STRING)
                         .build())
                 .merge(string)
-                .build(), TRAIT);
+                .build(), TRANSFORMATION, true);
+
+        final Boolean absent = hasStoreTrait(new Schema.Builder()
+                .entity("e1", new SchemaEntityDefinition.Builder()
+                        .property("p1", STRING)
+                        .validator(new ElementFilter.Builder()
+                                .select("p1")
+                                .execute(new Exists())
+                                .build())
+                        .aggregate(false)
+                        .vertex(STRING)
+                        .build())
+                .merge(string)
+                .build(),  QUERY_AGGREGATION, true);
 
         //Then
-        assertTrue(actual);
+        assertTrue(present);
+        assertFalse(absent);
     }
 
 
     @Test
     public void shouldCheckForTraitForSchemaWithVisibility() throws Exception {
         // When
-        final Boolean actual = hasStoreTrait(new Schema.Builder()
+        final Boolean present = hasStoreTrait(new Schema.Builder()
                 .visibilityProperty(STRING)
-                .build(), TRAIT);
+                .build(), TRANSFORMATION, true);
+
+        final Boolean absent = hasStoreTrait(new Schema.Builder()
+                .visibilityProperty(STRING)
+                .build(),  QUERY_AGGREGATION, true);
 
         //Then
-        assertTrue(actual);
+        assertTrue(present);
+        assertFalse(absent);
     }
 
     @Test
     public void shouldGetTraitsForSchemaWithAggregatorAndGroupBy() throws Exception {
         // When
-        final Boolean actual = hasStoreTrait(new Schema.Builder()
+        final Boolean present = hasStoreTrait(new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .property("p1", STRING)
                         .vertex(STRING)
@@ -143,17 +201,31 @@ public class HasTraitHandlerTest {
                         .build())
                 .merge(string)
                 .build()
-                , TRAIT);
+                , TRANSFORMATION, true);
+
+        final Boolean absent = hasStoreTrait(new Schema.Builder()
+                        .entity("e1", new SchemaEntityDefinition.Builder()
+                                .property("p1", STRING)
+                                .vertex(STRING)
+                                .groupBy("p1")
+                                .aggregator(new ElementAggregator.Builder()
+                                        .select("p1")
+                                        .execute(new StringConcat())
+                                        .build())
+                                .build())
+                        .merge(string)
+                        .build(), VISIBILITY, true);
 
         //Then
-        assertTrue(actual);
+        assertTrue(present);
+        assertFalse(absent);
     }
 
-    private Boolean hasStoreTrait(final Schema schema, final StoreTrait trait) throws StoreException, uk.gov.gchq.gaffer.operation.OperationException {
+    private Boolean hasStoreTrait(final Schema schema, final StoreTrait trait, Boolean currentTraitsFlag) throws StoreException, uk.gov.gchq.gaffer.operation.OperationException {
         store.initialise(STORE_ID, schema, new StoreProperties());
         return store.execute(
                 new HasTrait.Builder()
-                        .currentTraits(true)
+                        .currentTraits(currentTraitsFlag)
                         .trait(trait)
                         .build(),
                 new Context(testUser()));

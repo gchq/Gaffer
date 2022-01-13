@@ -40,10 +40,10 @@ public class HasTrait implements Operation, Output<Boolean> {
     public static final boolean DEFAULT_CURRENT_TRAITS = true;
 
     /**
-     * The currentTraits holds a boolean value, which if false
-     * will return a list of all supported traits from the store.
-     * If true, it will return a list of current traits.
-     * By default it will return a list of current traits.
+     * The currentTraits holds a boolean value, and is used
+     * to check if the provided trait argument exists in either
+     * the store default (false) or the schema current traits (true).
+     * By default, it will check against the list of current traits.
      */
     private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
     private StoreTrait trait;
