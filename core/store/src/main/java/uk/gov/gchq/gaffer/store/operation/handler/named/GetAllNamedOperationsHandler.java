@@ -16,11 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-
 import org.apache.commons.collections.CollectionUtils;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -39,7 +36,8 @@ import java.util.function.Function;
 /**
  * Operation Handler for GetAllNamedOperations
  */
-public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>> {
+public class GetAllNamedOperationsHandler
+        implements OutputOperationHandler<GetAllNamedOperations, Iterable<NamedOperationDetail>> {
     private final NamedOperationCache cache;
 
     public GetAllNamedOperationsHandler() {
@@ -62,9 +60,11 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
      * @throws OperationException thrown if the cache has not been initialized in the operation declarations file
      */
     @Override
-    public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
-        final CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(context.getUser(), store.getProperties().getAdminAuth());
-        return new WrappedCloseableIterable<>(IterableUtil.map(ops, new AddInputType()));
+    public Iterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context,
+            final Store store) throws OperationException {
+        final Iterable<NamedOperationDetail> ops = cache.getAllNamedOperations(context.getUser(),
+                store.getProperties().getAdminAuth());
+        return IterableUtil.map(ops, new AddInputType());
     }
 
     private static class AddInputType implements Function<NamedOperationDetail, NamedOperationDetail> {
@@ -76,7 +76,8 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
                     if (CollectionUtils.isNotEmpty(opList)) {
                         final Operation firstOp = opList.get(0);
                         if (firstOp instanceof Input) {
-                            namedOp.setInputType(JsonSerialisationUtil.getSerialisedFieldClasses(firstOp.getClass().getName()).get("input"));
+                            namedOp.setInputType(JsonSerialisationUtil
+                                    .getSerialisedFieldClasses(firstOp.getClass().getName()).get("input"));
                         }
                     }
                 } catch (final Exception e) {

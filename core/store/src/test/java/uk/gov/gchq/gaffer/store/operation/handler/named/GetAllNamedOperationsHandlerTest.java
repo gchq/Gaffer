@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
@@ -88,7 +88,7 @@ public class GetAllNamedOperationsHandlerTest {
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithLabel, context, store);
 
-        final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final Iterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         assertEquals(Arrays.asList("test label"), allNamedOperations.iterator().next().getLabels());
     }
@@ -102,7 +102,7 @@ public class GetAllNamedOperationsHandlerTest {
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithNullLabel, context, store);
 
-        final CloseableIterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final Iterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         assertThat(allNamedOperations.iterator().next().getLabels()).isNull();
     }
@@ -119,7 +119,7 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-        CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        Iterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allNamedOperationsList));
@@ -138,7 +138,7 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-        CloseableIterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        Iterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
         assertEquals(1, Iterables.size(allNamedOperationsList));

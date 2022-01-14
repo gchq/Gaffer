@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -69,7 +67,7 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable elements = getElements();
+        final Iterable elements = getElements();
         final Context context = new Context();
 
         given(countGroups.getLimit()).willReturn(null);
@@ -97,7 +95,7 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable elements = getElements();
+        final Iterable elements = getElements();
         final Integer limit = 10;
         final Context context = new Context();
 
@@ -126,7 +124,7 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable elements = getElements();
+        final Iterable elements = getElements();
         final Integer limit = 3;
         final Context context = new Context();
 
@@ -145,7 +143,7 @@ public class CountGroupsHandlerTest {
         verify(countGroups).close();
     }
 
-    static CloseableIterable<Element> getElements() {
+    static Iterable<Element> getElements() {
         final Entity entity1 = mock(Entity.class);
         final Entity entity2 = mock(Entity.class);
         final Entity entity3 = mock(Entity.class);
@@ -166,8 +164,7 @@ public class CountGroupsHandlerTest {
         given(edge3.getGroup()).willReturn(GROUP2);
         given(edge4.getGroup()).willReturn(GROUP2);
 
-        return new WrappedCloseableIterable(Arrays.asList(
-                entity1, entity2, entity3, entity4,
-                edge1, edge2, edge3, edge4));
+        return Arrays.asList(entity1, entity2, entity3, entity4,
+                edge1, edge2, edge3, edge4);
     }
 }

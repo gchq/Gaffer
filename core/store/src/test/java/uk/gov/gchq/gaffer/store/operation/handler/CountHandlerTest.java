@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
@@ -36,7 +36,7 @@ public class CountHandlerTest {
         final CountHandler handler = new CountHandler();
         final Store store = mock(Store.class);
         final Count count = mock(Count.class);
-        final CloseableIterable<Element> elements = CountGroupsHandlerTest.getElements();
+        final Iterable<Element> elements = CountGroupsHandlerTest.getElements();
         final Context context = new Context();
         given(count.getInput()).willReturn(elements);
 

@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.store.util;
 
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -63,7 +63,7 @@ public final class AggregatorUtil {
      * @param schema   the schema containing the aggregators and groupBy properties to use
      * @return the aggregated elements.
      */
-    public static CloseableIterable<Element> ingestAggregate(final Iterable<? extends Element> elements, final Schema schema) {
+    public static Iterable<Element> ingestAggregate(final Iterable<? extends Element> elements, final Schema schema) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
@@ -99,7 +99,7 @@ public final class AggregatorUtil {
      * @param view     the view containing the aggregators and groupBy properties to use
      * @return the aggregated elements.
      */
-    public static CloseableIterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view) {
+    public static Iterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view) {
         return queryAggregate(elements, schema, view, false);
     }
 
@@ -117,7 +117,7 @@ public final class AggregatorUtil {
      * @param includeMatchedVertex whether aggregation groups should include the Edge Matched Vertex
      * @return the aggregated elements.
      */
-    public static CloseableIterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view, final boolean includeMatchedVertex) {
+    public static Iterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view, final boolean includeMatchedVertex) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }

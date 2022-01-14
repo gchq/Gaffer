@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -35,32 +37,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class ToArrayHandlerTest {
 
     @Test
-    public void shouldConvertIterableToArray() throws OperationException {
+    public void shouldConvertIterableToArray(@Mock final ToArray operation) throws OperationException {
         // Given
-        final Integer[] originalArray = new Integer[]{1, 2, 3};
+        final Integer[] originalArray = new Integer[] {1, 2, 3};
 
-        final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<Integer> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Integer[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertArrayEquals(originalArray, results);
     }
 
     @Test
-    public void shouldConvertIterableOfElementsToArray() throws OperationException {
+    public void shouldConvertIterableOfElementsToArray(@Mock final ToArray operation) throws OperationException {
         // Given
-        final Element[] originalArray = new Element[]{
+        final Element[] originalArray = new Element[] {
                 new Entity.Builder()
                         .group("entity")
                         .build(),
@@ -69,41 +70,40 @@ public class ToArrayHandlerTest {
                         .build()
         };
 
-        final Iterable<Element> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<Element> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<Element> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Element[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertArrayEquals(originalArray, results);
     }
 
     @Test
-    public void shouldConvertIterableOfElementIdsToArray() throws OperationException {
+    public void shouldConvertIterableOfElementIdsToArray(@Mock final ToArray operation) throws OperationException {
         // Given
-        final ElementId[] originalArray = new ElementId[]{new EntitySeed("vertex"), new EdgeSeed("src", "dest", true)};
+        final ElementId[] originalArray = new ElementId[] {new EntitySeed("vertex"), new EdgeSeed("src", "dest", true)};
 
-        final Iterable<ElementId> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<ElementId> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final ElementId[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertArrayEquals(originalArray, results);
     }
 
     @Test
-    public void shouldConvertIterableOfElementsAndElementIdsToArray() throws OperationException {
+    public void shouldConvertIterableOfElementsAndElementIdsToArray(@Mock final ToArray operation)
+            throws OperationException {
         // Given
-        final ElementId[] originalArray = new ElementId[]{
+        final ElementId[] originalArray = new ElementId[] {
                 new Entity.Builder()
                         .group("entity")
                         .build(),
@@ -114,23 +114,22 @@ public class ToArrayHandlerTest {
                 new EdgeSeed("src", "dest", true)
         };
 
-        final Iterable<ElementId> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<ElementId> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final ElementId[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertArrayEquals(originalArray, results);
     }
 
     @Test
-    public void shouldConvertIterableOfObjectsToArray() throws OperationException {
+    public void shouldConvertIterableOfObjectsToArray(@Mock final ToArray operation) throws OperationException {
         // Given
-        final Object[] originalArray = new Object[]{
+        final Object[] originalArray = new Object[] {
                 new Entity("entity"),
                 new Edge.Builder().group("edge"),
                 new EntitySeed("vertex"),
@@ -140,67 +139,64 @@ public class ToArrayHandlerTest {
                 1.5
         };
 
-        final Iterable<Object> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<Object> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<Object> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Object[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertArrayEquals(originalArray, results);
     }
 
     @Test
-    public void shouldConvertEmptyIterableOfObjectsToNullArray() throws OperationException {
+    public void shouldConvertEmptyIterableOfObjectsToNullArray(@Mock final ToArray operation)
+            throws OperationException {
         // Given
         final Object[] originalArray = new Object[0];
 
-        final Iterable<Object> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<Object> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<Object> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Object[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertNull(results);
     }
 
     @Test
-    public void shouldHandleNullInput() throws OperationException {
+    public void shouldHandleNullInput(@Mock final ToArray operation) throws OperationException {
         // Given
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(null);
 
-        //When
+        // When
         final Integer[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).isNull();
     }
 
     @Test
-    public void shouldHandleZeroLengthInput() throws OperationException {
+    public void shouldHandleZeroLengthInput(@Mock final ToArray operation) throws OperationException {
         // Given
-        final Integer[] originalArray = new Integer[]{};
+        final Integer[] originalArray = new Integer[] {};
 
-        final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<Integer> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<Integer> handler = new ToArrayHandler<>();
-        final ToArray operation = mock(ToArray.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Integer[] results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).isNull();
     }
 }

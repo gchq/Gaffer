@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -32,12 +32,12 @@ import java.util.Map;
 /**
  * Handler for {@link GetExports} operations.
  */
-public class GetExportsHandler implements OutputOperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
+public class GetExportsHandler implements OutputOperationHandler<GetExports, Map<String, Iterable<?>>> {
     @Override
-    public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
-        final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();
+    public Map<String, Iterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
+        final Map<String, Iterable<?>> exports = new LinkedHashMap<>();
         for (final GetExport getExport : getExports.getGetExports()) {
-            final CloseableIterable<?> export = (CloseableIterable<?>) store.execute(new OperationChain((Operation) getExport), context);
+            final Iterable<?> export = (Iterable<?>) store.execute(new OperationChain((Operation) getExport), context);
             exports.put(getExport.getClass().getName() + ": " + getExport.getKeyOrDefault(), export);
         }
 

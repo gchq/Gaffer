@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.job;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -30,39 +32,36 @@ import uk.gov.gchq.gaffer.user.User;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class GetAllJobDetailsHandlerTest {
 
     @Test
-    public void shouldThrowExceptionIfJobTrackerIsNotConfigured() {
+    public void shouldThrowExceptionIfJobTrackerIsNotConfigured(@Mock final Store store, @Mock final User user,
+            @Mock final GetAllJobDetails operation) {
         // Given
         final GetAllJobDetailsHandler handler = new GetAllJobDetailsHandler();
-        final GetAllJobDetails operation = mock(GetAllJobDetails.class);
-        final Store store = mock(Store.class);
-        final User user = mock(User.class);
 
         given(store.getJobTracker()).willReturn(null);
 
         // When / Then
-        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(operation, new Context(user), store)).extracting("message").isNotNull();
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(operation, new Context(user), store)).extracting("message")
+                .isNotNull();
     }
 
     @Test
-    public void shouldGetAllJobDetailsByDelegatingToJobTracker() throws OperationException {
+    public void shouldGetAllJobDetailsByDelegatingToJobTracker(@Mock final Store store, @Mock final User user,
+            @Mock final GetAllJobDetails operation, @Mock final JobTracker jobTracker,
+            @Mock final Iterable<JobDetail> jobsDetails) throws OperationException {
         // Given
         final GetAllJobDetailsHandler handler = new GetAllJobDetailsHandler();
-        final GetAllJobDetails operation = mock(GetAllJobDetails.class);
-        final Store store = mock(Store.class);
-        final JobTracker jobTracker = mock(JobTracker.class);
-        final User user = mock(User.class);
-        final CloseableIterable<JobDetail> jobsDetails = mock(CloseableIterable.class);
 
         given(store.getJobTracker()).willReturn(jobTracker);
         given(jobTracker.getAllJobs(user)).willReturn(jobsDetails);
 
         // When
-        final CloseableIterable<JobDetail> results = handler.doOperation(operation, new Context(user), store);
+        final Iterable<JobDetail> results = handler.doOperation(operation, new Context(user), store);
 
         // Then
         assertSame(jobsDetails, results);

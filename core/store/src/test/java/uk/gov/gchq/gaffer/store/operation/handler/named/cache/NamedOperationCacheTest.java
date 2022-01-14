@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -205,7 +205,7 @@ public class NamedOperationCacheTest {
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() {
-        CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(standardUser);
+        Iterable<NamedOperationDetail> ops = cache.getAllNamedOperations(standardUser);
         assert Iterables.size(ops) == 0;
     }
 

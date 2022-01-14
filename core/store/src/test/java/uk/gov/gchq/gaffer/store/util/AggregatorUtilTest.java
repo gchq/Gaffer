@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -102,7 +102,7 @@ public class AggregatorUtilTest {
         };
 
         // when
-        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(onlyConsumingOnceIterable, schema);
+        final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(onlyConsumingOnceIterable, schema);
 
         // then
         assertElementEquals(elements, aggregatedElements);
@@ -183,7 +183,7 @@ public class AggregatorUtilTest {
         );
 
         // when
-        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
+        final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
 
         // then
         assertElementEquals(expected, aggregatedElements);
@@ -357,7 +357,7 @@ public class AggregatorUtilTest {
         );
 
         // when
-        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
+        final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
 
         // then
         assertElementEquals(expected, aggregatedElements);
@@ -496,7 +496,7 @@ public class AggregatorUtilTest {
         );
 
         // when
-        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
+        final Iterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
 
         // then
         assertElementEquals(expected, aggregatedElements);
@@ -615,7 +615,7 @@ public class AggregatorUtilTest {
         );
 
         // when
-        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
+        final Iterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
 
         // then
         assertElementEquals(expected, aggregatedElements);
@@ -662,7 +662,7 @@ public class AggregatorUtilTest {
         };
 
         // when
-        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(onlyConsumingOnceIterable, schema, view);
+        final Iterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(onlyConsumingOnceIterable, schema, view);
 
         // then
         assertElementEquals(elements, aggregatedElements);
@@ -1020,7 +1020,7 @@ public class AggregatorUtilTest {
         );
 
         // when
-        final CloseableIterable<Element> aggregatedElementsIncludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, true);
+        final Iterable<Element> aggregatedElementsIncludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, true);
 
         // then
         assertElementEquals(expectedIncludingMatchedVertex, aggregatedElementsIncludingMatchedVertex);
@@ -1054,7 +1054,7 @@ public class AggregatorUtilTest {
         );
 
         // when
-        final CloseableIterable<Element> aggregatedElementsExcludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, false);
+        final Iterable<Element> aggregatedElementsExcludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, false);
 
         // then
         assertElementEquals(expectedExcludingMatchedVertex, aggregatedElementsExcludingMatchedVertex);

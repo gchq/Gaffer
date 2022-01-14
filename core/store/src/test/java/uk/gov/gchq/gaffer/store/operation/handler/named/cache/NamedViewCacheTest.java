@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
@@ -132,7 +132,7 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() throws CacheOperationFailedException {
-        CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews(standardUser);
+        Iterable<NamedViewDetail> views = cache.getAllNamedViews(standardUser);
         assertEquals(0, Iterables.size(views));
     }
 

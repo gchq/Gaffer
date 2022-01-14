@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
@@ -51,7 +50,8 @@ public class NamedOperationCache {
      * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                       or if the add operation fails for some reason.
      */
-    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user) throws CacheOperationFailedException {
+    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user)
+            throws CacheOperationFailedException {
         add(namedOperation, overwrite, user, null);
     }
 
@@ -68,7 +68,8 @@ public class NamedOperationCache {
      * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                       or if the add operation fails for some reason.
      */
-    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user, final String adminAuth) throws CacheOperationFailedException {
+    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
+            final String adminAuth) throws CacheOperationFailedException {
         add(namedOperation, overwrite, user, adminAuth);
     }
 
@@ -95,7 +96,8 @@ public class NamedOperationCache {
      * @throws CacheOperationFailedException Thrown when the NamedOperationDetail doesn't exist or the User doesn't have
      *                                       write permission on the NamedOperationDetail.
      */
-    public void deleteNamedOperation(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
+    public void deleteNamedOperation(final String name, final User user, final String adminAuth)
+            throws CacheOperationFailedException {
         remove(name, user, adminAuth);
     }
 
@@ -110,7 +112,8 @@ public class NamedOperationCache {
      * @throws CacheOperationFailedException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
      *                                       to read it.
      */
-    public NamedOperationDetail getNamedOperation(final String name, final User user) throws CacheOperationFailedException {
+    public NamedOperationDetail getNamedOperation(final String name, final User user)
+            throws CacheOperationFailedException {
         return get(name, user, null);
     }
 
@@ -126,17 +129,18 @@ public class NamedOperationCache {
      * @throws CacheOperationFailedException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
      *                                       to read it.
      */
-    public NamedOperationDetail getNamedOperation(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
+    public NamedOperationDetail getNamedOperation(final String name, final User user, final String adminAuth)
+            throws CacheOperationFailedException {
         return get(name, user, adminAuth);
     }
 
     /**
      * Get all the named operations held in the cache.
      *
-     * @param user      The {@link User} object that is used for checking read permissions.
-     * @return a {@link CloseableIterable} containing the named operation details
+     * @param user The {@link User} object that is used for checking read permissions.
+     * @return a {@link Iterable} containing the named operation details
      */
-    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user) {
+    public Iterable<NamedOperationDetail> getAllNamedOperations(final User user) {
         return getAll(user, null);
     }
 
@@ -145,9 +149,9 @@ public class NamedOperationCache {
      *
      * @param user      The {@link User} object that is used for checking read permissions.
      * @param adminAuth The admin auth supplied for permissions.
-     * @return a {@link CloseableIterable} containing the named operation details
+     * @return a {@link Iterable} containing the named operation details
      */
-    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminAuth) {
+    public Iterable<NamedOperationDetail> getAllNamedOperations(final User user, final String adminAuth) {
         return getAll(user, adminAuth);
     }
 
@@ -191,7 +195,8 @@ public class NamedOperationCache {
      * @throws CacheOperationFailedException if there was an error adding the
      *                                       operation to the cache
      */
-    public void addToCache(final String name, final NamedOperationDetail operation, final boolean overwrite) throws CacheOperationFailedException {
+    public void addToCache(final String name, final NamedOperationDetail operation, final boolean overwrite)
+            throws CacheOperationFailedException {
         try {
             if (overwrite) {
                 CacheServiceLoader.getService().putInCache(CACHE_NAME, name, operation);
@@ -223,7 +228,8 @@ public class NamedOperationCache {
         throw new CacheOperationFailedException("No named operation with the name " + name + " exists in the cache");
     }
 
-    private void add(final NamedOperationDetail namedOperation, final boolean overwrite, final User user, final String adminAuth) throws CacheOperationFailedException {
+    private void add(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
+            final String adminAuth) throws CacheOperationFailedException {
         String name;
         try {
             name = namedOperation.getOperationName();
@@ -249,11 +255,13 @@ public class NamedOperationCache {
         if (existing.hasWriteAccess(user, adminAuth)) {
             addToCache(name, namedOperation, true);
         } else {
-            throw new CacheOperationFailedException("User " + user.getUserId() + " does not have permission to overwrite");
+            throw new CacheOperationFailedException(
+                    "User " + user.getUserId() + " does not have permission to overwrite");
         }
     }
 
-    private void remove(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
+    private void remove(final String name, final User user, final String adminAuth)
+            throws CacheOperationFailedException {
         if (null == name) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
@@ -266,7 +274,8 @@ public class NamedOperationCache {
         }
     }
 
-    private NamedOperationDetail get(final String name, final User user, final String adminAuth) throws CacheOperationFailedException {
+    private NamedOperationDetail get(final String name, final User user, final String adminAuth)
+            throws CacheOperationFailedException {
         final NamedOperationDetail op = getFromCache(name);
         if (op.hasReadAccess(user, adminAuth)) {
             return op;
@@ -275,12 +284,12 @@ public class NamedOperationCache {
         }
     }
 
-    private CloseableIterable<NamedOperationDetail> getAll(final User user, final String adminAuth) {
+    private Iterable<NamedOperationDetail> getAll(final User user, final String adminAuth) {
         final Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
         final Set<NamedOperationDetail> executables = new HashSet<>();
         for (final String key : keys) {
             try {
-                NamedOperationDetail op = getFromCache(key);
+                final NamedOperationDetail op = getFromCache(key);
                 if (op.hasReadAccess(user, adminAuth)) {
                     executables.add(op);
                 }
@@ -289,6 +298,6 @@ public class NamedOperationCache {
             }
 
         }
-        return new WrappedCloseableIterable<>(executables);
+        return executables;
     }
 }

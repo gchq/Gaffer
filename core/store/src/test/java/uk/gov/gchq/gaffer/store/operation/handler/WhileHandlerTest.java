@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
@@ -86,9 +86,9 @@ public class WhileHandlerTest {
 
         given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
 
-        final CloseableIterable result1 = mock(CloseableIterable.class);
-        final CloseableIterable result2 = mock(CloseableIterable.class);
-        final CloseableIterable result3 = mock(CloseableIterable.class);
+        final Iterable result1 = mock(Iterable.class);
+        final Iterable result2 = mock(Iterable.class);
+        final Iterable result3 = mock(Iterable.class);
         given(store.execute(delegateClone1, context)).willReturn(result1);
         given(store.execute(delegateClone2, context)).willReturn(result2);
         given(store.execute(delegateClone3, context)).willReturn(result3);
@@ -129,9 +129,9 @@ public class WhileHandlerTest {
 
         given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
 
-        final CloseableIterable result1 = mock(CloseableIterable.class);
-        final CloseableIterable result2 = mock(CloseableIterable.class);
-        final CloseableIterable result3 = mock(CloseableIterable.class);
+        final Iterable result1 = mock(Iterable.class);
+        final Iterable result2 = mock(Iterable.class);
+        final Iterable result3 = mock(Iterable.class);
         given(store.execute(delegateClone1, context)).willReturn(result1);
         given(store.execute(delegateClone2, context)).willReturn(result2);
         given(store.execute(delegateClone3, context)).willReturn(result3);

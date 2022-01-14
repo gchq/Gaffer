@@ -24,7 +24,6 @@ import org.mockito.Mock;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
@@ -94,7 +93,7 @@ public class AddNamedOperationHandlerTest {
         }).when(mockCache).addNamedOperation(any(NamedOperationDetail.class), anyBoolean(), any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         doAnswer(invocationOnMock ->
-                new WrappedCloseableIterable<>(storedOperations.values()))
+                storedOperations.values())
                 .when(mockCache).getAllNamedOperations(any(User.class), eq(EMPTY_ADMIN_AUTH));
 
         doAnswer(invocationOnMock -> {

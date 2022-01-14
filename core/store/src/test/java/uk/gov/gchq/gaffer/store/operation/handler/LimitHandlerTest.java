@@ -19,9 +19,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 
 import java.util.Arrays;
@@ -50,16 +48,16 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertTrue(result instanceof LimitedCloseableIterable);
-        assertEquals(0, ((LimitedCloseableIterable) result).getStart());
-        assertEquals(resultLimit, ((LimitedCloseableIterable) result).getEnd());
+        assertTrue(result instanceof LimitedIterable);
+        assertEquals(0, ((LimitedIterable) result).getStart());
+        assertEquals(resultLimit, ((LimitedIterable) result).getEnd());
         assertEquals(expectedResult, Lists.newArrayList(result));
     }
 
     @Test
     public void shouldNotLimitResultsOfGetOperationWhenLimitIsNull() throws Exception {
         // Given
-        final CloseableIterable<Integer> input = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 3, 4, 5));
+        final Iterable<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
         final Integer resultLimit = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
@@ -78,7 +76,7 @@ public class LimitHandlerTest {
     @Test
     public void shouldHandleNullInput() throws Exception {
         // Given
-        final CloseableIterable<Integer> input = null;
+        final Iterable<Integer> input = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
                 .build();

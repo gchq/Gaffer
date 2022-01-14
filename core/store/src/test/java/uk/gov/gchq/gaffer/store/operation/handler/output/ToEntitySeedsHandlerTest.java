@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
@@ -31,45 +33,44 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class ToEntitySeedsHandlerTest {
 
     @Test
-    public void shouldConvertVerticesToEntitySeeds() throws OperationException {
+    public void shouldConvertVerticesToEntitySeeds(@Mock final ToEntitySeeds operation) throws OperationException {
         // Given
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final Iterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(vertex1, vertex2));
+        final Iterable originalResults = Arrays.asList(vertex1, vertex2);
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
-        final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).containsOnly(new EntitySeed(vertex1), new EntitySeed(vertex2));
     }
 
     @Test
-    public void shouldBeAbleToIterableOverTheResultsMultipleTimes() throws OperationException {
+    public void shouldBeAbleToIterableOverTheResultsMultipleTimes(@Mock final ToEntitySeeds operation)
+            throws OperationException {
         // Given
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final Iterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(vertex1, vertex2));
+        final Iterable originalResults = Arrays.asList(vertex1, vertex2);
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
-        final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
-        //When
+        // When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         final Set<Object> set1 = Sets.newHashSet(results);
         final Set<Object> set2 = Sets.newHashSet(results);
         assertEquals(Sets.newHashSet(new EntitySeed(vertex1), new EntitySeed(vertex2)), set1);
@@ -77,17 +78,16 @@ public class ToEntitySeedsHandlerTest {
     }
 
     @Test
-    public void shouldHandleNullInput() throws OperationException {
+    public void shouldHandleNullInput(@Mock final ToEntitySeeds operation) throws OperationException {
         // Given
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
-        final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
         given(operation.getInput()).willReturn(null);
 
-        //When
+        // When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).isNull();
     }
 }

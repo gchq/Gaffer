@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -246,7 +246,8 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: "
+                    + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
         }
 
         final Store newStore;
@@ -266,7 +267,8 @@ public abstract class Store {
         return newStore;
     }
 
-    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
+            throws StoreException {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == graphId) {
             throw new IllegalArgumentException("graphId is required");
@@ -286,13 +288,18 @@ public abstract class Store {
         addExecutorService(properties);
 
         if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
-            try (final CloseableIterable<JobDetail> scheduledJobs = this.jobTracker.getAllScheduledJobs()) {
+            Iterable<JobDetail> scheduledJobs = null;
+            try {
+                scheduledJobs = this.jobTracker.getAllScheduledJobs();
                 if (scheduledJobs != null) {
                     StreamSupport.stream(scheduledJobs.spliterator(), false)
                             .peek(jd -> LOGGER.debug("Rescheduling job: {}", jd))
                             .forEach(this::rescheduleJob);
                 }
+            } finally {
+                CloseableUtil.close(scheduledJobs);
             }
+
             jobsRescheduled = true;
         }
     }
@@ -301,7 +308,8 @@ public abstract class Store {
 
         try {
 
-            final OperationChain<?> operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(), OperationChain.class);
+            final OperationChain<?> operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(),
+                    OperationChain.class);
             final Context context = new Context(jobDetail.getUser());
             context.setOriginalOpChain(operationChain);
 
@@ -321,8 +329,7 @@ public abstract class Store {
             JSONSerialiser.update(
                     storeProperties.getJsonSerialiserClass(),
                     storeProperties.getJsonSerialiserModules(),
-                    storeProperties.getStrictJson()
-            );
+                    storeProperties.getStrictJson());
         } else {
             JSONSerialiser.update();
         }
@@ -419,7 +426,7 @@ public abstract class Store {
      * @throws OperationException thrown if there is an error running the job.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        OperationChain opChain = OperationChain.wrap(job.getOperation());
+        final OperationChain opChain = OperationChain.wrap(job.getOperation());
         if (opChain.getOperations().isEmpty()) {
             throw new IllegalArgumentException("An operation is required");
         }
@@ -428,21 +435,23 @@ public abstract class Store {
         return executeJob(opChain, jobDetail, context);
     }
 
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context)
+            throws OperationException {
         final JobDetail jobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         return executeJob(operationChain, jobDetail, context);
     }
 
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
-        JobDetail childJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context,
+            final String parentJobId) throws OperationException {
+        final JobDetail childJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         childJobDetail.setParentJobId(parentJobId);
         return executeJob(operationChain, childJobDetail,
                 context);
     }
 
     private JobDetail executeJob(final Operation operation,
-                                 final JobDetail jobDetail,
-                                 final Context context) throws OperationException {
+            final JobDetail jobDetail,
+            final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("JobTracker has not been configured.");
         }
@@ -460,12 +469,11 @@ public abstract class Store {
     }
 
     private JobDetail scheduleJob(final Operation operation,
-                                  final JobDetail parentJobDetail,
-                                  final Context context) {
-        final OperationChain<?> clonedOp =
-                (operation instanceof Operations)
-                        ? (OperationChain) operation.shallowClone()
-                        : OperationChain.wrap(operation).shallowClone();
+            final JobDetail parentJobDetail,
+            final Context context) {
+        final OperationChain<?> clonedOp = (operation instanceof Operations)
+                ? (OperationChain) operation.shallowClone()
+                : OperationChain.wrap(operation).shallowClone();
 
         getExecutorService().scheduleAtFixedRate(
                 new ScheduledJobRunnable(clonedOp, parentJobDetail, context),
@@ -518,14 +526,12 @@ public abstract class Store {
         }
     }
 
-
     private JobDetail runJob(final Operation operation,
-                             final JobDetail jobDetail,
-                             final Context context) {
-        final OperationChain<?> clonedOp =
-                (operation instanceof Operations)
-                        ? (OperationChain) operation.shallowClone()
-                        : OperationChain.wrap(operation).shallowClone();
+            final JobDetail jobDetail,
+            final Context context) {
+        final OperationChain<?> clonedOp = (operation instanceof Operations)
+                ? (OperationChain) operation.shallowClone()
+                : OperationChain.wrap(operation).shallowClone();
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
@@ -563,8 +569,8 @@ public abstract class Store {
     }
 
     protected ScheduledExecutorService getExecutorService() {
-        return (null != ExecutorService.getService() && ExecutorService.isEnabled()) ?
-                ExecutorService.getService() : null;
+        return (null != ExecutorService.getService() && ExecutorService.isEnabled()) ? ExecutorService.getService()
+                : null;
     }
 
     public JobTracker getJobTracker() {
@@ -618,8 +624,7 @@ public abstract class Store {
      * @param lazyElement the lazy element
      * @return the fully populated unwrapped element
      */
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "Getters are called to trigger the loading data")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
         final SchemaElementDefinition elementDefinition = getSchema().getElement(
                 lazyElement.getGroup());
@@ -644,8 +649,8 @@ public abstract class Store {
      * Get this Store's {@link Schema}.
      *
      * @return the instance of {@link Schema} used for describing the type of
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
-     * aggregate the elements.
+     *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
+     *         aggregate the elements.
      */
     public Schema getSchema() {
         return schema;
@@ -655,7 +660,7 @@ public abstract class Store {
      * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
      *
      * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties},
-     * this may contain details such as database connection details.
+     *         this may contain details such as database connection details.
      */
     public StoreProperties getProperties() {
         return properties;
@@ -706,11 +711,15 @@ public abstract class Store {
 
                         if (null == serialisation) {
                             validationResult.addError(
-                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, key));
+                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.",
+                                            propertyName, key));
                         } else if (!serialisation.canHandle(propertyClass)) {
-                            validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
-                                    .getClass()
-                                    .getName(), propertyName, key));
+                            validationResult.addError(String.format(
+                                    "Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                    serialisation
+                                            .getClass()
+                                            .getName(),
+                                    propertyName, key));
                         }
                     }));
 
@@ -741,7 +750,8 @@ public abstract class Store {
     protected void validateConsistentVertex() {
         if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
                 .isConsistent()) {
-            throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+            throw new SchemaException(
+                    "Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
         }
     }
 
@@ -753,7 +763,9 @@ public abstract class Store {
      * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
      * @param validationResult             The validation result
      */
-    protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+    protected void validateConsistentGroupByProperties(
+            final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
+            final ValidationResult validationResult) {
         for (final String property : schemaElementDefinitionEntry.getValue()
                 .getGroupBy()) {
             final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
@@ -769,19 +781,25 @@ public abstract class Store {
         }
     }
 
-    protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+    protected void validateSchemaElementDefinition(
+            final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
+            final ValidationResult validationResult) {
         schemaElementDefinitionEntry.getValue()
                 .getProperties()
                 .forEach(propertyName -> {
                     final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                    final Serialiser serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+                    final Serialiser serialisation = schemaElementDefinitionEntry.getValue()
+                            .getPropertyTypeDef(propertyName).getSerialiser();
 
                     if (null == serialisation) {
                         validationResult.addError(
-                                String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                                String.format("Could not find a serialiser for property '%s' in the group '%s'.",
+                                        propertyName, schemaElementDefinitionEntry.getKey()));
                     } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
-                                serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
+                        validationResult.addError(String.format(
+                                "Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                serialisation.getClass().getName(), propertyName,
+                                schemaElementDefinitionEntry.getKey()));
                     }
                 });
     }
@@ -834,9 +852,9 @@ public abstract class Store {
      * implement this.
      *
      * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+     *         uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
-    protected abstract OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler();
+    protected abstract OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -844,9 +862,9 @@ public abstract class Store {
      * implement this.
      *
      * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
+     *         uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
-    protected abstract OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
+    protected abstract OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -855,7 +873,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
      */
-    protected abstract OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
+    protected abstract OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link
@@ -863,7 +881,7 @@ public abstract class Store {
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}
+     *         uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
@@ -873,7 +891,7 @@ public abstract class Store {
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}
+     *         uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
@@ -897,8 +915,9 @@ public abstract class Store {
      * @return the result of the operation.
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass()
-                .getSimpleName() + '.');
+        throw new UnsupportedOperationException(
+                "Operation " + operation.getClass() + " is not supported by the " + getClass()
+                        .getSimpleName() + '.');
     }
 
     public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
@@ -909,7 +928,8 @@ public abstract class Store {
         }
     }
 
-    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
+    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass,
+            final OutputOperationHandler<OP, O> handler) {
         if (null == handler) {
             operationHandlers.remove(opClass);
         } else {
@@ -921,8 +941,10 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus, msg);
+    private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context,
+            final String msg, final JobStatus jobStatus) {
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus,
+                msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
                     .getUser());
@@ -941,8 +963,7 @@ public abstract class Store {
         return newJobDetail;
     }
 
-    public Object handleOperation(final Operation operation, final Context context) throws
-            OperationException {
+    public Object handleOperation(final Operation operation, final Context context) throws OperationException {
         final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
         try {
@@ -980,13 +1001,13 @@ public abstract class Store {
         addOperationHandler(AddElements.class, getAddElementsHandler());
 
         // Get Elements
-        addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
+        addOperationHandler(GetElements.class, getGetElementsHandler());
 
         // Get Adjacent
-        addOperationHandler(GetAdjacentIds.class, (OperationHandler) getAdjacentIdsHandler());
+        addOperationHandler(GetAdjacentIds.class, getAdjacentIdsHandler());
 
         // Get All Elements
-        addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
+        addOperationHandler(GetAllElements.class, getGetAllElementsHandler());
 
         // Export
         addOperationHandler(ExportToSet.class, new ExportToSetHandler());

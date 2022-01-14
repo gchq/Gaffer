@@ -31,8 +31,7 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -175,9 +174,9 @@ public class StoreTest {
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements> addElementsHandler;
-    private OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getElementsHandler;
-    private OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
-    private OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
+    private OutputOperationHandler<GetElements, Iterable<? extends Element>> getElementsHandler;
+    private OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getAllElementsHandler;
+    private OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler;
     private OperationHandler<Validate> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
@@ -196,7 +195,8 @@ public class StoreTest {
         schemaOptimiser = mock(SchemaOptimiser.class);
         operationChainValidator = mock(OperationChainValidator.class);
         store = new StoreImpl();
-        given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
+        given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class)))
+                .willReturn(new ValidationResult());
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OutputOperationHandler.class);
         getAllElementsHandler = mock(OutputOperationHandler.class);
@@ -246,12 +246,12 @@ public class StoreTest {
         JSONSerialiser.update();
     }
 
-
     @Test
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties)).extracting("message").isNotNull();
+        assertThatIllegalArgumentException().isThrownBy(() -> store.initialise(null, schema, properties))
+                .extracting("message").isNotNull();
     }
 
     @Test
@@ -270,7 +270,8 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
-        assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> store.initialise("graphId", mySchema, properties)).extracting("message").isNotNull();
+        assertThatExceptionOfType(SchemaException.class)
+                .isThrownBy(() -> store.initialise("graphId", mySchema, properties)).extracting("message").isNotNull();
     }
 
     @Test
@@ -377,7 +378,7 @@ public class StoreTest {
 
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(schema.validate()).willReturn(new ValidationResult());
-        ValidationResult validationResult = new ValidationResult();
+        final ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
         store.initialise("graphId", schema, properties);
@@ -438,16 +439,15 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final CloseableIterable getElementsResult = mock(CloseableIterable.class);
+        final Iterable getElementsResult = mock(Iterable.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         final AddElements addElements1 = new AddElements();
         final GetElements getElements = new GetElements();
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
                 .then(getElements)
                 .build();
-
 
         given(addElementsHandler.doOperation(addElements1, context, store)).willReturn(null);
         given(getElementsHandler.doOperation(getElements, context, store))
@@ -456,7 +456,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
+        final Iterable<? extends Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(getElementsResult, result);
@@ -566,8 +566,7 @@ public class StoreTest {
                 // Context variables
                 SetVariable.class,
                 GetVariable.class,
-                GetVariables.class
-        );
+                GetVariables.class);
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
@@ -675,8 +674,7 @@ public class StoreTest {
                 // Context variables
                 SetVariable.class,
                 GetVariable.class,
-                GetVariables.class
-        );
+                GetVariables.class);
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
@@ -702,8 +700,7 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws
-            Exception {
+    public void shouldReturnFalseWhenUnsupportedOperationRequested() throws Exception {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -758,12 +755,14 @@ public class StoreTest {
         assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
 
         final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), eq(store));
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class),
+                contextCaptor.capture(), eq(store));
         assertSame(user, contextCaptor.getValue().getUser());
     }
 
     @Test
-    public void shouldExecuteOperationJobAndWrapJobOperationInChain() throws OperationException, InterruptedException, StoreException, SerialisationException {
+    public void shouldExecuteOperationJobAndWrapJobOperationInChain()
+            throws OperationException, InterruptedException, StoreException, SerialisationException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -785,12 +784,14 @@ public class StoreTest {
         assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
 
         final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), eq(store));
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class),
+                contextCaptor.capture(), eq(store));
         assertSame(user, contextCaptor.getValue().getUser());
     }
 
     @Test
-    public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, InterruptedException, StoreException {
+    public void shouldExecuteOperationChainJobAndExportResults()
+            throws OperationException, InterruptedException, StoreException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
         final OperationChain<?> opChain = new OperationChain<>(operation);
@@ -812,7 +813,8 @@ public class StoreTest {
         assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
 
         final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), eq(store));
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class),
+                contextCaptor.capture(), eq(store));
         assertSame(user, contextCaptor.getValue().getUser());
     }
 
@@ -837,15 +839,15 @@ public class StoreTest {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJsonSerialiserClass()).willReturn(TestCustomJsonSerialiser1.class.getName());
-        given(properties.getJsonSerialiserModules()).willReturn(StorePropertiesTest.TestCustomJsonModules1.class.getName());
+        given(properties.getJsonSerialiserModules())
+                .willReturn(StorePropertiesTest.TestCustomJsonModules1.class.getName());
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
         StorePropertiesTest.TestCustomJsonModules1.modules = asList(
                 mock(Module.class),
-                mock(Module.class)
-        );
+                mock(Module.class));
 
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
@@ -856,7 +858,8 @@ public class StoreTest {
         // Then
         assertEquals(TestCustomJsonSerialiser1.class, JSONSerialiser.getInstance().getClass());
         assertSame(TestCustomJsonSerialiser1.mapper, JSONSerialiser.getMapper());
-        verify(TestCustomJsonSerialiser1.mapper, times(2)).registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
+        verify(TestCustomJsonSerialiser1.mapper, times(2))
+                .registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
     }
 
     @Test
@@ -880,11 +883,10 @@ public class StoreTest {
         return schema;
     }
 
-
     @Test
     public void shouldFindInvalidSerialiser() throws Exception {
         final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
-        Schema invalidSchema = new Schema.Builder()
+        final Schema invalidSchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("invalidString")
@@ -927,23 +929,23 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
-        StoreImpl2 store = new StoreImpl2();
+        final StoreImpl2 store = new StoreImpl2();
 
         store.initialise("graphId", schema, properties);
 
         final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
-        final OperationChain opChain = new OperationChain
-                .Builder()
+        final OperationChain opChain = new OperationChain.Builder()
                 .first(new DiscardOutput())
                 .build();
         final Context context = new Context(user);
         final String operationChainOverviewString = opChain.toOverviewString();
-        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CommonConstants.UTF_8));
+        final String serialisedOperationChain = new String(JSONSerialiser.serialise(opChain),
+                Charset.forName(CommonConstants.UTF_8));
 
         // When - setup job
-        JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
+        final JobDetail parentJobDetail = store.executeJob(new Job(repeat, opChain), context);
 
-        ScheduledExecutorService service = store.getExecutorService();
+        final ScheduledExecutorService service = store.getExecutorService();
 
         // Then - assert scheduled
         verify(service).scheduleAtFixedRate(
@@ -971,15 +973,15 @@ public class StoreTest {
         shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(5);
     }
 
-    private void shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(final int initialisationCount) throws Exception {
+    private void shouldRescheduleJobsCorrectlyWhenInitialisationCountIs(final int initialisationCount)
+            throws Exception {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         final Repeat repeat = new Repeat(0, 100, TimeUnit.SECONDS);
-        final OperationChain opChain = new OperationChain
-                .Builder()
+        final OperationChain opChain = new OperationChain.Builder()
                 .first(new DiscardOutput())
                 .build();
 
@@ -997,19 +999,20 @@ public class StoreTest {
                 .repeat(repeat)
                 .build();
 
-        given(jobTracker.getAllScheduledJobs()).willReturn(new WrappedCloseableIterable(singletonList(scheduledJobDetail)));
+        given(jobTracker.getAllScheduledJobs()).willReturn(singletonList(scheduledJobDetail));
 
-        StoreImpl2 store = new StoreImpl2();
+        final StoreImpl2 store = new StoreImpl2();
 
         // When - initialise store
         for (int i = 0; i < initialisationCount; i++) {
             store.initialise("graphId", schema, properties);
         }
 
-        ScheduledExecutorService service = store.getExecutorService();
+        final ScheduledExecutorService service = store.getExecutorService();
 
         // Then - assert scheduled
-        final ArgumentCaptor<ScheduledJobRunnable> scheduledJobRunnableCaptor = ArgumentCaptor.forClass(ScheduledJobRunnable.class);
+        final ArgumentCaptor<ScheduledJobRunnable> scheduledJobRunnableCaptor = ArgumentCaptor
+                .forClass(ScheduledJobRunnable.class);
 
         verify(service).scheduleAtFixedRate(
                 scheduledJobRunnableCaptor.capture(),
@@ -1030,12 +1033,12 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         store.initialise("graphId", createSchemaMock(), mock(StoreProperties.class));
 
-        final CloseableIterable expectedResult = mock(CloseableIterable.class);
+        final Iterable expectedResult = mock(Iterable.class);
 
         // An input OperationChain
         final AddElements addElements = new AddElements();
         final GetElements getElements = new GetElements();
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(addElements)
                 .then(getElements)
                 .build();
@@ -1049,7 +1052,7 @@ public class StoreTest {
         store.addOperationChainOptimisers(asList(new TestOperationChainOptimiser(asList(getAllElements))));
 
         // When
-        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
+        final Iterable<? extends Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(expectedResult, result);
@@ -1072,7 +1075,8 @@ public class StoreTest {
         }
 
         @Override
-        protected List<Operation> optimiseCurrentOperation(final Operation previousOp, final Operation currentOp, final Operation nextOp) {
+        protected List<Operation> optimiseCurrentOperation(final Operation previousOp, final Operation currentOp,
+                final Operation nextOp) {
             return emptyList();
         }
 
@@ -1087,9 +1091,9 @@ public class StoreTest {
         }
     }
 
-
     private class StoreImpl extends Store {
-        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> traits = new HashSet<>(
+                asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
@@ -1120,7 +1124,7 @@ public class StoreTest {
         protected void addAdditionalOperationHandlers() {
             createOperationHandlersCallCount++;
             addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
-            addOperationHandler(mock(GetElements.class).getClass(), (OperationHandler) getElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
             addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
             addOperationHandler(Validate.class, validateHandler);
             addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
@@ -1128,17 +1132,17 @@ public class StoreTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
             return getAdjacentIdsHandler;
         }
 
@@ -1184,7 +1188,8 @@ public class StoreTest {
     // Second store implementation with overriding ExecutorService.
     // This cannot be done in the first because the other tests for Jobs will fail due to mocking.
     private class StoreImpl2 extends Store {
-        private final Set<StoreTrait> traits = new HashSet<>(asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
+        private final Set<StoreTrait> traits = new HashSet<>(
+                asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
         private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
@@ -1215,7 +1220,7 @@ public class StoreTest {
         protected void addAdditionalOperationHandlers() {
             createOperationHandlersCallCount++;
             addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
-            addOperationHandler(mock(GetElements.class).getClass(), (OperationHandler) getElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
             addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
             addOperationHandler(Validate.class, validateHandler);
             addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
@@ -1223,17 +1228,17 @@ public class StoreTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        protected OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
             return getAdjacentIdsHandler;
         }
 
@@ -1277,13 +1282,12 @@ public class StoreTest {
 
         @Override
         protected ScheduledExecutorService getExecutorService() {
-            ScheduledFuture<?> future = Mockito.mock(RunnableScheduledFuture.class);
+            final ScheduledFuture<?> future = Mockito.mock(RunnableScheduledFuture.class);
             doReturn(future).when(executorService).scheduleAtFixedRate(
                     any(Runnable.class),
                     anyLong(),
                     anyLong(),
-                    any(TimeUnit.class)
-            );
+                    any(TimeUnit.class));
             return executorService;
         }
     }

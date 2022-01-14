@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
  */
 public class GetSetExportHandler extends GetExportHandler<GetSetExport, SetExporter> {
     @Override
-    protected CloseableIterable<?> getExport(final GetSetExport export, final SetExporter exporter) throws OperationException {
+    protected Iterable<?> getExport(final GetSetExport export, final SetExporter exporter) throws OperationException {
         return exporter.get(export.getKeyOrDefault(), export.getStart(), export.getEnd());
     }
 
