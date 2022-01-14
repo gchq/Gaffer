@@ -47,9 +47,9 @@ public class HasTraitHandlerTest {
     public static final String STORE_ID = "StoreId";
     public static final String STRING = "string";
     private Store store;
-    private StoreTrait VISIBILITY = StoreTrait.VISIBILITY;
-    private StoreTrait QUERY_AGGREGATION = StoreTrait.QUERY_AGGREGATION;
-    private StoreTrait TRANSFORMATION = StoreTrait.TRANSFORMATION;
+    private static final StoreTrait VISIBILITY = StoreTrait.VISIBILITY;
+    private static final StoreTrait QUERY_AGGREGATION = StoreTrait.QUERY_AGGREGATION;
+    private static final StoreTrait TRANSFORMATION = StoreTrait.TRANSFORMATION;
     private Set<StoreTrait> expectedTraits;
     private Schema string;
 
@@ -77,26 +77,13 @@ public class HasTraitHandlerTest {
     }
     @Test
     public void shouldHighlightDifferenceWhenSettingCurrentTraitsOption() throws Exception {
-        // Given
-        store.initialise(STORE_ID, new Schema(), new StoreProperties());
-
         // When
-        Boolean presentInDefaultTraits = store.execute(
-                new HasTrait.Builder()
-                        .currentTraits(false)
-                        .trait(QUERY_AGGREGATION)
-                        .build(),
-                new Context(testUser()));
-
-        Boolean presentInCurrentTraits = store.execute(
-                new HasTrait.Builder()
-                        .currentTraits(true)
-                        .trait(QUERY_AGGREGATION)
-                        .build(),
-                new Context(testUser()));
+        Boolean presentInDefaultTraits = hasStoreTrait(new Schema(), QUERY_AGGREGATION, false);
+        Boolean presentInCurrentTraits = hasStoreTrait(new Schema(), QUERY_AGGREGATION, true);
 
         // Then
-        assertNotEquals(presentInDefaultTraits, presentInCurrentTraits);
+        assertFalse(presentInCurrentTraits);
+        assertTrue(presentInDefaultTraits);
 
     }
 
@@ -200,8 +187,7 @@ public class HasTraitHandlerTest {
                                 .build())
                         .build())
                 .merge(string)
-                .build()
-                , TRANSFORMATION, true);
+                .build(), TRANSFORMATION, true);
 
         final Boolean absent = hasStoreTrait(new Schema.Builder()
                         .entity("e1", new SchemaEntityDefinition.Builder()

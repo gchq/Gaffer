@@ -35,7 +35,9 @@ public class HasTraitHandler implements OutputOperationHandler<HasTrait, Boolean
                 .options(operation.getOptions())
                 .build(), context
         );
-        return null != traits && traits.contains(operation.getTrait());
-
+        if (null == traits) {
+            return false;
+        }
+        return traits.contains(operation.getTrait());
     }
 }
