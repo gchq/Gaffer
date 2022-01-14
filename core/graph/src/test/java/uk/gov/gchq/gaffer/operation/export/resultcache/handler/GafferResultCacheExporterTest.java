@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -51,10 +53,10 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class GafferResultCacheExporterTest {
 
     private final User user = new User.Builder()
@@ -64,12 +66,14 @@ public class GafferResultCacheExporterTest {
     private final Context context = new Context(user);
     private final String jobId = context.getJobId();
     private final String key = "key";
-    private final Store store = mock(Store.class);
     private final String visibility = "visibility value";
     private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[] {"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
     private Graph resultCache;
+
+    @Mock
+    private Store store;
 
     @BeforeEach
     public void before() {
@@ -87,8 +91,7 @@ public class GafferResultCacheExporterTest {
     public void shouldAddResults() throws OperationException, SerialisationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+                context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
         exporter.add(key, results);
@@ -100,13 +103,15 @@ public class GafferResultCacheExporterTest {
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
-        final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"), elements.get(1).getProperty("result"), null);
+        final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"),
+                elements.get(1).getProperty("result"), null);
         assertEquals(expectedElements, elements);
         for (int i = 0; i < elements.size(); i++) {
             if (null == results.get(i)) {
                 assertNull(elements.get(i).getProperty("result"));
             } else {
-                assertArrayEquals(JSONSerialiser.serialise(results.get(i)), (byte[]) elements.get(i).getProperty("result"));
+                assertArrayEquals(JSONSerialiser.serialise(results.get(i)),
+                        (byte[]) elements.get(i).getProperty("result"));
             }
         }
     }
@@ -115,8 +120,7 @@ public class GafferResultCacheExporterTest {
     public void shouldAddNotErrorWhenAddingANullResult() throws OperationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+                context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
         exporter.add(key, null);
@@ -129,16 +133,15 @@ public class GafferResultCacheExporterTest {
     public void shouldGetResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        long timestamp = System.currentTimeMillis();
+        final long timestamp = System.currentTimeMillis();
         final List<Element> cachedEdges = createCachedEdges(timestamp, serialisedResults);
-        given(store.execute(opChain.capture(), Mockito.any())).willReturn(new WrappedCloseableIterable<>(cachedEdges));
+        given(store.execute(opChain.capture(), Mockito.any())).willReturn(cachedEdges);
 
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+                context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
-        final CloseableIterable<?> cachedResults = exporter.get(key);
+        final Iterable<?> cachedResults = exporter.get(key);
 
         // Then
         assertEquals(results, Lists.newArrayList(cachedResults));
@@ -151,11 +154,10 @@ public class GafferResultCacheExporterTest {
         given(store.execute(opChain.capture(), Mockito.any(Context.class))).willReturn(null);
 
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+                context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
-        final CloseableIterable<?> cachedResults = exporter.get(key);
+        final Iterable<?> cachedResults = exporter.get(key);
 
         // Then
         assertEquals(Collections.emptyList(), Lists.newArrayList(cachedResults));
@@ -195,8 +197,7 @@ public class GafferResultCacheExporterTest {
                         .property("visibility", visibility)
                         .property("resultClass", Object.class.getName())
                         .property("result", values[2])
-                        .build()
-        );
+                        .build());
     }
 
     private static byte[] serialise(final Object item) {

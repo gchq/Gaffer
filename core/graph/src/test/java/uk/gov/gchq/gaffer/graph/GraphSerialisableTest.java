@@ -66,6 +66,7 @@ public class GraphSerialisableTest {
                 .properties(properties)
                 .config(config)
                 .build();
+        System.out.println("Expected before each:" + expected);
     }
 
     @Test
@@ -81,22 +82,25 @@ public class GraphSerialisableTest {
 
     @Test
     public void shouldConsumeGraph() {
+        System.out.println("Expected start:" + expected);
         // Given
-        final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties)).config(config).build();
+        final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties))
+                .config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
 
         // When / Then
+        System.out.println("Expected end:" + expected);
         assertEquals(expected, result);
     }
 
     @Test
     public void shouldSerialiseWithJavaSerialiser() {
         // Given
-        HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(true);
-        String key = "key";
-        GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
+        final HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(true);
+        final String key = "key";
+        final GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
         cache.put(key, expected);
-        GraphSerialisable actual = cache.get(key);
+        final GraphSerialisable actual = cache.get(key);
 
         // When / Then
         assertEquals(expected, actual);
@@ -105,11 +109,11 @@ public class GraphSerialisableTest {
     @Test
     public void shouldSerialiseWithJsonSerialiser() {
         // Given
-        HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
-        String key = "key";
-        GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
+        final HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
+        final String key = "key";
+        final GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
         cache.put(key, expected);
-        GraphSerialisable actual = cache.get(key);
+        final GraphSerialisable actual = cache.get(key);
 
         // When / Then
         assertEquals(expected, actual);

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -74,7 +74,7 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
 
     @Test
     public void shouldNotAllowGetElementsOperationWithUnauthorisedFunctionsInTheView() {
-        final OperationChain<CloseableIterable<? extends Element>> viewOperation = new OperationChain.Builder().first(new GetElements.Builder()
+        final OperationChain<Iterable<? extends Element>> viewOperation = new OperationChain.Builder().first(new GetElements.Builder()
                 .view(new View.Builder()
                         .globalElements(new GlobalViewElementDefinition.Builder()
                                 .transformFunctions(Lists.newArrayList(new TupleAdaptedFunction(new String[]{"input"}, new DivideBy(6), new String[]{"output"})))

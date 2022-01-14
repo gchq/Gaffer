@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -31,7 +30,6 @@ import uk.gov.gchq.gaffer.store.Context;
 public class OtherGraphExporter implements Exporter {
     private final Graph graph;
     private final Context context;
-
 
     public OtherGraphExporter(final Context context, final Graph graph) {
         this.context = context;
@@ -51,7 +49,7 @@ public class OtherGraphExporter implements Exporter {
     }
 
     @Override
-    public CloseableIterable<?> get(final String key) throws OperationException {
+    public Iterable<?> get(final String key) throws OperationException {
         throw new UnsupportedOperationException("Getting export from another Graph is not supported");
     }
 }

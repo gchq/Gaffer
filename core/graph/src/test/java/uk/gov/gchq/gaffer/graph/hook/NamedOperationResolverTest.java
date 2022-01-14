@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
@@ -44,10 +46,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class NamedOperationResolverTest extends GraphHookTest<NamedOperationResolver> {
 
     public NamedOperationResolverTest() {
@@ -55,20 +57,16 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldResolveNamedOperation() throws CacheOperationFailedException {
+    public void shouldResolveNamedOperation(@Mock final User user,
+            @Mock final NamedOperationCache cache,
+            @Mock final NamedOperationDetail extendedNamedOperation,
+            @Mock final GetAdjacentIds op1,
+            @Mock final GetElements op2,
+            @Mock final Iterable<?> input) throws CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-
-        final User user = mock(User.class);
-        final NamedOperationDetail extendedNamedOperation = mock(NamedOperationDetail.class);
-
-        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
-        final GetElements op2 = mock(GetElements.class);
         final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1, op2));
-        final Iterable<?> input = mock(CloseableIterable.class);
-
         final Map<String, Object> params = null;
 
         given(op1.getInput()).willReturn(null);
@@ -93,19 +91,17 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldResolveNestedNamedOperation() throws OperationException, CacheOperationFailedException {
+    public void shouldResolveNestedNamedOperation(@Mock final User user,
+            @Mock final NamedOperationCache cache,
+            @Mock final NamedOperationDetail extendedNamedOperation,
+            @Mock final GetAdjacentIds op1,
+            @Mock final GetElements op2,
+            @Mock final Iterable<?> input) throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
 
-        final User user = mock(User.class);
-        final NamedOperationDetail extendedNamedOperation = mock(NamedOperationDetail.class);
-
-        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
-        final GetElements op2 = mock(GetElements.class);
         final OperationChain namedOperationOpChain = new OperationChain(Arrays.asList(op1, op2));
-        final Iterable<?> input = mock(CloseableIterable.class);
 
         final Map<String, Object> params = null;
 
@@ -135,22 +131,22 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldExecuteNamedOperationWithoutOverridingInput() throws OperationException, CacheOperationFailedException {
+    public void shouldExecuteNamedOperationWithoutOverridingInput(@Mock final User user,
+            @Mock final NamedOperationCache cache,
+            @Mock final NamedOperationDetail extendedNamedOperation,
+            @Mock final GetAdjacentIds op1,
+            @Mock final GetElements op2,
+            @Mock final Iterable<?> input,
+            @Mock final Iterable mockIterable)
+            throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
 
-        final User user = mock(User.class);
-        final NamedOperationDetail extendedNamedOperation = mock(NamedOperationDetail.class);
-
-        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
-        final GetElements op2 = mock(GetElements.class);
         final OperationChain namedOpChain = new OperationChain(Arrays.asList(op1, op2));
-        final Iterable<?> input = mock(CloseableIterable.class);
         final Map<String, Object> params = null;
 
-        given(op1.getInput()).willReturn(mock(CloseableIterable.class));
+        given(op1.getInput()).willReturn(mockIterable);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
         given(extendedNamedOperation.getOperationChain(params)).willReturn(namedOpChain);
 
@@ -171,30 +167,29 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldResolveNamedOperationWithParameter() throws OperationException, CacheOperationFailedException {
+    public void shouldResolveNamedOperationWithParameter(@Mock final User user,
+            @Mock final NamedOperationCache cache) throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
 
-        final User user = mock(User.class);
-
-        Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put("param1", 1L);
 
-        ParameterDetail param = new ParameterDetail.Builder()
+        final ParameterDetail param = new ParameterDetail.Builder()
                 .defaultValue(1L)
                 .description("Limit param")
                 .valueClass(Long.class)
                 .build();
-        Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
         final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
-                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain(
+                        "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
                 .parameters(paramDetailMap)
                 .build();
 
@@ -219,31 +214,30 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithParameterOfWrongType() throws OperationException, CacheOperationFailedException {
+    public void shouldNotExecuteNamedOperationWithParameterOfWrongType(@Mock final User user,
+            @Mock final NamedOperationCache cache)
+            throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-
-        final User user = mock(User.class);
-
-        Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = Maps.newHashMap();
         // A parameter of the wrong type
         paramMap.put("param1", new ArrayList());
 
-        ParameterDetail param = new ParameterDetail.Builder()
+        final ParameterDetail param = new ParameterDetail.Builder()
                 .defaultValue(1L)
                 .description("Limit param")
                 .valueClass(Long.class)
                 .build();
-        Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
         final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
-                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain(
+                        "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
                 .parameters(paramDetailMap)
                 .build();
 
@@ -260,31 +254,30 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithWrongParameterName() throws OperationException, CacheOperationFailedException {
+    public void shouldNotExecuteNamedOperationWithWrongParameterName(@Mock final User user,
+            @Mock final NamedOperationCache cache)
+            throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-
-        final User user = mock(User.class);
-
-        Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = Maps.newHashMap();
         // A parameter with the wrong name
         paramMap.put("param2", 1L);
 
-        ParameterDetail param = new ParameterDetail.Builder()
+        final ParameterDetail param = new ParameterDetail.Builder()
                 .defaultValue(1L)
                 .description("Limit param")
                 .valueClass(Long.class)
                 .build();
-        Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
         final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
-                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain(
+                        "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
                 .parameters(paramDetailMap)
                 .build();
 
@@ -300,30 +293,29 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     }
 
     @Test
-    public void shouldNotExecuteNamedOperationWithMissingRequiredArg() throws OperationException, CacheOperationFailedException {
+    public void shouldNotExecuteNamedOperationWithMissingRequiredArg(@Mock final User user,
+            @Mock final NamedOperationCache cache)
+            throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
         final NamedOperationResolver resolver = new NamedOperationResolver(cache);
-
-        final User user = mock(User.class);
-
         // Don't set any parameters
-        Map<String, Object> paramMap = Maps.newHashMap();
+        final Map<String, Object> paramMap = Maps.newHashMap();
 
-        ParameterDetail param = new ParameterDetail.Builder()
+        final ParameterDetail param = new ParameterDetail.Builder()
                 .description("Limit param")
                 .valueClass(Long.class)
                 .required(true)
                 .build();
-        Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
+        final Map<String, ParameterDetail> paramDetailMap = Maps.newHashMap();
         paramDetailMap.put("param1", param);
 
         // Make a real NamedOperationDetail with a parameter
         final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
-                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain(
+                        "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
                 .parameters(paramDetailMap)
                 .build();
 
@@ -343,17 +335,17 @@ public class NamedOperationResolverTest extends GraphHookTest<NamedOperationReso
     public void shouldReturnOperationsInParameters() {
         // Given
         final NamedOperation namedOperation = new NamedOperation();
-        Operation operation = new GetElements();
-        Map<String, Object> paramMap = Maps.newHashMap();
+        final Operation operation = new GetElements();
+        final Map<String, Object> paramMap = Maps.newHashMap();
 
         paramMap.put("test param", operation);
         namedOperation.setParameters(paramMap);
 
-        //When
-        List<Operation> paramOperations = namedOperation.getOperations();
-        Operation op = paramOperations.get(0);
+        // When
+        final List<Operation> paramOperations = namedOperation.getOperations();
+        final Operation op = paramOperations.get(0);
 
-        //Then
+        // Then
         assertEquals(paramOperations.size(), 1);
         assertEquals(op.getClass(), GetElements.class);
     }
