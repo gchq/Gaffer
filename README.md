@@ -34,7 +34,7 @@ Gaffer offers:
  - Retrieval of graph data into Apache Spark for fast and flexible analysis;
  - A fully-featured REST API.
 
-To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/summaries/getting-started.html).
+To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html).
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
 
@@ -54,7 +54,7 @@ We have a demo available to try that is based around a small uk road use dataset
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [Store](https://gchq.github.io/gaffer-doc/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+See our [Store](https://gchq.github.io/gaffer-doc/v1docs/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
 
 ### Inclusion in other projects
 
@@ -81,7 +81,7 @@ This will include all other mandatory dependencies. Other (optional) components 
 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
-We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html).
+We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html).
 
 Related repositories
 --------------------
@@ -100,7 +100,7 @@ The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains use
 Contributing
 ------------
 
-We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/other/ways-of-working.html). In brief:
+We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/v1docs/other/ways-of-working.html). In brief:
 
 - Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer);
 - Push your changes to a fork;
