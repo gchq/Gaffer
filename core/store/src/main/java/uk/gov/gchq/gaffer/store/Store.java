@@ -97,6 +97,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
@@ -114,6 +115,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.HasTraitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
@@ -1072,6 +1074,8 @@ public abstract class Store {
             addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
         }
 
+        // Traits
+        addOperationHandler(HasTrait.class, new HasTraitHandler());
         addOperationHandler(GetTraits.class, new GetTraitsHandler());
     }
 
