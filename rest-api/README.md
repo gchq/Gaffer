@@ -24,7 +24,7 @@ Each Gaffer Store then has a module where it extends the core-rest and adds in t
 
 So if you want to use the Accumulo Store REST API, you can use the accumulo-rest war.
 
-For an example of using the REST API please see the [example/road-traffic](https://gchq.github.io/gaffer-doc/components/example/road-traffic.html) module.
+For an example of using the REST API please see the [example/road-traffic](https://gchq.github.io/gaffer-doc/v1docs/components/example/road-traffic.html) module.
 
 ## How to modify the REST API for your project
 
