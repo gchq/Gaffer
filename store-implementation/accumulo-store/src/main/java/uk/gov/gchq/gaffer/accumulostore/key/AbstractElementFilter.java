@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -83,17 +84,19 @@ public abstract class AbstractElementFilter extends Filter {
 
         final Element element;
         if (schema.isEntity(group)) {
-            element = new LazyEntity(new Entity(group), new AccumuloEntityValueLoader(group, key, value, elementConverter, schema));
+            element = new LazyEntity(new Entity(group),
+                    new AccumuloEntityValueLoader(group, key, value, elementConverter, schema));
         } else {
-            element = new LazyEdge(new Edge(group, null, null, false), new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema, true));
+            element = new LazyEdge(new Edge(group, null, null, false),
+                    new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema, true));
         }
         return elementPredicate.test(element);
     }
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source,
-                     final Map<String, String> options,
-                     final IteratorEnvironment env) throws IOException {
+            final Map<String, String> options,
+            final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         schema = Schema.fromJson(StringUtil.toBytes(options.get(AccumuloStoreConstants.SCHEMA)));
         LOGGER.debug("Initialising AbstractElementFilter with Schema {}", schema);
@@ -106,7 +109,8 @@ public abstract class AbstractElementFilter extends Filter {
                     .getConstructor(Schema.class)
                     .newInstance(schema);
             LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
-        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException
+                | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new ElementFilterException("Failed to create element converter of the class name provided ("
                     + elementConverterClass + ")", e);
@@ -153,7 +157,8 @@ public abstract class AbstractElementFilter extends Filter {
             return false;
         }
         if (!options.containsKey(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS)) {
-            throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
+            throw new IllegalArgumentException(
+                    "Must specify the " + AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         }
         if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
@@ -162,9 +167,12 @@ public abstract class AbstractElementFilter extends Filter {
         return true;
     }
 
-    private void updateViewGroupsWithoutFilters(final View view, final Function<ViewElementDefinition, Boolean> hasFilters) {
+    private void updateViewGroupsWithoutFilters(final View view,
+            final Function<ViewElementDefinition, Boolean> hasFilters) {
         groupsWithoutFilters = new HashSet<>();
-        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet())) {
+
+        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(
+                Arrays.asList(view.getEntities().entrySet(), view.getEdges().entrySet()))) {
             if (null == entry.getValue() || !hasFilters.apply(entry.getValue())) {
                 groupsWithoutFilters.add(entry.getKey());
             }
@@ -174,7 +182,9 @@ public abstract class AbstractElementFilter extends Filter {
 
     private void updateSchemaGroupsWithoutFilters() {
         groupsWithoutFilters = new HashSet<>();
-        for (final Map.Entry<String, SchemaElementDefinition> entry : new ChainedIterable<Map.Entry<String, SchemaElementDefinition>>(schema.getEntities().entrySet(), schema.getEdges().entrySet())) {
+
+        for (final Map.Entry<String, ? extends SchemaElementDefinition> entry : new ChainedIterable<Map.Entry<String, ? extends SchemaElementDefinition>>(
+                schema.getEntities().entrySet(), schema.getEdges().entrySet())) {
             if (null == entry.getValue() || !entry.getValue().hasValidation()) {
                 groupsWithoutFilters.add(entry.getKey());
             }

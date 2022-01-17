@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -39,7 +38,8 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.Element} that represents the aggregated form of all data between the provided range for the provided group.
  * Note that one result per tablet on which data in the desired range resides will be returned, with large data sets and/or large ranges
  * more likely to produce multiple results and you will need to cache the results and aggregate them again to get a final answer.
- * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
+ * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is
+ * from.
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
@@ -47,7 +47,7 @@ import java.util.Map;
 @Summary("Gets summarised Elements for each group")
 public class SummariseGroupOverRanges
         implements
-        InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
+        InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
         SeededGraphFilters {
 
@@ -68,8 +68,8 @@ public class SummariseGroupOverRanges
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -124,7 +124,8 @@ public class SummariseGroupOverRanges
     }
 
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
-            implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
+            implements
+            InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>, Builder>,
             MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
             SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder> {
         public Builder() {

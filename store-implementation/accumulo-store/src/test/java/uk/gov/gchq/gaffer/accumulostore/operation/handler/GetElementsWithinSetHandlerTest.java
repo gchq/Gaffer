@@ -28,9 +28,10 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -64,7 +65,8 @@ public class GetElementsWithinSetHandlerTest {
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(GetElementsWithinSetHandlerTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
+            .loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class,
+                    "/accumuloStoreClassicKeys.properties"));
     private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 
@@ -104,8 +106,7 @@ public class GetElementsWithinSetHandlerTest {
             .build();
     final Set<EntityId> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
-    private User user = new User();
-
+    private final User user = new User();
 
     @BeforeEach
     public void reInitialise() throws StoreException {
@@ -163,14 +164,16 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds)
+                .build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
-        //Without query compaction the result size should be 5
+        // Without query compaction the result size should be 5
         final Set<Element> elementSet = Sets.newHashSet(elements);
         assertThat(elementSet).hasSize(5);
-        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2), elementSet);
+        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2),
+                elementSet);
         for (final Element element : elementSet) {
             if (element instanceof Edge) {
                 assertEquals(EdgeId.MatchedVertex.SOURCE, ((Edge) element).getMatchedVertex());
@@ -202,12 +205,16 @@ public class GetElementsWithinSetHandlerTest {
                 .build();
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        Iterable<? extends Element> elements = null;
+        try {
+            elements = handler.doOperation(operation, user, store);
 
-        //After query compaction the result size should be 3
-        assertEquals(3, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements).contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
-        elements.close();
+            // After query compaction the result size should be 3
+            assertEquals(3, Iterables.size(elements));
+            assertThat((Iterable<Element>) elements).contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
+        } finally {
+            CloseableUtil.close(elements);
+        }
     }
 
     @Test
@@ -231,15 +238,19 @@ public class GetElementsWithinSetHandlerTest {
                 .build();
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        Iterable<? extends Element> elements = null;
+        try {
+            elements = handler.doOperation(operation, user, store);
 
-        final Collection<Element> forTest = new LinkedList<>();
-        Iterables.addAll(forTest, elements);
+            final Collection<Element> forTest = new LinkedList<>();
+            Iterables.addAll(forTest, elements);
 
-        //After query compaction the result size should be 1
-        assertEquals(1, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements).contains(expectedSummarisedEdge);
-        elements.close();
+            // After query compaction the result size should be 1
+            assertEquals(1, Iterables.size(elements));
+            assertThat((Iterable<Element>) elements).contains(expectedSummarisedEdge);
+        } finally {
+            CloseableUtil.close(elements);
+        }
     }
 
     @Test
@@ -261,12 +272,16 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        Iterable<? extends Element> elements = null;
+        try {
+            elements = handler.doOperation(operation, user, store);
 
-        //The result size should be 2
-        assertEquals(2, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements).contains(expectedEntity1, expectedEntity2);
-        elements.close();
+            // The result size should be 2
+            assertEquals(2, Iterables.size(elements));
+            assertThat((Iterable<Element>) elements).contains(expectedEntity1, expectedEntity2);
+        } finally {
+            CloseableUtil.close(elements);
+        }
     }
 
     private static void setupGraph(final AccumuloStore store) {
@@ -294,8 +309,7 @@ public class GetElementsWithinSetHandlerTest {
                         .property(AccumuloPropertyNames.PROP_2, 0)
                         .property(AccumuloPropertyNames.PROP_3, 0)
                         .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
-                );
+                        .build());
 
                 data.add(new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -308,8 +322,7 @@ public class GetElementsWithinSetHandlerTest {
                         .property(AccumuloPropertyNames.PROP_2, 0)
                         .property(AccumuloPropertyNames.PROP_3, 0)
                         .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
-                );
+                        .build());
 
                 data.add(new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -322,15 +335,13 @@ public class GetElementsWithinSetHandlerTest {
                         .property(AccumuloPropertyNames.PROP_2, 0)
                         .property(AccumuloPropertyNames.PROP_3, 0)
                         .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
-                );
+                        .build());
 
                 data.add(new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("A" + i)
                         .property(AccumuloPropertyNames.COUNT, i)
-                        .build()
-                );
+                        .build());
             }
             final User user = new User();
             addElements(data, user, store);

@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -30,18 +30,19 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class SummariseGroupOverRangesHandler implements OutputOperationHandler<SummariseGroupOverRanges, CloseableIterable<? extends Element>> {
+public class SummariseGroupOverRangesHandler
+        implements OutputOperationHandler<SummariseGroupOverRanges, Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
-                                                            final Context context, final Store store)
+    public Iterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
+            final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
-                                                            final User user,
-                                                            final AccumuloStore store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
+            final User user,
+            final AccumuloStore store) throws OperationException {
         final int numEdgeGroups = operation.getView().getEdgeGroups().size();
         final int numEntityGroups = operation.getView().getEntityGroups().size();
         if ((numEdgeGroups + numEntityGroups) != 1) {

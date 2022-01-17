@@ -17,11 +17,12 @@
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
-public class GetElementsBetweenSetsDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsBetweenSets, CloseableIterable<? extends Element>> {
+public class GetElementsBetweenSetsDeletedElementsIT
+        extends AbstractDeletedElementsIT<GetElementsBetweenSets, Iterable<? extends Element>> {
     @Override
     protected GetElementsBetweenSets createGetOperation() {
         return new GetElementsBetweenSets.Builder()

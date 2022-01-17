@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -29,14 +29,16 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
+public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, Iterable<? extends Element>> {
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store)
+    public Iterable<? extends Element> doOperation(final GetAllElements operation, final Context context,
+            final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final User user, final AccumuloStore store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final GetAllElements operation, final User user,
+            final AccumuloStore store) throws OperationException {
         try {
             return new AccumuloAllElementsRetriever(store, operation, user);
         } catch (final IteratorSettingException | StoreException e) {

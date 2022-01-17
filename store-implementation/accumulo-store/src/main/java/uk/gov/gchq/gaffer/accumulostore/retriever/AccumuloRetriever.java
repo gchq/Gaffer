@@ -29,8 +29,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -40,12 +39,15 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.Closeable;
+import java.util.Iterator;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM> implements CloseableIterable<O_ITEM> {
+public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM>
+        implements Closeable, Iterable<O_ITEM> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloRetriever.class);
 
-    protected CloseableIterator<O_ITEM> iterator;
+    protected Iterator<O_ITEM> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final User user;
@@ -56,7 +58,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     protected final IteratorSetting[] iteratorSettings;
 
     protected AccumuloRetriever(final AccumuloStore store, final OP operation,
-                                final User user, final IteratorSetting... iteratorSettings)
+            final User user, final IteratorSetting... iteratorSettings)
             throws StoreException {
         this.store = store;
         this.rangeFactory = store.getKeyPackage().getRangeFactory();
@@ -101,9 +103,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
 
     @Override
     public void close() {
-        if (null != iterator) {
-            iterator.close();
-        }
+        CloseableUtil.close(iterator);
     }
 
     /**
@@ -112,7 +112,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      *
      * @param ranges the ranges to get the scanner for
      * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the
-     * table specified in the properties with the ranges provided.
+     *         table specified in the properties with the ranges provided.
      * @throws TableNotFoundException if an accumulo table could not be found
      * @throws StoreException         if a connection to accumulo could not be created.
      */

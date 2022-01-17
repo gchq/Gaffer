@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
-public class GetAllElementsDeletedElementsIT extends AbstractDeletedElementsIT<GetAllElements, CloseableIterable<? extends Element>> {
+public class GetAllElementsDeletedElementsIT
+        extends AbstractDeletedElementsIT<GetAllElements, Iterable<? extends Element>> {
     @Override
     protected GetAllElements createGetOperation() {
         return new GetAllElements();

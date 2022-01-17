@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -44,7 +43,7 @@ import java.util.Map;
 @Summary("Gets elements that have vertices within a given range")
 public class GetElementsInRanges
         implements
-        InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
+        InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
         SeededGraphFilters {
 
@@ -65,8 +64,8 @@ public class GetElementsInRanges
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -121,7 +120,8 @@ public class GetElementsInRanges
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
-            implements InputOutput.Builder<GetElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
+            implements
+            InputOutput.Builder<GetElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsInRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
             SeededGraphFilters.Builder<GetElementsInRanges, Builder> {
         public Builder() {

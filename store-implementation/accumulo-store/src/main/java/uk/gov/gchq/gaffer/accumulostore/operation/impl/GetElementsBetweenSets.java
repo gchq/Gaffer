@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.MultiEntityIdInputB;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -50,7 +50,7 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets edges that exist between 2 sets and entities in the first set")
 public class GetElementsBetweenSets implements
-        InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
+        InputOutput<Iterable<? extends EntityId>, Iterable<? extends Element>>,
         MultiEntityIdInput,
         MultiEntityIdInputB,
         SeededGraphFilters,
@@ -58,8 +58,9 @@ public class GetElementsBetweenSets implements
 
     /**
      * @deprecated use a {@link View} instead to specify whether
-     * Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
+     *             Edges/Entities that are 'equal to' or 'related to' seeds are wanted.
      */
+    @Deprecated
     private SeedMatchingType seedMatching;
 
     private View view;
@@ -131,8 +132,8 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -175,7 +176,8 @@ public class GetElementsBetweenSets implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
-            implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
+            implements
+            InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, Iterable<? extends Element>, Builder>,
             MultiEntityIdInput.Builder<GetElementsBetweenSets, Builder>,
             MultiEntityIdInputB.Builder<GetElementsBetweenSets, Builder>,
             SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,

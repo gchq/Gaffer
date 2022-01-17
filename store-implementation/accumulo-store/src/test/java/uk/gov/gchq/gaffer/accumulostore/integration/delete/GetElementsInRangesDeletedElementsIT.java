@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -27,7 +27,8 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetElementsInRangesDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsInRanges, CloseableIterable<? extends Element>> {
+public class GetElementsInRangesDeletedElementsIT
+        extends AbstractDeletedElementsIT<GetElementsInRanges, Iterable<? extends Element>> {
     @Override
     protected GetElementsInRanges createGetOperation() {
         final List<Pair<ElementId, ElementId>> pairs = new ArrayList<>();
