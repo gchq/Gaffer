@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCache;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -44,6 +46,8 @@ public class GraphSerialisableTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        Mockito.reset(TestStore.mockStore);
+
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
                 .addHook(new NamedViewResolver())
@@ -66,7 +70,11 @@ public class GraphSerialisableTest {
                 .properties(properties)
                 .config(config)
                 .build();
-        System.out.println("Expected before each:" + expected);
+    }
+
+    @AfterEach
+    public void after() {
+        Mockito.reset(TestStore.mockStore);
     }
 
     @Test
@@ -82,14 +90,12 @@ public class GraphSerialisableTest {
 
     @Test
     public void shouldConsumeGraph() {
-        System.out.println("Expected start:" + expected);
         // Given
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties))
                 .config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
 
         // When / Then
-        System.out.println("Expected end:" + expected);
         assertEquals(expected, result);
     }
 

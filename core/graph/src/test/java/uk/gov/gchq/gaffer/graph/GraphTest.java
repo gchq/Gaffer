@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -155,6 +156,7 @@ public class GraphTest {
     @BeforeEach
     public void before() throws Exception {
         HashMapGraphLibrary.clear();
+        Mockito.reset(TestStore.mockStore);
 
         lenient().when(context.getUser()).thenReturn(user);
         lenient().when(context.shallowClone()).thenReturn(clonedContext);
@@ -163,6 +165,11 @@ public class GraphTest {
         lenient().when(opChain.getOperations()).thenReturn(Lists.newArrayList(operation));
         lenient().when(opChain.shallowClone()).thenReturn(clonedOpChain);
         lenient().when(clonedOpChain.getOperations()).thenReturn(Lists.newArrayList(operation));
+    }
+
+    @AfterEach
+    public void after() {
+        Mockito.reset(TestStore.mockStore);
     }
 
     @Test
@@ -1395,7 +1402,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        // TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         final NamedOperationResolver graphHook2 = new NamedOperationResolver();
 
@@ -1420,7 +1426,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        // TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
 
         // When
@@ -2340,7 +2345,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        // TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
@@ -2365,7 +2369,6 @@ public class GraphTest {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStore.class.getName());
-        // TestStore.mockStore = mock(Store.class);
         given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         // When
         final GraphConfig config = new GraphConfig.Builder()
