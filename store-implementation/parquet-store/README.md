@@ -106,7 +106,7 @@ parquet.add_elements.output_files_per_group=2
 
 ## Schema
 
-See the [Getting Started guide to schemas](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See the [Getting Started guide to schemas](https://gchq.github.io/gaffer-doc/v1docs/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```
 Graph graph = new Graph.Builder()
@@ -147,7 +147,7 @@ Note that the Parquet store is designed to support sequential bulk imports of da
 
 ## Queries
 
-The `ParquetStore` currently supports most of the [standard Gaffer queries](https://gchq.github.io/gaffer-doc/getting-started/spark-operations/contents.html).
+The `ParquetStore` currently supports most of the [standard Gaffer queries](https://gchq.github.io/gaffer-doc/v1docs/getting-started/spark-operations/contents.html).
 
 The operations that are not currently supported are:
 - `GetAdjacentEntitySeeds`

@@ -98,7 +98,7 @@ hbase.hdfs.jars.path=[path to jar folder]/hbase-store-[version]-deploy.jar
 Schema
 -----------------------------------------------
 
-See [Getting started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting started](https://gchq.github.io/gaffer-doc/v1docs/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -140,13 +140,13 @@ If your schema does not have aggregation then elements with the same key (group,
 To ingest data via bulk import, a MapReduce job is used to convert your data into files of HBase key-value pairs that are pre-sorted to match the distribution of data in HBase. Once these files are created, HBase moves them from their current location in HDFS to the correct directory within HBase's data directory. The data in them is then available for query immediately.
 
 Gaffer provides code to make this as simple as possible. The `AddElementsFromHdfs` operation is used to bulk import data.
-See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/getting-started/operations/addelementsfromhdfs.html).
+See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/addelementsfromhdfs.html).
 
 
 Queries
 -----------------------------------------------
 
-The HBase store supports all the standard queries. See [Getting Started](https://gchq.github.io/gaffer-doc/summaries/getting-started.html) for more details or the [Operation examples](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html).
+The HBase store supports all the standard queries. See [Getting Started](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html) for more details or the [Operation examples](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operation-examples.html).
 
 Visibility
 -----------------------------------------------
@@ -155,7 +155,7 @@ Gaffer can take advantage of HBase's built-in fine-grained security to ensure th
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/user-guide/aggregation.html) in the [user guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html) for an example of how properties can be aggregated over different visibilities at query time.
+See [the aggregation example](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/aggregation.html) in the [user guide](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html) for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
