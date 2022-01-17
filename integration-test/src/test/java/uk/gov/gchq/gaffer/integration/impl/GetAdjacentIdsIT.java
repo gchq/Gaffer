@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -94,9 +93,8 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
     }
 
     private void shouldGetEntityIds(final List<String> expectedResultSeeds,
-                                    final IncludeIncomingOutgoingType inOutType,
-                                    final DirectedType directedType
-    )
+            final IncludeIncomingOutgoingType inOutType,
+            final DirectedType directedType)
             throws OperationException {
         // Given
         final User user = new User();
@@ -112,10 +110,10 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends EntityId> results = graph.execute(operation, user);
+        final Iterable<? extends EntityId> results = graph.execute(operation, user);
 
         // Then
-        List<String> resultSeeds = new ArrayList<>();
+        final List<String> resultSeeds = new ArrayList<>();
         for (final EntityId result : results) {
             resultSeeds.add((String) result.getVertex());
         }
@@ -123,6 +121,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         Collections.sort(expectedResultSeeds);
         assertThat(resultSeeds.toArray()).as("InOut=" + inOutType + ", directedType=" + directedType
                 + ".\nExpected: \n  " + StringUtils.join(expectedResultSeeds, "\n  ")
-                + " \nbut got: \n  " + StringUtils.join(resultSeeds, "\n  ")).containsExactly(expectedResultSeeds.toArray());
+                + " \nbut got: \n  " + StringUtils.join(resultSeeds, "\n  "))
+                .containsExactly(expectedResultSeeds.toArray());
     }
 }

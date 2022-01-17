@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -77,8 +77,10 @@ public class GetAllElementsIT extends AbstractStoreIT {
                     try {
                         shouldGetAllElements(includeEntities, includeEdges, directedType);
                     } catch (final AssertionError e) {
-                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
-                                + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
+                        throw new AssertionError(
+                                "GetAllElements failed with parameters: includeEntities=" + includeEntities
+                                        + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(),
+                                e);
                     }
                 }
             }
@@ -97,8 +99,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
         graph.execute(new AddElements.Builder()
-                        .input(edge1, edge2)
-                        .build(),
+                .input(edge1, edge2)
+                .build(),
                 getUser());
 
         final GetAllElements op = new GetAllElements.Builder()
@@ -113,12 +115,12 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertThat(resultList).hasSize(2)
-                .contains((Element) edge1, edge2);
+                .contains(edge1, edge2);
     }
 
     @Test
@@ -131,7 +133,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -156,7 +158,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -186,7 +188,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
@@ -208,7 +210,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
         for (final Element result : results) {
@@ -231,7 +233,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
         for (final Element result : results) {
@@ -240,7 +242,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
         }
     }
 
-    protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
+    protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges,
+            final DirectedType directedType) throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
@@ -270,17 +273,17 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (final Element result : results) {
             final ElementId seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
-                Entity entity = (Entity) result;
+                final Entity entity = (Entity) result;
                 assertThat(expectedElements).as("Entity was not expected: " + entity).contains(entity);
             } else {
-                Edge edge = (Edge) result;
+                final Edge edge = (Edge) result;
                 if (edge.isDirected()) {
                     assertThat(expectedElements).as("Edge was not expected: " + edge).contains(edge);
                 } else {
@@ -291,13 +294,16 @@ public class GetAllElementsIT extends AbstractStoreIT {
                             .directed(edge.isDirected())
                             .build();
                     expectedElementsCopy.remove(edgeReversed);
-                    assertThat(expectedElements.contains(result) || expectedElements.contains(edgeReversed)).as("Edge was not expected: " + seed).isTrue();
+                    assertThat(expectedElements.contains(result) || expectedElements.contains(edgeReversed))
+                            .as("Edge was not expected: " + seed).isTrue();
                 }
             }
             expectedElementsCopy.remove(result);
         }
 
-        assertThat(Lists.newArrayList(results)).as("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy).hasSameSizeAs(expectedElements);
+        assertThat(Lists.newArrayList(results))
+                .as("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy)
+                .hasSameSizeAs(expectedElements);
     }
 
     @Test
@@ -311,14 +317,14 @@ public class GetAllElementsIT extends AbstractStoreIT {
         final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions = new ArrayList<>();
 
         final TupleAdaptedFunction<String, Integer, Long> convertToLong = new TupleAdaptedFunction<>();
-        convertToLong.setSelection(new String[]{TestPropertyNames.INT});
+        convertToLong.setSelection(new String[] {TestPropertyNames.INT});
         convertToLong.setFunction((Function) new ToLong());
-        convertToLong.setProjection(new String[]{"propLong"});
+        convertToLong.setProjection(new String[] {"propLong"});
 
         final TupleAdaptedFunction<String, Integer, Long> sum = new TupleAdaptedFunction<>();
-        sum.setSelection(new String[]{"propLong", TestPropertyNames.COUNT});
+        sum.setSelection(new String[] {"propLong", TestPropertyNames.COUNT});
         sum.setFunction(new ApplyBiFunction(new Sum()));
-        sum.setProjection(new String[]{"combined"});
+        sum.setProjection(new String[] {"combined"});
 
         transformFunctions.add(convertToLong);
         transformFunctions.add(sum);
@@ -332,11 +338,12 @@ public class GetAllElementsIT extends AbstractStoreIT {
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(get, user);
+        final Iterable<? extends Element> results = graph.execute(get, user);
 
         for (final Element result : results) {
 
-            final Long expectedResult = (Long) result.getProperty("propLong") + (Long) result.getProperty(TestPropertyNames.COUNT);
+            final Long expectedResult = (Long) result.getProperty("propLong")
+                    + (Long) result.getProperty(TestPropertyNames.COUNT);
             final Long combined = (Long) result.getProperty("combined");
             assertThat(combined).isEqualTo(expectedResult);
         }

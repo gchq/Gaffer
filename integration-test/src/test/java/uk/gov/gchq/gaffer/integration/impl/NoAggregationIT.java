@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -50,11 +50,11 @@ public class NoAggregationIT extends AbstractStoreIT {
 
     @Test
     public void shouldReturnDuplicateEntitiesWhenNoAggregationIsUsed() throws OperationException {
-        //Given
+        // Given
         final ArrayList<Entity> expected = Lists.newArrayList(getEntity(), getEntity());
 
-        //When
-        final CloseableIterable<? extends Element> result = graph.execute(
+        // When
+        final Iterable<? extends Element> result = graph.execute(
                 new GetElements.Builder()
                         .input(ElementSeed.createSeed(getEntity()))
                         .view(new View.Builder()
@@ -63,17 +63,17 @@ public class NoAggregationIT extends AbstractStoreIT {
                         .build(),
                 getUser());
 
-        //Then
+        // Then
         ElementUtil.assertElementEquals(expected, result);
     }
 
     @Test
     public void shouldReturnDuplicateEdgesWhenNoAggregationIsUsed() throws OperationException {
-        //Given
+        // Given
         final ArrayList<Edge> expected = Lists.newArrayList(getEdge(), getEdge());
 
-        //When
-        final CloseableIterable<? extends Element> result = graph.execute(
+        // When
+        final Iterable<? extends Element> result = graph.execute(
                 new GetElements.Builder()
                         .input(ElementSeed.createSeed(getEdge()))
                         .view(new View.Builder()
@@ -82,7 +82,7 @@ public class NoAggregationIT extends AbstractStoreIT {
                         .build(),
                 getUser());
 
-        //Then
+        // Then
         ElementUtil.assertElementEquals(expected, result);
     }
 

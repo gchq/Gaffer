@@ -23,8 +23,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -77,7 +77,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     //////////////////////////////////////////////////////////////////
-    //                  Add Elements error handling                 //
+    // Add Elements error handling //
     //////////////////////////////////////////////////////////////////
     @Test
     public void shouldThrowExceptionWithUsefulMessageWhenInvalidElementsAdded() throws OperationException {
@@ -126,9 +126,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         // Then - no exceptions
     }
 
-
     //////////////////////////////////////////////////////////////////
-    //                         Get Elements                         //
+    // Get Elements //
     //////////////////////////////////////////////////////////////////
     @Test
     @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
@@ -172,7 +171,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .view(view)
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // When
         final List<Element> expected = getQuerySummarisedEdges(view).stream().map(edge -> {
@@ -180,7 +179,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
             return edge;
         }).collect(toList());
 
-        //Then
+        // Then
         assertElementEquals(expected, results);
     }
 
@@ -188,10 +187,10 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElements() throws Exception {
         // Then
         final GetElements op = new GetElements.Builder()
-                .input(new EmptyClosableIterable<>())
+                .input(new EmptyIterable<>())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         assertThat(results.iterator().hasNext()).isFalse();
     }
@@ -208,7 +207,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .view(view)
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         assertElementEquals(getQuerySummarisedEdges(view)
                 .stream()
@@ -221,7 +220,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     //////////////////////////////////////////////////////////////////
-    //                         Visibility                           //
+    // Visibility //
     //////////////////////////////////////////////////////////////////
     @TraitRequirement(StoreTrait.VISIBILITY)
     @VisibilityUser("basic")
@@ -231,7 +230,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     //////////////////////////////////////////////////////////////////
-    //                         Filtering                            //
+    // Filtering //
     //////////////////////////////////////////////////////////////////
     @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
@@ -243,7 +242,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         final List<Element> resultList = Lists.newArrayList(results);
         assertThat(resultList).hasSize(getEntities().size());
@@ -267,7 +266,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         final List<Element> resultList = Lists.newArrayList(results);
         assertThat(resultList).hasSize(1);
@@ -293,7 +292,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         assertElementEquals(getQuerySummarisedEdges(view)
@@ -332,8 +331,10 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         }
                         getAllElements(expectedElements, directedType, viewBuilder.build());
                     } catch (final AssertionError e) {
-                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
-                                + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
+                        throw new AssertionError(
+                                "GetAllElements failed with parameters: includeEntities=" + includeEntities
+                                        + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(),
+                                e);
                     }
                 }
             }
@@ -358,8 +359,10 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                         }
                         getAllElements(includeEntities, includeEdges, directedType, viewBuilder.build());
                     } catch (final AssertionError e) {
-                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
-                                + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
+                        throw new AssertionError(
+                                "GetAllElements failed with parameters: includeEntities=" + includeEntities
+                                        + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(),
+                                e);
                     }
                 }
             }
@@ -377,7 +380,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         }
     }
 
-    private void getAllElementsWithView(final Consumer<Iterable<? extends Element>> resultTester, final View view) throws Exception {
+    private void getAllElementsWithView(final Consumer<Iterable<? extends Element>> resultTester, final View view)
+            throws Exception {
         for (final DirectedType directedType : DirectedType.values()) {
             try {
                 getAllElements(resultTester, directedType, view);
@@ -388,9 +392,10 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         }
     }
 
-    private void getAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType, final View view) throws Exception {
+    private void getAllElements(final boolean includeEntities, final boolean includeEdges,
+            final DirectedType directedType, final View view) throws Exception {
         // Given
-        List<Element> expectedElements = new ArrayList<>();
+        final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
             expectedElements.addAll(getQuerySummarisedEntities(view));
         }
@@ -423,7 +428,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         getAllElements(expectedElements, directedType, view);
     }
 
-    private void getAllElements(final List<Element> expectedElements, final DirectedType directedType, final View view) throws Exception {
+    private void getAllElements(final List<Element> expectedElements, final DirectedType directedType, final View view)
+            throws Exception {
         // Given
         final GetAllElements op = new GetAllElements.Builder()
                 .directedType(directedType)
@@ -431,13 +437,14 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final Iterable<? extends Element> results = graph.execute(op, user);
 
         // Then
         assertElementEquals(expectedElements, results);
     }
 
-    private void getAllElements(final Consumer<Iterable<? extends Element>> resultTester, final DirectedType directedType, final View view) throws Exception {
+    private void getAllElements(final Consumer<Iterable<? extends Element>> resultTester,
+            final DirectedType directedType, final View view) throws Exception {
         // Given
         final GetAllElements op = new GetAllElements.Builder()
                 .directedType(directedType)
