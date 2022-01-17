@@ -257,7 +257,7 @@ public class AccumuloMatchedVertexIT extends StandaloneIT {
 
     @ParameterizedTest
     @MethodSource("getEdgeVariants")
-    public void shouldTest9(Edge edge) throws OperationException {
+    public void shouldNotHaveMatchedVertexWithBothInputAndEdgeView(Edge edge) throws OperationException {
         // Given
         final Graph graph = createGraph(edge);
         final GetElements getElements = new GetElements.Builder()
