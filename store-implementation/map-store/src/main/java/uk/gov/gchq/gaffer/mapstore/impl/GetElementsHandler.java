@@ -15,11 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -34,43 +30,46 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Iterator;
 import java.util.stream.Stream;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
  */
 public class GetElementsHandler
-        implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
+        implements OutputOperationHandler<GetElements, Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements operation,
-                                                  final Context context,
-                                                  final Store store) throws OperationException {
+    public Iterable<Element> doOperation(final GetElements operation,
+            final Context context,
+            final Store store) throws OperationException {
         return doOperation(operation, context, (MapStore) store);
     }
 
-    private CloseableIterable<Element> doOperation(final GetElements operation,
-                                                   final Context context,
-                                                   final MapStore mapStore) throws OperationException {
+    private Iterable<Element> doOperation(final GetElements operation,
+            final Context context,
+            final MapStore mapStore) throws OperationException {
         final MapImpl mapImpl = mapStore.getMapImpl();
         if (!mapImpl.isMaintainIndex()) {
-            throw new OperationException("Cannot execute getElements if the properties request that an index is not created");
+            throw new OperationException(
+                    "Cannot execute getElements if the properties request that an index is not created");
         }
         final Iterable<? extends ElementId> seeds = operation.getInput();
         if (null == seeds) {
-            return new EmptyClosableIterable<>();
+            return new EmptyIterable<>();
         }
         return new ElementsIterable(mapImpl, operation, mapStore, context.getUser());
     }
 
-    private static class ElementsIterable extends WrappedCloseableIterable<Element> {
+    private static class ElementsIterable implements Iterable<Element> {
         private final MapImpl mapImpl;
         private final GetElements getElements;
         private final Schema schema;
         private final User user;
         private final boolean supportsVisibility;
 
-        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final MapStore mapStore, final User user) {
+        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final MapStore mapStore,
+                final User user) {
             this.mapImpl = mapImpl;
             this.getElements = getElements;
             this.schema = mapStore.getSchema();
@@ -80,9 +79,11 @@ public class GetElementsHandler
         }
 
         @Override
-        public CloseableIterator<Element> iterator() {
+        public Iterator<Element> iterator() {
             Stream<Element> elements = Streams.toStream(getElements.getInput())
-                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream())
+                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(),
+                            getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(),
+                            getElements.getSeedMatching()).stream())
                     .distinct();
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             if (this.supportsVisibility) {
@@ -94,8 +95,7 @@ public class GetElementsHandler
                 ViewUtil.removeProperties(getElements.getView(), element);
                 return element;
             });
-            return new WrappedCloseableIterator<>(elements.iterator());
+            return elements.iterator();
         }
     }
 }
-

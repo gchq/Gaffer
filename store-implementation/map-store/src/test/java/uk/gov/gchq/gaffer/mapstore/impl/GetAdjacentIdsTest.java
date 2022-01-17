@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -57,7 +56,7 @@ public class GetAdjacentIdsTest {
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("NOT_PRESENT"))
                 .build();
-        final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+        final Iterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
@@ -78,7 +77,7 @@ public class GetAdjacentIdsTest {
         GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("A"))
                 .build();
-        CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+        Iterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
@@ -157,7 +156,7 @@ public class GetAdjacentIdsTest {
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE2)
                         .build())
                 .build();
-        final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+        final Iterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
@@ -186,7 +185,8 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter()
+            throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -206,7 +206,7 @@ public class GetAdjacentIdsTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+        final Iterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
@@ -236,7 +236,8 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter()
+            throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -256,7 +257,7 @@ public class GetAdjacentIdsTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+        final Iterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
@@ -299,23 +300,23 @@ public class GetAdjacentIdsTest {
             final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                     .input(new EntitySeed("A"), new EntitySeed("Y2"))
                     .view(new View.Builder()
-                                  .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
-                                          .postAggregationFilter(new ElementFilter.Builder()
-                                                                         .select(GetAllElementsHandlerTest.COUNT)
-                                                                         .execute(new IsMoreThan(5))
-                                                                         .build())
-                                          .build())
-                          .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition.Builder()
-                                  .postAggregationFilter(new ElementFilter.Builder()
-                                                        .select(GetAllElementsHandlerTest.PROPERTY1)
-                                                        .execute(new IsEqual("string"))
-                                                        .build())
-                                  .build())
-                          .build())
+                            .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                                    .postAggregationFilter(new ElementFilter.Builder()
+                                            .select(GetAllElementsHandlerTest.COUNT)
+                                            .execute(new IsMoreThan(5))
+                                            .build())
+                                    .build())
+                            .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition.Builder()
+                                    .postAggregationFilter(new ElementFilter.Builder()
+                                            .select(GetAllElementsHandlerTest.PROPERTY1)
+                                            .execute(new IsEqual("string"))
+                                            .build())
+                                    .build())
+                            .build())
                     .build();
-            final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+            graph.execute(getAdjacentIds, new User());
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("View should not have entities with filters."));
         }
     }
@@ -333,17 +334,17 @@ public class GetAdjacentIdsTest {
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("Y2"))
                 .view(new View.Builder()
-                      .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
-                            .postAggregationFilter(new ElementFilter.Builder()
-                                                   .select(GetAllElementsHandlerTest.COUNT)
-                                                   .execute(new IsMoreThan(5))
-                                                   .build())
-                            .build())
-                      .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition())
-                      .build())
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(GetAllElementsHandlerTest.COUNT)
+                                        .execute(new IsMoreThan(5))
+                                        .build())
+                                .build())
+                        .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition())
+                        .build())
                 .build();
 
-        final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+        final Iterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();

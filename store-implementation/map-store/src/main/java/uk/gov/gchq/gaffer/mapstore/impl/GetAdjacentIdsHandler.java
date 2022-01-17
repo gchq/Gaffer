@@ -15,14 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -39,6 +32,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -46,33 +40,33 @@ import java.util.stream.Stream;
  * An {@link OutputOperationHandler} for the {@link GetAdjacentIds} operation on the {@link MapStore}.
  */
 public class GetAdjacentIdsHandler implements
-        OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetAdjacentIds.class);
+        OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> {
 
     @Override
-    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
-                                                             final Context context,
-                                                             final Store store) throws OperationException {
+    public Iterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
+            final Context context,
+            final Store store) throws OperationException {
         return doOperation(operation, context, (MapStore) store);
     }
 
-    private CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
-                                                    final Context context,
-                                                    final MapStore mapStore) throws OperationException {
+    private Iterable<EntityId> doOperation(final GetAdjacentIds operation,
+            final Context context,
+            final MapStore mapStore) throws OperationException {
         if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
-            return new EmptyClosableIterable<>();
+            return new EmptyIterable<>();
         }
         return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());
     }
 
-    private static class EntityIdIterable extends WrappedCloseableIterable<EntityId> {
+    private static class EntityIdIterable implements Iterable<EntityId> {
         private final MapImpl mapImpl;
         private final GetAdjacentIds getAdjacentIds;
         private final Schema schema;
         private final User user;
         private final boolean supportsVisibility;
 
-        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final MapStore mapStore, final User user) {
+        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final MapStore mapStore,
+                final User user) {
             this.mapImpl = mapImpl;
             this.getAdjacentIds = getAdjacentIds;
             this.schema = mapStore.getSchema();
@@ -81,16 +75,18 @@ public class GetAdjacentIdsHandler implements
         }
 
         @Override
-        public CloseableIterator<EntityId> iterator() {
+        public Iterator<EntityId> iterator() {
             // For each EntityId, get relevant edges with group-by properties
             // Create full Element
             // Apply view
             // Extract adjacent vertices
             Stream<Element> elementStream = Streams.toStream(getAdjacentIds.getInput())
-                    .flatMap(entityId ->
-                            GetElementsUtil.getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(), getAdjacentIds.getDirectedType(), getAdjacentIds.getIncludeIncomingOutGoing(), SeedMatching.SeedMatchingType.RELATED)
-                                    .stream()
-                                    .map(mapImpl::getAggElement));
+                    .flatMap(entityId -> GetElementsUtil
+                            .getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(),
+                                    getAdjacentIds.getDirectedType(), getAdjacentIds.getIncludeIncomingOutGoing(),
+                                    SeedMatching.SeedMatchingType.RELATED)
+                            .stream()
+                            .map(mapImpl::getAggElement));
 
             // Apply visibility
             if (this.supportsVisibility) {
@@ -115,8 +111,7 @@ public class GetAdjacentIdsHandler implements
                         return new EntitySeed(nextVertex);
                     });
 
-            return new WrappedCloseableIterator<>(adjacentIdsStream.iterator());
+            return adjacentIdsStream.iterator();
         }
     }
 }
-

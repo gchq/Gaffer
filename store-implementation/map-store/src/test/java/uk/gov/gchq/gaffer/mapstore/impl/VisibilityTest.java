@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -39,6 +38,7 @@ import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -51,7 +51,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class VisibilityTest {
 
-    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.openStreams(VisibilityTest.class, "schema-with-visibilities"));
+    private static final Schema SCHEMA = Schema
+            .fromJson(StreamUtil.openStreams(VisibilityTest.class, "schema-with-visibilities"));
 
     private static final String PUBLIC = "public";
     private static final String PRIVATE = "private";
@@ -65,11 +66,10 @@ public final class VisibilityTest {
     static final String VERTEX_2 = "vertex2";
 
     private static final List<String[]> DATA_AUTH_COMBINATIONS = asList(
-            new String[]{},
-            new String[]{PRIVATE},
-            new String[]{PUBLIC},
-            new String[]{PRIVATE, PUBLIC}
-    );
+            new String[] {},
+            new String[] {PRIVATE},
+            new String[] {PUBLIC},
+            new String[] {PRIVATE, PUBLIC});
 
     private VisibilityTest() {
     }
@@ -178,8 +178,7 @@ public final class VisibilityTest {
                         .property(PROPERTY_3, "p3_privateEdge")
                         .property(COUNT, 1)
                         .property(VISIBILITY, PRIVATE)
-                        .build()
-        );
+                        .build());
     }
 
     private static User getUserWithDataAuths(final String... dataAuths) {
@@ -190,8 +189,8 @@ public final class VisibilityTest {
 
     private static List<Element> getExpectedElementsFor(final Schema schema, final String... dataAuths) {
         final ElementVisibilityPredicate elementVisibilityPredicate = new ElementVisibilityPredicate(dataAuths);
-        final CloseableIterable<Element> expectedIterable = AggregatorUtil.ingestAggregate(createElements(), schema);
-        final CloseableIterator<Element> expectedIterator = expectedIterable.iterator();
+        final Iterable<Element> expectedIterable = AggregatorUtil.ingestAggregate(createElements(), schema);
+        final Iterator<Element> expectedIterator = expectedIterable.iterator();
         while (expectedIterator.hasNext()) {
             final Element element = expectedIterator.next();
             if (!elementVisibilityPredicate.test(element)) {
@@ -231,10 +230,12 @@ public final class VisibilityTest {
     }
 
     public static <OUTPUT> void vertex1AdjacentIdsResultConsumer(final OUTPUT output, final String... dataAuths) {
-        ElementUtil.assertElementEquals(getExpectedAdjacentIdsFor(SCHEMA, asList(VERTEX_1), dataAuths), (Iterable<Element>) output);
+        ElementUtil.assertElementEquals(getExpectedAdjacentIdsFor(SCHEMA, asList(VERTEX_1), dataAuths),
+                (Iterable<Element>) output);
     }
 
-    private static List<EntityId> getExpectedAdjacentIdsFor(final Schema schema, final List<String> vertexSeeds, final String... dataAuths) {
+    private static List<EntityId> getExpectedAdjacentIdsFor(final Schema schema, final List<String> vertexSeeds,
+            final String... dataAuths) {
         final Set<EntitySeed> seedsToRemove = vertexSeeds.stream().map(EntitySeed::new).collect(toSet());
         final ElementVisibilityPredicate elementVisibilityPredicate = new ElementVisibilityPredicate(dataAuths);
         final EdgeVertexPredicate edgeVertexPredicate = new EdgeVertexPredicate(vertexSeeds);
@@ -258,7 +259,7 @@ public final class VisibilityTest {
 
         @Override
         public boolean test(final Element element) {
-            for (String dataAuth : dataAuths) {
+            for (final String dataAuth : dataAuths) {
                 if (element.getProperty(VISIBILITY).toString().contains(dataAuth)) {
                     return true;
                 }

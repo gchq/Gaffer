@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -70,7 +70,7 @@ public class GetAllElementsHandlerTest {
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -94,7 +94,7 @@ public class GetAllElementsHandlerTest {
 
         // When
         final GetAllElements getAllElements = new GetAllElements.Builder().build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -151,7 +151,7 @@ public class GetAllElementsHandlerTest {
                         .edge(BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -183,7 +183,7 @@ public class GetAllElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -215,7 +215,7 @@ public class GetAllElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -244,7 +244,7 @@ public class GetAllElementsHandlerTest {
                         .edge(TestGroups.EDGE_2)
                         .build())
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -286,7 +286,7 @@ public class GetAllElementsHandlerTest {
         GetAllElements getAllElements = new GetAllElements.Builder()
                 .directedType(DirectedType.EITHER)
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
+        Iterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -417,7 +417,6 @@ public class GetAllElementsHandlerTest {
                 .storeProperties(storeProperties)
                 .build();
     }
-
 
     static List<Element> getDuplicateElements() {
         final List<Element> elements = new ArrayList<>();
