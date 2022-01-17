@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -264,7 +264,7 @@ public class WalkTest {
                 .edge(EDGE_AE)
                 .entity(ENTITY_E)
                 .edges(EDGE_ED, EDGE_DA)
-                .entities(new EmptyClosableIterable<>())
+                .entities(new EmptyIterable<>())
                 .build();
 
         // Then
