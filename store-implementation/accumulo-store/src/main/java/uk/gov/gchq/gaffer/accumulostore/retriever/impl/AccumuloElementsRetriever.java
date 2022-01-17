@@ -16,14 +16,14 @@
 
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
-import java.util.stream.StreamSupport;
-
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+
+import java.util.stream.StreamSupport;
 
 public class AccumuloElementsRetriever extends AccumuloSingleIDRetriever<GetElements> {
     public AccumuloElementsRetriever(final AccumuloStore store,

@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
 import org.assertj.core.api.Condition;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
