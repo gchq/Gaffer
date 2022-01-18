@@ -157,6 +157,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -166,6 +167,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -195,6 +197,7 @@ public class StoreTest {
         JSONSerialiser.update();
 
         schemaOptimiser = mock(SchemaOptimiser.class);
+        when(schemaOptimiser.optimise(any(Schema.class), any(Boolean.class))).then(returnsFirstArg());
         operationChainValidator = mock(OperationChainValidator.class);
         store = new StoreImpl();
         given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
@@ -369,7 +372,6 @@ public class StoreTest {
 
     @Test
     public void shouldThrowExceptionIfOperationChainIsInvalid() throws OperationException, StoreException {
-        // Given
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -1165,8 +1167,8 @@ public class StoreTest {
         }
 
         @Override
-        public void optimiseSchema() {
-            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        protected SchemaOptimiser createSchemaOptimiser() {
+            return schemaOptimiser;
         }
 
         @Override
@@ -1257,11 +1259,6 @@ public class StoreTest {
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {
             return doUnhandledOperationCalls;
-        }
-
-        @Override
-        public void optimiseSchema() {
-            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
         }
 
         @Override

@@ -21,15 +21,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -130,10 +134,21 @@ public final class FederatedStoreUtil {
                     // then clone the operation and add the new view.
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
-                    } else if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
-                        // The view has no groups so the operation would return
-                        // nothing, so we shouldn't execute the operation.
-                        resultOp = null;
+                    } else {
+                        Boolean isDynamic;
+                        try {
+                            isDynamic = graph.execute(new HasTrait.Builder()
+                                    .trait(StoreTrait.DYNAMIC_SCHEMA)
+                                    .currentTraits(false)
+                                    .build(), new Context());
+                        } catch (final OperationException e) {
+                            throw new GafferRuntimeException("Error performing HasTrait Operation while updating Operation.", e);
+                        }
+                        if (null == isDynamic || !isDynamic) {
+                            // The view has no groups so the operation would return
+                            // nothing, so we shouldn't execute the operation.
+                            resultOp = null;
+                        }
                     }
                 }
             }

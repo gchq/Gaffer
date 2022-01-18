@@ -15,12 +15,16 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -78,7 +82,17 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             if (graphIdValid) {
                 currentResult = new ValidationResult();
                 clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
-                if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
+
+                Boolean isDynamic;
+                try {
+                    isDynamic = graph.execute(new HasTrait.Builder()
+                            .trait(StoreTrait.DYNAMIC_SCHEMA)
+                            .currentTraits(false)
+                            .build(), new Context());
+                } catch (final OperationException e) {
+                    throw new GafferRuntimeException("Error performing HasTrait Operation while validating Views in OperationChain.", e);
+                }
+                if (null == isDynamic || !isDynamic) {
                     super.validateViews(clonedOp, user, store, currentResult);
                 }
                 if (currentResult.isValid()) {
