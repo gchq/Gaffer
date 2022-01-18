@@ -265,8 +265,6 @@ public abstract class Store {
             newStore.initialise(graphId, schema, storeProperties);
         } catch (final StoreException e) {
             throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-        } catch (final GafferRuntimeException e) {
-            throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
         }
         return newStore;
     }
