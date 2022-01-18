@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
@@ -91,7 +91,8 @@ public class ProxyStore extends Store {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
-    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties)
+            throws StoreException {
         setProperties(properties);
         client = createClient();
         schema = fetchSchema();
@@ -102,7 +103,8 @@ public class ProxyStore extends Store {
 
     protected void checkDelegateStoreStatus() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/status");
-        final ResponseDeserialiser<LinkedHashMap> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceImpl.Map());
+        final ResponseDeserialiser<LinkedHashMap> responseDeserialiser = getResponseDeserialiserFor(
+                new TypeReferenceImpl.Map());
         final LinkedHashMap status = doGet(url, responseDeserialiser, null);
         LOGGER.info("Delegate REST API status: {}", status.get("status"));
     }
@@ -110,7 +112,7 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations() {
         try {
-            URL url = getProperties().getGafferUrl("graph/operations");
+            final URL url = getProperties().getGafferUrl("graph/operations");
             final ResponseDeserialiser<Set<Class<? extends Operation>>> responseDeserialiser = getOperationsResponseDeserialiser();
             return Collections.unmodifiableSet(doGet(url, responseDeserialiser, null));
         } catch (final StoreException e) {
@@ -128,7 +130,7 @@ public class ProxyStore extends Store {
 
     @Override
     public Set<Class<? extends Operation>> getSupportedOperations() {
-        HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
+        final HashSet<Class<? extends Operation>> allSupportedOperations = Sets.newHashSet();
         allSupportedOperations.addAll(fetchOperations());
         allSupportedOperations.addAll(super.getSupportedOperations());
         return Collections.unmodifiableSet(allSupportedOperations);
@@ -141,7 +143,8 @@ public class ProxyStore extends Store {
 
     protected Set<StoreTrait> fetchTraits() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
-        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.StoreTraits());
+        final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = getResponseDeserialiserFor(
+                new TypeReferenceStoreImpl.StoreTraits());
         Set<StoreTrait> newTraits = doGet(url, responseDeserialiser, null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
@@ -154,7 +157,8 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/config/schema");
-        final ResponseDeserialiser<Schema> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.Schema());
+        final ResponseDeserialiser<Schema> responseDeserialiser = getResponseDeserialiserFor(
+                new TypeReferenceStoreImpl.Schema());
         return doGet(url, responseDeserialiser, null);
     }
 
@@ -164,10 +168,12 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context)
+            throws OperationException {
         final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
-            final ResponseDeserialiser<JobDetail> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceImpl.JobDetail());
+            final ResponseDeserialiser<JobDetail> responseDeserialiser = getResponseDeserialiserFor(
+                    new TypeReferenceImpl.JobDetail());
             return doPost(url, operationChain, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
@@ -185,7 +191,8 @@ public class ProxyStore extends Store {
 
         final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
-            final ResponseDeserialiser<O> responseDeserialiser = getResponseDeserialiserFor(opChain.getOutputTypeReference());
+            final ResponseDeserialiser<O> responseDeserialiser = getResponseDeserialiserFor(
+                    opChain.getOutputTypeReference());
             return doPost(url, opChainJson, responseDeserialiser, context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
@@ -193,18 +200,19 @@ public class ProxyStore extends Store {
     }
 
     protected <O> O doPost(final URL url, final Object body,
-                           final ResponseDeserialiser<O> responseDeserialiser,
-                           final Context context) throws StoreException {
+            final ResponseDeserialiser<O> responseDeserialiser,
+            final Context context) throws StoreException {
         try {
-            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), responseDeserialiser, context);
+            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), responseDeserialiser,
+                    context);
         } catch (final SerialisationException | UnsupportedEncodingException e) {
             throw new StoreException("Unable to serialise body of request into json.", e);
         }
     }
 
     protected <O> O doPost(final URL url, final String jsonBody,
-                           final ResponseDeserialiser<O> responseDeserialiser,
-                           final Context context) throws StoreException {
+            final ResponseDeserialiser<O> responseDeserialiser,
+            final Context context) throws StoreException {
 
         final Invocation.Builder request = createRequest(jsonBody, url, context);
         final Response response;
@@ -219,7 +227,7 @@ public class ProxyStore extends Store {
     }
 
     protected <O> O doGet(final URL url,
-                          final ResponseDeserialiser<O> responseDeserialiser, final Context context)
+            final ResponseDeserialiser<O> responseDeserialiser, final Context context)
             throws StoreException {
         final Invocation.Builder request = createRequest(null, url, context);
         final Response response;
@@ -234,7 +242,7 @@ public class ProxyStore extends Store {
     }
 
     protected <O> O handleResponse(final Response response,
-                                   final ResponseDeserialiser<O> responseDeserialiser)
+            final ResponseDeserialiser<O> responseDeserialiser)
             throws StoreException {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
         if (Family.SUCCESSFUL != response.getStatusInfo().getFamily()) {
@@ -243,7 +251,8 @@ public class ProxyStore extends Store {
                 error = JSONSerialiser.deserialise(StringUtil.toBytes(outputJson), Error.class);
             } catch (final Exception e) {
                 LOGGER.warn("Gaffer bad status {}. Detail: {}", response.getStatus(), outputJson);
-                throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
+                throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus()
+                        + ". Response content was: " + outputJson);
             }
             throw new GafferWrappedErrorRuntimeException(error);
         }
@@ -304,17 +313,17 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return null;
     }
 
@@ -325,7 +334,8 @@ public class ProxyStore extends Store {
 
     @Override
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator, opChainOptimisers);
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>(opChainValidator,
+                opChainOptimisers);
     }
 
     protected Client createClient() {
@@ -391,7 +401,8 @@ public class ProxyStore extends Store {
             try {
                 store.initialise(graphId, new Schema(), properties);
             } catch (final StoreException e) {
-                throw new IllegalArgumentException("The store could not be initialised with the provided properties", e);
+                throw new IllegalArgumentException("The store could not be initialised with the provided properties",
+                        e);
             }
             return store;
         }

@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferWrappedErrorRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -71,7 +71,7 @@ public class ProxyStoreBasicIT {
     public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final User USER = new User();
-    public static final Element[] DEFAULT_ELEMENTS = new Element[]{
+    public static final Element[] DEFAULT_ELEMENTS = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
@@ -128,20 +128,21 @@ public class ProxyStoreBasicIT {
                 .build();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddElementsAndGetAllElements() throws Exception {
         // Given
         addDefaultElements();
 
-
         // When - Get
-        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
+        final Iterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
         assertThat(Iterables.size(results)).isEqualTo(DEFAULT_ELEMENTS.length);
-        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS);
+        assertThat((Iterable<Element>) results).contains(DEFAULT_ELEMENTS);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddElementsAndGetRelatedElements() throws Exception {
         // Given
@@ -154,13 +155,14 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
+        final Iterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertThat(results).hasSize(1);
-        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
+        assertThat((Iterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
@@ -185,11 +187,11 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
+        final Iterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertThat(results).hasSize(2);
-        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
+        assertThat((Iterable<Element>) results).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
     }
 
     @Test
@@ -204,7 +206,8 @@ public class ProxyStoreBasicIT {
                             .first(new GetAllElements())
                             .then(new Limit<>(1, false))
                             .then(new ToList<>())
-                            .build(), USER);
+                            .build(),
+                    USER);
             fail("Exception expected");
         } catch (final GafferWrappedErrorRuntimeException e) {
             assertThat(e.getError()).isEqualTo(new Error.ErrorBuilder()
@@ -238,7 +241,7 @@ public class ProxyStoreBasicIT {
     public void shouldNotErrorWithNonNullOptionsMapAndNullHandlerOption() throws Exception {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
-                .option("Anything", "Value") //any value to create a optionsMap
+                .option("Anything", "Value") // any value to create a optionsMap
                 .build();
         graph.execute(add, USER);
     }
