@@ -39,10 +39,10 @@ public class OperationDetailTest extends EqualityTest<OperationDetail> {
     @Test
     public void shouldUseSummaryAnnotationForSummary() {
         // Given
-        OperationDetail operationDetail = new OperationDetail(GetElements.class, null, new GetElements());
+        final OperationDetail operationDetail = new OperationDetail(GetElements.class, null, new GetElements());
 
         // When
-        String summary = operationDetail.getSummary();
+        final String summary = operationDetail.getSummary();
 
         // Then
         assertEquals("Gets elements related to provided seeds", summary);
@@ -51,32 +51,34 @@ public class OperationDetailTest extends EqualityTest<OperationDetail> {
     @Test
     public void shouldGetFullyQualifiedOutputType() {
         // Given
-        OperationDetail operationDetail = new OperationDetail(GetElements.class, null, new GetElements());
+        final OperationDetail operationDetail = new OperationDetail(GetElements.class, null, new GetElements());
 
         // When
-        String outputClassName = operationDetail.getOutputClassName();
+        final String outputClassName = operationDetail.getOutputClassName();
 
         // Then
-        assertEquals("uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>", outputClassName);
+        assertEquals("java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>",
+                outputClassName);
     }
 
     @Test
     public void shouldShowOperationFields() {
         // Given
-        OperationDetail operationDetail = new OperationDetail(NamedOperation.class, null, new NamedOperation<>());
+        final OperationDetail operationDetail = new OperationDetail(NamedOperation.class, null, new NamedOperation<>());
 
         // When
-        List<String> fieldNames = operationDetail.getFields().stream().map(OperationField::getName).collect(Collectors.toList());
+        final List<String> fieldNames = operationDetail.getFields().stream().map(OperationField::getName)
+                .collect(Collectors.toList());
 
         // Then
-        ArrayList<String> expected = Lists.newArrayList("input", "options", "operationName", "parameters");
+        final ArrayList<String> expected = Lists.newArrayList("input", "options", "operationName", "parameters");
         assertEquals(expected, fieldNames);
     }
 
     @Test
     public void shouldOutputWhetherAFieldIsRequired() {
         // Given
-        OperationDetail operationDetail = new OperationDetail(NamedOperation.class, null, new NamedOperation<>());
+        final OperationDetail operationDetail = new OperationDetail(NamedOperation.class, null, new NamedOperation<>());
 
         // When
         operationDetail.getFields().forEach(field -> {
@@ -93,8 +95,7 @@ public class OperationDetailTest extends EqualityTest<OperationDetail> {
         return new OperationDetail(
                 GetElements.class,
                 Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
-                new GetElements()
-        );
+                new GetElements());
     }
 
     @Override
@@ -103,35 +104,29 @@ public class OperationDetailTest extends EqualityTest<OperationDetail> {
                 new OperationDetail(
                         GetAdjacentIds.class,
                         Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
-                        new GetElements()
-                ),
+                        new GetElements()),
                 new OperationDetail(
                         GetAdjacentIds.class,
                         Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
-                        new GetElements()
-                ),
+                        new GetElements()),
                 new OperationDetail(
                         GetAdjacentIds.class,
                         Sets.newHashSet(DiscardOutput.class, GetElements.class, GetAdjacentIds.class),
-                        new GetElements()
-                ),
+                        new GetElements()),
                 new OperationDetail(
                         GetAdjacentIds.class,
                         Sets.newHashSet(GetElements.class, GetAdjacentIds.class),
                         new GetElements.Builder()
                                 .input(new EntitySeed("test"))
-                                .build()
-                ),
+                                .build()),
                 new OperationDetail(
                         GetAdjacentIds.class,
                         null,
-                        new GetElements()
-                ),
+                        new GetElements()),
                 new OperationDetail(
                         GetAdjacentIds.class,
                         null,
-                        null
-                )
+                        null)
 
         );
     }
