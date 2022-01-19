@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.traffic;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -52,6 +51,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -87,12 +87,16 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
+        Iterable<? extends Element> elements = null;
+        try {
+            elements = this.graph.execute(query, this.user);
             int x = 0;
             for (final Element element : elements) {
                 x++;
             }
             assertEquals(14, x);
+        } finally {
+            CloseableUtil.close(elements);
         }
     }
 
@@ -140,8 +144,10 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkM4Junction17To16RoadUse() throws OperationException, ParseException {
-        assumeTrue(this.graph.hasTrait(StoreTrait.INGEST_AGGREGATION), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.INGEST_AGGREGATION),
+                "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING),
+                "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
 
         final GetElements query = new GetElements.Builder()
@@ -158,14 +164,20 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
-            CloseableIterator<? extends Element> iter = elements.iterator();
+        Iterable<? extends Element> elements = null;
+        Iterator<? extends Element> iter = null;
+        try {
+            elements = this.graph.execute(query, this.user);
+            iter = elements.iterator();
             assertThat(iter).hasNext();
 
             final Element element = iter.next();
             assertFalse(iter.hasNext(), "Expected query to return only 1 element, but it has returned multiple!");
 
             assertEquals(M4_JUNCTION_17_TO_16_PROPERTIES, element.getProperties());
+        } finally {
+            CloseableUtil.close(iter);
+            CloseableUtil.close(elements);
         }
     }
 
@@ -196,7 +208,8 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkM4Junction16Use() throws OperationException {
-        assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION),
+                "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
 
         final GetElements query = new GetElements.Builder()
@@ -208,14 +221,20 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
-            CloseableIterator<? extends Element> iter = elements.iterator();
+        Iterable<? extends Element> elements = null;
+        Iterator<? extends Element> iter = null;
+        try {
+            elements = this.graph.execute(query, this.user);
+            iter = elements.iterator();
             assertThat(iter).hasNext();
 
             final Element element = iter.next();
             assertFalse(iter.hasNext(), "Expected query to return only 1 element, but it has returned multiple!");
 
             assertEquals(M4_JUNCTION_16_PROPERTIES, element.getProperties());
+        } finally {
+            CloseableUtil.close(iter);
+            CloseableUtil.close(elements);
         }
     }
 
@@ -231,10 +250,14 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkRoadJunctionsInSouthWestHeavilyUsedByBusesIn2000() throws OperationException, ParseException {
-        assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.TRANSFORMATION), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.POST_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION),
+                "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.TRANSFORMATION),
+                "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING),
+                "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.hasTrait(StoreTrait.POST_AGGREGATION_FILTERING),
+                "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
 
         final Date JAN_01_2000 = new SimpleDateFormat("yyyy-MM-dd").parse("2000-01-01");
@@ -295,12 +318,16 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        Set<String> resultSet = new HashSet<>();
+        final Set<String> resultSet = new HashSet<>();
 
-        final Iterable<? extends String> results = this.graph.execute(opChain, this.user);
-
-        for (final String r : results) {
-            resultSet.add(r);
+        Iterable<? extends String> results = null;
+        try {
+            results = this.graph.execute(opChain, this.user);
+            for (final String r : results) {
+                resultSet.add(r);
+            }
+        } finally {
+            CloseableUtil.close(results);
         }
 
         assertEquals(SW_ROAD_JUNCTIONS_WITH_HEAVY_BUS_USAGE_IN_2000, resultSet);

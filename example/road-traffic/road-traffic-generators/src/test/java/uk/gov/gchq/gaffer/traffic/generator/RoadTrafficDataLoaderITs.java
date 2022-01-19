@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -47,9 +47,11 @@ public class RoadTrafficDataLoaderITs {
     private static final String CSV_HEADER_V_2 = "Region Name (GO),ONS LACode,ONS LA Name,CP,S Ref E,S Ref N,S Ref Latitude,S Ref Longitude,Road,A-Junction,A Ref E,A Ref N,B-Junction,B Ref E,B Ref N,RCat,iDir,Year,dCount,Hour,PC,2WMV,CAR,BUS,LGV,HGVR2,HGVR3,HGVR4,HGVA3,HGVA5,HGVA6,HGV,AMV";
     private static final String CSV_LINE_V_2 = "\"Wales\",W06000022,\"Newport\",501,328570,187000,51.577320306,-3.032184269,M4,\"28\",328380,185830,\"27\",328400,187800,TM,E,2000,2000-06-09 00:00:00,7,0,6,2491,33,539,164,25,22,30,91,59,391,3460";
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES =
-            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(currentClass, "/miniaccumulo.properties"));
 
     @Test
     public void shouldLoadCsvV1Line() throws IOException, OperationException {
@@ -69,7 +71,7 @@ public class RoadTrafficDataLoaderITs {
         dataLoader.load(CSV_HEADER_V_1 + "\n" + CSV_LINE_V_1);
 
         // Check data has been loaded
-        final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements.Builder().build(), user);
+        final Iterable<? extends Element> elements = graph.execute(new GetAllElements.Builder().build(), user);
 
         int entityCount = 0;
         int edgeCount = 0;
@@ -105,7 +107,7 @@ public class RoadTrafficDataLoaderITs {
         dataLoader.load(CSV_HEADER_V_2 + "\n" + CSV_LINE_V_2);
 
         // Check data has been loaded
-        final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements.Builder().build(), user);
+        final Iterable<? extends Element> elements = graph.execute(new GetAllElements.Builder().build(), user);
 
         int entityCount = 0;
         int edgeCount = 0;
