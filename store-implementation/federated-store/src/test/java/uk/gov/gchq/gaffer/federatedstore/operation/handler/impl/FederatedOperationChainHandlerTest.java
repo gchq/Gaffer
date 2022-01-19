@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -56,18 +55,19 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
-
 public class FederatedOperationChainHandlerTest {
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
 
-    public static final String GRAPH_IDS = PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES + "," + PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
+    public static final String GRAPH_IDS = PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES + ","
+            + PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
 
-    private Element[] elements = new Element[] {
+    private final Element[] elements = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
@@ -80,7 +80,7 @@ public class FederatedOperationChainHandlerTest {
                     .build()
     };
 
-    private Element[] elements2 = new Element[] {
+    private final Element[] elements2 = new Element[] {
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("2")
@@ -163,7 +163,7 @@ public class FederatedOperationChainHandlerTest {
 
         // Then
         assertNull(result);
-        final CloseableIterable<? extends Element> allElements = store.execute(new GetAllElements(), context);
+        final Iterable<? extends Element> allElements = store.execute(new GetAllElements(), context);
         ElementUtil.assertElementEquals(
                 Arrays.asList(elements[0], elements[1], elements2[0], elements2[1]), allElements);
     }
@@ -195,7 +195,7 @@ public class FederatedOperationChainHandlerTest {
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<Element>> opChain = new OperationChain.Builder()
                 .first(new FederatedOperationChain.Builder<Void, Element>()
                         .operationChain(new OperationChain.Builder()
                                 .first(new GetAllElements())
@@ -266,7 +266,8 @@ public class FederatedOperationChainHandlerTest {
                         .build())
                 .build();
         final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema,
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
+                StoreProperties.loadStoreProperties(
+                        StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
 
         final Context context = new Context();
 
@@ -276,5 +277,4 @@ public class FederatedOperationChainHandlerTest {
 
         return store;
     }
-
 }

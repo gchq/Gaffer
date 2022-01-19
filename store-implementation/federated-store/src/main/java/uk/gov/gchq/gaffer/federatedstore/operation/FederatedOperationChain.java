@@ -29,7 +29,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -57,7 +57,7 @@ import java.util.Map;
 @Since("1.1.0")
 @Summary("A wrapped OperationChain to be executed in one go on a delegate graph")
 public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
-        implements InputOutput<I, CloseableIterable<O_ITEM>>,
+        implements InputOutput<I, Iterable<O_ITEM>>,
         Operations<OperationChain> {
     @Required
     private OperationChain operationChain;
@@ -76,14 +76,14 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
 
     @JsonCreator
     public FederatedOperationChain(@JsonProperty("operationChain") final OperationChainDAO operationChain,
-                                   @JsonProperty("options") final Map<String, String> options) {
+            @JsonProperty("options") final Map<String, String> options) {
         this(operationChain);
         setOptions(options);
     }
 
     @Override
-    public TypeReference<CloseableIterable<O_ITEM>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.CloseableIterableObj();
+    public TypeReference<Iterable<O_ITEM>> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.IterableObj();
     }
 
     @JsonIgnore
@@ -106,6 +106,7 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
         return Lists.newArrayList(operationChain);
     }
 
+    @Override
     public FederatedOperationChain<I, O_ITEM> shallowClone() throws CloneFailedException {
         return new FederatedOperationChain.Builder<I, O_ITEM>()
                 .operationChain(operationChain.shallowClone())
@@ -175,7 +176,8 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
 
     public static class Builder<I, O_ITEM> extends
             Operation.BaseBuilder<FederatedOperationChain<I, O_ITEM>, Builder<I, O_ITEM>>
-            implements InputOutput.Builder<FederatedOperationChain<I, O_ITEM>, I, CloseableIterable<O_ITEM>, Builder<I, O_ITEM>> {
+            implements
+            InputOutput.Builder<FederatedOperationChain<I, O_ITEM>, I, Iterable<O_ITEM>, Builder<I, O_ITEM>> {
         public Builder() {
             super(new FederatedOperationChain<>());
         }

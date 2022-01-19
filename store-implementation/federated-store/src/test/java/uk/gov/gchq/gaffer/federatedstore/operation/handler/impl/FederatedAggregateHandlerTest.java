@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -47,24 +50,24 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class FederatedAggregateHandlerTest {
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static Class currentClass = new Object() {
+    }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @Test
-    public void shouldDelegateToHandler() throws OperationException {
+    public void shouldDelegateToHandler(@Mock final FederatedStore store,
+            @Mock final AggregateHandler handler,
+            @Mock final Aggregate op,
+            @Mock final Context context,
+            @Mock final Iterable expectedResult,
+            @Mock final Schema schema) throws OperationException {
         // Given
-        final FederatedStore store = mock(FederatedStore.class);
-        final AggregateHandler handler = mock(AggregateHandler.class);
-        final Aggregate op = mock(Aggregate.class);
-        final Context context = mock(Context.class);
-        final Iterable expectedResult = mock(Iterable.class);
-        final Schema schema = mock(Schema.class);
-
         given(store.getSchema(op, context)).willReturn(schema);
         given(handler.doOperation(op, schema)).willReturn(expectedResult);
 
@@ -80,7 +83,7 @@ public class FederatedAggregateHandlerTest {
 
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
-        FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
+        final FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
                 StreamUtil.openStream(currentClass, "predefinedFederatedStore.properties"));
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
@@ -135,9 +138,9 @@ public class FederatedAggregateHandlerTest {
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphNameB)
                 .build(), context);
 
-        final CloseableIterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
+        final Iterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 
-        List<Element> list = new ArrayList<>();
+        final List<Element> list = new ArrayList<>();
         getAll.forEach(list::add);
 
         assertThat(list).hasSize(2);

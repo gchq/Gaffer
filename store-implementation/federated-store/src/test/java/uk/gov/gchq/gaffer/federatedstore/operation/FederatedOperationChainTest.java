@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -39,7 +39,7 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .build();
 
@@ -58,7 +58,7 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .build();
 
@@ -81,7 +81,7 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .build();
 

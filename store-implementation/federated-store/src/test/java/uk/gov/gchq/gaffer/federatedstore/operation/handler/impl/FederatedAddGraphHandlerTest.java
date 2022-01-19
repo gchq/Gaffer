@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -55,8 +55,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
@@ -67,7 +67,6 @@ public class FederatedAddGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-    private static final String EXCEPTION_EXPECTED = "Exception expected";
     private User testUser;
     private User authUser;
     private User blankUser;
@@ -77,7 +76,9 @@ public class FederatedAddGraphHandlerTest {
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -95,11 +96,11 @@ public class FederatedAddGraphHandlerTest {
     @Test
     public void shouldAddGraph() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
@@ -112,7 +113,7 @@ public class FederatedAddGraphHandlerTest {
         Collection<Graph> graphs = store.getGraphs(testUser, null, ignore);
 
         assertThat(graphs).hasSize(1);
-        Graph next = graphs.iterator().next();
+        final Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
@@ -128,7 +129,7 @@ public class FederatedAddGraphHandlerTest {
         graphs = store.getGraphs(testUser, null, ignore);
 
         assertThat(graphs).hasSize(2);
-        Iterator<Graph> iterator = graphs.iterator();
+        final Iterator<Graph> iterator = graphs.iterator();
         final HashSet<String> set = Sets.newHashSet();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
@@ -139,11 +140,11 @@ public class FederatedAddGraphHandlerTest {
     @Test
     public void shouldAddDisabledByDefaultGraph() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
@@ -154,11 +155,10 @@ public class FederatedAddGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        Collection<Graph> enabledGraphs = store.getGraphs(testUser, null, ignore);
+        final Collection<Graph> enabledGraphs = store.getGraphs(testUser, null, ignore);
         assertThat(enabledGraphs).isEmpty();
 
-
-        Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID, ignore);
+        final Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID, ignore);
         assertThat(expectedGraphs).hasSize(1);
         assertEquals(EXPECTED_GRAPH_ID, expectedGraphs.iterator().next().getGraphId());
     }
@@ -167,12 +167,12 @@ public class FederatedAddGraphHandlerTest {
     public void shouldAddGraphUsingLibrary() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
@@ -185,7 +185,7 @@ public class FederatedAddGraphHandlerTest {
         Collection<Graph> graphs = store.getGraphs(testUser, null, ignore);
 
         assertThat(graphs).hasSize(1);
-        Graph next = graphs.iterator().next();
+        final Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
@@ -203,7 +203,7 @@ public class FederatedAddGraphHandlerTest {
         graphs = store.getGraphs(testUser, null, ignore);
 
         assertThat(graphs).hasSize(2);
-        Iterator<Graph> iterator = graphs.iterator();
+        final Iterator<Graph> iterator = graphs.iterator();
         final HashSet<String> set = Sets.newHashSet();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
@@ -214,7 +214,7 @@ public class FederatedAddGraphHandlerTest {
 
     @Test
     public void shouldThrowWhenOverwriteGraphIsDifferent() throws Exception {
-        Schema expectedSchema = new Schema.Builder()
+        final Schema expectedSchema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
@@ -225,7 +225,7 @@ public class FederatedAddGraphHandlerTest {
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
@@ -236,33 +236,29 @@ public class FederatedAddGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        try {
-            federatedAddGraphHandler.doOperation(
-                    new AddGraph.Builder()
-                            .graphId(EXPECTED_GRAPH_ID)
-                            .schema(expectedSchema)
-                            .schema(new Schema.Builder()
-                                    .type("unusual", String.class)
-                                    .build())
-                            .storeProperties(PROPERTIES)
-                            .build(),
-                    new Context(testUser),
-                    store);
-            fail(EXCEPTION_EXPECTED);
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
-        }
+        final Exception actual = assertThrows(Exception.class,
+                () -> federatedAddGraphHandler.doOperation(
+                        new AddGraph.Builder()
+                                .graphId(EXPECTED_GRAPH_ID)
+                                .schema(expectedSchema)
+                                .schema(new Schema.Builder()
+                                        .type("unusual", String.class)
+                                        .build())
+                                .storeProperties(PROPERTIES)
+                                .build(),
+                        new Context(testUser), store));
+        assertTrue(actual.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
     }
 
     @Test
     public void shouldThrowWhenOverwriteGraphIsSameAndAccessIsDifferent() throws Exception {
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
         store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
@@ -273,20 +269,17 @@ public class FederatedAddGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        try {
-            federatedAddGraphHandler.doOperation(
-                    new AddGraph.Builder()
-                            .graphId(EXPECTED_GRAPH_ID)
-                            .schema(expectedSchema)
-                            .graphAuths("X")
-                            .storeProperties(PROPERTIES)
-                            .build(),
-                    new Context(testUser),
-                    store);
-            fail(EXCEPTION_EXPECTED);
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
-        }
+        final Exception actual = assertThrows(Exception.class,
+                () -> federatedAddGraphHandler.doOperation(
+                        new AddGraph.Builder()
+                                .graphId(EXPECTED_GRAPH_ID)
+                                .schema(expectedSchema)
+                                .graphAuths("X")
+                                .storeProperties(PROPERTIES)
+                                .build(),
+                        new Context(testUser),
+                        store));
+        assertTrue(actual.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
     }
 
     @Test
@@ -295,25 +288,23 @@ public class FederatedAddGraphHandlerTest {
         federatedStoreProperties.setCustomPropertyAuths("auth1,auth2");
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 
-        try {
-            federatedAddGraphHandler.doOperation(
-                    new AddGraph.Builder()
-                            .graphId(EXPECTED_GRAPH_ID)
-                            .schema(expectedSchema)
-                            .storeProperties(PROPERTIES)
-                            .build(),
-                    new Context(testUser),
-                    store);
-            fail(EXCEPTION_EXPECTED);
-        } catch (OperationException e) {
-            assertTrue(e.getMessage().contains(String.format(FederatedAddGraphHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "")));
-        }
+        final OperationException actual = assertThrows(OperationException.class,
+                () -> federatedAddGraphHandler.doOperation(
+                        new AddGraph.Builder()
+                                .graphId(EXPECTED_GRAPH_ID)
+                                .schema(expectedSchema)
+                                .storeProperties(PROPERTIES)
+                                .build(),
+                        new Context(testUser), store));
+        assertTrue(actual.getMessage().contains(String.format(
+                FederatedAddGraphHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S,
+                "")));
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
@@ -340,7 +331,7 @@ public class FederatedAddGraphHandlerTest {
     public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(testUser, null, ignore).size());
 
@@ -354,7 +345,7 @@ public class FederatedAddGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        final CloseableIterable<? extends Element> elements = new FederatedGetAllElementsHandler().doOperation(
+        final Iterable<? extends Element> elements = new FederatedGetAllElementsHandler().doOperation(
                 new GetAllElements(),
                 new Context(testUser),
                 store);
@@ -365,14 +356,14 @@ public class FederatedAddGraphHandlerTest {
     @Test
     public void shouldAddGraphAndAddSupportedOperations() throws Exception {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
-        Schema expectedSchema = new Schema.Builder().build();
+        final Schema expectedSchema = new Schema.Builder().build();
 
         assertFalse(store.isSupported(GetElementsInRanges.class),
                 "Empty FederatedStore should NOT support GetElementsInRanges");
         assertFalse(store.isSupported(AddElementsFromHdfs.class),
                 "Empty FederatedStore should NOT support AddElementsFromHdfs");
 
-        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+        final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
@@ -391,7 +382,7 @@ public class FederatedAddGraphHandlerTest {
     private class IgnoreOptions extends GetAllElements {
         @Override
         public void setOptions(final Map<String, String> options) {
-            //ignore
+            // ignore
         }
     }
 
@@ -405,8 +396,7 @@ public class FederatedAddGraphHandlerTest {
 
         final AccessPredicate allowBlankUserAndTestUserReadAccess = new AccessPredicate(new AdaptedPredicate(
                 new CallMethod("getUserId"),
-                new Or<>(new IsEqual(testUser.getUserId()), new IsEqual(blankUser.getUserId()))
-        ));
+                new Or<>(new IsEqual(testUser.getUserId()), new IsEqual(blankUser.getUserId()))));
 
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()

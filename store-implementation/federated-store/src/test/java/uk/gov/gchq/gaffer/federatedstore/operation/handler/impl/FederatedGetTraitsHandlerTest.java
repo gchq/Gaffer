@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -67,7 +67,8 @@ public class FederatedGetTraitsHandlerTest {
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
 
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedGetTraitsHandlerTest.class, "/properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .openStream(FederatedGetTraitsHandlerTest.class, "/properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -122,7 +123,7 @@ public class FederatedGetTraitsHandlerTest {
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
-        StoreProperties altProps = new StoreProperties();
+        final StoreProperties altProps = new StoreProperties();
         altProps.setStoreClass(TestStoreAltImpl.class);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
@@ -138,7 +139,7 @@ public class FederatedGetTraitsHandlerTest {
                         .build(),
                 new Context(testUser()));
 
-        HashSet<Object> expectedIntersectionTraits = new HashSet<>();
+        final HashSet<Object> expectedIntersectionTraits = new HashSet<>();
         expectedIntersectionTraits.addAll(TestStoreImpl.STORE_TRAITS);
         expectedIntersectionTraits.retainAll(TestStoreAltImpl.STORE_TRAITS);
 
@@ -172,8 +173,7 @@ public class FederatedGetTraitsHandlerTest {
                         MATCHED_VERTEX,
                         PRE_AGGREGATION_FILTERING,
                         POST_AGGREGATION_FILTERING,
-                        POST_TRANSFORMATION_FILTERING
-                ),
+                        POST_TRANSFORMATION_FILTERING),
                 traits);
     }
 
@@ -211,8 +211,7 @@ public class FederatedGetTraitsHandlerTest {
                         MATCHED_VERTEX,
                         PRE_AGGREGATION_FILTERING,
                         POST_AGGREGATION_FILTERING,
-                        POST_TRANSFORMATION_FILTERING
-                ),
+                        POST_TRANSFORMATION_FILTERING),
                 traits);
     }
 
@@ -268,17 +267,17 @@ public class FederatedGetTraitsHandlerTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
             return null;
         }
 

@@ -17,8 +17,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -37,10 +36,13 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
-public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, CloseableIterable<O_ITEM>> {
+public class FederatedOperationChainHandler<I, O_ITEM>
+        implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, Iterable<O_ITEM>> {
     @Override
-    public CloseableIterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation);
+    public Iterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context,
+            final Store store) throws OperationException {
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(),
+                operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation);
         final List<Object> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OperationChain opChain = operation.getOperationChain();
@@ -52,7 +54,8 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
                     result = graph.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
+                        throw new OperationException(
+                                FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                     }
                 }
                 if (null != result) {
@@ -63,7 +66,8 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
         return mergeResults(results, operation, context, store);
     }
 
-    protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {
+    protected Iterable<O_ITEM> mergeResults(final List<Object> results,
+            final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {
         if (Void.class.equals(operation.getOperationChain().getOutputClass())) {
             return null;
         }
@@ -73,7 +77,7 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
         }
 
         if (1 == results.size() && results.get(0) instanceof Iterable) {
-            return new WrappedCloseableIterable(((Iterable) results.get(0)));
+            return (Iterable<O_ITEM>) results.get(0);
         }
 
         boolean areIterable = true;
@@ -88,6 +92,6 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
             return new ChainedIterable(CollectionUtil.toIterableArray((List) results));
         }
 
-        return new WrappedCloseableIterable(results);
+        return (Iterable<O_ITEM>) results;
     }
 }
