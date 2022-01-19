@@ -71,20 +71,6 @@ public class NamedViewCache {
     }
 
     /**
-     * @deprecated use {@link NamedViewCache#deleteNamedView(String, User)}
-     *
-     *             Removes the specified {@link NamedViewDetail} from the cache.
-     *
-     * @param name {@link NamedViewDetail} name to delete
-     * @throws CacheOperationFailedException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
-     *                                       write permission on the NamedViewDetail
-     */
-    @Deprecated
-    public void deleteNamedView(final String name) throws CacheOperationFailedException {
-        deleteNamedView(name, null);
-    }
-
-    /**
      * Removes the specified {@link NamedViewDetail} from the cache.
      *
      * @param name {@link NamedViewDetail} name to delete
@@ -108,24 +94,6 @@ public class NamedViewCache {
     public void deleteNamedView(final String name, final User user, final String adminAuth)
             throws CacheOperationFailedException {
         remove(name, user, adminAuth);
-    }
-
-    /**
-     * @deprecated use {@link NamedViewCache#getNamedView(String, User)}
-     *
-     *             Gets the specified {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} from the cache.
-     *
-     * @param name {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} name to get
-     * @return namedView {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail} of specified name
-     * @throws CacheOperationFailedException if the get operation fails
-     */
-    @Deprecated
-    public NamedViewDetail getNamedView(final String name) throws CacheOperationFailedException {
-        if (null != name) {
-            return getFromCache(name);
-        } else {
-            throw new CacheOperationFailedException("NamedView name cannot be null");
-        }
     }
 
     /**
@@ -161,28 +129,6 @@ public class NamedViewCache {
         } else {
             throw new CacheOperationFailedException("NamedView name cannot be null");
         }
-    }
-
-    /**
-     * @deprecated use {@link NamedViewCache#getAllNamedViews(User)}
-     *
-     *             Gets all the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}s from the cache.
-     *
-     * @return a {@link Iterable} containing all of the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail}s in the cache
-     * @throws CacheOperationFailedException if the get operation fails
-     */
-    @Deprecated
-    public Iterable<NamedViewDetail> getAllNamedViews() throws CacheOperationFailedException {
-        final Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
-        final Set<NamedViewDetail> views = new HashSet<>();
-        for (final String key : keys) {
-            try {
-                views.add(getFromCache(key));
-            } catch (final CacheOperationFailedException e) {
-                throw e;
-            }
-        }
-        return views;
     }
 
     /***

@@ -38,8 +38,8 @@
     }
   },
   "visibilityProperty": "visibility",
-  "timestampProperty": "timestamp",
   "config": {
-    "key": "value"
+    "key": "value",
+    "timestampProperty": "timestamp"
   }
 }

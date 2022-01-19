@@ -88,7 +88,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldAddNamedView() throws CacheOperationFailedException {
         cache.addNamedView(standard, false);
-        NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
+        NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName(), standardUser);
 
         assertEquals(standard, namedViewFromCache);
     }
@@ -141,7 +141,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false);
         cache.addNamedView(alternative, false);
 
-        Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews());
+        Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews(standardUser));
 
         assertThat(allViews)
                 .contains(standard, alternative)
@@ -153,7 +153,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
         cache.addNamedView(new NamedViewDetail.Builder().name(STANDARD_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
-        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME, standardUser).getView());
     }
 
     @Test
@@ -182,7 +182,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(new NamedViewDetail.Builder().name(ALTERNATIVE_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
         // Then
-        assertEquals("", cache.getNamedView(ALTERNATIVE_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(ALTERNATIVE_VIEW_NAME, standardUser).getView());
     }
 
     @Test

@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -64,11 +63,10 @@ public final class GetElementsUtil {
     }
 
     public static Set<Element> getRelevantElements(final MapImpl mapImpl,
-            final ElementId elementId,
-            final View view,
-            final DirectedType directedType,
-            final IncludeIncomingOutgoingType inOutType,
-            final SeedMatchingType seedMatchingType) {
+                                                   final ElementId elementId,
+                                                   final View view,
+                                                   final DirectedType directedType,
+                                                   final IncludeIncomingOutgoingType inOutType) {
         final Set<Element> relevantElements;
 
         final Set<String> groups = view.getGroups();
@@ -92,8 +90,9 @@ public final class GetElementsUtil {
                         && ((Edge) e).isDirected()
                         && (EdgeId.MatchedVertex.DESTINATION == ((Edge) e).getMatchedVertex()));
             }
-            // Apply seedMatching option - if option is RELATED then nothing to do
-            if (seedMatchingType == SeedMatchingType.EQUAL) {
+            // TODO 2552: Can this be improved?
+            // Remove Edges if searching with EntityId and View has no Edges
+            if (view.hasEntities() && !view.hasEdges()) {
                 isFiltered = isFiltered.or(e -> e instanceof Edge);
             }
         } else {
@@ -120,9 +119,9 @@ public final class GetElementsUtil {
                     .filter(e -> e instanceof Entity)
                     .forEach(relevantElements::add);
 
-            // Apply seedMatching option
-            // If option is RELATED then nothing to do
-            if (seedMatchingType == SeedMatchingType.EQUAL) {
+            // TODO 2552: Can this be improved?
+            // Remove Entities if searching with EdgeId and View has no Entites
+            if (view.hasEdges() && !view.hasEntities()) {
                 isFiltered = isFiltered.or(e -> e instanceof Entity);
             }
         }

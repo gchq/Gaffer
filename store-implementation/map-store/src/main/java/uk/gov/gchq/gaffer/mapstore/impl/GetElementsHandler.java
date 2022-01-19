@@ -81,9 +81,7 @@ public class GetElementsHandler
         @Override
         public Iterator<Element> iterator() {
             Stream<Element> elements = Streams.toStream(getElements.getInput())
-                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(),
-                            getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(),
-                            getElements.getSeedMatching()).stream())
+                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing()).stream())
                     .distinct();
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             if (this.supportsVisibility) {

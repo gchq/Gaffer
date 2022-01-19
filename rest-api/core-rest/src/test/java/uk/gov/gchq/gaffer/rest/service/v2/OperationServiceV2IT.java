@@ -191,19 +191,12 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final OperationDetailPojo opDetails = JSONSerialiser.deserialise(json, OperationDetailPojo.class);
         final List<OperationFieldPojo> fields = Arrays.asList(
                 new OperationFieldPojo("input", "java.lang.Object[]", false, null, null),
-                new OperationFieldPojo("view", "uk.gov.gchq.gaffer.data.elementdefinition.view.View", false, null,
-                        null),
-                new OperationFieldPojo("includeIncomingOutGoing", "java.lang.String", false,
-                        "Should the edges point towards, or away from your seeds",
-                        Sets.newHashSet("INCOMING", "EITHER", "OUTGOING")),
-                new OperationFieldPojo("seedMatching", "java.lang.String", false, "How should the seeds be matched?",
-                        Sets.newHashSet("RELATED", "EQUAL")),
-                new OperationFieldPojo("options", "java.util.Map<java.lang.String,java.lang.String>", false, null,
-                        null),
-                new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?",
-                        Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
-                new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>",
-                        false, null, null));
+                new OperationFieldPojo("view", "uk.gov.gchq.gaffer.data.elementdefinition.view.View", false, null, null),
+                new OperationFieldPojo("includeIncomingOutGoing", "java.lang.String", false, "Should the edges point towards, or away from your seeds", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING")),
+                new OperationFieldPojo("options", "java.util.Map<java.lang.String,java.lang.String>", false, null, null),
+                new OperationFieldPojo("directedType", "java.lang.String", false, "Is the Edge directed?", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER")),
+                new OperationFieldPojo("views", "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", false, null, null)
+        );
         assertEquals(fields, opDetails.getFields());
     }
 

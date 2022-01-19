@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
 import java.util.Iterator;
@@ -97,7 +96,6 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
                 .directedType(DirectedType.UNDIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .seedMatching(SeedMatchingType.EQUAL)
                 .view(view)
                 .build();
 
@@ -108,7 +106,6 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
         assertNotSame(getElementsBetweenSets, clone);
         assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
-        assertEquals(SeedMatchingType.EQUAL, clone.getSeedMatching());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, clone.getIncludeIncomingOutGoing());
         assertThat(clone.getInput().iterator().next()).isEqualTo(AccumuloTestData.SEED_B);
         assertThat(clone.getInputB().iterator().next()).isEqualTo(AccumuloTestData.SEED_A);

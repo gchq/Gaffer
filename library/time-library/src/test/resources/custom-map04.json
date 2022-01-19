@@ -1,7 +1,7 @@
 {
   "class" : "uk.gov.gchq.gaffer.types.CustomMap",
   "keySerialiser" : {
-    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser"
+    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser"
   },
   "valueSerialiser" : {
     "class" : "uk.gov.gchq.gaffer.time.serialisation.RBMBackedTimestampSetSerialiser"

@@ -46,8 +46,8 @@ import java.util.List;
  * <br>
  * For deserialising the correct serialiser is always chosen based on the byte key at the start of the byte[].
  * <p>
- * In the below example, the MultiSerialiser has 3 Integer serialisers.
- * There is backwards compatibility to deserialise all three byte arrays. However
+ * In the below example, the MultiSerialiser has 2 Integer serialisers.
+ * There is backwards compatibility to deserialise all the byte arrays. However
  * when re-serialising the Integer object, only the last serialiser will be used (key 8, OrderedIntegerSerialiser)
  * <br>
  * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility.
@@ -62,16 +62,9 @@ import java.util.List;
  *         },
  *         "valueClass" : "java.lang.String"
  *       }, {
- *         "key" : 7,
- *         "serialiser" : {
- *           "class" : "uk.gov.gchq.gaffer.serialisation.IntegerSerialiser",
- *           "charset" : "ISO-8859-1"
- *         },
- *         "valueClass" : "java.lang.Integer"
- *       }, {
  *         "key" : 24,
  *         "serialiser" : {
- *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+ *           "class" : "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
  *         },
  *         "valueClass" : "java.lang.Integer"
  *       }, {

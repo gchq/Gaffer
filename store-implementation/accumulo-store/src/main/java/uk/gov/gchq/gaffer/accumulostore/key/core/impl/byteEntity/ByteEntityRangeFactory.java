@@ -26,8 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -116,17 +114,8 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
         final DirectedType directedType = operation.getDirectedType();
-        final boolean includeEdges;
-        final boolean includeEntities;
-        final boolean seedEqual = (operation instanceof SeedMatching)
-                && SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
-        if (seedEqual) {
-            includeEdges = false;
-            includeEntities = true;
-        } else {
-            includeEdges = includeEdgesParam;
-            includeEntities = operation.getView().hasEntities();
-        }
+        final boolean includeEdges = includeEdgesParam;
+        final boolean includeEntities = operation.getView().hasEntities();
 
         byte[] serialisedVertex;
         try {

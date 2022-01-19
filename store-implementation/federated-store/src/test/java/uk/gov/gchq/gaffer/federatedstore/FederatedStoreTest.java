@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -94,7 +95,6 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.values;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -291,14 +291,20 @@ public class FederatedStoreTest {
         // Given
         addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
 
-        final Set<StoreTrait> before = store.getTraits();
+        Set<StoreTrait> before = store.execute(new GetTraits.Builder()
+                .currentTraits(false)
+                .build(), userContext);
 
         // When
         addGraphWithPaths(ACC_ID_2, PROPERTIES_ALT, PATH_BASIC_ENTITY_SCHEMA_JSON);
 
-        final Set<StoreTrait> after = store.getTraits();
-        assertEquals(values().length, before.size());
-        assertEquals(values().length, after.size());
+        Set<StoreTrait> after = store.execute(new GetTraits.Builder()
+                .currentTraits(false)
+                .build(), userContext);
+
+        // Then
+        assertEquals(AccumuloStore.TRAITS.size(), before.size());
+        assertEquals(AccumuloStore.TRAITS.size(), after.size());
         assertEquals(before, after);
     }
 
@@ -370,13 +376,10 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldCombineTraitsToMin() throws Exception {
-        // Given
-        final GetTraits getTraits = new GetTraits.Builder()
+        //When
+        final Set<StoreTrait> before = store.execute(new GetTraits.Builder()
                 .currentTraits(true)
-                .build();
-
-        // When
-        final Set<StoreTrait> before = store.getTraits(getTraits, userContext);
+                .build(), userContext);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         store.execute(new AddGraph.Builder()
@@ -386,7 +389,9 @@ public class FederatedStoreTest {
                 .storeProperties(PROPERTIES_1)
                 .build(), new Context(testUser()));
 
-        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
+        final Set<StoreTrait> afterAcc = store.execute(new GetTraits.Builder()
+                .currentTraits(true)
+                .build(), userContext);
 
         final StoreProperties TestStoreImp = new StoreProperties();
         TestStoreImp.setStoreClass(FederatedGetTraitsHandlerTest.TestStoreImpl.class);
@@ -398,7 +403,9 @@ public class FederatedStoreTest {
                 .storeProperties(TestStoreImp)
                 .build(), new Context(testUser()));
 
-        final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
+        final Set<StoreTrait> afterMap = store.execute(new GetTraits.Builder()
+                .currentTraits(true)
+                .build(), userContext);
 
         // Then
         assertNotEquals(SingleUseAccumuloStore.TRAITS, new HashSet<>(Arrays.asList(

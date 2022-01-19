@@ -63,7 +63,6 @@ Here is a list of some of the common interfaces:
 and Output if your operation takes both input and output.
 - uk.gov.gchq.gaffer.operation.io.MultiInput - Use this in addition if you
 operation takes multiple inputs. This will help with JSON serialisation
-- uk.gov.gchq.gaffer.operation.SeedMatching
 - uk.gov.gchq.gaffer.operation.Validatable
 - uk.gov.gchq.gaffer.operation.graph.OperationView
 - uk.gov.gchq.gaffer.operation.graph.GraphFilters
@@ -103,7 +102,6 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
         implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
         MultiInput.Builder<GetElements, ElementId, Builder>,
         SeededGraphFilters.Builder<GetElements, Builder>,
-        SeedMatching.Builder<GetElements, Builder>,
         Options.Builder<GetElements, Builder> {
     public Builder() {
             super(new GetElements());
@@ -117,7 +115,7 @@ For use with a `ScoreOperationChain`, some `Operation`s may require a custom
 way of calculating an associated score, therefore an implementation of
 the `ScoreResolver` interface may be required. There is a `DefaultScoreResolver`
 to which the custom implementation should delegate, in a manner specific to the
-new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/components/core/store.html#scoreoperationchain) and [ScoreOperationChainExample](https://gchq.github.io/gaffer-doc/getting-started/operations/scoreoperationchain.html).
+new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/v1docs/components/core/store.html#scoreoperationchain) and [ScoreOperationChainExample](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/scoreoperationchain.html).
 
 #### Documentation
 
@@ -131,7 +129,7 @@ and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
 Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
 it is good practice to add it into the
 Python-Shell of [Gaffer-tools](https://github.com/gchq/gaffer-tools).
-For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/components/tool/python-shell.html).
+For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/v1docs/components/tool/python-shell.html).
 
 ## Lazy Results
 Operation results are lazy (where possible) so that results are lazily
@@ -195,7 +193,7 @@ You need to provide a View to override the groupBy fields for all the element gr
 #### My queries are returning duplicate results - why and how can I deduplicate them?
 For example, if you have a Graph containing the Edge A-B and you do a GetElements with a large number of seeds, with the first seed A and the last seed B, then you will get the Edge A-B back twice. This is because Gaffer stores lazily return the results for your query to avoid loading all the results into memory so it will not realise the A-B has been queried for twice.
 
-You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operations/toset.html) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
+You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/toset.html) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
 
 e.g: 
 
@@ -345,17 +343,17 @@ above for general query optimisation.
 
 
 #### How can I optimise my AddElementsFromHdfs?
-Try using the SampleDataForSplitPoints and SplitStore operations to calculate 
+Try using the SampleDataForSplitPoints and SplitStoreFromFile operations to calculate 
 splits points. These can then be used to partition your data in the map reduce job
 used to import the data. If adding elements into an empty Accumulo table or a table 
-without any splits then the SampleDataForSplitPoints and SplitStore operations will
+without any splits then the SampleDataForSplitPoints and SplitStoreFromFile operations will
 be executed automatically for you. You can also optionally provide your own splits 
 points for your AddElementsFromHdfs operation.
 
 
 #### I want to filter the results of my query based on the destination of the result Edges
 OK, there are several ways of doing this and you will need to chose the most appropriate
-way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operations/getelements.html).
+way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/getelements.html).
 
 If you are querying with just a single EntitySeed with a vertex value of X and require
 the destination to be Y then you should change your query to use an EdgeSeed 
@@ -366,7 +364,7 @@ EdgeSeed as described above.
  
 If you require your destination to match a provided regex than you will need to use
 the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
-See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicates/contents.html).
+See the [Predicate examples](https://gchq.github.io/gaffer-doc/v1docs/getting-started/predicates/contents.html).
 The predicate can then be used in you Operation View to filter out elements that
 don't match the regex.
 
@@ -420,4 +418,4 @@ GetElements results = new GetElements.Builder()
     .build();
 ```
 
-For more information on filtering see: [Filtering](https://gchq.github.io/gaffer-doc/getting-started/user-guide/filtering.html).
+For more information on filtering see: [Filtering](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/filtering.html).

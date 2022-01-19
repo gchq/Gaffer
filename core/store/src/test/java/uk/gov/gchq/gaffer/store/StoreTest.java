@@ -110,6 +110,7 @@ import uk.gov.gchq.gaffer.store.Store.ScheduledJobRunnable;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -551,6 +552,7 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 GetTraits.class,
+                HasTrait.class,
                 While.class,
                 Join.class,
                 ToSingletonList.class,
@@ -657,6 +659,7 @@ public class StoreTest {
                 DiscardOutput.class,
                 GetSchema.class,
                 GetTraits.class,
+                HasTrait.class,
                 Map.class,
                 If.class,
                 While.class,

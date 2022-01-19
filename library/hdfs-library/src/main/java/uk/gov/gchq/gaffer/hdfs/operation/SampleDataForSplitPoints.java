@@ -34,7 +34,7 @@ import java.util.Map;
 
 
 /**
- * The {@code SampleDataForSplitPoints} operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
+ * The {@code SampleDataForSplitPoints} operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile} operation or an
  * {@link uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs} operation.
  * This operation requires an input and output path as well as a path to a file to use as the resultingSplitsFile.
  * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
@@ -90,10 +90,6 @@ public class SampleDataForSplitPoints implements
         ));
 
         return result;
-    }
-
-    public SampleDataForSplitPoints() {
-        setNumReduceTasks(1);
     }
 
     public boolean isValidate() {
@@ -188,18 +184,6 @@ public class SampleDataForSplitPoints implements
     @Override
     public void setMaxMapTasks(final Integer maxMapTasks) {
         this.maxMapTasks = maxMapTasks;
-    }
-
-    @Override
-    public Integer getNumReduceTasks() {
-        return 1;
-    }
-
-    @Override
-    public void setNumReduceTasks(final Integer numReduceTasks) {
-        if (null != numReduceTasks && 1 != numReduceTasks) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
-        }
     }
 
     @Override

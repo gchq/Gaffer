@@ -41,12 +41,14 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -68,7 +70,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementId Seeds
@@ -133,7 +134,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 for (final DirectedType directedType : directedTypes) {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
-                            shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
+                            shouldGetElementsBySeed(includeEntities, false, directedType, inOutType);
                         } catch (final Throwable e) {
                             throw new AssertionError(
                                     "GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
@@ -521,9 +522,7 @@ public class GetElementsIT extends AbstractStoreIT {
         } else {
             seeds = new ArrayList<>();
         }
-
-        shouldGetElements(expectedElements, SeedMatchingType.EQUAL, directedType, includeEntities, includeEdges,
-                inOutType, seeds);
+        shouldGetElements(expectedElements, true, directedType, includeEntities, includeEdges, inOutType, seeds);
     }
 
     private void shouldGetRelatedElements(final boolean includeEntities,
@@ -571,46 +570,86 @@ public class GetElementsIT extends AbstractStoreIT {
         if (DirectedType.UNDIRECTED == directedType) {
             expectedElements.removeIf(e -> e instanceof Edge && ((Edge) e).isDirected());
         }
-        shouldGetElements(expectedElements, SeedMatchingType.RELATED, directedType, includeEntities, includeEdges,
-                inOutType, ALL_SEEDS);
+        shouldGetElements(expectedElements, false, directedType, includeEntities, includeEdges, inOutType, ALL_SEEDS);
     }
 
     private void shouldGetElements(final Collection<Element> expectedElements,
-            final SeedMatchingType seedMatching,
-            final DirectedType directedType,
-            final boolean includeEntities,
-            final boolean includeEdges,
-            final IncludeIncomingOutgoingType inOutType,
-            final Iterable<ElementId> seeds) throws IOException, OperationException {
+                                   final boolean createChain,
+                                   final DirectedType directedType,
+                                   final boolean includeEntities,
+                                   final boolean includeEdges,
+                                   final IncludeIncomingOutgoingType inOutType,
+                                   final Iterable<ElementId> seeds) throws IOException, OperationException {
         // Given
         final User user = new User();
 
-        final View.Builder viewBuilder = new View.Builder();
-        if (includeEntities) {
-            viewBuilder.entity(TestGroups.ENTITY);
-        }
-        if (includeEdges) {
-            viewBuilder.edge(TestGroups.EDGE);
-        }
-
-        final GetElements opSeed = new GetElements.Builder()
-                .input(seeds)
-                .directedType(directedType)
-                .inOutType(inOutType)
-                .view(viewBuilder.build())
-                .seedMatching(seedMatching)
-                .build();
+        Output<Iterable<? extends Element>> opSeed;
+        Output<Iterable<? extends Element>> opElement;
 
         final Collection<ElementId> seedCollection = StreamSupport.stream(seeds.spliterator(), false)
                 .collect(Collectors.toList());
 
-        final GetElements opElement = new GetElements.Builder()
-                .input(getElements(seedCollection, null))
-                .directedType(directedType)
-                .inOutType(inOutType)
-                .view(viewBuilder.build())
-                .seedMatching(seedMatching)
-                .build();
+        if (createChain && includeEntities && includeEdges) {
+            opSeed = new OperationChain.Builder()
+                    .first(new GetElements.Builder()
+                            .input(seeds)
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .entity(TestGroups.ENTITY)
+                                    .build())
+                            .build())
+                    .then(new GetElements.Builder()
+                            .input(seeds)
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .edge(TestGroups.EDGE)
+                                    .build())
+                            .build())
+                    .build();
+
+            opElement = new OperationChain.Builder()
+                    .first(new GetElements.Builder()
+                            .input(getElements(seedCollection, null))
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .entity(TestGroups.ENTITY)
+                                    .build())
+                            .build())
+                    .then(new GetElements.Builder()
+                            .input(getElements(seedCollection, null))
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .edge(TestGroups.EDGE)
+                                    .build())
+                            .build())
+                    .build();
+        } else {
+            final View.Builder viewBuilder = new View.Builder();
+            if (includeEntities) {
+                viewBuilder.entity(TestGroups.ENTITY);
+            }
+            if (includeEdges) {
+                viewBuilder.edge(TestGroups.EDGE);
+            }
+
+            opSeed = new GetElements.Builder()
+                    .input(seeds)
+                    .directedType(directedType)
+                    .inOutType(inOutType)
+                    .view(viewBuilder.build())
+                    .build();
+
+            opElement = new GetElements.Builder()
+                    .input(getElements(seedCollection, null))
+                    .directedType(directedType)
+                    .inOutType(inOutType)
+                    .view(viewBuilder.build())
+                    .build();
+        }
 
         // When
         final Iterable<? extends Element> resultsSeed = graph.execute(opSeed, user);

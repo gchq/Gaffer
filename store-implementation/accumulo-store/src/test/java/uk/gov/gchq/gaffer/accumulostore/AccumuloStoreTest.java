@@ -30,12 +30,12 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHa
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -48,12 +48,12 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -84,7 +84,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -136,22 +135,21 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldCreateAStoreUsingTableName() throws Exception {
+    public void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
         final AccumuloStore store = new MiniAccumuloStore();
 
         // When
-        store.initialise(null, SCHEMA, properties);
+        store.initialise("graphId", SCHEMA, properties);
 
         // Then
-        assertEquals("tableName", store.getTableName());
-        assertEquals("tableName", store.getGraphId());
+        assertEquals("graphId", store.getTableName());
+        assertEquals("graphId", store.getGraphId());
     }
 
     @Test
-    public void shouldCreateAStoreUsingTableNameWithNamespace() throws Exception {
+    public void shouldCreateAStoreUsingGraphIdWithNamespace() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         properties.setNamespace("namespaceName");
@@ -164,63 +162,6 @@ public class AccumuloStoreTest {
         // Then
         assertEquals("namespaceName.graphId", store.getTableName());
         assertEquals("graphId", store.getGraphId());
-    }
-
-    @Test
-    public void shouldBuildGraphAndGetGraphIdFromTableName() {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-
-        // When
-        final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .storeProperties(properties)
-                .build();
-
-        // Then
-        assertEquals("tableName", graph.getGraphId());
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise("tableName", SCHEMA, properties);
-
-        // Then
-        assertEquals("tableName", store.getTableName());
-    }
-
-    @Test
-    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new AccumuloStore();
-
-        // When
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> store.initialise("graphId", SCHEMA, properties))
-                .withMessage("The table in store.properties should no longer be used. Please use a graphId instead " +
-                        "or for now just set the graphId to be the same value as the store.properties table.");
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingGraphId() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise("graphId", SCHEMA, properties);
-
-        // Then
-        assertEquals("graphId", store.getTableName());
     }
 
     @Test
@@ -372,8 +313,8 @@ public class AccumuloStoreTest {
         assertTrue(op instanceof GetElementsInRangesHandler);
         op = store.getOperationHandler(GetElementsWithinSet.class);
         assertTrue(op instanceof GetElementsWithinSetHandler);
-        op = store.getOperationHandler(SplitStore.class);
-        assertTrue(op instanceof SplitStoreHandler);
+        op = store.getOperationHandler(SplitStoreFromFile.class);
+        assertTrue(op instanceof HdfsSplitStoreFromFileHandler);
         op = store.getOperationHandler(SampleDataForSplitPoints.class);
         assertTrue(op instanceof SampleDataForSplitPointsHandler);
         op = store.getOperationHandler(ImportAccumuloKeyValueFiles.class);
@@ -493,7 +434,7 @@ public class AccumuloStoreTest {
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build();
 
         // When
@@ -529,7 +470,7 @@ public class AccumuloStoreTest {
                 .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+
                 .build();
 
         // When
@@ -561,7 +502,7 @@ public class AccumuloStoreTest {
                         .clazz(Long.class)
                         .aggregateFunction(new Min())
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build();
 
         // When / Then
