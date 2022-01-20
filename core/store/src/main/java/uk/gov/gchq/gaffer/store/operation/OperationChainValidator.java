@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -59,11 +58,7 @@ public class OperationChainValidator {
         } else {
             Class<? extends Output> output = null;
             for (final Operation op : operationChain.getOperations()) {
-                try {
-                    output = validate(op, user, store, validationResult, output);
-                } catch (final GafferRuntimeException e) {
-                    throw new GafferRuntimeException("Error validating OperationChain.", e);
-                }
+                output = validate(op, user, store, validationResult, output);
             }
         }
 

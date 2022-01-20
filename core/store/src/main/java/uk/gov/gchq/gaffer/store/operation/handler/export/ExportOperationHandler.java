@@ -37,11 +37,7 @@ public abstract class ExportOperationHandler<EXPORT extends Export & Operation, 
             throws OperationException {
         EXPORTER exporter = context.getExporter(getExporterClass());
         if (null == exporter) {
-            try {
-                exporter = createExporter(export, context, store);
-            } catch (final Exception e) {
-                throw new OperationException("Unable to create exporter: " + getExporterClass());
-            }
+            exporter = createExporter(export, context, store);
             if (null == exporter) {
                 throw new OperationException("Unable to create exporter: " + getExporterClass());
             }
