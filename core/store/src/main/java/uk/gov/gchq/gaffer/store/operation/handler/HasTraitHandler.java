@@ -23,7 +23,10 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
 
+import java.util.HashMap;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 
 public class HasTraitHandler implements OutputOperationHandler<HasTrait, Boolean> {
@@ -32,7 +35,8 @@ public class HasTraitHandler implements OutputOperationHandler<HasTrait, Boolean
     public Boolean doOperation(final HasTrait operation, final Context context, final Store store) throws OperationException {
         final Set<StoreTrait> traits = store.execute(new GetTraits.Builder()
                 .currentTraits(operation.isCurrentTraits())
-                .options(operation.getOptions())
+                //deep copy options
+                .options(isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions()))
                 .build(), context
         );
         if (null == traits) {

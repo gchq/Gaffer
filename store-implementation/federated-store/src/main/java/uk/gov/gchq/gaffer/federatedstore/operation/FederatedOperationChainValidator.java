@@ -88,7 +88,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
                     isDynamic = graph.execute(new HasTrait.Builder()
                             .trait(StoreTrait.DYNAMIC_SCHEMA)
                             .currentTraits(false)
-                            .build(), new Context());
+                            .build(), user);
                 } catch (final OperationException e) {
                     throw new GafferRuntimeException("Error performing HasTrait Operation while validating Views in OperationChain.", e);
                 }
