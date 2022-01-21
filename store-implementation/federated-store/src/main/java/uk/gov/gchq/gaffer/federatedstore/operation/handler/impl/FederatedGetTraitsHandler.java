@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -66,8 +65,9 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
                 long graphIdsSize = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation).stream().count();
                 rtn.values().removeIf(v -> v < graphIdsSize);
             } else {
-                rtn = Collections.EMPTY_MAP;
+                rtn = new HashMap();
             }
+            rtn.put(StoreTrait.DYNAMIC_SCHEMA, 1);
 
             return rtn.keySet();
         } catch (final Exception e) {
