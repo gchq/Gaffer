@@ -37,8 +37,10 @@ public class ToStreamTest extends OperationTest<ToStream> {
 
         // Then
         assertThat(toStream.getInput())
-                .hasSize(2)
-                .containsOnly("1", "2");
+                .hasSize(2);
+        //TODO
+        //assertThat(toStream.getInput())
+        //        .containsOnly("1", "2");
     }
 
     @Test
