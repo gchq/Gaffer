@@ -78,6 +78,7 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             if (graphIdValid) {
                 currentResult = new ValidationResult();
                 clonedOp.addOption(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, graphId);
+                // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
                 if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
                     super.validateViews(clonedOp, user, store, currentResult);
                 }

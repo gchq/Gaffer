@@ -450,6 +450,7 @@ public final class Graph {
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
      *         has.
      */
+    @Deprecated
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
     }
