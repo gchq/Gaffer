@@ -72,10 +72,8 @@ public class FederatedGraphStorageTraitsTest {
             StoreTrait.POST_AGGREGATION_FILTERING,
             StoreTrait.MATCHED_VERTEX);
     private static final Set MAP_TRAITS_EXCLUSIVE_OF_ACCUMULO = Collections.emptySet();
-    private static final FederatedAccess ACCESS_UNUSED_AUTH_AND_USER = new FederatedAccess(
-            Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING);
-    private static final FederatedAccess ACCESS_UNUSED_AUTH_WITH_TEST_USER = new FederatedAccess(
-            Sets.newHashSet(UNUSED_AUTH_STRING), TEST_USER_ID);
+    private static final FederatedAccess ACCESS_UNUSED_AUTH_AND_USER = new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), UNUSED_AUTH_STRING);
+    private static final FederatedAccess ACCESS_UNUSED_AUTH_WITH_TEST_USER = new FederatedAccess(Sets.newHashSet(UNUSED_AUTH_STRING), TEST_USER_ID);
     private static final Set<StoreTrait> MAP_TRAITS = ImmutableSet.of(
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.MATCHED_VERTEX,
@@ -119,14 +117,11 @@ public class FederatedGraphStorageTraitsTest {
 
     private static Class currentClass = new Object() {
     }.getClass().getEnclosingClass();
-    private static final StoreProperties ACCUMULO_PROPERTIES = StoreProperties
-            .loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
-    private static final StoreProperties MAP_PROPERTIES = StoreProperties
-            .loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseMapStore.properties"));
+    private static final StoreProperties ACCUMULO_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final StoreProperties MAP_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseMapStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
-        CacheServiceLoader.shutdown();
         graphStorage = new FederatedGraphStorage();
 
         clearCache();
@@ -179,35 +174,30 @@ public class FederatedGraphStorageTraitsTest {
         assertEquals(0, graphStorage.get(testUser, null).size(), "no graphs should have been found for testUser");
         assertEquals(0, graphStorage.get(authUser, null).size(), "no graphs should have been found for authUser");
         assertEquals(0, graphStorage.get(blankUser, null).size(), "no graphs should have been found for blankUser");
-        CacheServiceLoader.shutdown();
     }
 
     @Test
     public void shouldVerifyAssumptionsStoreTraitsNonCurrent() throws Exception {
-        // given
-        final Set<StoreTrait> mapTraits = map.getGraph().getStoreTraits();
-        final Set<StoreTrait> accTraits = acc.getGraph().getStoreTraits();
+        //given
+        Set<StoreTrait> mapTraits = map.getGraph().getStoreTraits();
+        Set<StoreTrait> accTraits = acc.getGraph().getStoreTraits();
         getTraits.setCurrentTraits(false);
-        final Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
-        final Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
 
-        // when
-        final Set<StoreTrait> mapTraitsExclusive = mapTraits.stream().filter(t -> !accTraits.contains(t))
-                .collect(Collectors.toSet());
-        final Set<StoreTrait> accTraitsExclusive = accTraits.stream().filter(t -> !mapTraits.contains(t))
-                .collect(Collectors.toSet());
-        final Set<StoreTrait> intersectionTraits = accTraits.stream().filter(mapTraits::contains).collect(Collectors.toSet());
+        //when
+        Set<StoreTrait> mapTraitsExclusive = mapTraits.stream().filter(t -> !accTraits.contains(t)).collect(Collectors.toSet());
+        Set<StoreTrait> accTraitsExclusive = accTraits.stream().filter(t -> !mapTraits.contains(t)).collect(Collectors.toSet());
+        Set<StoreTrait> intersectionTraits = accTraits.stream().filter(mapTraits::contains).collect(Collectors.toSet());
 
-        // then
+        //then
         assertEquals(ACCUMULO_TRAITS, accTraits, "This store does not have AccumuloStore Traits");
         assertEquals(MAP_TRAITS, mapTraits, "This store does not have MapStore Traits");
         assertNotEquals(accTraits, mapTraits, "Test stores cannot have same traits");
         assertEquals(10, accTraits.size(), "Expected AccumuloStore trait size is different");
         assertEquals(8, mapTraits.size(), "Expected MapStore trait size is different");
-        assertEquals(MAP_TRAITS_EXCLUSIVE_OF_ACCUMULO, mapTraitsExclusive,
-                "Expected traits exclusive to MapStore is different");
-        assertEquals(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP, accTraitsExclusive,
-                "Expected traits exclusive to AccumuloStore is different");
+        assertEquals(MAP_TRAITS_EXCLUSIVE_OF_ACCUMULO, mapTraitsExclusive, "Expected traits exclusive to MapStore is different");
+        assertEquals(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP, accTraitsExclusive, "Expected traits exclusive to AccumuloStore is different");
         assertEquals(INTERSECTION_TRAITS, intersectionTraits, "Expected intersection of traits is different");
         assertEquals(mapTraits, mapTraitsOperation);
         assertEquals(accTraits, accTraitsOperation);
@@ -215,43 +205,28 @@ public class FederatedGraphStorageTraitsTest {
 
     @Test
     public void shouldVerifyAssumptionsStoreTraitsCurrent() throws Exception {
-        // given
+        //given
         getTraits.setCurrentTraits(true);
-        final Set<StoreTrait> mapTraitsIsCurrent = map.getGraph().execute(getTraits, testUser);
-        final Set<StoreTrait> accTraitsIsCurrent = acc.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> mapTraitsIsCurrent = map.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> accTraitsIsCurrent = acc.getGraph().execute(getTraits, testUser);
 
-        // when
-        final Set<StoreTrait> mapTraitsIsCurrentExclusive = mapTraitsIsCurrent.stream()
-                .filter(t -> !accTraitsIsCurrent.contains(t)).collect(Collectors.toSet());
-        final Set<StoreTrait> accTraitsIsCurrentExclusive = accTraitsIsCurrent.stream()
-                .filter(t -> !mapTraitsIsCurrent.contains(t)).collect(Collectors.toSet());
-        final Set<StoreTrait> intersectionTraitsIsCurrent = accTraitsIsCurrent.stream().filter(mapTraitsIsCurrent::contains)
-                .collect(Collectors.toSet());
-        final Set<StoreTrait> mapTraitsIsCurrentIsSubSetOfStoreTraits = mapTraitsIsCurrent.stream()
-                .filter(t -> !MAP_TRAITS.contains(t)).collect(Collectors.toSet());
-        final Set<StoreTrait> accTraitsIsCurrentIsSubSetOfStoreTraits = accTraitsIsCurrent.stream()
-                .filter(t -> !ACCUMULO_TRAITS.contains(t)).collect(Collectors.toSet());
+        //when
+        Set<StoreTrait> mapTraitsIsCurrentExclusive = mapTraitsIsCurrent.stream().filter(t -> !accTraitsIsCurrent.contains(t)).collect(Collectors.toSet());
+        Set<StoreTrait> accTraitsIsCurrentExclusive = accTraitsIsCurrent.stream().filter(t -> !mapTraitsIsCurrent.contains(t)).collect(Collectors.toSet());
+        Set<StoreTrait> intersectionTraitsIsCurrent = accTraitsIsCurrent.stream().filter(mapTraitsIsCurrent::contains).collect(Collectors.toSet());
+        Set<StoreTrait> mapTraitsIsCurrentIsSubSetOfStoreTraits = mapTraitsIsCurrent.stream().filter(t -> !MAP_TRAITS.contains(t)).collect(Collectors.toSet());
+        Set<StoreTrait> accTraitsIsCurrentIsSubSetOfStoreTraits = accTraitsIsCurrent.stream().filter(t -> !ACCUMULO_TRAITS.contains(t)).collect(Collectors.toSet());
 
-        // then
+        //then
         assertNotEquals(ACCUMULO_TRAITS, accTraitsIsCurrent);
         assertNotEquals(MAP_TRAITS, mapTraitsIsCurrent);
-        assertEquals(ACC_CURRENT_TRAITS, accTraitsIsCurrent,
-                "Expected traits for the AccumuloStore 'Current schema' is different");
-        assertEquals(MAP_CURRENT_TRAITS, mapTraitsIsCurrent,
-                "Expected traits for the MapStore 'Current schema' is different");
-        assertEquals(Collections.emptySet(), mapTraitsIsCurrentExclusive,
-                "Expected traits exclusive to MapStore is different");
-        assertEquals(Sets.newHashSet(StoreTrait.ORDERED), accTraitsIsCurrentExclusive,
-                "Expected traits exclusive to AccumuloStore is different");
-        assertEquals(
-                Sets.newHashSet(StoreTrait.INGEST_AGGREGATION, StoreTrait.MATCHED_VERTEX,
-                        StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.TRANSFORMATION,
-                        StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.POST_TRANSFORMATION_FILTERING),
-                intersectionTraitsIsCurrent, "Expected  intersection traits is different");
-        assertEquals(Collections.emptySet(), mapTraitsIsCurrentIsSubSetOfStoreTraits,
-                "The IsCurrent traits is not a subset of MapStore traits");
-        assertEquals(Collections.emptySet(), accTraitsIsCurrentIsSubSetOfStoreTraits,
-                "The IsCurrent traits is not a subset of AccumuloStore traits");
+        assertEquals(ACC_CURRENT_TRAITS, accTraitsIsCurrent, "Expected traits for the AccumuloStore 'Current schema' is different");
+        assertEquals(MAP_CURRENT_TRAITS, mapTraitsIsCurrent, "Expected traits for the MapStore 'Current schema' is different");
+        assertEquals(Collections.emptySet(), mapTraitsIsCurrentExclusive, "Expected traits exclusive to MapStore is different");
+        assertEquals(Sets.newHashSet(StoreTrait.ORDERED), accTraitsIsCurrentExclusive, "Expected traits exclusive to AccumuloStore is different");
+        assertEquals(Sets.newHashSet(StoreTrait.INGEST_AGGREGATION, StoreTrait.MATCHED_VERTEX, StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.TRANSFORMATION, StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.POST_TRANSFORMATION_FILTERING), intersectionTraitsIsCurrent, "Expected  intersection traits is different");
+        assertEquals(Collections.emptySet(), mapTraitsIsCurrentIsSubSetOfStoreTraits, "The IsCurrent traits is not a subset of MapStore traits");
+        assertEquals(Collections.emptySet(), accTraitsIsCurrentIsSubSetOfStoreTraits, "The IsCurrent traits is not a subset of AccumuloStore traits");
     }
 
     @Test
@@ -264,9 +239,7 @@ public class FederatedGraphStorageTraitsTest {
         final Set<StoreTrait> traits = fedStore.execute(getTraits, testUserContext);
         //then
         assertNotEquals(ACCUMULO_TRAITS, traits, "Returning AccumuloStore traits instead of MapStore");
-        assertEquals(Collections.emptySet(),
-                traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()),
-                "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
+        assertEquals(Collections.emptySet(), traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()), "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
         assertEquals(MAP_TRAITS, traits);
     }
 
@@ -280,15 +253,13 @@ public class FederatedGraphStorageTraitsTest {
         final Set<StoreTrait> traits = fedStore.execute(getTraits, testUserContext);
         //then
         assertNotEquals(ACCUMULO_TRAITS, traits, "Returning AccumuloStore traits instead of MapStore");
-        assertEquals(Collections.emptySet(),
-                traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()),
-                "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
+        assertEquals(Collections.emptySet(), traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()), "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
         assertEquals(MAP_CURRENT_TRAITS, traits);
     }
 
     @Test
     public void shouldGetCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
-        // given
+        //given
         final GraphSerialisable acc2 = new GraphSerialisable.Builder()
                 .graph(acc.getGraph())
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
@@ -302,15 +273,13 @@ public class FederatedGraphStorageTraitsTest {
         final Set<StoreTrait> traits = fedStore.execute(getTraits, testUserContext);
         //then
         assertNotEquals(ACCUMULO_TRAITS, traits, "Returning AccumuloStore traits instead of MapStore");
-        assertEquals(Collections.emptySet(),
-                traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()),
-                "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
+        assertEquals(Collections.emptySet(), traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()), "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
         assertEquals(MAP_CURRENT_TRAITS, traits);
     }
 
     @Test
     public void shouldGetNonCurrentTraitsForAddingUserButSelectedGraphsOnly() throws Exception {
-        // given
+        //given
         final GraphSerialisable acc2 = new GraphSerialisable.Builder()
                 .graph(acc.getGraph())
                 .config(new GraphConfig(GRAPH_ID_ACCUMULO + 2))
@@ -325,9 +294,7 @@ public class FederatedGraphStorageTraitsTest {
         final Set<StoreTrait> traits = fedStore.execute(getTraits, testUserContext);
         //then
         assertNotEquals(ACCUMULO_TRAITS, traits, "Returning AccumuloStore traits instead of MapStore");
-        assertEquals(Collections.emptySet(),
-                traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()),
-                "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
+        assertEquals(Collections.emptySet(), traits.stream().filter(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP::contains).collect(Collectors.toSet()), "Revealing some hidden traits from the AccumuloStore instead of only MapStore");
         assertEquals(MAP_TRAITS, traits);
     }
 
@@ -382,6 +349,7 @@ public class FederatedGraphStorageTraitsTest {
         //then
         assertEquals(Collections.emptySet(), traits, "Revealing hidden traits");
     }
+
 
     /**
      * Note:
