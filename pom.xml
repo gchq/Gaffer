@@ -45,34 +45,31 @@
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
-        <java.version>1.8</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <scala.version>2.11</scala.version>
-        <scala.minor.version>2.11.12</scala.minor.version>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <scala.version>2.12</scala.version>
+        <scala.minor.version>2.12.15</scala.minor.version>
 
         <!-- Dependency version properties -->
-        <junit5.version>5.6.0</junit5.version>
-        <junit.platform.suite.version>1.6.2</junit.platform.suite.version>
-        <mockito.version>3.3.3</mockito.version>
+        <junit5.version>5.6.3</junit5.version>
+        <!-- <junit.platform.suite.version>1.6.2</junit.platform.suite.version>  -->
+        <mockito.version>3.4.6</mockito.version>
         <failsafe.version>3.0.0-M5</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
 
-        <koryphe.version>1.14.0</koryphe.version>
+        <koryphe.version>1.14.1-SNAPSHOT</koryphe.version>
         <accumulo.version>1.9.3</accumulo.version>
-        <avro.version>1.7.7</avro.version>
-        <hadoop.version>2.6.5</hadoop.version>
-        <jackson.compile.version>2.6.5</jackson.compile.version>
-        <jackson.max.version>2.9.6</jackson.max.version>
-        <jackson.min.version>2.3.1</jackson.min.version>
-        <jackson.version>${jackson.compile.version}</jackson.version>
+        <avro.version>1.9.2</avro.version>
+        <hadoop.version>3.3.1</hadoop.version>
+        <jackson.version>2.11.4</jackson.version>
 
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>0.12.0</datasketches.version>
         <commons-codec.version>1.6</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.7</commons-io.version>
-        <commons-lang3.version>3.3.2</commons-lang3.version>
+        <commons-lang3.version>3.8.1</commons-lang3.version>
         <commons-logging.version>1.1.3</commons-logging.version>
         <commons-math.version>2.1</commons-math.version>
         <commons-math3.version>3.4.1</commons-math3.version>
@@ -83,12 +80,13 @@
         <httpcomponents.version>4.4</httpcomponents.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
+        <javax-annotation.version>1.3.2</javax-annotation.version>
         <jcs.version>2.1</jcs.version>
         <jersey.version>2.25</jersey.version>
         <json4s.version>3.2.11</json4s.version>
         <log4j.version>1.2.17</log4j.version>
-        <paranamer.version>2.6</paranamer.version>
-        <reflections.version>0.9.10</reflections.version>
+        <paranamer.version>2.8</paranamer.version>
+        <reflections.version>0.9.12</reflections.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <snappy.version>1.1.2.4</snappy.version>
         <swagger.version>1.5.15</swagger.version>
@@ -97,19 +95,19 @@
 
         <!-- Maven plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
-        <compiler.plugin.verson>2.3.2</compiler.plugin.verson>
-        <dependency.plugin.version>2.10</dependency.plugin.version>
-        <findbugs.plugin.version>3.0.5</findbugs.plugin.version>
+        <compiler.plugin.verson>3.8.1</compiler.plugin.verson>
+        <dependency.plugin.version>3.2.0</dependency.plugin.version>
+        <spotbugs.plugin.version>3.1.12.2</spotbugs.plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <gpg.plugin.version>1.6</gpg.plugin.version>
-        <jacoco.plugin.version>0.7.7.201606060606</jacoco.plugin.version>
-        <jar.plugin.version>2.4</jar.plugin.version>
-        <javadoc.plugin.version>2.10.3</javadoc.plugin.version>
+        <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
+        <jar.plugin.version>3.2.2</jar.plugin.version>
+        <javadoc.plugin.version>3.3.1</javadoc.plugin.version>
         <nexus.plugin.version>1.6.7</nexus.plugin.version>
-        <release.plugin.version>2.5.3</release.plugin.version>
+        <release.plugin.version>3.0.0-M5</release.plugin.version>
         <scala.plugin.version>3.3.1</scala.plugin.version>
         <scm.plugin.version>1.1</scm.plugin.version>
-        <shade.plugin.version>2.4.1</shade.plugin.version>
+        <shade.plugin.version>3.2.4</shade.plugin.version>
         <source.plugin.version>2.4</source.plugin.version>
         <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
         <tomcat-maven-plugin.version>2.2</tomcat-maven-plugin.version>
@@ -230,6 +228,11 @@
                 <groupId>javax.activation</groupId>
                 <artifactId>activation</artifactId>
                 <version>${javax-activation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax-annotation.version}</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
@@ -525,7 +528,6 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-mapred</artifactId>
                 <version>${avro.version}</version>
-                <classifier>hadoop2</classifier>
                 <!-- exclude server-side parts that conflict with running in a webapp -->
                 <exclusions>
                     <exclusion>
@@ -674,7 +676,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.20.2</version>
+            <version>3.22.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -837,9 +839,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.plugin.version}</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
                 <configuration>
                     <effort>Low</effort>
                     <threshold>Low</threshold>
@@ -989,8 +991,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1032,8 +1034,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1065,8 +1067,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1098,8 +1100,8 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>analyze-compile</id>
@@ -1123,9 +1125,9 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>${findbugs.plugin.version}</version>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>${spotbugs.plugin.version}</version>
                         <configuration>
                             <fork>false</fork>
                         </configuration>
@@ -1284,9 +1286,9 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>${findbugs.plugin.version}</version>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>${spotbugs.plugin.version}</version>
                         <configuration>
                             <fork>false</fork>
                         </configuration>
@@ -1355,24 +1357,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>serialisation-compatibility</id>
-            <properties>
-                <jackson.version>${jackson.min.version}</jackson.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>serialisation-compatibility-min-version</id>
-            <properties>
-                <jackson.version>${jackson.min.version}</jackson.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>serialisation-compatibility-max-version</id>
-            <properties>
-                <jackson.version>${jackson.max.version}</jackson.version>
-            </properties>
         </profile>
     </profiles>
 </project>
