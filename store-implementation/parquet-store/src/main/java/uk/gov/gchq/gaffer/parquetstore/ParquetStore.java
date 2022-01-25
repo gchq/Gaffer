@@ -71,6 +71,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -402,6 +404,11 @@ public class ParquetStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
+    }
+
+    @Override
+    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+        return new GetTraitsHandler(TRAITS);
     }
 
     @Override

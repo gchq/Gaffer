@@ -75,6 +75,8 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -2711,6 +2713,11 @@ public class GraphTest {
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+            return new GetTraitsHandler(new HashSet<>(0));
         }
 
         @Override

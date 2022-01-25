@@ -116,6 +116,7 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
@@ -1151,6 +1152,11 @@ public class StoreTest {
         }
 
         @Override
+        protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             doUnhandledOperationCalls.add(operation);
             return null;
@@ -1243,6 +1249,11 @@ public class StoreTest {
         @Override
         protected OperationHandler<AddElements> getAddElementsHandler() {
             return addElementsHandler;
+        }
+
+        @Override
+        protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+            return new GetTraitsHandler(getTraits());
         }
 
         @Override

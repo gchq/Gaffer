@@ -79,6 +79,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -481,6 +482,11 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+        return (OperationHandler) new FederatedOperationHandler();
+    }
+
+    @Override
+    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
         return (OperationHandler) new FederatedOperationHandler();
     }
 
