@@ -21,7 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import com.google.common.collect.Lists;
+
 import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,10 +45,11 @@ public class LimitTest extends OperationTest<Limit> {
         final Limit<String> limit = new Limit.Builder<String>().input("1", "2").resultLimit(1).build();
 
         // Then
-        assertThat(limit.getInput())
+        final List<String> input = Lists.newArrayList(limit.getInput());
+        assertThat(input)
                 .hasSize(2);
         assertThat(limit.getResultLimit()).isEqualTo(1);
-        assertThat(limit.getInput()).containsOnly("1", "2");
+        assertThat(input).containsOnly("1", "2");
     }
 
     @Test
