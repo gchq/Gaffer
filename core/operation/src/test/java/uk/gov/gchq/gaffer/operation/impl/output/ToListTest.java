@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.google.common.collect.Lists;
+
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import com.google.common.collect.Lists;
 
 import java.util.List;
 
