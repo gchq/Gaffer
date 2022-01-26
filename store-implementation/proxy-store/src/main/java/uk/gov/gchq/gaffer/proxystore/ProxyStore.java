@@ -326,7 +326,7 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         try {
             return new GetTraitsHandler(fetchTraits());
         } catch (final StoreException e) {

@@ -486,8 +486,8 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
-        return (OperationHandler) new FederatedOperationHandler();
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new FederatedGetTraitsHandler();
     }
 
     @Override

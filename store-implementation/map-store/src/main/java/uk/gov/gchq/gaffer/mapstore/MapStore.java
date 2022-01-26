@@ -132,7 +132,6 @@ public class MapStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(CountAllElementsDefaultView.class, new CountAllElementsDefaultViewHandler());
         addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-        addOperationHandler(GetTraits.class, new GetTraitsHandler(TRAITS));
     }
 
     @Override
@@ -156,7 +155,7 @@ public class MapStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new GetTraitsHandler(TRAITS);
     }
 

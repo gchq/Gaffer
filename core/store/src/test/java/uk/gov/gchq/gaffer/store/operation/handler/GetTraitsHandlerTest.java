@@ -54,12 +54,7 @@ public class GetTraitsHandlerTest {
         expectedTraits = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         expectedTraits.remove(StoreTrait.ORDERED);
 
-        store = new TestAddToGraphLibraryImpl() {
-            @Override
-            public Set<StoreTrait> getTraits() {
-                return Sets.newHashSet(expectedTraits);
-            }
-        };
+        store = new TestAddToGraphLibraryImpl();
         assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);
         string = new Schema.Builder().type(STRING, String.class).build();
     }

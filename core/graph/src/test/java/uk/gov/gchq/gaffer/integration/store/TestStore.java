@@ -32,27 +32,15 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;
 
 public class TestStore extends Store {
     public static Store mockStore = mock(TestStore.class);
-    public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
-            StoreTrait.VISIBILITY,
-            StoreTrait.QUERY_AGGREGATION,
-            StoreTrait.INGEST_AGGREGATION,
-            StoreTrait.PRE_AGGREGATION_FILTERING,
-            StoreTrait.POST_AGGREGATION_FILTERING,
-            StoreTrait.TRANSFORMATION,
-            StoreTrait.POST_TRANSFORMATION_FILTERING,
-            StoreTrait.MATCHED_VERTEX));
 
     @Override
     public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
@@ -99,8 +87,8 @@ public class TestStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
-        return new GetTraitsHandler(TRAITS);
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return null;
     }
 
     @Override

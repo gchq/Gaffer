@@ -110,7 +110,7 @@ public class StoreIT {
         }
 
         @Override
-        protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(traits);
         }
 

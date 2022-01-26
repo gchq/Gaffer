@@ -250,7 +250,7 @@ public class HBaseStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new GetTraitsHandler(TRAITS);
     }
 

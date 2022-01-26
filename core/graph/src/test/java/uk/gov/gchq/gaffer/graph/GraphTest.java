@@ -2716,8 +2716,8 @@ public class GraphTest {
         }
 
         @Override
-        protected OperationHandler<? extends GetTraits> getGetTraitsHandler() {
-            return new GetTraitsHandler(new HashSet<>(0));
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return null;
         }
 
         @Override

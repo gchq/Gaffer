@@ -876,7 +876,7 @@ public abstract class Store {
      * @return the implementation of the handler for {@link
      * uk.gov.gchq.gaffer.store.operation.GetTraits}
      */
-    protected abstract OperationHandler<? extends GetTraits> getGetTraitsHandler();
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
 
     /**
      * Get this Store's implementation of the handler for {@link
