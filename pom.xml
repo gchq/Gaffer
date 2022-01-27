@@ -55,7 +55,7 @@
         <junit5.version>5.8.2</junit5.version>
         <!-- <junit.platform.suite.version>1.6.2</junit.platform.suite.version>  -->
         <mockito.version>3.4.6</mockito.version>
-        <failsafe.version>3.0.0-M5</failsafe.version>
+        <failsafe.version>3.0.0-M4</failsafe.version>
         <slf4j.api.version>1.7.25</slf4j.api.version>
 
         <koryphe.version>1.14.1-SNAPSHOT</koryphe.version>
