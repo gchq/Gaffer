@@ -84,27 +84,27 @@
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-core_2.10</artifactId>
+            <artifactId>json4s-core_${jackson.minor.version}</artifactId>
             <version>${json4s.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-ext_2.10</artifactId>
+            <artifactId>json4s-ext_${jackson.minor.version}</artifactId>
             <version>${json4s.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-jackson_2.10</artifactId>
+            <artifactId>json4s-jackson_${jackson.minor.version}</artifactId>
             <version>${json4s.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-native_2.10</artifactId>
+            <artifactId>json4s-native_${jackson.minor.version}</artifactId>
             <version>${json4s.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json4s</groupId>
-            <artifactId>json4s-ast_2.10</artifactId>
+            <artifactId>json4s-ast_${jackson.minor.version}</artifactId>
             <version>${json4s.version}</version>
         </dependency>
         <dependency>
@@ -130,6 +130,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
