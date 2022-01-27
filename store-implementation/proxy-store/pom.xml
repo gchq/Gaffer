@@ -26,10 +26,6 @@
 
     <artifactId>proxy-store</artifactId>
 
-    <properties>
-        <jboss.javaee.version>1.0.7.Final</jboss.javaee.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -75,6 +71,11 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
             <version>${jersey.version}</version>
         </dependency>
         <dependency>
