@@ -64,9 +64,7 @@ public class TestAddToGraphLibraryImpl extends Store {
 
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-        Set<StoreTrait> traits = new HashSet<>(StoreTrait.ALL_TRAITS);
-        traits.remove(StoreTrait.ORDERED);
-        return new GetTraitsHandler(traits);
+        return new GetTraitsHandler(new HashSet<>(0));
     }
 
     @Override

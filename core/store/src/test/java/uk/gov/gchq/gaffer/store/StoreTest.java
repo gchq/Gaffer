@@ -116,6 +116,7 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
@@ -180,7 +181,6 @@ public class StoreTest {
     private OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
     private OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
     private OperationHandler<Validate> validateHandler;
-    private OutputOperationHandler<GetTraits, Set<StoreTrait>> getTraitsHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
     private JobTracker jobTracker;
@@ -206,7 +206,6 @@ public class StoreTest {
         validateHandler = mock(OperationHandler.class);
         exportToGafferResultCacheHandler = mock(OperationHandler.class);
         getGafferResultCacheExportHandler = mock(OperationHandler.class);
-        getTraitsHandler = mock(OutputOperationHandler.class);
         jobTracker = mock(JobTracker.class);
         schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -1154,7 +1153,7 @@ public class StoreTest {
 
         @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-            return getTraitsHandler;
+            return new GetTraitsHandler(traits);
         }
 
         @Override
@@ -1254,7 +1253,7 @@ public class StoreTest {
 
         @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
-            return getTraitsHandler;
+            return new GetTraitsHandler(traits);
         }
 
         @Override

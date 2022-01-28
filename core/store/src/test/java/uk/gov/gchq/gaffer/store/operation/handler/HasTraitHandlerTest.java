@@ -28,12 +28,14 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,6 +64,10 @@ public class HasTraitHandlerTest {
             @Override
             public Set<StoreTrait> getTraits() {
                 return Sets.newHashSet(expectedTraits);
+            }
+            @Override
+            protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+                return new GetTraitsHandler(expectedTraits);
             }
         };
         assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);
