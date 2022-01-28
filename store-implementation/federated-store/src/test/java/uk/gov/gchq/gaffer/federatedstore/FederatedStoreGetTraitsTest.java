@@ -18,13 +18,14 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -116,8 +117,9 @@ public class FederatedStoreGetTraitsTest {
     private static final StoreProperties MAP_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseMapStore.properties"));
     private FederatedStore federatedStore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        clearCache();
         federatedStore = new FederatedStore();
         federatedStore.initialise("testFed", new Schema(), new FederatedStoreProperties());
 
@@ -377,5 +379,9 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);
         //then
         assertEquals(INTERSECTION_TRAITS, traits);
+    }
+
+    private void clearCache() {
+        CacheServiceLoader.shutdown();
     }
 }

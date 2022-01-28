@@ -50,6 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class GetGafferResultCacheExportHandlerTest {
@@ -131,7 +132,7 @@ public class GetGafferResultCacheExportHandlerTest {
         // Then
         assertThat((Iterable) handlerResult).isEmpty();
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(cacheStore).execute(opChain.capture(), Mockito.any());
+        verify(cacheStore, times(3)).execute(opChain.capture(), Mockito.any());
         assertThat(opChain.getValue().getOperations()).hasSize(1);
         assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
