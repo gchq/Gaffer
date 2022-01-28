@@ -180,19 +180,6 @@ public abstract class GraphLibrary {
     /**
      * Adds a new relationship between a Schema and a schemaId.
      *
-     * @param schema the Schema.
-     * @throws OverwritingException If there is already a relationship.
-     * @deprecated use {@link GraphLibrary#addSchema(String, Schema)}
-     */
-    @Deprecated
-    public void addSchema(final Schema schema) throws OverwritingException {
-        String id = (null == schema) ? null : schema.getId();
-        addSchema(id, schema);
-    }
-
-    /**
-     * Adds a new relationship between a Schema and a schemaId.
-     *
      * @param id     the schema ID
      * @param schema the Schema.
      * @throws OverwritingException If there is already a relationship.
@@ -224,20 +211,6 @@ public abstract class GraphLibrary {
             _addSchema(id, schemaJson);
         }
 
-    }
-
-    /**
-     * Adds a new relationship between a StoreProperties and a storePropertiesId.
-     *
-     * @param properties the StoreProperties.
-     * @throws OverwritingException If there is already a relationship.
-     * @deprecated use {@link GraphLibrary#addProperties(String, StoreProperties)}
-     */
-    @Deprecated
-    public void addProperties(final StoreProperties properties) throws OverwritingException {
-        if (null != properties) {
-            addProperties(properties.getId(), properties);
-        }
     }
 
     /**

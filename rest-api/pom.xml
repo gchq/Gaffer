@@ -29,8 +29,6 @@
         <module>common-rest</module>
         <module>core-rest</module>
         <module>accumulo-rest</module>
-        <module>hbase-rest</module>
-        <module>parquet-rest</module>
         <module>map-rest</module>
         <module>spring-rest</module>
     </modules>

@@ -56,7 +56,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHd
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreFromIterableHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
@@ -80,7 +79,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -172,18 +170,7 @@ public class AccumuloStore extends Store {
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
-
-        final String deprecatedTableName = getProperties().getTable();
-        if (null == graphId && null != deprecatedTableName) {
-            // Deprecated
-            super.initialise(deprecatedTableName, schema, getProperties());
-        } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
-            throw new IllegalArgumentException(
-                    "The table in store.properties should no longer be used. " +
-                            "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
-        } else {
-            super.initialise(graphId, schema, getProperties());
-        }
+        super.initialise(graphId, schema, getProperties());
 
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -376,7 +363,6 @@ public class AccumuloStore extends Store {
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
         addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
-        addOperationHandler(SplitStore.class, new SplitStoreHandler());
         addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
         addOperationHandler(GenerateSplitPointsFromSample.class, new GenerateSplitPointsFromSampleHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());

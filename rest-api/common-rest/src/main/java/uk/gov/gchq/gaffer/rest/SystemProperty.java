@@ -61,30 +61,6 @@ public abstract class SystemProperty {
     public static final String FAVICON_SMALL_URL = "gaffer.properties.app.logo.favicon.small";
     public static final String FAVICON_LARGE_URL = "gaffer.properties.app.logo.favicon.large";
 
-    /**
-     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
-     */
-    @Deprecated
-    public static final String GRAPH_ID = "gaffer.graph.id";
-
-    /**
-     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
-     */
-    @Deprecated
-    public static final String GRAPH_HOOKS_PATH = "gaffer.graph.hooks.path";
-
-    /**
-     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
-     */
-    @Deprecated
-    public static final String GRAPH_LIBRARY_CLASS = "gaffer.graph.library.class";
-
-    /**
-     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
-     */
-    @Deprecated
-    public static final String GRAPH_LIBRARY_CONFIG = "gaffer.graph.library.config";
-
     // DEFAULTS
     /**
      * Comma separated list of package prefixes to search for Functions and {@link uk.gov.gchq.gaffer.operation.Operation}s.

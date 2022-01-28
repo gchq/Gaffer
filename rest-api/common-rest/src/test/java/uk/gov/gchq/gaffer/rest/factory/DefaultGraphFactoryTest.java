@@ -32,7 +32,6 @@ public class DefaultGraphFactoryTest {
         System.clearProperty(SystemProperty.SCHEMA_PATHS);
         System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
         System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
-        System.clearProperty(SystemProperty.GRAPH_LIBRARY_CLASS);
     }
 
     @Test
@@ -40,19 +39,19 @@ public class DefaultGraphFactoryTest {
         // Given
         String schemaPath = getClass().getResource("/schema").getPath();
         String storePropsPath = getClass().getResource("/store.properties").getPath();
-        String graphConfigPath = getClass().getResource("/graphConfigWithHooks.json").getPath();
 
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath);
-        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath);
+
 
         // When
         GraphFactory graphFactory = DefaultGraphFactory.createGraphFactory();
-        System.setProperty(SystemProperty.GRAPH_LIBRARY_CLASS, "invalid.class.name");
+        String graphConfigPath = getClass().getResource("/graphConfigIncorrectLibrary.json").getPath();
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath);
 
         // Then
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(graphFactory::getGraph)
-                .withMessage("Error creating GraphLibrary class");
+                .withMessage("Unable to deserialise graph config");
     }
 }

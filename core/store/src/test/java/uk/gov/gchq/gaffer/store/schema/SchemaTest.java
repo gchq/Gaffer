@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
@@ -79,6 +79,7 @@ public class SchemaTest {
     public static final String TIMESTAMP_TYPE_DESCRIPTION = "Timestamp type description";
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
     public static final String MAP_TYPE_DESCRIPTION = "Map type description";
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
 
     private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
@@ -243,7 +244,7 @@ public class SchemaTest {
         assertEquals(MapSerialiser.class, serialiser.getClass());
         MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
         assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
-        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
+        assertEquals(OrderedLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
         assertNull(mapSerialiser.getMapClass());
     }
 
@@ -270,7 +271,7 @@ public class SchemaTest {
     private Schema createSchema() {
         MapSerialiser mapSerialiser = new MapSerialiser();
         mapSerialiser.setKeySerialiser(new StringSerialiser());
-        mapSerialiser.setValueSerialiser(new RawLongSerialiser());
+        mapSerialiser.setValueSerialiser(new OrderedLongSerialiser());
         mapSerialiser.setMapClass(LinkedHashMap.class);
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder().source(TestTypes.ID_STRING)
@@ -306,7 +307,9 @@ public class SchemaTest {
                         new TypeDefinition.Builder().clazz(Long.class)
                                 .description(TIMESTAMP_TYPE_DESCRIPTION).build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
-                .timestampProperty(TestPropertyNames.TIMESTAMP).config("key", "value").build();
+                .config("key", "value")
+                .config(TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
+                .build();
     }
 
     @Test
@@ -338,7 +341,7 @@ public class SchemaTest {
                 + "      \"serialiser\" : {%n"
                 + "          \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",%n"
                 + "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",%n"
-                + "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser\",%n"
+                + "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser\",%n"
                 + "          \"mapClass\" : \"java.util.LinkedHashMap\"%n" + "      },%n"
                 + "      \"description\" : \"Map type description\",%n"
                 + "      \"class\" : \"java.util.LinkedHashMap\"%n" + "    },%n"
@@ -349,7 +352,7 @@ public class SchemaTest {
                 + "      \"description\" : \"Timestamp type description\",%n"
                 + "      \"class\" : \"java.lang.Long\"%n" + "    }%n" + "  },%n"
                 + "  \"visibilityProperty\" : \"visibility\",%n"
-                + "  \"timestampProperty\" : \"timestamp\",%n" + "  \"config\" : {\n"
+                + "  \"config\" : {\n"
                 + "    \"key\" : \"value\",\n" + "    \"timestampProperty\" : \"timestamp\"\n" + "  }"
                 + "}"), new String(schema.toJson(true)));
     }
@@ -434,10 +437,9 @@ public class SchemaTest {
         assertEquals(3, entityGroup.getProperties().size());
 
         assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
-        assertEquals(TestPropertyNames.TIMESTAMP, schema.getTimestampProperty());
         assertEquals(2, schema.getConfig().size());
         assertEquals("value", schema.getConfig("key"));
-        assertEquals(TestPropertyNames.TIMESTAMP, schema.getConfig("timestampProperty"));
+        assertEquals(TestPropertyNames.TIMESTAMP, schema.getConfig(TIMESTAMP_PROPERTY));
     }
 
     private void assertExpectedSchemaSerialisationContent(final Schema schema) {
