@@ -67,13 +67,13 @@
 
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>0.12.0</datasketches.version>
-        <commons-codec.version>1.6</commons-codec.version>
+        <commons-codec.version>1.15</commons-codec.version>
         <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-io.version>2.7</commons-io.version>
-        <commons-lang3.version>3.8.1</commons-lang3.version>
-        <commons-logging.version>1.1.3</commons-logging.version>
-        <commons-math.version>2.1</commons-math.version>
-        <commons-math3.version>3.4.1</commons-math3.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-logging.version>1.2</commons-logging.version>
+        <commons-math.version>2.2</commons-math.version>
+        <commons-math3.version>3.6.1</commons-math3.version>
         <commons-csv.version>1.4</commons-csv.version>
         <curator.version>2.11.1</curator.version>
         <findbugs.version>3.0.2</findbugs.version>
