@@ -307,6 +307,11 @@ public class FederatedGetTraitsHandlerTest {
         public Set<StoreTrait> getTraits() {
             return STORE_TRAITS;
         }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(STORE_TRAITS);
+        }
     }
 
 }
