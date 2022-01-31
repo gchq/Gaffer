@@ -444,20 +444,13 @@ public final class Graph {
     }
 
     /**
-     * @param storeTrait the store trait to check
-     * @return true if the store has the given trait.
-     */
-    public boolean hasTrait(final StoreTrait storeTrait) {
-        return store.hasTrait(storeTrait);
-    }
-
-    /**
      * Returns all the {@link StoreTrait}s for the contained {@link Store}
      * implementation
      *
      * @return a {@link Set} of all of the {@link StoreTrait}s that the store
      *         has.
      */
+    @Deprecated
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
     }

@@ -43,9 +43,11 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -212,7 +214,7 @@ public abstract class AbstractStoreIT {
         }
     }
 
-    protected void validateTraits() {
+    protected void validateTraits() throws OperationException {
         final Collection<StoreTrait> requiredTraits = new ArrayList<>();
         for (final Annotation annotation : method.getDeclaredAnnotations()) {
             if (annotation.annotationType().equals(TraitRequirement.class)) {
@@ -222,7 +224,7 @@ public abstract class AbstractStoreIT {
         }
 
         for (final StoreTrait requiredTrait : requiredTraits) {
-            assumeThat(graph.hasTrait(requiredTrait)).as("Skipping test as the store does not implement all required traits.").isTrue();
+            assumeThat(graph.execute(new HasTrait.Builder().trait(requiredTrait).currentTraits(false).build(), new Context())).as("Skipping test as the store does not implement all required traits.").isTrue();
         }
     }
 

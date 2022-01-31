@@ -23,16 +23,23 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.HasTrait;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class HasTraitHandler implements OutputOperationHandler<HasTrait, Boolean> {
 
     @Override
     public Boolean doOperation(final HasTrait operation, final Context context, final Store store) throws OperationException {
+        Map<String, String> filteredOptions = operation.getOptions().entrySet()
+                .stream()
+                .filter(o -> !o.getKey().startsWith("FederatedStore.processed."))
+                .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue()));
+
         final Set<StoreTrait> traits = store.execute(new GetTraits.Builder()
                 .currentTraits(operation.isCurrentTraits())
-                .options(operation.getOptions())
+                .options(filteredOptions)
                 .build(), context
         );
         if (null == traits) {
