@@ -11,7 +11,7 @@
 
   <properties>
     <spring.boot.version>2.5.8</spring.boot.version>
-    <swagger.version>2.6.0</swagger.version>
+    <swagger.version>3.0.0</swagger.version>
     <store.type>map</store.type>
   </properties>
 
@@ -93,11 +93,6 @@
       <artifactId>springfox-swagger-ui</artifactId>
       <version>${swagger.version}</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId> <!-- required for version of Swagger -->
-      <artifactId>guava</artifactId>
-      <version>18.0</version>
     </dependency>
 
     <!-- Test dependencies -->
