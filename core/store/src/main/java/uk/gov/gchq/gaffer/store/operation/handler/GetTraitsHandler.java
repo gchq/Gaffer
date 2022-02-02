@@ -38,7 +38,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
     private Set<StoreTrait> currentTraits;
 
     public GetTraitsHandler(final Set<StoreTrait> storeTraits) {
-        this.storeTraits = Sets.newHashSet(storeTraits);
+        this.storeTraits = Collections.unmodifiableSet(Sets.newHashSet(storeTraits));
     }
 
     @Override
