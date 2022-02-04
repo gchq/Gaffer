@@ -112,7 +112,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
@@ -867,6 +866,16 @@ public abstract class Store {
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
+     * Get this Stores implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.store.operation.GetTraits}
+     */
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
+
+    /**
      * Get this Store's implementation of the handler for {@link
      * uk.gov.gchq.gaffer.operation.OperationChain}.
      * All Stores must implement this.
@@ -1073,7 +1082,7 @@ public abstract class Store {
 
         // Traits
         addOperationHandler(HasTrait.class, new HasTraitHandler());
-        addOperationHandler(GetTraits.class, new GetTraitsHandler());
+        addOperationHandler(GetTraits.class, getGetTraitsHandler());
     }
 
     private void addConfiguredOperationHandlers() {

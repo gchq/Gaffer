@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -288,6 +289,11 @@ public class FederatedGetTraitsHandlerTest {
         }
 
         @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(STORE_TRAITS);
+        }
+
+        @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return null;
         }
@@ -300,6 +306,11 @@ public class FederatedGetTraitsHandlerTest {
         @Override
         public Set<StoreTrait> getTraits() {
             return STORE_TRAITS;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(STORE_TRAITS);
         }
     }
 
