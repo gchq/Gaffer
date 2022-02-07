@@ -92,6 +92,7 @@ public class OperationControllerTest {
         when(graphFactory.getGraph()).thenReturn(graph);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnAllSupportedOperationsAsOperationDetails() {
         // Given
@@ -181,6 +182,7 @@ public class OperationControllerTest {
                 .isEqualTo(INTERNAL_SERVER_ERROR);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnOperationDetailSummaryOfClass() {
         // Given
@@ -194,6 +196,7 @@ public class OperationControllerTest {
         assertThat(operationDetail.getSummary()).isEqualTo(expectedSummary);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnOutputClassForOperationWithOutput() throws Exception {
         // Given
@@ -208,6 +211,7 @@ public class OperationControllerTest {
         assertThat(operationDetails.getOutputClassName()).isEqualTo(expectedOutputString);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldNotIncludeAnyOutputClassForOperationWithoutOutput() throws Exception {
         // Given
@@ -222,6 +226,7 @@ public class OperationControllerTest {
         assertThat(new String(serialised)).doesNotContain("outputClassName");
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
         // Given
@@ -244,6 +249,7 @@ public class OperationControllerTest {
         assertThat(operationFields).isEqualTo(fields);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldCorrectlyChunkIterables() throws IOException, OperationException {
         // Given
