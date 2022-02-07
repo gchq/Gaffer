@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -49,7 +50,6 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
-import uk.gov.gchq.gaffer.operation.io.Output;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -58,54 +58,47 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class OperationChainTest extends OperationsTest<OperationChain> {
+public class OperationChainTest extends OperationsTest<OperationChain<?>> {
 
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
-        final OperationChain opChain = new Builder()
+        final OperationChain<?> opChain = new Builder()
                 .first(new OperationImpl())
                 .then(new OperationImpl())
                 .build();
 
         // When
         final byte[] json = JSONSerialiser.serialise(opChain, true);
-        final OperationChain deserialisedOp = JSONSerialiser.deserialise(json, OperationChain.class);
+        final OperationChain<?> deserialisedOp = JSONSerialiser.deserialise(json, OperationChain.class);
 
         // Then
-        assertNotNull(deserialisedOp);
-        assertEquals(2, deserialisedOp.getOperations().size());
-        assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(0)
-                .getClass());
-        assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(1)
-                .getClass());
+        assertThat(deserialisedOp).isNotNull();
+        assertThat(deserialisedOp.getOperations()).hasSize(2);
+        assertThat(deserialisedOp.getOperations().get(0)).isInstanceOf(OperationImpl.class);
+        assertThat(deserialisedOp.getOperations().get(1)).isInstanceOf(OperationImpl.class);
     }
 
     @Test
     public void shouldBuildOperationChain(@Mock final AddElements addElements1, @Mock final AddElements addElements2,
-            @Mock final GetAdjacentIds getAdj1, @Mock final GetAdjacentIds getAdj2, @Mock final GetAdjacentIds getAdj3,
-            @Mock final GetElements getElements1, @Mock final GetElements getElements2,
-            @Mock final GetAllElements getAllElements,
-            @Mock final DiscardOutput discardOutput,
-            @Mock final GetJobDetails getJobDetails,
-            @Mock final GenerateObjects<EntityId> generateEntitySeeds,
-            @Mock final Limit<Element> limit,
-            @Mock final ToSet<Element> deduplicate,
-            @Mock final CountGroups countGroups,
-            @Mock final ExportToSet<GroupCounts> exportToSet,
-            @Mock final ExportToGafferResultCache<Iterable<? extends Element>> exportToGafferCache,
-            @Mock final If<Iterable<? extends EntityId>, Iterable<? extends EntityId>> ifOp) {
+                                          @Mock final GetAdjacentIds getAdj1, @Mock final GetAdjacentIds getAdj2,
+                                          @Mock final GetAdjacentIds getAdj3,
+                                          @Mock final GetElements getElements1, @Mock final GetElements getElements2,
+                                          @Mock final GetAllElements getAllElements,
+                                          @Mock final DiscardOutput discardOutput,
+                                          @Mock final GetJobDetails getJobDetails,
+                                          @Mock final GenerateObjects<EntityId> generateEntitySeeds,
+                                          @Mock final Limit<Element> limit,
+                                          @Mock final ToSet<Element> deduplicate,
+                                          @Mock final CountGroups countGroups,
+                                          @Mock final ExportToSet<GroupCounts> exportToSet,
+                                          @Mock final ExportToGafferResultCache<Iterable<? extends Element>> exportToGafferCache,
+                                          @Mock final If<Iterable<? extends EntityId>, Iterable<? extends EntityId>> ifOp) {
         // Given
 
         // When
@@ -149,7 +142,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 addElements2,
                 getJobDetails
         };
-        assertArrayEquals(expecteds, opChain.getOperationArray());
+        assertThat(opChain.getOperationArray()).isEqualTo(expecteds);
     }
 
     @Test
@@ -185,7 +178,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
                 discardOutput2,
                 getSetExport2
         };
-        assertArrayEquals(expecteds, opChain.getOperationArray());
+        assertThat(opChain.getOperationArray()).isEqualTo(expecteds);
     }
 
     @Test
@@ -193,47 +186,48 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         // Given
 
         // When
-        final OperationChain opChain = new OperationChain.Builder()
+        final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(getAdjacentIds)
                 .build();
 
         // Then
-        assertEquals(1, opChain.getOperations().size());
-        assertSame(getAdjacentIds, opChain.getOperations().get(0));
+        assertThat(opChain.getOperations()).hasSize(1);
+        assertThat(opChain.getOperations().get(0)).isSameAs(getAdjacentIds);
     }
 
     @Test
     public void shouldBuildOperationChain_AdjEntitySeedsThenElements(@Mock final GetAdjacentIds getAdjacentIds,
-            @Mock final GetElements getEdges) {
+                                                                     @Mock final GetElements getEdges) {
         // Given
 
         // When
-        final OperationChain opChain = new OperationChain.Builder()
+        final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(getAdjacentIds)
                 .then(getEdges)
                 .build();
 
         // Then
-        assertEquals(2, opChain.getOperations().size());
-        assertSame(getAdjacentIds, opChain.getOperations().get(0));
-        assertSame(getEdges, opChain.getOperations().get(1));
+        assertThat(opChain.getOperations()).hasSize(2);
+        assertThat(opChain.getOperations().get(0)).isSameAs(getAdjacentIds);
+        assertThat(opChain.getOperations().get(1)).isSameAs(getEdges);
     }
 
     @Test
     public void shouldDetermineOperationChainOutputType(@Mock final Operation operation1,
-            @Mock final GetElements operation2, @Mock final TypeReference typeRef) {
+                                                        @Mock final GetElements operation2,
+                                                        @Mock final TypeReference typeRef) {
         // Given
 
         given(operation2.getOutputTypeReference()).willReturn(typeRef);
 
         // When
-        final OperationChain opChain = new OperationChain.Builder()
+        final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation1)
                 .then(operation2)
                 .build();
 
         // When / Then
-        assertSame(typeRef, opChain.getOutputTypeReference());
+        assertThat(opChain.getOutputTypeReference()).isSameAs(typeRef);
     }
 
     @Test
@@ -248,7 +242,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         };
 
         // When
-        final OperationChain opChain = new OperationChain(Arrays.asList(operations));
+        final OperationChain<?> opChain = new OperationChain<>(Arrays.asList(operations));
 
         // When
         opChain.close();
@@ -259,13 +253,12 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldFlattenNestedOperationChain() {
+    public void shouldFlattenNestedOperationChain(@Mock final AddElements addElements,
+                                                  @Mock final GetElements getElements,
+                                                  @Mock final Limit<Element> limit) {
         // Given
-        final AddElements addElements = mock(AddElements.class);
-        final GetElements getElements = mock(GetElements.class);
-        final Limit<Element> limit = mock(Limit.class);
-
         final OperationChain opChain1 = new OperationChain.Builder().first(addElements)
                 .then(getElements)
                 .build();
@@ -287,7 +280,7 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
     }
 
     @Test
-    public void shouldDoAShallowClone() {
+    public void shouldDoAShallowClone(@Mock final Map<String, String> options) {
         // Given
         final List<Operation> ops = Arrays.asList(
                 mock(Operation.class),
@@ -305,108 +298,111 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
             given(ops.get(i).shallowClone()).willReturn(clonedOps.get(i));
         }
 
-        final OperationChain opChain = new OperationChain(ops);
-        final Map<String, String> options = mock(Map.class);
-        opChain.setOptions(options);
+        OperationChain<?> opChain = null;
+        try {
+            opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
 
-        // When
-        final OperationChain clone = opChain.shallowClone();
+            // When
+            final OperationChain<?> clone = opChain.shallowClone();
 
-        // Then
-        assertEquals(clonedOps, clone.getOperations());
-        assertSame(options, clone.getOptions());
+            // Then
+            assertThat(clone.getOperations()).isEqualTo(clonedOps);
+            assertThat(clone.getOptions()).isSameAs(options);
+        } finally {
+            CloseableUtil.close(opChain);
+        }
     }
 
     @Test
-    public void shouldWrapOperation() {
+    public void shouldWrapOperation(@Mock final Operation operation,
+                                    @Mock final Map<String, String> options) {
         // Given
-        final Operation operation = mock(Operation.class);
-        final Map<String, String> options = mock(Map.class);
         given(operation.getOptions()).willReturn(options);
 
         // When
-        final OperationChain wrappedChain = OperationChain.wrap(operation);
+        final OperationChain<?> wrappedChain = OperationChain.wrap(operation);
 
         // Then
-        assertEquals(1, wrappedChain.getOperations().size());
-        assertEquals(operation, wrappedChain.getOperations().get(0));
-        assertSame(operation.getOptions(), wrappedChain.getOptions());
+        assertThat(wrappedChain.getOperations()).hasSize(1);
+        assertThat(wrappedChain.getOperations().get(0)).isEqualTo(operation);
+        assertThat(wrappedChain.getOptions()).isSameAs(operation.getOptions());
     }
 
     @Test
-    public void shouldWrapOutputOperation() {
+    public void shouldWrapOutputOperation(@Mock final Operation operation,
+                                          @Mock final Map<String, String> options) {
         // Given
-        final Operation operation = mock(Output.class);
-        final Map<String, String> options = mock(Map.class);
         given(operation.getOptions()).willReturn(options);
 
         // When
-        final OperationChain wrappedChain = OperationChain.wrap(operation);
+        final OperationChain<?> wrappedChain = OperationChain.wrap(operation);
 
         // Then
-        assertEquals(1, wrappedChain.getOperations().size());
-        assertEquals(operation, wrappedChain.getOperations().get(0));
-        assertSame(operation.getOptions(), wrappedChain.getOptions());
+        assertThat(wrappedChain.getOperations()).hasSize(1);
+        assertThat(wrappedChain.getOperations().get(0)).isEqualTo(operation);
+        assertThat(wrappedChain.getOptions()).isSameAs(operation.getOptions());
     }
 
     @Test
-    public void shouldNotWrapOperationChain() {
+    public void shouldNotWrapOperationChain(@Mock final OperationChain operation,
+                                            @Mock final Map<String, String> options) {
         // Given
-        final Operation operation = mock(OperationChain.class);
-        final Map<String, String> options = mock(Map.class);
         given(operation.getOptions()).willReturn(options);
 
         // When
-        final OperationChain wrappedChain = OperationChain.wrap(operation);
+        final OperationChain<?> wrappedChain = OperationChain.wrap(operation);
 
         // Then
-        assertSame(operation, wrappedChain);
-        assertSame(operation.getOptions(), wrappedChain.getOptions());
+        assertThat(wrappedChain).isSameAs(operation);
+        assertThat(wrappedChain.getOptions()).isSameAs(operation.getOptions());
     }
 
     @Test
-    public void shouldNotWrapOperationChainDAO() {
+    public void shouldNotWrapOperationChainDAO(@Mock final OperationChainDAO<?> operation,
+                                               @Mock final Map<String, String> options) {
         // Given
-        final Operation operation = mock(OperationChainDAO.class);
-        final Map<String, String> options = mock(Map.class);
         given(operation.getOptions()).willReturn(options);
 
         // When
-        final OperationChain wrappedChain = OperationChain.wrap(operation);
+        final OperationChain<?> wrappedChain = OperationChain.wrap(operation);
 
         // Then
-        assertSame(operation, wrappedChain);
-        assertSame(operation.getOptions(), wrappedChain.getOptions());
+        assertThat(wrappedChain).isSameAs(operation);
+        assertThat(wrappedChain.getOptions()).isSameAs(operation.getOptions());
     }
 
     @Override
-    protected OperationChain getTestObject() {
-        return new OperationChain();
+    protected OperationChain<?> getTestObject() {
+        return new OperationChain<>();
     }
 
     @Test
     @Override
     public void shouldGetOperations() {
         // Given
-        final List<Operation> ops = Lists.newArrayList(
-                mock(Operation.class),
+        final List<Operation> ops = Lists.newArrayList(mock(Operation.class),
                 mock(GetAllElements.class),
                 mock(Aggregate.class),
                 mock(Limit.class));
+        OperationChain<Operation> opChain = null;
+        try {
+            opChain = new OperationChain<>(ops);
 
-        final OperationChain<Operation> opChain = new OperationChain<>(ops);
+            // When
+            final Collection<Operation> getOps = opChain.getOperations();
 
-        // When
-        final Collection<Operation> getOps = opChain.getOperations();
-
-        // Then
-        assertEquals(ops, getOps);
+            // Then
+            assertThat(getOps).isEqualTo(ops);
+        } finally {
+            CloseableUtil.close(opChain);
+        }
     }
 
     @Test
     public void shouldConvertToOverviewString() {
         // Given
-        final OperationChain opChain = new OperationChain.Builder()
+        final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .input(new EntitySeed("vertex1"))
                         .build())
@@ -417,18 +413,23 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
         final String overview = opChain.toOverviewString();
 
         // Then
-        assertEquals("OperationChain[GetAdjacentIds->Limit]", overview);
+        assertThat(overview).isEqualTo("OperationChain[GetAdjacentIds->Limit]");
     }
 
     @Test
     public void shouldConvertToOverviewStringWithNoOperations() {
-        // Given
-        final OperationChain opChain = new OperationChain();
+        OperationChain<?> opChain = null;
+        try {
+            // Given
+            opChain = new OperationChain<>();
 
-        // When
-        final String overview = opChain.toOverviewString();
+            // When
+            final String overview = opChain.toOverviewString();
 
-        // Then
-        assertEquals("OperationChain[]", overview);
+            // Then
+            assertThat(overview).isEqualTo("OperationChain[]");
+        } finally {
+            CloseableUtil.close(opChain);
+        }
     }
 }

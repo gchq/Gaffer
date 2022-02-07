@@ -25,9 +25,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetAllElementsTest extends OperationTest<GetAllElements> {
 
@@ -39,7 +36,7 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
                 .build();
 
         // Then
-        assertEquals(DirectedType.EITHER, op.getDirectedType());
+        assertThat(op.getDirectedType()).isEqualTo(DirectedType.EITHER);
     }
 
     @Test
@@ -48,7 +45,7 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(Iterable.class, outputClass);
+        assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Test
@@ -59,43 +56,44 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
                 .build();
 
         // Then
-        assertThat(op.getOptions()).isNotNull()
+        assertThat(op.getOptions())
+                .isNotNull()
                 .containsEntry("key", "value");
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetAllElements getAllElements = new GetAllElements.Builder()
+        final GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
+        assertThat(getAllElements.getView().getEdge(TestGroups.EDGE)).isNotNull();
     }
 
     @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
-        GetAllElements getAllElements = new GetAllElements.Builder()
+        final GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(view)
                 .directedType(DirectedType.DIRECTED)
                 .option("testOption", "true")
                 .build();
 
         // When
-        GetAllElements clone = getAllElements.shallowClone();
+        final GetAllElements clone = getAllElements.shallowClone();
 
         // Then
-        assertNotSame(getAllElements, clone);
-        assertEquals(view, clone.getView());
-        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
-        assertEquals("true", clone.getOption("testOption"));
+        assertThat(clone).isNotSameAs(getAllElements);
+        assertThat(clone.getView()).isEqualTo(view);
+        assertThat(clone.getDirectedType()).isEqualTo(DirectedType.DIRECTED);
+        assertThat(clone.getOption("testOption")).isEqualTo("true");
     }
 
     @Override

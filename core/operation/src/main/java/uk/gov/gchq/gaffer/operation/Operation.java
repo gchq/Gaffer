@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An {@code Operation} defines an operation to be processed on a graph.
@@ -56,7 +58,8 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.operation.io.Input}
  * {@link uk.gov.gchq.gaffer.operation.io.Output}
  * {@link uk.gov.gchq.gaffer.operation.io.InputOutput} (Use this instead of Input and Output if your operation takes both input and output.)
- * {@link uk.gov.gchq.gaffer.operation.io.MultiInput} (Use this in addition if you operation takes multiple inputs. This will help with json  serialisation)
+ * {@link uk.gov.gchq.gaffer.operation.io.MultiInput} (Use this in addition if you operation takes multiple inputs. This will help with json
+ * serialisation)
  * {@link uk.gov.gchq.gaffer.operation.Validatable}
  * {@link uk.gov.gchq.gaffer.operation.graph.OperationView}
  * {@link uk.gov.gchq.gaffer.operation.graph.GraphFilters}
@@ -87,11 +90,11 @@ import java.util.Map;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "class", defaultImpl = OperationChain.class)
 @JsonSimpleClassName(includeSubtypes = true)
 public interface Operation extends Closeable {
+
     /**
-     * Operation implementations should ensure a ShallowClone method is implemented.
-     * Performs a shallow clone. Creates a new instance and copies the fields across.
-     * It does not clone the fields.
-     * If the operation contains nested operations, these must also be cloned.
+     * Operation implementations should ensure a ShallowClone method is implemented. Performs a shallow clone.
+     * Creates a new instance and copies the fields across. It does not clone the fields. If the operation
+     * contains nested operations, these must also be cloned.
      *
      * @return shallow clone
      * @throws CloneFailedException if a Clone error occurs
@@ -101,18 +104,15 @@ public interface Operation extends Closeable {
     /**
      * @return the operation options. This may contain store specific options such as authorisation strings or and
      *         other properties required for the operation to be executed. Note these options will probably not be
-     *         interpreted
-     *         in the same way by every store implementation.
+     *         interpreted in the same way by every store implementation.
      */
     @JsonIgnore
     Map<String, String> getOptions();
 
     /**
      * @param options the operation options. This may contain store specific options such as authorisation strings or
-     *                and
-     *                other properties required for the operation to be executed. Note these options will probably not
-     *                be interpreted
-     *                in the same way by every store implementation.
+     *                and other properties required for the operation to be executed. Note these options will probably not
+     *                be interpreted in the same way by every store implementation.
      */
     @JsonSetter
     void setOptions(final Map<String, String> options);
@@ -126,7 +126,7 @@ public interface Operation extends Closeable {
      * @param value the value of the option
      */
     default void addOption(final String name, final String value) {
-        if (null == getOptions()) {
+        if (Objects.isNull(getOptions())) {
             setOptions(new HashMap<>());
         }
 
@@ -140,7 +140,7 @@ public interface Operation extends Closeable {
      * @return the value of the option
      */
     default String getOption(final String name) {
-        if (null == getOptions()) {
+        if (Objects.isNull(getOptions())) {
             return null;
         }
 
@@ -152,21 +152,22 @@ public interface Operation extends Closeable {
      *
      * @param name         the name of the option
      * @param defaultValue the default value to return if value is null.
+     *
      * @return the value of the option
      */
     default String getOption(final String name, final String defaultValue) {
         final String rtn;
-        if (null == getOptions()) {
+        if (Objects.isNull(getOptions())) {
             rtn = defaultValue;
         } else {
             rtn = getOptions().get(name);
         }
-        return (null == rtn) ? defaultValue : rtn;
+        return (Objects.isNull(rtn)) ? defaultValue : rtn;
     }
 
     @JsonGetter("options")
     default Map<String, String> _getNullOrOptions() {
-        if (null == getOptions()) {
+        if (Objects.isNull(getOptions())) {
             return null;
         }
 
@@ -194,14 +195,14 @@ public interface Operation extends Closeable {
 
         final HashSet<Field> fields = Sets.<Field>newHashSet();
         Class<?> currentClass = this.getClass();
-        while (null != currentClass) {
+        while (Objects.nonNull(currentClass)) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
             currentClass = currentClass.getSuperclass();
         }
 
         for (final Field field : fields) {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
-            if (null != annotations && annotations.length > 0) {
+            if (Objects.nonNull(annotations) && ArrayUtils.isNotEmpty(annotations)) {
                 if (field.isAccessible()) {
                     validateRequiredFieldPresent(result, field);
                 } else {
@@ -225,8 +226,8 @@ public interface Operation extends Closeable {
             throw new RuntimeException(e);
         }
 
-        if (null == value) {
-            result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
+        if (Objects.isNull(value)) {
+            result.addError(String.format("%s is required for: %s", field.getName(), this.getClass().getSimpleName()));
         }
     }
 
@@ -236,8 +237,8 @@ public interface Operation extends Closeable {
         B _self();
     }
 
-    abstract class BaseBuilder<OP extends Operation, B extends BaseBuilder<OP, ?>>
-            implements Builder<OP, B> {
+    abstract class BaseBuilder<OP extends Operation, B extends BaseBuilder<OP, ?>> implements Builder<OP, B> {
+
         private final OP op;
 
         protected BaseBuilder(final OP op) {
@@ -247,7 +248,9 @@ public interface Operation extends Closeable {
         /**
          * @param name  the name of the option to add
          * @param value the value of the option to add
+         *
          * @return this Builder
+         *
          * @see Operation#addOption(String, String)
          */
         public B option(final String name, final String value) {
@@ -256,8 +259,8 @@ public interface Operation extends Closeable {
         }
 
         public B options(final Map<String, String> options) {
-            if (null != options) {
-                if (null == _getOp().getOptions()) {
+            if (Objects.nonNull(options)) {
+                if (Objects.isNull(_getOp().getOptions())) {
                     _getOp().setOptions(new HashMap<>(options));
                 } else {
                     _getOp().getOptions().putAll(options);

@@ -18,13 +18,10 @@ package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.jupiter.api.Test;
 
-
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
 
@@ -35,7 +32,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         final GetAllJobDetails op = getTestObject();
 
         // Then
-        assertNotNull(op);
+        assertThat(op).isNotNull();
     }
 
     @Test
@@ -44,7 +41,7 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(Iterable.class, outputClass);
+        assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Test
@@ -55,11 +52,11 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
                 .build();
 
         // When
-        GetAllJobDetails clone = getAllJobDetails.shallowClone();
+        final GetAllJobDetails clone = getAllJobDetails.shallowClone();
 
         // Then
-        assertNotSame(getAllJobDetails, clone);
-        assertNotNull(clone);
+        assertThat(clone).isNotSameAs(getAllJobDetails);
+        assertThat(clone).isNotNull();
     }
 
     @Override

@@ -38,9 +38,8 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Fetches data from a Gaffer result cache")
-public class GetGafferResultCacheExport implements
-        GetExport,
-        Output<Iterable<?>> {
+public class GetGafferResultCacheExport implements GetExport, Output<Iterable<?>> {
+
     private String jobId;
     private String key = Export.DEFAULT_KEY;
     private Map<String, String> options;
