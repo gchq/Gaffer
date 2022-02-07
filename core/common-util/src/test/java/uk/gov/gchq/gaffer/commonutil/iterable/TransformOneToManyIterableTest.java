@@ -36,7 +36,6 @@ import java.util.NoSuchElementException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -73,7 +72,7 @@ public class TransformOneToManyIterableTest {
 
             // Then
             final List<String> expected = Arrays.asList("ITEM 1", "ITEM 3A", "ITEM 3B", "ITEM 4");
-            assertEquals(expected, output);
+            assertThat(output).isEqualTo(expected);
         } finally {
             CloseableUtil.close(itr);
             CloseableUtil.close(iterable);
@@ -212,7 +211,7 @@ public class TransformOneToManyIterableTest {
         }
 
         TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator,
-                final boolean skipInvalid) {
+                                       final boolean skipInvalid) {
             super(input, validator, skipInvalid);
         }
 

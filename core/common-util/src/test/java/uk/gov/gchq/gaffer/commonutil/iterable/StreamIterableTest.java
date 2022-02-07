@@ -36,8 +36,8 @@ public class StreamIterableTest {
 
     @Test
     public void shouldDelegateIteratorToIterable(@Mock final StreamSupplier<Object> streamSupplier,
-            @Mock final Stream<Object> stream,
-            @Mock final Iterator<Object> iterator) {
+                                                 @Mock final Stream<Object> stream,
+                                                 @Mock final Iterator<Object> iterator) {
         // Given
         given(streamSupplier.get()).willReturn(stream);
         given(stream.iterator()).willReturn(iterator);

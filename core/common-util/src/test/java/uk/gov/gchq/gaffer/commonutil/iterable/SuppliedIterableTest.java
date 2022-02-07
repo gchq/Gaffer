@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,7 +29,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,8 +40,7 @@ import static org.mockito.Mockito.withSettings;
 public class SuppliedIterableTest {
 
     @Test
-    public void shouldRequestNewIterableFromSupplierWhenIteratorInvoked(
-            @Mock final Supplier<Iterable<Integer>> supplier) {
+    public void shouldRequestNewIterableFromSupplierWhenIteratorInvoked(@Mock final Supplier<Iterable<Integer>> supplier) {
         // Given
         final Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3);
         final Iterable<Integer> iterable2 = Arrays.asList(4, 5, 6);
@@ -62,8 +60,8 @@ public class SuppliedIterableTest {
 
             // Then 2
             verify(supplier, times(2)).get();
-            assertEquals(iterable1, Lists.newArrayList(result1));
-            assertEquals(iterable2, Lists.newArrayList(result2));
+            assertThat(result1).toIterable().containsExactlyElementsOf(iterable1);
+            assertThat(result2).toIterable().containsExactlyElementsOf(iterable2);
         } finally {
             CloseableUtil.close(result2);
             CloseableUtil.close(result1);

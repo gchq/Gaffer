@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,8 +53,8 @@ public class CachingIterableTest {
         try {
             cachingIterable = new CachingIterable<>(mockIterable, 5);
 
-            assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
-            assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
+            assertThat(SMALL_LIST).isEqualTo(Lists.newArrayList(cachingIterable));
+            assertThat(SMALL_LIST).isEqualTo(Lists.newArrayList(cachingIterable));
             verify(mockIterable, times(1)).iterator();
         } finally {
             CloseableUtil.close(cachingIterable);
@@ -72,8 +71,8 @@ public class CachingIterableTest {
         try {
             cachingIterable = new CachingIterable<>(mockIterable, 5);
 
-            assertEquals(LARGE_LIST, Lists.newArrayList(cachingIterable));
-            assertEquals(LARGE_LIST, Lists.newArrayList(cachingIterable));
+            assertThat(LARGE_LIST).isEqualTo(Lists.newArrayList(cachingIterable));
+            assertThat(LARGE_LIST).isEqualTo(Lists.newArrayList(cachingIterable));
             verify(mockIterable, times(2)).iterator();
         } finally {
             CloseableUtil.close(cachingIterable);
@@ -86,8 +85,8 @@ public class CachingIterableTest {
         try {
             cachingIterable = new CachingIterable<>(null);
 
-            assertEquals(Collections.emptyList(), Lists.newArrayList(cachingIterable));
-            assertEquals(Collections.emptyList(), Lists.newArrayList(cachingIterable));
+            assertThat(Collections.emptyList()).isEqualTo(Lists.newArrayList(cachingIterable));
+            assertThat(Collections.emptyList()).isEqualTo(Lists.newArrayList(cachingIterable));
         } finally {
             CloseableUtil.close(cachingIterable);
         }
@@ -122,7 +121,7 @@ public class CachingIterableTest {
         try {
             cachingIterable = new CachingIterable<>(iterable, 5);
 
-            assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
+            assertThat(SMALL_LIST).isEqualTo(Lists.newArrayList(cachingIterable));
             verify((Closeable) iterable).close();
         } finally {
             CloseableUtil.close(cachingIterable);
@@ -161,7 +160,7 @@ public class CachingIterableTest {
             itr3.next();
 
             itr4 = cachingIterable.iterator();
-            assertEquals(SMALL_LIST, Lists.newArrayList(itr4));
+            assertThat(SMALL_LIST).isEqualTo(Lists.newArrayList(itr4));
 
             // should be cached now as it has been fully read.
             verify((Closeable) iterable, times(3)).close();
@@ -169,7 +168,7 @@ public class CachingIterableTest {
             itr3.next();
 
             verify(iterable, times(4)).iterator();
-            assertEquals(SMALL_LIST, Lists.newArrayList(cachingIterable));
+            assertThat(SMALL_LIST).isEqualTo(Lists.newArrayList(cachingIterable));
 
             itr5 = cachingIterable.iterator();
             assertThat(itr5.next()).isEqualTo((Integer) 0);

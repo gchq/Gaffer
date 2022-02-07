@@ -21,14 +21,12 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
- * A {@code TransformToMultiIterable} allows {@link Iterable}s to be lazily
- * validated and transformed without
- * loading the entire iterable into memory. The easiest way to use this class is
- * to create an anonymous inner class.
- * This class is very similar to {@link TransformOneToManyIterable} except that
- * this class transforms one to many
+ * A {@code TransformToMultiIterable} allows {@link Iterable}s to be lazily validated and transformed without
+ * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
+ * This class is very similar to {@link TransformOneToManyIterable} except that this class transforms one to many
  * items.
  *
  * @param <I> The input iterable type.
@@ -64,17 +62,14 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
     }
 
     /**
-     * Constructs an {@code TransformOneToManyIterable} with the given input
-     * {@link Iterable},
-     * {@link Validator} and a skipInvalid flag to determine whether invalid items
-     * should be skipped.
+     * Constructs an {@code TransformOneToManyIterable} with the given input {@link Iterable},
+     * {@link Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param input       the input {@link Iterable}
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator,
-            final boolean skipInvalid) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, true);
     }
 
@@ -84,11 +79,10 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
      * @param input       the input {@link Iterable}
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
-     * @param autoClose   if true then the input iterable will be closed when any
-     *                    iterators reach the end.
+     * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator,
-            final boolean skipInvalid, final boolean autoClose) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
+                                      final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
@@ -101,8 +95,7 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
     }
 
     /**
-     * @return an {@link java.util.Iterator} that lazy transforms the I items to O
-     *         items
+     * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
      */
     @Override
     public Iterator<O> iterator() {
@@ -118,13 +111,11 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
     protected abstract Iterable<O> transform(final I item);
 
     /**
-     * Handles an invalid item. Simply throws an {@link IllegalArgumentException}
-     * explaining that the item is
+     * Handles an invalid item. Simply throws an {@link IllegalArgumentException} explaining that the item is
      * invalid. Override this method to handle invalid items differently.
      *
      * @param item the invalid I item
-     * @throws IllegalArgumentException always thrown unless this method is
-     *                                  overridden.
+     * @throws IllegalArgumentException always thrown unless this method is overridden.
      */
     protected void handleInvalidItem(final I item) {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
@@ -153,12 +144,12 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
 
         @Override
         public boolean hasNext() {
-            if (null == hasNext) {
+            if (Objects.isNull(hasNext)) {
                 if (iterator.hasNext()) {
                     final I possibleNext = iterator.next();
                     if (validator.validate(possibleNext)) {
                         final Iterable<O> nextElementsIterable = transform(possibleNext);
-                        if (null != nextElementsIterable) {
+                        if (Objects.nonNull(nextElementsIterable)) {
                             nextElements = nextElementsIterable.iterator();
                             if (nextElements.hasNext()) {
                                 hasNext = true;
@@ -205,12 +196,12 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException(
-                    "Cannot call remove on a " + getIterableClass().getSimpleName() + " iterator");
+            throw new UnsupportedOperationException(String.format("Cannot call remove on a %s iterator",
+                    getIterableClass().getSimpleName()));
         }
 
         private boolean _hasNext() {
-            return Boolean.TRUE.equals(hasNext) && null != nextElements && nextElements.hasNext();
+            return Boolean.TRUE.equals(hasNext) && Objects.nonNull(nextElements) && nextElements.hasNext();
         }
     }
 }

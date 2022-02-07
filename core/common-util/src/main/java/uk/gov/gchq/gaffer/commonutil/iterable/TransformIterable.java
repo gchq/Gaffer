@@ -21,12 +21,12 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * A {@code TransformIterable} allows {@link java.lang.Iterable}s to be lazily
- * validated and transformed without
- * loading the entire iterable into memory. The easiest way to use this class is
- * to create an anonymous inner class.
+ * validated and transformed without loading the entire iterable into memory.
+ * The easiest way to use this class is to create an anonymous inner class.
  *
  * @param <I> The input iterable type.
  * @param <O> the output iterable type.
@@ -70,8 +70,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator,
-            final boolean skipInvalid) {
+    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, true);
     }
 
@@ -85,7 +84,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      *                    iterators reach the end.
      */
     public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
-            final boolean autoClose) {
+                             final boolean autoClose) {
         if (null == input) {
             throw new IllegalArgumentException("Input iterable is required");
         }
@@ -127,7 +126,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
      *                                  overridden.
      */
     protected void handleInvalidItem(final I item) {
-        final String itemDescription = null != item ? item.toString() : "<unknown>";
+        final String itemDescription = Objects.nonNull(item) ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
     }
 
@@ -161,7 +160,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
 
         @Override
         public boolean hasNext() {
-            if (null == hasNext) {
+            if (Objects.isNull(hasNext)) {
                 while (iterator.hasNext()) {
                     final I possibleNext = iterator.next();
                     if (validator.validate(possibleNext)) {
@@ -188,7 +187,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
 
         @Override
         public O next() {
-            if ((null == hasNext) && (!hasNext())) {
+            if (Objects.isNull(hasNext) && !hasNext()) {
                 throw new NoSuchElementException("Reached the end of the iterator");
             }
 
@@ -201,8 +200,8 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException(
-                    "Cannot call remove on a " + getIterableClass().getSimpleName() + " iterator");
+            throw new UnsupportedOperationException(String.format("Cannot call remove on a %s iterator",
+                    getIterableClass().getSimpleName()));
         }
     }
 }

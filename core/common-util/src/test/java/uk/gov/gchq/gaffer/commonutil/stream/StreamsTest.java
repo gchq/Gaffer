@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,7 +47,7 @@ public class StreamsTest {
         }
 
         // Then
-        assertEquals(first, firstResult);
+        assertThat(firstResult).isEqualTo(first);
         verify((Closeable) iterator).close();
     }
 
@@ -70,7 +70,7 @@ public class StreamsTest {
         }
 
         // Then
-        assertEquals("first item", firstResult);
+        assertThat(firstResult).isEqualTo("first item");
         verify((Closeable) iterable).close();
     }
 
@@ -90,7 +90,7 @@ public class StreamsTest {
         }
 
         // Then
-        assertEquals("first item", firstResult);
+        assertThat(firstResult).isEqualTo("first item");
         verify((Closeable) iterator).close();
     }
 
@@ -112,7 +112,7 @@ public class StreamsTest {
         }
 
         // Then
-        assertEquals("first item", firstResult);
+        assertThat(firstResult).isEqualTo("first item");
         verify((Closeable) iterable).close();
     }
 }

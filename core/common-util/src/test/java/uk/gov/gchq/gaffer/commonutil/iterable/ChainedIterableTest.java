@@ -33,7 +33,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChainedIterableTest {
 
@@ -45,10 +44,10 @@ public class ChainedIterableTest {
             chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
             final Iterator<Integer> iterator = chainedIterable.iterator();
 
-            assertEquals(1, iterator.next());
+            assertThat(iterator.next()).isEqualTo(1);
             // No 2nd element
             assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
-        }  finally {
+        } finally {
             CloseableUtil.close(chainedIterable);
         }
     }
@@ -73,7 +72,7 @@ public class ChainedIterableTest {
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
         // When
-        List<List<Integer>> collect = Stream.of(itr1, emptyItr2, itr3, itr4).collect(Collectors.toList());
+        final List<List<Integer>> collect = Stream.of(itr1, emptyItr2, itr3, itr4).collect(Collectors.toList());
 
         ChainedIterable<Integer> wrappedItr = null;
         try {
@@ -106,7 +105,7 @@ public class ChainedIterableTest {
         }
     }
 
-    @SuppressWarnings({"resource", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldRemoveElementFromFirstIterable() {
         // Given
@@ -137,7 +136,7 @@ public class ChainedIterableTest {
         }
     }
 
-    @SuppressWarnings({"resource", "unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldRemoveElementFromThirdIterable() {
         // Given

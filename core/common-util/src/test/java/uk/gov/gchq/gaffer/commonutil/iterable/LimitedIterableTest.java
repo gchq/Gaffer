@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -28,8 +27,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LimitedIterableTest {
 
@@ -54,10 +51,10 @@ public class LimitedIterableTest {
         final int start = 2;
         final int end = Integer.MAX_VALUE;
 
-        LimitedIterable<Integer> limitedValues = null;
+        Iterable<Integer> limitedValues = null;
         try {
             limitedValues = new LimitedIterable<>(values, start, end);
-            assertEquals(values.subList(start, values.size()), Lists.newArrayList(limitedValues));
+            assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, values.size()));
         } finally {
             CloseableUtil.close(limitedValues);
         }
@@ -72,7 +69,7 @@ public class LimitedIterableTest {
         LimitedIterable<Integer> limitedValues = null;
         try {
             limitedValues = new LimitedIterable<>(values, start, end);
-            assertEquals(values, Lists.newArrayList(limitedValues));
+            assertThat(limitedValues).containsExactlyElementsOf(values);
         } finally {
             CloseableUtil.close(limitedValues);
         }
@@ -87,7 +84,7 @@ public class LimitedIterableTest {
         LimitedIterable<Integer> limitedValues = null;
         try {
             limitedValues = new LimitedIterable<>(values, start, end);
-            assertTrue(Lists.newArrayList(limitedValues).isEmpty());
+            assertThat(limitedValues).isEmpty();
         } finally {
             CloseableUtil.close(limitedValues);
         }
@@ -126,7 +123,7 @@ public class LimitedIterableTest {
     public void shouldHandleNullIterable() {
         final Iterable<Integer> nullIterable = new LimitedIterable<>(null, 0, 1, true);
 
-        assertTrue(Lists.newArrayList(nullIterable).isEmpty());
+        assertThat(nullIterable).isEmpty();
     }
 
     @Test
@@ -143,7 +140,7 @@ public class LimitedIterableTest {
             equalValues = new LimitedIterable<>(values, start, end, truncate);
 
             // Then
-            assertEquals(values, Lists.newArrayList(equalValues));
+            assertThat(equalValues).containsExactlyElementsOf(values);
         } finally {
             CloseableUtil.close(equalValues);
         }

@@ -196,13 +196,12 @@ public class TransformIterableTest {
             super(input, validator);
         }
 
-        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator,
-                final boolean skipInvalid) {
+        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
             super(input, validator, skipInvalid);
         }
 
-        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator,
-                final boolean skipInvalid, final boolean autoClose) {
+        TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid,
+                              final boolean autoClose) {
             super(input, validator, skipInvalid, autoClose);
         }
 
