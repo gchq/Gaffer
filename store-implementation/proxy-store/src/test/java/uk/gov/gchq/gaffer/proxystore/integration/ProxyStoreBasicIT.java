@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.proxystore.integration;
 
-import com.google.common.collect.Iterables;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,15 +60,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ProxyStoreBasicIT {
-    private Graph graph;
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
-
-    @TempDir
-    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final User USER = new User();
     public static final Element[] DEFAULT_ELEMENTS = new Element[] {
@@ -103,6 +99,11 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
+    @TempDir
+    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
+
+    private Graph graph;
+
     @BeforeAll
     public static void beforeAll() throws Exception {
         CLIENT.startServer();
@@ -128,7 +129,6 @@ public class ProxyStoreBasicIT {
                 .build();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddElementsAndGetAllElements() throws Exception {
         // Given
@@ -138,11 +138,10 @@ public class ProxyStoreBasicIT {
         final Iterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
-        assertThat(Iterables.size(results)).isEqualTo(DEFAULT_ELEMENTS.length);
-        assertThat((Iterable<Element>) results).contains(DEFAULT_ELEMENTS);
+        assertThat(results).hasSize(DEFAULT_ELEMENTS.length);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(DEFAULT_ELEMENTS);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddElementsAndGetRelatedElements() throws Exception {
         // Given
@@ -159,10 +158,9 @@ public class ProxyStoreBasicIT {
 
         // Then
         assertThat(results).hasSize(1);
-        assertThat((Iterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(DEFAULT_ELEMENTS[0]);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
@@ -191,7 +189,7 @@ public class ProxyStoreBasicIT {
 
         // Then
         assertThat(results).hasSize(2);
-        assertThat((Iterable<Element>) results).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
     }
 
     @Test
@@ -200,21 +198,18 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When / Then
-        try {
-            graph.execute(
-                    new OperationChain.Builder()
-                            .first(new GetAllElements())
-                            .then(new Limit<>(1, false))
-                            .then(new ToList<>())
-                            .build(),
-                    USER);
-            fail("Exception expected");
-        } catch (final GafferWrappedErrorRuntimeException e) {
-            assertThat(e.getError()).isEqualTo(new Error.ErrorBuilder()
-                    .simpleMessage("Limit of 1 exceeded.")
-                    .status(Status.INTERNAL_SERVER_ERROR)
-                    .build());
-        }
+        final GafferWrappedErrorRuntimeException actual = assertThrows(GafferWrappedErrorRuntimeException.class,
+                () -> graph.execute(
+                        new OperationChain.Builder()
+                                .first(new GetAllElements())
+                                .then(new Limit<>(1, false))
+                                .then(new ToList<>())
+                                .build(),
+                        USER));
+        assertThat(actual.getError()).isEqualTo(new Error.ErrorBuilder()
+                .simpleMessage("Limit of 1 exceeded.")
+                .status(Status.INTERNAL_SERVER_ERROR)
+                .build());
     }
 
     @Test
