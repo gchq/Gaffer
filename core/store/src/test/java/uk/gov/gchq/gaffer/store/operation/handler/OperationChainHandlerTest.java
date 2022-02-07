@@ -39,13 +39,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class OperationChainHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleOperationChain() throws OperationException {
         // Given
@@ -76,9 +77,10 @@ public class OperationChainHandlerTest {
         final Object result = opChainHandler.doOperation(opChain, context, store);
 
         // Then
-        assertSame(expectedResult, result);
+        assertThat(result).isSameAs(expectedResult);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleNonInputOperation() throws OperationException {
         // Given
@@ -107,9 +109,10 @@ public class OperationChainHandlerTest {
         final Object result = opChainHandler.doOperation(opChain, context, store);
 
         // Then
-        assertSame(expectedResult, result);
+        assertThat(result).isSameAs(expectedResult);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleNestedOperationChain() throws OperationException {
         // Given
@@ -147,6 +150,6 @@ public class OperationChainHandlerTest {
         final Object result = opChainHandler.doOperation(opChain2, context, store);
 
         // Then
-        assertSame(entityA, result);
+        assertThat(result).isSameAs(entityA);
     }
 }

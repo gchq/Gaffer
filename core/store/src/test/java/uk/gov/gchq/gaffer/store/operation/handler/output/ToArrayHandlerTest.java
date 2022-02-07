@@ -34,13 +34,12 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class ToArrayHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableToArray(@Mock final ToArray operation) throws OperationException {
         // Given
@@ -55,9 +54,10 @@ public class ToArrayHandlerTest {
         final Integer[] results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertArrayEquals(originalArray, results);
+        assertThat(results).isEqualTo(originalArray);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableOfElementsToArray(@Mock final ToArray operation) throws OperationException {
         // Given
@@ -79,13 +79,16 @@ public class ToArrayHandlerTest {
         final Element[] results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertArrayEquals(originalArray, results);
+        assertThat(results).isEqualTo(originalArray);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableOfElementIdsToArray(@Mock final ToArray operation) throws OperationException {
         // Given
-        final ElementId[] originalArray = new ElementId[] {new EntitySeed("vertex"), new EdgeSeed("src", "dest", true)};
+        final ElementId[] originalArray = new ElementId[] {
+                new EntitySeed("vertex"),
+                new EdgeSeed("src", "dest", true)};
 
         final Iterable<ElementId> originalResults = Arrays.asList(originalArray);
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
@@ -96,9 +99,10 @@ public class ToArrayHandlerTest {
         final ElementId[] results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertArrayEquals(originalArray, results);
+        assertThat(results).isEqualTo(originalArray);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableOfElementsAndElementIdsToArray(@Mock final ToArray operation)
             throws OperationException {
@@ -123,9 +127,10 @@ public class ToArrayHandlerTest {
         final ElementId[] results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertArrayEquals(originalArray, results);
+        assertThat(results).isEqualTo(originalArray);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableOfObjectsToArray(@Mock final ToArray operation) throws OperationException {
         // Given
@@ -148,9 +153,10 @@ public class ToArrayHandlerTest {
         final Object[] results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertArrayEquals(originalArray, results);
+        assertThat(results).isEqualTo(originalArray);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertEmptyIterableOfObjectsToNullArray(@Mock final ToArray operation)
             throws OperationException {
@@ -166,9 +172,10 @@ public class ToArrayHandlerTest {
         final Object[] results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertNull(results);
+        assertThat(results).isNull();
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleNullInput(@Mock final ToArray operation) throws OperationException {
         // Given
@@ -183,6 +190,7 @@ public class ToArrayHandlerTest {
         assertThat(results).isNull();
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleZeroLengthInput(@Mock final ToArray operation) throws OperationException {
         // Given

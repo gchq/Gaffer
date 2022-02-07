@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -65,8 +66,8 @@ public class NamedViewCache {
      * @param adminAuth       The admin auth supplied for permissions.
      * @throws CacheOperationFailedException if the add operation fails.
      */
-    public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
-            final String adminAuth) throws CacheOperationFailedException {
+    public void addNamedView(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user, final String adminAuth)
+            throws CacheOperationFailedException {
         add(namedViewDetail, overwrite, user, adminAuth);
     }
 
@@ -119,12 +120,12 @@ public class NamedViewCache {
      */
     public NamedViewDetail getNamedView(final String name, final User user, final String adminAuth)
             throws CacheOperationFailedException {
-        if (null != name) {
+        if (Objects.nonNull(name)) {
             final NamedViewDetail namedViewDetail = getFromCache(name);
             if (namedViewDetail.hasReadAccess(user, adminAuth)) {
                 return namedViewDetail;
             } else {
-                throw new CacheOperationFailedException("User: " + user + " does not have read access to " + name);
+                throw new CacheOperationFailedException(String.format("User: %s does not have read access to %s", user, name));
             }
         } else {
             throw new CacheOperationFailedException("NamedView name cannot be null");
@@ -189,8 +190,8 @@ public class NamedViewCache {
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
-        if (null != CacheServiceLoader.getService().getFromCache(CACHE_NAME, name)) {
-            throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
+        if (Objects.nonNull(CacheServiceLoader.getService().getFromCache(CACHE_NAME, name))) {
+            throw new CacheOperationFailedException(String.format("Failed to remove %s from cache", name));
         }
     }
 
@@ -228,7 +229,7 @@ public class NamedViewCache {
             if (null != namedViewFromCache) {
                 return namedViewFromCache;
             } else {
-                throw new CacheOperationFailedException("No NamedView with the name " + name + " exists in the cache");
+                throw new CacheOperationFailedException(String.format("No NamedView with the name %s exists in the cache", name));
             }
         } else {
             throw new IllegalArgumentException("NamedView name cannot be null");
@@ -236,8 +237,9 @@ public class NamedViewCache {
     }
 
     private void add(final NamedViewDetail namedViewDetail, final boolean overwrite, final User user,
-            final String adminAuth) throws CacheOperationFailedException {
-        if (null != namedViewDetail.getName()) {
+                     final String adminAuth)
+            throws CacheOperationFailedException {
+        if (Objects.nonNull(namedViewDetail.getName())) {
             namedViewDetail.getName();
         } else {
             throw new CacheOperationFailedException("NamedView name cannot be null");
@@ -256,12 +258,11 @@ public class NamedViewCache {
             addToCache(namedViewDetail, false);
             return;
         }
-        if (user != null) {
+        if (Objects.nonNull(user)) {
             if (existing.hasWriteAccess(user, adminAuth)) {
                 addToCache(namedViewDetail, true);
             } else {
-                throw new CacheOperationFailedException(
-                        "User " + user.getUserId() + " does not have permission to overwrite");
+                throw new CacheOperationFailedException(String.format("User %s does not have permission to overwrite", user.getUserId()));
             }
         }
         addToCache(namedViewDetail, true);
@@ -269,7 +270,7 @@ public class NamedViewCache {
 
     private void remove(final String name, final User user, final String adminAuth)
             throws CacheOperationFailedException {
-        if (null == name) {
+        if (Objects.isNull(name)) {
             throw new IllegalArgumentException("NamedView name cannot be null");
         }
         NamedViewDetail existing;
@@ -278,12 +279,11 @@ public class NamedViewCache {
         } catch (final CacheOperationFailedException e) {
             return;
         }
-        if (user != null) {
+        if (Objects.nonNull(user)) {
             if (existing.hasWriteAccess(user, adminAuth)) {
                 deleteFromCache(name);
             } else {
-                throw new CacheOperationFailedException("User " + user +
-                        " does not have permission to delete named view: " + name);
+                throw new CacheOperationFailedException(String.format("User %s does not have permission to delete named view: %s", user, name));
             }
         }
         deleteFromCache(name);

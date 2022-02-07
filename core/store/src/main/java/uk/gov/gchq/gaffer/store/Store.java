@@ -175,6 +175,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
@@ -242,14 +243,15 @@ public abstract class Store {
     }
 
     public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) {
-        if (null == storeProperties) {
-            throw new IllegalArgumentException("Store properties are required to create a store. graphId: " + graphId);
+        if (Objects.isNull(storeProperties)) {
+            throw new IllegalArgumentException(String.format("Store properties are required to create a store. graphId: %s", graphId));
         }
 
         final String storeClass = storeProperties.getStoreClass();
-        if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: "
-                    + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
+        if (Objects.isNull(storeClass)) {
+            throw new IllegalArgumentException(String
+                    .format("The Store class name was not found in the store properties for key: %s, GraphId: %s",
+                            StoreProperties.STORE_CLASS, graphId));
         }
 
         final Store newStore;
@@ -258,7 +260,7 @@ public abstract class Store {
                     .asSubclass(Store.class)
                     .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+            throw new IllegalArgumentException(String.format("Could not create store of type: %s", storeClass), e);
         }
 
         try {
@@ -272,7 +274,7 @@ public abstract class Store {
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
         LOGGER.debug("Initialising {}", getClass().getSimpleName());
-        if (null == graphId) {
+        if (Objects.isNull(graphId)) {
             throw new IllegalArgumentException("graphId is required");
         }
         this.graphId = graphId;
@@ -311,15 +313,14 @@ public abstract class Store {
         try {
 
             final OperationChain<?> operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(),
-                    OperationChain.class);
+                                                                                OperationChain.class);
             final Context context = new Context(jobDetail.getUser());
             context.setOriginalOpChain(operationChain);
 
-            getExecutorService().scheduleAtFixedRate(
-                    new ScheduledJobRunnable(operationChain, jobDetail, context),
-                    jobDetail.getRepeat().getInitialDelay(),
-                    jobDetail.getRepeat().getRepeatPeriod(),
-                    jobDetail.getRepeat().getTimeUnit());
+            getExecutorService().scheduleAtFixedRate(new ScheduledJobRunnable(operationChain, jobDetail, context),
+                                                     jobDetail.getRepeat().getInitialDelay(),
+                                                     jobDetail.getRepeat().getRepeatPeriod(),
+                                                     jobDetail.getRepeat().getTimeUnit());
 
         } catch (final SerialisationException exception) {
             throw new RuntimeException(exception);
@@ -327,11 +328,10 @@ public abstract class Store {
     }
 
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
-        if (null != storeProperties) {
-            JSONSerialiser.update(
-                    storeProperties.getJsonSerialiserClass(),
-                    storeProperties.getJsonSerialiserModules(),
-                    storeProperties.getStrictJson());
+        if (Objects.nonNull(storeProperties)) {
+            JSONSerialiser.update(storeProperties.getJsonSerialiserClass(),
+                                  storeProperties.getJsonSerialiserModules(),
+                                  storeProperties.getStrictJson());
         } else {
             JSONSerialiser.update();
         }
@@ -351,7 +351,7 @@ public abstract class Store {
     @Deprecated
     public boolean hasTrait(final StoreTrait storeTrait) {
         final Set<StoreTrait> traits = getTraits();
-        return null != traits && traits.contains(storeTrait);
+        return Objects.nonNull(traits) && traits.contains(storeTrait);
     }
 
     /**
@@ -443,26 +443,26 @@ public abstract class Store {
         return executeJob(operationChain, jobDetail, context);
     }
 
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context,
-            final String parentJobId) throws OperationException {
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId)
+            throws OperationException {
         final JobDetail childJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         childJobDetail.setParentJobId(parentJobId);
-        return executeJob(operationChain, childJobDetail,
-                context);
+        return executeJob(operationChain, childJobDetail, context);
     }
 
     private JobDetail executeJob(final Operation operation,
-            final JobDetail jobDetail,
-            final Context context) throws OperationException {
-        if (null == jobTracker) {
+                                 final JobDetail jobDetail,
+                                 final Context context)
+            throws OperationException {
+        if (Objects.isNull(jobTracker)) {
             throw new OperationException("JobTracker has not been configured.");
         }
 
-        if (null == ExecutorService.getService() || !ExecutorService.isEnabled()) {
+        if (Objects.isNull(ExecutorService.getService()) || !ExecutorService.isEnabled()) {
             throw new OperationException(("Executor Service is not enabled."));
         }
 
-        if (null != jobDetail.getRepeat()) {
+        if (Objects.nonNull(jobDetail.getRepeat())) {
             return scheduleJob(operation, jobDetail, context);
         } else {
             return runJob(operation, jobDetail, context);
@@ -471,20 +471,18 @@ public abstract class Store {
     }
 
     private JobDetail scheduleJob(final Operation operation,
-            final JobDetail parentJobDetail,
-            final Context context) {
+                                  final JobDetail parentJobDetail,
+                                  final Context context) {
         final OperationChain<?> clonedOp = (operation instanceof Operations)
                 ? (OperationChain) operation.shallowClone()
                 : OperationChain.wrap(operation).shallowClone();
 
-        getExecutorService().scheduleAtFixedRate(
-                new ScheduledJobRunnable(clonedOp, parentJobDetail, context),
-                parentJobDetail.getRepeat().getInitialDelay(),
-                parentJobDetail.getRepeat().getRepeatPeriod(),
-                parentJobDetail.getRepeat().getTimeUnit());
+        getExecutorService().scheduleAtFixedRate(new ScheduledJobRunnable(clonedOp, parentJobDetail, context),
+                                                 parentJobDetail.getRepeat().getInitialDelay(),
+                                                 parentJobDetail.getRepeat().getRepeatPeriod(),
+                                                 parentJobDetail.getRepeat().getTimeUnit());
 
-        return addOrUpdateJobDetail(clonedOp, context, null,
-                JobStatus.SCHEDULED_PARENT);
+        return addOrUpdateJobDetail(clonedOp, context, null, JobStatus.SCHEDULED_PARENT);
     }
 
     class ScheduledJobRunnable implements Runnable {
@@ -514,7 +512,6 @@ public abstract class Store {
 
         @Override
         public void run() {
-
             if ((jobTracker.getJob(jobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
                 Thread.currentThread().interrupt();
                 return;
@@ -529,8 +526,8 @@ public abstract class Store {
     }
 
     private JobDetail runJob(final Operation operation,
-            final JobDetail jobDetail,
-            final Context context) {
+                             final JobDetail jobDetail,
+                             final Context context) {
         final OperationChain<?> clonedOp = (operation instanceof Operations)
                 ? (OperationChain) operation.shallowClone()
                 : OperationChain.wrap(operation).shallowClone();
@@ -555,12 +552,12 @@ public abstract class Store {
                 addOrUpdateJobDetail(clonedOp, context, null, JobStatus.FINISHED);
             } catch (final Error e) {
                 addOrUpdateJobDetail(clonedOp, context, e.getMessage(),
-                        JobStatus.FAILED);
+                                     JobStatus.FAILED);
                 throw e;
             } catch (final Exception e) {
                 LOGGER.warn("Operation chain job failed to execute", e);
                 addOrUpdateJobDetail(clonedOp, context, e.getMessage(),
-                        JobStatus.FAILED);
+                                     JobStatus.FAILED);
             }
         });
         return jobDetail;
@@ -571,7 +568,8 @@ public abstract class Store {
     }
 
     protected ScheduledExecutorService getExecutorService() {
-        return (null != ExecutorService.getService() && ExecutorService.isEnabled()) ? ExecutorService.getService()
+        return (Objects.nonNull(ExecutorService.getService()) && ExecutorService.isEnabled())
+                ? ExecutorService.getService()
                 : null;
     }
 
@@ -585,7 +583,7 @@ public abstract class Store {
      */
     public boolean isSupported(final Class<? extends Operation> operationClass) {
         final OperationHandler operationHandler = operationHandlers.get(operationClass);
-        return null != operationHandler;
+        return Objects.nonNull(operationHandler);
     }
 
     /**
@@ -596,7 +594,7 @@ public abstract class Store {
     }
 
     public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
-        if (null == operation || !Output.class.isAssignableFrom(operation)) {
+        if (Objects.isNull(operation) || !Output.class.isAssignableFrom(operation)) {
             return getSupportedOperations();
         }
 
@@ -629,8 +627,8 @@ public abstract class Store {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
         final SchemaElementDefinition elementDefinition = getSchema().getElement(
-                lazyElement.getGroup());
-        if (null != elementDefinition) {
+                                                                                 lazyElement.getGroup());
+        if (Objects.nonNull(elementDefinition)) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
                 lazyElement.getIdentifier(identifierType);
             }
@@ -697,7 +695,7 @@ public abstract class Store {
 
     public void validateSchemas() {
         final ValidationResult validationResult = new ValidationResult();
-        if (null == schema) {
+        if (Objects.isNull(schema)) {
             validationResult.addError("Schema is missing");
         } else {
             validationResult.add(schema.validate());
@@ -711,29 +709,24 @@ public abstract class Store {
                                 .getPropertyTypeDef(propertyName)
                                 .getSerialiser();
 
-                        if (null == serialisation) {
-                            validationResult.addError(
-                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.",
-                                            propertyName, key));
+                        if (Objects.isNull(serialisation)) {
+                            validationResult.addError(String.format("Could not find a serialiser for property '%s' in the group '%s'.",
+                                                                    propertyName, key));
                         } else if (!serialisation.canHandle(propertyClass)) {
-                            validationResult.addError(String.format(
-                                    "Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
-                                    serialisation
-                                            .getClass()
-                                            .getName(),
-                                    propertyName, key));
+                            validationResult.addError(String
+                                    .format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                            serialisation.getClass().getName(),
+                                            propertyName, key));
                         }
                     }));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
-            getSchema().getTypes()
-                    .forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
+            getSchema().getTypes().forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
-            throw new SchemaException("Schema is not valid. "
-                    + validationResult.getErrorString());
+            throw new SchemaException(String.format("Schema is not valid. %s", validationResult.getErrorString()));
         }
     }
 
@@ -750,10 +743,9 @@ public abstract class Store {
      * inconsistent.
      */
     protected void validateConsistentVertex() {
-        if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
-                .isConsistent()) {
-            throw new SchemaException(
-                    "Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        if (Objects.nonNull(getSchema().getVertexSerialiser())
+                && !getSchema().getVertexSerialiser().isConsistent()) {
+            throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
         }
     }
 
@@ -765,16 +757,13 @@ public abstract class Store {
      * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
      * @param validationResult             The validation result
      */
-    protected void validateConsistentGroupByProperties(
-            final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
-            final ValidationResult validationResult) {
-        for (final String property : schemaElementDefinitionEntry.getValue()
-                .getGroupBy()) {
-            final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
-                    .getPropertyTypeDef(property);
-            if (null != propertyTypeDef) {
+    protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
+                                                       final ValidationResult validationResult) {
+        for (final String property : schemaElementDefinitionEntry.getValue().getGroupBy()) {
+            final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(property);
+            if (Objects.nonNull(propertyTypeDef)) {
                 final Serialiser serialiser = propertyTypeDef.getSerialiser();
-                if (null != serialiser && !serialiser.isConsistent()) {
+                if (Objects.nonNull(serialiser) && !serialiser.isConsistent()) {
                     validationResult.addError("Serialiser for groupBy property: " + property
                             + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
                             + serialiser.getClass().getName() + " is not consistent.");
@@ -783,9 +772,8 @@ public abstract class Store {
         }
     }
 
-    protected void validateSchemaElementDefinition(
-            final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
-            final ValidationResult validationResult) {
+    protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
+                                                   final ValidationResult validationResult) {
         schemaElementDefinitionEntry.getValue()
                 .getProperties()
                 .forEach(propertyName -> {
@@ -793,25 +781,23 @@ public abstract class Store {
                     final Serialiser serialisation = schemaElementDefinitionEntry.getValue()
                             .getPropertyTypeDef(propertyName).getSerialiser();
 
-                    if (null == serialisation) {
-                        validationResult.addError(
-                                String.format("Could not find a serialiser for property '%s' in the group '%s'.",
-                                        propertyName, schemaElementDefinitionEntry.getKey()));
+                    if (Objects.isNull(serialisation)) {
+                        validationResult.addError(String.format("Could not find a serialiser for property '%s' in the group '%s'.",
+                                                                propertyName, schemaElementDefinitionEntry.getKey()));
                     } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError(String.format(
-                                "Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
-                                serialisation.getClass().getName(), propertyName,
-                                schemaElementDefinitionEntry.getKey()));
+                        validationResult.addError(String
+                                .format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                        serialisation.getClass().getName(), propertyName,
+                                        schemaElementDefinitionEntry.getKey()));
                     }
                 });
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
-        if ((null != serialiser) && !requiredParentSerialiserClass.isInstance(serialiser)) {
-            validationResult.addError(
-                    String.format("Schema serialiser (%s) is not instance of %s",
-                            serialiser.getClass().getSimpleName(),
-                            requiredParentSerialiserClass.getSimpleName()));
+        if ((Objects.nonNull(serialiser)) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+            validationResult.addError(String.format("Schema serialiser (%s) is not instance of %s",
+                                                    serialiser.getClass().getSimpleName(),
+                                                    requiredParentSerialiserClass.getSimpleName()));
         }
     }
 
@@ -917,13 +903,12 @@ public abstract class Store {
      * @return the result of the operation.
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException(
-                "Operation " + operation.getClass() + " is not supported by the " + getClass()
-                        .getSimpleName() + '.');
+        throw new UnsupportedOperationException(String.format("Operation %s is not supported by the %s.", operation.getClass(),
+                                                              getClass().getSimpleName()));
     }
 
     public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
-        if (null == handler) {
+        if (Objects.isNull(handler)) {
             operationHandlers.remove(opClass);
         } else {
             operationHandlers.put(opClass, handler);
@@ -931,8 +916,8 @@ public abstract class Store {
     }
 
     public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass,
-            final OutputOperationHandler<OP, O> handler) {
-        if (null == handler) {
+                                                              final OutputOperationHandler<OP, O> handler) {
+        if (Objects.isNull(handler)) {
             operationHandlers.remove(opClass);
         } else {
             operationHandlers.put(opClass, handler);
@@ -944,18 +929,16 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context,
-            final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus,
-                msg);
-        if (null != jobTracker) {
-            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
-                    .getUser());
+                                           final String msg, final JobStatus jobStatus) {
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus, msg);
+        if (Objects.nonNull(jobTracker)) {
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
             if (newJobDetail.getStatus().equals(JobStatus.SCHEDULED_PARENT)) {
                 newJobDetail.setRepeat(null);
                 newJobDetail.setSerialisedOperationChain(operationChain);
             }
 
-            if (null == oldJobDetail) {
+            if (Objects.isNull(oldJobDetail)) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
                 jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context
@@ -969,7 +952,7 @@ public abstract class Store {
         final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
         Object result;
         try {
-            if (null != handler) {
+            if (Objects.nonNull(handler)) {
                 result = handler.doOperation(operation, context, this);
             } else {
                 result = doUnhandledOperation(operation, context);
@@ -979,7 +962,7 @@ public abstract class Store {
             throw e;
         }
 
-        if (null == result) {
+        if (Objects.isNull(result)) {
             CloseableUtil.close(operation);
         }
 
@@ -1017,7 +1000,7 @@ public abstract class Store {
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
         // Jobs
-        if (null != getJobTracker()) {
+        if (Objects.nonNull(getJobTracker())) {
             addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
             addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
             addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
@@ -1033,7 +1016,7 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        if (null != CacheServiceLoader.getService()) {
+        if (Objects.nonNull(CacheServiceLoader.getService())) {
             // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
@@ -1090,7 +1073,7 @@ public abstract class Store {
         addOperationHandler(Aggregate.class, new AggregateHandler());
 
         // GraphLibrary Adds
-        if (null != getGraphLibrary() && !(getGraphLibrary() instanceof NoGraphLibrary)) {
+        if (Objects.nonNull(getGraphLibrary()) && !(getGraphLibrary() instanceof NoGraphLibrary)) {
             addOperationHandler(AddSchemaToLibrary.class, new AddSchemaToLibraryHandler());
             addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
         }
@@ -1102,7 +1085,7 @@ public abstract class Store {
 
     private void addConfiguredOperationHandlers() {
         final OperationDeclarations declarations = getProperties().getOperationDeclarations();
-        if (null != declarations) {
+        if (Objects.nonNull(declarations)) {
             for (final OperationDeclaration definition : declarations.getOperations()) {
                 addOperationHandler(definition.getOperation(), definition.getHandler());
             }

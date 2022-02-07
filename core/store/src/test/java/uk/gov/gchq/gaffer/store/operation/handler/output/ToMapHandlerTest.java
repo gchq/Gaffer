@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -38,6 +39,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class ToMapHandlerTest {
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldConvertElementToMap(@Mock final ToMap operation) throws OperationException {
         // Given
@@ -56,18 +58,17 @@ public class ToMapHandlerTest {
                 .destination("destination")
                 .build();
 
-        final Iterable originalResults = Collections.singleton(entity);
+        final Iterable<Entity> originalResults = Collections.singleton(entity);
         final ToMapHandler handler = new ToMapHandler();
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn(Iterable.class.cast(originalResults));
         given(operation.getElementGenerator()).willReturn(generator);
 
         // When
-        final Iterable results = handler.doOperation(operation, new Context(), null);
+        final Iterable<? extends Map<?, ?>> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        // TODO: work out why removing the result type allows the test to compile
-        assertThat(results).containsExactly(originalMap);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Map.class)).containsExactly(originalMap);
     }
 
     @Test

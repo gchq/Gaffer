@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -24,18 +26,17 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class CountHandlerTest {
 
+    @SuppressWarnings({"rawtypes"})
     @Test
-    public void shouldReturnCount() throws OperationException {
+    public void shouldReturnCount(@Mock final Store store, @Mock final Count count) throws OperationException {
         // Given
-        final CountHandler handler = new CountHandler();
-        final Store store = mock(Store.class);
-        final Count count = mock(Count.class);
+        final CountHandler<?> handler = new CountHandler<>();
         final Iterable<Element> elements = CountGroupsHandlerTest.getElements();
         final Context context = new Context();
         given(count.getInput()).willReturn(elements);
@@ -44,6 +45,6 @@ public class CountHandlerTest {
         final Long result = handler.doOperation(count, context, store);
 
         // Then
-        assertEquals(8L, (long) result);
+        assertThat(result).isEqualTo(8L);
     }
 }

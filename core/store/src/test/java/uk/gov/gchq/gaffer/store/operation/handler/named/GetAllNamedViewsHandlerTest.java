@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
@@ -35,48 +37,48 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class GetAllNamedViewsHandlerTest {
     private final NamedViewCache namedViewCache = new NamedViewCache();
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
 
-    private Context context = new Context(new User.Builder()
+    private final Context context = new Context(new User.Builder()
             .userId(testUserId)
             .build());
 
-    private Store store = mock(Store.class);
+    @Mock
+    private Store store;
 
-    private View view = new View.Builder()
+    private final View view = new View.Builder()
             .edge(TestGroups.EDGE)
             .build();
 
-    private AddNamedView addNamedView = new AddNamedView.Builder()
+    private final AddNamedView addNamedView = new AddNamedView.Builder()
             .name(testNamedViewName)
             .view(view)
             .overwrite(false)
             .build();
 
-    private View view2 = new View.Builder()
+    private final View view2 = new View.Builder()
             .entity(TestGroups.ENTITY)
             .build();
 
-    private AddNamedView addNamedView2 = new AddNamedView.Builder()
+    private final AddNamedView addNamedView2 = new AddNamedView.Builder()
             .name(testNamedViewName + 2)
             .view(view2)
             .overwrite(false)
             .build();
 
-    private View viewWithNoAccess = new View.Builder()
+    private final View viewWithNoAccess = new View.Builder()
             .entity(TestGroups.ENTITY)
             .build();
 
-    private AddNamedView addNamedViewWithNoAccess = new AddNamedView.Builder()
+    private final AddNamedView addNamedViewWithNoAccess = new AddNamedView.Builder()
             .name(testNamedViewName + "WithNoAccess")
             .view(viewWithNoAccess)
             .overwrite(false)
@@ -109,18 +111,19 @@ public class GetAllNamedViewsHandlerTest {
         final GetAllNamedViews getAllNamedViews = new GetAllNamedViews.Builder().build();
 
         // when
-        GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
-        Iterable<NamedViewDetail> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
+        final GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
+        final Iterable<NamedViewDetail> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
 
         // Then
-        assertEquals(2, Iterables.size(namedViewList));
-        assertTrue(Iterables.contains(namedViewList, namedViewAsDetail));
-        assertTrue(Iterables.contains(namedViewList, namedViewAsDetail2));
+        assertThat(namedViewList)
+                .hasSize(2)
+                .contains(namedViewAsDetail)
+                .contains(namedViewAsDetail2);
     }
 
     private void initialiseCache() {
         given(store.getProperties()).willReturn(new StoreProperties());
-        StoreProperties properties = new StoreProperties();
+        final StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
     }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,41 +28,44 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class ToSetHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableToSet(@Mock final ToSet<Integer> operation) throws OperationException {
         // Given
-        final Iterable originalResults = Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10);
+        final Iterable<Integer> expected = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        final Iterable<Integer> originalResults = Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10);
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn((Iterable) originalResults);
 
         // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertEquals(Sets.newHashSet(originalResults), Sets.newHashSet(results));
+        assertThat(results).containsExactlyElementsOf(expected);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableToSetAndMaintainOrder(@Mock final ToSet<Integer> operation)
             throws OperationException {
         // Given
-        final Iterable originalResults = Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1);
+        final Iterable<Integer> expected = Arrays.asList(10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+        final Iterable<Integer> originalResults = Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1);
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn((Iterable) originalResults);
 
         // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertEquals(Sets.newHashSet(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), Sets.newHashSet(results));
+        assertThat(results).containsExactlyElementsOf(expected);
     }
 
     @Test

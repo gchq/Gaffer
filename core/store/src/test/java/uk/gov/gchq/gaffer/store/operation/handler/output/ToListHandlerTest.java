@@ -29,29 +29,30 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class ToListHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertIterableToList(@Mock final ToList<Integer> operation) throws OperationException {
         // Given
         final List<Integer> originalList = Arrays.asList(1, 2, 3);
 
-        final Iterable originalResults = originalList;
+        final Iterable<Integer> originalResults = originalList;
         final ToListHandler handler = new ToListHandler();
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn((Iterable) originalResults);
 
         // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertEquals(originalList, results);
+        assertThat(results).isEqualTo(originalList);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleNullInput(@Mock final ToList<Integer> operation) throws OperationException {
         // Given

@@ -42,8 +42,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
@@ -60,19 +59,19 @@ public class StoreIT {
         testStore.initialise("graphId", schema, new StoreProperties());
 
         // Then
-        assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
-        assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
+        assertThat(testStore.getSchema().getEdges()).containsKey(TestGroups.EDGE)
+                                                    .containsKey(TestGroups.EDGE);
 
-        assertTrue(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY));
-        assertTrue(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY));
+        assertThat(testStore.getSchema().getEntities()).containsKey(TestGroups.ENTITY)
+                                                       .containsKey(TestGroups.ENTITY);
 
-        assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
-        assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
+        assertThat(testStore.getSchema().getEdges()).doesNotContainKey(TestGroups.EDGE_2);
+        assertThat(testStore.getSchema().getEntities()).doesNotContainKey(TestGroups.ENTITY_2);
 
-        assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
-        assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
+        assertThat(testStore.getSchema().getEdges()).doesNotContainKey(TestGroups.EDGE_2);
+        assertThat(testStore.getSchema().getEntities()).doesNotContainKey(TestGroups.ENTITY_2);
 
-        assertTrue(testStore.getSchema().validate().isValid());
+        assertThat(testStore.getSchema().validate().isValid()).isTrue();
     }
 
     private class TestStore extends Store {
@@ -107,6 +106,7 @@ public class StoreIT {
             return null;
         }
 
+        @SuppressWarnings({"rawtypes"})
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;

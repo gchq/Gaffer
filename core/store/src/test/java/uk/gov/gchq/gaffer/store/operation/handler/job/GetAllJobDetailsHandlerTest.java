@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +38,7 @@ public class GetAllJobDetailsHandlerTest {
 
     @Test
     public void shouldThrowExceptionIfJobTrackerIsNotConfigured(@Mock final Store store, @Mock final User user,
-            @Mock final GetAllJobDetails operation) {
+                                                                @Mock final GetAllJobDetails operation) {
         // Given
         final GetAllJobDetailsHandler handler = new GetAllJobDetailsHandler();
 
@@ -52,8 +52,9 @@ public class GetAllJobDetailsHandlerTest {
 
     @Test
     public void shouldGetAllJobDetailsByDelegatingToJobTracker(@Mock final Store store, @Mock final User user,
-            @Mock final GetAllJobDetails operation, @Mock final JobTracker jobTracker,
-            @Mock final Iterable<JobDetail> jobsDetails) throws OperationException {
+                                                               @Mock final GetAllJobDetails operation, @Mock final JobTracker jobTracker,
+                                                               @Mock final Iterable<JobDetail> jobsDetails)
+            throws OperationException {
         // Given
         final GetAllJobDetailsHandler handler = new GetAllJobDetailsHandler();
 
@@ -64,6 +65,6 @@ public class GetAllJobDetailsHandlerTest {
         final Iterable<JobDetail> results = handler.doOperation(operation, new Context(user), store);
 
         // Then
-        assertSame(jobsDetails, results);
+        assertThat(results).isSameAs(jobsDetails);
     }
 }

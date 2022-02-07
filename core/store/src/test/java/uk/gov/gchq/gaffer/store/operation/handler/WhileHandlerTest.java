@@ -16,14 +16,15 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ExtractProperty;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Map;
@@ -42,16 +43,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class WhileHandlerTest {
 
     @Test
@@ -63,37 +63,38 @@ public class WhileHandlerTest {
         handler.setMaxRepeats(10);
 
         // Then
-        assertEquals(10, handler.getMaxRepeats());
+        assertThat(handler.getMaxRepeats()).isEqualTo(10);
 
         // When 2
         handler.setMaxRepeats(25);
 
         // Then 2
-        assertEquals(25, handler.getMaxRepeats());
+        assertThat(handler.getMaxRepeats()).isEqualTo(25);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldRepeatDelegateOperationUntilMaxRepeatsReached() throws OperationException {
+    public void shouldRepeatDelegateOperationUntilMaxRepeatsReached(@Mock final GetAdjacentIds delegate,
+                                                                    @Mock final GetAdjacentIds delegateClone1,
+                                                                    @Mock final GetAdjacentIds delegateClone2,
+                                                                    @Mock final GetAdjacentIds delegateClone3,
+                                                                    @Mock final Iterable result1,
+                                                                    @Mock final Iterable result2,
+                                                                    @Mock final Iterable result3,
+                                                                    @Mock final Context context,
+                                                                    @Mock final Store store)
+            throws OperationException {
         // Given
         final List<EntitySeed> input = Collections.singletonList(mock(EntitySeed.class));
         final int maxRepeats = 3;
-        final GetAdjacentIds delegate = mock(GetAdjacentIds.class);
-        final GetAdjacentIds delegateClone1 = mock(GetAdjacentIds.class);
-        final GetAdjacentIds delegateClone2 = mock(GetAdjacentIds.class);
-        final GetAdjacentIds delegateClone3 = mock(GetAdjacentIds.class);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
         given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
 
-        final Iterable result1 = mock(Iterable.class);
-        final Iterable result2 = mock(Iterable.class);
-        final Iterable result3 = mock(Iterable.class);
         given(store.execute(delegateClone1, context)).willReturn(result1);
         given(store.execute(delegateClone2, context)).willReturn(result2);
         given(store.execute(delegateClone3, context)).willReturn(result3);
 
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .operation(delegate)
@@ -111,32 +112,33 @@ public class WhileHandlerTest {
         verify(store).execute((Output) delegateClone1, context);
         verify(store).execute((Output) delegateClone2, context);
         verify(store).execute((Output) delegateClone3, context);
-        assertSame(result3, result);
+
+        assertThat(result).isSameAs(result3);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldRepeatWhileConditionIsTrue() throws OperationException {
+    public void shouldRepeatWhileConditionIsTrue(@Mock final GetAdjacentIds delegate,
+                                                 @Mock final GetAdjacentIds delegateClone1,
+                                                 @Mock final GetAdjacentIds delegateClone2,
+                                                 @Mock final GetAdjacentIds delegateClone3,
+                                                 @Mock final Iterable result1,
+                                                 @Mock final Iterable result2,
+                                                 @Mock final Iterable result3,
+                                                 @Mock final Context context,
+                                                 @Mock final Store store)
+            throws OperationException {
         // Given
         final List<EntitySeed> input = Collections.singletonList(mock(EntitySeed.class));
         final boolean condition = true;
         final int maxRepeats = 3;
-        final GetElements delegate = mock(GetElements.class);
-        final GetElements delegateClone1 = mock(GetElements.class);
-        final GetElements delegateClone2 = mock(GetElements.class);
-        final GetElements delegateClone3 = mock(GetElements.class);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
         given(delegate.shallowClone()).willReturn(delegateClone1, delegateClone2, delegateClone3);
-
-        final Iterable result1 = mock(Iterable.class);
-        final Iterable result2 = mock(Iterable.class);
-        final Iterable result3 = mock(Iterable.class);
         given(store.execute(delegateClone1, context)).willReturn(result1);
         given(store.execute(delegateClone2, context)).willReturn(result2);
         given(store.execute(delegateClone3, context)).willReturn(result3);
 
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .condition(condition)
                 .maxRepeats(maxRepeats)
@@ -155,20 +157,21 @@ public class WhileHandlerTest {
         verify(store).execute((Output) delegateClone1, context);
         verify(store).execute((Output) delegateClone2, context);
         verify(store).execute((Output) delegateClone3, context);
-        assertSame(result3, result);
+        assertThat(result).isSameAs(result3);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void shouldNotRepeatWhileConditionIsFalse() throws OperationException {
+    public void shouldNotRepeatWhileConditionIsFalse(@Mock final GetAdjacentIds delegate,
+                                                     @Mock final Context context,
+                                                     @Mock final Store store,
+                                                     @Mock final EntitySeed input)
+            throws OperationException {
         // Given
-        final EntitySeed input = mock(EntitySeed.class);
         final int maxRepeats = 3;
         final boolean condition = false;
-        final Operation delegate = mock(GetElements.class);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .condition(condition)
@@ -185,15 +188,15 @@ public class WhileHandlerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenMaxConfiguredNumberOfRepeatsExceeded() throws OperationException {
+    public void shouldThrowExceptionWhenMaxConfiguredNumberOfRepeatsExceeded(@Mock final GetAdjacentIds delegate,
+                                                                             @Mock final Context context,
+                                                                             @Mock final Store store,
+                                                                             @Mock final EntitySeed input)
+            throws OperationException {
         // Given
-        final EntitySeed input = mock(EntitySeed.class);
         final int maxRepeats = 2500;
-        final Operation delegate = mock(GetElements.class);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(maxRepeats)
                 .operation(delegate)
@@ -202,25 +205,20 @@ public class WhileHandlerTest {
         final WhileHandler handler = new WhileHandler();
 
         // When / Then
-        try {
-            handler.doOperation(operation, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Max repeats of the While operation is too large: "
-                    + maxRepeats + " > " + While.MAX_REPEATS));
-        }
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(operation, context, store))
+                .withMessageContaining(String.format("Max repeats of the While operation is too large: %s > %s", maxRepeats, While.MAX_REPEATS));
     }
 
     @Test
-    public void shouldThrowExceptionWhenPredicateCannotAcceptInputType() throws OperationException {
+    public void shouldThrowExceptionWhenPredicateCannotAcceptInputType(@Mock final Context context,
+                                                                       @Mock final Store store)
+            throws OperationException {
         // Given
-        final Predicate predicate = new IsFalse();
+        final Predicate<?> predicate = new IsFalse();
         final Object input = new EntitySeed();
         final Conditional conditional = new Conditional(predicate);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .conditional(conditional)
                 .operation(new GetElements())
@@ -229,17 +227,19 @@ public class WhileHandlerTest {
         final WhileHandler handler = new WhileHandler();
 
         // When / Then
-        try {
-            handler.doOperation(operation, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("The predicate '" + predicate.getClass().getSimpleName() +
-                    "' cannot accept an input of type '" + input.getClass().getSimpleName() + "'"));
-        }
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(operation, context, store))
+                .withMessageContaining(
+                        String.format("The predicate '%s' cannot accept an input of type '%s'", predicate.getClass().getSimpleName(),
+                                input.getClass().getSimpleName()));
     }
 
     @Test
-    public void shouldUpdateTransformInputAndTestAgainstPredicate() throws OperationException {
+    public void shouldUpdateTransformInputAndTestAgainstPredicate(@Mock final Context context,
+                                                                  @Mock final Store store,
+                                                                  @Mock final Map<Element, Object> transform,
+                                                                  @Mock final Map<Element, Object> transformClone,
+                                                                  @Mock final GetElements getElements)
+            throws OperationException {
         final Edge input = new Edge.Builder()
                 .group("testEdge")
                 .source("src")
@@ -248,18 +248,12 @@ public class WhileHandlerTest {
                 .property("count", 3)
                 .build();
 
-        final Map<Element, Object> transform = mock(Map.class);
-        final Map<Element, Object> transformClone = mock(Map.class);
         given(transform.shallowClone()).willReturn(transformClone);
 
-        final Predicate predicate = new IsMoreThan(2);
+        final Predicate<?> predicate = new IsMoreThan(2);
         final Conditional conditional = new Conditional(predicate, transform);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
-        final GetElements getElements = mock(GetElements.class);
-
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(1)
                 .conditional(conditional)
@@ -276,8 +270,12 @@ public class WhileHandlerTest {
         verify(store).execute(transformClone, context);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldFailPredicateTestAndNotExecuteDelegateOperation() throws OperationException {
+    public void shouldFailPredicateTestAndNotExecuteDelegateOperation(@Mock final Context context,
+                                                                      @Mock final Store store,
+                                                                      @Mock final GetElements getElements)
+            throws OperationException {
         // Given
         final Edge input = new Edge.Builder()
                 .group("testEdge")
@@ -291,14 +289,10 @@ public class WhileHandlerTest {
                 .first(new ExtractProperty("count"))
                 .build();
 
-        final Predicate predicate = new IsMoreThan(5);
+        final Predicate<?> predicate = new IsMoreThan(5);
         final Conditional conditional = new Conditional(predicate, transform);
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
-        final GetElements getElements = mock(GetElements.class);
-
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .input(input)
                 .maxRepeats(1)
                 .conditional(conditional)
@@ -315,15 +309,15 @@ public class WhileHandlerTest {
     }
 
     @Test
-    public void shouldExecuteNonOutputOperation() throws OperationException {
+    public void shouldExecuteNonOutputOperation(@Mock final Context context,
+                                                @Mock final Store store)
+            throws OperationException {
         // Given
         final AddElements addElements = new AddElements.Builder()
                 .input(new Edge.Builder().build())
                 .build();
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
 
-        final While operation = new While.Builder<>()
+        final While<?, ?> operation = new While.Builder<>()
                 .operation(addElements)
                 .condition(true)
                 .maxRepeats(3)
@@ -349,6 +343,6 @@ public class WhileHandlerTest {
         final WhileHandler deserialisedHandler = JSONSerialiser.deserialise(json, WhileHandler.class);
 
         // Then
-        assertEquals(5, deserialisedHandler.getMaxRepeats());
+        assertThat(deserialisedHandler.getMaxRepeats()).isEqualTo(5);
     }
 }

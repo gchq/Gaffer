@@ -31,22 +31,22 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class ToEntitySeedsHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldConvertVerticesToEntitySeeds(@Mock final ToEntitySeeds operation) throws OperationException {
         // Given
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final Iterable originalResults = Arrays.asList(vertex1, vertex2);
+        final Iterable<Object> originalResults = Arrays.asList(vertex1, vertex2);
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn((Iterable) originalResults);
 
         // When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
@@ -55,6 +55,7 @@ public class ToEntitySeedsHandlerTest {
         assertThat(results).containsOnly(new EntitySeed(vertex1), new EntitySeed(vertex2));
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldBeAbleToIterableOverTheResultsMultipleTimes(@Mock final ToEntitySeeds operation)
             throws OperationException {
@@ -62,10 +63,10 @@ public class ToEntitySeedsHandlerTest {
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final Iterable originalResults = Arrays.asList(vertex1, vertex2);
+        final Iterable<Object> originalResults = Arrays.asList(vertex1, vertex2);
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn((Iterable) originalResults);
 
         // When
         final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
@@ -73,8 +74,9 @@ public class ToEntitySeedsHandlerTest {
         // Then
         final Set<Object> set1 = Sets.newHashSet(results);
         final Set<Object> set2 = Sets.newHashSet(results);
-        assertEquals(Sets.newHashSet(new EntitySeed(vertex1), new EntitySeed(vertex2)), set1);
-        assertEquals(set1, set2);
+        assertThat(set1)
+                .isEqualTo(Sets.newHashSet(new EntitySeed(vertex1), new EntitySeed(vertex2)))
+                .isEqualTo(set2);
     }
 
     @Test

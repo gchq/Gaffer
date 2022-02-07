@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 
@@ -35,16 +37,15 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class GetAllNamedOperationsHandlerTest {
+
     private final NamedOperationCache cache = new NamedOperationCache();
     private final AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler(cache);
     private final GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler(cache);
-    private Context context = new Context(new User.Builder()
+    private final Context context = new Context(new User.Builder()
             .userId(User.UNKNOWN_USER_ID)
             .build());
 
@@ -52,7 +53,8 @@ public class GetAllNamedOperationsHandlerTest {
             .operationName("exampleOp")
             .inputType("uk.gov.gchq.gaffer.data.element.Element[]")
             .creatorId(User.UNKNOWN_USER_ID)
-            .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+            .operationChain(
+                    "{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
             .parameters(null)
             .build();
 
@@ -64,7 +66,8 @@ public class GetAllNamedOperationsHandlerTest {
             .parameters(null)
             .build();
 
-    private Store store = mock(Store.class);
+    @Mock
+    private Store store;
 
     @AfterAll
     public static void tearDown() {
@@ -74,7 +77,7 @@ public class GetAllNamedOperationsHandlerTest {
     @BeforeEach
     public void before() {
         given(store.getProperties()).willReturn(new StoreProperties());
-        StoreProperties properties = new StoreProperties();
+        final StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
     }
@@ -84,13 +87,15 @@ public class GetAllNamedOperationsHandlerTest {
         final AddNamedOperation addNamedOperationWithLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
                 .labels(Arrays.asList("test label"))
-                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .operationChain(
+                        "{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithLabel, context, store);
 
-        final Iterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final Iterable<NamedOperationDetail> allNamedOperations =
+                getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
-        assertEquals(Arrays.asList("test label"), allNamedOperations.iterator().next().getLabels());
+        assertThat(allNamedOperations.iterator().next().getLabels()).containsExactly("test label");
     }
 
     @Test
@@ -98,11 +103,13 @@ public class GetAllNamedOperationsHandlerTest {
         final AddNamedOperation addNamedOperationWithNullLabel = new AddNamedOperation.Builder()
                 .name("My Operation With Label")
                 .labels(null)
-                .operationChain("{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
+                .operationChain(
+                        "{\"operations\":[{\"class\":\"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",\"skipInvalidElements\":false,\"validate\":true}]}")
                 .build();
         addNamedOperationHandler.doOperation(addNamedOperationWithNullLabel, context, store);
 
-        final Iterable<NamedOperationDetail> allNamedOperations = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final Iterable<NamedOperationDetail> allNamedOperations =
+                getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         assertThat(allNamedOperations.iterator().next().getLabels()).isNull();
     }
@@ -110,7 +117,7 @@ public class GetAllNamedOperationsHandlerTest {
     @Test
     public void shouldReturnNamedOperationWithInputType() throws Exception {
         // Given
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .name(expectedOperationDetailWithInputType.getOperationName())
                 .description(expectedOperationDetailWithInputType.getDescription())
                 .operationChain(expectedOperationDetailWithInputType.getOperationChainWithDefaultParams())
@@ -119,17 +126,19 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-        Iterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final Iterable<NamedOperationDetail> allNamedOperationsList =
+                getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
-        assertEquals(1, Iterables.size(allNamedOperationsList));
-        assertTrue(Iterables.contains(allNamedOperationsList, expectedOperationDetailWithInputType));
+        assertThat(allNamedOperationsList)
+                .hasSize(1)
+                .contains(expectedOperationDetailWithInputType);
     }
 
     @Test
     public void shouldReturnNamedOperationWithNoInputType() throws Exception {
         // Given
-        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+        final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .name(expectedOperationDetailWithoutInputType.getOperationName())
                 .description(expectedOperationDetailWithoutInputType.getDescription())
                 .operationChain(expectedOperationDetailWithoutInputType.getOperationChainWithDefaultParams())
@@ -138,10 +147,12 @@ public class GetAllNamedOperationsHandlerTest {
         addNamedOperationHandler.doOperation(addNamedOperation, context, store);
 
         // When
-        Iterable<NamedOperationDetail> allNamedOperationsList = getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
+        final Iterable<NamedOperationDetail> allNamedOperationsList =
+                getAllNamedOperationsHandler.doOperation(new GetAllNamedOperations(), context, store);
 
         // Then
-        assertEquals(1, Iterables.size(allNamedOperationsList));
-        assertTrue(Iterables.contains(allNamedOperationsList, expectedOperationDetailWithoutInputType));
+        assertThat(allNamedOperationsList)
+                .hasSize(1)
+                .contains(expectedOperationDetailWithoutInputType);
     }
 }

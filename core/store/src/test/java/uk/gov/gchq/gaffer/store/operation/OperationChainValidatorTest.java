@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -51,6 +50,7 @@ import static org.mockito.Mockito.verify;
 
 public class OperationChainValidatorTest {
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateValidOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -64,6 +64,7 @@ public class OperationChainValidatorTest {
                 new GetAdjacentIds())), true);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldInValidateNullElementDef() {
         // Given
@@ -86,13 +87,13 @@ public class OperationChainValidatorTest {
         validator.validateComparables(max, null, store, validationResult);
 
         // Then
-        assertEquals(false, validationResult.isValid());
+        assertThat(validationResult.isValid()).isFalse();
         final Set<String> errors = validationResult.getErrors();
         assertThat(errors).hasSize(1);
-        errors.contains(Max.class.getName()
-                + " references BasicEntity group that does not exist in the schema");
+        errors.contains(String.format("%s references BasicEntity group that does not exist in the schema", Max.class.getName()));
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateOperationChainThatCouldBeValidBasedOnGenerics() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -109,6 +110,7 @@ public class OperationChainValidatorTest {
                 new GetAdjacentIds())), true);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateExportOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -125,6 +127,7 @@ public class OperationChainValidatorTest {
                 new GetExports())), true);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateInvalidExportOperationChainWithoutDiscardOperation() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -138,6 +141,7 @@ public class OperationChainValidatorTest {
         )), false);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateInvalidOperationChainIterableNotAssignableFromMap() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -152,6 +156,7 @@ public class OperationChainValidatorTest {
         )), false);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateInvalidOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -164,6 +169,7 @@ public class OperationChainValidatorTest {
         )), false);
     }
 
+    @SuppressWarnings({"rawtypes"})
     @Test
     public void shouldNotValidateInvalidOperationChain() {
 
@@ -197,6 +203,6 @@ public class OperationChainValidatorTest {
         final ValidationResult validationResult = validator.validate(opChain, user, store);
 
         // Then
-        assertEquals(expectedResult, validationResult.isValid());
+        assertThat(validationResult.isValid()).isEqualTo(expectedResult);
     }
 }

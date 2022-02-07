@@ -30,19 +30,21 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.Iterator;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 public class GenerateElementsHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldReturnElements(@Mock final Store store,
-            @Mock final GenerateElements<String> operation,
-            @Mock final Iterable<Element> elements,
-            @Mock final ElementGenerator<String> elementGenerator,
-            @Mock final Iterable objs,
-            @Mock final Iterator<Element> elementsIter) throws OperationException {
+                                     @Mock final GenerateElements<String> operation,
+                                     @Mock final Iterable<Element> elements,
+                                     @Mock final ElementGenerator<String> elementGenerator,
+                                     @Mock final Iterable objs,
+                                     @Mock final Iterator<Element> elementsIter)
+            throws OperationException {
         // Given
         final GenerateElementsHandler<String> handler = new GenerateElementsHandler<>();
         final Context context = new Context();
@@ -56,6 +58,6 @@ public class GenerateElementsHandlerTest {
         final Iterable<? extends Element> result = handler.doOperation(operation, context, store);
 
         // Then
-        assertSame(elementsIter, result.iterator());
+        assertThat(result.iterator()).isSameAs(elementsIter);
     }
 }

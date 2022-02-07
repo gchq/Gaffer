@@ -26,11 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LimitHandlerTest {
+
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldLimitResults() throws Exception {
         // Given
@@ -48,10 +47,10 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertTrue(result instanceof LimitedIterable);
-        assertEquals(0, ((LimitedIterable) result).getStart());
-        assertEquals(resultLimit, ((LimitedIterable) result).getEnd());
-        assertEquals(expectedResult, Lists.newArrayList(result));
+        assertThat(result).isInstanceOf(LimitedIterable.class);
+        assertThat(((LimitedIterable<Integer>) result).getStart()).isEqualTo(0);
+        assertThat(((LimitedIterable<Integer>) result).getEnd()).isEqualTo(resultLimit);
+        assertThat(Lists.newArrayList(result)).isEqualTo(expectedResult);
     }
 
     @Test
@@ -70,7 +69,7 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertSame(input, result);
+        assertThat(result).isSameAs(input);
     }
 
     @Test

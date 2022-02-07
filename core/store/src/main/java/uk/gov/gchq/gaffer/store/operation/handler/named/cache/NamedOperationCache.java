@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -69,7 +70,8 @@ public class NamedOperationCache {
      *                                       or if the add operation fails for some reason.
      */
     public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
-            final String adminAuth) throws CacheOperationFailedException {
+                                  final String adminAuth)
+            throws CacheOperationFailedException {
         add(namedOperation, overwrite, user, adminAuth);
     }
 
@@ -180,8 +182,8 @@ public class NamedOperationCache {
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
-        if (null != CacheServiceLoader.getService().getFromCache(CACHE_NAME, name)) {
-            throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
+        if (Objects.nonNull(CacheServiceLoader.getService().getFromCache(CACHE_NAME, name))) {
+            throw new CacheOperationFailedException(String.format("Failed to remove %s from cache", name));
         }
     }
 
@@ -217,26 +219,27 @@ public class NamedOperationCache {
      *                                       cache
      */
     public NamedOperationDetail getFromCache(final String name) throws CacheOperationFailedException {
-        if (null == name) {
+        if (Objects.isNull(name)) {
             throw new CacheOperationFailedException("Operation name cannot be null");
         }
         final NamedOperationDetail op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
 
-        if (null != op) {
+        if (Objects.nonNull(op)) {
             return op;
         }
-        throw new CacheOperationFailedException("No named operation with the name " + name + " exists in the cache");
+        throw new CacheOperationFailedException(String.format("No named operation with the name %s exists in the cache", name));
     }
 
     private void add(final NamedOperationDetail namedOperation, final boolean overwrite, final User user,
-            final String adminAuth) throws CacheOperationFailedException {
+                     final String adminAuth)
+            throws CacheOperationFailedException {
         String name;
         try {
             name = namedOperation.getOperationName();
         } catch (final NullPointerException e) {
             throw new CacheOperationFailedException("NamedOperation cannot be null", e);
         }
-        if (null == name) {
+        if (Objects.isNull(name)) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
         if (!overwrite) {
@@ -255,22 +258,20 @@ public class NamedOperationCache {
         if (existing.hasWriteAccess(user, adminAuth)) {
             addToCache(name, namedOperation, true);
         } else {
-            throw new CacheOperationFailedException(
-                    "User " + user.getUserId() + " does not have permission to overwrite");
+            throw new CacheOperationFailedException(String.format("User %s does not have permission to overwrite", user.getUserId()));
         }
     }
 
     private void remove(final String name, final User user, final String adminAuth)
             throws CacheOperationFailedException {
-        if (null == name) {
+        if (Objects.isNull(name)) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
         final NamedOperationDetail existing = getFromCache(name);
         if (existing.hasWriteAccess(user, adminAuth)) {
             deleteFromCache(name);
         } else {
-            throw new CacheOperationFailedException("User " + user +
-                    " does not have authority to delete named operation: " + name);
+            throw new CacheOperationFailedException(String.format("User %s does not have authority to delete named operation: %s", user, name));
         }
     }
 
@@ -280,7 +281,7 @@ public class NamedOperationCache {
         if (op.hasReadAccess(user, adminAuth)) {
             return op;
         } else {
-            throw new CacheOperationFailedException("User: " + user + " does not have read access to " + name);
+            throw new CacheOperationFailedException(String.format("User: %s does not have read access to %s", user, name));
         }
     }
 

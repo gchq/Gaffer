@@ -55,7 +55,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class AggregatorUtilTest {
@@ -65,7 +64,8 @@ public class AggregatorUtilTest {
         final Schema schema = null;
 
         // When / Then
-        assertThatIllegalArgumentException().isThrownBy(() -> AggregatorUtil.ingestAggregate(Collections.emptyList(), schema)).extracting("message").isNotNull();
+        assertThatIllegalArgumentException().isThrownBy(() -> AggregatorUtil.ingestAggregate(Collections.emptyList(), schema))
+                .extracting("message").isNotNull();
     }
 
     @Test
@@ -83,8 +83,7 @@ public class AggregatorUtilTest {
                         .group(TestGroups.NON_AGG_ENTITY)
                         .vertex("vertex1")
                         .property("count", 2)
-                        .build()
-        );
+                        .build());
 
         final Iterable<Element> onlyConsumingOnceIterable = new Iterable<Element>() {
             private boolean firstTime = true;
@@ -150,8 +149,7 @@ public class AggregatorUtilTest {
                         .source("vertex2")
                         .dest("vertex1")
                         .property("count", 200)
-                        .build()
-        );
+                        .build());
 
         final Set<Element> expected = Sets.newHashSet(
                 new Entity.Builder()
@@ -179,8 +177,7 @@ public class AggregatorUtilTest {
                         .source("vertex2")
                         .dest("vertex1")
                         .property("count", 300)
-                        .build()
-        );
+                        .build());
 
         // when
         final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
@@ -353,8 +350,7 @@ public class AggregatorUtilTest {
                         .property("count", 3000)
                         .property("property2", "value2")
                         .property("visibility", "vis1")
-                        .build()
-        );
+                        .build());
 
         // when
         final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
@@ -467,8 +463,7 @@ public class AggregatorUtilTest {
                         .property("count", 2000)
                         .property("property2", "value2")
                         .property("visibility", "vis2")
-                        .build()
-        );
+                        .build());
 
         final Set<Element> expected = Sets.newHashSet(
                 new Entity.Builder()
@@ -492,8 +487,7 @@ public class AggregatorUtilTest {
                         .property("count", 3300)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
-                        .build()
-        );
+                        .build());
 
         // when
         final Iterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
@@ -586,8 +580,7 @@ public class AggregatorUtilTest {
                         .property("count", 2000)
                         .property("property2", "value2")
                         .property("visibility", "vis2")
-                        .build()
-        );
+                        .build());
 
         final Set<Element> expected = Sets.newHashSet(
                 new Entity.Builder()
@@ -611,8 +604,7 @@ public class AggregatorUtilTest {
                         .property("count", 3300)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
-                        .build()
-        );
+                        .build());
 
         // when
         final Iterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
@@ -643,8 +635,7 @@ public class AggregatorUtilTest {
                         .group(TestGroups.NON_AGG_ENTITY)
                         .vertex("vertex1")
                         .property("count", 2)
-                        .build()
-        );
+                        .build());
 
         final Iterable<Element> onlyConsumingOnceIterable = new Iterable<Element>() {
             private boolean firstTime = true;
@@ -685,36 +676,35 @@ public class AggregatorUtilTest {
                         .group(TestGroups.EDGE)
                         .source("vertex2")
                         .dest("vertex1")
-                        .build()
-        );
+                        .build());
 
         // when
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
-        assertEquals(new Entity.Builder()
+        assertThat(fn.apply(input.get(0)))
+                .isEqualTo(new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
-                        .build(),
-                fn.apply(input.get(0)));
-        assertEquals(new Entity.Builder()
+                        .build());
+        assertThat(fn.apply(input.get(1)))
+                .isEqualTo(new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex2")
-                        .build(),
-                fn.apply(input.get(1)));
-        assertEquals(new Edge.Builder()
+                        .build());
+        assertThat(fn.apply(input.get(2)))
+                .isEqualTo(new Edge.Builder()
                         .group(TestGroups.EDGE)
                         .source("vertex2")
                         .dest("vertex1")
-                        .build(),
-                fn.apply(input.get(2)));
+                        .build());
 
         final Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         final Map<Element, List<Element>> expected = new HashMap<>();
         expected.put(input.get(0), Lists.newArrayList(input.get(0)));
         expected.put(input.get(1), Lists.newArrayList(input.get(1)));
         expected.put(input.get(2), Lists.newArrayList(input.get(2)));
-        assertEquals(expected, results);
+        assertThat(results).isEqualTo(expected);
     }
 
     @Test
@@ -729,28 +719,28 @@ public class AggregatorUtilTest {
                 new Entity.Builder()
                         .group(TestGroups.ENTITY_2)
                         .vertex("vertex1")
-                        .build()
-        );
+                        .build());
 
         // when
         final AggregatorUtil.ToIngestElementKey fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
-        assertEquals(new Entity.Builder()
+        assertThat(fn.apply(input.get(0)))
+                .isEqualTo(new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
-                        .build(),
-                fn.apply(input.get(0)));
-        assertEquals(new Entity.Builder()
+                        .build());
+        assertThat(fn.apply(input.get(1)))
+                .isEqualTo(new Entity.Builder()
                         .group(TestGroups.ENTITY_2)
                         .vertex("vertex1")
-                        .build(),
-                fn.apply(input.get(1)));
+                        .build());
         final Map<Element, List<Element>> results = input.stream()
                 .collect(Collectors.groupingBy(fn));
         assertThat(results).hasSize(2);
-        assertEquals(input.get(0), results.get(input.get(0)).get(0));
-        assertEquals(input.get(1), results.get(input.get(1)).get(0));
+
+        assertThat(results.get(input.get(0)).get(0)).isEqualTo(input.get(0));
+        assertThat(results.get(input.get(1)).get(0)).isEqualTo(input.get(1));
     }
 
     @Test
@@ -761,43 +751,42 @@ public class AggregatorUtilTest {
         // when
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
-
         // then
-        assertEquals(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("vertex1")
-                        .property("property2", "value2")
-                        .property("property3", "value3")
-                        .property("visibility", "vis1")
-                        .build(),
-                fn.apply(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("vertex1")
-                        .property("property1", "value1")
-                        .property("property2", "value2")
-                        .property("property3", "value3")
-                        .property("visibility", "vis1")
-                        .build()));
+        assertThat(fn.apply(new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex1")
+                .property("property1", "value1")
+                .property("property2", "value2")
+                .property("property3", "value3")
+                .property("visibility", "vis1")
+                .build()))
+                        .isEqualTo(new Entity.Builder()
+                                .group(TestGroups.ENTITY)
+                                .vertex("vertex1")
+                                .property("property2", "value2")
+                                .property("property3", "value3")
+                                .property("visibility", "vis1")
+                                .build());
 
-        assertEquals(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("vertex1")
-                        .dest("vertex2")
-                        .directed(true)
-                        .property("property2", "value2")
-                        .property("property3", "value3")
-                        .property("visibility", "vis1")
-                        .build(),
-                fn.apply(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("vertex1")
-                        .dest("vertex2")
-                        .directed(true)
-                        .property("property1", "value1")
-                        .property("property2", "value2")
-                        .property("property3", "value3")
-                        .property("visibility", "vis1")
-                        .build()));
+        assertThat(fn.apply(new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("vertex1")
+                .dest("vertex2")
+                .directed(true)
+                .property("property1", "value1")
+                .property("property2", "value2")
+                .property("property3", "value3")
+                .property("visibility", "vis1")
+                .build()))
+                        .isEqualTo(new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("vertex1")
+                                .dest("vertex2")
+                                .directed(true)
+                                .property("property2", "value2")
+                                .property("property3", "value3")
+                                .property("visibility", "vis1")
+                                .build());
     }
 
     @Test
@@ -816,39 +805,38 @@ public class AggregatorUtilTest {
         // when
         final Function<Element, Element> fn = new AggregatorUtil.ToQueryElementKey(schema, view);
 
-
         // then
-        assertEquals(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("vertex1")
-                        .property("property2", "value2")
-                        .build(),
-                fn.apply(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("vertex1")
-                        .property("property1", "value1")
-                        .property("property2", "value2")
-                        .property("property3", "value3")
-                        .property("visibility", "vis1")
-                        .build()));
+        assertThat(fn.apply(new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex1")
+                .property("property1", "value1")
+                .property("property2", "value2")
+                .property("property3", "value3")
+                .property("visibility", "vis1")
+                .build()))
+                        .isEqualTo(new Entity.Builder()
+                                .group(TestGroups.ENTITY)
+                                .vertex("vertex1")
+                                .property("property2", "value2")
+                                .build());
 
-        assertEquals(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("vertex1")
-                        .dest("vertex2")
-                        .directed(true)
-                        .property("property2", "value2")
-                        .build(),
-                fn.apply(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("vertex1")
-                        .dest("vertex2")
-                        .directed(true)
-                        .property("property1", "value1")
-                        .property("property2", "value2")
-                        .property("property3", "value3")
-                        .property("visibility", "vis1")
-                        .build()));
+        assertThat(fn.apply(new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("vertex1")
+                .dest("vertex2")
+                .directed(true)
+                .property("property1", "value1")
+                .property("property2", "value2")
+                .property("property3", "value3")
+                .property("visibility", "vis1")
+                .build()))
+                        .isEqualTo(new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source("vertex1")
+                                .dest("vertex2")
+                                .directed(true)
+                                .property("property2", "value2")
+                                .build());
     }
 
     @Test
@@ -903,23 +891,21 @@ public class AggregatorUtilTest {
                         .vertex("vertex1")
                         .property(TestPropertyNames.PROP_1, "control value")
                         .property(TestPropertyNames.PROP_3, "also unused in function")
-                        .build()
-        );
+                        .build());
 
         final Map<Element, List<Element>> results =
                 input.stream().collect(
                         Collectors.groupingBy(
-                                new AggregatorUtil.ToIngestElementKey(schema)
-                        )
-                );
+                                new AggregatorUtil.ToIngestElementKey(schema)));
 
         // then
         assertThat(results).hasSize(1);
-        assertEquals(input, results.get(new Entity.Builder()
+        assertThat(results.get(new Entity.Builder()
                 .group(TestGroups.ENTITY_2)
                 .vertex("vertex1")
                 .property(TestPropertyNames.PROP_1, "control value")
-                .build()));
+                .build()))
+                        .isEqualTo(input);
     }
 
     private Schema createSchema() {
@@ -1016,8 +1002,7 @@ public class AggregatorUtilTest {
                         .property("count", 4300)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
-                        .build()
-        );
+                        .build());
 
         // when
         final Iterable<Element> aggregatedElementsIncludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, true);
@@ -1050,8 +1035,7 @@ public class AggregatorUtilTest {
                         .property("count", 4321)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
-                        .build()
-        );
+                        .build());
 
         // when
         final Iterable<Element> aggregatedElementsExcludingMatchedVertex = AggregatorUtil.queryAggregate(elements, schema, view, false);
