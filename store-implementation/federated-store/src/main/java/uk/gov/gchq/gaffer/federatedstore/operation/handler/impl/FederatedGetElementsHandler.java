@@ -26,6 +26,5 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
-public class FederatedGetElementsHandler
-        extends FederatedOperationIterableHandler<GetElements, Iterable<? extends Element>> {
+public class FederatedGetElementsHandler extends FederatedOperationIterableHandler<GetElements, Iterable<? extends Element>> {
 }

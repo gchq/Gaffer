@@ -45,6 +45,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * return [b]
  */
 public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store)
             throws OperationException {

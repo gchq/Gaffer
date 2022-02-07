@@ -29,10 +29,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
+@SuppressWarnings("rawtypes")
 public class FederatedOperationChainTest extends OperationTest<FederatedOperationChain> {
 
     @Test
@@ -50,8 +50,8 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
                 .build();
 
         // Then
-        assertEquals(opChain, op.getOperationChain());
-        assertEquals("value", op.getOption("key"));
+        assertThat(op.getOperationChain()).isEqualTo(opChain);
+        assertThat(op.getOption("key")).isEqualTo("value");
     }
 
     @Test
@@ -71,10 +71,10 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         final FederatedOperationChain clone = op.shallowClone();
 
         // Then
-        assertNotSame(op.getOperationChain(), clone.getOperationChain());
-        assertEquals(1, clone.getOperationChain().getOperations().size());
-        assertEquals(GetAllElements.class, clone.getOperationChain().getOperations().get(0).getClass());
-        assertEquals("value", clone.getOption("key"));
+        assertThat(clone.getOperationChain()).isNotSameAs(op.getOperationChain());
+        assertThat(clone.getOperationChain().getOperations().size()).isEqualTo(1);
+        assertThat(clone.getOperationChain().getOperations().get(0)).isInstanceOf(GetAllElements.class);
+        assertThat(clone.getOption("key")).isEqualTo("value");
     }
 
     @Test
@@ -106,9 +106,10 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
                 "    \"key\" : \"value\"%n" +
                 "  }%n" +
                 "}")), json);
-        assertEquals(1, deserialisedOp.getOperationChain().getOperations().size());
-        assertEquals(GetAllElements.class, deserialisedOp.getOperationChain().getOperations().get(0).getClass());
-        assertEquals("value", deserialisedOp.getOption("key"));
+
+        assertThat(deserialisedOp.getOperationChain().getOperations().size()).isEqualTo(1);
+        assertThat(deserialisedOp.getOperationChain().getOperations().get(0)).isInstanceOf(GetAllElements.class);
+        assertThat(deserialisedOp.getOption("key")).isEqualTo("value");
     }
 
     @Test
@@ -169,9 +170,9 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         final FederatedOperationChain deserialisedOp = fromJson(StringUtil.toBytes(json));
 
         // Then
-        assertEquals(1, deserialisedOp.getOperationChain().getOperations().size());
-        assertEquals(GetAllElements.class, deserialisedOp.getOperationChain().getOperations().get(0).getClass());
-        assertEquals("value", deserialisedOp.getOption("key"));
+        assertThat(deserialisedOp.getOperationChain().getOperations().size()).isEqualTo(1);
+        assertThat(deserialisedOp.getOperationChain().getOperations().get(0)).isInstanceOf(GetAllElements.class);
+        assertThat(deserialisedOp.getOption("key")).isEqualTo("value");
     }
 
     @Test
@@ -193,9 +194,9 @@ public class FederatedOperationChainTest extends OperationTest<FederatedOperatio
         final FederatedOperationChain deserialisedOp = fromJson(StringUtil.toBytes(json));
 
         // Then
-        assertEquals(1, deserialisedOp.getOperationChain().getOperations().size());
-        assertEquals(GetAllElements.class, deserialisedOp.getOperationChain().getOperations().get(0).getClass());
-        assertEquals("value", deserialisedOp.getOption("key"));
+        assertThat(deserialisedOp.getOperationChain().getOperations().size()).isEqualTo(1);
+        assertThat(deserialisedOp.getOperationChain().getOperations().get(0)).isInstanceOf(GetAllElements.class);
+        assertThat(deserialisedOp.getOption("key")).isEqualTo("value");
     }
 
     @Override

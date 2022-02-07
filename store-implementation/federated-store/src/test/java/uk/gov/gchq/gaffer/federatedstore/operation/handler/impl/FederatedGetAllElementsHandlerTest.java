@@ -30,12 +30,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FederatedGetAllElementsHandlerTest
-        extends FederatedOperationOutputHandlerTest<GetAllElements, Iterable<? extends Element>> {
+public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutputHandlerTest<GetAllElements, Iterable<? extends Element>> {
 
     @Override
     @BeforeEach
@@ -65,19 +62,20 @@ public class FederatedGetAllElementsHandlerTest
         return new GetAllElements.Builder().build();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result,
-            final Object... resultParts) {
-        assertNotNull(result);
+                                                           final Object... resultParts) {
+        assertThat(result).isNotNull();
         final Iterable[] resultPartItrs = Arrays.copyOf(resultParts, resultParts.length, Iterable[].class);
         final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
         int i = 0;
         for (final Element e : result) {
-            assertTrue(e instanceof Entity);
+            assertThat(e).isInstanceOf(Entity.class);
             elements.contains(e);
             i++;
         }
-        assertEquals(elements.size(), i);
+        assertThat(elements).hasSize(i);
         return true;
     }
 }

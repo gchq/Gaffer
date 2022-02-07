@@ -34,6 +34,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Objects;
+
 /**
  * A handler for operations that addGraph to the FederatedStore.
  *
@@ -42,6 +44,7 @@ import uk.gov.gchq.gaffer.user.User;
  * @see GraphDelegate
  */
 public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implements OperationHandler<OP> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedAddGraphHandlerParent.class);
     public static final String ERROR_BUILDING_GRAPH_GRAPH_ID_S = "Error building graph %s";
     public static final String ERROR_ADDING_GRAPH_GRAPH_ID_S = "Error adding graph %s";
@@ -52,9 +55,8 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         final User user = context.getUser();
         final boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
 
-        if (isLimitedToLibraryProperties && null != operation.getStoreProperties()) {
-            throw new OperationException(String.format(
-                    USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S,
+        if (isLimitedToLibraryProperties && Objects.nonNull(operation.getStoreProperties())) {
+            throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S,
                     operation.getProperties().toString()));
         }
 
@@ -85,6 +87,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         return null;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected void addGenericHandler(final FederatedStore store, final Graph graph) {
         for (final Class<? extends Operation> supportedOperation : graph.getSupportedOperations()) {
             // some operations are not suitable for FederatedOperationGenericOutputHandler
@@ -92,21 +95,18 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                 if (Output.class.isAssignableFrom(supportedOperation)) {
                     final Class<? extends Output> supportedOutputOperation = (Class<? extends Output>) supportedOperation;
 
-                    Class outputClass;
+                    Class<?> outputClass;
                     try {
                         outputClass = supportedOutputOperation.newInstance().getOutputClass();
                     } catch (final InstantiationException | IllegalAccessException e) {
-                        LOGGER.warn("Exception occurred while trying to create a newInstance of operation: "
-                                + supportedOperation, e);
+                        LOGGER.warn("Exception occurred while trying to create a newInstance of operation: {}", supportedOperation, e);
                         continue;
                     }
                     if (Iterable.class.equals(outputClass)) {
-                        store.addOperationHandler((Class) supportedOutputOperation,
-                                new FederatedOperationIterableHandler());
+                        store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
                     } else {
-                        LOGGER.warn(
-                                "No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: "
-                                        + supportedOutputOperation);
+                        LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: {}",
+                                supportedOutputOperation);
                     }
                 } else {
                     store.addOperationHandler(supportedOperation, new FederatedOperationHandler());

@@ -32,33 +32,33 @@ import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
-public class FederatedOperationChainHandler<I, O_ITEM>
-        implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, Iterable<O_ITEM>> {
+public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperationHandler<FederatedOperationChain<I, O_ITEM>, Iterable<O_ITEM>> {
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public Iterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context,
-            final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(),
-                operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation);
+    public Iterable<O_ITEM> doOperation(final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store)
+            throws OperationException {
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation);
         final List<Object> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OperationChain opChain = operation.getOperationChain();
             OperationHandlerUtil.updateOperationInput(opChain, operation.getInput());
             final OperationChain updatedOp = FederatedStoreUtil.updateOperationForGraph(opChain, graph);
-            if (null != updatedOp) {
+            if (Objects.nonNull(updatedOp)) {
                 Object result = null;
                 try {
                     result = graph.execute(updatedOp, context);
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException(
-                                FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
+                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                     }
                 }
-                if (null != result) {
+                if (Objects.nonNull(result)) {
                     results.add(result);
                 }
             }
@@ -66,8 +66,9 @@ public class FederatedOperationChainHandler<I, O_ITEM>
         return mergeResults(results, operation, context, store);
     }
 
-    protected Iterable<O_ITEM> mergeResults(final List<Object> results,
-            final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    protected Iterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<I, O_ITEM> operation, final Context context, final Store store) {
+
         if (Void.class.equals(operation.getOperationChain().getOutputClass())) {
             return null;
         }

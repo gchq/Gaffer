@@ -26,6 +26,5 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds
  */
-public class FederatedGetAdjacentIdsHandler
-        extends FederatedOperationIterableHandler<GetAdjacentIds, Iterable<? extends EntityId>> {
+public class FederatedGetAdjacentIdsHandler extends FederatedOperationIterableHandler<GetAdjacentIds, Iterable<? extends EntityId>> {
 }

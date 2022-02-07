@@ -48,28 +48,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class FederatedAggregateHandlerTest {
 
-    private static Class currentClass = new Object() {
+    private static Class<?> currentClass = new Object() {
     }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldDelegateToHandler(@Mock final FederatedStore store,
-            @Mock final AggregateHandler handler,
-            @Mock final Aggregate op,
-            @Mock final Context context,
-            @Mock final Iterable expectedResult,
-            @Mock final Schema schema) throws OperationException {
+                                        @Mock final AggregateHandler handler,
+                                        @Mock final Aggregate op,
+                                        @Mock final Context context,
+                                        @Mock final Iterable<Element> expectedResult,
+                                        @Mock final Schema schema)
+            throws OperationException {
         // Given
         given(store.getSchema(op, context)).willReturn(schema);
-        given(handler.doOperation(op, schema)).willReturn(expectedResult);
+        given(handler.doOperation(op, schema)).willReturn((Iterable) expectedResult);
 
         final FederatedAggregateHandler federatedHandler = new FederatedAggregateHandler(handler);
 
@@ -77,7 +77,7 @@ public class FederatedAggregateHandlerTest {
         final Object result = federatedHandler.doOperation(op, context, store);
 
         // Then
-        assertSame(expectedResult, result);
+        assertThat(result).isSameAs(expectedResult);
         verify(handler).doOperation(op, schema);
     }
 

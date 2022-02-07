@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,9 +37,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 
 public class FederatedStoreWrongGraphIDsTest {
@@ -59,9 +59,9 @@ public class FederatedStoreWrongGraphIDsTest {
     private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
 
-    private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static Class<?> currentClass = new Object() {
+    }.getClass().getEnclosingClass();
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -84,11 +84,15 @@ public class FederatedStoreWrongGraphIDsTest {
         blankContext = new Context(StoreUser.blankUser());
     }
 
+    @AfterEach
+    void after() {
+        CacheServiceLoader.shutdown();
+    }
+
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
         store.initialise(FED_ID, null, fedProps);
-        store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1)
-                .parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
+        store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1).parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
         final Entity expectedEntity = new Entity.Builder()
                 .group(E1_GROUP)
                 .vertex("v1")
@@ -99,32 +103,29 @@ public class FederatedStoreWrongGraphIDsTest {
                 .build(),
                 blankContext);
 
-        Iterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
-                .build(), blankContext);
+        Iterable<? extends Element> execute = store.execute(new GetAllElements.Builder().build(), blankContext);
 
-        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
-        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
+        assertThat(execute).isNotNull().withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertThat(execute.iterator().next()).isEqualTo(expectedEntity).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT);
 
-        execute = store.execute(new GetAllElements.Builder()
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
-                .build(), blankContext);
+        execute = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1).build(), blankContext);
 
-        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
-        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
+        assertThat(execute).isNotNull().withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertThat(execute.iterator().next()).isEqualTo(expectedEntity).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT);
 
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> store.execute(new GetAllElements.Builder()
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> store.execute(new GetAllElements.Builder()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                        .build(), blankContext));
-        assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
-                actual.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
+                        .build(), blankContext))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)))
+                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED);
 
-        actual = assertThrows(IllegalArgumentException.class,
-                () -> store.execute(new AddElements.Builder()
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> store.execute(new AddElements.Builder()
                         .input(expectedEntity)
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                        .build(), blankContext));
-        assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)),
-                actual.getMessage(), EXCEPTION_NOT_AS_EXPECTED);
+                        .build(), blankContext))
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)))
+                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED);
     }
 }

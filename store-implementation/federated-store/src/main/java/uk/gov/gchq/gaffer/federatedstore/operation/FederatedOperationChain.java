@@ -56,11 +56,11 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "operationChain", "options"}, alphabetic = true)
 @Since("1.1.0")
 @Summary("A wrapped OperationChain to be executed in one go on a delegate graph")
-public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
-        implements InputOutput<I, Iterable<O_ITEM>>,
-        Operations<OperationChain> {
+public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I> implements InputOutput<I, Iterable<O_ITEM>>, Operations<OperationChain> {
+
     @Required
     private OperationChain operationChain;
+
     private Map<String, String> options;
 
     public FederatedOperationChain() {
@@ -76,7 +76,7 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
 
     @JsonCreator
     public FederatedOperationChain(@JsonProperty("operationChain") final OperationChainDAO operationChain,
-            @JsonProperty("options") final Map<String, String> options) {
+                                   @JsonProperty("options") final Map<String, String> options) {
         this(operationChain);
         setOptions(options);
     }
@@ -174,10 +174,9 @@ public class FederatedOperationChain<I, O_ITEM> extends GenericInput<I>
                 .toHashCode();
     }
 
-    public static class Builder<I, O_ITEM> extends
-            Operation.BaseBuilder<FederatedOperationChain<I, O_ITEM>, Builder<I, O_ITEM>>
-            implements
-            InputOutput.Builder<FederatedOperationChain<I, O_ITEM>, I, Iterable<O_ITEM>, Builder<I, O_ITEM>> {
+    public static class Builder<I, O_ITEM> extends Operation.BaseBuilder<FederatedOperationChain<I, O_ITEM>, Builder<I, O_ITEM>>
+            implements InputOutput.Builder<FederatedOperationChain<I, O_ITEM>, I, Iterable<O_ITEM>, Builder<I, O_ITEM>> {
+
         public Builder() {
             super(new FederatedOperationChain<>());
         }

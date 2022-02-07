@@ -30,12 +30,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FederatedGetAdjacentIdsHandlerTest
-        extends FederatedOperationOutputHandlerTest<GetAdjacentIds, Iterable<? extends EntityId>> {
+public class FederatedGetAdjacentIdsHandlerTest extends FederatedOperationOutputHandlerTest<GetAdjacentIds, Iterable<? extends EntityId>> {
 
     @Override
     @BeforeEach
@@ -65,19 +62,20 @@ public class FederatedGetAdjacentIdsHandlerTest
         return new GetAdjacentIds.Builder().build();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends EntityId> result,
-            final Object... resultParts) {
-        assertNotNull(result);
+                                                           final Object... resultParts) {
+        assertThat(result).isNotNull();
         final Iterable[] resultPartItrs = Arrays.copyOf(resultParts, resultParts.length, Iterable[].class);
         final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
         int i = 0;
         for (final EntityId e : result) {
-            assertTrue(e instanceof Entity);
+            assertThat(e).isInstanceOf(Entity.class);
             elements.contains(e);
             i++;
         }
-        assertEquals(elements.size(), i);
+        assertThat(elements).hasSize(i);
         return true;
     }
 }

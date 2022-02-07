@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES;
 
@@ -52,17 +52,16 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";
 
-    private static Class currentClass = new Object() {
+    private static Class<?> currentClass = new Object() {
     }.getClass().getEnclosingClass();
 
-    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
-            StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
 
     @Override
     protected Schema createSchema() {
         final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
-        schemaBuilder.edges(Collections.EMPTY_MAP);
-        schemaBuilder.entities(Collections.EMPTY_MAP);
+        schemaBuilder.edges(Collections.emptyMap());
+        schemaBuilder.entities(Collections.emptyMap());
         schemaBuilder.json(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEdgeSchema.json"));
         schemaBuilder.json(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEntitySchema.json"));
         return schemaBuilder.build();
@@ -181,18 +180,17 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEdge();
 
-        final Exception actual = assertThrows(Exception.class,
-                () -> graph.execute(new GetAllElements.Builder()
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> graph.execute(new GetAllElements.Builder()
                         .view(new View.Builder()
                                 .edge(BASIC_EDGE)
                                 .build())
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_ENTITIES)
-                        .build(), user));
-
-        assertThat(actual.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n"
-                + "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n"
-                + "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
-                + "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema");
+                        .build(), user))
+                .withMessage("Operation chain is invalid. Validation errors: \n"
+                        + "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n"
+                        + "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
+                        + "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema");
     }
 
     /**
@@ -205,17 +203,17 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEntity();
 
-        final Exception actual = assertThrows(Exception.class,
-                () -> graph.execute(new GetAllElements.Builder()
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> graph.execute(new GetAllElements.Builder()
                         .view(new View.Builder()
                                 .entity(BASIC_ENTITY)
                                 .build())
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ACCUMULO_GRAPH_WITH_EDGES)
-                        .build(), user));
-        assertThat(actual.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n"
-                + "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n"
-                + "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
-                + "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema");
+                        .build(), user))
+                .withMessage("Operation chain is invalid. Validation errors: \n"
+                        + "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n"
+                        + "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.operation.impl.get.GetAllElements is not valid. \n"
+                        + "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema");
     }
 
     /**
