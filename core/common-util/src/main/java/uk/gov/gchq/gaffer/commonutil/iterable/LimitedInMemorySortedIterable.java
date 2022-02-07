@@ -20,6 +20,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.OneOrMore;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
@@ -61,8 +62,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         this(comparator, limit, false);
     }
 
-    public LimitedInMemorySortedIterable(final Comparator<E> comparator, final Integer limit,
-            final boolean deduplicate) {
+    public LimitedInMemorySortedIterable(final Comparator<E> comparator, final Integer limit, final boolean deduplicate) {
         if (Objects.isNull(comparator)) {
             throw new IllegalArgumentException("Comparator is required");
         }
@@ -139,8 +139,13 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         if (ArrayUtils.isEmpty(values)) {
             return Collections.emptyIterator();
         } else {
-            // TODO: look into why
-            return new ChainedIterable<E>(values).iterator();
+            ChainedIterable<E> iterable = null;
+            try {
+                iterable = new ChainedIterable<E>(values);
+                return iterable.iterator();
+            } finally {
+                CloseableUtil.close(iterable);
+            }
         }
     }
 
