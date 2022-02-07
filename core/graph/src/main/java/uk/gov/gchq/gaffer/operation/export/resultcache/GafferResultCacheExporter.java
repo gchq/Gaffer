@@ -43,6 +43,7 @@ import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -60,10 +61,10 @@ public class GafferResultCacheExporter implements Exporter {
     private final Set<String> userOpAuths;
 
     public GafferResultCacheExporter(final Context context,
-            final String jobId,
-            final Graph resultCache,
-            final String visibility,
-            final Set<String> requiredOpAuths) {
+                                     final String jobId,
+                                     final Graph resultCache,
+                                     final String visibility,
+                                     final Set<String> requiredOpAuths) {
         this.context = context;
         this.jobId = jobId;
         this.resultCache = resultCache;
@@ -80,7 +81,7 @@ public class GafferResultCacheExporter implements Exporter {
 
     @Override
     public void add(final String key, final Iterable<?> values) throws OperationException {
-        if (null == values) {
+        if (Objects.isNull(values)) {
             return;
         }
 
@@ -91,7 +92,7 @@ public class GafferResultCacheExporter implements Exporter {
                 try {
                     final Class<?> valueClass;
                     final byte[] valueJson;
-                    if (null == value) {
+                    if (Objects.isNull(value)) {
                         valueClass = Object.class;
                         valueJson = null;
                     } else {
@@ -136,7 +137,7 @@ public class GafferResultCacheExporter implements Exporter {
                 .build();
 
         final Iterable<? extends Element> edges = resultCache.execute(getEdges, context);
-        if (null == edges) {
+        if (Objects.isNull(edges)) {
             return new EmptyIterable<>();
         }
         return new TransformJsonResult(edges);
@@ -151,7 +152,7 @@ public class GafferResultCacheExporter implements Exporter {
         protected Object transform(final Element edge) {
             final String resultClassName = (String) edge.getProperty("resultClass");
             final byte[] resultBytes = (byte[]) edge.getProperty("result");
-            if (null == resultClassName || null == resultBytes) {
+            if (Objects.isNull(resultClassName) || Objects.isNull(resultBytes)) {
                 return null;
             }
 

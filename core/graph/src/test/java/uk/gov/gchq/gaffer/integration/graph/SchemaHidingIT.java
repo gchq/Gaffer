@@ -61,6 +61,7 @@ import java.util.List;
  * completely hide group 2 and never read any group 2 data from the store.
  */
 public abstract class SchemaHidingIT {
+
     private static final User USER = new User.Builder()
             .dataAuth("public")
             .build();
@@ -153,9 +154,9 @@ public abstract class SchemaHidingIT {
     }
 
     protected void testOperations(final Graph fullGraph,
-            final Graph filteredGraph,
-            final List<Edge> fullExpectedResults,
-            final List<Edge> filteredExpectedResults)
+                                  final Graph filteredGraph,
+                                  final List<Edge> fullExpectedResults,
+                                  final List<Edge> filteredExpectedResults)
             throws OperationException {
         testOperation(fullGraph, filteredGraph, new GetAllElements(), fullExpectedResults, filteredExpectedResults);
 
@@ -169,10 +170,10 @@ public abstract class SchemaHidingIT {
     }
 
     protected void testOperation(final Graph fullGraph,
-            final Graph filteredGraph,
-            final Output<Iterable<? extends Element>> operation,
-            final List<Edge> fullExpectedResults,
-            final List<Edge> filteredExpectedResults)
+                                 final Graph filteredGraph,
+                                 final Output<Iterable<? extends Element>> operation,
+                                 final List<Edge> fullExpectedResults,
+                                 final List<Edge> filteredExpectedResults)
             throws OperationException {
 
         // When

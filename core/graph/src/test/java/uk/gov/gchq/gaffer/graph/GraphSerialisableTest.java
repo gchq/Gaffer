@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GraphSerialisableTest {
 
@@ -85,7 +85,7 @@ public class GraphSerialisableTest {
         final GraphSerialisable result = (GraphSerialisable) javaSerialiser.deserialise(serialise);
 
         // When / Then
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class GraphSerialisableTest {
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
 
         // When / Then
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class GraphSerialisableTest {
         final GraphSerialisable actual = cache.get(key);
 
         // When / Then
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -122,6 +122,6 @@ public class GraphSerialisableTest {
         final GraphSerialisable actual = cache.get(key);
 
         // When / Then
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 }

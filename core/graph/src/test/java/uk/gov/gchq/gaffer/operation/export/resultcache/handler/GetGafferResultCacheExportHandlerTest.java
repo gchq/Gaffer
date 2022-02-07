@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -45,11 +46,6 @@ import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -79,9 +75,10 @@ public class GetGafferResultCacheExportHandlerTest {
             .property("result", "test".getBytes())
             .build();
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleOperationByDelegatingToAnExistingExporter(@Mock final Store store,
-            @Mock final GafferResultCacheExporter exporter)
+                                                                      @Mock final GafferResultCacheExporter exporter)
             throws OperationException {
         // Given
         final GetGafferResultCacheExport export = new GetGafferResultCacheExport.Builder()
@@ -106,7 +103,7 @@ public class GetGafferResultCacheExportHandlerTest {
 
         // Then
         verify(exporter).get("key");
-        assertSame(results, handlerResult);
+        assertThat(handlerResult).isSameAs(results);
     }
 
     @Test
@@ -131,13 +128,13 @@ public class GetGafferResultCacheExportHandlerTest {
         final Object handlerResult = handler.doOperation(export, context, store);
 
         // Then
-        assertThat((Iterable) handlerResult).isEmpty();
-        final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
+        assertThat(handlerResult).asInstanceOf(InstanceOfAssertFactories.iterable(Object.class)).isEmpty();
+        final ArgumentCaptor<OperationChain<?>> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(cacheStore).execute(opChain.capture(), Mockito.any());
         assertThat(opChain.getValue().getOperations()).hasSize(1);
-        assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
+        assertThat(opChain.getValue().getOperations().get(0)).isInstanceOf(GetElements.class);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
-        assertNotNull(exporter);
+        assertThat(exporter).isNotNull();
     }
 
     @Test
@@ -154,9 +151,9 @@ public class GetGafferResultCacheExportHandlerTest {
         // Then
         final Schema schema = graph.getSchema();
         JsonAssert.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
-        assertTrue(schema.validate().isValid());
-        assertEquals(timeToLive, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());
-        assertTrue(new ElementValidator(schema).validate(validEdge));
-        assertFalse(new ElementValidator(schema).validate(oldEdge));
+        assertThat(schema.validate().isValid()).isTrue();
+        assertThat(((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime()).isEqualTo(timeToLive);
+        assertThat(new ElementValidator(schema).validate(validEdge)).isTrue();
+        assertThat(new ElementValidator(schema).validate(oldEdge)).isFalse();
     }
 }
