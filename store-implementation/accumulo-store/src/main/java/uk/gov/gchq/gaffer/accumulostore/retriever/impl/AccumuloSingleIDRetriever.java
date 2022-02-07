@@ -39,20 +39,19 @@ import java.util.Set;
  */
 public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends ElementId>, Iterable<? extends Element>> & GraphFilters>
         extends AccumuloItemRetriever<OP, ElementId> {
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-            final User user)
+
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation, final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
 
     public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-            final User user,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                     final User user,
+                                     final IteratorSetting... iteratorSettings)
+            throws StoreException {
         this(store, operation, user, true, iteratorSettings);
     }
 
@@ -72,9 +71,10 @@ public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends
      * @throws StoreException if any store issues occur
      */
     public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-            final User user,
-            final boolean includeMatchedVertex,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                     final User user,
+                                     final boolean includeMatchedVertex,
+                                     final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, includeMatchedVertex, iteratorSettings);
     }
 

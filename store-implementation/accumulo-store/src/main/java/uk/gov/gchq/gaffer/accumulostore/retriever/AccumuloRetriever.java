@@ -41,10 +41,11 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Closeable;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM>
-        implements Closeable, Iterable<O_ITEM> {
+public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM> implements Closeable, Iterable<O_ITEM> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloRetriever.class);
 
     protected Iterator<O_ITEM> iterator;
@@ -58,7 +59,8 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     protected final IteratorSetting[] iteratorSettings;
 
     protected AccumuloRetriever(final AccumuloStore store, final OP operation,
-            final User user, final IteratorSetting... iteratorSettings)
+                                final User user,
+                                final IteratorSetting... iteratorSettings)
             throws StoreException {
         this.store = store;
         this.rangeFactory = store.getKeyPackage().getRangeFactory();
@@ -67,9 +69,8 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
         this.user = user;
-        if (null != user && null != user.getDataAuths()) {
-            this.authorisations = new Authorizations(
-                    user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+        if (Objects.nonNull(user) && Objects.nonNull(user.getDataAuths())) {
+            this.authorisations = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
         } else {
             this.authorisations = new Authorizations();
         }
@@ -82,7 +83,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      */
     public void doTransformation(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-        if (null != viewDef) {
+        if (Objects.nonNull(viewDef)) {
             transform(element, viewDef.getTransformer());
         }
     }
@@ -91,11 +92,12 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      * Performs any post Filtering specified in a view on an element
      *
      * @param element the element to post Filter
+     *
      * @return the result of validating the element against the post filters
      */
     public boolean doPostFilter(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-        if (null != viewDef) {
+        if (Objects.nonNull(viewDef)) {
             return postFilter(element, viewDef.getPostTransformFilter());
         }
         return true;
@@ -111,8 +113,10 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      * <p>
      *
      * @param ranges the ranges to get the scanner for
+     *
      * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the
      *         table specified in the properties with the ranges provided.
+     *
      * @throws TableNotFoundException if an accumulo table could not be found
      * @throws StoreException         if a connection to accumulo could not be created.
      */
@@ -121,14 +125,16 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
                 authorisations, store.getProperties().getThreadsForBatchScanner());
         LOGGER.debug("Initialised BatchScanner on table {} with authorisations {} using {} threads",
                 store.getTableName(), authorisations, store.getProperties().getThreadsForBatchScanner());
-        if (null != iteratorSettings) {
+
+        if (Objects.nonNull(iteratorSettings)) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
-                if (null != iteratorSetting) {
+                if (Objects.nonNull(iteratorSetting)) {
                     scanner.addScanIterator(iteratorSetting);
                     LOGGER.debug("Added iterator to BatchScanner: {}", iteratorSetting);
                 }
             }
         }
+
         scanner.setRanges(ranges);
         LOGGER.debug("Added {} ranges to BatchScanner", ranges.size());
 
@@ -144,12 +150,12 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     }
 
     protected void transform(final Element element, final ElementTransformer transformer) {
-        if (null != transformer) {
+        if (Objects.nonNull(transformer)) {
             transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return null == postFilter || postFilter.test(element);
+        return Objects.isNull(postFilter) || postFilter.test(element);
     }
 }

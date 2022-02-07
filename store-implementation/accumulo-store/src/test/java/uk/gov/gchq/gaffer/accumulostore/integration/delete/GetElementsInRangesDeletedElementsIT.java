@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetElementsInRangesDeletedElementsIT
-        extends AbstractDeletedElementsIT<GetElementsInRanges, Iterable<? extends Element>> {
+public class GetElementsInRangesDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsInRanges, Iterable<? extends Element>> {
+
     @Override
     protected GetElementsInRanges createGetOperation() {
         final List<Pair<ElementId, ElementId>> pairs = new ArrayList<>();

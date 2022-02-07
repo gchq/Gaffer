@@ -21,10 +21,11 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 public class GetElementsDeletedElementsIT extends AbstractDeletedElementsIT<GetElements, Iterable<? extends Element>> {
+
     @Override
     protected GetElements createGetOperation() {
         return new GetElements.Builder()
-                .input(VERTICES)
+                .input((Object[]) VERTICES)
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
     }

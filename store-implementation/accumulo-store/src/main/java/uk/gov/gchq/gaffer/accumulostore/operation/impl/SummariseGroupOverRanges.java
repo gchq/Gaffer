@@ -45,8 +45,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Gets summarised Elements for each group")
-public class SummariseGroupOverRanges
-        implements
+public class SummariseGroupOverRanges implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
         SeededGraphFilters {
@@ -123,8 +122,7 @@ public class SummariseGroupOverRanges
                 .build();
     }
 
-    public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
-            implements
+    public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder> implements
             InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>, Builder>,
             MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
             SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder> {

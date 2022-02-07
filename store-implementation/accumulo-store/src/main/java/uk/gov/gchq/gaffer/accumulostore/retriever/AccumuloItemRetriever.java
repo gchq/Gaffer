@@ -45,18 +45,21 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends Element>> & GraphFilters, I_ITEM>
         extends AccumuloRetriever<OP, Element> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
     protected final boolean includeMatchedVertex;
     private final Iterable<? extends I_ITEM> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
-            final User user, final boolean includeMatchedVertex,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                    final User user, final boolean includeMatchedVertex,
+                                    final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, iteratorSettings);
         this.includeMatchedVertex = includeMatchedVertex;
         this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
@@ -71,7 +74,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
     public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
-        final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<? extends I_ITEM> idIterator = Objects.nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyIterator<>();
         }
@@ -123,7 +126,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (null != nextElm) {
+            if (Objects.nonNull(nextElm)) {
                 return true;
             }
             while (scannerIterator.hasNext()) {
@@ -134,9 +137,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
                             entry.getValue(),
                             includeMatchedVertex);
                 } catch (final AccumuloElementConversionException e) {
-                    LOGGER.error(
-                            "Failed to re-create an element from a key value entry set returning next element as null",
-                            e);
+                    LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null", e);
                     continue;
                 }
                 doTransformation(nextElm);
@@ -181,7 +182,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
 
         @Override
         public Element next() {
-            if (null == nextElm) {
+            if (Objects.isNull(nextElm)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }

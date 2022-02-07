@@ -26,12 +26,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAdjacentIdsDeletedElementsIT
-        extends AbstractDeletedElementsIT<GetAdjacentIds, Iterable<? extends EntityId>> {
+public class GetAdjacentIdsDeletedElementsIT extends AbstractDeletedElementsIT<GetAdjacentIds, Iterable<? extends EntityId>> {
+
     @Override
     protected GetAdjacentIds createGetOperation() {
         return new GetAdjacentIds.Builder()
-                .input(VERTICES)
+                .input((Object[]) VERTICES)
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
     }

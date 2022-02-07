@@ -105,8 +105,7 @@ public class GetElementsWithinSet implements
                 .build();
     }
 
-    public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
-            implements
+    public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder> implements
             InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntityId>, Iterable<? extends Element>, Builder>,
             MultiEntityIdInput.Builder<GetElementsWithinSet, Builder>,
             GraphFilters.Builder<GetElementsWithinSet, Builder> {

@@ -43,20 +43,17 @@ import java.util.Set;
  * This allows queries for all elements.
  */
 public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllElements, ElementId> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
-    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation,
-            final User user)
+    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation, final User user)
             throws IteratorSettingException, StoreException {
         super(store, operation, user, false,
                 store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
-                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(),
-                        store));
+                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
     }
 
     /**

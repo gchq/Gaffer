@@ -44,8 +44,7 @@ public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends 
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
                 store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation));
     }
@@ -65,7 +64,8 @@ public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends 
      * @throws StoreException if any store issues occur
      */
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user,
-            final IteratorSetting... iteratorSettings) throws StoreException {
+                                    final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, true, iteratorSettings);
     }
 

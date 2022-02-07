@@ -33,14 +33,14 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
 
     @Override
     public Iterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
-            final Context context, final Store store)
+                                                    final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public Iterable<? extends EntityId> doOperation(final GetAdjacentIds op,
-            final User user,
-            final AccumuloStore store)
+                                                    final User user,
+                                                    final AccumuloStore store)
             throws OperationException {
         try {
             return new AccumuloAdjacentIdRetriever(store, op, user);

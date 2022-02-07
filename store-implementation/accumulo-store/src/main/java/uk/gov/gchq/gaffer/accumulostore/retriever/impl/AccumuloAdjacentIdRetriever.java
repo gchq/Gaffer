@@ -51,26 +51,26 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentIds, EntityId> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAdjacentIdRetriever.class);
 
     private final Iterable<? extends ElementId> ids;
     private final Set<String> transformGroups;
 
     public AccumuloAdjacentIdRetriever(final AccumuloStore store, final GetAdjacentIds operation,
-            final User user)
+                                       final User user)
             throws IteratorSettingException, StoreException {
         super(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(),
-                        store),
-                store.getKeyPackage().getIteratorFactory()
-                        .getElementPostAggregationFilterIteratorSetting(operation.getView(), store));
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store));
         this.ids = operation.getInput();
         transformGroups = getGroupsWithTransforms(operation.getView());
     }
@@ -88,7 +88,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
             return new EmptyIterator<>();
         }
 
-        final Iterator<? extends ElementId> idIterator = null != ids ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<? extends ElementId> idIterator = Objects.nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyIterator<>();
         }
@@ -104,6 +104,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
     }
 
     private final class EntityIdIterator implements Iterator<EntityId>, Closeable {
+
         private final Iterator<? extends ElementId> idsIterator;
         private int count;
         private BatchScanner scanner;
@@ -136,7 +137,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (null != nextId) {
+            if (Objects.nonNull(nextId)) {
                 return true;
             }
             while (scannerIterator.hasNext()) {
@@ -152,12 +153,10 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                                 entry.getValue(),
                                 true);
                     } catch (final AccumuloElementConversionException e) {
-                        LOGGER.error(
-                                "Failed to re-create an element from a key value entry set returning next EntityId as null",
-                                e);
+                        LOGGER.error("Failed to re-create an element from a key value entry set returning next EntityId as null", e);
                         continue;
                     }
-                    if (null != element) {
+                    if (Objects.nonNull(element)) {
                         doTransformation(element);
                         if (doPostFilter(element)) {
                             elementId = element;
@@ -172,7 +171,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                     }
                 }
 
-                if (null != elementId) {
+                if (Objects.nonNull(elementId)) {
                     if (elementId instanceof EdgeId) {
                         if (EdgeId.MatchedVertex.DESTINATION == ((EdgeId) elementId).getMatchedVertex()) {
                             nextId = new EntitySeed(((EdgeId) elementId).getSource());
@@ -220,7 +219,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public EntityId next() {
-            if (null == nextId) {
+            if (Objects.isNull(nextId)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -247,13 +246,19 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
     private Set<String> getGroupsWithTransforms(final View view) {
         final Set<String> groups = new HashSet<>();
-        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(
-                view.getEntities().entrySet(), view.getEdges().entrySet())) {
-            if (null != entry.getValue()) {
-                if (entry.getValue().hasPostTransformFilters()) {
-                    groups.add(entry.getKey());
+
+        ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
+        try {
+            chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet());
+            for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
+                if (Objects.nonNull(entry.getValue())) {
+                    if (entry.getValue().hasPostTransformFilters()) {
+                        groups.add(entry.getKey());
+                    }
                 }
             }
+        } finally {
+            CloseableUtil.close(chainedIterable);
         }
         return groups;
     }

@@ -41,8 +41,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "input", "view"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Gets elements that have vertices within a given range")
-public class GetElementsInRanges
-        implements
+public class GetElementsInRanges implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
         SeededGraphFilters {
@@ -119,8 +118,7 @@ public class GetElementsInRanges
                 .build();
     }
 
-    public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
-            implements
+    public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder> implements
             InputOutput.Builder<GetElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsInRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
             SeededGraphFilters.Builder<GetElementsInRanges, Builder> {

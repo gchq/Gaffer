@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.TableExistsException;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,17 +57,13 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 public class GetElementsWithinSetHandlerTest {
 
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
-            .storeProps(GetElementsWithinSetHandlerTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
-            .loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class,
-                    "/accumuloStoreClassicKeys.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsWithinSetHandlerTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
     private static final AccumuloStore BYTE_ENTITY_STORE = new SingleUseMiniAccumuloStore();
     private static final AccumuloStore GAFFER_1_KEY_STORE = new SingleUseMiniAccumuloStore();
 
@@ -172,11 +169,10 @@ public class GetElementsWithinSetHandlerTest {
         // Without query compaction the result size should be 5
         final Set<Element> elementSet = Sets.newHashSet(elements);
         assertThat(elementSet).hasSize(5);
-        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2),
-                elementSet);
+        assertThat(elementSet).contains(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2);
         for (final Element element : elementSet) {
             if (element instanceof Edge) {
-                assertEquals(EdgeId.MatchedVertex.SOURCE, ((Edge) element).getMatchedVertex());
+                assertThat(((Edge) element).getMatchedVertex()).isEqualTo(EdgeId.MatchedVertex.SOURCE);
             }
         }
     }
@@ -210,8 +206,10 @@ public class GetElementsWithinSetHandlerTest {
             elements = handler.doOperation(operation, user, store);
 
             // After query compaction the result size should be 3
-            assertEquals(3, Iterables.size(elements));
-            assertThat((Iterable<Element>) elements).contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
+            assertThat(elements)
+                    .hasSize(3)
+                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                    .contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
         } finally {
             CloseableUtil.close(elements);
         }
@@ -246,8 +244,10 @@ public class GetElementsWithinSetHandlerTest {
             Iterables.addAll(forTest, elements);
 
             // After query compaction the result size should be 1
-            assertEquals(1, Iterables.size(elements));
-            assertThat((Iterable<Element>) elements).contains(expectedSummarisedEdge);
+            assertThat(elements)
+                    .hasSize(1)
+                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                    .contains(expectedSummarisedEdge);
         } finally {
             CloseableUtil.close(elements);
         }
@@ -277,8 +277,10 @@ public class GetElementsWithinSetHandlerTest {
             elements = handler.doOperation(operation, user, store);
 
             // The result size should be 2
-            assertEquals(2, Iterables.size(elements));
-            assertThat((Iterable<Element>) elements).contains(expectedEntity1, expectedEntity2);
+            assertThat(elements)
+                    .hasSize(2)
+                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                    .contains(expectedEntity1, expectedEntity2);
         } finally {
             CloseableUtil.close(elements);
         }
@@ -346,7 +348,7 @@ public class GetElementsWithinSetHandlerTest {
             final User user = new User();
             addElements(data, user, store);
         } catch (final TableExistsException | StoreException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
+            fail(String.format("Failed to set up graph in Accumulo with exception: %s", e));
         }
     }
 
@@ -354,7 +356,7 @@ public class GetElementsWithinSetHandlerTest {
         try {
             store.execute(new AddElements.Builder().input(data).build(), new Context(user));
         } catch (final OperationException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
+            fail(String.format("Failed to set up graph in Accumulo with exception: %s", e));
         }
     }
 }
