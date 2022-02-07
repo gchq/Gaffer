@@ -114,7 +114,8 @@ public class GraphHooksIT extends AbstractStoreIT {
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertThat(resultList).hasSize(1)
+        assertThat(resultList)
+                .hasSize(1)
                 .contains((Element) edge1);
     }
 }

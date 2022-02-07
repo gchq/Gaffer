@@ -93,8 +93,8 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
     }
 
     private void shouldGetEntityIds(final List<String> expectedResultSeeds,
-            final IncludeIncomingOutgoingType inOutType,
-            final DirectedType directedType)
+                                    final IncludeIncomingOutgoingType inOutType,
+                                    final DirectedType directedType)
             throws OperationException {
         // Given
         final User user = new User();
@@ -119,9 +119,9 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         }
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
-        assertThat(resultSeeds.toArray()).as("InOut=" + inOutType + ", directedType=" + directedType
-                + ".\nExpected: \n  " + StringUtils.join(expectedResultSeeds, "\n  ")
-                + " \nbut got: \n  " + StringUtils.join(resultSeeds, "\n  "))
+        assertThat(resultSeeds.toArray())
+                .as(String.format("InOut=%s, directedType=%s.\nExpected: \n  %s \nbut got: \n  %s",
+                        inOutType, directedType, StringUtils.join(expectedResultSeeds, "\n  "), StringUtils.join(resultSeeds, "\n  ")))
                 .containsExactly(expectedResultSeeds.toArray());
     }
 }

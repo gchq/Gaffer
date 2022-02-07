@@ -51,6 +51,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -91,10 +92,10 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
             graph.execute(addElements, getUser());
         } catch (final Exception e) {
             String msg = e.getMessage();
-            if (!msg.contains("Element of type Entity") && null != e.getCause()) {
+            if (!msg.contains("Element of type Entity") && Objects.nonNull(e.getCause())) {
                 msg = e.getCause().getMessage();
             }
-            assertThat(msg).as("Message was: " + msg).contains("UnknownGroup");
+            assertThat(msg).as(String.format("Message was: %s", msg)).contains("UnknownGroup");
         }
     }
 
@@ -313,6 +314,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         return Iterables.concat(getDuplicateEdges(), getDuplicateEntities());
     }
 
+    @Deprecated
     private void getAllElements(final List<Element> expectedElements) throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
             for (final boolean includeEdges : Arrays.asList(true, false)) {
@@ -369,6 +371,7 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
         }
     }
 
+    @Deprecated
     private void getAllElementsWithView(final List<Element> expectedElements, final View view) throws Exception {
         for (final DirectedType directedType : DirectedType.values()) {
             try {
@@ -393,7 +396,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     private void getAllElements(final boolean includeEntities, final boolean includeEdges,
-            final DirectedType directedType, final View view) throws Exception {
+                                final DirectedType directedType, final View view)
+            throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
@@ -444,7 +448,8 @@ public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStor
     }
 
     private void getAllElements(final Consumer<Iterable<? extends Element>> resultTester,
-            final DirectedType directedType, final View view) throws Exception {
+                                final DirectedType directedType, final View view)
+            throws Exception {
         // Given
         final GetAllElements op = new GetAllElements.Builder()
                 .directedType(directedType)

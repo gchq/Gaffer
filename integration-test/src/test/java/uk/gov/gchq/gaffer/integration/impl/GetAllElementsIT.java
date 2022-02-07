@@ -77,10 +77,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                     try {
                         shouldGetAllElements(includeEntities, includeEdges, directedType);
                     } catch (final AssertionError e) {
-                        throw new AssertionError(
-                                "GetAllElements failed with parameters: includeEntities=" + includeEntities
-                                        + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(),
-                                e);
+                        throw new AssertionError(String.format("GetAllElements failed with parameters: includeEntities=%s, includeEdges=%s, directedType=%s",
+                                includeEntities, includeEdges, directedType.name()), e);
                     }
                 }
             }
@@ -243,7 +241,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
     }
 
     protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges,
-            final DirectedType directedType) throws Exception {
+                                        final DirectedType directedType)
+            throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
@@ -281,11 +280,11 @@ public class GetAllElementsIT extends AbstractStoreIT {
             final ElementId seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 final Entity entity = (Entity) result;
-                assertThat(expectedElements).as("Entity was not expected: " + entity).contains(entity);
+                assertThat(expectedElements).as(String.format("Entity was not expected: %s", entity)).contains(entity);
             } else {
                 final Edge edge = (Edge) result;
                 if (edge.isDirected()) {
-                    assertThat(expectedElements).as("Edge was not expected: " + edge).contains(edge);
+                    assertThat(expectedElements).as(String.format("Edge was not expected: %s", edge)).contains(edge);
                 } else {
                     final Edge edgeReversed = new Edge.Builder()
                             .group(TestGroups.EDGE)
@@ -295,17 +294,18 @@ public class GetAllElementsIT extends AbstractStoreIT {
                             .build();
                     expectedElementsCopy.remove(edgeReversed);
                     assertThat(expectedElements.contains(result) || expectedElements.contains(edgeReversed))
-                            .as("Edge was not expected: " + seed).isTrue();
+                            .as(String.format("Edge was not expected: %s", seed)).isTrue();
                 }
             }
             expectedElementsCopy.remove(result);
         }
 
         assertThat(Lists.newArrayList(results))
-                .as("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy)
+                .as(String.format("The number of elements returned was not as expected. Missing elements: %s", expectedElementsCopy))
                 .hasSameSizeAs(expectedElements);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     @TraitRequirement({StoreTrait.TRANSFORMATION})
     public void shouldAllowBiFunctionInView() throws OperationException {

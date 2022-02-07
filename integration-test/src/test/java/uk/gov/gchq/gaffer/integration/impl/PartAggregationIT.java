@@ -59,8 +59,7 @@ public class PartAggregationIT extends AbstractStoreIT {
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
         // When
-        final Iterable<? extends Element> elements = graph.execute(
-                new GetAllElements(), getUser());
+        final Iterable<? extends Element> elements = graph.execute(new GetAllElements(), getUser());
 
         // Then
         final List<Element> resultElements = Lists.newArrayList(elements);
@@ -169,6 +168,7 @@ public class PartAggregationIT extends AbstractStoreIT {
                     .build();
             clone.copyProperties(e.getProperties());
             clone.putProperty(TestPropertyNames.COUNT, 4L);
+            @SuppressWarnings({"rawtypes", "unchecked"})
             final TreeSet<String> treeSet = new TreeSet<>(((TreeSet) e.getProperty(TestPropertyNames.SET)));
             treeSet.add("a different string");
             clone.putProperty(TestPropertyNames.SET, treeSet);

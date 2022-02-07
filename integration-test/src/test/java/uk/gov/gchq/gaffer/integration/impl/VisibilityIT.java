@@ -52,10 +52,8 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class VisibilityIT extends AbstractStoreIT {
 
-    private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1")
-            .build();
-    private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
-            .build();
+    private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1").build();
+    private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2").build();
 
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
@@ -118,23 +116,25 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
+        Iterable<? extends Element> iterable = null;
+        try {
+            iterable = graph.execute(get, getUser());
 
-        final List<Element> results = Lists.newArrayList(iterable);
+            final List<Element> results = Lists.newArrayList(iterable);
 
-        // Check for all entities which should be visible
-        assertThat(results)
-                .withFailMessage("Results do not contain all expected entities.")
-                .hasSize(1);
+            // Check for all entities which should be visible
+            assertThat(results)
+                    .withFailMessage("Results do not contain all expected entities.")
+                    .hasSize(1);
 
-        for (final Element e : results) {
-
-            // Check that all visible entities do not contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should not be visible.")
-                    .doesNotContainKey(TestTypes.VISIBILITY);
+            for (final Element e : results) {
+                // Check that all visible entities do not contain the visibility property
+                assertThat(e.getProperties()).as("Visibility property should not be visible.")
+                        .doesNotContainKey(TestTypes.VISIBILITY);
+            }
+        } finally {
+            CloseableUtil.close(iterable);
         }
-
-        CloseableUtil.close(iterable);
     }
 
     @Test
@@ -155,27 +155,30 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
+        Iterable<? extends Element> iterable = null;
+        try {
+            iterable = graph.execute(get, getUser());
 
-        final List<Element> results = Lists.newArrayList(iterable);
+            final List<Element> results = Lists.newArrayList(iterable);
 
-        // Check for all entities which should be visible
-        assertThat(results)
-                .withFailMessage("Results do not contain all expected entities.")
-                .hasSize(1);
+            // Check for all entities which should be visible
+            assertThat(results)
+                    .withFailMessage("Results do not contain all expected entities.")
+                    .hasSize(1);
 
-        for (final Element e : results) {
+            for (final Element e : results) {
 
-            // Check that all visible entities contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should be visible.")
-                    .containsKey(TestTypes.VISIBILITY);
+                // Check that all visible entities contain the visibility property
+                assertThat(e.getProperties()).as("Visibility property should be visible.")
+                        .containsKey(TestTypes.VISIBILITY);
 
-            assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
-                    .withFailMessage("Visibility property should contain an empty String.")
-                    .isEmpty();
+                assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
+                        .withFailMessage("Visibility property should contain an empty String.")
+                        .isEmpty();
+            }
+        } finally {
+            CloseableUtil.close(iterable);
         }
-
-        CloseableUtil.close(iterable);
     }
 
     @Test
@@ -195,27 +198,29 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
+        Iterable<? extends Element> iterable = null;
+        try {
+            iterable = graph.execute(get, getUser());
 
-        final List<Element> results = Lists.newArrayList(iterable);
+            final List<Element> results = Lists.newArrayList(iterable);
 
-        // Check for all entities which should be visible
-        assertThat(results)
-                .withFailMessage("Results do not contain all expected entities.")
-                .hasSize(1);
+            // Check for all entities which should be visible
+            assertThat(results)
+                    .withFailMessage("Results do not contain all expected entities.")
+                    .hasSize(1);
 
-        for (final Element e : results) {
+            for (final Element e : results) {
+                // Check that all visible entities contain the visibility property
+                assertThat(e.getProperties()).as("Visibility property should be visible.")
+                        .containsKey(TestTypes.VISIBILITY);
 
-            // Check that all visible entities contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should be visible.")
-                    .containsKey(TestTypes.VISIBILITY);
-
-            assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
-                    .withFailMessage("Visibility property should contain an empty String.")
-                    .isEmpty();
+                assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
+                        .withFailMessage("Visibility property should contain an empty String.")
+                        .isEmpty();
+            }
+        } finally {
+            CloseableUtil.close(iterable);
         }
-
-        CloseableUtil.close(iterable);
     }
 
     @Test
@@ -239,26 +244,30 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final Iterable<? extends Element> userVis1Iterable = graph.execute(get, USER_VIS_1);
-        final Iterable<? extends Element> userVis2Iterable = graph.execute(get, USER_VIS_2);
+        Iterable<? extends Element> userVis1Iterable = null;
+        Iterable<? extends Element> userVis2Iterable = null;
+        try {
+            userVis1Iterable = graph.execute(get, USER_VIS_1);
+            userVis2Iterable = graph.execute(get, USER_VIS_2);
 
-        final List<Element> userVis1Results = Lists.newArrayList(userVis1Iterable);
-        final List<Element> userVis2Results = Lists.newArrayList(userVis2Iterable);
+            final List<Element> userVis1Results = Lists.newArrayList(userVis1Iterable);
+            final List<Element> userVis2Results = Lists.newArrayList(userVis2Iterable);
 
-        assertThat(userVis1Results).hasSize(2);
-        assertThat(userVis2Results).isEmpty();
+            assertThat(userVis1Results).hasSize(2);
+            assertThat(userVis2Results).isEmpty();
 
-        for (final Element e : userVis1Results) {
-            // Check that all visible entities contain the visibility property
-            assertThat(e.getProperties()).as("Missing visibility property.").containsKey(TestTypes.VISIBILITY);
+            for (final Element e : userVis1Results) {
+                // Check that all visible entities contain the visibility property
+                assertThat(e.getProperties()).as("Missing visibility property.").containsKey(TestTypes.VISIBILITY);
 
-            // Check that the visibility key contai
-            // ns the correct value
-            assertThat(e.getProperties()
-                    .get(TestTypes.VISIBILITY)).as("Visibility property should be \"vis1\"").hasToString("vis1");
+                // Check that the visibility key contai
+                // ns the correct value
+                assertThat(e.getProperties()
+                        .get(TestTypes.VISIBILITY)).as("Visibility property should be \"vis1\"").hasToString("vis1");
+            }
+        } finally {
+            CloseableUtil.close(userVis1Iterable, userVis2Iterable);
         }
-
-        CloseableUtil.close(userVis1Iterable, userVis2Iterable);
     }
 
     @Test
@@ -279,20 +288,22 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("B"))
                 .build();
 
-        final Iterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
-                .newHashSet("vis1", "vis2")));
+        Iterable<? extends Element> iterable = null;
+        try {
+            iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets.newHashSet("vis1", "vis2")));
 
-        final List<Element> results = Lists.newArrayList(iterable);
+            final List<Element> results = Lists.newArrayList(iterable);
 
-        assertThat(results)
-                .withFailMessage("Results do not contain all expected entities.")
-                .hasSize(1);
+            assertThat(results)
+                    .withFailMessage("Results do not contain all expected entities.")
+                    .hasSize(1);
 
-        for (final Element e : iterable) {
-            assertThat(e.getProperties()).containsKey(TestTypes.VISIBILITY);
+            for (final Element e : iterable) {
+                assertThat(e.getProperties()).containsKey(TestTypes.VISIBILITY);
+            }
+        } finally {
+            CloseableUtil.close(iterable);
         }
-
-        CloseableUtil.close(iterable);
     }
 
     @Test
@@ -312,20 +323,23 @@ public class VisibilityIT extends AbstractStoreIT {
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
-        final Iterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
-                .newHashSet("vis1")));
 
-        final List<Element> results = Lists.newArrayList(iterable);
+        Iterable<? extends Element> iterable = null;
+        try {
+            iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets.newHashSet("vis1")));
 
-        assertThat(results)
-                .withFailMessage("Results do not contain all expected entities.")
-                .hasSize(1);
+            final List<Element> results = Lists.newArrayList(iterable);
 
-        for (final Element e : results) {
-            assertThat(e.getProperties()).containsKey(TestTypes.VISIBILITY);
+            assertThat(results)
+                    .withFailMessage("Results do not contain all expected entities.")
+                    .hasSize(1);
+
+            for (final Element e : results) {
+                assertThat(e.getProperties()).containsKey(TestTypes.VISIBILITY);
+            }
+        } finally {
+            CloseableUtil.close(iterable);
         }
-
-        CloseableUtil.close(iterable);
     }
 
     @Override

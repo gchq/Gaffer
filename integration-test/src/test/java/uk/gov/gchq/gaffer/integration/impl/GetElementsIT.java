@@ -136,21 +136,15 @@ public class GetElementsIT extends AbstractStoreIT {
                         try {
                             shouldGetElementsBySeed(includeEntities, false, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError(
-                                    "GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
-                                            + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType
-                                            + " \ninOutType=" + inOutType,
-                                    e);
+                            throw new AssertionError(String.format("GetElementsBySeed failed with parameters: \nincludeEntities=%s \nincludeEdges=%s \ndirectedType=%s \ninOutType=%s",
+                                    includeEntities, includeEdges, directedType, inOutType), e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
                         } catch (final Throwable e) {
-                            throw new AssertionError(
-                                    "GetRelatedElements failed with parameters: \nincludeEntities=" + includeEntities
-                                            + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType
-                                            + " \ninOutType=" + inOutType,
-                                    e);
+                            throw new AssertionError(String.format("GetRelatedElements failed with parameters: \nincludeEntities=%s \nincludeEdges=%s \ndirectedType=%s \ninOutType=%s",
+                                    includeEntities, includeEdges, directedType, inOutType), e);
                         }
                     }
                 }
@@ -493,9 +487,10 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     private void shouldGetElementsBySeed(final boolean includeEntities,
-            final boolean includeEdges,
-            final DirectedType directedType,
-            final IncludeIncomingOutgoingType inOutType) throws Exception {
+                                         final boolean includeEdges,
+                                         final DirectedType directedType,
+                                         final IncludeIncomingOutgoingType inOutType)
+            throws Exception {
         final Set<Element> expectedElements = new HashSet<>();
         if (includeEntities) {
             expectedElements.addAll(ENTITIES_EXIST);
@@ -526,9 +521,10 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     private void shouldGetRelatedElements(final boolean includeEntities,
-            final boolean includeEdges,
-            final DirectedType directedType,
-            final IncludeIncomingOutgoingType inOutType) throws Exception {
+                                          final boolean includeEdges,
+                                          final DirectedType directedType,
+                                          final IncludeIncomingOutgoingType inOutType)
+            throws Exception {
         final Set<ElementId> expectedElementIds = new HashSet<>();
         final Set<Element> expectedElements = new HashSet<>();
         if (includeEntities) {
@@ -579,7 +575,8 @@ public class GetElementsIT extends AbstractStoreIT {
                                    final boolean includeEntities,
                                    final boolean includeEdges,
                                    final IncludeIncomingOutgoingType inOutType,
-                                   final Iterable<ElementId> seeds) throws IOException, OperationException {
+                                   final Iterable<ElementId> seeds)
+            throws IOException, OperationException {
         // Given
         final User user = new User();
 
