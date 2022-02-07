@@ -101,13 +101,10 @@ public final class GetElementsUtil {
             final EdgeId edgeId = (EdgeId) elementId;
 
             if (DirectedType.isEither(edgeId.getDirectedType())) {
-                relevantElements
-                        .addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
-                relevantElements
-                        .addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
+                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false)));
+                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true)));
             } else {
-                relevantElements.addAll(mapImpl
-                        .lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
+                relevantElements.addAll(mapImpl.lookup(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType())));
             }
 
             mapImpl.lookup(new EntitySeed(edgeId.getSource()))
@@ -138,18 +135,17 @@ public final class GetElementsUtil {
     }
 
     public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema,
-            final User user) {
+                                                        final User user) {
         final Set<String> dataAuths = user.getDataAuths();
         final Authorisations authorisations = new Authorisations(dataAuths.toArray(new String[dataAuths.size()]));
         return elements.filter(e -> isVisible(e, schema.getVisibilityProperty(), authorisations));
     }
 
     private static boolean isVisible(final Element e, final String visibilityProperty,
-            final Authorisations authorisations) {
+                                     final Authorisations authorisations) {
         if (e.getProperty(visibilityProperty) != null) {
             final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(authorisations);
-            final ElementVisibility elementVisibility = new ElementVisibility(
-                    (String) e.getProperty(visibilityProperty));
+            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibilityProperty));
             try {
                 return visibilityEvaluator.evaluate(elementVisibility);
             } catch (final VisibilityParseException visibilityParseException) {
@@ -165,8 +161,8 @@ public final class GetElementsUtil {
     }
 
     public static Stream<Element> applyDirectedTypeFilter(final Stream<Element> elements,
-            final boolean includeEdges,
-            final DirectedType directedType) {
+                                                          final boolean includeEdges,
+                                                          final DirectedType directedType) {
         Stream<Element> filteredElements = elements;
         if (includeEdges) {
             if (directedType == DirectedType.DIRECTED) {
@@ -179,15 +175,15 @@ public final class GetElementsUtil {
     }
 
     public static Stream<Element> applyView(final Stream<Element> elementStream,
-            final Schema schema,
-            final View view) {
+                                            final Schema schema,
+                                            final View view) {
         return applyView(elementStream, schema, view, false);
     }
 
     public static Stream<Element> applyView(final Stream<Element> elementStream,
-            final Schema schema,
-            final View view,
-            final boolean includeMatchedVertex) {
+                                            final Schema schema,
+                                            final View view,
+                                            final boolean includeMatchedVertex) {
         final Set<String> viewGroups = view.getGroups();
         Stream<Element> stream = elementStream;
         // Check group is valid
@@ -203,8 +199,7 @@ public final class GetElementsUtil {
         });
 
         // Apply aggregation
-        final Iterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema,
-                view, includeMatchedVertex);
+        final Iterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
         stream = StreamSupport.stream(iterable.spliterator(), false);
 
         // Apply post-aggregation filter

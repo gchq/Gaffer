@@ -38,20 +38,21 @@ import java.util.stream.Stream;
 /**
  * An {@link OutputOperationHandler} for the {@link GetAdjacentIds} operation on the {@link MapStore}.
  */
-public class GetAdjacentIdsHandler implements
-        OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> {
+public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> {
 
     @Override
     public Iterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
-            final Context context,
-            final Store store) throws OperationException {
+                                                    final Context context,
+                                                    final Store store)
+            throws OperationException {
         return doOperation(operation, context, (MapStore) store);
     }
 
     private Iterable<EntityId> doOperation(final GetAdjacentIds operation,
-            final Context context,
-            final MapStore mapStore) throws OperationException {
-        if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
+                                           final Context context,
+                                           final MapStore mapStore)
+            throws OperationException {
+        if (Objects.isNull(operation.getInput()) || !operation.getInput().iterator().hasNext()) {
             return new EmptyIterable<>();
         }
         return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());
@@ -64,8 +65,7 @@ public class GetAdjacentIdsHandler implements
         private final User user;
         private final boolean supportsVisibility;
 
-        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final MapStore mapStore,
-                final User user) {
+        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final MapStore mapStore, final User user) {
             this.mapImpl = mapImpl;
             this.getAdjacentIds = getAdjacentIds;
             this.schema = mapStore.getSchema();
@@ -80,10 +80,9 @@ public class GetAdjacentIdsHandler implements
             // Apply view
             // Extract adjacent vertices
             Stream<Element> elementStream = Streams.toStream(getAdjacentIds.getInput())
-                    .flatMap(entityId ->
-                            GetElementsUtil.getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(), getAdjacentIds.getDirectedType(), getAdjacentIds.getIncludeIncomingOutGoing())
-                                    .stream()
-                                    .map(mapImpl::getAggElement));
+                    .flatMap(entityId -> GetElementsUtil.getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(), getAdjacentIds.getDirectedType(), getAdjacentIds.getIncludeIncomingOutGoing())
+                            .stream()
+                            .map(mapImpl::getAggElement));
 
             // Apply visibility
             if (this.supportsVisibility) {

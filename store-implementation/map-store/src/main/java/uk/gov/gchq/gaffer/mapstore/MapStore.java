@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
@@ -63,6 +64,7 @@ import static java.util.Arrays.asList;
  * </p>
  */
 public class MapStore extends Store {
+
     public static final Set<StoreTrait> TRAITS = new HashSet<>(asList(
             StoreTrait.VISIBILITY,
             StoreTrait.QUERY_AGGREGATION,
@@ -116,7 +118,7 @@ public class MapStore extends Store {
     protected MapImpl createMapImpl() {
         if (getProperties().isStaticMap()) {
             LOGGER.debug("Using static map");
-            if (null == staticMapImpl) {
+            if (Objects.isNull(staticMapImpl)) {
                 staticMapImpl = new MapImpl(getSchema(), getProperties());
             }
 
@@ -152,6 +154,7 @@ public class MapStore extends Store {
         return new AddElementsHandler();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;

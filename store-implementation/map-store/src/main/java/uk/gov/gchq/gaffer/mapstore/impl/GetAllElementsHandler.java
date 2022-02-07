@@ -37,13 +37,15 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
 
     @Override
     public Iterable<? extends Element> doOperation(final GetAllElements operation,
-            final Context context,
-            final Store store) throws OperationException {
+                                                   final Context context,
+                                                   final Store store)
+            throws OperationException {
         return doOperation(operation, context, (MapStore) store);
     }
 
-    private Iterable<Element> doOperation(final GetAllElements operation, final Context context,
-            final MapStore mapStore) {
+    private Iterable<Element> doOperation(final GetAllElements operation,
+                                          final Context context,
+                                          final MapStore mapStore) {
         return new AllElementsIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());
     }
 
@@ -54,8 +56,10 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
         private final User user;
         private final boolean supportsVisibility;
 
-        AllElementsIterable(final MapImpl mapImpl, final GetAllElements getAllElements, final MapStore mapStore,
-                final User user) {
+        AllElementsIterable(final MapImpl mapImpl,
+                            final GetAllElements getAllElements,
+                            final MapStore mapStore,
+                            final User user) {
             this.mapImpl = mapImpl;
             this.getAllElements = getAllElements;
             this.schema = mapStore.getSchema();
@@ -69,8 +73,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
             if (this.supportsVisibility) {
                 elements = GetElementsUtil.applyVisibilityFilter(elements, schema, user);
             }
-            elements = GetElementsUtil.applyDirectedTypeFilter(elements, getAllElements.getView().hasEdges(),
-                    getAllElements.getDirectedType());
+            elements = GetElementsUtil.applyDirectedTypeFilter(elements, getAllElements.getView().hasEdges(), getAllElements.getDirectedType());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
             elements = GetElementsUtil.applyView(elements, schema, getAllElements.getView());
             elements = elements.map(element -> {

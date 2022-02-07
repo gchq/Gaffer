@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -43,7 +42,6 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +49,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
@@ -75,7 +73,7 @@ public class GetElementsHandlerTest {
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -96,7 +94,7 @@ public class GetElementsHandlerTest {
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -117,7 +115,7 @@ public class GetElementsHandlerTest {
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -138,7 +136,7 @@ public class GetElementsHandlerTest {
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -170,12 +168,12 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -208,12 +206,12 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When query for A->B0 equal
         getElements = new GetElements.Builder()
@@ -235,7 +233,7 @@ public class GetElementsHandlerTest {
                     return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for X-Y0 (undirected) in direction it was inserted in with related
         getElements = new GetElements.Builder()
@@ -262,7 +260,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for X-Y0 (undirected) in direction it was inserted in with equal
         getElements = new GetElements.Builder()
@@ -276,7 +274,7 @@ public class GetElementsHandlerTest {
         // Then
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with related
         getElements = new GetElements.Builder()
@@ -287,7 +285,7 @@ public class GetElementsHandlerTest {
         // Then
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with equal
         getElements = new GetElements.Builder()
@@ -301,7 +299,7 @@ public class GetElementsHandlerTest {
         // Then
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -336,7 +334,7 @@ public class GetElementsHandlerTest {
                     }
                 });
         final Map<Element, Integer> expectedCounts = GetAllElementsHandlerTest.streamToCount(expectedResultsStream);
-        assertEquals(expectedCounts, resultingElementsToCount);
+        assertThat(resultingElementsToCount).isEqualTo(expectedCounts);
     }
 
     @Test
@@ -372,7 +370,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -409,7 +407,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -451,7 +449,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -494,7 +492,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -537,7 +535,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -580,7 +578,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     private static class ExampleTransform extends KorypheFunction<Integer, Integer> {
@@ -637,7 +635,7 @@ public class GetElementsHandlerTest {
                     return element;
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -686,7 +684,7 @@ public class GetElementsHandlerTest {
                     return element;
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -732,7 +730,7 @@ public class GetElementsHandlerTest {
                 })
                 .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 50)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -786,7 +784,7 @@ public class GetElementsHandlerTest {
                 })
                 .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 50)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -819,7 +817,7 @@ public class GetElementsHandlerTest {
                     return edge.getSource().equals("A") || edge.getDestination().equals("A");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When view has entities
         getElements = new GetElements.Builder()
@@ -846,7 +844,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -881,7 +879,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When view has no edges
         getElements = new GetElements.Builder()
@@ -906,7 +904,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When directedType is DIRECTED
         getElements = new GetElements.Builder()
@@ -932,7 +930,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When directedType is UNDIRECTED
         getElements = new GetElements.Builder()
@@ -958,7 +956,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -993,7 +991,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When inOutType is INCOMING
         getElements = new GetElements.Builder()
@@ -1022,7 +1020,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When inOutType is OUTGOING
         getElements = new GetElements.Builder()
@@ -1051,7 +1049,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     // Test equivalent for seedMatching
@@ -1084,7 +1082,7 @@ public class GetElementsHandlerTest {
                     return entity.getVertex().equals("A") || entity.getVertex().equals("X");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When related
         getElements = new GetElements.Builder()
@@ -1108,7 +1106,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // Repeat with equal for an EdgeId
         final GetElements getElementsFromEdgeId = new GetElements.Builder()
@@ -1130,7 +1128,7 @@ public class GetElementsHandlerTest {
                     return edge.getSource().equals("A") && edge.getDestination().equals("B0") && edge.isDirected();
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -1185,8 +1183,8 @@ public class GetElementsHandlerTest {
         } finally {
             CloseableUtil.close(results2);
         }
-        assertEquals("B9", result2.getDestination());
-        assertEquals("q", result2.getProperty(GetAllElementsHandlerTest.PROPERTY1));
+        assertThat(result2.getDestination()).isEqualTo("B9");
+        assertThat(result2.getProperty(GetAllElementsHandlerTest.PROPERTY1)).isEqualTo("q");
     }
 
     private static List<Element> getElements() {

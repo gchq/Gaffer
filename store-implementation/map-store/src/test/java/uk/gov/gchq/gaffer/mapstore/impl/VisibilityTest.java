@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -47,12 +46,11 @@ import java.util.function.Predicate;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public final class VisibilityTest {
 
-    private static final Schema SCHEMA = Schema
-            .fromJson(StreamUtil.openStreams(VisibilityTest.class, "schema-with-visibilities"));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.openStreams(VisibilityTest.class, "schema-with-visibilities"));
 
     private static final String PUBLIC = "public";
     private static final String PRIVATE = "private";
@@ -200,9 +198,9 @@ public final class VisibilityTest {
         return Lists.newArrayList(expectedIterable);
     }
 
-    public static <OUTPUT, OPERATION extends Operation & Output<OUTPUT>> void executeOperation(
-            final OPERATION operation,
-            final BiConsumer<OUTPUT, String[]> resultConsumer) throws OperationException {
+    public static <OUTPUT, OPERATION extends Operation & Output<OUTPUT>> void executeOperation(final OPERATION operation,
+                                                                                               final BiConsumer<OUTPUT, String[]> resultConsumer)
+            throws OperationException {
 
         final MapStoreProperties storeProperties = new MapStoreProperties();
         final Graph graph = new Graph.Builder()
@@ -222,20 +220,21 @@ public final class VisibilityTest {
     }
 
     public static <OUTPUT> void elementIterableResultSizeConsumer(final OUTPUT output, final String... dataAuths) {
-        assertEquals((long) getExpectedElementsFor(SCHEMA, dataAuths).size(), output);
+        assertThat((long) getExpectedElementsFor(SCHEMA, dataAuths).size()).isEqualTo(output);
     }
 
+    @SuppressWarnings("unchecked")
     public static <OUTPUT> void elementIterableResultConsumer(final OUTPUT output, final String... dataAuths) {
         ElementUtil.assertElementEquals(getExpectedElementsFor(SCHEMA, dataAuths), (Iterable<Element>) output);
     }
 
+    @SuppressWarnings("unchecked")
     public static <OUTPUT> void vertex1AdjacentIdsResultConsumer(final OUTPUT output, final String... dataAuths) {
-        ElementUtil.assertElementEquals(getExpectedAdjacentIdsFor(SCHEMA, asList(VERTEX_1), dataAuths),
-                (Iterable<Element>) output);
+        ElementUtil.assertElementEquals(getExpectedAdjacentIdsFor(SCHEMA, asList(VERTEX_1), dataAuths), (Iterable<Element>) output);
     }
 
     private static List<EntityId> getExpectedAdjacentIdsFor(final Schema schema, final List<String> vertexSeeds,
-            final String... dataAuths) {
+                                                            final String... dataAuths) {
         final Set<EntitySeed> seedsToRemove = vertexSeeds.stream().map(EntitySeed::new).collect(toSet());
         final ElementVisibilityPredicate elementVisibilityPredicate = new ElementVisibilityPredicate(dataAuths);
         final EdgeVertexPredicate edgeVertexPredicate = new EdgeVertexPredicate(vertexSeeds);

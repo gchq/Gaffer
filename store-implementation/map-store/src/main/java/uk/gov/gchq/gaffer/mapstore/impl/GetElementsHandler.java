@@ -31,31 +31,32 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
  */
-public class GetElementsHandler
-        implements OutputOperationHandler<GetElements, Iterable<? extends Element>> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements, Iterable<? extends Element>> {
 
     @Override
     public Iterable<Element> doOperation(final GetElements operation,
-            final Context context,
-            final Store store) throws OperationException {
+                                         final Context context,
+                                         final Store store)
+            throws OperationException {
         return doOperation(operation, context, (MapStore) store);
     }
 
     private Iterable<Element> doOperation(final GetElements operation,
-            final Context context,
-            final MapStore mapStore) throws OperationException {
+                                          final Context context,
+                                          final MapStore mapStore)
+            throws OperationException {
         final MapImpl mapImpl = mapStore.getMapImpl();
         if (!mapImpl.isMaintainIndex()) {
-            throw new OperationException(
-                    "Cannot execute getElements if the properties request that an index is not created");
+            throw new OperationException("Cannot execute getElements if the properties request that an index is not created");
         }
         final Iterable<? extends ElementId> seeds = operation.getInput();
-        if (null == seeds) {
+        if (Objects.isNull(seeds)) {
             return new EmptyIterable<>();
         }
         return new ElementsIterable(mapImpl, operation, mapStore, context.getUser());
@@ -68,14 +69,12 @@ public class GetElementsHandler
         private final User user;
         private final boolean supportsVisibility;
 
-        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final MapStore mapStore,
-                final User user) {
+        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final MapStore mapStore, final User user) {
             this.mapImpl = mapImpl;
             this.getElements = getElements;
             this.schema = mapStore.getSchema();
             this.user = user;
             this.supportsVisibility = mapStore.getTraits().contains(StoreTrait.VISIBILITY);
-
         }
 
         @Override

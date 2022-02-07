@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -48,9 +47,10 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetAllElementsHandlerTest {
+
     static final String BASIC_ENTITY = "BasicEntity";
     static final String BASIC_EDGE1 = "BasicEdge";
     static final String BASIC_EDGE2 = "BasicEdge2";
@@ -75,12 +75,13 @@ public class GetAllElementsHandlerTest {
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(new HashSet<>(getElements()), resultsSet);
+
+        assertThat(resultsSet).isEqualTo(new HashSet<>(getElements()));
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(new HashSet<>(getElements()), resultsSet);
+        assertThat(resultsSet).isEqualTo(new HashSet<>(getElements()));
     }
 
     @Test
@@ -133,7 +134,7 @@ public class GetAllElementsHandlerTest {
         edge3.putProperty(PROPERTY2, "t");
         edge3.putProperty(COUNT, 3 * (NUM_LOOPS / 2));
         expectedResults.add(edge3);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -160,7 +161,7 @@ public class GetAllElementsHandlerTest {
         getElements().stream()
                 .filter(e -> e.getGroup().equals(BASIC_EDGE1))
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -192,7 +193,7 @@ public class GetAllElementsHandlerTest {
         getElements().stream()
                 .filter(e -> e.getGroup().equals(BASIC_EDGE1) && ((int) e.getProperty(COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -225,7 +226,7 @@ public class GetAllElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(BASIC_EDGE1) && ((int) e.getProperty(COUNT)) > 5)
                 .forEach(expectedResults::add);
 
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -253,7 +254,7 @@ public class GetAllElementsHandlerTest {
         getElements().stream()
                 .filter(e -> e instanceof Edge)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When view has entities
         getAllElements = new GetAllElements.Builder()
@@ -270,7 +271,7 @@ public class GetAllElementsHandlerTest {
         Streams.toStream(results).forEach(resultsSet::add);
         expectedResults.clear();
         getElements().forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -293,7 +294,7 @@ public class GetAllElementsHandlerTest {
         Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When view has no edges
         getAllElements = new GetAllElements.Builder()
@@ -310,7 +311,7 @@ public class GetAllElementsHandlerTest {
         getElements().stream()
                 .filter(element -> element instanceof Entity)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When directedType is DIRECTED
         getAllElements = new GetAllElements.Builder()
@@ -325,7 +326,7 @@ public class GetAllElementsHandlerTest {
         getElements().stream()
                 .filter(element -> element instanceof Entity || ((Edge) element).isDirected())
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When directedType is UNDIRECTED
         getAllElements = new GetAllElements.Builder()
@@ -340,7 +341,7 @@ public class GetAllElementsHandlerTest {
         getElements().stream()
                 .filter(element -> element instanceof Entity || !((Edge) element).isDirected())
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     public static Schema getSchema() {
