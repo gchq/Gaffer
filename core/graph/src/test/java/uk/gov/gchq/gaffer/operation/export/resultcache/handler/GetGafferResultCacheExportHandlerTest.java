@@ -47,6 +47,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -130,7 +131,8 @@ public class GetGafferResultCacheExportHandlerTest {
         // Then
         assertThat(handlerResult).asInstanceOf(InstanceOfAssertFactories.iterable(Object.class)).isEmpty();
         final ArgumentCaptor<OperationChain<?>> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(cacheStore).execute(opChain.capture(), Mockito.any());
+        verify(cacheStore, times(3)).execute(opChain.capture(), Mockito.any());
+
         assertThat(opChain.getValue().getOperations()).hasSize(1);
         assertThat(opChain.getValue().getOperations().get(0)).isInstanceOf(GetElements.class);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);

@@ -67,6 +67,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
@@ -159,9 +160,9 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldBeAnOrderedStore() {
-        assertThat(BYTE_ENTITY_STORE.hasTrait(StoreTrait.ORDERED)).isTrue();
-        assertThat(GAFFER_1_KEY_STORE.hasTrait(StoreTrait.ORDERED)).isTrue();
+    public void shouldBeAnOrderedStore() throws OperationException {
+        assertThat(BYTE_ENTITY_STORE.execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context())).isTrue();
+        assertThat(GAFFER_1_KEY_STORE.execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context())).isTrue();
     }
 
     @Test

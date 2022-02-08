@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -118,6 +117,7 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
@@ -153,6 +153,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -162,6 +163,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -203,6 +205,7 @@ public class StoreTest {
         JSONSerialiser.update();
 
         store = new StoreImpl();
+        lenient().when(schemaOptimiser.optimise(any(Schema.class), any(Boolean.class))).then(returnsFirstArg());
         lenient().when(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class)))
                 .thenReturn(new ValidationResult());
 
@@ -359,7 +362,6 @@ public class StoreTest {
 
     @Test
     public void shouldThrowExceptionIfOperationChainIsInvalid(@Mock final StoreProperties properties) throws OperationException, StoreException {
-        // Given
         // Given
         final Schema schema = createSchemaMock();
         final OperationChain<?> opChain = new OperationChain<>();
@@ -717,7 +719,8 @@ public class StoreTest {
     public void shouldExecuteOperationChainJob(@Mock final StoreProperties properties) throws OperationException, InterruptedException, StoreException {
         // Given
         final Operation operation = new GetVariables.Builder().variableNames(Lists.newArrayList()).build();
-        final OperationChain<?> opChain = new OperationChain.Builder().first(operation)
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(operation)
                 .then(new ExportToGafferResultCache())
                 .build();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -1113,6 +1116,11 @@ public class StoreTest {
         }
 
         @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             doUnhandledOperationCalls.add(operation);
             return null;
@@ -1127,8 +1135,8 @@ public class StoreTest {
         }
 
         @Override
-        public void optimiseSchema() {
-            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        protected SchemaOptimiser createSchemaOptimiser() {
+            return schemaOptimiser;
         }
 
         @Override
@@ -1205,14 +1213,14 @@ public class StoreTest {
         }
 
         @Override
-        protected Object doUnhandledOperation(final Operation operation, final Context context) {
-            doUnhandledOperationCalls.add(operation);
-            return null;
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
         }
 
         @Override
-        public void optimiseSchema() {
-            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
+            doUnhandledOperationCalls.add(operation);
+            return null;
         }
 
         @Override

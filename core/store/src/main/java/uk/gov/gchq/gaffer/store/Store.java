@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -111,7 +112,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
@@ -286,9 +286,9 @@ public abstract class Store {
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker();
 
+        addOpHandlers();
         optimiseSchema();
         validateSchemas();
-        addOpHandlers();
         addExecutorService(properties);
 
         if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
@@ -313,14 +313,14 @@ public abstract class Store {
         try {
 
             final OperationChain<?> operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(),
-                                                                                OperationChain.class);
+                    OperationChain.class);
             final Context context = new Context(jobDetail.getUser());
             context.setOriginalOpChain(operationChain);
 
             getExecutorService().scheduleAtFixedRate(new ScheduledJobRunnable(operationChain, jobDetail, context),
-                                                     jobDetail.getRepeat().getInitialDelay(),
-                                                     jobDetail.getRepeat().getRepeatPeriod(),
-                                                     jobDetail.getRepeat().getTimeUnit());
+                    jobDetail.getRepeat().getInitialDelay(),
+                    jobDetail.getRepeat().getRepeatPeriod(),
+                    jobDetail.getRepeat().getTimeUnit());
 
         } catch (final SerialisationException exception) {
             throw new RuntimeException(exception);
@@ -330,8 +330,8 @@ public abstract class Store {
     public static void updateJsonSerialiser(final StoreProperties storeProperties) {
         if (Objects.nonNull(storeProperties)) {
             JSONSerialiser.update(storeProperties.getJsonSerialiserClass(),
-                                  storeProperties.getJsonSerialiserModules(),
-                                  storeProperties.getStrictJson());
+                    storeProperties.getJsonSerialiserModules(),
+                    storeProperties.getStrictJson());
         } else {
             JSONSerialiser.update();
         }
@@ -339,19 +339,6 @@ public abstract class Store {
 
     public void updateJsonSerialiser() {
         updateJsonSerialiser(getProperties());
-    }
-
-    /**
-     * Returns true if the Store can handle the provided trait and false if it
-     * cannot.
-     *
-     * @param storeTrait the Class of the Processor to be checked.
-     * @return true if the Processor can be handled and false if it cannot.
-     */
-    @Deprecated
-    public boolean hasTrait(final StoreTrait storeTrait) {
-        final Set<StoreTrait> traits = getTraits();
-        return Objects.nonNull(traits) && traits.contains(storeTrait);
     }
 
     /**
@@ -478,9 +465,9 @@ public abstract class Store {
                 : OperationChain.wrap(operation).shallowClone();
 
         getExecutorService().scheduleAtFixedRate(new ScheduledJobRunnable(clonedOp, parentJobDetail, context),
-                                                 parentJobDetail.getRepeat().getInitialDelay(),
-                                                 parentJobDetail.getRepeat().getRepeatPeriod(),
-                                                 parentJobDetail.getRepeat().getTimeUnit());
+                parentJobDetail.getRepeat().getInitialDelay(),
+                parentJobDetail.getRepeat().getRepeatPeriod(),
+                parentJobDetail.getRepeat().getTimeUnit());
 
         return addOrUpdateJobDetail(clonedOp, context, null, JobStatus.SCHEDULED_PARENT);
     }
@@ -552,12 +539,12 @@ public abstract class Store {
                 addOrUpdateJobDetail(clonedOp, context, null, JobStatus.FINISHED);
             } catch (final Error e) {
                 addOrUpdateJobDetail(clonedOp, context, e.getMessage(),
-                                     JobStatus.FAILED);
+                        JobStatus.FAILED);
                 throw e;
             } catch (final Exception e) {
                 LOGGER.warn("Operation chain job failed to execute", e);
                 addOrUpdateJobDetail(clonedOp, context, e.getMessage(),
-                                     JobStatus.FAILED);
+                        JobStatus.FAILED);
             }
         });
         return jobDetail;
@@ -627,7 +614,7 @@ public abstract class Store {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
         final SchemaElementDefinition elementDefinition = getSchema().getElement(
-                                                                                 lazyElement.getGroup());
+                lazyElement.getGroup());
         if (Objects.nonNull(elementDefinition)) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
                 lazyElement.getIdentifier(identifierType);
@@ -690,7 +677,16 @@ public abstract class Store {
     }
 
     public void optimiseSchema() {
-        schema = schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
+        Boolean isOrdered;
+        try {
+            isOrdered = execute(new HasTrait.Builder()
+                    .trait(StoreTrait.ORDERED)
+                    .currentTraits(false)
+                    .build(), new Context());
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Error performing HasTrait Operation while optimising schema.", e);
+        }
+        schema = schemaOptimiser.optimise(schema, null == isOrdered ? false : isOrdered);
     }
 
     public void validateSchemas() {
@@ -711,7 +707,7 @@ public abstract class Store {
 
                         if (Objects.isNull(serialisation)) {
                             validationResult.addError(String.format("Could not find a serialiser for property '%s' in the group '%s'.",
-                                                                    propertyName, key));
+                                    propertyName, key));
                         } else if (!serialisation.canHandle(propertyClass)) {
                             validationResult.addError(String
                                     .format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
@@ -783,7 +779,7 @@ public abstract class Store {
 
                     if (Objects.isNull(serialisation)) {
                         validationResult.addError(String.format("Could not find a serialiser for property '%s' in the group '%s'.",
-                                                                propertyName, schemaElementDefinitionEntry.getKey()));
+                                propertyName, schemaElementDefinitionEntry.getKey()));
                     } else if (!serialisation.canHandle(propertyClass)) {
                         validationResult.addError(String
                                 .format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
@@ -796,8 +792,8 @@ public abstract class Store {
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         if ((Objects.nonNull(serialiser)) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(String.format("Schema serialiser (%s) is not instance of %s",
-                                                    serialiser.getClass().getSimpleName(),
-                                                    requiredParentSerialiserClass.getSimpleName()));
+                    serialiser.getClass().getSimpleName(),
+                    requiredParentSerialiserClass.getSimpleName()));
         }
     }
 
@@ -874,6 +870,16 @@ public abstract class Store {
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
+     * Get this Stores implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link
+     *         uk.gov.gchq.gaffer.store.operation.GetTraits}
+     */
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler();
+
+    /**
      * Get this Store's implementation of the handler for {@link
      * uk.gov.gchq.gaffer.operation.OperationChain}.
      * All Stores must implement this.
@@ -904,7 +910,7 @@ public abstract class Store {
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException(String.format("Operation %s is not supported by the %s.", operation.getClass(),
-                                                              getClass().getSimpleName()));
+                getClass().getSimpleName()));
     }
 
     public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
@@ -1080,7 +1086,7 @@ public abstract class Store {
 
         // Traits
         addOperationHandler(HasTrait.class, new HasTraitHandler());
-        addOperationHandler(GetTraits.class, new GetTraitsHandler());
+        addOperationHandler(GetTraits.class, getGetTraitsHandler());
     }
 
     private void addConfiguredOperationHandlers() {
