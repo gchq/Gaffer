@@ -40,12 +40,12 @@ public class CountsToFreqMap extends KorypheFunction<List<Long>, FreqMap> {
         // For Json Serialisation;
     }
 
-    public CountsToFreqMap(List<String> freqMapKeys) {
+    public CountsToFreqMap(final List<String> freqMapKeys) {
         this.freqMapKeys = freqMapKeys;
     }
 
     @Override
-    public FreqMap apply(List<Long> counts) {
+    public FreqMap apply(final List<Long> counts) {
         FreqMap freqMap = new FreqMap();
 
         if (this.freqMapKeys == null || counts == null) {
@@ -65,11 +65,11 @@ public class CountsToFreqMap extends KorypheFunction<List<Long>, FreqMap> {
         return freqMapKeys;
     }
 
-    public void setFreqMapKeys(List<String> freqMapKeys) {
+    public void setFreqMapKeys(final List<String> freqMapKeys) {
         this.freqMapKeys = freqMapKeys;
     }
 
-    public CountsToFreqMap freqMapKeys(List<String> freqMapKeys) {
+    public CountsToFreqMap freqMapKeys(final List<String> freqMapKeys) {
         this.freqMapKeys = freqMapKeys;
         return this;
     }

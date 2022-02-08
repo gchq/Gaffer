@@ -131,7 +131,7 @@ public class AddElementsFromCsv implements
         return elementGeneratorClassName;
     }
 
-    public void setElementGeneratorClassName(String elementGeneratorClassName) {
+    public void setElementGeneratorClassName(final String elementGeneratorClassName) {
         this.elementGeneratorClassName = elementGeneratorClassName;
     }
 
@@ -139,7 +139,7 @@ public class AddElementsFromCsv implements
         return elementGeneratorJson;
     }
 
-    public void setElementGeneratorJson(String elementGeneratorJson) {
+    public void setElementGeneratorJson(final String elementGeneratorJson) {
         this.elementGeneratorJson = elementGeneratorJson;
     }
 

@@ -110,8 +110,9 @@ public class CsvElementGeneratorIT {
         // Then
         int count = 0;
         for (Element element : generated) {
-            if (element.getGroup().equals(group))
+            if (element.getGroup().equals(group)) {
                 count++;
+            }
         }
 
         assertEquals(expectedNumberOfElements, count);
@@ -135,8 +136,9 @@ public class CsvElementGeneratorIT {
         HashSet<Element> actual = new HashSet<>(); // I don't care about duplications for the sake of this test
 
         for (Element element : generated) {
-            if (element.getGroup().equals("RegionContainsLocation"))
+            if (element.getGroup().equals("RegionContainsLocation")) {
                 actual.add(element);
+            }
         }
 
         assertEquals(expected, actual);
@@ -178,8 +180,9 @@ public class CsvElementGeneratorIT {
         HashSet<Element> actual = new HashSet<>(); // I don't care about duplications for the sake of this test
 
         for (Element element : generated) {
-            if (element.getGroup().equals("RoadHasJunction"))
+            if (element.getGroup().equals("RoadHasJunction")) {
                 actual.add(element);
+            }
         }
 
         assertEquals(expected, actual);

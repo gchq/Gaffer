@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.add;
 
 import org.apache.commons.io.FileUtils;
+
 import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -35,7 +36,7 @@ import java.io.IOException;
 
 public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFromCsv> {
 
-    private final String NONE = "none";
+    private static final String NONE = "none";
 
     @Override
     public Void doOperation(final AddElementsFromCsv operation,
@@ -51,11 +52,11 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
         if (!operation.getElementGeneratorJson().equals(NONE)) {
             try {
                 generator = (ElementGenerator) Class.forName(operation.getElementGeneratorClassName()).newInstance();
-            } catch (InstantiationException e) {
+            } catch (final InstantiationException e) {
                 e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (final IllegalAccessException e) {
                 e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 e.printStackTrace();
             }
         } else if (!operation.getElementGeneratorFilePath().equals(NONE)) {
@@ -85,7 +86,7 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
             CsvElementGenerator csvElementGenerator = null;
             try {
                 csvElementGenerator = JSONSerialiser.deserialise(operation.getElementGeneratorJson(), CsvElementGenerator.class);
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 e.printStackTrace();
             }
 

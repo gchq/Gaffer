@@ -51,12 +51,12 @@ class CountsToFreqMapTest extends FunctionTest {
 
     @Override
     protected Class[] getExpectedSignatureInputClasses() {
-        return new Class[]{ List.class };
+        return new Class[] {List.class };
     }
 
     @Override
     protected Class[] getExpectedSignatureOutputClasses() {
-        return new Class[] { FreqMap.class };
+        return new Class[] {FreqMap.class };
     }
 
     @Override

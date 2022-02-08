@@ -16,11 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -33,7 +30,12 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import uk.gov.gchq.gaffer.types.function.CountsToFreqMap;
-import uk.gov.gchq.koryphe.impl.function.*;
+
+import uk.gov.gchq.koryphe.impl.function.FunctionChain;
+import uk.gov.gchq.koryphe.impl.function.Identity;
+import uk.gov.gchq.koryphe.impl.function.ToDouble;
+import uk.gov.gchq.koryphe.impl.function.ToList;
+import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.io.BufferedReader;
@@ -43,7 +45,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 public class CsvElementGeneratorTest {
 
@@ -118,7 +124,7 @@ public class CsvElementGeneratorTest {
         CsvElementGenerator generator = new CsvElementGenerator()
                 .header("start_junction", "end_junction", "road")
                 .firstRow(1)
-                .element(new ElementTupleDefinition( "RoadHasJunction")
+                .element(new ElementTupleDefinition("RoadHasJunction")
                         .source("road")
                         .destination("start_junction")
                         .directed(false))
@@ -362,7 +368,7 @@ public class CsvElementGeneratorTest {
         // Then
         try {
             Iterable<? extends Element> generated = generator.apply(csv);
-            generated.forEach(element -> {});
+            generated.forEach(element -> { });
             fail("Expected apply to throw exception");
         } catch (Exception e) {
             assertNotNull(e.getMessage());

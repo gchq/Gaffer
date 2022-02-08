@@ -1,5 +1,5 @@
 {
-    "class": "uk.gov.gchq.gaffer.csv.data.generator.CsvElementGenerator",
+    "class": "uk.gov.gchq.gaffer.data.generator.CsvElementGenerator",
     "quoted": true,
     "header": [
       "count_point_id",

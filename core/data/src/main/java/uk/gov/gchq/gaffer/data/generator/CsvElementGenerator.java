@@ -49,7 +49,14 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -199,22 +206,22 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
     }
 
     private Element transformCsvToElement(final Properties properties,
-                                          final ElementTupleDefinition ElementTupleDefinition) {
+                                          final ElementTupleDefinition elementTupleDefinition) {
 
-        requireNonNull(ElementTupleDefinition.get("GROUP"), "GROUP is required");
+        requireNonNull(elementTupleDefinition.get("GROUP"), "GROUP is required");
         final Element element;
-        if (ElementTupleDefinition.containsKey("VERTEX")) {
-            element = new Entity(ElementTupleDefinition.getGroup(), getField("VERTEX", ElementTupleDefinition, properties));
+        if (elementTupleDefinition.containsKey("VERTEX")) {
+            element = new Entity(elementTupleDefinition.getGroup(), getField("VERTEX", elementTupleDefinition, properties));
         } else {
             element = new Edge(
-                    getField("GROUP", ElementTupleDefinition, properties).toString(),
-                    getField("SOURCE", ElementTupleDefinition, properties),
-                    getField("DESTINATION", ElementTupleDefinition, properties),
-                    (boolean) getField("DIRECTED", ElementTupleDefinition, properties)
+                    getField("GROUP", elementTupleDefinition, properties).toString(),
+                    getField("SOURCE", elementTupleDefinition, properties),
+                    getField("DESTINATION", elementTupleDefinition, properties),
+                    (boolean) getField("DIRECTED", elementTupleDefinition, properties)
             );
         }
 
-        for (final Map.Entry<String, Object> entry : ElementTupleDefinition.entrySet()) {
+        for (final Map.Entry<String, Object> entry : elementTupleDefinition.entrySet()) {
             final IdentifierType id = IdentifierType.fromName(entry.getKey());
             if (null == id) {
                 element.putProperty(entry.getKey(), getField(entry.getValue(), properties));
@@ -224,8 +231,8 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         return element;
     }
 
-    private Object getField(final String key, final ElementTupleDefinition ElementTupleDefinition, final Properties properties) {
-        return getField(ElementTupleDefinition.get(key), properties);
+    private Object getField(final String key, final ElementTupleDefinition elementTupleDefinition, final Properties properties) {
+        return getField(elementTupleDefinition.get(key), properties);
     }
 
     private Object getField(final Object value, final Properties properties) {
@@ -452,9 +459,13 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         CsvElementGenerator generator = (CsvElementGenerator) o;
         return firstRow == generator.firstRow &&
                 delimiter == generator.delimiter &&
