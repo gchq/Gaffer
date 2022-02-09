@@ -44,7 +44,8 @@ public class GetElementsWithinSetHandler implements OutputOperationHandler<GetEl
             throws OperationException {
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            return new AccumuloIDWithinSetRetriever(store, operation, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+            return new AccumuloIDWithinSetRetriever(store, operation, user,
+                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
