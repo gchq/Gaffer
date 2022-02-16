@@ -177,6 +177,10 @@ public class FederatedStoreGetTraitsTest {
         Set<StoreTrait> mapTraits = map.getGraph().getStoreTraits();
         Set<StoreTrait> accTraits = acc.getGraph().getStoreTraits();
 
+        getTraits.setCurrentTraits(false);
+        Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
+
         //when
         Set<StoreTrait> mapTraitsExclusive = mapTraits.stream().filter(t -> !accTraits.contains(t)).collect(Collectors.toSet());
         Set<StoreTrait> accTraitsExclusive = accTraits.stream().filter(t -> !mapTraits.contains(t)).collect(Collectors.toSet());
@@ -191,6 +195,8 @@ public class FederatedStoreGetTraitsTest {
         assertEquals(MAP_TRAITS_EXCLUSIVE_OF_ACCUMULO, mapTraitsExclusive, "Expected traits exclusive to MapStore is different");
         assertEquals(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP, accTraitsExclusive, "Expected traits exclusive to AccumuloStore is different");
         assertEquals(INTERSECTION_TRAITS, intersectionTraits, "Expected intersection of traits is different");
+        assertEquals(mapTraits, mapTraitsOperation);
+        assertEquals(accTraits, accTraitsOperation);
     }
 
     @Test
