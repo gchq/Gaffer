@@ -41,17 +41,17 @@ import java.util.List;
  *             serialiser byte key
  * </pre>
  * When multiple serialisers are used that operate on the same value class then
- * the last serliaser in the list will be used for serialisation; This happens
+ * the last serialiser in the list will be used for serialisation; this happens
  * regardless of the key's natural-ordering. In the example Integers will be serialsed with no.8.
  * <br>
  * For deserialising the correct serialiser is always chosen based on the byte key at the start of the byte[].
  * <p>
  * In the below example, the MultiSerialiser has 3 Integer serialisers.
- * This has backwards compatibility to read and deserialise each byte array reguardless of the keyed serialiser used at the time of writing, as long as its on the classpath.
+ * This has backwards compatibility to read and deserialise each byte array regardless of the keyed serialiser used at the time of writing, as long as its on the classpath.
  * However when re-serialising the Integer object, only the last serialiser will be used (key no.8, CompactRawIntegerSerialiser)
  * <br>
- * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility. This also allows seriasliation to be
- * updated before a Serialiser is depreciated and removed.
+ * This allows the MultiSerialiser to be updated with improvements and maintain backwards compatibility. This also allows serialisation to be
+ * updated before a Serialiser is deprecated and removed.
  * <pre>
  *     Json
  *     {
@@ -65,7 +65,7 @@ import java.util.List;
  *       }, {
  *         "key" : 7,
  *         "serialiser" : {
- *           "class" : "old.depricated.and.deleted.IntegerSerialiser",
+ *           "class" : "old.deprecated.IntegerSerialiser",
  *           "charset" : "ISO-8859-1"
  *         },
  *         "valueClass" : "java.lang.Integer"
