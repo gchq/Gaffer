@@ -42,7 +42,7 @@ import java.util.List;
  * </pre>
  * When multiple serialisers are used that operate on the same value class then
  * the last serialiser in the list will be used for serialisation; this happens
- * regardless of the key's natural-ordering. In the example Integers will be serialsed with no.8.
+ * regardless of the key's natural-ordering. In the example Integers will be serialised with no.8.
  * <br>
  * For deserialising the correct serialiser is always chosen based on the byte key at the start of the byte[].
  * <p>
