@@ -34,15 +34,13 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -62,7 +60,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ReduceHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
@@ -244,7 +241,7 @@ public abstract class Store {
 
         try {
 
-            final OperationChain<?> operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(), OperationChain.class);
+            final Operation operationChain = JSONSerialiser.deserialise(jobDetail.getSerialisedOperationChain(), Operation.class);
             final Context context = new Context(jobDetail.getUser());
             context.setOriginalOpChain(operationChain);
 
@@ -302,33 +299,7 @@ public abstract class Store {
     @Deprecated
     public abstract Set<StoreTrait> getTraits();
 
-    /**
-     * Executes a given operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param context   the context executing the operation
-     * @throws OperationException thrown by the operation handler if the
-     *                            operation fails.
-     */
-    public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(OperationChain.wrap(operation), context);
-    }
-
-    /**
-     * Executes a given operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param context   the context executing the operation
-     * @param <O>       the output type of the operation
-     * @return the result of executing the operation
-     * @throws OperationException thrown by the operation handler if the
-     *                            operation fails.
-     */
-    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        return execute(OperationChain.wrap(operation), context);
-    }
-
-    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+    public <O> O execute(final Operation operation, final Context context) throws OperationException {
         addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
@@ -341,18 +312,6 @@ public abstract class Store {
     }
 
     /**
-     * Executes a given operation job and returns the job detail.
-     *
-     * @param operation the operation to execute.
-     * @param context   the context executing the job.
-     * @return the job detail.
-     * @throws OperationException thrown if jobs are not configured.
-     */
-    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
-        return executeJob(OperationChain.wrap(operation), context);
-    }
-
-    /**
      * Executes a given {@link Job} containing an Operation and/or
      * {@link uk.gov.gchq.gaffer.jobtracker.Repeat} and returns the job detail.
      *
@@ -362,8 +321,8 @@ public abstract class Store {
      * @throws OperationException thrown if there is an error running the job.
      */
     public JobDetail executeJob(final Job job, final Context context) throws OperationException {
-        OperationChain opChain = OperationChain.wrap(job.getOperation());
-        if (opChain.getOperations().isEmpty()) {
+        Operation opChain = new Operation("operationChain").operationArg("operations", job.getOperation());
+        if (((List) opChain.get("operations")).isEmpty()) {
             throw new IllegalArgumentException("An operation is required");
         }
         final JobDetail jobDetail = addOrUpdateJobDetail(opChain, context, null, JobStatus.RUNNING);
@@ -371,12 +330,12 @@ public abstract class Store {
         return executeJob(opChain, jobDetail, context);
     }
 
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    protected JobDetail executeJob(final Operation operationChain, final Context context) throws OperationException {
         final JobDetail jobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         return executeJob(operationChain, jobDetail, context);
     }
 
-    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context, final String parentJobId) throws OperationException {
+    protected JobDetail executeJob(final Operation operationChain, final Context context, final String parentJobId) throws OperationException {
         JobDetail childJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         childJobDetail.setParentJobId(parentJobId);
         return executeJob(operationChain, childJobDetail,
@@ -405,10 +364,10 @@ public abstract class Store {
     private JobDetail scheduleJob(final Operation operation,
                                   final JobDetail parentJobDetail,
                                   final Context context) {
-        final OperationChain<?> clonedOp =
+        final Operation clonedOp =
                 (operation instanceof Operations)
-                        ? (OperationChain) operation.shallowClone()
-                        : OperationChain.wrap(operation).shallowClone();
+                        ? operation.shallowClone()
+                        : new Operation("operationChain").operationArg("operations", operation.shallowClone());
 
         getExecutorService().scheduleAtFixedRate(
                 new ScheduledJobRunnable(clonedOp, parentJobDetail, context),
@@ -420,67 +379,26 @@ public abstract class Store {
                 JobStatus.SCHEDULED_PARENT);
     }
 
-    class ScheduledJobRunnable implements Runnable {
-
-        private final OperationChain<?> operationChain;
-        private final JobDetail jobDetail;
-        private final Context context;
-
-        ScheduledJobRunnable(final OperationChain<?> operationChain, final JobDetail jobDetail, final Context context) {
-
-            this.operationChain = operationChain;
-            this.jobDetail = jobDetail;
-            this.context = context;
-        }
-
-        OperationChain<?> getOperationChain() {
-            return operationChain;
-        }
-
-        JobDetail getJobDetail() {
-            return jobDetail;
-        }
-
-        Context getContext() {
-            return context;
-        }
-
-        @Override
-        public void run() {
-
-            if ((jobTracker.getJob(jobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-            final Context newContext = context.shallowClone();
-            try {
-                executeJob(operationChain, newContext, jobDetail.getJobId());
-            } catch (final OperationException e) {
-                throw new RuntimeException("Exception within scheduled job", e);
-            }
-        }
-    }
-
-
     private JobDetail runJob(final Operation operation,
                              final JobDetail jobDetail,
                              final Context context) {
-        final OperationChain<?> clonedOp =
+        final Operation clonedOp =
                 (operation instanceof Operations)
-                        ? (OperationChain) operation.shallowClone()
-                        : OperationChain.wrap(operation).shallowClone();
+                        ? operation.shallowClone()
+                        : new Operation("operationChain").operationArg("operations", operation.shallowClone());
 
-        if (isSupported(ExportToGafferResultCache.class)) {
+        if (isSupported("ExportToGafferResultCache")) {
             boolean hasExport = false;
-            for (final Operation op : clonedOp.getOperations()) {
-                if (op instanceof ExportToGafferResultCache) {
+            for (final Operation op : (Iterable<? extends Operation>) clonedOp.get("operations")) {
+                if (op.getId().equals("ExportToGafferResultCache")) {
                     hasExport = true;
                     break;
                 }
             }
             if (!hasExport) {
-                clonedOp.getOperations()
-                        .add(new ExportToGafferResultCache());
+                List<Operation> operations = (List<Operation>) clonedOp.get("Operations");
+                operations.add(new Operation("ExportToGafferResultCache"));
+                clonedOp.operationArg("operations", operations);
             }
         }
 
@@ -501,6 +419,15 @@ public abstract class Store {
         return jobDetail;
     }
 
+    /**
+     * @param operationId the operation class to check
+     * @return true if the provided operation is supported.
+     */
+    public boolean isSupported(final String operationId) {
+        final OperationHandler operationHandler = operationHandlers.get(operationId);
+        return null != operationHandler;
+    }
+
     public void runAsync(final Runnable runnable) {
         getExecutorService().execute(runnable);
     }
@@ -515,13 +442,12 @@ public abstract class Store {
     }
 
     /**
-     * @param operationClass the operation class to check
-     * @return true if the provided operation is supported.
+     * Get this Stores implementation of the handler for GetElements. All Stores must
+     * implement this.
+     *
+     * @return the implementation of the handler for GetElements
      */
-    public boolean isSupported(final Class<? extends Operation> operationClass) {
-        final OperationHandler operationHandler = operationHandlers.get(operationClass);
-        return null != operationHandler;
-    }
+    protected abstract OperationHandler< CloseableIterable<? extends Element>> getGetElementsHandler();
 
     /**
      * @return a collection of all the supported {@link Operation}s.
@@ -772,54 +698,45 @@ public abstract class Store {
     protected abstract void addAdditionalOperationHandlers();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
+     * Get this Stores implementation of the handler for GetAllElements. All Stores must
      * implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+     * @return the implementation of the handler for GetAllElements
      */
-    protected abstract OperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler();
+    protected abstract OperationHandler< CloseableIterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
-     * implement this.
-     *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
-     */
-    protected abstract OperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
-
-    /**
-     * Get this Stores implementation of the handler for {@link
-     * GetAdjacentIds}.
+     * Get this Stores implementation of the handler for GetAdjacentIds.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link GetAdjacentIds}
+     * @return the implementation of the handler for GetAdjacentIds
      */
-    protected abstract OperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
+    protected abstract OperationHandler< CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
+     * Get this Stores implementation of the handler for AddElements.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}
+     * @return the implementation of the handler for AddElements
      */
-    protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
+    protected abstract OperationHandler getAddElementsHandler();
 
     /**
-     * Get this Store's implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}.
+     * Get this Store's implementation of the handler for OperationChain.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link
-     * uk.gov.gchq.gaffer.operation.OperationChain}
+     * @return the implementation of the handler for OperationChain
      */
-    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
+    protected OperationHandler getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+    }
+
+    public void addOperationHandler(final String opClass, final OperationHandler handler) {
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
     }
 
     protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
@@ -844,27 +761,7 @@ public abstract class Store {
                 .getSimpleName() + '.');
     }
 
-    public void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
-        if (null == handler) {
-            operationHandlers.remove(opClass);
-        } else {
-            operationHandlers.put(opClass, handler);
-        }
-    }
-
-    public <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OperationHandler<OP, O> handler) {
-        if (null == handler) {
-            operationHandlers.remove(opClass);
-        } else {
-            operationHandlers.put(opClass, handler);
-        }
-    }
-
-    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
-        return operationHandlers.get(opClass);
-    }
-
-    private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
+    private JobDetail addOrUpdateJobDetail(final Operation operationChain, final Context context, final String msg, final JobStatus jobStatus) {
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
             final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
@@ -882,6 +779,110 @@ public abstract class Store {
             }
         }
         return newJobDetail;
+    }
+
+    public OperationHandler<Operation> getOperationHandler(final Class<? extends Operation> opClass) {
+        return operationHandlers.get(opClass);
+    }
+
+    private void addCoreOpHandlers() {
+        // Add elements
+        addOperationHandler("AddElements", getAddElementsHandler());
+
+        // Get Elements
+        addOperationHandler("GetElements", (OperationHandler) getGetElementsHandler());
+
+        // Get Adjacent
+        addOperationHandler("GetAdjacentIds", (OperationHandler) getAdjacentIdsHandler());
+
+        // Get All Elements
+        addOperationHandler("GetAllElements", (OperationHandler) getGetAllElementsHandler());
+
+        // Export
+        addOperationHandler("ExportToSet", new ExportToSetHandler());
+        addOperationHandler("GetSetExport", new GetSetExportHandler());
+        addOperationHandler("GetExports", new GetExportsHandler());
+
+        // Jobs
+        if (null != getJobTracker()) {
+            addOperationHandler("GetJobDetails", new GetJobDetailsHandler());
+            addOperationHandler("GetAllJobDetails", new GetAllJobDetailsHandler());
+            addOperationHandler("GetJobResults", new GetJobResultsHandler());
+        }
+
+        // Output
+        addOperationHandler("ToArray", new ToArrayHandler<>());
+        addOperationHandler("ToEntitySeeds", new ToEntitySeedsHandler());
+        addOperationHandler("ToList", new ToListHandler<>());
+        addOperationHandler("ToMap", new ToMapHandler());
+        addOperationHandler("ToCsv", new ToCsvHandler());
+        addOperationHandler("ToSet", new ToSetHandler<>());
+        addOperationHandler("ToStream", new ToStreamHandler<>());
+        addOperationHandler("ToVertices", new ToVerticesHandler());
+
+        if (null != CacheServiceLoader.getService()) {
+            // Named operation
+            addOperationHandler("NamedOperation", new NamedOperationHandler());
+            addOperationHandler("AddNamedOperation", new AddNamedOperationHandler());
+            addOperationHandler("GetAllNamedOperations", new GetAllNamedOperationsHandler());
+            addOperationHandler("DeleteNamedOperation", new DeleteNamedOperationHandler());
+
+            // Named view
+            addOperationHandler("AddNamedView", new AddNamedViewHandler());
+            addOperationHandler("GetAllNamedViews", new GetAllNamedViewsHandler());
+            addOperationHandler("DeleteNamedView", new DeleteNamedViewHandler());
+        }
+
+        // ElementComparison
+        addOperationHandler("Max", new MaxHandler());
+        addOperationHandler("Min", new MinHandler());
+        addOperationHandler("Sort", new SortHandler());
+
+        // OperationChain
+        addOperationHandler("OperationChain", getOperationChainHandler());
+        addOperationHandler("OperationChainDAO", getOperationChainHandler());
+
+        // OperationChain validation
+        addOperationHandler("ValidateOperationChain", new ValidateOperationChainHandler());
+
+        // Walk tracking
+        addOperationHandler("GetWalks", new GetWalksHandler());
+
+        // Other
+        addOperationHandler("GenerateElements", new GenerateElementsHandler<>());
+        addOperationHandler("GenerateObjects", new GenerateObjectsHandler<>());
+        addOperationHandler("Validate", new ValidateHandler());
+        addOperationHandler("Count", new CountHandler());
+        addOperationHandler("CountGroups", new CountGroupsHandler());
+        addOperationHandler("Limit", new LimitHandler());
+        addOperationHandler("DiscardOutput", new DiscardOutputHandler());
+        addOperationHandler("GetSchema", new GetSchemaHandler());
+        addOperationHandler("uk.gov.gchq.gaffer.operation.impl.Map", new MapHandler());
+        addOperationHandler("If", new IfHandler());
+        addOperationHandler("While", new WhileHandler());
+        addOperationHandler("ForEach", new ForEachHandler());
+        addOperationHandler("ToSingletonList", new ToSingletonListHandler());
+        addOperationHandler("Reduce", new ReduceHandler());
+        addOperationHandler("Join", new JoinHandler());
+        addOperationHandler("CancelScheduledJob", new CancelScheduledJobHandler());
+
+        // Context variables
+        addOperationHandler("SetVariable", new SetVariableHandler());
+        addOperationHandler("GetVariable", new GetVariableHandler());
+        addOperationHandler("GetVariables", new GetVariablesHandler());
+
+        // Function
+        addOperationHandler("Filter", new FilterHandler());
+        addOperationHandler("Transform", new TransformHandler());
+        addOperationHandler("Aggregate", new AggregateHandler());
+
+        // GraphLibrary Adds
+        if (null != getGraphLibrary() && !(getGraphLibrary() instanceof NoGraphLibrary)) {
+            addOperationHandler("AddSchemaToLibrary", new AddSchemaToLibraryHandler());
+            addOperationHandler("AddStorePropertiesToLibrary", new AddStorePropertiesToLibraryHandler());
+        }
+
+        addOperationHandler("GetTraits", new GetTraitsHandler());
     }
 
     public Object handleOperation(final Operation operation, final Context context) throws
@@ -918,104 +919,45 @@ public abstract class Store {
         addConfiguredOperationHandlers();
     }
 
-    private void addCoreOpHandlers() {
-        // Add elements
-        addOperationHandler(AddElements.class, getAddElementsHandler());
+    class ScheduledJobRunnable implements Runnable {
 
-        // Get Elements
-        addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
+        private final Operation operationChain;
+        private final JobDetail jobDetail;
+        private final Context context;
 
-        // Get Adjacent
-        addOperationHandler(GetAdjacentIds.class, (OperationHandler) getAdjacentIdsHandler());
+        ScheduledJobRunnable(final Operation operationChain, final JobDetail jobDetail, final Context context) {
 
-        // Get All Elements
-        addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
-
-        // Export
-        addOperationHandler(ExportToSet.class, new ExportToSetHandler());
-        addOperationHandler(GetSetExport.class, new GetSetExportHandler());
-        addOperationHandler(GetExports.class, new GetExportsHandler());
-
-        // Jobs
-        if (null != getJobTracker()) {
-            addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
-            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-            addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+            this.operationChain = operationChain;
+            this.jobDetail = jobDetail;
+            this.context = context;
         }
 
-        // Output
-        addOperationHandler(ToArray.class, new ToArrayHandler<>());
-        addOperationHandler(ToEntitySeeds.class, new ToEntitySeedsHandler());
-        addOperationHandler(ToList.class, new ToListHandler<>());
-        addOperationHandler(ToMap.class, new ToMapHandler());
-        addOperationHandler(ToCsv.class, new ToCsvHandler());
-        addOperationHandler(ToSet.class, new ToSetHandler<>());
-        addOperationHandler(ToStream.class, new ToStreamHandler<>());
-        addOperationHandler(ToVertices.class, new ToVerticesHandler());
-
-        if (null != CacheServiceLoader.getService()) {
-            // Named operation
-            addOperationHandler(NamedOperation.class, new NamedOperationHandler());
-            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
-            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
-            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
-
-            // Named view
-            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
-            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
-            addOperationHandler(DeleteNamedView.class, new DeleteNamedViewHandler());
+        Operation getOperationChain() {
+            return operationChain;
         }
 
-        // ElementComparison
-        addOperationHandler(Max.class, new MaxHandler());
-        addOperationHandler(Min.class, new MinHandler());
-        addOperationHandler(Sort.class, new SortHandler());
-
-        // OperationChain
-        addOperationHandler(OperationChain.class, getOperationChainHandler());
-        addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
-
-        // OperationChain validation
-        addOperationHandler(ValidateOperationChain.class, new ValidateOperationChainHandler());
-
-        // Walk tracking
-        addOperationHandler(GetWalks.class, new GetWalksHandler());
-
-        // Other
-        addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
-        addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
-        addOperationHandler(Validate.class, new ValidateHandler());
-        addOperationHandler(Count.class, new CountHandler());
-        addOperationHandler(CountGroups.class, new CountGroupsHandler());
-        addOperationHandler(Limit.class, new LimitHandler());
-        addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
-        addOperationHandler(GetSchema.class, new GetSchemaHandler());
-        addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
-        addOperationHandler(If.class, new IfHandler());
-        addOperationHandler(While.class, new WhileHandler());
-        addOperationHandler(ForEach.class, new ForEachHandler());
-        addOperationHandler(ToSingletonList.class, new ToSingletonListHandler());
-        addOperationHandler(Reduce.class, new ReduceHandler());
-        addOperationHandler(Join.class, new JoinHandler());
-        addOperationHandler(CancelScheduledJob.class, new CancelScheduledJobHandler());
-
-        // Context variables
-        addOperationHandler(SetVariable.class, new SetVariableHandler());
-        addOperationHandler(GetVariable.class, new GetVariableHandler());
-        addOperationHandler(GetVariables.class, new GetVariablesHandler());
-
-        // Function
-        addOperationHandler(Filter.class, new FilterHandler());
-        addOperationHandler(Transform.class, new TransformHandler());
-        addOperationHandler(Aggregate.class, new AggregateHandler());
-
-        // GraphLibrary Adds
-        if (null != getGraphLibrary() && !(getGraphLibrary() instanceof NoGraphLibrary)) {
-            addOperationHandler(AddSchemaToLibrary.class, new AddSchemaToLibraryHandler());
-            addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
+        JobDetail getJobDetail() {
+            return jobDetail;
         }
 
-        addOperationHandler(GetTraits.class, new GetTraitsHandler());
+        Context getContext() {
+            return context;
+        }
+
+        @Override
+        public void run() {
+
+            if ((jobTracker.getJob(jobDetail.getJobId(), context.getUser()).getStatus().equals(JobStatus.CANCELLED))) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            final Context newContext = context.shallowClone();
+            try {
+                executeJob(operationChain, newContext, jobDetail.getJobId());
+            } catch (final OperationException e) {
+                throw new RuntimeException("Exception within scheduled job", e);
+            }
+        }
     }
 
     private void addConfiguredOperationHandlers() {

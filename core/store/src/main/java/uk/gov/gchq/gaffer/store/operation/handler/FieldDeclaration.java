@@ -33,6 +33,7 @@ import java.util.TreeSet;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 @JsonPropertyOrder(value = {"class", "handlerClass"}, alphabetic = true)
 public class FieldDeclaration {
+    //TODO FS modify for iterables contents
     private TreeMap<String, Class> fields = new TreeMap<>(String::compareToIgnoreCase);
     private TreeSet<String> optionalFields = new TreeSet<>(String::compareToIgnoreCase);
 

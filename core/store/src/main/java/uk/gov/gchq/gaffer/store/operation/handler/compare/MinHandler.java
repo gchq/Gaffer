@@ -32,7 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static java.util.Objects.isNull;
-import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.entryComparators;
+import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.fieldComparators;
 import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getCombinedComparator;
 import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getComparators;
 
@@ -62,7 +62,7 @@ public class MinHandler implements OperationHandler<Element> {
     @Override
     public FieldDeclaration getFieldDeclaration() {
         return new FieldDeclaration()
-                .fieldRequired(entryComparators)
+                .fieldRequired(fieldComparators)
                 .fieldRequired("input", Iterable.class);
 
     }
@@ -109,7 +109,7 @@ public class MinHandler implements OperationHandler<Element> {
 
     static class Builder extends OperationHandler.BuilderSpecificInputOperation<MinHandler.Builder> {
 
-        public MinHandler.Builder comparators(List<Comparator<Element>> comparators) {
+        public MinHandler.Builder comparators(final List<Comparator<Element>> comparators) {
             operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, comparators);
             return this;
         }

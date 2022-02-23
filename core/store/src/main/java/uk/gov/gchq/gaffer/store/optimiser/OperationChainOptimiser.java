@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.optimiser;
 
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
  * Optimises and applies preprocessing to operation chains.
@@ -34,5 +34,5 @@ public interface OperationChainOptimiser {
      * @param <O>       the operation output type
      * @return the optimised operation chain
      */
-    <O> OperationChain<O> optimise(final OperationChain<O> operationChain);
+    <O> Operation optimise(final Operation operationChain);
 }

@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -108,10 +109,10 @@ public class TransformHandlerTest {
                 .property(TestPropertyNames.PROP_2, 3)
                 .build();
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .edge(TestGroups.EDGE, transformer)
-                .entity(TestGroups.ENTITY, transformer)
+                .edgeTransformer(TestGroups.EDGE, transformer)
+                .entityTransformer(TestGroups.ENTITY, transformer)
                 .build();
 
         input.add(edge);
@@ -165,9 +166,9 @@ public class TransformHandlerTest {
                 .property(TestPropertyNames.PROP_3, TestPropertyNames.INT)
                 .build();
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .entity(TestGroups.ENTITY, transformer)
+                .entityTransformer(TestGroups.ENTITY, transformer)
                 .build();
 
         input.add(entity);
@@ -228,9 +229,9 @@ public class TransformHandlerTest {
                 .property(TestPropertyNames.PROP_2, 3)
                 .build();
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .entities(entities)
+                .entityTransformer(entities)
                 .build();
 
         input.add(entity);
@@ -305,9 +306,9 @@ public class TransformHandlerTest {
         expected.add(expectedEdge);
         expected.add(expectedEdge1);
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .edges(edges)
+                .edgeTransformer(edges)
                 .build();
 
         // When
@@ -348,9 +349,9 @@ public class TransformHandlerTest {
         input.add(entity);
         input.add(entity1);
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .entity(TestGroups.ENTITY, transformer)
+                .entityTransformer(TestGroups.ENTITY, transformer)
                 .build();
 
         // When / Then
@@ -387,9 +388,9 @@ public class TransformHandlerTest {
         input.add(entity);
         input.add(entity1);
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .entity(TestGroups.ENTITY, transformer)
+                .entityTransformer(TestGroups.ENTITY, transformer)
                 .build();
 
         // When / Then
@@ -432,9 +433,9 @@ public class TransformHandlerTest {
         input.add(entity);
         input.add(entity1);
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(input)
-                .entity(TestGroups.ENTITY, transformer)
+                .entityTransformer(TestGroups.ENTITY, transformer)
                 .build();
 
         // When / Then
@@ -458,9 +459,9 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build();
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(edge)
-                .edge(TestGroups.EDGE, new ElementTransformer.Builder()
+                .edgeTransformer(TestGroups.EDGE, new ElementTransformer.Builder()
                         .select(IdentifierType.MATCHED_VERTEX.name())
                         .execute(new Identity())
                         .project(TestPropertyNames.PROP_3)
@@ -493,9 +494,9 @@ public class TransformHandlerTest {
                 .matchedVertex(EdgeId.MatchedVertex.SOURCE)
                 .build();
 
-        final Transform transform = new Transform.Builder()
+        final Operation transform = new TransformHandler.Builder()
                 .input(edge)
-                .edge(TestGroups.EDGE, new ElementTransformer.Builder()
+                .edgeTransformer(TestGroups.EDGE, new ElementTransformer.Builder()
                         .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
                         .execute(new Identity())
                         .project(TestPropertyNames.PROP_3)

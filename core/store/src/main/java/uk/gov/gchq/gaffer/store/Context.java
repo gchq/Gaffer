@@ -19,7 +19,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -37,7 +37,7 @@ public class Context {
     private final User user;
     private final String jobId;
     private final Map<String, Object> config;
-    private OperationChain<?> originalOpChain;
+    private Operation originalOpChain;
     private Map<String, Object> variables;
 
     /**
@@ -202,11 +202,11 @@ public class Context {
      *
      * @return the original operation chain.
      */
-    public OperationChain<?> getOriginalOpChain() {
+    public Operation getOriginalOpChain() {
         return originalOpChain;
     }
 
-    public void setOriginalOpChain(final OperationChain<?> originalOpChain) {
+    public void setOriginalOpChain(final Operation originalOpChain) {
         this.originalOpChain = originalOpChain;
     }
 

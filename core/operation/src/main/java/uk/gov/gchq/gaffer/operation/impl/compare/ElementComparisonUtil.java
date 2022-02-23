@@ -38,7 +38,7 @@ import java.util.TreeMap;
 public final class ElementComparisonUtil {
 
     public static final String KEY_COMPARATORS = "comparators";
-    public static final AbstractMap.SimpleImmutableEntry<String, Class> entryComparators = new AbstractMap.SimpleImmutableEntry<>(KEY_COMPARATORS, List.class);
+    public static final AbstractMap.SimpleImmutableEntry<String, Class> fieldComparators = new AbstractMap.SimpleImmutableEntry<>(KEY_COMPARATORS, List.class);
 
     private ElementComparisonUtil() {
     }

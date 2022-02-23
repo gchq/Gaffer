@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.access.predicate.user.CustomUserPredicate;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.ByteArrayInputStream;
@@ -136,7 +136,7 @@ public class NamedOperationDetailTest {
         // Given
         NamedOperationDetail nop = new NamedOperationDetail.Builder()
                 .operationName("test")
-                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .operationChain(new Operation("operationChain").operationArg("operations", new Operation("GetAllElements")))
                 .build();
 
         // When
@@ -145,9 +145,9 @@ public class NamedOperationDetailTest {
         // Then
         String expected =
                 "{" +
-                "   \"operationName\": \"test\"," +
-                "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"" +
-                "}";
+                        "   \"operationName\": \"test\"," +
+                        "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"" +
+                        "}";
 
         JsonAssert.assertEquals(expected, serialised);
     }
@@ -156,7 +156,7 @@ public class NamedOperationDetailTest {
     public void shouldSerialiseAndDeserialiseAccessPredicates() throws SerialisationException {
         NamedOperationDetail nop = new NamedOperationDetail.Builder()
                 .operationName("test")
-                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .operationChain(new Operation("operationChain").operationArg("operations", new Operation("GetAllElements")))
                 .readAccessPredicate(new AccessPredicate("a", asList("b", "c")))
                 .writeAccessPredicate(new AccessPredicate("x", asList("y", "z")))
                 .build();
@@ -167,25 +167,25 @@ public class NamedOperationDetailTest {
         // Then
         String expected =
                 "{" +
-                "   \"operationName\": \"test\"," +
-                "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"," +
-                "   \"readAccessPredicate\": {" +
-                "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
-                "       \"userPredicate\": {" +
-                "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
-                "           \"creatingUserId\": \"a\"," +
-                "           \"auths\": [\"b\", \"c\"]" +
-                "       }" +
-                "   }," +
-                "   \"writeAccessPredicate\": {" +
-                "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
-                "       \"userPredicate\": {" +
-                "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
-                "           \"creatingUserId\": \"x\"," +
-                "           \"auths\": [\"y\", \"z\"]" +
-                "       }" +
-                "   }" +
-                "}";
+                        "   \"operationName\": \"test\"," +
+                        "   \"operations\": \"{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.OperationChain\\\",\\\"operations\\\":[{\\\"class\\\":\\\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\\\"}]}\"," +
+                        "   \"readAccessPredicate\": {" +
+                        "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                        "       \"userPredicate\": {" +
+                        "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
+                        "           \"creatingUserId\": \"a\"," +
+                        "           \"auths\": [\"b\", \"c\"]" +
+                        "       }" +
+                        "   }," +
+                        "   \"writeAccessPredicate\": {" +
+                        "       \"class\": \"uk.gov.gchq.gaffer.access.predicate.AccessPredicate\"," +
+                        "       \"userPredicate\": {" +
+                        "           \"class\": \"uk.gov.gchq.gaffer.access.predicate.user.DefaultUserPredicate\"," +
+                        "           \"creatingUserId\": \"x\"," +
+                        "           \"auths\": [\"y\", \"z\"]" +
+                        "       }" +
+                        "   }" +
+                        "}";
 
         JsonAssert.assertEquals(expected, serialised);
         final NamedOperationDetail deserialised = JSONSerialiser.deserialise(serialised, NamedOperationDetail.class);
@@ -196,7 +196,7 @@ public class NamedOperationDetailTest {
     public void shouldSerialiseAndDeserialiseReadersAndWriters() throws SerialisationException {
         NamedOperationDetail nop = new NamedOperationDetail.Builder()
                 .operationName("test")
-                .operationChain(new OperationChain.Builder().first(new GetAllElements()).build())
+                .operationChain(new Operation("operationChain").operationArg("operations", new Operation("GetAllElements")))
                 .readers(asList("b", "c"))
                 .writers(asList("y", "z"))
                 .build();

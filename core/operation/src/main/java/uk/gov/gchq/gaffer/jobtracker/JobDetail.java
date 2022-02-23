@@ -22,7 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -67,11 +67,11 @@ public class JobDetail implements Serializable {
     }
 
     @Deprecated
-    public JobDetail(final String jobId, final String userId, final OperationChain opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String userId, final Operation opChain, final JobStatus jobStatus, final String description) {
         this(jobId, null, userId, opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final User user, final OperationChain opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final User user, final Operation opChain, final JobStatus jobStatus, final String description) {
         this(jobId, null, user, opChain, jobStatus, description);
     }
 
@@ -81,18 +81,29 @@ public class JobDetail implements Serializable {
     }
 
     @Deprecated
-    public JobDetail(final String jobId, final String parentJobId, final String userId, final OperationChain opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String parentJobId, final String userId, final Operation opChain, final JobStatus jobStatus, final String description) {
         this(jobId, parentJobId, new User(userId), opChain, jobStatus, description);
     }
 
-    public JobDetail(final String jobId, final String parentJobId, final User user, final OperationChain opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String parentJobId, final User user, final Operation opChain, final JobStatus jobStatus, final String description) {
         this.jobId = jobId;
         this.parentJobId = parentJobId;
         this.user = user;
         this.startTime = System.currentTimeMillis();
         this.status = jobStatus;
-        this.opChain = null != opChain ? opChain.toOverviewString() : "";
+        this.opChain = null != opChain ? toOverviewString(opChain) : "";
         this.description = description;
+    }
+
+    public static String toOverviewString(final Operation operation) {
+        throw new UnsupportedOperationException("This may need to replaced to StringBuilder");
+
+//            final String opStrings = getOperations(operation).stream()
+//                    .filter(o -> null != o)
+//                    .map(o -> o.getClass().getSimpleName())
+//                    .collect(Collectors.joining("->"));
+//
+//            return operation.getClass().getSimpleName() + "[" + opStrings + "]";
     }
 
     @Deprecated
@@ -198,9 +209,20 @@ public class JobDetail implements Serializable {
         this.serialisedOperationChain = serialisedOperationChain;
     }
 
-    @JsonIgnore
-    public void setSerialisedOperationChain(final OperationChain operationChain) {
-        this.serialisedOperationChain = serialiseOperationChain(operationChain);
+    private static String serialiseOperationChain(final Operation operationChain) {
+
+        if (operationChain == null) {
+            return "";
+        }
+
+        try {
+
+            return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+
+        } catch (final Exception exception) {
+
+            throw new IllegalArgumentException(exception.getMessage());
+        }
     }
 
     public String getDescription() {
@@ -278,6 +300,11 @@ public class JobDetail implements Serializable {
         return null == newValue ? oldValue : newValue;
     }
 
+    @JsonIgnore
+    public void setSerialisedOperationChain(final Operation operationChain) {
+        this.serialisedOperationChain = serialiseOperationChain(operationChain);
+    }
+
     public static final class Builder {
         private String parentJobId;
         private Repeat repeat;
@@ -324,9 +351,9 @@ public class JobDetail implements Serializable {
             return this;
         }
 
-        public Builder opChain(final OperationChain opChain) {
+        public Builder opChain(final Operation opChain) {
 
-            this.opChain = null != opChain ? opChain.toOverviewString() : "";
+            this.opChain = null != opChain ? toOverviewString(opChain) : "";
             return this;
         }
 
@@ -335,7 +362,7 @@ public class JobDetail implements Serializable {
             return this;
         }
 
-        public Builder serialisedOperationChain(final OperationChain opChain) {
+        public Builder serialisedOperationChain(final Operation opChain) {
 
             this.serialisedOperationChain = serialiseOperationChain(opChain);
             return this;
@@ -348,22 +375,6 @@ public class JobDetail implements Serializable {
 
         public JobDetail build() {
             return new JobDetail(jobId, parentJobId, user, opChain, serialisedOperationChain, status, description, repeat);
-        }
-    }
-
-    private static String serialiseOperationChain(final OperationChain operationChain) {
-
-        if (operationChain == null) {
-            return "";
-        }
-
-        try {
-
-            return new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
-
-        } catch (final Exception exception) {
-
-            throw new IllegalArgumentException(exception.getMessage());
         }
     }
 }

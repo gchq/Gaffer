@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -27,19 +28,25 @@ import uk.gov.gchq.gaffer.store.Store;
  * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so the data is
  * not stored in memory.
  */
-public class LimitHandler<T> implements OperationHandler<Limit<T>, Iterable<? extends T>> {
+public class LimitHandler implements OperationHandler<Iterable> {
+
+    public static final String TRUNCATE = "truncate";
+    public static final String RESULT_LIMIT = "resultLimit";
+
     @Override
-    public Iterable<? extends T> doOperation(final Limit<T> operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.input()) {
-            return null;
-        }
+    public Iterable _doOperation(Operation operation, Context context, Store store) throws OperationException {
+        Iterable input = (Iterable) operation.input();
+        Integer resultLimit = (Integer) operation.get(RESULT_LIMIT);
+        Boolean truncate = (Boolean) operation.get(TRUNCATE);
 
-        if (null != operation.getResultLimit()) {
-            return new LimitedCloseableIterable<>(operation.input(), 0, operation
-                    .getResultLimit(), operation.getTruncate());
+        return new LimitedCloseableIterable(input, 0, resultLimit, truncate);
+    }
 
-        }
-
-        return operation.input();
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldRequired("input", Iterable.class)
+                .fieldRequired(TRUNCATE, Boolean.class)
+                .fieldRequired(RESULT_LIMIT, Integer.class);
     }
 }

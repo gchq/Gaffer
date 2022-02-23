@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,39 +26,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An {@code OperationHandler} for the {@link ForEach} Operation.
+ * An {@code OperationHandler} for the ForEach Operation.
  *
- * @param <I> input type
  * @param <O> output type
  */
-public class ForEachHandler<I, O> implements OperationHandler<ForEach<I, O>, Iterable<? extends O>> {
+public class ForEachHandler<O> implements OperationHandler<Iterable<? extends O>> {
 
     @Override
-    public Iterable<? extends O> doOperation(final ForEach<I, O> forEach, final Context context, final Store store) throws OperationException {
-        if (null == forEach.getOperation()) {
-            throw new OperationException("Operation cannot be null");
-        }
-        if (null == forEach.getInput()) {
-            throw new OperationException("Inputs cannot be null");
-        }
-
+    public Iterable<? extends O> _doOperation(Operation operation, Context context, Store store) throws OperationException {
         final List<O> results = new ArrayList<>();
-        for (final I input : forEach.getInput()) {
-            final Operation clonedOperation = forEach.getOperation().shallowClone();
+        Iterable inputs = (Iterable) operation.input();
+        Operation argOperation = (Operation) operation.get("operation");
+
+        for (final Object input : inputs) {
+            final Operation clonedOperation = argOperation;
             OperationHandlerUtil.updateOperationInput(clonedOperation, input);
             results.add(executeOperation(clonedOperation, context, store));
         }
         return results;
     }
 
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldRequired("input", Iterable.class)
+                .fieldRequired("operation", Iterable.class);
+    }
+
     private O executeOperation(final Operation operation, final Context context, final Store store) throws OperationException {
-        final O result;
-        if (operation instanceof Output) {
-            result = store.execute((Output<O>) operation, context);
-        } else {
-            store.execute(operation, context);
-            result = null;
-        }
-        return result;
+        return store.execute(operation, context);
     }
 }

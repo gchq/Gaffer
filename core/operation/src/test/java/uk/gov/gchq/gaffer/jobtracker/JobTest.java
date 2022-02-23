@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +45,7 @@ public class JobTest {
         final Job deserialised = JSONSerialiser.deserialise(json, Job.class);
 
         // Then
-        Job expected = new Job(new Repeat(20L, 30L, TimeUnit.SECONDS), new GetAllElements());
+        Job expected = new Job(new Repeat(20L, 30L, TimeUnit.SECONDS), new Operation("GetAllElements"));
         assertEquals(expected, deserialised);
 
         // When

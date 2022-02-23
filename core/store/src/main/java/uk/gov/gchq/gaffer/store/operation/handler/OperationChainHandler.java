@@ -15,43 +15,53 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 import static uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil.updateOperationInput;
 
 /**
- * A {@code OperationChainHandler} handles {@link OperationChain}s.
+ * A {@code OperationChainHandler} handles OperationChains.
  *
- * @param <OUT> the output type of the operation chain
+ * @param <O> the output type of the operation chain
  */
-public class OperationChainHandler<OUT> implements OperationHandler< OUT> {
+public class OperationChainHandler<O> implements OperationHandler<O> {
+    public static final String KEY_OPERATIONS = "operations";
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
 
     @Override
-    public OUT _doOperation(final Operation operationChain, final Context context, final Store store) throws OperationException {
+    public O _doOperation(final Operation operationChain, final Context context, final Store store) throws OperationException {
 
-        final OperationChain preparedOperationChain = prepareOperationChain(operationChain, context, store);
+        final Operation preparedOperationChain = prepareOperationChain(operationChain, context, store);
 
         Object result = null;
-        for (final Operation op : preparedOperationChain.getOperations()) {
+        for (final Operation op : (List<Operation>) preparedOperationChain.get(KEY_OPERATIONS)) {
             updateOperationInput(op, result);
             result = store.handleOperation(op, context);
         }
 
-        return (OUT) result;
+        return (O) result;
     }
 
-    public <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldRequired(KEY_OPERATIONS, List.class);
+    }
+
+    public Operation prepareOperationChain(final Operation operationChain, final Context context, final Store store) {
         final ValidationResult validationResult = opChainValidator.validate(operationChain, context
                 .getUser(), store);
         if (!validationResult.isValid()) {
@@ -59,7 +69,7 @@ public class OperationChainHandler<OUT> implements OperationHandler< OUT> {
                     .getErrorString());
         }
 
-        OperationChain<O> optimisedOperationChain = operationChain;
+        Operation optimisedOperationChain = operationChain;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
@@ -77,5 +87,51 @@ public class OperationChainHandler<OUT> implements OperationHandler< OUT> {
 
     protected List<OperationChainOptimiser> getOpChainOptimisers() {
         return opChainOptimisers;
+    }
+
+
+    static class Builder extends BuilderSpecificOperation<Builder> {
+
+        public static List<Operation> getOperations(final Operation operation) {
+            return (List<Operation>) operation.getOrDefault(KEY_OPERATIONS, new ArrayList());
+        }
+
+        public static String toOverviewString(final Operation operation) {
+            throw new UnsupportedOperationException("This may need to replaced to StringBuilder");
+
+//            final String opStrings = getOperations(operation).stream()
+//                    .filter(o -> null != o)
+//                    .map(o -> o.getClass().getSimpleName())
+//                    .collect(Collectors.joining("->"));
+//
+//            return operation.getClass().getSimpleName() + "[" + opStrings + "]";
+        }
+
+        public Builder wrap(final Operation operation) {
+            requireNonNull(operation);
+
+            List<Operation> operations = (List<Operation>) operation.get(KEY_OPERATIONS);
+            if (isNull(operations)) {
+                operations = Lists.newArrayList(operation);
+            }
+
+            return operations(operations);
+        }
+
+        public Builder operations(final List<Operation> operations) {
+            operationArg(KEY_OPERATIONS, operations);
+            return this;
+            //TODO FS Make this a interface Operations object
+        }
+
+        @Override
+        protected Builder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected FieldDeclaration getFieldDeclaration() {
+            return new OperationChainHandler<>(null, null).getFieldDeclaration();
+        }
     }
 }
