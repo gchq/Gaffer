@@ -22,10 +22,10 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,9 +114,9 @@ public class SerialisationFactoryTest {
     public void shouldReturnCustomSerialiserIfCustomSerialiserFound() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
-                new RawDateSerialiser(),
-                new RawDoubleSerialiser(),
-                new RawFloatSerialiser()
+                new OrderedDateSerialiser(),
+                new OrderedDoubleSerialiser(),
+                new OrderedFloatSerialiser()
         };
         final SerialisationFactory factory = new SerialisationFactory(serialisers);
         final Class<?> clazz = Double.class;
@@ -127,16 +127,16 @@ public class SerialisationFactoryTest {
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
-        assertEquals(RawDoubleSerialiser.class, serialiser.getClass());
+        assertEquals(OrderedDoubleSerialiser.class, serialiser.getClass());
     }
 
     @Test
     public void shouldReturnJavaSerialiserIfNoCustomSerialiserFound() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
-                new RawDateSerialiser(),
-                new RawDoubleSerialiser(),
-                new RawFloatSerialiser()
+                new OrderedDateSerialiser(),
+                new OrderedDoubleSerialiser(),
+                new OrderedFloatSerialiser()
         };
         final SerialisationFactory factory = new SerialisationFactory(serialisers);
         final Class<?> clazz = String.class;
@@ -154,9 +154,9 @@ public class SerialisationFactoryTest {
     public void testAddSerialisers() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
-                new RawDateSerialiser(),
-                new RawDoubleSerialiser(),
-                new RawFloatSerialiser()
+                new OrderedDateSerialiser(),
+                new OrderedDoubleSerialiser(),
+                new OrderedFloatSerialiser()
         };
         final SerialisationFactory factory = new SerialisationFactory(serialisers);
         final Class<?> clazz = String.class;

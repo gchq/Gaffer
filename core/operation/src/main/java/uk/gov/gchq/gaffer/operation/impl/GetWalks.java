@@ -267,18 +267,6 @@ public class GetWalks implements
             return _self();
         }
 
-        /**
-         * Adds an operation.
-         *
-         * @param operation the operation to add
-         * @return the Builder
-         * @deprecated use addOperations instead
-         */
-        @Deprecated
-        public Builder operation(final Output operation) {
-            return addOperations(operation);
-        }
-
         public Builder addOperations(final Output... operations) {
             if (null != operations) {
                 _getOp().addOperations(Lists.newArrayList(operations));

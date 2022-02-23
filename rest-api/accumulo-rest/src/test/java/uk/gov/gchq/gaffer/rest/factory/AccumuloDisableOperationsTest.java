@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
 
 import java.io.FileOutputStream;
@@ -59,8 +58,7 @@ public class AccumuloDisableOperationsTest extends DisableOperationsTest {
 
     @Override
     protected Class<? extends Operation>[] getDisabledOperations() {
-        return new Class[] {SplitStore.class,
-                GenerateSplitPointsFromSample.class,
+        return new Class[] {GenerateSplitPointsFromSample.class,
                 AddElementsFromHdfs.class,
                 SampleDataForSplitPoints.class,
                 ImportAccumuloKeyValueFiles.class};

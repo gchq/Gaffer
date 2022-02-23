@@ -21,7 +21,7 @@
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
       }
     },
     "timestamp": {

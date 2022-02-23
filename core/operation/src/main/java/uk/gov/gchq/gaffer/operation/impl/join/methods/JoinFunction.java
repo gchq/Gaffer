@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.join.methods;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import uk.gov.gchq.gaffer.operation.impl.join.match.Match;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
@@ -67,11 +65,6 @@ public abstract class JoinFunction {
             }
         }
         return resultList;
-    }
-
-    @Deprecated
-    protected List<MapTuple> join(final Iterable keys, final String keyName, final String matchingValuesName, final Match match, final Boolean flatten) {
-        throw new NotImplementedException();
     }
 
     protected abstract List<MapTuple> joinFlattened(Object key, List matches, String keyName, String matchingValuesName);

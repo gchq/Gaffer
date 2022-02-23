@@ -36,10 +36,8 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
-import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
@@ -155,14 +153,6 @@ public class FederatedGraphStorage {
         return getIdsFrom(getUserGraphStream(entry -> entry.getKey().hasReadAccess(user, adminAuth)));
     }
 
-    @Deprecated
-    protected Collection<String> getAllIdsAsAdmin() {
-        final Stream<Graph> allGraphsAsStream = storage.entrySet().stream()
-                .flatMap(entry -> entry.getValue().stream());
-
-        return getIdsFrom(allGraphsAsStream);
-    }
-
     private Collection<String> getIdsFrom(final Stream<Graph> allStream) {
         final Set<String> rtn = allStream
                 .map(Graph::getGraphId)
@@ -195,11 +185,6 @@ public class FederatedGraphStorage {
      */
     public boolean remove(final String graphId, final User user) {
         return remove(graphId, entry -> entry.getKey().hasWriteAccess(user));
-    }
-
-    @Deprecated
-    protected boolean remove(final String graphId) {
-        return remove(graphId, entry -> true);
     }
 
     protected boolean remove(final String graphId, final User user, final String adminAuth) {
@@ -322,44 +307,6 @@ public class FederatedGraphStorage {
             throw new SchemaException(String.format(UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS, resultGraphIds, KEY_OPERATION_OPTIONS_GRAPH_IDS), e);
         }
         return schemaBuilder.build();
-    }
-
-    /**
-     * returns a set of {@link StoreTrait} that are common for all visible graphs.
-     * traits1 = [a,b,c]
-     * traits2 = [b,c]
-     * traits3 = [a,b]
-     * return [b]
-     *
-     * @param op      the GetTraits operation
-     * @param context the user context
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(uk.gov.gchq.gaffer.operation.Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    public Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
-        boolean firstPass = true;
-        final Set<StoreTrait> traits = new HashSet<>();
-        if (null != op) {
-            final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
-            final Collection<Graph> graphs = get(context.getUser(), graphIds);
-            final GetTraits getTraits = op.shallowClone();
-            for (final Graph graph : graphs) {
-                try {
-                    Set<StoreTrait> execute = graph.execute(getTraits, context);
-                    if (firstPass) {
-                        traits.addAll(execute);
-                        firstPass = false;
-                    } else {
-                        traits.retainAll(execute);
-                    }
-                } catch (final OperationException e) {
-                    throw new RuntimeException("Unable to fetch traits from graph " + graph.getGraphId(), e);
-                }
-            }
-        }
-
-        return traits;
     }
 
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
@@ -517,11 +464,6 @@ public class FederatedGraphStorage {
         return getAllGraphsAndAccess(graphIds, access -> access != null && access.hasReadAccess(user, adminAuth));
     }
 
-    @Deprecated
-    protected Map<String, Object> getAllGraphAndAccessAsAdmin(final List<String> graphIds) {
-        return getAllGraphsAndAccess(graphIds, entry -> true);
-    }
-
     private Map<String, Object> getAllGraphsAndAccess(final List<String> graphIds, final Predicate<FederatedAccess> accessPredicate) {
         return storage.entrySet()
                 .stream()
@@ -545,11 +487,6 @@ public class FederatedGraphStorage {
 
     public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser, final String adminAuth) throws StorageException {
         return changeGraphAccess(graphId, newFederatedAccess, access -> access.hasWriteAccess(requestingUser, adminAuth));
-    }
-
-    @Deprecated
-    public boolean changeGraphAccessAsAdmin(final String graphId, final FederatedAccess newFederatedAccess) throws StorageException {
-        return changeGraphAccess(graphId, newFederatedAccess, access -> true);
     }
 
     private boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final Predicate<FederatedAccess> accessPredicate) throws StorageException {
@@ -617,7 +554,7 @@ public class FederatedGraphStorage {
                  * For updating table names to match graphs names.
                  *
                  * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-                 * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
+                 * MiniAccumuloStore, SingleUseMiniAccumuloStore]
                  */
                 try {
                     AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
