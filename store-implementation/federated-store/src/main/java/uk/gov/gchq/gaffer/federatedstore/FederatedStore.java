@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperati
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -147,31 +146,6 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * <p>
-     * Within FederatedStore an {@link Operation} is executed against a
-     * collection of many graphs.
-     * </p>
-     * <p>
-     * Problem: When an Operation contains View information about an Element
-     * which is not known by the Graph; It will fail validation when executed.
-     * </p>
-     * <p>
-     * Solution: For each operation, remove all elements from the View that is
-     * unknown to the graph.
-     * </p>
-     *
-     * @param operation current operation
-     * @param graph     current graph
-     * @param <OP>      Operation type
-     * @return cloned operation with modified View for the given graph.
-     * @deprecated see {@link FederatedStoreUtil#updateOperationForGraph(Operation, Graph)}
-     */
-    @Deprecated
-    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
-        return FederatedStoreUtil.updateOperationForGraph(operation, graph);
-    }
-
-    /**
      * Adds graphs to the scope of FederatedStore.
      * <p>
      * To be used by the FederatedStore and Handlers only. Users should add
@@ -233,11 +207,6 @@ public class FederatedStore extends Store {
         for (final GraphSerialisable graph : graphs) {
             _add(graph, access);
         }
-    }
-
-    @Deprecated
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final GraphSerialisable... graphs) throws StorageException {
-        addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
     /**
@@ -318,17 +287,6 @@ public class FederatedStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         return StoreTrait.ALL_TRAITS;
-    }
-
-    /**
-     * @param federatedOperation GetTrait op with graph scope.
-     * @param context            context of the query
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     * @deprecated use {@link uk.gov.gchq.gaffer.store.Store#execute(Operation, Context)} with GetTraits Operation.
-     */
-    @Deprecated
-    public Set<StoreTrait> getTraits(final FederatedOperation federatedOperation, final Context context) {
-        return graphStorage.getTraits(federatedOperation, context);
     }
 
     /**
@@ -463,7 +421,8 @@ public class FederatedStore extends Store {
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(AddGraphWithHooks.class, new FederatedAddGraphWithHooksHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
-        addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
+
+        addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(GetAllGraphInfo.class, new FederatedGetAllGraphInfoHandler());
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
@@ -493,6 +452,11 @@ public class FederatedStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new FederatedNoOutputHandler<AddElements>();
+    }
+
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new FederatedGetTraitsHandler();
     }
 
     @Override

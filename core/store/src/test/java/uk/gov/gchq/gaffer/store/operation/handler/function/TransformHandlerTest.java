@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -355,12 +355,9 @@ public class TransformHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Entity group: " + TestGroups.ENTITY + " does not exist in the schema."));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(transform, context, store))
+                .withMessageContaining("Entity group: " + TestGroups.ENTITY + " does not exist in the schema.");
     }
 
     @Test
@@ -394,12 +391,9 @@ public class TransformHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains(transformer.getClass().getSimpleName() + " contains a null function."));
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(transform, context, store))
+                .withMessageContaining(transformer.getClass().getSimpleName() + " contains a null function.");
     }
 
     @Test
@@ -439,12 +433,9 @@ public class TransformHandlerTest {
                 .build();
 
         // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Incompatible number of types"), e.getMessage());
-        }
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> handler.doOperation(transform, context, store))
+                .withMessageContaining("Incompatible number of types");
     }
 
     @Test

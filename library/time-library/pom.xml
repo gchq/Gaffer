@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.17.2-SNAPSHOT</version>
+        <version>2.0.0-alpha-0.1</version>
     </parent>
 
     <artifactId>time-library</artifactId>

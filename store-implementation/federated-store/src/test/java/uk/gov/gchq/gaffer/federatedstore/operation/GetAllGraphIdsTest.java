@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -32,15 +32,17 @@ public class GetAllGraphIdsTest extends FederationOperationTest<GetAllGraphIds> 
         return Sets.newHashSet();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()
                 .option("a", "b")
                 .build();
 
-        assertThat(operation.getOptions(), hasEntry("a", "b"));
+        assertThat(operation.getOptions()).containsEntry("a", "b");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetAllGraphIds operation = new GetAllGraphIds.Builder()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -68,6 +68,8 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -97,6 +99,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -116,6 +120,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
+@SuppressWarnings("TwistedAssertion")
 public class GraphTest {
 
     private static final String GRAPH_ID = "graphId";
@@ -538,7 +543,7 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, captor.getValue(), clonedContext);
         inOrder.verify(hook2).postExecute(result2, captor.getValue(), clonedContext);
         final List<Operation> ops = captor.getValue().getOperations();
-        assertEquals(1, ops.size());
+        assertThat(ops).hasSize(1);
         assertSame(operation, ops.get(0));
         assertSame(actualResult, result3);
         verify(context).setOriginalOpChain(opChain);
@@ -706,7 +711,7 @@ public class GraphTest {
             inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
             inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
+            assertThat(ops).hasSize(1);
             assertSame(operation, ops.get(0));
         }
     }
@@ -751,7 +756,7 @@ public class GraphTest {
             inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
             inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
+            assertThat(ops).hasSize(1);
             assertSame(operation, ops.get(0));
         }
     }
@@ -841,7 +846,7 @@ public class GraphTest {
             inOrder.verify(hook1).onFailure(result2, captor.getValue(), clonedContext, e);
             inOrder.verify(hook2).onFailure(result2, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
+            assertThat(ops).hasSize(1);
             assertSame(operation, ops.get(0));
         }
     }
@@ -892,7 +897,7 @@ public class GraphTest {
             inOrder.verify(hook1).onFailure(null, captor.getValue(), clonedContext, e);
             inOrder.verify(hook2).onFailure(null, captor.getValue(), clonedContext, e);
             final List<Operation> ops = captor.getValue().getOperations();
-            assertEquals(1, ops.size());
+            assertThat(ops).hasSize(1);
             assertSame(operation, ops.get(0));
         }
     }
@@ -1124,7 +1129,7 @@ public class GraphTest {
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
                                     // invalid serialiser
-                                    .serialiser(new RawDoubleSerialiser())
+                                    .serialiser(new OrderedDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
                                     .clazz(String.class)
@@ -1407,12 +1412,14 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .addHook(graphHook1)
+                        .addHook(graphHook2)
+                        .addHook(graphHook3)
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .addHook(graphHook1)
-                .addHook(graphHook2)
-                .addHook(graphHook3)
                 .build();
 
         // Then
@@ -1548,14 +1555,18 @@ public class GraphTest {
                 .build();
 
         final Graph graph = new Graph.Builder()
-                .graphId(graphId1)
-                .library(library1)
-                .view(view1)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId1)
+                        .library(library1)
+                        .view(view1)
+                        .addHook(hook1)
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .addHook(hook1)
                 .config(config)
-                .addHook(hook3)
+                .config(new GraphConfig.Builder()
+                        .addHook(hook3)
+                        .build())
                 .build();
 
         // Then
@@ -1595,13 +1606,19 @@ public class GraphTest {
 
         final Graph graph = new Graph.Builder()
                 .config(config)
-                .graphId(graphId1)
-                .library(library1)
-                .view(view1)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId1)
+                        .library(library1)
+                        .view(view1)
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .addHook(hook1)
-                .addHook(hook3)
+                .config(new GraphConfig.Builder()
+                        .addHook(hook1)
+                        .build())
+                .config(new GraphConfig.Builder()
+                        .addHook(hook3)
+                        .build())
                 .build();
 
         // Then
@@ -1718,9 +1735,11 @@ public class GraphTest {
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
         // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
-        assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
         // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
-        assertTrue(library.getIds(graphId1).getSecond().equals(graphId1));
+        assertThat(graphId1)
+                .isEqualTo(library.getIds(graphId1).getFirst())
+                .isEqualTo(library.getIds(graphId1).getSecond());
+
     }
 
     @Test
@@ -1761,9 +1780,10 @@ public class GraphTest {
         assertEquals(graphId1, graph1.getGraphId());
         JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
-        assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
         // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
-        assertTrue(library.getIds(graphId1).getSecond().equals(graphId1));
+        assertThat(graphId1)
+                .isEqualTo(library.getIds(graphId1).getFirst())
+                .isEqualTo(library.getIds(graphId1).getSecond());
     }
 
     @Test
@@ -1822,12 +1842,9 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A context containing a user is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(opChain, context))
+                .withMessage("A context containing a user is required");
     }
 
     @Test
@@ -1845,12 +1862,9 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.executeJob(opChain, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A context containing a user is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.executeJob(opChain, context))
+                .withMessage("A context containing a user is required");
     }
 
     @Test
@@ -1868,12 +1882,9 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.execute(opChain, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A user is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(opChain, user))
+                .withMessage("A user is required");
     }
 
     @Test
@@ -1891,12 +1902,9 @@ public class GraphTest {
                 .build();
 
         // When / Then
-        try {
-            graph.executeJob(opChain, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A user is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.executeJob(opChain, user))
+                .withMessage("A user is required");
     }
 
     @Test
@@ -1916,12 +1924,9 @@ public class GraphTest {
         final Job job = new Job(null, opChain);
 
         // When / Then
-        try {
-            graph.executeJob(job, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A context is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.executeJob(job, context))
+                .withMessage("A context is required");
     }
 
     @Test
@@ -1940,12 +1945,9 @@ public class GraphTest {
         final Job job = new Job(new Repeat(), new OperationChain<>());
 
         // When / Then
-        try {
-            graph.executeJob(job, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("An operation is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.executeJob(job, context))
+                .withMessage("An operation is required");
     }
 
     @Test
@@ -1964,12 +1966,9 @@ public class GraphTest {
         final Job job = null;
 
         // When / Then
-        try {
-            graph.executeJob(job, context);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("A job is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.executeJob(job, context))
+                .withMessage("A job is required");
     }
 
     @Test
@@ -1989,12 +1988,9 @@ public class GraphTest {
         final Job job = new Job(null, opChain);
 
         // When / Then
-        try {
-            graph.executeJob(job, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("User is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.executeJob(job, user))
+                .withMessage("User is required");
     }
 
     @Test
@@ -2722,6 +2718,11 @@ public class GraphTest {
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(new HashSet<>(0));
         }
 
         @Override

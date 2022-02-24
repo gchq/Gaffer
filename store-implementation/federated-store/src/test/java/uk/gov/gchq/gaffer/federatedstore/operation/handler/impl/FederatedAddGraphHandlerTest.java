@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -55,7 +56,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_AT
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedAddGraphHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
@@ -104,7 +104,7 @@ public class FederatedAddGraphHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
@@ -120,14 +120,13 @@ public class FederatedAddGraphHandlerTest {
 
         graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(2, graphs.size());
+        assertThat(graphs).hasSize(2);
         Iterator<Graph> iterator = graphs.iterator();
         final HashSet<String> set = Sets.newHashSet();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }
-        assertTrue(set.contains(EXPECTED_GRAPH_ID));
-        assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
+        assertThat(set).contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_2);
     }
 
     @Test
@@ -148,10 +147,10 @@ public class FederatedAddGraphHandlerTest {
                 store);
 
         Collection<Graph> enabledGraphs = store.getGraphs(testUser, null, new AddGraph());
-        assertEquals(0, enabledGraphs.size());
+        assertThat(enabledGraphs).isEmpty();
 
         Collection<Graph> expectedGraphs = store.getGraphs(testUser, EXPECTED_GRAPH_ID, new AddGraph());
-        assertEquals(1, expectedGraphs.size());
+        assertThat(expectedGraphs).hasSize(1);
         assertEquals(EXPECTED_GRAPH_ID, expectedGraphs.iterator().next().getGraphId());
     }
 
@@ -176,7 +175,7 @@ public class FederatedAddGraphHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
@@ -194,15 +193,14 @@ public class FederatedAddGraphHandlerTest {
 
         graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(2, graphs.size());
+        assertThat(graphs).hasSize(2);
         Iterator<Graph> iterator = graphs.iterator();
         final HashSet<String> set = Sets.newHashSet();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }
 
-        assertTrue(set.contains(EXPECTED_GRAPH_ID));
-        assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
+        assertThat(set).contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_2);
     }
 
     @Test
@@ -318,7 +316,7 @@ public class FederatedAddGraphHandlerTest {
                 store);
 
         final Collection<Graph> graphs = store.getGraphs(authUser, null, new AddGraph());
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         assertEquals(0, store.getGraphs(testUser, null, new AddGraph()).size());
         assertEquals(EXPECTED_GRAPH_ID, graphs.iterator().next().getGraphId());
     }

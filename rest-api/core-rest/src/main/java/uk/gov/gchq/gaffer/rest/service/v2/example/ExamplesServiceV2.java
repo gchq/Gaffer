@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 
 import javax.inject.Inject;
 

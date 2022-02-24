@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.function.FreqMapExtractor;
 import uk.gov.gchq.gaffer.user.User;
@@ -52,10 +53,10 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -136,8 +137,8 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkM4Junction17To16RoadUse() throws OperationException, ParseException {
-        assumeTrue(this.graph.hasTrait(StoreTrait.INGEST_AGGREGATION), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.INGEST_AGGREGATION).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.PRE_AGGREGATION_FILTERING).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
 
         final GetElements query = new GetElements.Builder()
@@ -156,7 +157,7 @@ public abstract class RoadTrafficTestQueries {
 
         try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
             CloseableIterator<? extends Element> iter = elements.iterator();
-            assertTrue(iter.hasNext());
+            assertThat(iter).hasNext();
 
             final Element element = iter.next();
             assertFalse(iter.hasNext(), "Expected query to return only 1 element, but it has returned multiple!");
@@ -192,7 +193,7 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkM4Junction16Use() throws OperationException {
-        assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.QUERY_AGGREGATION).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
 
         final GetElements query = new GetElements.Builder()
@@ -206,7 +207,7 @@ public abstract class RoadTrafficTestQueries {
 
         try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
             CloseableIterator<? extends Element> iter = elements.iterator();
-            assertTrue(iter.hasNext());
+            assertThat(iter).hasNext();
 
             final Element element = iter.next();
             assertFalse(iter.hasNext(), "Expected query to return only 1 element, but it has returned multiple!");
@@ -227,10 +228,10 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkRoadJunctionsInSouthWestHeavilyUsedByBusesIn2000() throws OperationException, ParseException {
-        assumeTrue(this.graph.hasTrait(StoreTrait.QUERY_AGGREGATION), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.TRANSFORMATION), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.PRE_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
-        assumeTrue(this.graph.hasTrait(StoreTrait.POST_AGGREGATION_FILTERING), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.QUERY_AGGREGATION).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.TRANSFORMATION).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.PRE_AGGREGATION_FILTERING).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
+        assumeTrue(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.POST_AGGREGATION_FILTERING).currentTraits(false).build(), new Context()), "Skipping test as the store does not implement required trait.");
         assertNotNull(this.graph, "graph is null");
 
         final Date JAN_01_2000 = new SimpleDateFormat("yyyy-MM-dd").parse("2000-01-01");

@@ -136,31 +136,6 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
         return disabledByDefault;
     }
 
-    /**
-     * @param user User request permission.
-     * @return boolean permission for user.
-     * @Deprecated see {@link FederatedAccess#hasReadAccess(User, String)}
-     *
-     * <table summary="isValidToExecute truth table">
-     * <tr><td> hookAuthsEmpty  </td><td> isAddingUser</td><td>
-     * userHasASharedAuth</td><td> isValid?</td></tr>
-     * <tr><td>  T              </td><td> T           </td><td> n/a
-     * </td><td> T   </td></tr>
-     * <tr><td>  T              </td><td> F           </td><td> n/a
-     * </td><td> F   </td></tr>
-     * <tr><td>  F              </td><td> T           </td><td> n/a
-     * </td><td> T   </td></tr>
-     * <tr><td>  F              </td><td> n/a         </td><td> T
-     * </td><td> T   </td></tr>
-     * <tr><td>  F              </td><td> F           </td><td> F
-     * </td><td> F   </td></tr>
-     * </table>
-     */
-
-    protected boolean isAddingUser(final User user) {
-        return null != user.getUserId() && user.getUserId().equals(addingUserId);
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

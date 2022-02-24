@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.google.common.collect.Sets;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
@@ -34,11 +33,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> {
@@ -84,12 +82,10 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -147,12 +143,10 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -180,12 +174,10 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -213,12 +205,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class).isThrownBy(() -> hook.preExecute(opChain, new Context(user))).extracting("message").isNotNull();
     }
 
     @Test
@@ -234,12 +221,10 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -254,12 +239,10 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
         final User user = new User();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -276,12 +259,10 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 .build();
 
         // When/Then
-        try {
-            hook.preExecute(opChain, new Context(user));
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> hook.preExecute(opChain, new Context(user)))
+                .extracting("message")
+                .isNotNull();
     }
 
     @Test
@@ -293,8 +274,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
         final Set<String> allOpAuths = hook.getAllAuths();
 
         // Then
-        assertThat(allOpAuths,
-                IsCollectionContaining.hasItems("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser"));
+        assertThat(allOpAuths).contains("User", "ReadUser", "WriteUser", "SuperUser", "AdminUser");
     }
 
     @Test
@@ -331,10 +311,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
 
         // Then
         assertEquals(auths, result);
-        assertEquals(
-                Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
-                hook.getAllAuths()
-        );
+        assertThat(hook.getAllAuths()).contains("auth1", "auth2", "auth3", "auth4");
     }
 
     @Test
@@ -352,10 +329,7 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
 
         // Then
         assertEquals(auths, result);
-        assertEquals(
-                Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
-                hook.getAllAuths()
-        );
+        assertThat(hook.getAllAuths()).contains("auth1", "auth2", "auth3", "auth4");
     }
 
     @Test

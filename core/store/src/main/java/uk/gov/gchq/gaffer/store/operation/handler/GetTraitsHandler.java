@@ -29,18 +29,33 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class GetTraitsHandler implements OperationHandler<GetTraits, Set<StoreTrait>> {
+    private final Set<StoreTrait> storeTraits;
+    private Set<StoreTrait> currentTraits;
+
+    public GetTraitsHandler(final Set<StoreTrait> storeTraits) {
+        this.storeTraits = Collections.unmodifiableSet(Sets.newHashSet(storeTraits));
+    }
 
     @Override
-    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        return new HashSet<>(operation.isCurrentTraits() ? createCurrentTraits(store) : store.getTraits());
+    public Set<StoreTrait> doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
+        if (operation.isCurrentTraits()) {
+            if (isNull(currentTraits)) {
+                currentTraits = Collections.unmodifiableSet(createCurrentTraits(store));
+            }
+            rtn = currentTraits;
+        } else {
+            rtn = storeTraits
+        }
+        return rtn;
     }
 
     private Set<StoreTrait> createCurrentTraits(final Store store) {
-        final Set<StoreTrait> traits = Sets.newHashSet(store.getTraits());
+        final Set<StoreTrait> traits = Sets.newHashSet(storeTraits);
         final Schema schema = store.getSchema();
 
         final boolean hasAggregatedGroups = isNotEmpty(schema.getAggregatedGroups());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,7 +43,6 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedStoreAuthTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
@@ -92,7 +92,7 @@ public class FederatedStoreAuthTest {
 
         Collection<Graph> graphs = federatedStore.getGraphs(authUser, null, ignore);
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(schema, next.getSchema());
@@ -100,7 +100,7 @@ public class FederatedStoreAuthTest {
         graphs = federatedStore.getGraphs(blankUser(), null, ignore);
 
         assertNotNull(graphs);
-        assertTrue(graphs.isEmpty());
+        assertThat(graphs).isEmpty();
     }
 
     @Test

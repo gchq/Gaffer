@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class UnwrapEntityIdTest extends FunctionTest {
+public class UnwrapEntityIdTest extends FunctionTest<UnwrapEntityId> {
 
     @Test
     public void shouldReturnNullForNullValue() {

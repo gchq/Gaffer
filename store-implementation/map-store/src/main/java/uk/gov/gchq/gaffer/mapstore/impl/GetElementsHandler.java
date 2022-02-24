@@ -98,7 +98,7 @@ public class GetElementsHandler implements OperationHandler<CloseableIterable<? 
         @Override
         public CloseableIterator<Element> iterator() {
             Stream<Element> elements = Streams.toStream((Iterable<? extends ElementId>) getElements.getInput())
-                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, (View) getElements.get(KEY_VIEW), (DirectedType) getElements.get(KEY_DIRECTED_TYPE), (SeededGraphFilters.IncludeIncomingOutgoingType) getElements.get(KEY_INCLUDE_INCOMING_OUT_GOING), (SeedMatching.SeedMatchingType) getElements.get(KEY_SEED_MATCHING)).stream())
+                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, (View) getElements.getView(), (DirectedType) getElements.getDirectedType(), (SeededGraphFilters.IncludeIncomingOutgoingType) getElements.getIncludeIncomingOutGoing()).stream())
                     .distinct();
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             if (this.supportsVisibility) {

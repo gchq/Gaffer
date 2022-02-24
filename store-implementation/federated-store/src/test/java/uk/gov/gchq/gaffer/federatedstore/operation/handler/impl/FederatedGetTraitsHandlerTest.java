@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -51,7 +52,6 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedGetTraitsHandlerTest {
     public static final String ALT_STORE = "altStore";
@@ -252,6 +252,11 @@ public class FederatedGetTraitsHandlerTest {
         }
 
         @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(STORE_TRAITS);
+        }
+
+        @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return null;
         }
@@ -264,6 +269,11 @@ public class FederatedGetTraitsHandlerTest {
         @Override
         public Set<StoreTrait> getTraits() {
             return STORE_TRAITS;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(STORE_TRAITS);
         }
     }
 

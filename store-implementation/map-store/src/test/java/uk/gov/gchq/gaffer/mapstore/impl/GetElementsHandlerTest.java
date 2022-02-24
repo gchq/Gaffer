@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -49,8 +48,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
@@ -185,10 +184,9 @@ public class GetElementsHandlerTest {
                 .build();
         graph.execute(addElements, new User());
 
-        // When query for A->B0 with seedMatching set to RELATED
+        // When query for A->B0 with related
         GetElements getElements = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B0", true))
-                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
@@ -213,10 +211,12 @@ public class GetElementsHandlerTest {
         Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When query for A->B0 with seedMatching set to EQUAL
+        // When query for A->B0 equal
         getElements = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B0", true))
-                .seedMatching(SeedMatchingType.EQUAL)
+                .view(new View.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
+                        .build())
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -233,10 +233,9 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When - query for X-Y0 (undirected) in direction it was inserted in with seedMatching set to RELATED
+        // When - query for X-Y0 (undirected) in direction it was inserted in with related
         getElements = new GetElements.Builder()
                 .input(new EdgeSeed("X", "Y0", false))
-                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -260,10 +259,12 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When - query for X-Y0 (undirected) in direction it was inserted in with seedMatching set to EQUAL
+        // When - query for X-Y0 (undirected) in direction it was inserted in with equal
         getElements = new GetElements.Builder()
                 .input(new EdgeSeed("X", "Y0", false))
-                .seedMatching(SeedMatchingType.EQUAL)
+                .view(new View.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE2)
+                        .build())
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -272,11 +273,9 @@ public class GetElementsHandlerTest {
         Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with seedMatching set to
-        // RELATED
+        // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with related
         getElements = new GetElements.Builder()
                 .input(new EdgeSeed("Y0", "X", false))
-                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -285,11 +284,12 @@ public class GetElementsHandlerTest {
         Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with seedMatching set to
-        // EQUAL
+        // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with equal
         getElements = new GetElements.Builder()
                 .input(new EdgeSeed("Y0", "X", false))
-                .seedMatching(SeedMatchingType.EQUAL)
+                .view(new View.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE2)
+                        .build())
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -1039,6 +1039,7 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
     }
 
+    // Test equivalent for seedMatching
     @Test
     public void testGetElementsSeedMatchingTypeOption() throws OperationException {
         // Given
@@ -1048,10 +1049,12 @@ public class GetElementsHandlerTest {
                 .build();
         graph.execute(addElements, new User());
 
-        // When seedMatching is EQUAL
+        // When equal
         GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("X"))
-                .seedMatching(SeedMatchingType.EQUAL)
+                .view(new View.Builder()
+                        .entity(GetAllElementsHandlerTest.BASIC_ENTITY)
+                        .build())
                 .build();
         CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
@@ -1068,10 +1071,9 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When seedMatching is RELATED
+        // When related
         getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("X"))
-                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -1093,10 +1095,12 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // Repeat with seedMatching set to EQUAL for an EdgeId
+        // Repeat with equal for an EdgeId
         final GetElements getElementsFromEdgeId = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B0", true))
-                .seedMatching(SeedMatchingType.EQUAL)
+                .view(new View.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
+                        .build())
                 .build();
         results = graph.execute(getElementsFromEdgeId, new User());
 
@@ -1129,8 +1133,8 @@ public class GetElementsHandlerTest {
                 .build();
 
         // Then
-        assertThrows(OperationException.class,
-                () -> graph.execute(getElements, new User()));
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> graph.execute(getElements, new User()));
     }
 
     @Test

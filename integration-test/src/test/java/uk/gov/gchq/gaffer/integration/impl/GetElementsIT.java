@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -37,13 +38,20 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
@@ -55,10 +63,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementId Seeds
@@ -129,7 +137,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 for (final DirectedType directedType : directedTypes) {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
-                            shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
+                            shouldGetElementsBySeed(includeEntities, false, directedType, inOutType);
                         } catch (final Throwable e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
@@ -393,8 +401,8 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -417,8 +425,8 @@ public class GetElementsIT extends AbstractStoreIT {
 
         // Then
         for (final Element result : results) {
-            assertEquals(1, result.getProperties().size());
-            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+            assertThat(result.getProperties()).hasSize(1)
+                    .containsEntry(TestPropertyNames.COUNT, 1L);
         }
     }
 
@@ -433,7 +441,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
-        assertFalse(results.iterator().hasNext());
+        assertThat(results.iterator().hasNext()).isFalse();
     }
 
     @Test
@@ -446,7 +454,45 @@ public class GetElementsIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
-        assertFalse(results.iterator().hasNext());
+        assertThat(results.iterator().hasNext()).isFalse();
+    }
+
+    @Test
+    @TraitRequirement(StoreTrait.VISIBILITY)
+    public void shouldHaveConsistentIteratorWithVisibilityAndNoAggregation() throws Exception {
+        // This test checks that the iterators that are returned by GetElements are consistent
+        // Previously there were bugs in some stores (#2519) where calling GetElements would change the data in the store
+        // This meant that the iterator would work when first used, but returned no results when used again
+
+        // Given
+        Graph noAggregationGraph = createGraphVisibilityNoAggregation();
+
+        Entity testEntity = new Entity(TestGroups.ENTITY, "A");
+
+        noAggregationGraph.execute(new AddElements.Builder()
+                .input(testEntity)
+                .build(), getUser());
+
+        // When
+        final CloseableIterable<? extends Element> elementsIterator = noAggregationGraph.execute(new GetElements.Builder()
+                .input(new EntitySeed("A"))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build(), getUser());
+
+        Entity expectedEntity = testEntity;
+        expectedEntity.putProperty(TestTypes.VISIBILITY, new String());
+
+        // Then
+        // Create a new iterator that should have 1 result, A
+        CloseableIterator<? extends Element> firstIt = elementsIterator.iterator();
+        assertThat(firstIt.hasNext()).isTrue();
+        assertThat(firstIt.next()).isEqualTo(expectedEntity);
+        // Check that a new iterator still has a result and the first GetElements did not change any data
+        CloseableIterator<? extends Element> secondIt = elementsIterator.iterator();
+        assertThat(secondIt.hasNext()).isTrue();
+        assertThat(secondIt.next()).isEqualTo(expectedEntity);
     }
 
     private void shouldGetElementsBySeed(final boolean includeEntities,
@@ -479,8 +525,7 @@ public class GetElementsIT extends AbstractStoreIT {
         } else {
             seeds = new ArrayList<>();
         }
-
-        shouldGetElements(expectedElements, SeedMatchingType.EQUAL, directedType, includeEntities, includeEdges, inOutType, seeds);
+        shouldGetElements(expectedElements, true, directedType, includeEntities, includeEdges, inOutType, seeds);
     }
 
     private void shouldGetRelatedElements(final boolean includeEntities,
@@ -525,11 +570,11 @@ public class GetElementsIT extends AbstractStoreIT {
         if (DirectedType.UNDIRECTED == directedType) {
             expectedElements.removeIf(e -> e instanceof Edge && ((Edge) e).isDirected());
         }
-        shouldGetElements(expectedElements, SeedMatchingType.RELATED, directedType, includeEntities, includeEdges, inOutType, ALL_SEEDS);
+        shouldGetElements(expectedElements, false, directedType, includeEntities, includeEdges, inOutType, ALL_SEEDS);
     }
 
     private void shouldGetElements(final Collection<Element> expectedElements,
-                                   final SeedMatchingType seedMatching,
+                                   final boolean createChain,
                                    final DirectedType directedType,
                                    final boolean includeEntities,
                                    final boolean includeEdges,
@@ -538,27 +583,81 @@ public class GetElementsIT extends AbstractStoreIT {
         // Given
         final User user = new User();
 
-        final View.Builder viewBuilder = new View.Builder();
-        if (includeEntities) {
-            viewBuilder.entity(TestGroups.ENTITY);
-        }
-        if (includeEdges) {
-            viewBuilder.edge(TestGroups.EDGE);
-        }
+        Output<CloseableIterable<? extends Element>> opSeed;
+        Output<CloseableIterable<? extends Element>> opElement;
 
-        final GetElements op = new GetElements.Builder()
-                .input(seeds)
-                .directedType(directedType)
-                .inOutType(inOutType)
-                .view(viewBuilder.build())
-                .seedMatching(seedMatching)
-                .build();
+        Collection<ElementId> seedCollection = StreamSupport.stream(seeds.spliterator(), false)
+                .collect(Collectors.toList());
+
+        if (createChain && includeEntities && includeEdges) {
+            opSeed = new OperationChain.Builder()
+                    .first(new GetElements.Builder()
+                            .input(seeds)
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .entity(TestGroups.ENTITY)
+                                    .build())
+                            .build())
+                    .then(new GetElements.Builder()
+                            .input(seeds)
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .edge(TestGroups.EDGE)
+                                    .build())
+                            .build())
+                    .build();
+
+            opElement = new OperationChain.Builder()
+                    .first(new GetElements.Builder()
+                            .input(getElements(seedCollection, null))
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .entity(TestGroups.ENTITY)
+                                    .build())
+                            .build())
+                    .then(new GetElements.Builder()
+                            .input(getElements(seedCollection, null))
+                            .directedType(directedType)
+                            .inOutType(inOutType)
+                            .view(new View.Builder()
+                                    .edge(TestGroups.EDGE)
+                                    .build())
+                            .build())
+                    .build();
+        } else {
+            final View.Builder viewBuilder = new View.Builder();
+            if (includeEntities) {
+                viewBuilder.entity(TestGroups.ENTITY);
+            }
+            if (includeEdges) {
+                viewBuilder.edge(TestGroups.EDGE);
+            }
+
+            opSeed = new GetElements.Builder()
+                    .input(seeds)
+                    .directedType(directedType)
+                    .inOutType(inOutType)
+                    .view(viewBuilder.build())
+                    .build();
+
+            opElement = new GetElements.Builder()
+                    .input(getElements(seedCollection, null))
+                    .directedType(directedType)
+                    .inOutType(inOutType)
+                    .view(viewBuilder.build())
+                    .build();
+        }
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+        final CloseableIterable<? extends Element> resultsSeed = graph.execute(opSeed, user);
+        final CloseableIterable<? extends Element> resultsElement = graph.execute(opElement, user);
 
         // Then
-        ElementUtil.assertElementEquals(expectedElements, results, true);
+        ElementUtil.assertElementEquals(expectedElements, resultsSeed, true);
+        ElementUtil.assertElementEquals(expectedElements, resultsElement, true);
     }
 
     private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {
@@ -653,5 +752,34 @@ public class GetElementsIT extends AbstractStoreIT {
         }
 
         return allSeededVertices;
+    }
+
+    private Schema createSchemaVisibilityNoAggregation() {
+        return new Schema.Builder()
+                .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type(TestTypes.DIRECTED_EITHER, Boolean.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestTypes.VISIBILITY, TestTypes.VISIBILITY)
+                        .aggregate(false)
+                        .build())
+                .visibilityProperty(TestTypes.VISIBILITY)
+                .build();
+    }
+
+    private Graph createGraphVisibilityNoAggregation() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("GetElementsITVisibilityNoAggergation")
+                        .build())
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchemaVisibilityNoAggregation())
+                .addSchema(getStoreSchema())
+                .build();
     }
 }

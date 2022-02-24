@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedRemoveGraphHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
@@ -80,7 +80,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
-        assertEquals(0, graphs.size());
+        assertThat(graphs).isEmpty();
 
     }
 
@@ -109,7 +109,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
 
     }
 
@@ -147,6 +147,6 @@ public class FederatedRemoveGraphHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new RemoveGraph());
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
     }
 }

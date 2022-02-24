@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,9 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 
 public class SplitStoreFromRDDOfElementsHandlerTest {
 
@@ -145,9 +143,10 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
                 .input(rdd)
                 .numSplits(-1)
                 .build();
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> graph.execute(splitStoreHandler, user));
-        assertTrue(actual.getMessage().contains("numSplits must be null or greater than 0"));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(splitStoreHandler, user))
+                .withMessageContaining("numSplits must be null or greater than 0");
     }
 
     @Test
@@ -156,9 +155,11 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
                 .input(rdd)
                 .maxSampleSize(-1)
                 .build();
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> graph.execute(splitStoreHandler, user));
-        assertTrue(actual.getMessage().contains("maxSampleSize must be null or greater than 0"));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(
+                        () -> graph.execute(splitStoreHandler, user))
+                .withMessageContaining("maxSampleSize must be null or greater than 0");
     }
 
     @Test
@@ -167,9 +168,10 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
                 .input(rdd)
                 .fractionToSample(1.000000001d)
                 .build();
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> graph.execute(splitStoreHandler, user));
-        assertTrue(actual.getMessage().contains("fractionToSample must be null or between 0 exclusive and 1 inclusive"));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(splitStoreHandler, user))
+                .withMessageContaining("fractionToSample must be null or between 0 exclusive and 1 inclusive");
     }
 
     @Test
@@ -178,9 +180,10 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
                 .input(rdd)
                 .fractionToSample(0d)
                 .build();
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> graph.execute(splitStoreHandler, user));
-        assertTrue(actual.getMessage().contains("fractionToSample must be null or between 0 exclusive and 1 inclusive"));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(splitStoreHandler, user))
+                .withMessageContaining("fractionToSample must be null or between 0 exclusive and 1 inclusive");
     }
 
     @Test
@@ -189,9 +192,10 @@ public class SplitStoreFromRDDOfElementsHandlerTest {
                 .input(rdd)
                 .fractionToSample(-0.00000001d)
                 .build();
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> graph.execute(splitStoreHandler, user));
-        assertTrue(actual.getMessage().contains("fractionToSample must be null or between 0 exclusive and 1 inclusive"));
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> graph.execute(splitStoreHandler, user))
+                .withMessageContaining("fractionToSample must be null or between 0 exclusive and 1 inclusive");
     }
 
     @Test

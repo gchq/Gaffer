@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class ElementMatchTest {
 
@@ -52,8 +51,9 @@ public class ElementMatchTest {
         List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
-        assertEquals(2, matchingElements.size());
-        assertTrue(matchingElements.equals(comparisonEntityList));
+        assertThat(matchingElements)
+                .hasSize(2)
+                .isEqualTo(comparisonEntityList);
     }
 
     @Test
@@ -82,8 +82,8 @@ public class ElementMatchTest {
         List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
-        assertEquals(1, matchingElements.size());
-        assertTrue(matchingElements.get(0).equals(testEntity));
+        assertThat(matchingElements).hasSize(1);
+        assertThat(matchingElements.get(0)).isEqualTo(testEntity);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ElementMatchTest {
         List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
-        assertEquals(0, matchingElements.size());
+        assertThat(matchingElements).isEmpty();
     }
 
     @Test
@@ -122,13 +122,9 @@ public class ElementMatchTest {
         ElementMatch elementMatch = new ElementMatch();
 
         // When / Then
-
-        try {
-            elementMatch.init(null);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> elementMatch.init(null))
+                .withMessage("ElementMatch must be initialised with non-null match candidates");
     }
 
     @Test
@@ -138,13 +134,9 @@ public class ElementMatchTest {
         ElementMatch elementMatch = new ElementMatch();
 
         // When / Then
-
-        try {
-            elementMatch.matching(new Entity("testGroup", "test"));
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("ElementMatch must be initialised with non-null match candidates", e.getMessage());
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> elementMatch.matching(new Entity("testGroup", "test")))
+                .withMessage("ElementMatch must be initialised with non-null match candidates");
     }
 
 
@@ -167,8 +159,9 @@ public class ElementMatchTest {
         List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
-        assertEquals(2, matchingElements.size());
-        assertTrue(matchingElements.equals(comparisonEntityList));
+        assertThat(matchingElements)
+                .hasSize(2)
+                .isEqualTo(comparisonEntityList);
     }
 
     @Test
@@ -197,8 +190,8 @@ public class ElementMatchTest {
         List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
-        assertEquals(1, matchingElements.size());
-        assertTrue(matchingElements.get(0).equals(testEntity));
+        assertThat(matchingElements).hasSize(1);
+        assertThat(matchingElements.get(0)).isEqualTo(testEntity);
     }
 
     @Test
@@ -235,6 +228,6 @@ public class ElementMatchTest {
         List<Element> matchingElements = elementMatch.matching(testEntity);
 
         // Then
-        assertEquals(0, matchingElements.size());
+        assertThat(matchingElements).isEmpty();
     }
 }

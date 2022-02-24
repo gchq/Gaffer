@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-
 
 public class GetElementsInRangesHandlerTest {
     private static final int NUM_ENTRIES = 1000;
@@ -225,7 +224,7 @@ public class GetElementsInRangesHandlerTest {
         final List<Element> results = executeOperation(operation, store);
 
         // Then - should be no incoming edges in the provided range
-        assertEquals(0, results.size());
+        assertThat(results).isEmpty();
     }
 
     @Test
@@ -256,7 +255,7 @@ public class GetElementsInRangesHandlerTest {
         final List<Element> results = executeOperation(operation, store);
 
         // Then - there should be no undirected edges in the provided range
-        assertEquals(0, results.size());
+        assertThat(results).isEmpty();
     }
 
     private static void setupGraph(final AccumuloStore store, final int numEntries) {

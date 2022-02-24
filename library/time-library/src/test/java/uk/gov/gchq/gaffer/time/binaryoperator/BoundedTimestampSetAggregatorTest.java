@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -35,17 +35,17 @@ public class BoundedTimestampSetAggregatorTest {
     @Test
     public void testAggregateWhenBothInNotFullState() {
         // Given
-        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         boundedTimestampSet1.add(Instant.ofEpochMilli(1000L));
         boundedTimestampSet1.add(Instant.ofEpochMilli(1000000L));
-        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         boundedTimestampSet2.add(Instant.ofEpochMilli(1000L));
         boundedTimestampSet2.add(Instant.ofEpochMilli(2000000L));
 
         // When
         final BoundedTimestampSet aggregated = BOUNDED_TIMESTAMP_SET_AGGREGATOR._apply(boundedTimestampSet1,
                 boundedTimestampSet2);
-        final BoundedTimestampSet expected = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet expected = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         expected.add(Instant.ofEpochMilli(1000L));
         expected.add(Instant.ofEpochMilli(1000000L));
         expected.add(Instant.ofEpochMilli(2000000L));
@@ -59,12 +59,12 @@ public class BoundedTimestampSetAggregatorTest {
     @Test
     public void testAggregateWhenBothInSampleState() {
         // Given
-        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         final Set<Instant> instants1 = new HashSet<>();
         IntStream.range(0, 100)
                 .forEach(i -> instants1.add(Instant.ofEpochMilli(i * 1000L)));
         instants1.forEach(boundedTimestampSet1::add);
-        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         final Set<Instant> instants2 = new HashSet<>();
         IntStream.range(50, 150)
                 .forEach(i -> instants2.add(Instant.ofEpochMilli(i * 1000L)));
@@ -85,12 +85,12 @@ public class BoundedTimestampSetAggregatorTest {
     @Test
     public void testAggregateWhenAIsInNotFullStateAndBIsInSampleState() {
         // Given
-        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         final Set<Instant> instants1 = new HashSet<>();
         instants1.add(Instant.ofEpochMilli(1000L));
         instants1.add(Instant.ofEpochMilli(1000000L));
         instants1.forEach(boundedTimestampSet1::add);
-        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         final Set<Instant> instants2 = new HashSet<>();
         IntStream.range(50, 150)
                 .forEach(i -> instants2.add(Instant.ofEpochMilli(i * 1000L)));
@@ -111,12 +111,12 @@ public class BoundedTimestampSetAggregatorTest {
     @Test
     public void testAggregateWhenAIsInSampleStateAndBIsInNotFullState() {
         // Given
-        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         final Set<Instant> instants1 = new HashSet<>();
         instants1.add(Instant.ofEpochMilli(1000L));
         instants1.add(Instant.ofEpochMilli(1000000L));
         instants1.forEach(boundedTimestampSet1::add);
-        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
         final Set<Instant> instants2 = new HashSet<>();
         IntStream.range(50, 150)
                 .forEach(i -> instants2.add(Instant.ofEpochMilli(i * 1000L)));
@@ -137,8 +137,8 @@ public class BoundedTimestampSetAggregatorTest {
     @Test
     public void testCantMergeIfDifferentTimeBucket() {
         try {
-            final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
-            final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE, 10);
+            final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
+            final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(TimeBucket.MINUTE, 10);
             BOUNDED_TIMESTAMP_SET_AGGREGATOR._apply(boundedTimestampSet1, boundedTimestampSet2);
         } catch (final RuntimeException e) {
             // Expected
@@ -148,8 +148,8 @@ public class BoundedTimestampSetAggregatorTest {
     @Test
     public void testCantMergeIfDifferentMaxSize() {
         try {
-            final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
-            final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE, 11);
+            final BoundedTimestampSet boundedTimestampSet1 = new BoundedTimestampSet(TimeBucket.SECOND, 10);
+            final BoundedTimestampSet boundedTimestampSet2 = new BoundedTimestampSet(TimeBucket.MINUTE, 11);
             BOUNDED_TIMESTAMP_SET_AGGREGATOR._apply(boundedTimestampSet1, boundedTimestampSet2);
         } catch (final RuntimeException e) {
             // Expected

@@ -23,16 +23,16 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.Collections;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OperationsResponseDeserialiserTest {
 
     @Test
     public void shouldThrowSerialisationExceptionWhenResponseIsInvalid() {
-        assertThrows(SerialisationException.class, () -> new OperationsResponseDeserialiser().deserialise(""));
-        assertThrows(SerialisationException.class, () -> new OperationsResponseDeserialiser().deserialise("{}"));
-        assertThrows(SerialisationException.class, () -> new OperationsResponseDeserialiser().deserialise("Junk"));
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> new OperationsResponseDeserialiser().deserialise(""));
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> new OperationsResponseDeserialiser().deserialise("{}"));
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> new OperationsResponseDeserialiser().deserialise("Junk"));
     }
 
     @Test

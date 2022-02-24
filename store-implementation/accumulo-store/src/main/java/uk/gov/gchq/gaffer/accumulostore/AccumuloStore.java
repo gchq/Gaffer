@@ -77,6 +77,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -154,18 +156,7 @@ public class AccumuloStore extends Store {
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         setProperties(properties);
-
-        final String deprecatedTableName = getProperties().getTable();
-        if (null == graphId && null != deprecatedTableName) {
-            // Deprecated
-            super.initialise(deprecatedTableName, schema, getProperties());
-        } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
-            throw new IllegalArgumentException(
-                    "The table in store.properties should no longer be used. " +
-                            "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
-        } else {
-            super.initialise(graphId, schema, getProperties());
-        }
+        super.initialise(graphId, schema, getProperties());
 
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -358,7 +349,6 @@ public class AccumuloStore extends Store {
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
         addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
-        addOperationHandler(SplitStore.class, new SplitStoreHandler());
         addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
         addOperationHandler(GenerateSplitPointsFromSample.class, new GenerateSplitPointsFromSampleHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
@@ -391,6 +381,11 @@ public class AccumuloStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
+    }
+
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new GetTraitsHandler(TRAITS);
     }
 
     @Override

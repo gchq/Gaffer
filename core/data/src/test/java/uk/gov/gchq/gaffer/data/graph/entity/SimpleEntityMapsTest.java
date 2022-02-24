@@ -23,11 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 
 import java.util.Iterator;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,15 +39,15 @@ public class SimpleEntityMapsTest {
         final EntityMap first = it.next();
         final EntityMap second = it.next();
 
-        assertThat(first.getVertices(), hasSize(3));
-        assertThat(second.getVertices(), hasSize(4));
+        assertThat(first.getVertices()).hasSize(3);
+        assertThat(second.getVertices()).hasSize(4);
     }
 
     @Test
     public void shouldGetSize() {
         final EntityMaps entityMaps = getEntityMaps();
 
-        assertThat(entityMaps.size(), is(equalTo(2)));
+        assertThat(entityMaps).hasSize(2);
     }
 
     @Test
@@ -59,14 +55,14 @@ public class SimpleEntityMapsTest {
         final EntityMaps entityMaps = getEntityMaps();
 
         // Then
-        assertThat(entityMaps.get(0).get(0), hasItem(makeEntity(0)));
-        assertThat(entityMaps.get(0).get(1), hasItem(makeEntity(1)));
-        assertThat(entityMaps.get(0).get(2), hasItem(makeEntity(2)));
+        assertThat(entityMaps.get(0).get(0)).contains(makeEntity(0));
+        assertThat(entityMaps.get(0).get(1)).contains(makeEntity(1));
+        assertThat(entityMaps.get(0).get(2)).contains(makeEntity(2));
 
-        assertThat(entityMaps.get(1).get(0), hasItem(makeEntity(0)));
-        assertThat(entityMaps.get(1).get(1), hasItem(makeEntity(1)));
-        assertThat(entityMaps.get(1).get(2), hasItem(makeEntity(2)));
-        assertThat(entityMaps.get(1).get(3), hasItem(makeEntity(3)));
+        assertThat(entityMaps.get(1).get(0)).contains(makeEntity(0));
+        assertThat(entityMaps.get(1).get(1)).contains(makeEntity(1));
+        assertThat(entityMaps.get(1).get(2)).contains(makeEntity(2));
+        assertThat(entityMaps.get(1).get(3)).contains(makeEntity(3));
     }
 
     @Test

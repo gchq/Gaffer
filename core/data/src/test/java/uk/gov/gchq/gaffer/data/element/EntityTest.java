@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EntityTest extends ElementTest {
 
+    @Test
     @Override
     public void shouldSetAndGetFields() {
         final Entity entity = new Entity.Builder()
@@ -81,6 +82,7 @@ public class EntityTest extends ElementTest {
         assertEquals(clone, entity);
     }
 
+    @Test
     @Override
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         final Entity entity = new Entity("group");
@@ -92,6 +94,7 @@ public class EntityTest extends ElementTest {
         assertEquals(entity.hashCode(), entity.hashCode());
     }
 
+    @Test
     @Override
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
@@ -128,6 +131,7 @@ public class EntityTest extends ElementTest {
         assertNotEquals(entity1.hashCode(), entity2.hashCode());
     }
 
+    @Test
     @Override
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
@@ -158,6 +162,7 @@ public class EntityTest extends ElementTest {
         assertFalse(entity1.hashCode() == entity2.hashCode());
     }
 
+    @Test
     @Override
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         final Entity entity = newElement("group");

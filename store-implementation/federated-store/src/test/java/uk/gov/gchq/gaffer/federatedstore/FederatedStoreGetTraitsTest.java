@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -41,6 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
@@ -51,7 +53,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.nullUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedStoreGetTraitsTest {
 
@@ -118,6 +119,7 @@ public class FederatedStoreGetTraitsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        clearCache();
         federatedStore = new FederatedStore();
         federatedStore.initialise("testFed", new Schema(), new FederatedStoreProperties());
 
@@ -160,10 +162,24 @@ public class FederatedStoreGetTraitsTest {
     }
 
     @Test
+    public void shouldVerifyAssumptionsNoTraitsFound() throws Exception {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> federatedStore.execute(getTraits, new Context(nullUser)))
+                .withMessage("User is required");
+        assertEquals(0, federatedStore.execute(getTraits, new Context(testUser)).size());
+        assertEquals(0, federatedStore.execute(getTraits, new Context(authUser)).size());
+        assertEquals(0, federatedStore.execute(getTraits, new Context(blankUser)).size());
+    }
+
+    @Test
     public void shouldVerifyAssumptionsStoreTraitsNonCurrent() throws Exception {
         //given
         Set<StoreTrait> mapTraits = map.getGraph().getStoreTraits();
         Set<StoreTrait> accTraits = acc.getGraph().getStoreTraits();
+        getTraits.setCurrentTraits(false);
+        Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
+
         getTraits.setCurrentTraits(false);
         Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
         Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
@@ -370,5 +386,9 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);
         //then
         assertEquals(INTERSECTION_TRAITS, traits);
+    }
+
+    private void clearCache() {
+        CacheServiceLoader.shutdown();
     }
 }

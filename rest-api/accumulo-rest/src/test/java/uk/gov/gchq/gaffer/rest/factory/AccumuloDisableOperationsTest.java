@@ -54,8 +54,7 @@ public class AccumuloDisableOperationsTest extends DisableOperationsTest {
 
     @Override
     protected Class<? extends Operation>[] getDisabledOperations() {
-        return new Class[] {SplitStore.class,
-                GenerateSplitPointsFromSample.class,
+        return new Class[] {GenerateSplitPointsFromSample.class,
                 AddElementsFromHdfs.class,
                 SampleDataForSplitPoints.class,
                 ImportAccumuloKeyValueFiles.class};

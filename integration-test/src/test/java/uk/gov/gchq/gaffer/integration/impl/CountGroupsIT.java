@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CountGroupsIT extends AbstractStoreIT {
     private static final String VERTEX = "vertex";
@@ -52,11 +51,11 @@ public class CountGroupsIT extends AbstractStoreIT {
                 .build(), user);
 
         // Then
-        assertEquals(1, counts.getEntityGroups().size());
-        assertEquals(getEntities().size(), (int) counts.getEntityGroups().get(TestGroups.ENTITY));
-        assertEquals(1, counts.getEdgeGroups().size());
-        assertEquals(getEdges().size(), (int) counts.getEdgeGroups().get(TestGroups.EDGE));
-        assertFalse(counts.isLimitHit());
+        assertThat(counts.getEntityGroups()).hasSize(1);
+        assertThat((int) counts.getEntityGroups().get(TestGroups.ENTITY)).isEqualTo(getEntities().size());
+        assertThat(counts.getEdgeGroups()).hasSize(1);
+        assertThat((int) counts.getEdgeGroups().get(TestGroups.EDGE)).isEqualTo(getEdges().size());
+        assertThat(counts.isLimitHit()).isFalse();
     }
 
     @Test
@@ -74,11 +73,11 @@ public class CountGroupsIT extends AbstractStoreIT {
                 .build(), user);
 
         // Then
-        assertEquals(1, counts.getEntityGroups().size());
-        assertEquals(getEntities().size(), (int) counts.getEntityGroups().get(TestGroups.ENTITY));
-        assertEquals(1, counts.getEdgeGroups().size());
-        assertEquals(getEdges().size(), (int) counts.getEdgeGroups().get(TestGroups.EDGE));
-        assertFalse(counts.isLimitHit());
+        assertThat(counts.getEntityGroups()).hasSize(1);
+        assertThat((int) counts.getEntityGroups().get(TestGroups.ENTITY)).isEqualTo(getEntities().size());
+        assertThat(counts.getEdgeGroups()).hasSize(1);
+        assertThat((int) counts.getEdgeGroups().get(TestGroups.EDGE)).isEqualTo(getEdges().size());
+        assertThat(counts.isLimitHit()).isFalse();
     }
 
     @Test
@@ -98,6 +97,6 @@ public class CountGroupsIT extends AbstractStoreIT {
         // Then
         int totalCount = null != counts.getEntityGroups().get(TestGroups.ENTITY) ? counts.getEntityGroups().get(TestGroups.ENTITY) : 0;
         totalCount += null != counts.getEdgeGroups().get(TestGroups.EDGE) ? counts.getEdgeGroups().get(TestGroups.EDGE) : 0;
-        assertEquals(limit, totalCount);
+        assertThat(totalCount).isEqualTo(limit);
     }
 }

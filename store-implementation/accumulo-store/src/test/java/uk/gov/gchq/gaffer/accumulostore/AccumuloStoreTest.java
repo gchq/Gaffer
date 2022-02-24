@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,12 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHa
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -53,6 +58,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
@@ -69,11 +75,11 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Collection;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -120,22 +126,21 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldCreateAStoreUsingTableName() throws Exception {
+    public void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
         final AccumuloStore store = new MiniAccumuloStore();
 
         // When
-        store.initialise(null, SCHEMA, properties);
+        store.initialise("graphId", SCHEMA, properties);
 
         // Then
-        assertEquals("tableName", store.getTableName());
-        assertEquals("tableName", store.getGraphId());
+        assertEquals("graphId", store.getTableName());
+        assertEquals("graphId", store.getGraphId());
     }
 
     @Test
-    public void shouldCreateAStoreUsingTableNameWithNamespace() throws Exception {
+    public void shouldCreateAStoreUsingGraphIdWithNamespace() throws Exception {
         // Given
         final AccumuloProperties properties = PROPERTIES.clone();
         properties.setNamespace("namespaceName");
@@ -151,69 +156,9 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldBuildGraphAndGetGraphIdFromTableName() {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-
-        // When
-        final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.schemas(getClass()))
-                .storeProperties(properties)
-                .build();
-
-        // Then
-        assertEquals("tableName", graph.getGraphId());
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise("tableName", SCHEMA, properties);
-
-        // Then
-        assertEquals("tableName", store.getTableName());
-    }
-
-    @Test
-    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws StoreException {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        properties.setTable("tableName");
-        final AccumuloStore store = new AccumuloStore();
-
-        // When
-        IllegalArgumentException actual =
-                assertThrows(IllegalArgumentException.class, () -> store.initialise("graphId", SCHEMA, properties));
-
-        assertEquals("The table in store.properties should no longer be used. Please use a graphId instead " +
-                "or for now just set the graphId to be the same value as the store.properties table.",
-                actual.getMessage());
-    }
-
-    @Test
-    public void shouldCreateAStoreUsingGraphId() throws Exception {
-        // Given
-        final AccumuloProperties properties = PROPERTIES.clone();
-        final AccumuloStore store = new MiniAccumuloStore();
-
-        // When
-        store.initialise("graphId", SCHEMA, properties);
-
-        // Then
-        assertEquals("graphId", store.getTableName());
-    }
-
-
-    @Test
-    public void shouldBeAnOrderedStore() {
-        assertTrue(BYTE_ENTITY_STORE.hasTrait(StoreTrait.ORDERED));
-        assertTrue(GAFFER_1_KEY_STORE.hasTrait(StoreTrait.ORDERED));
+    public void shouldBeAnOrderedStore() throws OperationException {
+        assertTrue(BYTE_ENTITY_STORE.execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context()));
+        assertTrue(GAFFER_1_KEY_STORE.execute(new HasTrait.Builder().trait(StoreTrait.ORDERED).currentTraits(false).build(), new Context()));
     }
 
     @Test
@@ -361,8 +306,8 @@ public class AccumuloStoreTest {
         assertTrue(op instanceof GetElementsInRangesHandler);
         op = store.getOperationHandler(GetElementsWithinSet.class);
         assertTrue(op instanceof GetElementsWithinSetHandler);
-        op = store.getOperationHandler(SplitStore.class);
-        assertTrue(op instanceof SplitStoreHandler);
+        op = store.getOperationHandler(SplitStoreFromFile.class);
+        assertTrue(op instanceof HdfsSplitStoreFromFileHandler);
         op = store.getOperationHandler(SampleDataForSplitPoints.class);
         assertTrue(op instanceof SampleDataForSplitPointsHandler);
         op = store.getOperationHandler(ImportAccumuloKeyValueFiles.class);
@@ -440,15 +385,14 @@ public class AccumuloStoreTest {
         final AccumuloStore store = new AccumuloStore();
 
         // When & Then
-        SchemaException actual = assertThrows(SchemaException.class,
-                () -> store.preInitialise("graphId", inconsistentSchema, PROPERTIES));
-        assertEquals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.",
-                actual.getMessage());
+        assertThatExceptionOfType(SchemaException.class)
+                .isThrownBy(() -> store.preInitialise("graphId", inconsistentSchema, PROPERTIES))
+                .withMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
 
         // When & Then
-        actual = assertThrows(SchemaException.class, () -> store.validateSchemas());
-        assertEquals("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.",
-                actual.getMessage());
+        assertThatExceptionOfType(SchemaException.class)
+                .isThrownBy(() -> store.validateSchemas())
+                .withMessage("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
     }
 
     @Test
@@ -478,7 +422,7 @@ public class AccumuloStoreTest {
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build();
 
         // When
@@ -514,7 +458,7 @@ public class AccumuloStoreTest {
                 .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+
                 .build();
 
         // When
@@ -546,17 +490,17 @@ public class AccumuloStoreTest {
                         .clazz(Long.class)
                         .aggregateFunction(new Min())
                         .build())
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build();
 
-        // When
-        SchemaException actual = assertThrows(SchemaException.class,
-                () -> store.initialise("graphId", schema, PROPERTIES));
-
-        // Then
-        assertEquals("Schema is not valid. Validation errors: \n" +
+        // When / Then
+        final String expectedMessage = "Schema is not valid. Validation errors: \n" +
                 "The aggregator for the timestamp property must be set to: uk.gov.gchq.koryphe.impl.binaryoperator.Max " +
                 "this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property " +
-                "in the timestamp column.", actual.getMessage());
+                "in the timestamp column.";
+
+         assertThatExceptionOfType(SchemaException.class)
+                 .isThrownBy(() -> store.initialise("graphId", schema, PROPERTIES))
+                 .withMessage(expectedMessage);
     }
 }

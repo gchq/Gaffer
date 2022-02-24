@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,14 +68,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetWalksIT extends AbstractStoreIT {
     final EntitySeed seedA = new EntitySeed("A");
@@ -107,7 +100,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -134,7 +127,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -170,7 +163,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -199,7 +192,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -232,7 +225,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertEquals(0, Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).isEmpty();
     }
 
     @Test
@@ -263,9 +256,9 @@ public class GetWalksIT extends AbstractStoreIT {
         final List<Walk> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
         results.forEach(r -> r.getEntities().forEach(l -> {
-            assertThat(l, is(not(empty())));
+            assertThat(l).isNotEmpty();
         }));
     }
 
@@ -297,7 +290,7 @@ public class GetWalksIT extends AbstractStoreIT {
         try {
             Lists.newArrayList(graph.execute(op, getUser()));
         } catch (final Exception e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("must contain a single hop"));
+            assertThat(e.getMessage()).as(e.getMessage()).contains("must contain a single hop");
         }
     }
 
@@ -322,7 +315,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC,EDA")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC,EDA");
     }
 
     @Test
@@ -349,7 +342,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,AEF,ABC");
     }
 
     @Test
@@ -376,7 +369,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,EDA,EFC")));
+        assertThat(getPaths(results)).isEqualTo("AED,AEF,ABC,EDA,EFC");
     }
 
     @Test
@@ -403,7 +396,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AEDA,AEFC")));
+        assertThat(getPaths(results)).isEqualTo("AEDA,AEFC");
     }
 
     @Test
@@ -430,7 +423,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
+        assertThat(getPaths(results)).isEqualTo("AEDAE,AEDAB");
     }
 
     @Test
@@ -454,7 +447,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AAAAA")));
+        assertThat(getPaths(results)).isEqualTo("AAAAA");
     }
 
     @Test
@@ -496,7 +489,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED")));
+        assertThat(getPaths(results)).isEqualTo("AED");
     }
 
     @Test
@@ -539,7 +532,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AB")));
+        assertThat(getPaths(results)).isEqualTo("AED,AB");
     }
 
     @Test
@@ -581,7 +574,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("ABC")));
+        assertThat(getPaths(results)).isEqualTo("ABC");
     }
 
     @Test
@@ -609,7 +602,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        assertThat(getPaths(results)).isEqualTo("AED,ABC");
     }
 
     @Test
@@ -641,7 +634,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertEquals(1, Lists.newArrayList(results).size());
+        assertThat(Lists.newArrayList(results)).hasSize(1);
     }
 
     @Test
@@ -675,16 +668,16 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results), is(equalTo("ABC")));
+        assertThat(getPaths(results)).isEqualTo("ABC");
     }
 
     public static class AssertEntityIdsUnwrapped extends KorypheFunction<Object, Object> {
         @Override
         public Object apply(final Object obj) {
             // Check the vertices have been extracted correctly.
-            assertTrue(obj instanceof Iterable);
+            assertThat(obj).isInstanceOf(Iterable.class);
             for (final Object item : (Iterable) obj) {
-                assertFalse(item instanceof EntityId);
+                assertThat(item).isNotInstanceOf(EntityId.class);
             }
             return obj;
         }
@@ -920,37 +913,37 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldReturnAllWalksWhenConditionalIsNull() throws Exception {
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(null);
-        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
     }
 
     @Test
     public void shouldReturnAllWalksWhenConditionalIsUnconfigured() throws Exception {
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(new Conditional());
-        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
     }
 
     @Test
     public void shouldFilterWalksThatDoNotContainProperty5() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(5));
-        assertThat(getPaths(walks), is(equalTo("AED")));
+        assertThat(getPaths(walks)).isEqualTo("AED");
     }
 
     @Test
     public void shouldFilterWalksThatDoNotContainProperty2() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(2));
-        assertThat(getPaths(walks), is(equalTo("ABC")));
+        assertThat(getPaths(walks)).isEqualTo("ABC");
     }
 
     @Test
     public void shouldFilterAllWalksWhenNoneContainProperty() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(6));
-        assertThat(getPaths(walks), is(equalTo("")));
+        assertThat(getPaths(walks)).isEmpty();
     }
 
     @Test
     public void shouldNotFilterAnyWalksWhenAllContainProperty() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(1));
-        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
     }
 
     private Iterable<Walk> getWalksThatPassPredicateTest(final Predicate predicate) throws Exception {
@@ -976,7 +969,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Conditional conditional = new Conditional();
         conditional.setPredicate(new WalkPredicate());
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
-        assertThat(getPaths(walks), is(equalTo("AED")));
+        assertThat(getPaths(walks)).isEqualTo("AED");
     }
 
     public static class WalkPredicate implements Predicate<Walk> {
@@ -1004,7 +997,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build());
 
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
-        assertThat(getPaths(walks), is(equalTo("AED,ABC")));
+        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
     }
 
     private Iterable<Walk> executeGetWalksApplyingConditional(final Conditional conditional) throws OperationException {

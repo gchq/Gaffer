@@ -58,6 +58,10 @@ public class GetTraitsHandlerTest {
             public Set<StoreTrait> getTraits() {
                 return Sets.newHashSet(expectedTraits);
             }
+            @Override
+            protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+                return new GetTraitsHandler(expectedTraits);
+            }
         };
         assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);
         string = new Schema.Builder().type(STRING, String.class).build();

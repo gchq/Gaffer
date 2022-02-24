@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ToElementTupleTest extends FunctionTest {
+public class ToElementTupleTest extends FunctionTest<ToElementTuple> {
 
     @Test
     public void shouldReturnNullForNullValue() {
