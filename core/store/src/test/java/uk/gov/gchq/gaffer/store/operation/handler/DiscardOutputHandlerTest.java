@@ -21,9 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.store.Context;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -41,6 +39,6 @@ public class DiscardOutputHandlerTest {
         final Void results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JoinIT extends AbstractStoreIT {
     private List<Element> inputElements = new ArrayList<>(Arrays.asList(getJoinEntity(TestGroups.ENTITY_3, 1), getJoinEntity(TestGroups.ENTITY_3, 2), getJoinEntity(TestGroups.ENTITY_3, 3), getJoinEntity(TestGroups.ENTITY_3, 4), getJoinEntity(TestGroups.ENTITY_3, 6)));
@@ -96,13 +96,13 @@ public class JoinIT extends AbstractStoreIT {
 
         // Then
 
-        assertEquals(3, loadedResults.size());
-        assertEquals(getJoinEntity(TestGroups.ENTITY, 4), loadedResults.get(0).get(MatchKey.LEFT.name()));
-        assertEquals(4L, loadedResults.get(0).get(MatchKey.RIGHT.name()));
-        assertEquals(getJoinEntity(TestGroups.ENTITY_2, 4), loadedResults.get(1).get(MatchKey.LEFT.name()));
-        assertEquals(4L, loadedResults.get(1).get(MatchKey.RIGHT.name()));
-        assertEquals(getJoinEntity(TestGroups.ENTITY_3, 4), loadedResults.get(2).get(MatchKey.LEFT.name()));
-        assertEquals(4L, loadedResults.get(2).get(MatchKey.RIGHT.name()));
+        assertThat(loadedResults).hasSize(3);
+        assertThat(loadedResults.get(0)).containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY, 4))
+                .containsEntry(MatchKey.RIGHT.name(), 4L);
+        assertThat(loadedResults.get(1)).containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_2, 4))
+                .containsEntry(MatchKey.RIGHT.name(), 4L);
+        assertThat(loadedResults.get(2)).containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_3, 4))
+                .containsEntry(MatchKey.RIGHT.name(), 4L);
     }
 
     @Test
@@ -134,14 +134,16 @@ public class JoinIT extends AbstractStoreIT {
         results.forEach(e -> loadedResults.add(e.getValues()));
 
         // Then
-
-        assertEquals(3, loadedResults.size());
-        assertEquals(getJoinEntity(TestGroups.ENTITY_4, 5), loadedResults.get(0).get(MatchKey.LEFT.name()));
-        assertEquals(null, loadedResults.get(0).get(MatchKey.RIGHT.name()));
-        assertEquals(getJoinEntity(TestGroups.ENTITY_4, 6), loadedResults.get(1).get(MatchKey.LEFT.name()));
-        assertEquals(null, loadedResults.get(1).get(MatchKey.RIGHT.name()));
-        assertEquals(getJoinEntity(TestGroups.ENTITY_5, 5), loadedResults.get(2).get(MatchKey.LEFT.name()));
-        assertEquals(null, loadedResults.get(2).get(MatchKey.RIGHT.name()));
+        assertThat(loadedResults).hasSize(3);
+        assertThat(loadedResults.get(0))
+                .containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_4, 5))
+                .containsEntry(MatchKey.RIGHT.name(), null);
+        assertThat(loadedResults.get(1))
+                .containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_4, 6))
+                .containsEntry(MatchKey.RIGHT.name(), null);
+        assertThat(loadedResults.get(2))
+                .containsEntry(MatchKey.LEFT.name(), getJoinEntity(TestGroups.ENTITY_5, 5))
+                .containsEntry(MatchKey.RIGHT.name(), null);
     }
 
     @Test
@@ -172,19 +174,19 @@ public class JoinIT extends AbstractStoreIT {
 
         // Then
 
-        assertEquals(4, loadedResults.size());
+        assertThat(loadedResults).hasSize(4);
 
-        assertEquals(Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)), loadedResults.get(0).get(MatchKey.LEFT.name()));
-        assertEquals(2L, loadedResults.get(0).get(MatchKey.RIGHT.name()));
+        assertThat(loadedResults.get(0)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)))
+                .containsEntry(MatchKey.RIGHT.name(), 2L);
 
-        assertEquals(Lists.newArrayList(getJoinEntity(TestGroups.ENTITY, 1)), loadedResults.get(1).get(MatchKey.LEFT.name()));
-        assertEquals(1L, loadedResults.get(1).get(MatchKey.RIGHT.name()));
+        assertThat(loadedResults.get(1)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList(getJoinEntity(TestGroups.ENTITY, 1)))
+                .containsEntry(MatchKey.RIGHT.name(), 1L);
 
-        assertEquals(Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)), loadedResults.get(2).get(MatchKey.LEFT.name()));
-        assertEquals(2L, loadedResults.get(2).get(MatchKey.RIGHT.name()));
+        assertThat(loadedResults.get(2)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList(getJoinEntity(TestGroups.ENTITY_2, 2), getJoinEntity(TestGroups.ENTITY_2, 2)))
+                .containsEntry(MatchKey.RIGHT.name(), 2L);
 
-        assertEquals(Lists.newArrayList(), loadedResults.get(3).get(MatchKey.LEFT.name()));
-        assertEquals(3L, loadedResults.get(3).get(MatchKey.RIGHT.name()));
+        assertThat(loadedResults.get(3)).containsEntry(MatchKey.LEFT.name(), Lists.newArrayList())
+                .containsEntry(MatchKey.RIGHT.name(), 3L);
     }
 
     @Test

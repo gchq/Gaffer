@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.spy;
 
 public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
@@ -67,12 +67,9 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
         // Then
-        try {
-            functionAuthoriser.preExecute(badOperation, new Context());
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> functionAuthoriser.preExecute(badOperation, new Context()))
+                .withMessage("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity");
     }
 
     @Test
@@ -91,14 +88,10 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
         // When
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(DivideBy.class));
 
-
         // Then
-        try {
-            functionAuthoriser.preExecute(viewOperation, new Context());
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.DivideBy", e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> functionAuthoriser.preExecute(viewOperation, new Context()))
+                .withMessage("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.DivideBy");
 
     }
 
@@ -176,12 +169,9 @@ public class FunctionAuthoriserTest extends GraphHookTest<FunctionAuthoriser> {
         functionAuthoriser.setUnauthorisedFunctions(Lists.newArrayList(Identity.class));
 
         // Then
-        try {
-            functionAuthoriser.preExecute(badOperation, new Context());
-            fail("Exception expected");
-        } catch (final UnauthorisedException e) {
-            assertEquals("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity", e.getMessage());
-        }
+        assertThatExceptionOfType(UnauthorisedException.class)
+                .isThrownBy(() -> functionAuthoriser.preExecute(badOperation, new Context()))
+                .withMessage("Operation chain contained an unauthorised function: uk.gov.gchq.koryphe.impl.function.Identity");
     }
 
     @Test

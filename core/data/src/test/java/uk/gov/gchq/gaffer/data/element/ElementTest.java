@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -156,7 +157,7 @@ public abstract class ElementTest {
 
         // Then
         assertEquals(1, element1.getProperties().size());
-        assertEquals(null, element1.getProperty("property1"));
+        assertThat(element1.getProperty("property1")).isNull();
         assertEquals("propertyValue2", element1.getProperty("property2"));
 
     }

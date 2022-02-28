@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Object>> {
 
@@ -40,15 +40,11 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Ob
         byte[] b = serialiser.serialise(set);
         Set o = serialiser.deserialise(b);
 
-        assertEquals(HashSet.class, o.getClass());
-        assertEquals(6, o.size());
-        assertEquals(set, o);
-        assertTrue(o.contains("one"));
-        assertTrue(o.contains("two"));
-        assertTrue(o.contains("three"));
-        assertTrue(o.contains("four"));
-        assertTrue(o.contains("five"));
-        assertTrue(o.contains("six"));
+        assertThat(o)
+                .isInstanceOf(HashSet.class)
+                .hasSize(6)
+                .contains("one", "two", "three", "four", "five", "six")
+                .isEqualTo(set);
     }
 
     private Set<String> getExampleValue() {
@@ -73,19 +69,16 @@ public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Ob
         set.add(3);
         set.add(11);
 
-        ((SetSerialiser) serialiser).setObjectSerialiser(new IntegerSerialiser());
+        ((SetSerialiser) serialiser).setObjectSerialiser(new OrderedIntegerSerialiser());
         ((SetSerialiser) serialiser).setSetClass(LinkedHashSet.class);
 
         byte[] b = serialiser.serialise(set);
         Set o = serialiser.deserialise(b);
 
-        assertEquals(LinkedHashSet.class, o.getClass());
-        assertEquals(5, o.size());
-        assertTrue(o.contains(1));
-        assertTrue(o.contains(3));
-        assertTrue(o.contains(2));
-        assertTrue(o.contains(7));
-        assertTrue(o.contains(11));
+        assertThat(o)
+                .isInstanceOf(LinkedHashSet.class)
+                .hasSize(5)
+                .containsExactly(1, 3, 2, 7, 11);
     }
 
     @Override

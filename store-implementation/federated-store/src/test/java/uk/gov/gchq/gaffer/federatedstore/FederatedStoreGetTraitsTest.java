@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.NoAccessPredicate;
 import uk.gov.gchq.gaffer.access.predicate.UnrestrictedAccessPredicate;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -41,9 +42,9 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
@@ -52,7 +53,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.nullUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedStoreGetTraitsTest {
 
@@ -119,6 +119,7 @@ public class FederatedStoreGetTraitsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        clearCache();
         federatedStore = new FederatedStore();
         federatedStore.initialise("testFed", new Schema(), new FederatedStoreProperties());
 
@@ -162,7 +163,9 @@ public class FederatedStoreGetTraitsTest {
 
     @Test
     public void shouldVerifyAssumptionsNoTraitsFound() throws Exception {
-        assertEquals("User is required", assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(getTraits, new Context(nullUser))).getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> federatedStore.execute(getTraits, new Context(nullUser)))
+                .withMessage("User is required");
         assertEquals(0, federatedStore.execute(getTraits, new Context(testUser)).size());
         assertEquals(0, federatedStore.execute(getTraits, new Context(authUser)).size());
         assertEquals(0, federatedStore.execute(getTraits, new Context(blankUser)).size());
@@ -173,6 +176,10 @@ public class FederatedStoreGetTraitsTest {
         //given
         Set<StoreTrait> mapTraits = map.getGraph().getStoreTraits();
         Set<StoreTrait> accTraits = acc.getGraph().getStoreTraits();
+
+        getTraits.setCurrentTraits(false);
+        Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
+        Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
 
         //when
         Set<StoreTrait> mapTraitsExclusive = mapTraits.stream().filter(t -> !accTraits.contains(t)).collect(Collectors.toSet());
@@ -188,6 +195,8 @@ public class FederatedStoreGetTraitsTest {
         assertEquals(MAP_TRAITS_EXCLUSIVE_OF_ACCUMULO, mapTraitsExclusive, "Expected traits exclusive to MapStore is different");
         assertEquals(ACCUMULO_TRAITS_EXCLUSIVE_OF_MAP, accTraitsExclusive, "Expected traits exclusive to AccumuloStore is different");
         assertEquals(INTERSECTION_TRAITS, intersectionTraits, "Expected intersection of traits is different");
+        assertEquals(mapTraits, mapTraitsOperation);
+        assertEquals(accTraits, accTraitsOperation);
     }
 
     @Test
@@ -374,5 +383,9 @@ public class FederatedStoreGetTraitsTest {
         final Set<StoreTrait> traits = federatedStore.execute(getTraits, testUserContext);
         //then
         assertEquals(INTERSECTION_TRAITS, traits);
+    }
+
+    private void clearCache() {
+        CacheServiceLoader.shutdown();
     }
 }

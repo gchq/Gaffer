@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
@@ -37,9 +33,9 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
         final ToEntitySeeds toEntitySeeds = new ToEntitySeeds.Builder().input("1", "2").build();
 
         // Then
-        assertThat(toEntitySeeds.getInput(), is(notNullValue()));
-        assertThat(toEntitySeeds.getInput(), iterableWithSize(2));
-        assertThat(toEntitySeeds.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(toEntitySeeds.getInput())
+                .hasSize(2)
+                .containsOnly("1", "2");
     }
 
     @Test
@@ -56,7 +52,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
 
         // Then
         assertNotSame(toEntitySeeds, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

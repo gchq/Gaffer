@@ -40,8 +40,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExampleGeneratorTest {
 
@@ -68,7 +67,9 @@ public class ExampleGeneratorTest {
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        final File graphConfigFile = Files.createFile(tempDir.resolve("graphConfig.json")).toFile();
+        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "graphConfig.json")));
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
         // Manually inject GraphFactory
         final Field field = generator.getClass().getDeclaredField("graphFactory");
@@ -84,7 +85,7 @@ public class ExampleGeneratorTest {
         final Operation operation = generator.generateExample(opClass);
 
         // Then
-        assertThat(operation, notNullValue());
+        assertThat(operation).isNotNull();
     }
 
     @ParameterizedTest
@@ -94,7 +95,7 @@ public class ExampleGeneratorTest {
         final Operation operation = generator.generateExample(ExampleCharOperation.class);
 
         //Then
-        assertThat(operation, notNullValue());
+        assertThat(operation).isNotNull();
     }
 
 }

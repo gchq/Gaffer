@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSplitPoints> {
     private static final String INPUT_DIRECTORY = "/input";
@@ -72,8 +70,6 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         assertTrue(deserialisedOp.isValidate());
         assertEquals(0.1f, deserialisedOp.getProportionToSample(), 1);
         assertEquals(new Integer(5), deserialisedOp.getNumMapTasks());
-        assertEquals(new Integer(1), deserialisedOp.getNumReduceTasks());
-
     }
 
     @Test
@@ -93,17 +89,6 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         assertTrue(sampleDataForSplitPoints.isValidate());
         assertEquals(0.1f, sampleDataForSplitPoints.getProportionToSample(), 1);
         assertEquals(new Integer(5), sampleDataForSplitPoints.getNumMapTasks());
-    }
-
-    @Test
-    public void expectIllegalArgumentExceptionWhenTryingToSetReducers() {
-        final SampleDataForSplitPoints op = getTestObject();
-        try {
-            op.setNumReduceTasks(10);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
     }
 
     @Test

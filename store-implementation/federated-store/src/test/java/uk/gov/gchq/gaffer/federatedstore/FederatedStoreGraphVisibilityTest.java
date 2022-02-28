@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,13 +38,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedStoreGraphVisibilityTest {
 
@@ -195,7 +194,7 @@ public class FederatedStoreGraphVisibilityTest {
 
         assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
         assertEquals(1, sets.size(), "Not Showing graphId with correct auth");
-        assertTrue(sets.contains("g2"));
+        assertThat(sets).contains("g2");
 
 
         graphIds = fedGraph.execute(
@@ -211,8 +210,7 @@ public class FederatedStoreGraphVisibilityTest {
 
         assertNotNull(graphIds, "Returned iterator should not be null, it should be empty.");
         assertEquals(2, sets.size(), "Not Showing all graphId for adding user");
-        assertTrue(sets.contains("g1"));
-        assertTrue(sets.contains("g2"));
+        assertThat(sets).contains("g1", "g2");
     }
 
 

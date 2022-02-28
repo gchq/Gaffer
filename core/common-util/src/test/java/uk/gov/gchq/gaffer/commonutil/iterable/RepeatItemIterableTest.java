@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RepeatItemIterableTest {
 
@@ -32,7 +31,9 @@ public class RepeatItemIterableTest {
 
         final Iterable<String> itr = new RepeatItemIterable<>(item, repeats);
 
-        assertEquals(Lists.newArrayList(item, item, item, item, item), Lists.newArrayList(itr));
+        assertThat(itr)
+                .hasSize(5)
+                .allMatch(str -> str.equals(item));
     }
 
     @ParameterizedTest
@@ -42,6 +43,6 @@ public class RepeatItemIterableTest {
 
         final Iterable<String> itr = new RepeatItemIterable<>(item, repeats);
 
-        assertEquals(Lists.newArrayList(), Lists.newArrayList(itr));
+        assertThat(itr).isEmpty();
     }
 }

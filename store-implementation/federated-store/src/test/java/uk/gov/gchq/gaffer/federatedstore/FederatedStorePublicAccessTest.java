@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 public class FederatedStorePublicAccessTest {
 
     private static final String GRAPH_1 = "graph1";

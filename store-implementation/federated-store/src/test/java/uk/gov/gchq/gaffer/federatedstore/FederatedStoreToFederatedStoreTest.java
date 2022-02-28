@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,9 +39,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BASIC_EDGE;
 import static uk.gov.gchq.gaffer.federatedstore.integration.FederatedViewsIT.BASIC_ENTITY;
 
@@ -114,13 +114,13 @@ public class FederatedStoreToFederatedStoreTest {
                 .build(), new User());
 
         // When
-        OperationException e = assertThrows(OperationException.class, () -> federatedStoreGraph.execute(new GetAllElements.Builder()
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .build())
-                .build(), new User()));
-
-        assertTrue(e.getMessage().contains("View is not valid for graphIds:[mapStore]"));
+                .build(), new User()))
+                .withMessageContaining("View is not valid for graphIds:[mapStore]");
     }
 
     @Test
@@ -189,12 +189,12 @@ public class FederatedStoreToFederatedStoreTest {
                 .build(), new User()));
 
         // Then
-        assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
         assertEquals(entity, results.get(0));
     }
 
-    @AfterClass
-    public static void afterClass() {
+    @AfterAll
+    public static void afterAll() {
         SingleUseFederatedStore.cleanUp();
     }
 }

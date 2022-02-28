@@ -58,11 +58,6 @@ import java.util.Set;
 public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
-    /**
-     * @deprecated the ID should not be used. The properties ID should be supplied to the graph library separately.
-     */
-    @Deprecated
-    public static final String ID = "gaffer.store.id";
 
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
@@ -103,18 +98,6 @@ public class StoreProperties implements Cloneable {
     // Required for loading by reflection.
     public StoreProperties() {
         updateStorePropertiesClass();
-    }
-
-    /**
-     * @param id the StoreProperties id.
-     * @deprecated the id should not be used. The properties id should be supplied to the graph library separately.
-     */
-    @Deprecated
-    public StoreProperties(final String id) {
-        this();
-        if (null != id) {
-            setId(id);
-        }
     }
 
     public StoreProperties(final Path propFileLocation) {
@@ -276,36 +259,8 @@ public class StoreProperties implements Cloneable {
 
     public void merge(final StoreProperties properties) {
         if (null != properties) {
-            if (null != properties.getId()
-                    && null != getId()
-                    && !properties.getId().equals(getId())) {
-                final String newId = getId() + "_" + properties.getId();
-                properties.setId(newId);
-                setId(newId);
-            }
-
             props.putAll(properties.getProperties());
         }
-    }
-
-    /**
-     * @return properties ID
-     * @deprecated the ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    public String getId() {
-        return get(ID);
-    }
-
-    /**
-     * Set the ID for the StoreProperties
-     *
-     * @param id the value of the ID
-     * @deprecated the ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    public void setId(final String id) {
-        set(ID, id);
     }
 
     /**

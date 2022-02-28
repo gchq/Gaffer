@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,10 +54,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -106,79 +106,72 @@ public class OperationControllerTest {
         Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toSet());
 
         // Then
-        assertEquals(2, allOperationDetails.size());
-        assertTrue(allOperationDetailClasses.contains(AddElements.class.getName()));
-        assertTrue(allOperationDetailClasses.contains(GetElements.class.getName()));
+        assertThat(allOperationDetails).hasSize(2);
+        assertThat(allOperationDetailClasses)
+                .contains(AddElements.class.getName(), GetElements.class.getName());
     }
 
     @Test
     public void shouldThrowBadRequestExceptionIfUserRequestsNextOperationsOfNonOperationClass() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getNextOperations("java.util.HashSet");
-        });
-
-        assertEquals(BAD_REQUEST, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getNextOperations("java.util.HashSet"))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(BAD_REQUEST);
     }
 
     @Test
     public void shouldThrowNotFoundExceptionWhenUserRequestsNextOperationOfNonExistentClass() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getNextOperations("non.existent.class");
-        });
-
-        assertEquals(NOT_FOUND, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getNextOperations("non.existent.class"))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(NOT_FOUND);
     }
 
     @Test
     public void shouldThrowBadRequestExceptionIfUserRequestsOperationDetailsOfNonOperationClass() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getOperationDetails("java.util.HashSet");
-        });
-
-        assertEquals(BAD_REQUEST, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getOperationDetails("java.util.HashSet"))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(BAD_REQUEST);
     }
 
     @Test
     public void shouldThrowNotFoundExceptionWhenUserRequestsOperationDetailsOfNonExistentClass() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getOperationDetails("non.existent.class");
-        });
-
-        assertEquals(NOT_FOUND, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getOperationDetails("non.existent.class"))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(NOT_FOUND);
     }
 
     @Test
     public void shouldThrowInternalServerExceptionIfUserRequestsOperationDetailsAboutUninstantiatableOperation() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getOperationDetails(UninstantiatableOperation.class.getName());
-        });
-
-        assertEquals(INTERNAL_SERVER_ERROR, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getOperationDetails(UninstantiatableOperation.class.getName()))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(INTERNAL_SERVER_ERROR);
     }
 
     @Test
     public void shouldThrowBadRequestExceptionIfUserRequestsExampleOfNonOperationClass() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getOperationExample("java.util.HashSet");
-        });
-
-        assertEquals(BAD_REQUEST, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getOperationExample("java.util.HashSet"))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(BAD_REQUEST);
     }
 
     @Test
     public void shouldThrowNotFoundExceptionWhenUserRequestsExampleOfNonExistentClass() {
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getOperationExample("non.existent.class");
-        });
-
-        assertEquals(NOT_FOUND, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getOperationExample("non.existent.class"))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(NOT_FOUND);
     }
 
     @Test
@@ -187,11 +180,10 @@ public class OperationControllerTest {
         when(examplesFactory.generateExample(UninstantiatableOperation.class)).thenThrow(new InstantiationException());
 
         // Then
-        GafferRuntimeException e = assertThrows(GafferRuntimeException.class, () -> {
-            operationController.getOperationExample(UninstantiatableOperation.class.getName());
-        });
-
-        assertEquals(INTERNAL_SERVER_ERROR, e.getStatus());
+        assertThatExceptionOfType(GafferRuntimeException.class)
+                .isThrownBy(() -> operationController.getOperationExample(UninstantiatableOperation.class.getName()))
+                .extracting(GafferRuntimeException::getStatus)
+                .isEqualTo(INTERNAL_SERVER_ERROR);
     }
 
     @Test
@@ -251,7 +243,6 @@ public class OperationControllerTest {
                 new OperationField("input", null, "java.lang.Object[]", null, false),
                 new OperationField("view", null, "uk.gov.gchq.gaffer.data.elementdefinition.view.View", null, false),
                 new OperationField("includeIncomingOutGoing", "Should the edges point towards, or away from your seeds", "java.lang.String", Sets.newHashSet("INCOMING", "EITHER", "OUTGOING"), false),
-                new OperationField("seedMatching", "How should the seeds be matched?", "java.lang.String", Sets.newHashSet("RELATED", "EQUAL"), false),
                 new OperationField("options", null, "java.util.Map<java.lang.String,java.lang.String>", null, false),
                 new OperationField("directedType", "Is the Edge directed?", "java.lang.String", Sets.newHashSet("DIRECTED", "UNDIRECTED", "EITHER"), false),
                 new OperationField("views", null, "java.util.List<uk.gov.gchq.gaffer.data.elementdefinition.view.View>", null, false)

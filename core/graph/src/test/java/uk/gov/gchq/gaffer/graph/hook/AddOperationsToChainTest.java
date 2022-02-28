@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,10 +53,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
 
@@ -267,12 +266,9 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final String nullTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": null}]}";
 
         //When / Then
-        try {
-            fromJson(nullTestJson.getBytes());
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("'null'"), e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(nullTestJson.getBytes()))
+                .withMessageContaining("'null'");
     }
 
     @Test
@@ -281,12 +277,10 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final String emptyTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"\"}]}";
 
         //When / Then
-        try {
-            fromJson(emptyTestJson.getBytes());
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("''"), e.getMessage());
-        }
+
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(emptyTestJson.getBytes()))
+                .withMessageContaining("''");
     }
 
     @Test
@@ -295,12 +289,9 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final String falseOperationTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
 
         //When / Then
-        try {
-            fromJson(falseOperationTestJson.getBytes());
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertTrue(e.getMessage().contains("'this.Operation.Doesnt.Exist'"), e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> fromJson(falseOperationTestJson.getBytes()))
+                .withMessageContaining("'this.Operation.Doesnt.Exist'");
     }
 
     @Test

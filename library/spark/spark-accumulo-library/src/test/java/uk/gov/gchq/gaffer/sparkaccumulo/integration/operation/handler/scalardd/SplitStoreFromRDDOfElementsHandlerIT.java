@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.rdd.RDD;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SplitStoreFromRDDOfElementsHandlerIT {
 
@@ -59,7 +59,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         elements = createElements();
@@ -108,7 +108,7 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
     public void shouldCreateSplitPointsFromRDD() throws Exception {
 
         final int tabletServerCount = 3;
-        final SingleUseAccumuloStoreWithTabletServers store = new SingleUseAccumuloStoreWithTabletServers(tabletServerCount);
+        final SingleUseMiniAccumuloStoreWithTabletServers store = new SingleUseMiniAccumuloStoreWithTabletServers(tabletServerCount);
         store.initialise(
                 GRAPH_ID,
                 Schema.fromJson(StreamUtil.openStreams(getClass(), "/schema-RDDSplitPointIntegrationTests/")),
@@ -128,16 +128,16 @@ public class SplitStoreFromRDDOfElementsHandlerIT {
         final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getTableName(), 10));
         final int expectedSplitCount = tabletServerCount - 1;
 
-        assertEquals(expectedSplitCount, splitsOnTable.size());
-        assertEquals("3A==", Base64.encodeBase64String(splitsOnTable.get(0).getBytes()));
-        assertEquals("6A==", Base64.encodeBase64String(splitsOnTable.get(1).getBytes()));
+        assertThat(splitsOnTable).hasSize(expectedSplitCount);
+        assertThat(Base64.encodeBase64String(splitsOnTable.get(0).getBytes())).isEqualTo("3A==");
+        assertThat(Base64.encodeBase64String(splitsOnTable.get(1).getBytes())).isEqualTo("6A==");
     }
 
-    private static final class SingleUseAccumuloStoreWithTabletServers extends SingleUseAccumuloStore {
+    private static final class SingleUseMiniAccumuloStoreWithTabletServers extends SingleUseMiniAccumuloStore {
 
         private final List<String> tabletServers;
 
-        SingleUseAccumuloStoreWithTabletServers(final int size) {
+        SingleUseMiniAccumuloStoreWithTabletServers(final int size) {
             this.tabletServers = IntStream.range(0, size).mapToObj(Integer::toString).collect(Collectors.toList());
         }
 

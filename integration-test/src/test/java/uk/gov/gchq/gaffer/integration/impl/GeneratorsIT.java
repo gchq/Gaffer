@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -45,9 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GeneratorsIT extends AbstractStoreIT {
     private static final String NEW_SOURCE = "newSource";
@@ -78,10 +75,9 @@ public class GeneratorsIT extends AbstractStoreIT {
         final EdgeDomainObject edgeDomainObject = new EdgeDomainObject(SOURCE_1, DEST_1, false, 1, 1L);
 
         // Then
-        assertNotNull(results);
-        assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                entityDomainObject, edgeDomainObject));
+        assertThat(results)
+                .hasSize(2)
+                .contains(entityDomainObject, edgeDomainObject);
     }
 
     @Test

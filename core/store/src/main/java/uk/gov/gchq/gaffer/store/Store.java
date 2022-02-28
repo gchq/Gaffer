@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -97,6 +98,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.add.AddSchemaToLibrary;
@@ -110,10 +112,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ForEachHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetVariablesHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.HasTraitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.IfHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
@@ -280,9 +282,9 @@ public abstract class Store {
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker();
 
+        addOpHandlers();
         optimiseSchema();
         validateSchemas();
-        addOpHandlers();
         addExecutorService(properties);
 
         if (properties.getJobTrackerEnabled() && !jobsRescheduled) {
@@ -330,19 +332,6 @@ public abstract class Store {
 
     public void updateJsonSerialiser() {
         updateJsonSerialiser(getProperties());
-    }
-
-    /**
-     * Returns true if the Store can handle the provided trait and false if it
-     * cannot.
-     *
-     * @param storeTrait the Class of the Processor to be checked.
-     * @return true if the Processor can be handled and false if it cannot.
-     */
-    @Deprecated
-    public boolean hasTrait(final StoreTrait storeTrait) {
-        final Set<StoreTrait> traits = getTraits();
-        return null != traits && traits.contains(storeTrait);
     }
 
     /**
@@ -685,7 +674,16 @@ public abstract class Store {
     }
 
     public void optimiseSchema() {
-        schema = schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
+        Boolean isOrdered;
+        try {
+            isOrdered = execute(new HasTrait.Builder()
+                    .trait(StoreTrait.ORDERED)
+                    .currentTraits(false)
+                    .build(), new Context());
+        } catch (final OperationException e) {
+            throw new GafferRuntimeException("Error performing HasTrait Operation while optimising schema.", e);
+        }
+        schema = schemaOptimiser.optimise(schema, null == isOrdered ? false : isOrdered);
     }
 
     public void validateSchemas() {
@@ -866,6 +864,16 @@ public abstract class Store {
      * uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
+
+    /**
+     * Get this Stores implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.store.operation.GetTraits}.
+     * All Stores must implement this.
+     *
+     * @return the implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.store.operation.GetTraits}
+     */
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
 
     /**
      * Get this Store's implementation of the handler for {@link
@@ -1072,7 +1080,9 @@ public abstract class Store {
             addOperationHandler(AddStorePropertiesToLibrary.class, new AddStorePropertiesToLibraryHandler());
         }
 
-        addOperationHandler(GetTraits.class, new GetTraitsHandler());
+        // Traits
+        addOperationHandler(HasTrait.class, new HasTraitHandler());
+        addOperationHandler(GetTraits.class, getGetTraitsHandler());
     }
 
     private void addConfiguredOperationHandlers() {

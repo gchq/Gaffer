@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.security.InvalidParameterException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class BytesAndRangeTest {
 
@@ -32,13 +32,13 @@ public class BytesAndRangeTest {
 
     @Test
     public void shouldThrowExceptionForOffset() throws Exception {
-        assertThrows(InvalidParameterException.class,
+        assertThatExceptionOfType(InvalidParameterException.class).isThrownBy(
                 () -> new BytesAndRange(emptyBytes, -1, 1));
     }
 
     @Test
     public void shouldThrowExceptionForLength() throws Exception {
-        assertThrows(InvalidParameterException.class,
+        assertThatExceptionOfType(InvalidParameterException.class).isThrownBy(
                 () -> new BytesAndRange(emptyBytes, 1, -1));
     }
 

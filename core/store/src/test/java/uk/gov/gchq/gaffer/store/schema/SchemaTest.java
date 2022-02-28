@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
@@ -57,6 +57,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -76,6 +79,7 @@ public class SchemaTest {
     public static final String TIMESTAMP_TYPE_DESCRIPTION = "Timestamp type description";
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
     public static final String MAP_TYPE_DESCRIPTION = "Map type description";
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
 
     private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
@@ -127,7 +131,7 @@ public class SchemaTest {
         assertEquals(EDGE_DESCRIPTION, edgeDefinition.getDescription());
 
         final Map<String, String> propertyMap = edgeDefinition.getPropertyMap();
-        assertEquals(3, propertyMap.size());
+        assertThat(propertyMap).hasSize(3);
         assertEquals("prop.string", propertyMap.get(TestPropertyNames.PROP_2));
         assertEquals("prop.date", propertyMap.get(TestPropertyNames.DATE));
         assertEquals("timestamp", propertyMap.get(TestPropertyNames.TIMESTAMP));
@@ -142,42 +146,42 @@ public class SchemaTest {
 
         TupleAdaptedPredicate<String, ?> tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(IdentifierType.SOURCE.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(IdentifierType.DESTINATION.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.DATE, tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.TIMESTAMP, tuplePredicate.getSelection()[0]);
 
         assertEquals(index, valContexts.size());
@@ -205,32 +209,32 @@ public class SchemaTest {
         tuplePredicate = valContexts.get(index++);
 
         assertTrue(tuplePredicate.getPredicate() instanceof IsXMoreThanY);
-        assertEquals(2, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(2);
         assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
         assertEquals(TestPropertyNames.VISIBILITY, tuplePredicate.getSelection()[1]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(IdentifierType.VERTEX.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
         assertTrue(tuplePredicate.getPredicate() instanceof IsA);
-        assertEquals(1, tuplePredicate.getSelection().length);
+        assertThat(tuplePredicate.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
 
         final ElementAggregator aggregator = edgeDefinition.getFullAggregator();
         final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
-        assertEquals(3, aggContexts.size());
+        assertThat(aggContexts).hasSize(3);
 
         TupleAdaptedBinaryOperator<String, ?> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertEquals(1, aggContext.getSelection().length);
+        assertThat(aggContext.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection()[0]);
 
         aggContext = aggContexts.get(1);
         assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertEquals(1, aggContext.getSelection().length);
+        assertThat(aggContext.getSelection()).hasSize(1);
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
 
         TypeDefinition mapTypeDef = schema.getType(TestTypes.PROP_MAP);
@@ -240,7 +244,7 @@ public class SchemaTest {
         assertEquals(MapSerialiser.class, serialiser.getClass());
         MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
         assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
-        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
+        assertEquals(OrderedLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
         assertNull(mapSerialiser.getMapClass());
     }
 
@@ -267,7 +271,7 @@ public class SchemaTest {
     private Schema createSchema() {
         MapSerialiser mapSerialiser = new MapSerialiser();
         mapSerialiser.setKeySerialiser(new StringSerialiser());
-        mapSerialiser.setValueSerialiser(new RawLongSerialiser());
+        mapSerialiser.setValueSerialiser(new OrderedLongSerialiser());
         mapSerialiser.setMapClass(LinkedHashMap.class);
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder().source(TestTypes.ID_STRING)
@@ -303,7 +307,9 @@ public class SchemaTest {
                         new TypeDefinition.Builder().clazz(Long.class)
                                 .description(TIMESTAMP_TYPE_DESCRIPTION).build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
-                .timestampProperty(TestPropertyNames.TIMESTAMP).config("key", "value").build();
+                .config("key", "value")
+                .config(TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
+                .build();
     }
 
     @Test
@@ -335,7 +341,7 @@ public class SchemaTest {
                 + "      \"serialiser\" : {%n"
                 + "          \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",%n"
                 + "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",%n"
-                + "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser\",%n"
+                + "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser\",%n"
                 + "          \"mapClass\" : \"java.util.LinkedHashMap\"%n" + "      },%n"
                 + "      \"description\" : \"Map type description\",%n"
                 + "      \"class\" : \"java.util.LinkedHashMap\"%n" + "    },%n"
@@ -346,7 +352,7 @@ public class SchemaTest {
                 + "      \"description\" : \"Timestamp type description\",%n"
                 + "      \"class\" : \"java.lang.Long\"%n" + "    }%n" + "  },%n"
                 + "  \"visibilityProperty\" : \"visibility\",%n"
-                + "  \"timestampProperty\" : \"timestamp\",%n" + "  \"config\" : {\n"
+                + "  \"config\" : {\n"
                 + "    \"key\" : \"value\",\n" + "    \"timestampProperty\" : \"timestamp\"\n" + "  }"
                 + "}"), new String(schema.toJson(true)));
     }
@@ -420,21 +426,20 @@ public class SchemaTest {
 
         final Map<String, SchemaEdgeDefinition> edges = schema.getEdges();
 
-        assertEquals(1, edges.size());
+        assertThat(edges).hasSize(1);
         final SchemaElementDefinition edgeGroup = edges.get(TestGroups.EDGE);
         assertEquals(3, edgeGroup.getProperties().size());
 
         final Map<String, SchemaEntityDefinition> entities = schema.getEntities();
 
-        assertEquals(1, entities.size());
+        assertThat(entities).hasSize(1);
         final SchemaElementDefinition entityGroup = entities.get(TestGroups.ENTITY);
         assertEquals(3, entityGroup.getProperties().size());
 
         assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
-        assertEquals(TestPropertyNames.TIMESTAMP, schema.getTimestampProperty());
         assertEquals(2, schema.getConfig().size());
         assertEquals("value", schema.getConfig("key"));
-        assertEquals(TestPropertyNames.TIMESTAMP, schema.getConfig("timestampProperty"));
+        assertEquals(TestPropertyNames.TIMESTAMP, schema.getConfig(TIMESTAMP_PROPERTY));
     }
 
     private void assertExpectedSchemaSerialisationContent(final Schema schema) {
@@ -649,12 +654,7 @@ public class SchemaTest {
         final Schema schema2 = new Schema.Builder().vertexSerialiser(vertexSerialiser2).build();
 
         // When / Then
-        try {
-            new Schema.Builder().merge(schema1).merge(schema2).build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("vertex serialiser"));
-        }
+        assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> new Schema.Builder().merge(schema1).merge(schema2).build()).withMessageContaining("vertex serialiser");
     }
 
     @Test
@@ -664,12 +664,7 @@ public class SchemaTest {
         final Schema schema2 = new Schema.Builder().visibilityProperty(TestPropertyNames.COUNT).build();
 
         // When / Then
-        try {
-            new Schema.Builder().merge(schema1).merge(schema2).build();
-            fail("Exception expected");
-        } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("visibility property"));
-        }
+        assertThatExceptionOfType(SchemaException.class).isThrownBy(() -> new Schema.Builder().merge(schema1).merge(schema2).build()).withMessageContaining("visibility property");
     }
 
     @Test
@@ -703,7 +698,7 @@ public class SchemaTest {
         final SchemaEdgeDefinition childEdge1 = schema.getEdge(TestGroups.EDGE);
         assertEquals("string", childEdge1.getSource());
         assertEquals("int", childEdge1.getDestination());
-        assertEquals(null, childEdge1.getDirected());
+        assertThat(childEdge1.getDirected()).isNull();
 
         final SchemaEdgeDefinition childEdge2 = schema.getEdge(TestGroups.EDGE_2);
         assertEquals("string", childEdge2.getSource());
@@ -1106,12 +1101,7 @@ public class SchemaTest {
         final String invalidGroupString = "invalidGroup-@?";
 
         // When / Then
-        try {
-            new Schema.Builder().edge(invalidGroupString, edgeDef).build();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Group is invalid"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> new Schema.Builder().edge(invalidGroupString, edgeDef).build()).withMessageContaining("Group is invalid");
     }
 
     @Test
@@ -1133,12 +1123,7 @@ public class SchemaTest {
         final String invalidGroupString = "invalidGroup-@?";
 
         // When / Then
-        try {
-            new Schema.Builder().entity(invalidGroupString, entityDef).build();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Group is invalid"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> new Schema.Builder().entity(invalidGroupString, entityDef).build()).withMessageContaining("Group is invalid");
     }
 
     @Test

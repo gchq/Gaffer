@@ -28,9 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -68,6 +66,6 @@ public class ToStreamHandlerTest {
         final Stream<Integer> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results, is(nullValue()));
+        assertThat(results).isNull();
     }
 }

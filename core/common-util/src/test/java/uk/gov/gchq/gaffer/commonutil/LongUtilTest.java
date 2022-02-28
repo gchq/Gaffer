@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LongUtilTest {
 
@@ -35,7 +34,10 @@ public class LongUtilTest {
             timestamps.add(LongUtil.getTimeBasedRandom());
         }
 
-        assertEquals(1000, timestamps.size());
-        timestamps.forEach(t -> assertTrue(t >= 0L, "random number was negative " + t));
+        assertThat(timestamps).hasSize(1000)
+                .allSatisfy(t -> assertThat(t)
+                        .isNotNegative()
+                        .overridingErrorMessage("random number was negative %s", t));
+
     }
 }

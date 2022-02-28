@@ -27,9 +27,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GetWalksHandlerTest {
@@ -51,7 +49,7 @@ public class GetWalksHandlerTest {
         final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
         // Then
-        assertThat(result, is(nullValue()));
+        assertThat(result).isNull();
     }
 
     @Test

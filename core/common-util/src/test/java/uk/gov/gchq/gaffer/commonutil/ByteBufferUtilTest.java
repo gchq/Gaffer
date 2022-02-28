@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -95,7 +96,7 @@ public class ByteBufferUtilTest {
         assertEquals(expected, ByteBufferUtil.toString(bb));
 
         List<byte[]> bal = ByteBufferUtil.toBytesList(Collections.singletonList(bb));
-        assertEquals(1, bal.size());
+        assertThat(bal).hasSize(1);
         assertEquals(expected, new String(bal.get(0), UTF_8));
 
         assertEquals(new ArrayByteSequence(expected), new ArrayByteSequence(bb));

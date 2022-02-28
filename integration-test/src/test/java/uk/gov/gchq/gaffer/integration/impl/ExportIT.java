@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 public class ExportIT extends AbstractStoreIT {
 
@@ -77,12 +77,12 @@ public class ExportIT extends AbstractStoreIT {
         final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
-        assertEquals(2, Sets.newHashSet(export).size());
+        assertThat(Sets.newHashSet(export)).hasSize(2);
     }
 
     @Test
     public void shouldExportResultsToGafferCache() throws OperationException {
-        assumeTrue("Gaffer result cache has not been enabled for this store.", graph.isSupported(ExportToGafferResultCache.class));
+        assumeThat(graph.isSupported(ExportToGafferResultCache.class)).as("Gaffer result cache has not been enabled for this store.").isTrue();
 
         // Given
         final View edgesView = new View.Builder()
@@ -109,7 +109,7 @@ public class ExportIT extends AbstractStoreIT {
         final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
-        assertEquals(2, Sets.newHashSet(export).size());
+        assertThat(Sets.newHashSet(export)).hasSize(2);
     }
 
     /**

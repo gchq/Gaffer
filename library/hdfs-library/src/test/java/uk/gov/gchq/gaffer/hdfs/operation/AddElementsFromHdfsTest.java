@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {
 
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
@@ -66,7 +65,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .jobInitialiser(new TextJobInitialiser())
                 .partitioner(Partitioner.class)
                 .mappers(5)
-                .reducers(10)
+                .minReducers(2)
+                .maxReducers(20)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
                 .commandLineArgs(new String[] {"-libjars", "libjar1,libjar2"})
@@ -86,7 +86,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 "    \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser\"%n" +
                 "  },%n" +
                 "  \"numMapTasks\" : 5,%n" +
-                "  \"numReduceTasks\" : 10,%n" +
+                "  \"minReduceTasks\" : 2,%n" +
+                "  \"maxReduceTasks\" : 20,%n" +
                 "  \"splitsFilePath\" : \"/path/to/splits/file\",%n" +
                 "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\"%n" +
                 "}"), json);
@@ -102,7 +103,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)
-                .reducers(20)
+                .minReducers(2)
+                .maxReducers(20)
                 .validate(true)
                 .option("testOption", "true")
                 .build();
@@ -110,7 +112,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertTrue(addElements.isValidate());
         assertEquals("fail", addElements.getFailurePath());
         assertEquals(new Integer(10), addElements.getNumMapTasks());
-        assertEquals(new Integer(20), addElements.getNumReduceTasks());
+        assertEquals(new Integer(2), addElements.getMinReduceTasks());
+        assertEquals(new Integer(20), addElements.getMaxReduceTasks());
         assertEquals("output", addElements.getOutputPath());
         assertEquals(MapperGenerator.class.getName(), addElements.getInputMapperPairs().get("inputPath"));
     }
@@ -128,7 +131,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)
-                .reducers(20)
+                .minReducers(2)
+                .maxReducers(20)
                 .validate(true)
                 .option("testOption", "true")
                 .build();
@@ -142,7 +146,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertTrue(clone.isValidate());
         assertEquals("fail", clone.getFailurePath());
         assertEquals(new Integer(10), clone.getNumMapTasks());
-        assertEquals(new Integer(20), clone.getNumReduceTasks());
+        assertEquals(new Integer(2), addElements.getMinReduceTasks());
+        assertEquals(new Integer(20), addElements.getMaxReduceTasks());
         assertEquals("output", clone.getOutputPath());
         assertEquals(MapperGenerator.class.getName(), clone.getInputMapperPairs().get("inputPath1"));
         assertEquals(MapperGenerator.class.getName(), clone.getInputMapperPairs().get("inputPath2"));

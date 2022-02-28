@@ -20,8 +20,8 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.time.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.koryphe.function.FunctionTest;
 import uk.gov.gchq.koryphe.util.TimeUnit;
@@ -35,7 +35,7 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
+public class MaskTimestampSetByTimeRangeTest extends FunctionTest<MaskTimestampSetByTimeRange> {
 
     private Instant instant;
     private MaskTimestampSetByTimeRange maskTimestampSetByTimeRange = new MaskTimestampSetByTimeRange();
@@ -52,7 +52,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
         maskTimestampSetByTimeRange.setStartTime(instant.plus(Duration.ofDays(100)).toEpochMilli());
         maskTimestampSetByTimeRange.setEndTime(instant.plus(Duration.ofDays(250)).toEpochMilli());
 
-        final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+        final RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
         expectedTimestampSet.add(instant.plus(Duration.ofDays(100L)));
         expectedTimestampSet.add(instant.plus(Duration.ofDays(200L)));
 
@@ -82,7 +82,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
         // Then
 
         final RBMBackedTimestampSet expected = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timeBucket(TimeBucket.MINUTE)
                 .timestamps(Sets.newHashSet(instant, instant.plus(Duration.ofDays(100))))
                 .build();
 
@@ -118,7 +118,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
 
         // Then
         RBMBackedTimestampSet expectedTimestampSet = new RBMBackedTimestampSet.Builder()
-                .timeBucket(CommonTimeUtil.TimeBucket.MINUTE)
+                .timeBucket(TimeBucket.MINUTE)
                 .timestamps(Sets.newHashSet(instant.plus(Duration.ofDays(100L)), instant.plus(Duration.ofDays(200L))))
                 .build();
 
@@ -127,7 +127,7 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     }
 
     private RBMBackedTimestampSet createTimestampSet() {
-        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+        final RBMBackedTimestampSet timestampSet = new RBMBackedTimestampSet(TimeBucket.MINUTE);
         timestampSet.add(instant);
         timestampSet.add(instant.plus(Duration.ofDays(100L)));
         timestampSet.add(instant.plus(Duration.ofDays(200L)));
@@ -136,12 +136,12 @@ public class MaskTimestampSetByTimeRangeTest extends FunctionTest {
     }
 
     @Override
-    protected Function getInstance() {
+    protected MaskTimestampSetByTimeRange getInstance() {
         return maskTimestampSetByTimeRange;
     }
 
     @Override
-    protected Iterable<Function> getDifferentInstancesOrNull() {
+    protected Iterable<MaskTimestampSetByTimeRange> getDifferentInstancesOrNull() {
         return Arrays.asList(
                 new MaskTimestampSetByTimeRange(10L, 20L),
                 new MaskTimestampSetByTimeRange(10L, 20L, TimeUnit.SECOND)

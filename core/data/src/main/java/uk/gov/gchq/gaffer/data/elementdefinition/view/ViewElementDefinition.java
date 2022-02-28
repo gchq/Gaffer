@@ -194,18 +194,6 @@ public class ViewElementDefinition implements ElementDefinition {
         return aggregator;
     }
 
-    /**
-     * Sets the aggregator
-     *
-     * @param aggregator the aggregator to set.
-     * @deprecated a {@link ViewElementDefinition} should be constructed using the
-     * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition.Builder}.
-     */
-    @Deprecated
-    public void setAggregator(final ElementAggregator aggregator) {
-        this.aggregator = aggregator;
-    }
-
     @JsonIgnore
     public ElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
