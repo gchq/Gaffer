@@ -18,34 +18,49 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.ValidatedElements;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class AddElementsHandler implements OperationHandler<AddElements> {
-    @Override
-    public Void doOperation(final AddElements operation,
-                            final Context context, final Store store)
-            throws OperationException {
-        addElements(operation, (AccumuloStore) store);
-        return null;
-    }
+public class AddElementsHandler implements OperationHandler<Void> {
 
-    private void addElements(final AddElements operation, final AccumuloStore store)
-            throws OperationException {
+    private static final String SKIP_INVALID_ELEMENTS = "skipInvalidElements";
+
+    private static final String VALIDATE = "validate";
+
+    private static final String INPUT = "input";
+
+    @Override
+    public Void _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            final Iterable<?extends Element> validatedElements;
-            if (operation.isValidate()) {
-                validatedElements = new ValidatedElements(operation.input(), store.getSchema(), operation.isSkipInvalidElements());
-            } else {
-                validatedElements = operation.input();
+            final boolean validate = (boolean) operation.getOrDefault(VALIDATE, false);
+            final boolean skipInvalidElements = (boolean) operation.getOrDefault(SKIP_INVALID_ELEMENTS, false);
+            final AccumuloStore accumuloStore = (AccumuloStore) store;
+
+            @SuppressWarnings("unchecked")
+            Iterable<? extends Element> elements = (Iterable<? extends Element>) operation.input();
+            if (validate) {
+                elements = new ValidatedElements(elements, store.getSchema(), skipInvalidElements);
             }
-            store.addElements(validatedElements);
+
+            accumuloStore.addElements(elements);
+
+            return null;
         } catch (final StoreException e) {
             throw new OperationException("Failed to add elements", e);
         }
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return new FieldDeclaration()
+                .fieldRequired(INPUT, Iterable.class)
+                .fieldOptional(VALIDATE, Boolean.class)
+                .fieldOptional(SKIP_INVALID_ELEMENTS, Boolean.class);
     }
 }
