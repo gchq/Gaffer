@@ -47,7 +47,7 @@ public class MaxHandler implements OperationHandler<Element> {
     public Element _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         // If there is no input or there are no comparators, we return null
         if (null == operation.input()
-                || isNull( getComparators(operation))
+                || isNull(getComparators(operation))
                 || getComparators(operation).isEmpty()) {
             return null;
         }
@@ -64,7 +64,7 @@ public class MaxHandler implements OperationHandler<Element> {
     public FieldDeclaration getFieldDeclaration() {
         return new FieldDeclaration()
                 .fieldRequired(fieldComparators)
-                .fieldRequired("input", Iterable.class);
+                .inputRequired(Iterable.class);
 
     }
 
@@ -109,26 +109,25 @@ public class MaxHandler implements OperationHandler<Element> {
     }
 
 
-    static class Builder extends BuilderSpecificInputOperation<Builder> {
-
-        public Builder comparators(final List<Comparator<Element>> comparators) {
+    static class OperationBuilder extends BuilderSpecificInputOperation<OperationBuilder, MaxHandler> {
+        public OperationBuilder comparators(final List<Comparator<Element>> comparators) {
             operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, comparators);
             return this;
         }
 
-        public Builder comparators(Comparator<Element>... comparators) {
+        public OperationBuilder comparators(Comparator<Element>... comparators) {
             operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, Lists.newArrayList(comparators));
             return this;
         }
 
         @Override
-        protected Builder getBuilder() {
+        protected OperationBuilder getBuilder() {
             return this;
         }
 
         @Override
-        protected FieldDeclaration getFieldDeclaration() {
-            return new MaxHandler().getFieldDeclaration();
+        protected MaxHandler getHandler() {
+            return new MaxHandler();
         }
     }
 }
