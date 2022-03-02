@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -79,11 +80,11 @@ public class TransformOneToManyIterableTest {
         given(validator.validate(item3)).willReturn(true);
 
         // Then 1st item
-        assertTrue(itr.hasNext());
-        assertEquals("ITEM 1", itr.next());
+        assertThat(itr).hasNext();
+        assertThat(itr.next()).isEqualTo("ITEM 1");
 
         // Then 2nd item
-        assertThrows(IllegalArgumentException.class, () -> itr.hasNext());
+        assertThatIllegalArgumentException().isThrownBy(() -> itr.hasNext());
     }
 
     @Test
@@ -100,12 +101,12 @@ public class TransformOneToManyIterableTest {
         given(validator.validate(items2A_B)).willReturn(true);
 
         // Then iterations 1-3
-        assertEquals("ITEM 1", itr.next());
-        assertEquals("ITEM 2A", itr.next());
-        assertEquals("ITEM 2B", itr.next());
+        assertThat(itr.next()).isEqualTo("ITEM 1");
+        assertThat(itr.next()).isEqualTo("ITEM 2A");
+        assertThat(itr.next()).isEqualTo("ITEM 2B");
 
         // Then 4th iteration
-        assertThrows(NoSuchElementException.class, () -> itr.next());
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> itr.next());
     }
 
     @Test
@@ -120,7 +121,7 @@ public class TransformOneToManyIterableTest {
         given(validator.validate(item1)).willReturn(true);
         given(validator.validate(item2)).willReturn(true);
 
-        assertThrows(UnsupportedOperationException.class, () -> itr.remove());
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> itr.remove());
     }
 
     @Test

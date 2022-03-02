@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ public class UnrestrictedAccessPredicateTest implements AccessPredicateTest {
         assertEquals(new UnrestrictedAccessPredicate(), new UnrestrictedAccessPredicate());
     }
 
+    @Test
     @Override
     public void shouldReturnFalseForEqualObjectComparisonWhenNotEqual() {
         /* not possible */

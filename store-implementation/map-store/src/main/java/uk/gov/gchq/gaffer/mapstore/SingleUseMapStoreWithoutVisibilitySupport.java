@@ -16,6 +16,9 @@
 package uk.gov.gchq.gaffer.mapstore;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,5 +34,10 @@ public class SingleUseMapStoreWithoutVisibilitySupport extends SingleUseMapStore
     @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
+    }
+
+    @Override
+    protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+        return new GetTraitsHandler(TRAITS);
     }
 }

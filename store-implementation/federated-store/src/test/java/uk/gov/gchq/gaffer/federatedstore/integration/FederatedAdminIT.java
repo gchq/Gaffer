@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@ package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.accumulo.core.client.Connector;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedAccess;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreCache;
@@ -42,15 +44,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FederatedAdminIT extends AbstractStoreIT {
+public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
 
     public static final User ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("AdminAuth"));
     public static final User NOT_ADMIN_USER = new User("admin", Collections.EMPTY_SET, Sets.newHashSet("NotAdminAuth"));
@@ -62,14 +58,14 @@ public class FederatedAdminIT extends AbstractStoreIT {
 
     @Override
     protected Schema createSchema() {
-        final Schema.Builder schemaBuilder = new Schema.Builder(createDefaultSchema());
+        final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
         schemaBuilder.edges(Collections.EMPTY_MAP);
         schemaBuilder.entities(Collections.EMPTY_MAP);
         return schemaBuilder.build();
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @Override
+    public void _setUp() throws Exception {
         graph.execute(new RemoveGraph.Builder()
                 .graphId(PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES)
                 .build(), user);
@@ -87,7 +83,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
@@ -95,8 +91,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), user);
 
         //then
-        assertTrue(removed);
-        assertEquals(0, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
+        assertThat(removed).isTrue();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).isEmpty();
 
     }
 
@@ -110,19 +106,21 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
-        assertNotNull(federatedStoreCache.getGraphSerialisableFromCache(graphA));
+        assertThat(federatedStoreCache.getGraphSerialisableFromCache(graphA)).isNotNull();
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
                 .graphId(graphA)
                 .build(), user);
 
         //then
-        assertTrue(removed);
+        assertThat(removed).isTrue();
         GraphSerialisable graphSerialisableFromCache = federatedStoreCache.getGraphSerialisableFromCache(graphA);
-        assertNull(new String(JSONSerialiser.serialise(graphSerialisableFromCache, true)), graphSerialisableFromCache);
-        assertEquals(0, federatedStoreCache.getAllGraphIds().size());
+        assertThat(graphSerialisableFromCache)
+                .as(new String(JSONSerialiser.serialise(graphSerialisableFromCache, true)))
+                .isNull();
+        assertThat(federatedStoreCache.getAllGraphIds()).isEmpty();
     }
 
     @Test
@@ -134,7 +132,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
@@ -143,8 +141,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertTrue(removed);
-        assertEquals(0, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
+        assertThat(removed).isTrue();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).isEmpty();
 
     }
 
@@ -157,7 +155,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean removed = graph.execute(new RemoveGraph.Builder()
@@ -166,8 +164,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), NOT_ADMIN_USER);
 
         //then
-        assertFalse(removed);
-        assertEquals(1, Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).size());
+        assertThat(removed).isFalse();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).hasSize(1);
 
     }
 
@@ -180,7 +178,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
@@ -188,7 +186,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertTrue(Lists.newArrayList(adminGraphIds).contains(graphA));
+        Assertions.<String>assertThat(adminGraphIds).contains(graphA);
     }
 
     @Test
@@ -200,7 +198,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Iterable<? extends String> adminGraphIds = graph.execute(new GetAllGraphIds.Builder()
@@ -208,7 +206,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), NOT_ADMIN_USER);
 
         //then
-        assertFalse(Lists.newArrayList(adminGraphIds).contains(graphA));
+        Assertions.<String>assertThat(adminGraphIds).doesNotContain(graphA);
     }
 
     @Test
@@ -221,7 +219,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("authsValueA")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
         final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueA").makePrivate().build();
 
         //when
@@ -230,11 +228,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertNotNull(allGraphsAndAuths);
-        assertFalse(allGraphsAndAuths.isEmpty());
-        assertEquals(1, allGraphsAndAuths.size());
-        assertEquals(graphA, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
-        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new Object[]{})[0]);
+        assertThat(allGraphsAndAuths)
+                .hasSize(1);
+        assertThat(allGraphsAndAuths.keySet().toArray(new String[]{})[0]).isEqualTo(graphA);
+        assertThat(allGraphsAndAuths.values().toArray(new Object[]{})[0]).isEqualTo(expectedFedAccess);
 
     }
 
@@ -247,13 +244,13 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().build(), NOT_ADMIN_USER);
 
-        assertNotNull(allGraphsAndAuths);
-        assertTrue(allGraphsAndAuths.isEmpty());
+        assertThat(allGraphsAndAuths)
+                .isEmpty();
     }
 
     @Test
@@ -265,15 +262,15 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder()
                 .userRequestingAdminUsage(true)
                 .build(), NOT_ADMIN_USER);
 
-        assertNotNull(allGraphsAndAuths);
-        assertTrue(allGraphsAndAuths.isEmpty());
+        assertThat(allGraphsAndAuths)
+                .isEmpty();
     }
 
     @Test
@@ -285,13 +282,13 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Map<String, Object> allGraphsAndAuths = graph.execute(new GetAllGraphInfo.Builder().build(), ADMIN_USER);
 
-        assertNotNull(allGraphsAndAuths);
-        assertTrue(allGraphsAndAuths.isEmpty());
+        assertThat(allGraphsAndAuths)
+                .isEmpty();
     }
 
     @Test
@@ -311,8 +308,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("authsValueB")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA, graphB);
         final FederatedAccess expectedFedAccess = new FederatedAccess.Builder().addingUserId(user.getUserId()).graphAuths("authsValueB").makePrivate().build();
 
         //when
@@ -322,12 +318,11 @@ public class FederatedAdminIT extends AbstractStoreIT {
                         .graphIdsCSV(graphB), user);
 
         //then
-        assertNotNull(allGraphsAndAuths);
-        assertFalse(allGraphsAndAuths.isEmpty());
-        assertEquals(1, allGraphsAndAuths.size());
-        assertEquals(1, allGraphsAndAuths.size());
-        assertEquals(graphB, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
-        assertEquals(expectedFedAccess, allGraphsAndAuths.values().toArray(new Object[]{})[0]);
+        assertThat(allGraphsAndAuths)
+                .hasSize(1)
+                .hasSize(1);
+        assertThat(allGraphsAndAuths.keySet().toArray(new String[]{})[0]).isEqualTo(graphB);
+        assertThat(allGraphsAndAuths.values().toArray(new Object[]{})[0]).isEqualTo(expectedFedAccess);
     }
 
     @Test
@@ -341,8 +336,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
@@ -351,9 +346,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), user);
 
         //then
-        assertTrue(changed);
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(changed).isTrue();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).doesNotContain(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).contains(graphA);
 
     }
 
@@ -368,8 +363,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
@@ -379,9 +374,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertTrue(changed);
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(changed).isTrue();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).doesNotContain(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).contains(graphA);
 
     }
 
@@ -396,8 +391,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
@@ -406,10 +401,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertFalse(changed);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
-
+        assertThat(changed).isFalse();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
     }
 
     @Test
@@ -423,8 +417,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
@@ -434,35 +428,49 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), replacementUser);
 
         //then
-        assertFalse(changed);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser)).contains(graphA));
+        assertThat(changed).isFalse();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), replacementUser))).doesNotContain(graphA);
     }
 
     @Test
     public void shouldChangeGraphIdForOwnGraph() throws Exception {
         //given
-        final String graphA = "graphA";
-        final String graphB = "graphB";
+        final String graphA = "graphTableA";
+        final String graphB = "graphTableB";
+        Connector connector = TableUtils.getConnector(ACCUMULO_PROPERTIES.getInstance(),
+                ACCUMULO_PROPERTIES.getZookeepers(),
+                ACCUMULO_PROPERTIES.getUser(),
+                ACCUMULO_PROPERTIES.getPassword());
+
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
+        boolean tableGraphABefore = connector.tableOperations().exists(graphA);
+        boolean tableGraphBBefore = connector.tableOperations().exists(graphB);
+
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
                 .graphId(graphA)
                 .newGraphId(graphB)
                 .build(), user);
 
-        //then
-        assertTrue(changed);
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        boolean tableGraphAfter = connector.tableOperations().exists(graphA);
+        boolean tableGraphBAfter = connector.tableOperations().exists(graphB);
 
+        //then
+        assertThat(changed).isTrue();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).doesNotContain(graphA)
+                .contains(graphB);
+        assertThat(tableGraphABefore).isTrue();
+        assertThat(tableGraphBBefore).isFalse();
+        assertThat(tableGraphAfter).isFalse();
+        assertThat(tableGraphBAfter).isTrue();
     }
 
     @Test
@@ -476,7 +484,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
@@ -486,9 +494,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertTrue(changed);
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        assertThat(changed).isTrue();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).doesNotContain(graphA)
+                .contains(graphB);
 
     }
 
@@ -503,7 +511,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
@@ -512,9 +520,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), ADMIN_USER);
 
         //then
-        assertFalse(changed);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
+        assertThat(changed).isFalse();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA)
+                .doesNotContain(graphB);
 
     }
 
@@ -530,8 +538,8 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .graphAuths("Auths1")
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser))).doesNotContain(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
@@ -541,11 +549,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .build(), otherUser);
 
         //then
-        assertFalse(changed);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphB));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser)).contains(graphA));
-        assertFalse(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser)).contains(graphB));
+        assertThat(changed).isFalse();
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA)
+                .doesNotContain(graphB);
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), otherUser))).doesNotContain(graphA, graphB);
     }
 
     @Test
@@ -554,7 +561,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
         FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
 
         //then
-        assertEquals(0, federatedStoreCache.getAllGraphIds().size());
+        assertThat(federatedStoreCache.getAllGraphIds()).isEmpty();
     }
 
     @Test
@@ -567,7 +574,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
@@ -578,9 +585,9 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //then
         ArrayList<String> graphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), user));
 
-        assertTrue(changed);
-        assertEquals(1, graphIds.size());
-        assertArrayEquals(new String[]{newName}, graphIds.toArray());
+        assertThat(changed).isTrue();
+        assertThat(graphIds).hasSize(1);
+        assertThat(graphIds.toArray()).containsExactly(new String[]{newName});
     }
 
     @Test
@@ -594,7 +601,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphId.Builder()
@@ -605,8 +612,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
         //then
         Set<String> graphIds = federatedStoreCache.getAllGraphIds();
 
-        assertTrue(changed);
-        assertArrayEquals(graphIds.toString(), new String[]{newName}, graphIds.toArray());
+        assertThat(changed).isTrue();
+        assertThat(graphIds.toArray())
+                .as(graphIds.toString())
+                .containsExactly(new String[]{newName});
     }
 
     @Test
@@ -618,7 +627,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         final Boolean changed = graph.execute(new ChangeGraphAccess.Builder()
@@ -630,10 +639,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
         ArrayList<String> userGraphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), user));
         ArrayList<String> otherUserGraphIds = Lists.newArrayList(graph.execute(new GetAllGraphIds(), NOT_ADMIN_USER));
 
-        assertTrue(changed);
-        assertEquals(0, userGraphIds.size());
-        assertEquals(1, otherUserGraphIds.size());
-        assertArrayEquals(new String[]{graphA}, otherUserGraphIds.toArray());
+        assertThat(changed).isTrue();
+        assertThat(userGraphIds).isEmpty();
+        assertThat(otherUserGraphIds).hasSize(1);
+        assertThat(otherUserGraphIds.toArray()).containsExactly(new String[]{graphA});
     }
 
     @Test
@@ -646,7 +655,7 @@ public class FederatedAdminIT extends AbstractStoreIT {
                 .schema(new Schema())
                 .storeProperties(ACCUMULO_PROPERTIES)
                 .build(), user);
-        assertTrue(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user)).contains(graphA));
+        assertThat(Lists.newArrayList(graph.execute(new GetAllGraphIds(), user))).contains(graphA);
 
         //when
         FederatedAccess before = federatedStoreCache.getAccessFromCache(graphA);
@@ -657,10 +666,10 @@ public class FederatedAdminIT extends AbstractStoreIT {
         FederatedAccess after = federatedStoreCache.getAccessFromCache(graphA);
 
         //then
-        assertTrue(changed);
-        assertNotEquals(before, after);
-        assertEquals(user.getUserId(), before.getAddingUserId());
-        assertEquals(ADMIN_USER.getUserId(), after.getAddingUserId());
+        assertThat(changed).isTrue();
+        assertThat(after).isNotEqualTo(before);
+        assertThat(before.getAddingUserId()).isEqualTo(user.getUserId());
+        assertThat(after.getAddingUserId()).isEqualTo(ADMIN_USER.getUserId());
     }
 
 }

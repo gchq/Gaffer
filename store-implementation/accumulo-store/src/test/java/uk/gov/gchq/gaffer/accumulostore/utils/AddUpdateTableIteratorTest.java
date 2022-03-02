@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 public class AddUpdateTableIteratorTest {
 
@@ -117,13 +117,10 @@ public class AddUpdateTableIteratorTest {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "invalid key", FILE_GRAPH_LIBRARY_TEST_PATH};
 
-        // When
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> AddUpdateTableIterator.main(args));
-
-        // Then
-        assertEquals("Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.",
-                actual.getMessage());
+        // When / Then
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AddUpdateTableIterator.main(args))
+                .withMessage("Supplied add or update key (invalid key) was not valid, it must either be add,remove or update.");
     }
 
     @Test
@@ -131,13 +128,10 @@ public class AddUpdateTableIteratorTest {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, EMPTY_STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
-        // When
-        IllegalArgumentException actual = assertThrows(IllegalArgumentException.class,
-                () -> AddUpdateTableIterator.main(args));
-
-        // Then
-        assertEquals("The Store class name was not found in the store properties for key: gaffer.store.class",
-                actual.getMessage());
+        // When / Then
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AddUpdateTableIterator.main(args))
+                        .withMessage("The Store class name was not found in the store properties for key: gaffer.store.class");
     }
 
     @Test
@@ -145,11 +139,9 @@ public class AddUpdateTableIteratorTest {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, "invalid/file/path", "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
-        // When
-        RuntimeException actual = assertThrows(RuntimeException.class, () -> AddUpdateTableIterator.main(args));
-
-        // Then
-        assertEquals("Failed to load store properties file : invalid/file/path",
-                actual.getMessage());
+        // When / Then
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> AddUpdateTableIterator.main(args))
+                .withMessage("Failed to load store properties file : invalid/file/path");
     }
 }

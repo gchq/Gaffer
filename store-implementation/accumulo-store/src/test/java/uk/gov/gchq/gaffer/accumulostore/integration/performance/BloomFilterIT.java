@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,9 @@ import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the performance of the Bloom filter - checks that looking up random data is quicker
@@ -79,14 +78,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class BloomFilterIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File tempFolder = CommonTestConstants.TMP_DIRECTORY;
     private RangeFactory byteEntityRangeFactory;
     private AccumuloElementConverter byteEntityElementConverter;
     private RangeFactory gaffer1RangeFactory;
     private AccumuloElementConverter gafferV1ElementConverter;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Schema schema = new Schema.Builder()
                 .type(TestTypes.PROP_INTEGER, Integer.class)
@@ -164,7 +163,7 @@ public class BloomFilterIT {
 
         // Open file
         final String suffix = FileOperations.getNewFileExtension(accumuloConf);
-        final String filenameTemp = tempFolder.getRoot().getAbsolutePath();
+        final String filenameTemp = tempFolder.getAbsolutePath();
         final String filename = filenameTemp + "." + suffix;
         final File file = new File(filename);
         if (file.exists()) {
@@ -225,7 +224,7 @@ public class BloomFilterIT {
             LOGGER.info("Max causal rate = {}", maxCausalRate);
 
             // Random look up rate should be much faster
-            assertTrue(maxRandomRate > maxCausalRate);
+            assertThat(maxRandomRate).isGreaterThan(maxCausalRate);
         } finally {
             // Close reader
             reader.close();
@@ -241,7 +240,7 @@ public class BloomFilterIT {
         for (int i = 0; i < 5000; i++) {
             seek(reader, randomData[i], rangeFactory);
             if (dataSet.contains(randomData[i])) {
-                assertTrue(reader.hasTop());
+                assertThat(reader.hasTop()).isTrue();
             }
         }
         final long end = System.currentTimeMillis();
@@ -255,7 +254,7 @@ public class BloomFilterIT {
         final long start = System.currentTimeMillis();
         for (final Entity simpleEntity : dataSet) {
             seek(reader, ElementSeed.createSeed(simpleEntity), rangeFactory);
-            assertTrue(reader.hasTop());
+            assertThat(reader.hasTop()).isTrue();
             count++;
             if (count >= 5000) {
                 break;

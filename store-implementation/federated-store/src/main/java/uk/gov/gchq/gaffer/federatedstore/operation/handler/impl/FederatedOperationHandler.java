@@ -111,5 +111,4 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
                 //TODO FS Test Default
                 : store.getDefaultGraphs(context.getUser(), operation);
     }
-
 }

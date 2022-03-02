@@ -4,7 +4,7 @@
     "class" : "uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser"
   },
   "valueSerialiser" : {
-    "class" : "uk.gov.gchq.gaffer.serialisation.DoubleSerialiser"
+    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser"
   },
   "jsonStorage" : [ {
     "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {

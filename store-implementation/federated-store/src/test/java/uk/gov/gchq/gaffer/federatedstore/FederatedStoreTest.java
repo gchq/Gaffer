@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -76,6 +77,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -94,7 +97,6 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.values;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -195,7 +197,7 @@ public class FederatedStoreTest {
         assertEquals(2, after);
         ArrayList<String> graphNames = Lists.newArrayList(ACC_ID_1, ACC_ID_2);
         for (Graph graph : graphs) {
-            assertTrue(graphNames.contains(graph.getGraphId()));
+            assertThat(graphNames).contains(graph.getGraphId());
         }
     }
 
@@ -297,14 +299,20 @@ public class FederatedStoreTest {
         // Given
         addGraphWithIds(ACC_ID_1, ID_PROPS_ACC_1, ID_SCHEMA_ENTITY);
 
-        Set<StoreTrait> before = store.getTraits();
+        Set<StoreTrait> before = store.execute(new GetTraits.Builder()
+                .currentTraits(false)
+                .build(), userContext);
 
         // When
         addGraphWithPaths(ACC_ID_2, PROPERTIES_ALT, PATH_BASIC_ENTITY_SCHEMA_JSON);
 
-        Set<StoreTrait> after = store.getTraits();
-        assertEquals(values().length, before.size());
-        assertEquals(values().length, after.size());
+        Set<StoreTrait> after = store.execute(new GetTraits.Builder()
+                .currentTraits(false)
+                .build(), userContext);
+
+        // Then
+        assertEquals(AccumuloStore.TRAITS.size(), before.size());
+        assertEquals(AccumuloStore.TRAITS.size(), after.size());
         assertEquals(before, after);
     }
 
@@ -395,7 +403,9 @@ public class FederatedStoreTest {
                 .storeProperties(PROPERTIES_1)
                 .build(), new Context(testUser()));
 
-        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
+        final Set<StoreTrait> afterAcc = store.execute(new GetTraits.Builder()
+                .currentTraits(true)
+                .build(), userContext);
 
         StoreProperties TestStoreImp = new StoreProperties();
         TestStoreImp.setStoreClass(FederatedGetTraitsHandlerTest.TestStoreImpl.class);
@@ -407,7 +417,9 @@ public class FederatedStoreTest {
                 .storeProperties(TestStoreImp)
                 .build(), new Context(testUser()));
 
-        final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
+        final Set<StoreTrait> afterMap = store.execute(new GetTraits.Builder()
+                .currentTraits(true)
+                .build(), userContext);
 
         //Then
         assertNotEquals(SingleUseAccumuloStore.TRAITS, new HashSet<>(Arrays.asList(
@@ -442,7 +454,7 @@ public class FederatedStoreTest {
         Set<Element> after = getElements();
 
         // Then
-        assertEquals(0, after.size());
+        assertThat(after).isEmpty();
     }
 
     @Test
@@ -476,9 +488,9 @@ public class FederatedStoreTest {
         Collection<String> allGraphIds = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(2, allGraphIds.size());
-        assertTrue(allGraphIds.contains(ACC_ID_1));
-        assertTrue(allGraphIds.contains(ACC_ID_2));
+        assertThat(allGraphIds)
+                .hasSize(2)
+                .contains(ACC_ID_1, ACC_ID_2);
 
     }
 
@@ -492,8 +504,8 @@ public class FederatedStoreTest {
         Collection<String> allGraphId = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(1, allGraphId.size());
-        assertTrue(allGraphId.contains(ACC_ID_1));
+        assertThat(allGraphId).hasSize(1)
+                .contains(ACC_ID_1);
         assertFalse(allGraphId.contains(ACC_ID_2));
 
         // When
@@ -501,18 +513,16 @@ public class FederatedStoreTest {
         Collection<String> allGraphId2 = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(2, allGraphId2.size());
-        assertTrue(allGraphId2.contains(ACC_ID_1));
-        assertTrue(allGraphId2.contains(ACC_ID_2));
+        assertThat(allGraphId2).hasSize(2).contains(ACC_ID_1, ACC_ID_2);
 
         // When
         store.remove(ACC_ID_1, blankUser);
         Collection<String> allGraphId3 = store.getAllGraphIds(blankUser);
 
         // Then
-        assertEquals(1, allGraphId3.size());
+        assertThat(allGraphId3).hasSize(1);
         assertFalse(allGraphId3.contains(ACC_ID_1));
-        assertTrue(allGraphId3.contains(ACC_ID_2));
+        assertThat(allGraphId3).contains(ACC_ID_2);
 
     }
 
@@ -952,7 +962,7 @@ public class FederatedStoreTest {
         final Collection<Graph> returnedGraphs = store.getGraphs(blankUser, "mockGraphId1", new GetAllGraphIds());
 
         // Then
-        assertEquals(1, returnedGraphs.size());
+        assertThat(returnedGraphs).hasSize(1);
         assertTrue(returnedGraphs.containsAll(toGraphs(expectedGraphs)));
         assertFalse(checkUnexpected(toGraphs(unexpectedGraphs), returnedGraphs));
     }
@@ -1030,12 +1040,9 @@ public class FederatedStoreTest {
         clearCache();
 
         // When / Then
-        try {
-            store.addGraphs(null, TEST_USER_ID, false, graphToAdd);
-            fail(EXCEPTION_NOT_THROWN);
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("No cache has been set"));
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> store.addGraphs(null, TEST_USER_ID, false, graphToAdd))
+                .withMessageContaining("No cache has been set");
     }
 
     @Test
@@ -1074,7 +1081,7 @@ public class FederatedStoreTest {
 
         // Then
         assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
-        assertTrue(storeGraphs.contains(graphToAdd.getGraph()));
+        assertThat(storeGraphs).contains(graphToAdd.getGraph());
 
         // When
         store = new FederatedStore();
@@ -1129,7 +1136,7 @@ public class FederatedStoreTest {
 
         // Then
         final Collection<Graph> graphs = store.getGraphs(userContext.getUser(), ACC_ID_2, new GetAllGraphIds());
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         JsonAssert.assertEquals(
                 JSONSerialiser.serialise(Schema.fromJson(StreamUtil.openStream(getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))),
                 JSONSerialiser.serialise(graphs.iterator().next().getSchema())

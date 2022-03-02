@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum RoadTrafficDataField {
     Region_Name("Region Name (GO)"),
@@ -56,6 +58,8 @@ public enum RoadTrafficDataField {
     AMV("AMV");
 
     public static final List<RoadTrafficDataField> VEHICLE_COUNTS = Collections.unmodifiableList(Arrays.asList(PC, WMV2, CAR, BUS, LGV, HGVR2, HGVR3, HGVR4, HGVA3, HGVA5, HGVA6, HGV, AMV));
+
+    public static final List<String> FIELDS = Collections.unmodifiableList(Stream.of(values()).map(RoadTrafficDataField::fieldName).collect(Collectors.toList()));
 
     private final String fieldName;
 

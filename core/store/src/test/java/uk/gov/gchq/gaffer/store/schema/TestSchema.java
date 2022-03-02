@@ -284,11 +284,6 @@ public enum TestSchema {
             return this;
         }
 
-        public Builder withTimestampProperty() {
-            schemaBuilder.timestampProperty(TestPropertyNames.TIMESTAMP);
-            return this;
-        }
-
         public Schema build() {
             return schemaBuilder.build();
         }

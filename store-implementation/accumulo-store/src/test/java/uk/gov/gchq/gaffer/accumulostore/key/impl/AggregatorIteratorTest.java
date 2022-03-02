@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,12 +54,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
 
 public class AggregatorIteratorTest {
 
@@ -153,7 +153,7 @@ public class AggregatorIteratorTest {
         final List<Element> results = Lists.newArrayList(store.execute(get, new Context(user)));
 
         // Then
-        assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
 
         final Edge aggregatedEdge = (Edge) results.get(0);
         assertEquals(expectedResult, aggregatedEdge);

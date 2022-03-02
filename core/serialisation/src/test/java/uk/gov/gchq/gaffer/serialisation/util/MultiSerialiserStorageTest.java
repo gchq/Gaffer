@@ -20,10 +20,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MultiSerialiserStorage;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,9 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class MultiSerialiserStorageTest {
 
     public static final byte BYTE = (byte) 0;
-    public static final ToBytesSerialiser SERIALISER_CLASS = new IntegerSerialiser();
+    public static final ToBytesSerialiser SERIALISER_CLASS = new OrderedIntegerSerialiser();
     public static final int VALUE = 1;
-    public static final ToBytesSerialiser SERIALISER_CLASS2 = new RawIntegerSerialiser();
+    public static final ToBytesSerialiser SERIALISER_CLASS2 = new CompactRawIntegerSerialiser();
     public static final Class SUPPORTED_CLASS = Integer.class;
     private MultiSerialiserStorage mss;
 

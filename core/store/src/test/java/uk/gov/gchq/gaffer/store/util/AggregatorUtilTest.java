@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,10 +52,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 public class AggregatorUtilTest {
@@ -65,12 +65,7 @@ public class AggregatorUtilTest {
         final Schema schema = null;
 
         // When / Then
-        try {
-            AggregatorUtil.ingestAggregate(Collections.emptyList(), schema);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> AggregatorUtil.ingestAggregate(Collections.emptyList(), schema)).extracting("message").isNotNull();
     }
 
     @Test
@@ -375,12 +370,9 @@ public class AggregatorUtilTest {
         final View view = new View();
 
         // When / Then
-        try {
-            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Schema"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view))
+                .withMessageContaining("Schema");
     }
 
     @Test
@@ -390,12 +382,9 @@ public class AggregatorUtilTest {
         final View view = null;
 
         // When / Then
-        try {
-            AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("View"));
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AggregatorUtil.queryAggregate(Collections.emptyList(), schema, view))
+                .withMessageContaining("View");
     }
 
     @Test
@@ -759,7 +748,7 @@ public class AggregatorUtilTest {
                 fn.apply(input.get(1)));
         final Map<Element, List<Element>> results = input.stream()
                 .collect(Collectors.groupingBy(fn));
-        assertEquals(2, results.size());
+        assertThat(results).hasSize(2);
         assertEquals(input.get(0), results.get(input.get(0)).get(0));
         assertEquals(input.get(1), results.get(input.get(1)).get(0));
     }
@@ -876,12 +865,7 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
-        try {
-            fn.apply(element);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> fn.apply(element)).extracting("message").isNotNull();
     }
 
     @Test
@@ -898,12 +882,7 @@ public class AggregatorUtilTest {
         final Function<Element, Element> fn = new AggregatorUtil.ToQueryElementKey(schema, new View());
 
         // then
-        try {
-            fn.apply(element);
-            fail("Exception expected");
-        } catch (final RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> fn.apply(element)).extracting("message").isNotNull();
     }
 
     @Test
@@ -935,7 +914,7 @@ public class AggregatorUtilTest {
                 );
 
         // then
-        assertEquals(1, results.size());
+        assertThat(results).hasSize(1);
         assertEquals(input, results.get(new Entity.Builder()
                 .group(TestGroups.ENTITY_2)
                 .vertex("vertex1")

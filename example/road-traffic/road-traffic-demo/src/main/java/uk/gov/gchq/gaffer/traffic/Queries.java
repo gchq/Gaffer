@@ -147,7 +147,7 @@ public class Queries {
                         .graphId("roadTraffic")
                         .build())
                 .addSchemas(StreamUtil.openStreams(ElementGroup.class, "schema"))
-                .storeProperties(StreamUtil.openStream(getClass(), "accumulo/store.properties"))
+                .storeProperties(StreamUtil.openStream(getClass(), "map/store.properties"))
                 .build();
 
         final OperationChain<Void> populateChain = new OperationChain.Builder()

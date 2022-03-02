@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.integration.graph;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -55,7 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Integration tests to check that an store can be configured with a schema
+ * Integration tests to check that a store can be configured with a schema
  * containing groups 1 and 2. Then a new Graph can be constructed with a limited
  * schema, perhaps just containing group 1. The graph should then just
  * completely hide group 2 and never read any group 2 data from the store.
@@ -78,12 +78,12 @@ public abstract class SchemaHidingIT {
         this.storeProperties = storeProperties;
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         cleanUp();
     }
 
-    @After
+    @AfterEach
     public void after() {
         cleanUp();
     }

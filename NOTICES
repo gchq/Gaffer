@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:1.13.0):
+Koryphe (uk.gov.gchq.koryphe:koryphe:1.14.0):
 
 - Apache License, Version 2.0
 
@@ -45,9 +45,21 @@ Apache Commons Lang (org.apache.commons:commons-lang3:3.3.2):
 
 - Apache License, Version 2.0
 
+
 Apache Commons JCS (org.apache.commons:commons-jcs-core:2.1):
 
 - Apache Licence, Version 2.0
+
+
+Apache Commons CSV (org.apache.commons:commons-csv:1.4):
+
+- Apache Licence, Version 2.0
+
+
+Apache Commons Codec (commons-codec:commons-codec:1.6):
+
+- Apache Licence, Version 2.0
+
 
 Apache Spark (org.apache.spark:spark-core:2.3.2, org.apache.spark:spark-sql:2.3.2, org.apache.spark:spark-catalyst:2.3.2, org.apache.spark:spark-graphx:2.3.2)
 

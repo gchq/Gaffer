@@ -1,0 +1,33 @@
+name: Release To Nexus as standalone
+
+on: [ workflow_dispatch ]
+
+jobs:
+  run-maven-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+
+    - name: Checkout Branch
+      uses: actions/checkout@v2
+
+    - name: Decode CodeSigning key
+      env:
+        CODE_SIGNING_KEY: ${{ secrets.CODE_SIGNING_KEY }}
+        CODE_SIGNING_IV: ${{ secrets.CODE_SIGNING_IV }}
+      run: openssl aes-256-cbc -K "$CODE_SIGNING_KEY" -iv "$CODE_SIGNING_IV" -in cd/codesigning.asc.enc -out cd/codesigning.asc -d
+
+    - name: Import CodeSigning key
+      run: gpg --batch --fast-import cd/codesigning.asc
+
+    - name: Release to Nexus
+      env:
+        GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        OSS_NEXUS_USERNAME: ${{ secrets.OSS_NEXUS_USERNAME }}
+        OSS_NEXUS_PASSWORD: ${{ secrets.OSS_NEXUS_PASSWORD }}
+      run: mvn deploy -P quick,ossrh-release --settings cd/mvnsettings.xml -B

@@ -25,9 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdjacencyMapsTest {
 
@@ -52,26 +50,26 @@ public class AdjacencyMapsTest {
         final AdjacencyMap first = it.next();
         final AdjacencyMap second = it.next();
 
-        assertThat(first.getAllDestinations(), hasSize(3));
-        assertThat(second.getAllDestinations(), hasSize(4));
+        assertThat(first.getAllDestinations()).hasSize(3);
+        assertThat(second.getAllDestinations()).hasSize(4);
     }
 
     @ParameterizedTest
     @MethodSource("instancesToTest")
     public void shouldGetSize(AdjacencyMaps adjacencyMaps) {
-        assertThat(adjacencyMaps.size(), is(2));
+        assertThat(adjacencyMaps).hasSize(2);
     }
 
     @ParameterizedTest
     @MethodSource("instancesToTest")
     public void shouldGetNotEmpty(AdjacencyMaps adjacencyMaps) {
-        assertThat(adjacencyMaps.empty(), is(false));
+        assertThat(adjacencyMaps.empty()).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("instancesToTest")
     public void shouldGetEmpty(AdjacencyMaps adjacencyMaps) {
-        assertThat(adjacencyMaps.empty(), is(false));
+        assertThat(adjacencyMaps.empty()).isFalse();
     }
 
     private static AdjacencyMap getAdjacencyMap(final int size) {

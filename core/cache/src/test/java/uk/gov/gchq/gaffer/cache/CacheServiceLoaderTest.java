@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CacheServiceLoaderTest {
 
@@ -52,7 +52,7 @@ public class CacheServiceLoaderTest {
 
         final ICacheService service = CacheServiceLoader.getService();
 
-        assertTrue(service instanceof EmptyCacheService);
+        assertThat(service).isInstanceOf(EmptyCacheService.class);
     }
 
     @Test
@@ -60,12 +60,9 @@ public class CacheServiceLoaderTest {
         final String invalidClassName = "invalid.cache.name";
         serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, invalidClassName);
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            CacheServiceLoader.initialise(serviceLoaderProperties);
-        });
-
-        final String expected = "Failed to instantiate cache using class invalid.cache.name";
-        assertEquals(expected, exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> CacheServiceLoader.initialise(serviceLoaderProperties))
+                .withMessage("Failed to instantiate cache using class invalid.cache.name");
     }
 
     @Test

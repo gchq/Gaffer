@@ -58,7 +58,7 @@ Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommende
 
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
 
-For the purposes of unit testing and small-scale examples, Gaffer offers the Store subclass [MiniAccumuloStore](https://gchq.github.io/gaffer-doc/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/MiniAccumuloStore.html) and the `MiniAccumuloCluster` can be created using an [AccumuloTestClusterManager](https://gchq.github.io/gaffer-doc/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/AccumuloTestClusterManager.html). This creates the local MiniAccumuloCluster if required by the properties supplied, and updates those properties with the connection details for the MiniAccumuloCluster. The cluster should be closed when finished with. 
+For the purposes of unit testing and small-scale examples, Gaffer offers the Store subclass [MiniAccumuloStore](https://gchq.github.io/gaffer-doc/v1docs/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/MiniAccumuloStore.html) and the `MiniAccumuloCluster` can be created using an [AccumuloTestClusterManager](https://gchq.github.io/gaffer-doc/v1docs/javadoc/gaffer/uk/gov/gchq/gaffer/accumulostore/AccumuloTestClusterManager.html). This creates the local MiniAccumuloCluster if required by the properties supplied, and updates those properties with the connection details for the MiniAccumuloCluster. The cluster should be closed when finished with. 
 
 All real applications of Gaffer's `AccumuloStore` will use an Accumulo cluster running on a real Hadoop cluster consisting of multiple servers. Instructions on setting up an Accumulo cluster can be found in [Accumulo's User Manual](http://accumulo.apache.org/1.8/accumulo_user_manual).
 
@@ -101,7 +101,7 @@ Other properties can be specified in this file. For details see [Advanced Proper
 Schema
 -----------------------------------------------
 
-See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting Started](https://gchq.github.io/gaffer-doc/v1docs/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -184,12 +184,12 @@ Note that here `elements` could be a never-ending stream of `Element`s and the a
 To ingest data via bulk import, a MapReduce job is used to convert your data into files of Accumulo key-value pairs that are pre-sorted to match the distribution of data in Accumulo. Once these files are created, Accumulo moves them from their current location in HDFS to the correct directory within Accumulo's data directory. The data in them is then available for query immediately.
 
 Gaffer provides code to make this as simple as possible. The `AddElementsFromHdfs` operation is used to bulk import data.
-See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/getting-started/operations/addelementsfromhdfs.html).
+See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/addelementsfromhdfs.html).
 
 Queries
 -----------------------------------------------
 
-The Accumulo store supports all the standard queries. See [Operations](https://gchq.github.io/gaffer-doc/getting-started/operations/contents.html) for more details.
+The Accumulo store supports all the standard queries. See [Operations](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/contents.html) for more details.
 
 Visibility
 -----------------------------------------------
@@ -198,12 +198,12 @@ Gaffer can take advantage of Accumulo's built-in fine-grained security to ensure
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the visibility walkthrough](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/visibilities.html) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/contents.html) guide for an example of how properties can be aggregated over different visibilities at query time.
+See [the visibility walkthrough](https://gchq.github.io/gaffer-doc/v1docs/getting-started/developer-guide/visibilities.html) in the [Dev Guide](https://gchq.github.io/gaffer-doc/v1docs/getting-started/developer-guide/contents.html) guide for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
 
-Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
+Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema's config to the name of the property.
 If the timestamp is not set then it will be populated automatically:
 
 - Constant value - aggregated groups

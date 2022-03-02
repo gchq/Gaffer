@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,7 +61,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_AT
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-
 
 public class FederatedAddGraphWithHooksHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
@@ -110,7 +110,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
@@ -126,14 +126,14 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(2, graphs.size());
+        assertThat(graphs).hasSize(2);
         Iterator<Graph> iterator = graphs.iterator();
         final HashSet<String> set = Sets.newHashSet();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }
-        assertTrue(set.contains(EXPECTED_GRAPH_ID));
-        assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
+        assertThat(set)
+                .contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_2);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         Collection<Graph> graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         Graph next = graphs.iterator().next();
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
@@ -175,15 +175,14 @@ public class FederatedAddGraphWithHooksHandlerTest {
 
         graphs = store.getGraphs(testUser, null, new AddGraph());
 
-        assertEquals(2, graphs.size());
+        assertThat(graphs).hasSize(2);
         Iterator<Graph> iterator = graphs.iterator();
         final HashSet<String> set = Sets.newHashSet();
         while (iterator.hasNext()) {
             set.add(iterator.next().getGraphId());
         }
 
-        assertTrue(set.contains(EXPECTED_GRAPH_ID));
-        assertTrue(set.contains(EXPECTED_GRAPH_ID_3));
+        assertThat(set).contains(EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID_3);
     }
 
     @Test
@@ -299,7 +298,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
                 store);
 
         final Collection<Graph> graphs = store.getGraphs(authUser, null, new AddGraph());
-        assertEquals(1, graphs.size());
+        assertThat(graphs).hasSize(1);
         assertEquals(0, store.getGraphs(testUser, null, new AddGraph()).size());
         assertEquals(EXPECTED_GRAPH_ID, graphs.iterator().next().getGraphId());
     }
@@ -357,7 +356,7 @@ public class FederatedAddGraphWithHooksHandlerTest {
         Collection<Graph> graphs = store.getGraphs(testUser, null, new AddGraph());
 
         List<Class<? extends GraphHook>> graphHooks = graphs.iterator().next().getGraphHooks();
-        assertTrue(graphHooks.contains(Log4jLogger.class));
+        assertThat(graphHooks).contains(Log4jLogger.class);
     }
 
     @Test

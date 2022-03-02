@@ -45,7 +45,7 @@ public class AddSchemaToLibraryHandlerTest {
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
         store = new TestAddToGraphLibraryImpl();
-        schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
+        schema = new Schema.Builder().build();
     }
 
     @Test

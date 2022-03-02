@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -136,7 +136,7 @@ public class AddNamedOperationHandlerTest {
         addNamedOperation.setOperationChain(parent);
         addNamedOperation.setOperationName("parent");
 
-        assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
@@ -180,7 +180,7 @@ public class AddNamedOperationHandlerTest {
         paramMap.put("param2", param);
         addNamedOperation.setParameters(paramMap);
 
-        assertThrows(OperationException.class, () -> handler.doOperation(addNamedOperation, context, store));
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(addNamedOperation, context, store));
     }
 
     @Test
@@ -213,7 +213,7 @@ public class AddNamedOperationHandlerTest {
                 "   ]" +
                 "}";
 
-        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class));
     }
 
     @Test

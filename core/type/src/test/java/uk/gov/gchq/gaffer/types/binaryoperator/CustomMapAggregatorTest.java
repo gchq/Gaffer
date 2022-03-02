@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.types.binaryoperator;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.types.CustomMap;
 
 import java.util.function.BinaryOperator;
@@ -39,7 +39,7 @@ public class CustomMapAggregatorTest {
 
         CustomMap<String, Integer>[] inputs = new CustomMap[noInputs];
         for (int i = 0; i < noInputs; i++) {
-            inputs[i] = new CustomMap<>(new StringSerialiser(), new IntegerSerialiser());
+            inputs[i] = new CustomMap<>(new StringSerialiser(), new OrderedIntegerSerialiser());
             inputs[i].put("a", inA);
             inputs[i].put("b", inB);
         }

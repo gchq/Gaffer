@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2015-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -83,12 +83,7 @@ public class ContextTest {
         final User user = null;
 
         // When / Then
-        try {
-            new Context(user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("User is required", e.getMessage());
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> new Context(user)).withMessage("User is required");
     }
 
     @Test

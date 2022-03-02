@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -37,6 +37,7 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
         return Sets.newHashSet();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()
@@ -44,10 +45,11 @@ public class GetAllGraphInfoTest extends FederationOperationTest<GetAllGraphInfo
                 .graphIDsCSV(GRAPH_IDS_CSV)
                 .build();
 
-        assertThat(operation.getOptions(), hasEntry("a", "b"));
-        assertThat(operation.getGraphIdsCSV(), equals(GRAPH_IDS_CSV));
+        assertThat(operation.getOptions()).containsEntry("a", "b");
+        assertThat(operation.getGraphIdsCSV()).isEqualTo(GRAPH_IDS_CSV);
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetAllGraphInfo operation = new GetAllGraphInfo.Builder()

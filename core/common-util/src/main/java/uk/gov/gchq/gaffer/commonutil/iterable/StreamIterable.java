@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -30,9 +31,13 @@ import java.util.stream.Stream;
  * @param <T> the object type
  */
 public class StreamIterable<T> implements CloseableIterable<T> {
-    private final StreamSupplier<T> streamSupplier;
+    private final Supplier<Stream<T>> streamSupplier;
 
     public StreamIterable(final StreamSupplier<T> streamSupplier) {
+        this.streamSupplier = streamSupplier;
+    }
+
+    public StreamIterable(final Supplier<Stream<T>> streamSupplier) {
         this.streamSupplier = streamSupplier;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2021 Crown Copyright
+ * Copyright 2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * The DoubleProxyTest Test works as follows:
@@ -78,13 +78,13 @@ public class DoubleProxyTest {
                 .build(), new User());
     }
 
-    @Test
-    public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
-        assertDoesNotThrow(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
-    }
-
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         SingleUseProxyMapStore.cleanUp();
+    }
+
+    @Test
+    public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
+        assertThatNoException().isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
     }
 }

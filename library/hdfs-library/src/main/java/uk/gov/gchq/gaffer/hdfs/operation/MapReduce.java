@@ -86,10 +86,6 @@ public interface MapReduce {
 
     void setNumMapTasks(final Integer numMapTasks);
 
-    Integer getNumReduceTasks();
-
-    void setNumReduceTasks(final Integer numReduceTasks);
-
     Integer getMinMapTasks();
 
     void setMinMapTasks(final Integer minMapTasks);
@@ -163,29 +159,12 @@ public interface MapReduce {
             return _self();
         }
 
-        default B reducers(final Integer numReduceTasks) {
-            if (null != numReduceTasks && (null != _getOp().getMinReduceTasks() || null != _getOp().getMaxReduceTasks())) {
-                throw new IllegalArgumentException("Invalid combination of fields. " +
-                        "Either provide the number of reducers to use or provide a min and max value.");
-            }
-            _getOp().setNumReduceTasks(numReduceTasks);
-            return _self();
-        }
-
         default B minReducers(final Integer minReduceTasks) {
-            if (null != minReduceTasks && null != _getOp().getNumReduceTasks()) {
-                throw new IllegalArgumentException("Invalid combination of fields. " +
-                        "Either provide the number of reducers to use or provide a min and max value.");
-            }
             _getOp().setMinReduceTasks(minReduceTasks);
             return _self();
         }
 
         default B maxReducers(final Integer maxReduceTasks) {
-            if (null != maxReduceTasks && null != _getOp().getNumReduceTasks()) {
-                throw new IllegalArgumentException("Invalid combination of fields. " +
-                        "Either provide the number of reducers to use or provide a min and max value.");
-            }
             _getOp().setMaxReduceTasks(maxReduceTasks);
             return _self();
         }

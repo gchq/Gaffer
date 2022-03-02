@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,37 @@ import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+    private final Set<StoreTrait> storeTraits;
+    private Set<StoreTrait> currentTraits;
+
+    public GetTraitsHandler(final Set<StoreTrait> storeTraits) {
+        this.storeTraits = Collections.unmodifiableSet(Sets.newHashSet(storeTraits));
+    }
 
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        return new HashSet<>(operation.isCurrentTraits() ? createCurrentTraits(store) : store.getTraits());
+        Set<StoreTrait> rtn;
+        if (!operation.isCurrentTraits()) {
+            rtn = storeTraits;
+        } else {
+            if (isNull(currentTraits)) {
+                currentTraits = Collections.unmodifiableSet(createCurrentTraits(store));
+            }
+            rtn = currentTraits;
+        }
+        return Sets.newHashSet(rtn);
     }
 
     private Set<StoreTrait> createCurrentTraits(final Store store) {
-        final Set<StoreTrait> traits = Sets.newHashSet(store.getTraits());
+        final Set<StoreTrait> traits = Sets.newHashSet(storeTraits);
         final Schema schema = store.getSchema();
 
         final boolean hasAggregatedGroups = isNotEmpty(schema.getAggregatedGroups());
