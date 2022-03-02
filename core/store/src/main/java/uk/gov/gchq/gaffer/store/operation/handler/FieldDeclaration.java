@@ -33,6 +33,7 @@ import java.util.TreeSet;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 @JsonPropertyOrder(value = {"class", "handlerClass"}, alphabetic = true)
 public class FieldDeclaration {
+    public static final String INPUT = "input";
     //TODO FS modify for iterables contents
     private TreeMap<String, Class> fields = new TreeMap<>(String::compareToIgnoreCase);
     private TreeSet<String> optionalFields = new TreeSet<>(String::compareToIgnoreCase);
@@ -70,6 +71,10 @@ public class FieldDeclaration {
         return this;
     }
 
+    public FieldDeclaration inputOptional(final Class valueClass) {
+        return fieldOptional(INPUT, valueClass);
+    }
+
     public FieldDeclaration fieldRequired(Map.Entry<String, Class> entry) {
         return fieldRequired(entry.getKey(), entry.getValue());
     }
@@ -78,6 +83,10 @@ public class FieldDeclaration {
         fields.put(field, valueClass);
         optionalFields.remove(field);
         return this;
+    }
+
+    public FieldDeclaration inputRequired(final Class valueClass) {
+        return fieldRequired(INPUT, valueClass);
     }
 
     public boolean optionalContains(final String field) {

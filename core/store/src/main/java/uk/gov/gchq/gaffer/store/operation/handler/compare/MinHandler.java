@@ -107,26 +107,26 @@ public class MinHandler implements OperationHandler<Element> {
         return minElement;
     }
 
-    static class Builder extends OperationHandler.BuilderSpecificInputOperation<MinHandler.Builder> {
+    static class OperationBuilder extends BuilderSpecificInputOperation<OperationBuilder,MinHandler> {
 
-        public MinHandler.Builder comparators(final List<Comparator<Element>> comparators) {
+        public OperationBuilder comparators(final List<Comparator<Element>> comparators) {
             operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, comparators);
             return this;
         }
 
-        public MinHandler.Builder comparators(Comparator<Element>... comparators) {
+        public OperationBuilder comparators(Comparator<Element>... comparators) {
             operation.operationArg(ElementComparisonUtil.KEY_COMPARATORS, Lists.newArrayList(comparators));
             return this;
         }
 
         @Override
-        protected MinHandler.Builder getBuilder() {
+        protected OperationBuilder getBuilder() {
             return this;
         }
 
         @Override
-        protected FieldDeclaration getFieldDeclaration() {
-            return new MinHandler().getFieldDeclaration();
+        protected MinHandler getHandler() {
+            return new MinHandler();
         }
     }
 }

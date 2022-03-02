@@ -53,7 +53,7 @@ public interface OperationHandler<O> {
         }
     }
 
-    public static void validateOperation(final Operation operation, final FieldDeclaration fieldDeclaration) {
+    public static void validateOperation(final Operation operation, final FieldDeclaration fieldDeclaration) throws IllegalArgumentException {
         final List<String> collect = getOperationErrorsForIncorrectValueType(operation, fieldDeclaration);
 
         if (!collect.isEmpty()) {
@@ -126,7 +126,7 @@ public interface OperationHandler<O> {
     }
 
 
-    abstract class AbstractBuilder<B extends AbstractBuilder> {
+    abstract class AbstractBuilder<B extends AbstractBuilder<B>> {
         protected Operation operation;
 
         abstract protected B getBuilder();
@@ -155,27 +155,22 @@ public interface OperationHandler<O> {
         }
     }
 
-    class BuilderGenericOperation extends AbstractBuilder<BuilderGenericOperation> {
-        @Override
-        protected BuilderGenericOperation getBuilder() {
-            return this;
-        }
-    }
-
-    abstract class BuilderSpecificOperation<B extends AbstractBuilder> extends AbstractBuilder<B> {
-        abstract protected FieldDeclaration getFieldDeclaration();
+    abstract class BuilderSpecificOperation<B extends AbstractBuilder<B>, H extends OperationHandler<?>> extends AbstractBuilder<B> {
+        abstract protected H getHandler();
 
         @Override
         public Operation build() {
             Operation op = super.build();
-            OperationHandler.validateOperation(op, getFieldDeclaration());
+            FieldDeclaration fieldDeclaration = getHandler().getFieldDeclaration();
+            OperationHandler.validateOperation(op, fieldDeclaration);
+            //TODO FS make Id required?
             return op;
         }
     }
 
-    abstract class BuilderSpecificInputOperation<B extends AbstractBuilder> extends BuilderSpecificOperation<B> {
+    abstract class BuilderSpecificInputOperation<B extends AbstractBuilder<B>, H extends OperationHandler<?>> extends BuilderSpecificOperation<B, H> {
         public B input(Object input) {
-            operationArg("input", input);
+            operationArg(FieldDeclaration.INPUT, input);
             return getBuilder();
         }
     }

@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -46,9 +45,9 @@ public class MaxHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Operation max = new MaxHandler.Builder()
+        final Operation max = new MaxHandler.OperationBuilder()
                 .input(input)
-                .comparators((ElementComparator) new ElementPropertyComparator.Builder()
+                .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property")
                         .build())
@@ -57,7 +56,7 @@ public class MaxHandlerTest {
         final MaxHandler handler = new MaxHandler();
 
         // When
-        final Element result = (Element) handler.doOperation(max, null, null);
+        final Element result = handler.doOperation(max, null, null);
 
         // Then
         assertTrue(result instanceof Entity);
@@ -74,7 +73,8 @@ public class MaxHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Operation max = new MaxHandler.Builder().input(input)
+        final Operation max = new MaxHandler.OperationBuilder()
+                .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                                 .groups(TestGroups.ENTITY)
                                 .property("property1")
@@ -105,14 +105,16 @@ public class MaxHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
 
-        final Operation max1 = new MaxHandler.Builder().input(input)
+        final Operation max1 = new MaxHandler.OperationBuilder()
+                .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property1")
                         .build())
                 .build();
 
-        final Operation max2 = new MaxHandler.Builder().input(input)
+        final Operation max2 = new MaxHandler.OperationBuilder()
+                .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property2")
@@ -142,7 +144,8 @@ public class MaxHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Operation max = new MaxHandler.Builder().input(input)
+        final Operation max = new MaxHandler.OperationBuilder()
+                .input(input)
                 .comparators(new SimpleElementComparator())
                 .build();
 
@@ -160,7 +163,7 @@ public class MaxHandlerTest {
     @Test
     public void shouldReturnNullIfOperationInputIsNull() throws OperationException {
         // Given
-        final Operation max = new MaxHandler.Builder().build();
+        final Operation max = new MaxHandler.OperationBuilder().build();
         final MaxHandler handler = new MaxHandler();
 
         // When
@@ -174,7 +177,8 @@ public class MaxHandlerTest {
     public void shouldReturnNullIfBothComparatorsAreNull() throws OperationException {
         // Given
         final List<Entity> input = Lists.newArrayList();
-        final Operation max = new MaxHandler.Builder().input(input)
+        final Operation max = new MaxHandler.OperationBuilder()
+                .input(input)
                 .build();
 
         final MaxHandler handler = new MaxHandler();
