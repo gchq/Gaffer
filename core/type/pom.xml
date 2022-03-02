@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>1.17.2-SNAPSHOT</version>
+        <version>2.0.0-alpha-0.1</version>
     </parent>
 
     <artifactId>type</artifactId>
@@ -56,12 +56,6 @@
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>time-library</artifactId>
-            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

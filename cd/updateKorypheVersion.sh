@@ -41,11 +41,6 @@ function is_version_incremented() {
 
 set -e
 
-git reset --hard
-git clean -fd
-git checkout develop
-git pull
-
 newVersion=$1
 
 mvn -q org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.parent.version
@@ -59,8 +54,12 @@ $(is_version_incremented "${oldVersion}" "${newVersion}") && {
 
     sed -i'' "s/<koryphe.version>$oldVersion</<koryphe.version>$newVersion</g" pom.xml
     sed -i'' "s/uk.gov.gchq.koryphe:koryphe:$oldVersion/uk.gov.gchq.koryphe:koryphe:$newVersion/g" NOTICES
+    sed -i'' -e "s/^koryphe.version=.*/koryphe.version=$newVersion/" rest-api/common-rest/src/main/resources/version.properties
 
-    git add .
+    git add pom.xml
+    git add NOTICES
+    git add rest-api/common-rest/src/main/resources/version.properties
+
     git commit -a -m "Updated Koryphe version to $newVersion"
     git push -u origin ${versionUpdateBranch} || {
         echo "Unable to push branch ${versionUpdateBranch}, exiting."

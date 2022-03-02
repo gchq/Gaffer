@@ -23,11 +23,12 @@ import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -74,19 +75,27 @@ public abstract class RestApiTestClient {
         }
     }
 
+    public void cleanUpTempFiles(File folder) {
+        File tempSchema = new File(folder, "/schema.json");
+        File tempStoreProperties = new File(folder, "/store.properties");
+        File tempGraphConfig = new File(folder, "/graphConfig.json");
+        try {
+            if (tempSchema.exists()) {
+                FileUtils.forceDelete(tempSchema);
+            }
+            if (tempStoreProperties.exists()) {
+                FileUtils.forceDelete(tempStoreProperties);
+            }
+            if (tempGraphConfig.exists()) {
+                FileUtils.forceDelete(tempGraphConfig);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to clean up temp files from " + folder.getAbsolutePath());
+        }
+    }
+
     public boolean isRunning() {
         return null != server;
-    }
-
-    public void reinitialiseGraph(final TemporaryFolder testFolder) throws IOException {
-        reinitialiseGraph(testFolder, StreamUtil.SCHEMA, StreamUtil.STORE_PROPERTIES);
-    }
-
-    public void reinitialiseGraph(final TemporaryFolder testFolder, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
-        reinitialiseGraph(testFolder,
-                Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
-        );
     }
 
     public void reinitialiseGraph(final File tempDir, final String schemaResourcePath, final String storePropertiesResourcePath) throws IOException {
@@ -94,20 +103,6 @@ public abstract class RestApiTestClient {
                 Schema.fromJson(StreamUtil.openStream(RestApiTestClient.class, schemaResourcePath)),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(RestApiTestClient.class, storePropertiesResourcePath))
         );
-    }
-
-    public void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
-        FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema
-                .toJson(true));
-
-        try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
-            storeProperties.getProperties()
-                    .store(out, "This is an optional header comment string");
-        }
-
-        // set properties for REST service
-        setSystemProperties(testFolder.getRoot() + "/store.properties", testFolder.getRoot() + "/schema.json");
-        reinitialiseGraph();
     }
 
     public void reinitialiseGraph(final File testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
@@ -118,19 +113,24 @@ public abstract class RestApiTestClient {
                     .store(out, "This is an optional header comment string");
         }
 
-        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json");
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId("graphId")
+                .build();
+        FileUtils.writeByteArrayToFile(new File(testFolder, "/graphConfig.json"), JSONSerialiser.serialise(config));
+
+        setSystemProperties(testFolder.getPath() + "/store.properties", testFolder.getPath() + "/schema.json", testFolder.getPath() + "/graphConfig.json");
         reinitialiseGraph();
     }
 
-    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath) {
+    private void setSystemProperties(final String systemPropertiesPath, final String schemaPath, final String graphConfigPath) {
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, systemPropertiesPath);
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath);
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath);
     }
 
     public void reinitialiseGraph(final Graph graph) {
-        DefaultGraphFactory.setGraph(graph);
+        defaultGraphFactory.setGraph(graph);
 
         startServer();
 

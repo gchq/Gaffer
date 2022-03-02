@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -87,7 +88,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldAddNamedView() throws CacheOperationFailedException {
         cache.addNamedView(standard, false);
-        NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
+        NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName(), standardUser);
 
         assertEquals(standard, namedViewFromCache);
     }
@@ -140,11 +141,11 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false);
         cache.addNamedView(alternative, false);
 
-        Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews());
+        Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews(standardUser));
 
-        assertTrue(allViews.contains(standard));
-        assertTrue(allViews.contains(alternative));
-        assertEquals(2, allViews.size());
+        assertThat(allViews)
+                .contains(standard, alternative)
+                .hasSize(2);
     }
 
     @Test
@@ -152,7 +153,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(standard, false, standardUser, EMPTY_ADMIN_AUTH);
         cache.addNamedView(new NamedViewDetail.Builder().name(STANDARD_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
-        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(STANDARD_VIEW_NAME, standardUser).getView());
     }
 
     @Test
@@ -181,7 +182,7 @@ public class NamedViewCacheTest {
         cache.addNamedView(new NamedViewDetail.Builder().name(ALTERNATIVE_VIEW_NAME).view("").build(), true, standardUser, EMPTY_ADMIN_AUTH);
 
         // Then
-        assertEquals("", cache.getNamedView(ALTERNATIVE_VIEW_NAME).getView());
+        assertEquals("", cache.getNamedView(ALTERNATIVE_VIEW_NAME, standardUser).getView());
     }
 
     @Test

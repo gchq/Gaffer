@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.LongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
@@ -41,7 +42,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
         Map o = serialiser.deserialise(b);
 
         assertEquals(HashMap.class, o.getClass());
-        assertEquals(6, o.size());
+        assertThat(o).hasSize(6);
         assertEquals(map, o);
         assertEquals((Long) 123298333L, o.get("one"));
         assertEquals((Long) 342903339L, o.get("two"));
@@ -70,8 +71,8 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
         map.put(2, 7);
         map.put(3, 11);
 
-        ((MapSerialiser) serialiser).setKeySerialiser(new IntegerSerialiser());
-        ((MapSerialiser) serialiser).setValueSerialiser(new IntegerSerialiser());
+        ((MapSerialiser) serialiser).setKeySerialiser(new OrderedIntegerSerialiser());
+        ((MapSerialiser) serialiser).setValueSerialiser(new OrderedIntegerSerialiser());
         ((MapSerialiser) serialiser).setMapClass(LinkedHashMap.class);
 
         byte[] b = serialiser.serialise(map);
@@ -79,7 +80,7 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
 
 
         assertEquals(LinkedHashMap.class, o.getClass());
-        assertEquals(3, o.size());
+        assertThat(o).hasSize(3);
         assertEquals(3, o.get(1));
         assertEquals(7, o.get(2));
         assertEquals(11, o.get(3));
@@ -89,13 +90,13 @@ public class MapSerialiserTest extends ToBytesSerialisationTest<Map> {
     public Serialiser<Map, byte[]> getSerialisation() {
         MapSerialiser serialiser = new MapSerialiser();
         serialiser.setKeySerialiser(new StringSerialiser());
-        serialiser.setValueSerialiser(new LongSerialiser());
+        serialiser.setValueSerialiser(new OrderedLongSerialiser());
         return serialiser;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Pair<Map, byte[]>[] getHistoricSerialisationPairs() {
-        return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 9, 51, 52, 53, 51, 53, 51, 52, 51, 57, 4, 102, 111, 117, 114, 9, 51, 52, 53, 51, 53, 51, 52, 51, 57, 3, 111, 110, 101, 9, 49, 50, 51, 50, 57, 56, 51, 51, 51, 3, 116, 119, 111, 9, 51, 52, 50, 57, 48, 51, 51, 51, 57, 5, 116, 104, 114, 101, 101, 9, 49, 50, 51, 50, 57, 56, 51, 51, 51, 4, 102, 105, 118, 101, 9, 49, 50, 51, 51, 51, 56, 51, 51, 51})};
+        return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 9, 8, -128, 0, 0, 0, 20, -107, -84, -33, 4, 102, 111, 117, 114, 9, 8, -128, 0, 0, 0, 20, -107, -84, -33, 3, 111, 110, 101, 9, 8, -128, 0, 0, 0, 7, 89, 98, 29, 3, 116, 119, 111, 9, 8, -128, 0, 0, 0, 20, 112, 74, 43, 5, 116, 104, 114, 101, 101, 9, 8, -128, 0, 0, 0, 7, 89, 98, 29, 4, 102, 105, 118, 101, 9, 8, -128, 0, 0, 0, 7, 89, -2, 93})};
     }
 }

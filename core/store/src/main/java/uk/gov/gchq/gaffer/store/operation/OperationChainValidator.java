@@ -112,18 +112,6 @@ public class OperationChainValidator {
         return firstOp;
     }
 
-    /**
-     * @param op               the operation
-     * @param validationResult the validation result
-     * @param schemaNotUsed    the unused schema
-     * @param store            the store
-     * @deprecated use {@link #validateComparables(Operation, User, Store, ValidationResult)} instead
-     */
-    @Deprecated
-    protected void validateComparables(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
-        validateComparables(op, null, store, validationResult);
-    }
-
     protected void validateComparables(final Operation op, final User user, final Store store, final ValidationResult validationResult) {
         if (op instanceof ElementComparison) {
             final Schema schema = getSchema(op, user, store);
@@ -144,18 +132,6 @@ public class OperationChainValidator {
                 }
             }
         }
-    }
-
-    /**
-     * @param op               the operation
-     * @param validationResult the validation result
-     * @param schemaNotUsed    the unused schema
-     * @param store            the store
-     * @deprecated use {@link #validateViews(Operation, User, Store, ValidationResult)} instead
-     */
-    @Deprecated
-    protected void validateViews(final Operation op, final ValidationResult validationResult, final Schema schemaNotUsed, final Store store) {
-        validateViews(op, null, store, validationResult);
     }
 
     protected void validateViews(final Operation op, final User user, final Store store, final ValidationResult validationResult) {

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.flink.operation.TestFileSink;
@@ -40,7 +40,7 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
 
     private TestFileSink testFileSink;
 
-    @Before
+    @BeforeEach
     public void create() throws IOException {
         testFileSink = createTestFileSink();
     }
@@ -90,7 +90,4 @@ public class AddElementsFromSocketHandlerIT extends FlinkTest {
         return store;
     }
 
-    private TestFileSink createTestFileSink() throws IOException {
-        return new TestFileSink(testFolder.newFolder("testFileSink").toPath().toString());
-    }
 }

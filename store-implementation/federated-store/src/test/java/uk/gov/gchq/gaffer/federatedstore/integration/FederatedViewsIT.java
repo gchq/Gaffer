@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -38,10 +38,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
@@ -50,7 +48,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * In all of theses tests the Federated graph contains two graphs, one containing
  * a schema with only edges the other with only entities.
  */
-public class FederatedViewsIT extends AbstractStoreIT {
+public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";
@@ -62,7 +60,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
     @Override
     protected Schema createSchema() {
-        final Schema.Builder schemaBuilder = new Schema.Builder(createDefaultSchema());
+        final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
         schemaBuilder.edges(Collections.EMPTY_MAP);
         schemaBuilder.entities(Collections.EMPTY_MAP);
         schemaBuilder.json(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEdgeSchema.json"));
@@ -79,7 +77,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                         .build())
                 .build(), user);
 
-        assertFalse(edges.iterator().hasNext());
+        assertThat(edges.iterator().hasNext()).isFalse();
 
         final CloseableIterable<? extends Element> entities = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
@@ -87,7 +85,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                         .build())
                 .build(), user);
 
-        assertFalse(entities.iterator().hasNext());
+        assertThat(entities.iterator().hasNext()).isFalse();
 
     }
 
@@ -107,7 +105,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                         .build())
                 .build(), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -127,7 +125,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                         .build())
                 .build(), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -148,7 +146,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                 .build())
                 .graphIdsCSV(ACCUMULO_GRAPH_WITH_EDGES), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -169,7 +167,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                 .build())
                 .graphIdsCSV(ACCUMULO_GRAPH_WITH_ENTITIES), user);
 
-        assertTrue(rtn.iterator().hasNext());
+        assertThat(rtn.iterator().hasNext()).isTrue();
 
     }
 
@@ -191,10 +189,10 @@ public class FederatedViewsIT extends AbstractStoreIT {
                     .build()).graphIdsCSV(ACCUMULO_GRAPH_WITH_ENTITIES), user);
             fail("exception expected");
         } catch (Exception e) {
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
+            assertThat(e.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n" +
                     "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema", e.getMessage());
+                    "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema");
         }
     }
 
@@ -216,10 +214,10 @@ public class FederatedViewsIT extends AbstractStoreIT {
                     .build()).graphIdsCSV(ACCUMULO_GRAPH_WITH_EDGES), user);
             fail("exception expected");
         } catch (Exception e) {
-            assertEquals("Operation chain is invalid. Validation errors: \n" +
+            assertThat(e.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n" +
                     "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n" +
                     "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema", e.getMessage());
+                    "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema");
         }
     }
 
@@ -241,7 +239,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
                 .build(), user);
 
         final ArrayList<? extends Element> elements = Lists.newArrayList(rtn.iterator());
-        assertEquals(2, elements.size());
+        assertThat(elements).hasSize(2);
     }
 
     @Test
@@ -275,7 +273,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
         final ArrayList<? extends Element> elements = Lists.newArrayList(rtn.iterator());
 
-        assertEquals(2, elements.size());
+        assertThat(elements).hasSize(2);
     }
 
     @Test
@@ -308,7 +306,7 @@ public class FederatedViewsIT extends AbstractStoreIT {
 
         final ArrayList<? extends Element> elements = Lists.newArrayList(rtn.iterator());
 
-        assertEquals(2, elements.size());
+        assertThat(elements).hasSize(2);
     }
 
     protected void addBasicEdge() throws OperationException {

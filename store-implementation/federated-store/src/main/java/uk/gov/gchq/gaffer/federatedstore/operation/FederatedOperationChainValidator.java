@@ -96,8 +96,9 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
             // If graphId is not valid, then there is no schema to validate a view against.
             if (graphIdValid) {
                 currentResult = new ValidationResult();
-                if (!graph.hasTrait(StoreTrait.DYNAMIC_SCHEMA)) {
-                    clonedOp.graphIdsCSV(graphId);
+                clonedOp.graphIdsCSV(graphId);
+                // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
+                if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
                     super.validateViews(clonedOp, user, store, currentResult);
                 }
                 if (currentResult.isValid()) {

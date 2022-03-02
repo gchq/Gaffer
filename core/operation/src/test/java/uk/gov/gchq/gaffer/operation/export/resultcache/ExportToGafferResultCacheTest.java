@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-
 
 public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
     @Test
@@ -66,6 +65,7 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
         assertEquals(opAuths, op.getOpAuths());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given

@@ -1,6 +1,14 @@
 name: Continuous Integration
 
-on: [ pull_request ]
+on:
+  pull_request:
+    paths-ignore:
+      - '**/README.md'
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+      - 'alpha-release/**'
 
 jobs:
   check-all-modules-are-tested:
@@ -9,6 +17,22 @@ jobs:
     - uses: actions/checkout@v2
     - name: Check all modules are tested
       run: ./cd/check_modules.sh
+
+  build-javadoc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '8'
+
+    - name: Build Javadoc
+      run: |
+        mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
+        mvn -q javadoc:javadoc -Pquick
 
   build:
     runs-on: ubuntu-latest
@@ -20,10 +44,6 @@ jobs:
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
         - name: Accumulo
           values: :accumulo-store,:accumulo-rest
-        - name: Hbase
-          values: :hbase-store,:hbase-rest
-        - name: Parquet
-          values: :parquet-store,:parquet-rest
         - name: Federated-And-Map
           values: :integration-test,:federated-store,:map-store,:map-rest
         - name: REST
@@ -42,10 +62,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
+    - name: Setup JDK
+      uses: actions/setup-java@v2
       with:
-        java-version: 1.8
+        distribution: 'zulu'
+        java-version: '8'
 
     - name: Cache dependencies
       uses: actions/cache@v2
@@ -62,4 +83,4 @@ jobs:
       run: mvn -B -q verify -P coverage -pl ${{matrix.modules.values}}
 
     - name: Upload Coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2

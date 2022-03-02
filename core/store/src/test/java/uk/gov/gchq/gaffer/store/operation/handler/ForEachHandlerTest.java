@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,12 +50,7 @@ public class ForEachHandlerTest {
         final ForEachHandler handler = new ForEachHandler();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Operation cannot be null"));
-        }
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(op, context, store)).withMessage("Operation cannot be null");
     }
 
     @Test
@@ -70,12 +64,7 @@ public class ForEachHandlerTest {
         final ForEachHandler handler = new ForEachHandler();
 
         // When / Then
-        try {
-            handler.doOperation(op, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Inputs cannot be null"));
-        }
+        assertThatExceptionOfType(OperationException.class).isThrownBy(() -> handler.doOperation(op, context, store)).withMessage("Inputs cannot be null");
     }
 
     @Test
@@ -105,7 +94,7 @@ public class ForEachHandlerTest {
 
         // Then
         verify(opClone).setInput(input);
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
         assertSame(output, result.get(0));
     }
 }

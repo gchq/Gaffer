@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.function.FunctionTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ToFreqMapTest extends FunctionTest {
+public class ToFreqMapTest extends FunctionTest<ToFreqMap> {
 
     @Test
     public void shouldConvertStringToFreqMap() {
@@ -40,6 +40,19 @@ public class ToFreqMapTest extends FunctionTest {
 
         // Then
         assertEquals(new FreqMap(value), result);
+    }
+
+    @Test
+    public void shouldConvertEmptyStringToFreqMap() {
+        // Given
+        final ToFreqMap function = new ToFreqMap();
+        final String emptyValue = "";
+
+        // When
+        final FreqMap result = function.apply(emptyValue);
+
+        // Then
+        assertEquals(new FreqMap(emptyValue), result);
     }
 
     @Test

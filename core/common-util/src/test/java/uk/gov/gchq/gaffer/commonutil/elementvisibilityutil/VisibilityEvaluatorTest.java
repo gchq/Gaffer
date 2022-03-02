@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityP
 
 import java.util.regex.PatternSyntaxException;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility.quote;
 
@@ -69,19 +69,19 @@ public class VisibilityEvaluatorTest {
     @ParameterizedTest
     @ValueSource(strings = {"one(five)", "(five)one", "(one)(two)", "a|(b(c))"})
     public void testMissingSeparatorsShouldThrowPSX(String marking) {
-        assertThrows(PatternSyntaxException.class, () -> ve.evaluate(new ElementVisibility(marking)));
+        assertThatExceptionOfType(PatternSyntaxException.class).isThrownBy(() -> new ElementVisibility(marking));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"&(five)", "|(five)", "(five)&", "five|", "a|(b)&", "(&five)", "(five|)"})
     public void testUnexpectedSeparatorShouldThrowPSX(String marking) {
-        assertThrows(PatternSyntaxException.class, () -> ve.evaluate(new ElementVisibility(marking)));
+        assertThatExceptionOfType(PatternSyntaxException.class).isThrownBy(() -> new ElementVisibility(marking));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"(", ")", "(a&b", "b|a)"})
     public void testMismatchedParenthesisShouldThrowPSX(String marking) {
-        assertThrows(PatternSyntaxException.class, () -> ve.evaluate(new ElementVisibility(marking)));
+        assertThatExceptionOfType(PatternSyntaxException.class).isThrownBy(() -> new ElementVisibility(marking));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-
 
 public class ToArrayTest extends OperationTest<ToArray> {
 
@@ -38,11 +33,12 @@ public class ToArrayTest extends OperationTest<ToArray> {
         final ToArray<String> toArray = new ToArray.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toArray.getInput(), is(notNullValue()));
-        assertThat(toArray.getInput(), iterableWithSize(2));
-        assertThat(toArray.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(toArray.getInput())
+                .hasSize(2)
+                .containsOnly("1", "2");
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -56,7 +52,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
 
         // Then
         assertNotSame(toArray, clone);
-        assertEquals(input, clone.getInput().iterator().next());
+        assertThat(clone.getInput().iterator().next()).isEqualTo(input);
     }
 
     @Test

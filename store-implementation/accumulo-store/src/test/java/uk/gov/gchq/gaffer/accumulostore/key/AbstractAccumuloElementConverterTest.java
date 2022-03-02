@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,12 @@ import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.DEFAULT_TIMESTAMP;
 
 public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloElementConverter> {
@@ -221,7 +221,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         Properties properties = converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, keys.getFirst().getColumnQualifierData().getBackingArray());
 
         // Then
-        assertEquals(null, properties.get(AccumuloPropertyNames.COLUMN_QUALIFIER));
+        assertThat(properties.get(AccumuloPropertyNames.COLUMN_QUALIFIER)).isNull();
     }
 
     @Test
@@ -428,7 +428,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         final Properties properties = converter.getPropertiesFromTimestamp(group, timestamp);
 
         // Then
-        assertEquals(1, properties.size());
+        assertThat(properties).hasSize(1);
         assertEquals(timestamp, properties.get(AccumuloPropertyNames.TIMESTAMP));
     }
 
@@ -450,7 +450,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         final Properties properties = converter.getPropertiesFromTimestamp(group, timestamp);
 
         // Then
-        assertEquals(0, properties.size());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -463,7 +463,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         final Properties properties = converter.getPropertiesFromTimestamp(group, timestamp);
 
         // Then
-        assertEquals(0, properties.size());
+        assertThat(properties).isEmpty();
     }
 
     @Test
@@ -473,12 +473,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         final String group = "unknownGroup";
 
         // When / Then
-        try {
-            converter.getPropertiesFromTimestamp(group, timestamp);
-            fail("Exception expected");
-        } catch (final AccumuloElementConversionException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertThatExceptionOfType(AccumuloElementConversionException.class).isThrownBy(() -> converter.getPropertiesFromTimestamp(group, timestamp)).extracting("message").isNotNull();
     }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -178,7 +178,8 @@ public class JSONSerialiserTest {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
         byte[] b = JSONSerialiser.serialise(test);
-        assertThrows(SerialisationException.class, () -> JSONSerialiser.deserialise(b, Integer.class));
+        assertThatExceptionOfType(SerialisationException.class)
+                .isThrownBy(() -> JSONSerialiser.deserialise(b, Integer.class));
     }
 
     @Test
@@ -220,12 +221,7 @@ public class JSONSerialiserTest {
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, "invalidClassName");
 
         // When / Then
-        try {
-            JSONSerialiser.update();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("invalidClassName"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> JSONSerialiser.update()).withMessageContaining("invalidClassName");
     }
 
     @Test
@@ -234,12 +230,7 @@ public class JSONSerialiserTest {
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, "module1");
 
         // When / Then
-        try {
-            JSONSerialiser.update();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("module1"));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> JSONSerialiser.update()).withMessageContaining("module1");
     }
 
     @Test
@@ -249,12 +240,7 @@ public class JSONSerialiserTest {
         System.setProperty(JSONSerialiser.JSON_SERIALISER_MODULES, invalidValue);
 
         // When / Then
-        try {
-            JSONSerialiser.update();
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(invalidValue));
-        }
+        assertThatIllegalArgumentException().isThrownBy(() -> JSONSerialiser.update()).withMessageContaining(invalidValue);
     }
 
     @Test
@@ -370,12 +356,7 @@ public class JSONSerialiserTest {
         JSONSerialiser.update(null, null, true);
 
         // When / Then
-        try {
-            JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class);
-            fail("Exception expected");
-        } catch (final SerialisationException e) {
-            assertTrue(e.getMessage().contains("Unrecognized field \"unknown\""), e.getMessage());
-        }
+        assertThatExceptionOfType(SerialisationException.class).isThrownBy(() -> JSONSerialiser.deserialise("{\"field\": \"value\", \"unknown\": \"otherValue\"}", TestPojo.class)).withMessageContaining("Unrecognized field \"unknown\"");
     }
 
     protected void deserialiseSecond(final Pair<Object, byte[]> pair) throws SerialisationException {

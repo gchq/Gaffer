@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 package uk.gov.gchq.gaffer.proxystore.integration;
 
 import com.google.common.collect.Iterables;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -55,23 +54,21 @@ import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ProxyStoreBasicIT {
     private Graph graph;
 
     private static final RestApiTestClient CLIENT = new RestApiV2TestClient();
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     public static final User USER = new User();
     public static final Element[] DEFAULT_ELEMENTS = new Element[]{
@@ -106,17 +103,17 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
+    @BeforeAll
+    public static void beforeAll() throws Exception {
         CLIENT.startServer();
     }
 
-    @AfterClass
-    public static void afterClass() {
+    @AfterAll
+    public static void afterAll() {
         CLIENT.stopServer();
     }
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
         CLIENT.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
@@ -141,8 +138,8 @@ public class ProxyStoreBasicIT {
         final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
-        assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItems(DEFAULT_ELEMENTS));
+        assertThat(Iterables.size(results)).isEqualTo(DEFAULT_ELEMENTS.length);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS);
     }
 
     @Test
@@ -160,8 +157,8 @@ public class ProxyStoreBasicIT {
         CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
-        assertEquals(1, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat(results).hasSize(1);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0]);
     }
 
     @Test
@@ -191,9 +188,8 @@ public class ProxyStoreBasicIT {
         CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
-        assertEquals(2, Iterables.size(results));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[2]));
+        assertThat(results).hasSize(2);
+        assertThat((CloseableIterable<Element>) results).contains(DEFAULT_ELEMENTS[0], DEFAULT_ELEMENTS[2]);
     }
 
     @Test
@@ -211,10 +207,10 @@ public class ProxyStoreBasicIT {
                             .build(), USER);
             fail("Exception expected");
         } catch (final GafferWrappedErrorRuntimeException e) {
-            assertEquals(new Error.ErrorBuilder()
+            assertThat(e.getError()).isEqualTo(new Error.ErrorBuilder()
                     .simpleMessage("Limit of 1 exceeded.")
                     .status(Status.INTERNAL_SERVER_ERROR)
-                    .build(), e.getError());
+                    .build());
         }
     }
 
@@ -228,7 +224,7 @@ public class ProxyStoreBasicIT {
         final Set<StoreTrait> storeTraits = graph.getStoreTraits();
 
         // Then
-        assertEquals(expectedTraits, storeTraits);
+        assertThat(storeTraits).isEqualTo(expectedTraits);
     }
 
     private void addDefaultElements() throws OperationException {

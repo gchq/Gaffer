@@ -34,14 +34,27 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+    private final Set<StoreTrait> storeTraits;
+    private Set<StoreTrait> currentTraits;
+
+    public GetTraitsHandler(final Set<StoreTrait> storeTraits) {
+        this.storeTraits = Collections.unmodifiableSet(Sets.newHashSet(storeTraits));
+    }
 
     @Override
     public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        return new HashSet<>(operation.isCurrentTraits() ? createCurrentTraits(store) : store.getTraits());
+        if (!operation.isCurrentTraits()) {
+            return storeTraits;
+        }
+
+        if (null == currentTraits) {
+            currentTraits = Collections.unmodifiableSet(createCurrentTraits(store));
+        }
+        return currentTraits;
     }
 
     private Set<StoreTrait> createCurrentTraits(final Store store) {
-        final Set<StoreTrait> traits = Sets.newHashSet(store.getTraits());
+        final Set<StoreTrait> traits = Sets.newHashSet(storeTraits);
         final Schema schema = store.getSchema();
 
         final boolean hasAggregatedGroups = isNotEmpty(schema.getAggregatedGroups());

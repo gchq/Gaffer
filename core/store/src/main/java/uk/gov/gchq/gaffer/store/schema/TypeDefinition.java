@@ -110,35 +110,6 @@ public class TypeDefinition {
         this.serialiser = serialiser;
     }
 
-    @JsonIgnore
-    public String getSerialiserClass() {
-        if (null == serialiser) {
-            return null;
-        }
-
-        return SimpleClassNameIdResolver.getSimpleClassName(serialiser.getClass());
-    }
-
-    @Deprecated
-    @JsonSetter("serialiserClass")
-    public void setSerialiserClass(final String clazz) {
-        if (null == clazz) {
-            this.serialiser = null;
-        } else {
-            final Class<? extends Serialiser> serialiserClass;
-            try {
-                serialiserClass = Class.forName(SimpleClassNameIdResolver.getClassName(clazz)).asSubclass(Serialiser.class);
-            } catch (final ClassNotFoundException e) {
-                throw new SchemaException(e.getMessage(), e);
-            }
-            try {
-                this.serialiser = serialiserClass.newInstance();
-            } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
-                throw new SchemaException(e.getMessage(), e);
-            }
-        }
-    }
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public BinaryOperator getAggregateFunction() {
         return aggregateFunction;

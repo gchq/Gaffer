@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -57,15 +57,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateSplitPointsTest {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSplitPointsTest.class);
 
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public final File testFolder = CommonTestConstants.TMP_DIRECTORY;
 
     private FileSystem fs;
 
@@ -76,14 +76,14 @@ public class CreateSplitPointsTest {
     private static Class currentClass = new Object() { }.getClass().getEnclosingClass();
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(currentClass));
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
 
         fs = createFileSystem();
 
         final String root = fs.resolvePath(new Path("/")).toString()
                 .replaceFirst("/$", "")
-                + testFolder.getRoot().getAbsolutePath();
+                + testFolder.getAbsolutePath();
 
 
         LOGGER.info("using root dir: " + root);
@@ -134,10 +134,10 @@ public class CreateSplitPointsTest {
         while (br.ready()) {
             fileSplitsDecoded.add(new String(Base64.decodeBase64(br.readLine())));
         }
-        assertEquals(fileSplitsDecoded, stringSplitsOnTable);
-        assertEquals(2, splitsOnTable.size());
-        assertEquals(VERTEX_ID_PREFIX + "53\u0000\u0001", stringSplitsOnTable.get(0));
-        assertEquals(VERTEX_ID_PREFIX + "99\u0000\u0001", stringSplitsOnTable.get(1));
+        assertThat(stringSplitsOnTable).isEqualTo(fileSplitsDecoded);
+        assertThat(splitsOnTable).hasSize(2);
+        assertThat(stringSplitsOnTable.get(0)).isEqualTo(VERTEX_ID_PREFIX + "53\u0000\u0001");
+        assertThat(stringSplitsOnTable.get(1)).isEqualTo(VERTEX_ID_PREFIX + "99\u0000\u0001");
     }
 
     private void createInputFile() throws IOException, StoreException {

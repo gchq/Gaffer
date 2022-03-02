@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,9 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class EntityIdExtractorTest {
     @Test
@@ -131,11 +130,9 @@ public class EntityIdExtractorTest {
                 .build();
 
         // When / Then
-        try {
-            extractor._apply(edge);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e);
-        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> extractor._apply(edge))
+                .extracting("message")
+                .isNotNull();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ExtractWalkVertexTest {
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
@@ -58,7 +58,8 @@ public class ExtractWalkVertexTest {
     public void shouldThrowIAEForNullWalkInput() {
         final Function<Walk, Object> function = new ExtractWalkVertex();
 
-        final Exception exception = assertThrows(IllegalArgumentException.class, () -> function.apply(null));
-        assertEquals("Walk cannot be null", exception.getMessage());
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> function.apply(null))
+                .withMessage("Walk cannot be null");
     }
 }

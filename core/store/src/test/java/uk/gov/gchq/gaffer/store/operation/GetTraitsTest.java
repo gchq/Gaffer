@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2018-2021 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import org.junit.jupiter.api.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
@@ -28,6 +30,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         return new GetTraits();
     }
 
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetTraits op = new Builder().currentTraits(false).build();
@@ -35,6 +38,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         assertEquals(false, op.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldShallowCloneOperation() {
         GetTraits op = new Builder().currentTraits(false).build();
@@ -44,6 +48,7 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         assertEquals(op.isCurrentTraits(), clone.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
@@ -57,12 +62,14 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
         assertEquals(obj.isCurrentTraits(), deserialisedObj.isCurrentTraits());
     }
 
+    @Test
     @Override
     public void shouldHaveSinceAnnotation() {
         // TODO Auto-generated method stub
         super.shouldHaveSinceAnnotation();
     }
 
+    @Test
     @Override
     public void shouldHaveSummaryAnnotation() {
         // TODO Auto-generated method stub
