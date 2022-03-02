@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -472,8 +473,9 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphIdForNonOwnedGraphAsAdminWhenRequestingAdminAccess() throws Exception {
         //given
-        final String graphA = "graphA";
-        final String graphB = "graphB";
+        //TODO FS why is graph names persisting in test.
+        final String graphA = "graphA" + new Random().nextInt(1000);
+        final String graphB = "graphB" + new Random().nextInt(1000);
         graph.execute(new AddGraph.Builder()
                 .graphId(graphA)
                 .schema(new Schema())
@@ -589,7 +591,8 @@ public class FederatedAdminIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldChangeGraphIdInCache() throws Exception {
         //given
-        String newName = "newName";
+        //TODO FS why is newName persisting.
+        String newName = "newName" + new Random().nextInt(1000);
         FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
         final String graphA = "graphA";
         graph.execute(new AddGraph.Builder()
