@@ -33,8 +33,6 @@ public class AddElementsHandler implements OperationHandler<Void> {
 
     private static final String VALIDATE = "validate";
 
-    private static final String INPUT = "input";
-
     @Override
     public Void _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
@@ -59,8 +57,31 @@ public class AddElementsHandler implements OperationHandler<Void> {
     @Override
     public FieldDeclaration getFieldDeclaration() {
         return new FieldDeclaration()
-                .fieldRequired(INPUT, Iterable.class)
+                .inputRequired(Iterable.class)
                 .fieldOptional(VALIDATE, Boolean.class)
                 .fieldOptional(SKIP_INVALID_ELEMENTS, Boolean.class);
+    }
+
+    static class OperationBuilder extends BuilderSpecificInputOperation<OperationBuilder, AddElementsHandler> {
+
+        public OperationBuilder validate(final Boolean validate) {
+            operation.operationArg(VALIDATE, validate);
+            return this;
+        }
+
+        public OperationBuilder skipInvalidElements(final Boolean skipInvalidElements) {
+            operation.operationArg(SKIP_INVALID_ELEMENTS, skipInvalidElements);
+            return this;
+        }
+
+        @Override
+        protected OperationBuilder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected AddElementsHandler getHandler() {
+            return new AddElementsHandler();
+        }
     }
 }
