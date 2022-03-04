@@ -33,7 +33,6 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <version>${koryphe.version}</version>
         </dependency>
         <dependency>
             <groupId>org.roaringbitmap</groupId>

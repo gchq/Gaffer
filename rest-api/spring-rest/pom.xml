@@ -88,12 +88,6 @@
       <version>${swagger.version}</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <version>${swagger.version}</version>
-      <scope>compile</scope>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
