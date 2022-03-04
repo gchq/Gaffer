@@ -31,9 +31,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.Comparator;
 import java.util.List;
 
-import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.fieldComparators;
-import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getCombinedComparator;
 import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.getComparators;
 
 /**
@@ -43,17 +41,20 @@ import static uk.gov.gchq.gaffer.operation.impl.compare.ElementComparisonUtil.ge
  * object with the minimum value.
  */
 public class MinHandler implements OperationHandler<Element> {
-    @Override
-    public Element _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
+
+    public Element _doOperation(Operation operation, Context context, Store store) throws OperationException {
+        List<Comparator<Element>> comparators = getComparators(operation);
+        Iterable<? extends Element> input = (Iterable<? extends Element>) operation.input();
+
         // If there is no input or there are no comparators, we return null
-        if (null == operation.input()
-                || isNull(getComparators(operation))
-                || getComparators(operation).isEmpty()) {
+        if (null == input
+                || null == comparators
+                || comparators.isEmpty()) {
             return null;
         }
 
         try {
-            return getMin((Iterable<? extends Element>) operation.input(), operation);
+            return getMin(input, operation);
         } finally {
             CloseableUtil.close(operation);
         }
@@ -62,9 +63,8 @@ public class MinHandler implements OperationHandler<Element> {
     @Override
     public FieldDeclaration getFieldDeclaration() {
         return new FieldDeclaration()
-                .fieldRequired(fieldComparators)
-                .fieldRequired("input", Iterable.class);
-
+                .inputOptional(Iterable.class)
+                .fieldOptional(fieldComparators);
     }
 
     private Element getMin(final Iterable<? extends Element> elements, final Operation operation) {
@@ -88,7 +88,7 @@ public class MinHandler implements OperationHandler<Element> {
                 }
             }
         } else {
-            final Comparator<Element> combinedComparator = getCombinedComparator(operation);
+            final Comparator<Element> combinedComparator = ElementComparisonUtil.getCombinedComparator(operation);
             if (null != combinedComparator) {
                 for (final Element element : elements) {
                     if (null == element) {
