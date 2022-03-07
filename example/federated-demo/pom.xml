@@ -120,38 +120,49 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.0</version>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>${cargo.plugin.version}</version>
                         <configuration>
-                            <path>/${standalone-path}</path>
-                            <port>${standalone-port}</port>
-                            <systemProperties>
-                                <gaffer.properties.app.title>
-                                    Federated Gaffer Example
-                                </gaffer.properties.app.title>
-                                <gaffer.properties.app.description>
-                                    Example of a Gaffer Federated Store
-                                </gaffer.properties.app.description>
-                                <gaffer.rest-api.basePath>${standalone-path}
-                                </gaffer.rest-api.basePath>
-                                <gaffer.graph.config>
-                                    ${project.build.outputDirectory}/graphConfig.json
-                                </gaffer.graph.config>
-                                <gaffer.storeProperties>
-                                    ${project.build.outputDirectory}/federatedStore.properties
-                                </gaffer.storeProperties>
-                                <gaffer.error-mode.debug>
-                                    false
-                                </gaffer.error-mode.debug>
-                            </systemProperties>
+                            <deployables>
+                                <deployable>
+                                    <properties>
+                                        <context>${standalone-path}</context>
+                                    </properties>
+                                </deployable>
+                            </deployables>
+                            <properties>
+                                <cargo.servlet.port>${standalone-port}</cargo.servlet.port>
+                            </properties>
+                            <container>
+                                <containerId>tomcat9x</containerId>
+                                <systemProperties>
+                                    <gaffer.properties.app.title>
+                                        Federated Gaffer Example
+                                    </gaffer.properties.app.title>
+                                    <gaffer.properties.app.description>
+                                        Example of a Gaffer Federated Store
+                                    </gaffer.properties.app.description>
+                                    <gaffer.rest-api.basePath>${standalone-path}
+                                    </gaffer.rest-api.basePath>
+                                    <gaffer.graph.config>
+                                        ${project.build.outputDirectory}/graphConfig.json
+                                    </gaffer.graph.config>
+                                    <gaffer.storeProperties>
+                                        ${project.build.outputDirectory}/federatedStore.properties
+                                    </gaffer.storeProperties>
+                                    <gaffer.error-mode.debug>
+                                        false
+                                    </gaffer.error-mode.debug>
+                                </systemProperties>
+                            </container>
                         </configuration>
                         <executions>
                             <execution>
                                 <id>deploy</id>
                                 <phase>integration-test</phase>
                                 <goals>
-                                    <goal>run-war</goal>
+                                    <goal>run</goal>
                                 </goals>
                             </execution>
                         </executions>

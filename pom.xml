@@ -106,7 +106,7 @@
         <shade.plugin.version>3.2.4</shade.plugin.version>
         <source.plugin.version>3.2.1</source.plugin.version>
         <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
-        <tomcat-maven-plugin.version>3.8.4</tomcat-maven-plugin.version>
+        <cargo.plugin.version>1.9.10</cargo.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -280,6 +280,10 @@
                     <exclusion>
                         <groupId>com.sun.jersey</groupId>
                         <artifactId>jersey-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-servlet</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
