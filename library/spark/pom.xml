@@ -31,8 +31,8 @@
     </modules>
 
     <properties>
-        <spark.minor.version>3.0</spark.minor.version>
-        <spark.version>${spark.minor.version}.3</spark.version>
+        <spark.minor.version>2.4</spark.minor.version>
+        <spark.version>${spark.minor.version}.5</spark.version>
     </properties>
 
     <repositories>
