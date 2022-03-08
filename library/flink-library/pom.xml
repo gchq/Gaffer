@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.version}</artifactId>
+            <artifactId>flink-streaming-java_${scala.minor.version}</artifactId>
             <version>${flink.version}</version>
             <exclusions>
                 <exclusion>
@@ -101,12 +101,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-clients_${scala.version}</artifactId>
+            <artifactId>flink-clients_${scala.minor.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka-${kafka.version}_${scala.version}</artifactId>
+            <artifactId>flink-connector-kafka-${kafka.version}_${scala.minor.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
 
@@ -120,7 +120,7 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-metrics-jmx_${scala.version}</artifactId>
+            <artifactId>flink-metrics-jmx_${scala.minor.version}</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
@@ -170,14 +170,14 @@
         <!-- Kafka Test dependencies -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${scala.version}</artifactId>
+            <artifactId>kafka_${scala.minor.version}</artifactId>
             <version>${kafka.minor.version}</version>
             <classifier>test</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${scala.version}</artifactId>
+            <artifactId>kafka_${scala.minor.version}</artifactId>
             <version>${kafka.minor.version}</version>
             <scope>test</scope>
         </dependency>
