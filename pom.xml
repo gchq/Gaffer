@@ -48,8 +48,8 @@
         <java.version>8</java.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <scala.minor.version>2.12</scala.minor.version>
-        <scala.version>${scala.minor.version}.15</scala.version>
+        <scala.minor.version>2.11</scala.minor.version>
+        <scala.version>${scala.minor.version}.12</scala.version>
 
         <!-- Dependency version properties -->
         <junit5.version>5.8.2</junit5.version>
