@@ -21,6 +21,7 @@ import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 
 import java.util.List;
@@ -42,10 +43,10 @@ public interface RangeFactory {
      * @param elementId the element id to get the range for
      * @param operation the operation
      * @return A List of Ranges that are required to return all elements that
-     * match the parameters of the query.
+     *         match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    List<Range> getRange(final ElementId elementId, final GraphFilters operation)
+    List<Range> getRange(final ElementId elementId, final Operation operation)
             throws RangeFactoryException;
 
     /**
@@ -63,9 +64,9 @@ public interface RangeFactory {
      * @param pairRange the pair of element ids to get the range for
      * @param operation the operation
      * @return A List of Ranges that are required to return all elements that
-     * match the parameters of the query.
+     *         match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    Range getRangeFromPair(final Pair<ElementId, ElementId> pairRange, final GraphFilters operation)
+    Range getRangeFromPair(final Pair<ElementId, ElementId> pairRange, final Operation operation)
             throws RangeFactoryException;
 }

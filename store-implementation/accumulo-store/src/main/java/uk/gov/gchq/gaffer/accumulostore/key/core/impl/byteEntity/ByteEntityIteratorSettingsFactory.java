@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettings
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
@@ -33,15 +35,15 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphFilters operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final Operation operation, final View view, final DirectedType directedType) {
         return null;
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters operation) {
-        final boolean includeEntities = operation.getView().hasEntities();
-        final boolean includeEdges = operation.getView().hasEdges();
-        final DirectedType directedType = operation.getDirectedType();
+    public IteratorSetting getElementPropertyRangeQueryFilter(final Operation operation, final View view,
+                                                              final DirectedType directedType) {
+        final boolean includeEntities = view.hasEntities();
+        final boolean includeEdges = view.hasEdges();
         final SeededGraphFilters.IncludeIncomingOutgoingType inOutType;
         if (operation instanceof SeededGraphFilters) {
             inOutType = ((SeededGraphFilters) operation).getIncludeIncomingOutGoing();
@@ -55,24 +57,24 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
                 && (null == inOutType || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 && includeEntities && !deduplicateUndirectedEdges) {
             LOGGER.debug("Returning null from getElementPropertyRangeQueryFilter ("
-                            + "inOutType = {}, includeEdges = {}, "
-                            + "directedType = {}, deduplicateUndirectedEdges = {})",
+                    + "inOutType = {}, includeEdges = {}, "
+                    + "directedType = {}, deduplicateUndirectedEdges = {})",
                     inOutType, includeEdges, directedType, deduplicateUndirectedEdges);
             return null;
         }
 
         final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
-                .all()
-                .includeIncomingOutgoing(inOutType)
-                .includeEdges(includeEdges)
-                .directedType(directedType)
-                .includeEntities(includeEntities)
-                .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
-                .build();
+                        .all()
+                        .includeIncomingOutgoing(inOutType)
+                        .includeEdges(includeEdges)
+                        .directedType(directedType)
+                        .includeEntities(includeEntities)
+                        .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
+                        .build();
         LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
-                        + " includeIncomingOutgoing = {}, directedType = {},"
-                        + " includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}",
+                + " includeIncomingOutgoing = {}, directedType = {},"
+                + " includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}",
                 RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR,
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 inOutType, directedType, includeEdges, includeEntities,

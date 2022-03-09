@@ -36,11 +36,13 @@ import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
@@ -52,21 +54,22 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentIds, EntityId> {
+public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<EntityId> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAdjacentIdRetriever.class);
 
     private final Iterable<? extends ElementId> ids;
     private final Set<String> transformGroups;
 
-    public AccumuloAdjacentIdRetriever(final AccumuloStore store, final GetAdjacentIds operation,
+    public AccumuloAdjacentIdRetriever(final AccumuloStore store, final Operation operation, final View view, final DirectedType directedType,
                                        final User user)
             throws IteratorSettingException, StoreException {
-        super(store, operation, user,
-                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
-                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store));
-        this.ids = operation.input();
+
+        super(store, operation, view, user,
+                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(view, store),
+                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(view, store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(view, store));
+        this.ids = operation.getInput();
         transformGroups = getGroupsWithTransforms(operation.getView());
     }
 
@@ -76,10 +79,10 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
      * @return a closeable iterator of items.
      */
     @Override
-    public CloseableIterator<EntityId> iterator() {
+    public Iterator<EntityId> iterator() {
         CloseableUtil.close(iterator);
 
-        if (!operation.getView().hasEdges()) {
+        if (!view.hasEdges()) {
             return new EmptyCloseableIterator<>();
         }
 
@@ -219,7 +222,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                     throw new NoSuchElementException();
                 }
             }
-            EntityId nextReturn = nextId;
+            final EntityId nextReturn = nextId;
             nextId = null;
             return nextReturn;
         }

@@ -21,8 +21,9 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
  * The iterator settings factory is designed to enable the AccumuloStore to
@@ -41,7 +42,8 @@ public interface IteratorSettingFactory {
      * {@link org.apache.accumulo.core.client.Scanner}.
      *
      * @param filter the bloom filter
-     * @return A new {@link IteratorSetting} for an Iterator capable of filtering elements based on checking its serialised form for membership in a {@link BloomFilter}
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering elements based on checking its serialised form for membership in a
+     *         {@link BloomFilter}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getBloomFilterIteratorSetting(final BloomFilter filter) throws IteratorSettingException;
@@ -80,16 +82,18 @@ public interface IteratorSettingFactory {
      * filtering via the Accumulo Key
      *
      * @param operation the operation
-     * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the options defined in the gaffer.accumulostore.operation
+     * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the options
+     *         defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphFilters operation);
+    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final Operation operation, final View view, final DirectedType directedType);
 
     /**
      * Returns an Iterator that will aggregate values in the accumulo table,
      * this iterator will be applied to the table on creation
      *
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements where they have the same key based on the
+     *         {@link uk.gov.gchq.gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException;
@@ -110,7 +114,8 @@ public interface IteratorSettingFactory {
      *
      * @param view  the operation view
      * @param store the accumulo store
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the
+     *         {@link uk.gov.gchq.gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getQueryTimeAggregatorIteratorSetting(final View view, final AccumuloStore store) throws IteratorSettingException;
@@ -120,7 +125,8 @@ public interface IteratorSettingFactory {
      *
      * @param store        the accumulo store
      * @param columnFamily the columnFamily that will be summarised
-     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
+     * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the
+     *         {@link uk.gov.gchq.gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
      */
     IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException;
@@ -128,7 +134,7 @@ public interface IteratorSettingFactory {
     /**
      * Returns an Iterator to be applied when doing range operations that will do any filtering of
      * Element properties that may have otherwise been done elsewhere e.g via
-     * key creation.  Examples of things that may not work correctly on
+     * key creation. Examples of things that may not work correctly on
      * Range operations without this iterator are
      * Edge/Entity/Undirected/Directed Edge filtering
      * This method May return null if this type of iterator is not required for example
@@ -136,10 +142,10 @@ public interface IteratorSettingFactory {
      *
      * @param operation the operation to get the IteratorSetting for
      * @return A new {@link IteratorSetting} for an Iterator capable of
-     * filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the
-     * options defined in the gaffer.accumulostore.operation
+     *         filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the
+     *         options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters operation);
+    IteratorSetting getElementPropertyRangeQueryFilter(final Operation operation, final View view, final DirectedType directedType);
 
     /**
      * Returns the iterator settings for a given iterator name. Allowed iterator

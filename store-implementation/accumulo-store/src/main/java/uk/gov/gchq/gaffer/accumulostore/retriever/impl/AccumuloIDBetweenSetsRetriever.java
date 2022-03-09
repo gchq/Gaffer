@@ -30,6 +30,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -68,26 +70,33 @@ import java.util.Set;
  * {@link org.apache.hadoop.util.bloom.BloomFilter} is used client-side to
  * further reduce the chances of false positives making it to the user.
  */
-public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElementsBetweenSets> {
+public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
     private Iterable<? extends EntityId> seedSetA;
     private Iterable<? extends EntityId> seedSetB;
     private Iterator<? extends EntityId> seedSetAIter;
     private Iterator<? extends EntityId> seedSetBIter;
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final GetElementsBetweenSets operation,
+                                          final Operation operation,
+                                          final View view,
                                           final User user,
-                                          final IteratorSetting... iteratorSettings) throws StoreException {
-        this(store, operation, user, false, iteratorSettings);
+                                          final IteratorSetting... iteratorSettings)
+            throws StoreException {
+        this(store, operation, view, user, false, iteratorSettings);
     }
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final GetElementsBetweenSets operation,
+                                          final Operation operation,
+                                          final View view,
                                           final User user,
                                           final boolean readEntriesIntoMemory,
-                                          final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, user, readEntriesIntoMemory, iteratorSettings);
-        setSeeds(operation.input(), operation.getInputB());
+                                          final IteratorSetting... iteratorSettings)
+            throws StoreException {
+        super(store, operation, view, user, readEntriesIntoMemory, iteratorSettings);
+
+        @SuppressWarnings("unchecked")
+        final Iterator<Iterable<? extends EntityId>> inputPair = ((Iterable<Iterable<? extends EntityId>>) operation.input()).iterator();
+        setSeeds(inputPair.next(), inputPair.next());
     }
 
     private void setSeeds(final Iterable<? extends EntityId> setA, final Iterable<? extends EntityId> setB) {
@@ -101,9 +110,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
         seedSetBIter = seedSetB.iterator();
         final boolean hasSeeds = seedSetAIter.hasNext() && seedSetBIter.hasNext();
         if (!hasSeeds) {
-            CloseableUtil.close(seedSetAIter);
-            CloseableUtil.close(seedSetBIter);
-            CloseableUtil.close(operation);
+            CloseableUtil.close(seedSetAIter, seedSetBIter, operation);
         }
 
         return hasSeeds;
@@ -154,8 +161,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
                 idsAIterator = seedSetAIter;
                 updateScanner();
             } catch (final Exception e) {
-                CloseableUtil.close(seedSetAIter);
-                CloseableUtil.close(seedSetBIter);
+                CloseableUtil.close(seedSetAIter, seedSetBIter);
 
                 throw e;
             }

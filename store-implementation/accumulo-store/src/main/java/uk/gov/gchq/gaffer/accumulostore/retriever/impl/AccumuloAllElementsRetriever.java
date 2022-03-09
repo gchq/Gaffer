@@ -31,20 +31,22 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.lang.Iterable;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
  * This allows queries for all elements.
  */
-public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllElements, ElementId> {
+public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<Iterable<? extends Element>, ElementId> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
-    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation,
-                                        final User user)
+    public AccumuloAllElementsRetriever(final AccumuloStore store, final Operation operation, final User user)
             throws IteratorSettingException, StoreException {
         super(store, operation, user, false,
                 store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
@@ -60,12 +62,12 @@ public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllEl
      * @return a closeable iterator of items.
      */
     @Override
-    public CloseableIterator<Element> iterator() {
+    public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
         try {
-            //A seed must be entered so the below add to ranges is reached.
-            Set<EntitySeed> all = Sets.newHashSet(new EntitySeed());
+            // A seed must be entered so the below add to ranges is reached.
+            final Set<EntitySeed> all = Sets.newHashSet(new EntitySeed());
             iterator = new ElementIterator(all.iterator());
         } catch (final RetrieverException e) {
             LOGGER.error("{} returning empty iterator", e.getMessage(), e);
