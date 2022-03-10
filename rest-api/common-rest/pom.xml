@@ -15,10 +15,6 @@
       <artifactId>graph</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -34,4 +30,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+
 </project>

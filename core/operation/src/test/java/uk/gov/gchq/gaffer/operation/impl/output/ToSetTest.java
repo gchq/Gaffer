@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +36,7 @@ public class ToSetTest extends OperationTest<ToSet> {
         final ToSet<String> toSet = new ToSet.Builder<String>().input("1", "2").build();
 
         // Then
-        final List<String> input = Lists.newArrayList(toSet.getInput());
-        assertThat(input)
+        assertThat(toSet.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +36,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
         final ToStream<String> toStream = new ToStream.Builder<String>().input("1", "2").build();
 
         // Then
-        final List<String> input = Lists.newArrayList(toStream.getInput());
-        assertThat(input)
+        assertThat(toStream.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

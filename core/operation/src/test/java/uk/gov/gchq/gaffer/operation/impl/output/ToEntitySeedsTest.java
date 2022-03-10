@@ -16,13 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
-import com.google.common.collect.Lists;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,8 +33,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
         final ToEntitySeeds toEntitySeeds = new ToEntitySeeds.Builder().input("1", "2").build();
 
         // Then
-        final List<Object> input = Lists.newArrayList(toEntitySeeds.getInput());
-        assertThat(input)
+        assertThat(toEntitySeeds.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

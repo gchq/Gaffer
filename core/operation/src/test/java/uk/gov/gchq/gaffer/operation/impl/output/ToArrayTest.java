@@ -16,13 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
-import com.google.common.collect.Lists;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,8 +33,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
         final ToArray<String> toArray = new ToArray.Builder<String>().input("1", "2").build();
 
         // Then
-        final List<String> input = Lists.newArrayList(toArray.getInput());
-        assertThat(input)
+        assertThat(toArray.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

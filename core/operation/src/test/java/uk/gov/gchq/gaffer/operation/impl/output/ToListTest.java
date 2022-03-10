@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
-import com.google.common.collect.Lists;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -37,8 +35,7 @@ public class ToListTest extends OperationTest<ToList> {
         final ToList<String> toList = new ToList.Builder<String>().input("1", "2").build();
 
         // Then
-        final List<String> input = Lists.newArrayList(toList.getInput());
-        assertThat(input)
+        assertThat(toList.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }
