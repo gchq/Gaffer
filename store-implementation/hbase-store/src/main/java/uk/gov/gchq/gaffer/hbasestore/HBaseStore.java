@@ -93,7 +93,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  * </p>
  * @deprecated
- * The HBase Store will be removed in Gaffer 2.0.
+ * The HBase Store will be removed in Gaffer v2.0.0.
  */
 @Deprecated
 public class HBaseStore extends Store {
