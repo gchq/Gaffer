@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
-import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -173,20 +172,16 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(operation, user, store);
-            // Without query compaction the result size should be 5
-            final Set<Element> elementSet = Sets.newHashSet(elements);
-            assertThat(elementSet).hasSize(5);
-            assertThat(elementSet).containsOnly(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2);
-            for (final Element element : elementSet) {
-                if (element instanceof Edge) {
-                    assertThat(((Edge) element).getMatchedVertex()).isEqualTo(EdgeId.MatchedVertex.SOURCE);
-                }
+
+        final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        // Without query compaction the result size should be 5
+        final Set<Element> elementSet = Sets.newHashSet(elements);
+        assertThat(elementSet).hasSize(5);
+        assertThat(elementSet).containsOnly(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2);
+        for (final Element element : elementSet) {
+            if (element instanceof Edge) {
+                assertThat(((Edge) element).getMatchedVertex()).isEqualTo(EdgeId.MatchedVertex.SOURCE);
             }
-        } finally {
-            CloseableUtil.close(elements);
         }
     }
 
@@ -342,18 +337,13 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
 
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(operation, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
-            // After query compaction the result size should be 1
-            assertThat(elements)
-                    .hasSize(expectedElements.length)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .containsOnly(expectedElements);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        // After query compaction the result size should be 1
+        assertThat(elements)
+                .hasSize(expectedElements.length)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .containsOnly(expectedElements);
     }
 
     private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {
