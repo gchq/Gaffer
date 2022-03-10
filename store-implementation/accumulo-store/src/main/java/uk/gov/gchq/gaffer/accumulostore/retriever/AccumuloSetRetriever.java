@@ -51,8 +51,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters>
         extends AccumuloRetriever<OP, Element> {
@@ -204,10 +206,10 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public boolean hasNext() {
-            if (Objects.nonNull(nextElm)) {
+            if (nonNull(nextElm)) {
                 return true;
             }
-            if (Objects.isNull(iterator)) {
+            if (isNull(iterator)) {
                 throw new IllegalStateException(
                         "This iterator has not been initialised. Call initialise before using it.");
             }
@@ -216,8 +218,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                 if (checkIfBothEndsInSet(nextElm)) {
                     if (doPostFilter(nextElm)) {
                         ViewUtil.removeProperties(operation.getView(), nextElm);
+                        return true;
                     }
-                    return true;
                 }
             }
             return false;
@@ -225,7 +227,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (Objects.isNull(nextElm)) {
+            if (isNull(nextElm)) {
                 if (!hasNext()) {
                     close();
                     throw new NoSuchElementException();
@@ -296,7 +298,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public boolean hasNext() {
-            if (Objects.nonNull(nextElm)) {
+            if (nonNull(nextElm)) {
                 return true;
             }
             try {
@@ -312,8 +314,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                         doTransformation(nextElm);
                         if (doPostFilter(nextElm)) {
                             ViewUtil.removeProperties(operation.getView(), nextElm);
+                            return true;
                         }
-                        return true;
                     }
                 }
             } catch (final RetrieverException e) {
@@ -326,7 +328,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (Objects.isNull(nextElm)) {
+            if (isNull(nextElm)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }

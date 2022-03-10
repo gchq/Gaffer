@@ -57,7 +57,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class AccumuloIDWithinSetRetrieverTest {
 
@@ -395,9 +394,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                 break;
             }
         }
-        if (count == maxNumberOfTries) {
-            fail("Didn't find a false positive");
-        }
+
+        assertThat(count).isNotEqualTo(maxNumberOfTries);
 
         // False positive is "" + count so create an edge from seeds to that
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder().view(defaultView)
