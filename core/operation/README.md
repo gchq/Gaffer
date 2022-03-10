@@ -124,11 +124,11 @@ and any configuration information that may not immediately be obvious. Member-le
 is not strictly necessary, but good practice for explanations/clarifications of complex methods.
 
 To assist users of the new Operation, it is best practice to provide documentation,
-and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
+and simple usage examples in [gaffer-doc](https://github.com/gchq/gaffer-doc).
 
 Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
 it is good practice to add it into the
-Python-Shell of [Gaffer-tools](https://github.com/gchq/gaffer-tools).
+Python-Shell of [gaffer-tools](https://github.com/gchq/gaffer-tools).
 For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/v1docs/components/tool/python-shell.html).
 
 ## Lazy Results
@@ -174,10 +174,10 @@ new OperationChain.Builder()
 Here are some frequently asked questions.
 
 #### If I do a query like GetElements or GetAdjacentIds the response type is a CloseableIterable - why?
-To avoid loading all the results into memory, Gaffer stores should return an iterable that lazily loads and returns the data as a user iterates around the results. In the cases of Accumulo and HBase this means a connection to Accumulo/HBase must remain open whilst you iterate around the results. This closeable iterable should automatically close itself when you get to the end of the results. However, if you decide not to read all the results, i.e you just want to check if the results are not empty !results.iterator().hasNext() or an exception is thrown whilst iterating around the results, then the results iterable will not be closed and hence the connection to Accumulo/HBase will remain open. Therefore, to be safe you should always consume the results in a try-with-resources block.
+To avoid loading all the results into memory, Gaffer stores should return an iterable that lazily loads and returns the data as a user iterates around the results. In the case of Accumulo this means a connection to Accumulo must remain open whilst you iterate around the results. This closeable iterable should automatically close itself when you get to the end of the results. However, if you decide not to read all the results, i.e you just want to check if the results are not empty !results.iterator().hasNext() or an exception is thrown whilst iterating around the results, then the results iterable will not be closed and hence the connection to Accumulo will remain open. Therefore, to be safe you should always consume the results in a try-with-resources block.
 
 #### Following on from the previous question, why can't I iterate around the results in parallel?
-As mentioned above the results iterable holds a connection open to Accumulo/HBase. To avoid opening multiple connections accidentally leaving the connections open, the Accumulo and HBase stores only allow one iterator to be active at a time. When you call .iterator() the connection is opened. If you call .iterator() again, the original connection is closed and a new connection is opened. This means you can't process the iterable in parallel using Java 8's streaming api. If the results will fit in memory you could add them to a Set/List and then process that collection in parallel.
+As mentioned above the results iterable holds a connection open to Accumulo. To avoid opening multiple connections accidentally leaving the connections open, the Accumulo store only allows one iterator to be active at a time. When you call .iterator() the connection is opened. If you call .iterator() again, the original connection is closed and a new connection is opened. This means you can't process the iterable in parallel using Java 8's streaming api. If the results will fit in memory you could add them to a Set/List and then process that collection in parallel.
 
 #### How do I return all my results summarised?
 You need to provide a View to override the groupBy fields for all the element groups defined in the Schema. If you set the groupBy field to an empty array it will mean no properties will be included in the element key, i.e all the properties will be summarised. You can do this be provided a View like this:
@@ -295,13 +295,13 @@ big improvement.
 
 When defining filters in your View try and use the preAggregationFilter for all your filters as
 this will be run before aggregation and will mean less work has to be done to aggregate
-properties that you will later just discard. On Accumulo and HBase, postTransformFilters 
+properties that you will later just discard. On Accumulo, postTransformFilters
 are not distributed, the are computed on a single node so they can be slow.
  
 Some stores (like Accumulo) store the properties in different columns and lazily
 deserialise a column as properties in that column are requested. So if you limit
 your filters to just 1 column then less data needs to be deserialised. For 
-Accumulo and HBase the columns are split up depending on whether the property is 
+Accumulo the columns are split up depending on whether the property is
 a groupBy property, the visibilityProperty and the remaining. 
 So if you want to execute a time window query and your timestamp is a groupBy 
 property then depending on the store you are
