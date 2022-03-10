@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
-import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import uk.gov.gchq.gaffer.rest.factory.ExamplesFactory;
 

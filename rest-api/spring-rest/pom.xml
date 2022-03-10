@@ -136,6 +136,17 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!-- Required to force older Jersey -->
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-client</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
