@@ -14,6 +14,11 @@ limitations under the License.
 
 The master copy of this page is the README in the hbase-store module.
 
+Deprecated
+===================
+The HBase Store has been [deprecated](https://github.com/gchq/Gaffer/issues/2556). It will be deleted during the Gaffer 2 development process and Gaffer v2.0.0 will not have a HBase Store implementation included with it.  
+
+
 HBase Store
 ===================
 
