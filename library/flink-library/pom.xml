@@ -167,12 +167,34 @@
             <version>${kafka.minor.version}</version>
             <classifier>test</classifier>
             <scope>test</scope>
+            <exclusions>
+                <!-- Conflicts with Reload4j -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_${scala.minor.version}</artifactId>
             <version>${kafka.minor.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <!-- Conflicts with Reload4j -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
