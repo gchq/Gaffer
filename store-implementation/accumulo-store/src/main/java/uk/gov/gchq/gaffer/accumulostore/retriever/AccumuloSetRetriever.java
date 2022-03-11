@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+F * Copyright 2016-2020 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,8 +259,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
          *
          * @param elm the element to check
          * @return True if the provided element is an edge and Both ends are
-         *         contained in the provided seed sets or if the element is an
-         *         entity
+         * contained in the provided seed sets or if the element is an
+         * entity
          */
         private boolean checkIfBothEndsInSet(final Element elm) {
             if (Entity.class.isInstance(elm)) {
