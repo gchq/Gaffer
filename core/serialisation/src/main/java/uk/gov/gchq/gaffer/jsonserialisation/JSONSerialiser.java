@@ -221,7 +221,7 @@ public class JSONSerialiser {
 
         // Allow simple class names or full class names to be used in JSON.
         // We must set this to true to ensure serialisation into json uses the
-        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo/HBase.
+        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo.
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
         SimpleClassNameIdResolver.configureObjectMapper(mapper);
         return mapper;
