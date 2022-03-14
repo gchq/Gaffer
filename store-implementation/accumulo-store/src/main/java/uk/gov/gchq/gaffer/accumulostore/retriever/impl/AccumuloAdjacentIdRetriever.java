@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -59,18 +60,21 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<EntityId> {
 
     private final Iterable<? extends ElementId> ids;
     private final Set<String> transformGroups;
+    private final Operation operation;
 
+    @SuppressWarnings("unchecked")
     public AccumuloAdjacentIdRetriever(final AccumuloStore store, final Operation operation, final View view, final DirectedType directedType,
                                        final User user)
             throws IteratorSettingException, StoreException {
 
-        super(store, operation, view, user,
+        super(store, view, user,
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(view, store),
                 store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(view, store),
                 store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(view, store));
-        this.ids = operation.getInput();
-        transformGroups = getGroupsWithTransforms(operation.getView());
+        this.operation = operation;
+        this.ids = (Iterable<? extends ElementId>) operation.getInput();
+        this.transformGroups = getGroupsWithTransforms(view);
     }
 
     /**
@@ -240,18 +244,26 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<EntityId> {
         }
     }
 
-    private void addToRanges(final ElementId seed, final Set<Range> ranges) throws RangeFactoryException {
-        ranges.addAll(rangeFactory.getRange(seed, operation));
+    private void addToRanges(final Object seed, final Set<Range> ranges) throws RangeFactoryException {
+        ranges.addAll(rangeFactory.getRange(ElementId.class.cast(seed), operation));
     }
 
+    @SuppressWarnings("unchecked")
     private Set<String> getGroupsWithTransforms(final View view) {
         final Set<String> groups = new HashSet<>();
-        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet())) {
-            if (null != entry.getValue()) {
-                if (entry.getValue().hasPostTransformFilters()) {
-                    groups.add(entry.getKey());
+        ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
+
+        try {
+            chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet());
+            for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
+                if (null != entry.getValue()) {
+                    if (entry.getValue().hasPostTransformFilters()) {
+                        groups.add(entry.getKey());
+                    }
                 }
             }
+        } finally {
+            CloseableUtil.close(chainedIterable);
         }
         return groups;
     }

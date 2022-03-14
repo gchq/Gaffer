@@ -54,6 +54,8 @@ import java.util.Set;
 public abstract class AccumuloSetRetriever extends AccumuloRetriever<Element> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
+
+    protected final Operation operation;
     private boolean readEntriesIntoMemory;
 
     public AccumuloSetRetriever(final AccumuloStore store, final Operation operation, final View view, final User user)
@@ -64,8 +66,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<Element> {
     public AccumuloSetRetriever(final AccumuloStore store, final Operation operation, final View view, final User user,
                                 final boolean readEntriesIntoMemory)
             throws StoreException {
-        super(store, operation, view, user);
+        super(store, view, user);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
+        this.operation = operation;
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final Operation operation, final View view, final User user,
@@ -77,8 +80,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<Element> {
     public AccumuloSetRetriever(final AccumuloStore store, final Operation operation, final View view, final User user,
                                 final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings)
             throws StoreException {
-        super(store, operation, view, user, iteratorSettings);
+        super(store, view, user, iteratorSettings);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
+        this.operation = operation;
     }
 
     public void setReadEntriesIntoMemory(final boolean readEntriesIntoMemory) {
@@ -252,8 +256,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<Element> {
          *
          * @param elm the element to check
          * @return True if the provided element is an edge and Both ends are
-         *         contained in the provided seed sets or if the element is an
-         *         entity
+         * contained in the provided seed sets or if the element is an
+         * entity
          */
         private boolean checkIfBothEndsInSet(final Element elm) {
             if (Entity.class.isInstance(elm)) {
@@ -366,8 +370,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<Element> {
             try {
                 scanner = getScanner(ranges);
             } catch (final TableNotFoundException | StoreException e) {
-                CloseableUtil.close(idsAIterator);
-                CloseableUtil.close(operation);
+                CloseableUtil.close(idsAIterator, operation);
                 throw new RetrieverException(e);
             }
             try {

@@ -33,8 +33,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-import java.util.Arrays;
-
 public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<? extends Element>> {
 
     private static final String INCLUDE_INCOMING_OUTGOING = "includeIncomingOutgoing";

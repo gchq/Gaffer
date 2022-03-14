@@ -42,8 +42,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
 
 public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
@@ -57,10 +60,10 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
                                     final User user, final boolean includeMatchedVertex,
                                     final IteratorSetting... iteratorSettings)
             throws StoreException {
-        super(store, operation, view, user, iteratorSettings);
+        super(store, view, user, iteratorSettings);
         this.includeMatchedVertex = includeMatchedVertex;
         // this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
-        this.ids = Objects.nonNull(operation.getInput()) ? (Iterable<?>) operation.getInput() : null;
+        this.ids = nonNull(operation.getInput()) ? (Iterable<?>) operation.getInput() : null;
     }
 
     /**
@@ -72,20 +75,18 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
     public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
-        // final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Collections.emptyIterator();
-        final Iterator<?> idIterator = null != ids ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<?> idIterator = nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyCloseableIterator<>();
+        } else {
+            try {
+                iterator = new ElementIterator(idIterator);
+                return iterator;
+            } catch (final RetrieverException e) {
+                LOGGER.error("{} returning empty iterator", e.getMessage(), e);
+                return new EmptyCloseableIterator<>();
+            }
         }
-
-        try {
-            iterator = new ElementIterator(idIterator);
-        } catch (final RetrieverException e) {
-            LOGGER.error("{} returning empty iterator", e.getMessage(), e);
-            return new EmptyCloseableIterator<>();
-        }
-
-        return iterator;
     }
 
     protected abstract void addToRanges(final Object seed, final Set<Range> ranges) throws RangeFactoryException;
@@ -127,6 +128,7 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
             if (null != nextElm) {
                 return true;
             }
+
             while (scannerIterator.hasNext()) {
                 final Entry<Key, Value> entry = scannerIterator.next();
                 try {
@@ -135,8 +137,7 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
                             entry.getValue(),
                             includeMatchedVertex);
                 } catch (final AccumuloElementConversionException e) {
-                    LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
-                            e);
+                    LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null", e);
                     continue;
                 }
                 doTransformation(nextElm);
@@ -147,6 +148,7 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
                     nextElm = null;
                 }
             }
+
             // If current scanner is spent then go back to the iterator
             // through the provided entities, and see if there are more.
             // If so create the next scanner, if there are no more entities
@@ -171,6 +173,7 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
                 }
                 scannerIterator = scanner.iterator();
             }
+
             if (!scannerIterator.hasNext()) {
                 CloseableUtil.close(scanner);
                 return false;
@@ -181,14 +184,13 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
 
         @Override
         public Element next() {
-            if (null == nextElm) {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
+            if (isNull(nextElm) && !hasNext()) {
+                throw new NoSuchElementException();
+            } else {
+                final Element nextReturn = nextElm;
+                nextElm = null;
+                return nextReturn;
             }
-            final Element nextReturn = nextElm;
-            nextElm = null;
-            return nextReturn;
         }
 
         @Override
@@ -198,9 +200,7 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
 
         @Override
         public void close() {
-            if (null != scanner) {
-                CloseableUtil.close(scanner);
-            }
+            CloseableUtil.close(scanner);
         }
     }
 }

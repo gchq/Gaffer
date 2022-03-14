@@ -18,31 +18,30 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.stream.StreamSupport;
 
-public class AccumuloElementsRetriever extends AccumuloSingleIDRetriever<Operation> {
+public class AccumuloElementsRetriever extends AccumuloSingleIDRetriever {
+
+    @SuppressWarnings("unchecked")
     public AccumuloElementsRetriever(final AccumuloStore store,
                                      final Operation operation,
+                                     final View view,
+                                     final DirectedType directedType,
                                      final User user)
             throws IteratorSettingException, StoreException {
-        Iterable<?> input;
-        if (operation.getInput() instanceof Iterable) {
-            input = Iterable.class.cast(operation.input());
-        } else {
-            throw new IllegalArgumentException("The input is not of type");
-        }
-
-        super(store, operation, user,
+        super(store, operation, view, user,
                 // includeMatchedVertex if input only contains EntityIds
-                StreamSupport.stream(input.spliterator(), false).noneMatch(input -> EdgeId.class.isInstance(input)),
-                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
-                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+                StreamSupport.stream(Iterable.class.cast(operation.getInput()).spliterator(), false).noneMatch(input -> EdgeId.class.isInstance(input)),
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(view, store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(view, store),
+                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
+                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(view, store));
     }
 }

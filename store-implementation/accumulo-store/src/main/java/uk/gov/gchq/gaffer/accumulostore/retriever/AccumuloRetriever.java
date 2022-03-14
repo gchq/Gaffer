@@ -35,8 +35,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -44,7 +42,10 @@ import java.io.Closeable;
 import java.util.Iterator;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Closeable, GraphFilters {
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Closeable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloRetriever.class);
 
@@ -54,23 +55,21 @@ public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Clo
     protected final User user;
     protected final RangeFactory rangeFactory;
     protected final IteratorSettingFactory iteratorSettingFactory;
-    protected final Operation operation;
     protected final AccumuloElementConverter elementConverter;
     protected final IteratorSetting[] iteratorSettings;
     protected final View view;
 
-    protected AccumuloRetriever(final AccumuloStore store, final Operation operation, final View view,
+    protected AccumuloRetriever(final AccumuloStore store, final View view,
                                 final User user, final IteratorSetting... iteratorSettings)
             throws StoreException {
         this.store = store;
         this.rangeFactory = store.getKeyPackage().getRangeFactory();
         this.iteratorSettingFactory = store.getKeyPackage().getIteratorFactory();
         this.elementConverter = store.getKeyPackage().getKeyConverter();
-        this.operation = operation;
         this.view = view;
         this.iteratorSettings = iteratorSettings;
         this.user = user;
-        if (null != user && null != user.getDataAuths()) {
+        if (nonNull(user) && nonNull(user.getDataAuths())) {
             this.authorisations = new Authorizations(
                     user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
         } else {
@@ -85,7 +84,7 @@ public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Clo
      */
     public void doTransformation(final Element element) {
         final ViewElementDefinition viewDef = view.getElement(element.getGroup());
-        if (null != viewDef) {
+        if (nonNull(viewDef)) {
             transform(element, viewDef.getTransformer());
         }
     }
@@ -98,7 +97,7 @@ public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Clo
      */
     public boolean doPostFilter(final Element element) {
         final ViewElementDefinition viewDef = view.getElement(element.getGroup());
-        if (null != viewDef) {
+        if (nonNull(viewDef)) {
             return postFilter(element, viewDef.getPostTransformFilter());
         }
         return true;
@@ -106,9 +105,7 @@ public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Clo
 
     @Override
     public void close() {
-        if (null != iterator) {
-            CloseableUtil.close(iterator);
-        }
+        CloseableUtil.close(iterator);
     }
 
     /**
@@ -117,9 +114,9 @@ public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Clo
      *
      * @param ranges the ranges to get the scanner for
      * @return A {@link org.apache.accumulo.core.client.BatchScanner} for the
-     *         table specified in the properties with the ranges provided.
+     * table specified in the properties with the ranges provided.
      * @throws TableNotFoundException if an accumulo table could not be found
-     * @throws StoreException         if a connection to accumulo could not be created.
+     * @throws StoreException if a connection to accumulo could not be created.
      */
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
         final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(),
@@ -149,12 +146,12 @@ public abstract class AccumuloRetriever<O_ITEM> implements Iterable<O_ITEM>, Clo
     }
 
     protected void transform(final Element element, final ElementTransformer transformer) {
-        if (null != transformer) {
+        if (nonNull(transformer)) {
             transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return null == postFilter || postFilter.test(element);
+        return isNull(postFilter) || postFilter.test(element);
     }
 }
