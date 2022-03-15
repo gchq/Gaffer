@@ -37,6 +37,7 @@ public class AddElementsHandler implements OperationHandler<Void> {
     public Void _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
             final boolean validate = (boolean) operation.getOrDefault(VALIDATE, true);
+
             final boolean skipInvalidElements = (boolean) operation.getOrDefault(SKIP_INVALID_ELEMENTS, false);
             final AccumuloStore accumuloStore = (AccumuloStore) store;
 
