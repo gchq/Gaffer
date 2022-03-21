@@ -35,6 +35,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<? extends Element>> {
 
+    private static final String VIEW = "view";
+
     private static final String INCLUDE_INCOMING_OUTGOING = "includeIncomingOutgoing";
 
     private static final String DIRECTED_TYPE = "directedType";
@@ -43,7 +45,7 @@ public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<
     public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
             final AccumuloStore accumuloStore = (AccumuloStore) store;
-            final View view = (View) operation.get("view");
+            final View view = (View) operation.get(VIEW);
             final DirectedType directedType = (DirectedType) operation.get(DIRECTED_TYPE);
 
             // TODO: pass in IteratorSettingFactory rather than multiple IteratorSettings?
@@ -62,6 +64,7 @@ public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<
     public FieldDeclaration getFieldDeclaration() {
         return new FieldDeclaration()
                 .inputRequired(Iterable.class)
+                .fieldRequired(VIEW, View.class)
                 .fieldOptional(DIRECTED_TYPE, DirectedType.class)
                 .fieldOptional(INCLUDE_INCOMING_OUTGOING, IncludeIncomingOutgoingType.class);
     }
@@ -70,6 +73,11 @@ public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<
 
         public OperationBuilder input(final Iterable<? extends EntityId> inputA, final Iterable<? extends EntityId> inputB) {
             operation.operationArg(FieldDeclaration.INPUT, new Iterable[] {inputA, inputB});
+            return this;
+        }
+
+        public OperationBuilder view(final View view) {
+            operation.operationArg(VIEW, view);
             return this;
         }
 

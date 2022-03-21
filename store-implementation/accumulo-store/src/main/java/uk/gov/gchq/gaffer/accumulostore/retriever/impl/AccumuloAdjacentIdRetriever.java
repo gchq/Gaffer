@@ -66,7 +66,6 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<EntityId> {
     public AccumuloAdjacentIdRetriever(final AccumuloStore store, final Operation operation, final View view, final DirectedType directedType,
                                        final User user)
             throws IteratorSettingException, StoreException {
-
         super(store, view, user,
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(view, store),

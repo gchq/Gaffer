@@ -62,7 +62,6 @@ public abstract class AccumuloItemRetriever extends AccumuloRetriever<Element> {
             throws StoreException {
         super(store, view, user, iteratorSettings);
         this.includeMatchedVertex = includeMatchedVertex;
-        // this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
         this.ids = nonNull(operation.getInput()) ? (Iterable<?>) operation.getInput() : null;
     }
 
