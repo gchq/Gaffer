@@ -23,8 +23,9 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -41,11 +42,14 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         this.schema = schema;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    protected List<Range> getRange(final Object vertex, final GraphFilters operation,
-                                   final boolean includeEdgesParam) throws RangeFactoryException {
+    protected List<Range> getRange(final Object vertex, final Operation operation,
+                                   final View view, final DirectedType directedType,
+                                   final boolean includeEdgesParam)
+            throws RangeFactoryException {
         final boolean includeEdges = includeEdgesParam;
-        final boolean includeEntities = operation.getView().hasEntities();
+        final boolean includeEntities = view.hasEntities();
 
         byte[] serialisedVertex;
         try {
@@ -66,17 +70,19 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         }
     }
 
-
     @Override
-    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                   final GraphFilters operation, final IncludeIncomingOutgoingType inOutType) throws RangeFactoryException {
-        return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directed, inOutType, false), true,
-                getKeyFromEdgeId(sourceVal, destVal, directed, inOutType, true), true));
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Operation operation,
+                                   final DirectedType directedType, final IncludeIncomingOutgoingType inOutType)
+            throws RangeFactoryException {
+        return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directedType, inOutType, false), true,
+                getKeyFromEdgeId(sourceVal, destVal, directedType, inOutType, true), true));
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final IncludeIncomingOutgoingType inOutType,
-                                   final boolean endKey) throws RangeFactoryException {
+                                   final boolean endKey)
+            throws RangeFactoryException {
         final byte directionFlag1;
         if (DirectedType.isEither(directed)) {
             // Get directed and undirected edges

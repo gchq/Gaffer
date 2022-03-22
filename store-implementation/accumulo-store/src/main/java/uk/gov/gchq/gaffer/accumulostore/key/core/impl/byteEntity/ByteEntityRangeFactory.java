@@ -25,8 +25,9 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -45,26 +46,27 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                   final GraphFilters operation, final IncludeIncomingOutgoingType inOutType) throws RangeFactoryException {
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Operation operation,
+                                   final DirectedType directed, final IncludeIncomingOutgoingType inOutType)
+            throws RangeFactoryException {
         // To do EITHER we need to create 2 ranges
         if (DirectedType.isEither(directed)) {
             return Arrays.asList(
                     new Range(getKeyFromEdgeId(sourceVal, destVal, false, false), true,
                             getKeyFromEdgeId(sourceVal, destVal, false, true), true),
                     new Range(getKeyFromEdgeId(sourceVal, destVal, true, false), true,
-                            getKeyFromEdgeId(sourceVal, destVal, true, true), true)
-            );
+                            getKeyFromEdgeId(sourceVal, destVal, true, true), true));
         }
 
         return Collections.singletonList(
                 new Range(getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), false), true,
-                        getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), true), true)
-        );
+                        getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), true), true));
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected Key getKeyFromEdgeId(final Object source, final Object destination, final boolean directed,
-                                   final boolean endKey) throws RangeFactoryException {
+                                   final boolean endKey)
+            throws RangeFactoryException {
         final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
         final byte directionFlag = directed ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
@@ -81,7 +83,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }
 
-        byte[] key = getKey(endKey, directionFlag, sourceValue, destinationValue);
+        final byte[] key = getKey(endKey, directionFlag, sourceValue, destinationValue);
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
@@ -104,18 +106,20 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         carriage += destinationValue.length;
         key[carriage++] = ByteArrayEscapeUtils.DELIMITER;
         key[carriage] = directionFlag;
-        //carriage++;
+        // carriage++;
         return key;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    protected List<Range> getRange(final Object vertex, final GraphFilters operation,
-                                   final boolean includeEdgesParam) throws RangeFactoryException {
+    protected List<Range> getRange(final Object vertex, final Operation operation,
+                                   final View view, final DirectedType directedType,
+                                   final boolean includeEdgesParam)
+            throws RangeFactoryException {
 
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
-        final DirectedType directedType = operation.getDirectedType();
         final boolean includeEdges = includeEdgesParam;
-        final boolean includeEntities = operation.getView().hasEntities();
+        final boolean includeEntities = view.hasEntities();
 
         byte[] serialisedVertex;
         try {

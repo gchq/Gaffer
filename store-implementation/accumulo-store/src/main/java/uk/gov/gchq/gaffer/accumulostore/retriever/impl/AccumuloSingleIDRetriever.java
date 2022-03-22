@@ -23,34 +23,36 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
 
 /**
- * This allows queries for all data related to the provided
- * {@link ElementId}s.
+ * This allows queries for all data related to the provided {@link ElementId}s.
  */
-public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>> & GraphFilters>
-        extends AccumuloItemRetriever<OP, ElementId> {
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-                                     final User user)
+public class AccumuloSingleIDRetriever extends AccumuloItemRetriever {
+
+    private final Operation operation;
+
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final Operation operation,
+                                     final View view, final DirectedType directedType, final User user)
             throws IteratorSettingException, StoreException {
-        this(store, operation, user,
-                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+        this(store, operation, view, user,
+                store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(view, store),
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(view, store),
+                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType));
     }
 
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-                                     final User user,
-                                     final IteratorSetting... iteratorSettings) throws StoreException {
-        this(store, operation, user, true, iteratorSettings);
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final Operation operation,
+                                     final View view, final User user,
+                                     final IteratorSetting... iteratorSettings)
+            throws StoreException {
+        this(store, operation, view, user, true, iteratorSettings);
     }
 
     /**
@@ -61,22 +63,25 @@ public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends
      * getElementFilterIteratorSetting and/Or
      * getEdgeEntityDirectionFilterIteratorSetting
      *
-     * @param store                the accumulo store
-     * @param operation            the get operation
-     * @param user                 the user executing the operation
+     * @param store the accumulo store
+     * @param operation the get operation
+     * @param view the user view
+     * @param user the user executing the operation
      * @param includeMatchedVertex true if the matched vertex field should be set
-     * @param iteratorSettings     the iterator settings
+     * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-                                     final User user,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final Operation operation,
+                                     final View view, final User user,
                                      final boolean includeMatchedVertex,
-                                     final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, user, includeMatchedVertex, iteratorSettings);
+                                     final IteratorSetting... iteratorSettings)
+            throws StoreException {
+        super(store, operation, view, user, includeMatchedVertex, iteratorSettings);
+        this.operation = operation;
     }
 
     @Override
-    protected void addToRanges(final ElementId seed, final Set<Range> ranges) throws RangeFactoryException {
-        ranges.addAll(rangeFactory.getRange(seed, operation));
+    protected void addToRanges(final Object seed, final Set<Range> ranges) throws RangeFactoryException {
+        ranges.addAll(rangeFactory.getRange(ElementId.class.cast(seed), operation));
     }
 }

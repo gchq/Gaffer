@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
 import java.util.ArrayList;
@@ -36,30 +37,30 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public List<Range> getRange(final ElementId elementId, final GraphFilters operation)
+    public List<Range> getRange(final ElementId elementId, final Operation operation, final View view, final DirectedType directedType)
             throws RangeFactoryException {
         final SeededGraphFilters.IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
-        return getRange(elementId, operation, inOutType);
+        return getRange(elementId, operation, view, directedType, inOutType);
     }
 
-    private List<Range> getRange(final ElementId elementId, final GraphFilters operation, final SeededGraphFilters.IncludeIncomingOutgoingType inOutType)
+    private List<Range> getRange(final ElementId elementId, final Operation operation, final View view, final DirectedType directedType, final SeededGraphFilters.IncludeIncomingOutgoingType inOutType)
             throws RangeFactoryException {
         if (elementId instanceof EntityId) {
-            return getRange(((EntityId) elementId).getVertex(), operation, operation.getView().hasEdges());
+            return getRange(((EntityId) elementId).getVertex(), operation, view, directedType, view.hasEdges());
         } else {
             final EdgeId edgeId = (EdgeId) elementId;
             final List<Range> ranges = new ArrayList<>();
-            if (operation.getView().hasEdges()
-                    && DirectedType.areCompatible(operation.getDirectedType(), edgeId.getDirectedType())) {
+            if (view.hasEdges()
+                    && DirectedType.areCompatible(directedType, edgeId.getDirectedType())) {
                 // EQUALS and RELATED seed matching.
-                final DirectedType directed = DirectedType.and(operation.getDirectedType(), edgeId.getDirectedType());
-                ranges.addAll(getRange(edgeId.getSource(), edgeId.getDestination(), directed, operation, inOutType));
+                final DirectedType directed = DirectedType.and(directedType, edgeId.getDirectedType());
+                ranges.addAll(getRange(edgeId.getSource(), edgeId.getDestination(), operation, directed, inOutType));
             }
 
-            if (operation.getView().hasEntities()) {
+            if (view.hasEntities()) {
                 // Get Entities related to EdgeIds
-                ranges.addAll(getRange(edgeId.getSource(), operation, false));
-                ranges.addAll(getRange(edgeId.getDestination(), operation, false));
+                ranges.addAll(getRange(edgeId.getSource(), operation, view, directedType, false));
+                ranges.addAll(getRange(edgeId.getDestination(), operation, view, directedType, false));
             }
 
             return ranges;
@@ -67,12 +68,12 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     @Override
-    public Range getRangeFromPair(final Pair<ElementId, ElementId> pairRange, final GraphFilters operation)
+    public Range getRangeFromPair(final Pair<ElementId, ElementId> pairRange, final Operation operation, final View view, final DirectedType directedType)
             throws RangeFactoryException {
         final ArrayList<Range> ran = new ArrayList<>();
         // set the in out flag to null to disable it
-        ran.addAll(getRange(pairRange.getFirst(), operation, null));
-        ran.addAll(getRange(pairRange.getSecond(), operation, null));
+        ran.addAll(getRange(pairRange.getFirst(), operation, view, directedType, null));
+        ran.addAll(getRange(pairRange.getSecond(), operation, view, directedType, null));
         Range min = null;
         Range max = null;
         for (final Range range : ran) {
@@ -89,10 +90,16 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
         return new Range(min.getStartKey(), max.getEndKey());
     }
 
-    protected abstract List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                            final GraphFilters operation, SeededGraphFilters.IncludeIncomingOutgoingType inOutType) throws RangeFactoryException;
+    protected abstract List<Range> getRange(final Object sourceVal, final Object destVal,
+                                            final Operation operation,
+                                            final DirectedType directedType,
+                                            SeededGraphFilters.IncludeIncomingOutgoingType inOutType)
+            throws RangeFactoryException;
 
     protected abstract List<Range> getRange(final Object vertex,
-                                            final GraphFilters operation,
-                                            final boolean includeEdges) throws RangeFactoryException;
+                                            final Operation operation,
+                                            final View view,
+                                            final DirectedType directedType,
+                                            final boolean includeEdges)
+            throws RangeFactoryException;
 }
