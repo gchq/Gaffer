@@ -97,7 +97,10 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  * It is designed to make the most of the Parquet file types by serialising the {@link Element}s using
  * {@link uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser}s which also allows for Gaffer objects to be
  * stored as multiple or nested columns of primitive types.
+ * @deprecated
+ * The Parquet Store will be removed in Gaffer v2.0.0.
  */
+@Deprecated
 public class ParquetStore extends Store {
     public static final String GROUP = "group";
     public static final String GRAPH = "graph";

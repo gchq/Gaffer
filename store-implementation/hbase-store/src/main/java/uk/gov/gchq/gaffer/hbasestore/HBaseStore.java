@@ -92,7 +92,10 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * the rowId. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
  * </p>
+ * @deprecated
+ * The HBase Store will be removed in Gaffer v2.0.0.
  */
+@Deprecated
 public class HBaseStore extends Store {
     public static final Set<StoreTrait> TRAITS =
             Collections.unmodifiableSet(Sets.newHashSet(
