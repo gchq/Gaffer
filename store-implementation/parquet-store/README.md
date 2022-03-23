@@ -12,6 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+# Deprecated
+The Parquet Store has been [deprecated](https://github.com/gchq/Gaffer/issues/2604). It will be deleted during the Gaffer 2 development process and Gaffer v2.0.0 will not have a Parquet Store implementation included with it.  
+
 # Parquet Store
 
 Contents:
