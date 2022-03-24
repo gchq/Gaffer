@@ -20,36 +20,58 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloIDWithinSetRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.BuilderInputViewDirectedType;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet, CloseableIterable<? extends Element>> {
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.DIRECTED_TYPE;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.VIEW;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.getInputViewDirectedTypeFieldDeclaration;
+
+public class GetElementsWithinSetHandler implements OperationHandler<Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetElementsWithinSet operation,
-                                                            final Context context, final Store store)
-            throws OperationException {
-        return doOperation(operation, context.getUser(), (AccumuloStore) store);
-    }
-
-    public CloseableIterable<? extends Element> doOperation(final GetElementsWithinSet operation,
-                                                            final User user, final AccumuloStore store)
-            throws OperationException {
+    public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            return new AccumuloIDWithinSetRetriever(store, operation, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+            final AccumuloStore accumuloStore = AccumuloStore.class.cast(store);
+            final View view = View.class.cast(operation.get(VIEW));
+            final DirectedType directedType = DirectedType.class.cast(operation.get(DIRECTED_TYPE));
+
+            final IteratorSettingFactory iteratorSettingFactory = accumuloStore.getKeyPackage().getIteratorFactory();
+            return new AccumuloIDWithinSetRetriever(accumuloStore, operation, view, context.getUser(),
+                    iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(view, accumuloStore),
+                    iteratorSettingFactory.getElementPostAggregationFilterIteratorSetting(view, accumuloStore),
+                    iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
+                    iteratorSettingFactory.getQueryTimeAggregatorIteratorSetting(view, accumuloStore));
         } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }
 
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return getInputViewDirectedTypeFieldDeclaration();
+    }
+
+    public static class OperationBuilder extends BuilderInputViewDirectedType<OperationBuilder, GetElementsWithinSetHandler, Iterable<? extends EntityId>> {
+
+        @Override
+        protected OperationBuilder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected GetElementsWithinSetHandler getHandler() {
+            return new GetElementsWithinSetHandler();
+        }
+    }
 }

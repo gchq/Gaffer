@@ -17,30 +17,36 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class GetElementsHandlerTest {
+
     @Test
-    public void shouldThrowExceptionIfAnOldOperationOptionIsUsed() throws OperationException, StoreException {
+    public void shouldThrowExceptionIfAnOldOperationOptionIsUsed(@Mock final Iterable<EntityId> mockIds) throws OperationException, StoreException {
         // Given
-        final Iterable<EntityId> ids = mock(Iterable.class);
         final GetElementsHandler handler = new GetElementsHandler();
-        final GetElements getElements = new GetElements.Builder()
-                .input(ids)
-                .option("accumulostore.operation.return_matched_id_as_edge_source", "true")
+
+        final Operation operation = new GetElementsHandler.OperationBuilder()
+                .id("GetElements")
+                .input(mockIds)
+                .operationArg("accumulostore.operation.return_matched_id_as_edge_source", "true")
                 .build();
 
         // When / Then
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> handler.doOperation(getElements, new Context(), null))
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), null))
                 .withMessageContaining("return_matched_id_as_edge_source");
     }
 
@@ -48,25 +54,30 @@ public class GetElementsHandlerTest {
     public void shouldFailIfOperationInputIsUndefined() {
         // Given
         final GetElementsHandler handler = new GetElementsHandler();
-        final GetElements op = new GetElements.Builder()
+
+        final Operation operation = new GetElementsHandler.OperationBuilder()
+                .id("GetElements")
                 .build();
 
         // When / Then
         assertThatExceptionOfType(OperationException.class)
-                .isThrownBy(() -> handler.doOperation(op, new Context(), null))
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), null))
                 .withMessageContaining("Operation input is undefined - please specify an input.");
     }
 
+    // TODO: same as above?
     @Test
     public void shouldNotReturnDeletedElements() {
         // Given
         final GetElementsHandler handler = new GetElementsHandler();
-        final GetElements op = new GetElements.Builder()
+
+        final Operation operation = new GetElementsHandler.OperationBuilder()
+                .id("GetElements")
                 .build();
 
         // When / Then
         assertThatExceptionOfType(OperationException.class)
-                .isThrownBy(() -> handler.doOperation(op, new Context(), null))
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), null))
                 .withMessageContaining("Operation input is undefined - please specify an input.");
     }
 }

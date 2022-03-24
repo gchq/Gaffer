@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -31,6 +33,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.Context;
@@ -44,7 +47,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class AccumuloRangeIDRetrieverTest {
 
@@ -58,7 +60,7 @@ public class AccumuloRangeIDRetrieverTest {
     private static View defaultView;
 
     @BeforeAll
-    public static void setup() throws StoreException {
+    public static void setup() throws StoreException, OperationException {
         BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
@@ -83,11 +85,11 @@ public class AccumuloRangeIDRetrieverTest {
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
-        final GetElementsInRanges operation = new GetElementsInRanges.Builder()
+        final Operation operation = new GetElementsInRangesHandler.OperationBuilder()
                 .view(defaultView)
                 .input(simpleEntityRanges)
                 .build();
-        final AccumuloRangeIDRetriever<?> retriever = new AccumuloRangeIDRetriever<>(store, operation, new User());
+        final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, defaultView, new User());
         final List<Element> elements = Lists.newArrayList(retriever);
         for (final Element element : elements) {
             if (element instanceof Edge) {
@@ -98,7 +100,7 @@ public class AccumuloRangeIDRetrieverTest {
         assertEquals(NUM_ENTRIES, elements.size());
     }
 
-    private static void setupGraph(final AccumuloStore store, final int numEntries) {
+    private static void setupGraph(final AccumuloStore store, final int numEntries) throws OperationException {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             String s = "" + i;
@@ -113,13 +115,10 @@ public class AccumuloRangeIDRetrieverTest {
                     .directed(false)
                     .build());
         }
-        try {
-            final User user = new User();
-            store.execute(new AddElements.Builder()
-                    .input(elements)
-                    .build(), new Context(user));
-        } catch (final OperationException e) {
-            fail("Couldn't add element: " + e);
-        }
+
+        final User user = new User();
+        store.execute(new AddElementsHandler.OperationBuilder()
+                .input(elements)
+                .build(), new Context(user));
     }
 }

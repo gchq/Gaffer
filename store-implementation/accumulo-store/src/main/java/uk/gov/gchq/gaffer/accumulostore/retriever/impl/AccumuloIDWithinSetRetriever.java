@@ -30,6 +30,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -71,21 +73,25 @@ import java.util.Set;
  * {@link org.apache.hadoop.util.bloom.BloomFilter} to further reduce the
  * chances of false positives making it to the user.
  */
-public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElementsWithinSet> {
+public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterable<? extends EntityId> seeds;
     private Iterator<? extends EntityId> seedsIter;
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsWithinSet operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final Operation operation, final View view,
                                         final User user,
-                                        final IteratorSetting... iteratorSettings) throws StoreException {
-        this(store, operation, user, false, iteratorSettings);
+                                        final IteratorSetting... iteratorSettings)
+            throws StoreException {
+        this(store, operation, view, user, false, iteratorSettings);
     }
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsWithinSet operation,
-                                        final User user,
-                                        final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, user, readEntriesIntoMemory, iteratorSettings);
-        setSeeds(operation.input());
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final Operation operation,
+                                        final View view, final User user,
+                                        final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings)
+            throws StoreException {
+        super(store, operation, view, user, readEntriesIntoMemory, iteratorSettings);
+        @SuppressWarnings("unchecked")
+        final Iterable<? extends EntityId> input = (Iterable<? extends EntityId>) operation.input();
+        setSeeds(input);
     }
 
     private void setSeeds(final Iterable<? extends EntityId> seeds) {
@@ -129,7 +135,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
         }
 
         /**
-         * @param source      the element source identifier
+         * @param source the element source identifier
          * @param destination the element destination identifier
          * @return True if the source and destination contained in the provided seed sets
          */
@@ -161,7 +167,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
             if (Entity.class.isInstance(elm)) {
                 return true;
             }
-            final Edge edge = (Edge) elm;
+            final Edge edge = Edge.class.cast(elm);
             final Object source = edge.getSource();
             final Object destination = edge.getDestination();
             final boolean sourceIsInCurrent = currentSeeds.contains(source);

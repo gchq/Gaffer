@@ -19,51 +19,77 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloIDBetweenSetsRetriever;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.BuilderInOutTypeViewDirectedType;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.BuilderInputInOutTypeViewDirectedType;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class SummariseGroupOverRangesHandler implements OperationHandler<SummariseGroupOverRanges, CloseableIterable<? extends Element>> {
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.DIRECTED_TYPE;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.VIEW;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.getInputInOutTypeViewDirectedTypeFieldDeclaration;
+
+public class SummariseGroupOverRangesHandler implements OperationHandler<Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
-                                                            final Context context, final Store store)
-            throws OperationException {
-        return doOperation(operation, context.getUser(), (AccumuloStore) store);
-    }
-
-    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
-                                                            final User user,
-                                                            final AccumuloStore store) throws OperationException {
-        final int numEdgeGroups = operation.getView().getEdgeGroups().size();
-        final int numEntityGroups = operation.getView().getEntityGroups().size();
-        if ((numEdgeGroups + numEntityGroups) != 1) {
-            throw new OperationException("You may only set one Group in your view for this operation.");
-        }
-
-        final String columnFamily;
-        if (numEdgeGroups == 1) {
-            columnFamily = (String) operation.getView().getEdgeGroups().toArray()[0];
-        } else {
-            columnFamily = (String) operation.getView().getEntityGroups().toArray()[0];
-        }
-
-        final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
+    public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            return new AccumuloRangeIDRetriever<>(store, operation, user,
-                    itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                    itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                    itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                    itrFactory.getElementPropertyRangeQueryFilter(operation),
-                    itrFactory.getRowIDAggregatorIteratorSetting(store, columnFamily));
+            final AccumuloStore accumuloStore = AccumuloStore.class.cast(store);
+            final View view = View.class.cast(operation.get(VIEW));
+            final DirectedType directedType = DirectedType.class.cast(operation.get(DIRECTED_TYPE));
+
+            /* get column family from view */
+            final int numEdgeGroups = view.getEdgeGroups().size();
+            final int numEntityGroups = view.getEntityGroups().size();
+            if ((numEdgeGroups + numEntityGroups) != 1) {
+                throw new OperationException("You may only set one Group in your view for this operation.");
+            }
+
+            final String columnFamily;
+            if (numEdgeGroups == 1) {
+                columnFamily = String.class.cast(view.getEdgeGroups().toArray()[0]);
+            } else {
+                columnFamily = String.class.cast(view.getEntityGroups().toArray()[0]);
+            }
+
+            final IteratorSettingFactory iteratorSettingFactory = accumuloStore.getKeyPackage().getIteratorFactory();
+            return new AccumuloIDBetweenSetsRetriever(accumuloStore, operation, view, context.getUser(),
+                    iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(view, accumuloStore),
+                    iteratorSettingFactory.getElementPostAggregationFilterIteratorSetting(view, accumuloStore),
+                    iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
+                    iteratorSettingFactory.getElementPropertyRangeQueryFilter(operation, view, directedType),
+                    iteratorSettingFactory.getRowIDAggregatorIteratorSetting(accumuloStore, columnFamily));
         } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
+        }
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return getInputInOutTypeViewDirectedTypeFieldDeclaration();
+    }
+
+    public static class OperationBuilder extends BuilderInputInOutTypeViewDirectedType<OperationBuilder, SummariseGroupOverRangesHandler, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>> {
+
+        @Override
+        protected OperationBuilder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected SummariseGroupOverRangesHandler getHandler() {
+            return new SummariseGroupOverRangesHandler();
         }
     }
 }

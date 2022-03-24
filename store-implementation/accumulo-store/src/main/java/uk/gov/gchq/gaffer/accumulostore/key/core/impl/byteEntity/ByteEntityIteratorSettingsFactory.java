@@ -21,21 +21,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
-import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
+import static java.util.Objects.isNull;
+
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY;
+
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ByteEntityIteratorSettingsFactory.class);
-    private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ByteEntityRangeElementPropertyFilterIterator.class
-            .getName();
+
+    private static final String RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR = ByteEntityRangeElementPropertyFilterIterator.class.getName();
+
+    private static final String LOG_RETURNING_NULL = "Returning null from getElementPropertyRangeQueryFilter ("
+            + "inOutType = {}, includeEdges = {}, directedType = {}, deduplicateUndirectedEdges = {})";
+
+    private static final String LOG_CREATING_ITERATOR_SETTING = "Creating IteratorSetting for iterator class {} with priority = {}, "
+            + " includeIncomingOutgoing = {}, directedType = {}, includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}";
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final Operation operation, final View view, final DirectedType directedType) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final Operation operation, final View view,
+                                                                       final DirectedType directedType) {
         return null;
     }
 
@@ -50,21 +61,20 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
         } else {
             inOutType = SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
         }
-        final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
+
+        // TODO: GetAllElements correct?
+        final boolean deduplicateUndirectedEdges = operation.getIdComparison("GetAllElements");
 
         if (includeEdges
                 && DirectedType.isEither(directedType)
-                && (null == inOutType || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
+                && (isNull(inOutType) || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 && includeEntities && !deduplicateUndirectedEdges) {
-            LOGGER.debug("Returning null from getElementPropertyRangeQueryFilter ("
-                    + "inOutType = {}, includeEdges = {}, "
-                    + "directedType = {}, deduplicateUndirectedEdges = {})",
-                    inOutType, includeEdges, directedType, deduplicateUndirectedEdges);
+            LOGGER.debug(LOG_RETURNING_NULL, inOutType, includeEdges, directedType, deduplicateUndirectedEdges);
             return null;
         }
 
-        final IteratorSetting is = new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
+        final IteratorSetting is = new IteratorSettingBuilder(RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
                         .all()
                         .includeIncomingOutgoing(inOutType)
                         .includeEdges(includeEdges)
@@ -72,14 +82,11 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
                         .includeEntities(includeEntities)
                         .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                         .build();
-        LOGGER.debug("Creating IteratorSetting for iterator class {} with priority = {}, "
-                + " includeIncomingOutgoing = {}, directedType = {},"
-                + " includeEdges = {}, includeEntities = {}, deduplicateUndirectedEdges = {}",
+        LOGGER.debug(LOG_CREATING_ITERATOR_SETTING,
                 RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR,
-                AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
+                RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 inOutType, directedType, includeEdges, includeEntities,
                 deduplicateUndirectedEdges);
         return is;
     }
-
 }

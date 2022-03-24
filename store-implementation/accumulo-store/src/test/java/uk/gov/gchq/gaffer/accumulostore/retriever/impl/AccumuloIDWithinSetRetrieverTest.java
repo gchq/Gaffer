@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
@@ -39,6 +41,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.Context;
@@ -69,7 +72,7 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     @BeforeEach
-    public void reInitialise() throws StoreException {
+    public void reInitialise() throws StoreException, OperationException, TableExistsException {
         BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
         GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
 
@@ -77,11 +80,11 @@ public class AccumuloIDWithinSetRetrieverTest {
         setupGraph(GAFFER_1_KEY_STORE);
     }
 
-    private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsWithinSet operation, final User user, final boolean loadIntoMemory) throws StoreException {
+    private Set<Element> returnElementsFromOperation(final AccumuloStore store, final Operation operation, final View view, final User user, final boolean loadIntoMemory) throws StoreException {
         final Set<Element> results = new HashSet<>();
-        AccumuloRetriever<?, Element> retriever = null;
+        AccumuloRetriever<Element> retriever = null;
         try {
-            retriever = new AccumuloIDWithinSetRetriever(store, operation, user, loadIntoMemory);
+            retriever = new AccumuloIDWithinSetRetriever(store, operation, view, user, loadIntoMemory);
 
             for (final Element elm : retriever) {
                 results.add(elm);
@@ -96,7 +99,8 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     /**
-     * Tests that the correct {@link uk.gov.gchq.gaffer.data.element.Edge}s are returned. Tests that {@link uk.gov.gchq.gaffer.data.element.Entity}s are also returned
+     * Tests that the correct {@link uk.gov.gchq.gaffer.data.element.Edge}s are returned. Tests that {@link uk.gov.gchq.gaffer.data.element.Entity}s are
+     * also returned
      * (unless the return edges only option has been set on the {@link GetElementsWithinSet}). It is desirable
      * for {@link uk.gov.gchq.gaffer.data.element.Entity}s to be returned as a common use-case is to use this method to complete the "half-hop"
      * in a breadth-first search, and then getting all the information about the nodes is often required.
@@ -128,19 +132,19 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+        final Operation op = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(seeds)
                 .build();
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, defaultView, new User(), loadIntoMemory);
         assertThat(results).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
 
         // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
-        final GetElementsWithinSet a1Operation = new GetElementsWithinSet.Builder()
+        final Operation a1Operation = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(AccumuloTestData.SEED_A1_SET)
                 .build();
-        final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, new User(), loadIntoMemory);
+        final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, defaultView, new User(), loadIntoMemory);
         assertThat(a1Results).hasSize(1)
                 .contains(AccumuloTestData.A1_ENTITY);
 
@@ -149,11 +153,11 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntityId> a1A2Seeds = new HashSet<>();
         a1A2Seeds.add(AccumuloTestData.SEED_A1);
         a1A2Seeds.add(AccumuloTestData.SEED_A2);
-        final GetElementsWithinSet a1A2Operation = new GetElementsWithinSet.Builder()
+        final Operation a1A2Operation = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(a1A2Seeds)
                 .build();
-        final Set<Element> a1A2Results = returnElementsFromOperation(store, a1A2Operation, new User(), loadIntoMemory);
+        final Set<Element> a1A2Results = returnElementsFromOperation(store, a1A2Operation, defaultView, new User(), loadIntoMemory);
         assertThat(a1A2Results).hasSize(2)
                 .contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
     }
@@ -190,11 +194,11 @@ public class AccumuloIDWithinSetRetrieverTest {
             final Set<Element> expectedResults = new HashSet<>();
             expectedResults.add(AccumuloTestData.EDGE_C_D_DIRECTED);
             expectedResults.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-            final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+            final Operation op = new GetElementsWithinSetHandler.OperationBuilder()
                     .view(defaultView)
                     .input(seeds)
                     .build();
-            final Set<Element> results = returnElementsFromOperation(store, op, new User(), true);
+            final Set<Element> results = returnElementsFromOperation(store, op, defaultView, new User(), true);
             assertEquals(expectedResults, results);
         } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
@@ -230,30 +234,31 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntityId> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
         seeds.add(new EntitySeed("D"));
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+        final Operation op = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(seeds)
+                .directedType(DirectedType.UNDIRECTED)
                 .build();
         // Set undirected edges only option, and query for edges in set {C, D} - should get the undirected edge
-        op.setDirectedType(DirectedType.UNDIRECTED);
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, defaultView, new User(), loadIntoMemory);
         assertThat(results).contains(AccumuloTestData.EDGE_C_D_UNDIRECTED);
 
         // Set directed edges only option, and query for edges in set {C, D} - should get the directed edge
-        final GetElementsWithinSet directedCOop = new GetElementsWithinSet.Builder().view(defaultView)
+        final Operation directedCOop = new GetElementsWithinSetHandler.OperationBuilder()
+                .view(defaultView)
                 .input(seeds)
+                .directedType(DirectedType.DIRECTED)
                 .build();
-        directedCOop.setDirectedType(DirectedType.DIRECTED);
-        final Set<Element> directedCDResults = returnElementsFromOperation(store, directedCOop, new User(), loadIntoMemory);
+        final Set<Element> directedCDResults = returnElementsFromOperation(store, directedCOop, defaultView, new User(), loadIntoMemory);
         assertThat(directedCDResults).contains(AccumuloTestData.EDGE_C_D_DIRECTED);
 
-        final GetElementsWithinSet bothDirectedAndUndirectedOp = new GetElementsWithinSet.Builder().view(defaultView)
+        final Operation bothDirectedAndUndirectedOp = new GetElementsWithinSetHandler.OperationBuilder().view(defaultView)
                 .input(seeds)
+                .directedType(DirectedType.EITHER)
                 .build();
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
-        bothDirectedAndUndirectedOp.setDirectedType(DirectedType.EITHER);
-        final Set<Element> bothDirectedAndUndirectedResults = returnElementsFromOperation(store, bothDirectedAndUndirectedOp, new User(), loadIntoMemory);
-        assertThat(bothDirectedAndUndirectedResults).contains(AccumuloTestData.EDGE_C_D_DIRECTED, (Element) AccumuloTestData.EDGE_C_D_UNDIRECTED);
+        final Set<Element> bothDirectedAndUndirectedResults = returnElementsFromOperation(store, bothDirectedAndUndirectedOp, defaultView, new User(), loadIntoMemory);
+        assertThat(bothDirectedAndUndirectedResults).contains(AccumuloTestData.EDGE_C_D_DIRECTED, AccumuloTestData.EDGE_C_D_UNDIRECTED);
     }
 
     /**
@@ -320,7 +325,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Test random items against it - should only have to shouldRetrieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
         // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
         int count = 0;
-        int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
+        final int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
         while (count < maxNumberOfTries) {
             count++;
             if (filter.membershipTest(new Key(("" + count).getBytes()))) {
@@ -332,11 +337,12 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
 
         // False positive is "" + count so create an edge from seeds to that
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder().view(defaultView)
+        final Operation op = new GetElementsWithinSetHandler.OperationBuilder()
+                .view(defaultView)
                 .input(seeds)
                 .build();
         // Now query for all edges in set - shouldn't get the false positive
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, defaultView, new User(), loadIntoMemory);
 
         // Check results are as expected
         assertThat(results).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
@@ -375,32 +381,32 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(AccumuloTestData.SEED_A23);
 
         final View edgesOnlyView = new View.Builder().edge(TestGroups.EDGE).build();
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+        final Operation op = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(edgesOnlyView)
                 .input(seeds)
                 .build();
         // Set graph to give us edges only
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, edgesOnlyView, new User(), loadIntoMemory);
         assertThat(results).contains(AccumuloTestData.EDGE_A0_A23);
 
         // Set graph to return entities only
         final View entitiesOnlyView = new View.Builder().entity(TestGroups.ENTITY).build();
-        final GetElementsWithinSet entitiesOnlyOp = new GetElementsWithinSet.Builder()
+        final Operation entitiesOnlyOp = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(entitiesOnlyView)
                 .input(seeds)
                 .build();
         // Query for all edges in set {A0, A23}
-        final Set<Element> entitiesOnlyResults = returnElementsFromOperation(store, entitiesOnlyOp, new User(), loadIntoMemory);
+        final Set<Element> entitiesOnlyResults = returnElementsFromOperation(store, entitiesOnlyOp, entitiesOnlyView, new User(), loadIntoMemory);
         assertThat(entitiesOnlyResults).contains(AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
 
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data)
         final View view = new View.Builder().edge("X").build();
-        final GetElementsWithinSet entitiesAndEdgesOp = new GetElementsWithinSet.Builder()
+        final Operation entitiesAndEdgesOp = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(view)
                 .input(seeds)
                 .build();
-        final Set<Element> entitiesAndEdgesResults = returnElementsFromOperation(store, entitiesAndEdgesOp, new User(), loadIntoMemory);
+        final Set<Element> entitiesAndEdgesResults = returnElementsFromOperation(store, entitiesAndEdgesOp, view, new User(), loadIntoMemory);
         assertThat(entitiesAndEdgesResults).isEmpty();
     }
 
@@ -431,19 +437,19 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+        final Operation op = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(seeds)
                 .build();
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, defaultView, new User(), loadIntoMemory);
         assertThat(results).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
 
         // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
-        final GetElementsWithinSet a1Operation = new GetElementsWithinSet.Builder()
+        final Operation a1Operation = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(AccumuloTestData.SEED_A1_SET)
                 .build();
-        final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, new User(), loadIntoMemory);
+        final Set<Element> a1Results = returnElementsFromOperation(store, a1Operation, defaultView, new User(), loadIntoMemory);
         assertThat(a1Results).hasSize(1)
                 .contains(AccumuloTestData.A1_ENTITY);
 
@@ -452,62 +458,52 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<EntityId> a1A2Seeds = new HashSet<>();
         a1A2Seeds.add(AccumuloTestData.SEED_A1);
         a1A2Seeds.add(AccumuloTestData.SEED_A2);
-        final GetElementsWithinSet a1A23Operation = new GetElementsWithinSet.Builder()
+        final Operation a1A23Operation = new GetElementsWithinSetHandler.OperationBuilder()
                 .view(defaultView)
                 .input(a1A2Seeds)
                 .build();
-        final Set<Element> a1A23Results = returnElementsFromOperation(store, a1A23Operation, new User(), loadIntoMemory);
+        final Set<Element> a1A23Results = returnElementsFromOperation(store, a1A23Operation, defaultView, new User(), loadIntoMemory);
         assertThat(a1A23Results).hasSize(2)
                 .contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
     }
 
-    private static void setupGraph(final AccumuloStore store) {
-        try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-            // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-            TableUtils.createTable(store);
+    private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {
+        // Create table
+        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+        // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+        TableUtils.createTable(store);
 
-            final Set<Element> data = new HashSet<>();
-            // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("A0");
-            entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-            data.add(entity);
-            for (int i = 1; i < 100; i++) {
-                data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .build());
+        final Set<Element> data = new HashSet<>();
+        // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        entity.setVertex("A0");
+        entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        data.add(entity);
+        for (int i = 1; i < 100; i++) {
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .build());
 
-                data.add(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("A" + i)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .build()
-                );
-            }
-            data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
-            data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-            addElements(data, store, new User());
-        } catch (final TableExistsException | StoreException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
+            data.add(new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("A" + i)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .build());
         }
+        data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
+        data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
+        addElements(data, store, new User());
     }
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
-        try {
-            store.execute(new AddElements.Builder()
-                            .input(data)
-                            .build(),
-                    new Context(user));
-        } catch (final OperationException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
-        }
+    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) throws OperationException {
+        store.execute(new AddElementsHandler.OperationBuilder()
+                .input(data)
+                .build(),
+                new Context(user));
     }
-
 }

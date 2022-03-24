@@ -20,41 +20,39 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloIDBetweenSetsRetriever;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.BuilderInOutTypeViewDirectedType;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.DIRECTED_TYPE;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.VIEW;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.getInputInOutTypeViewDirectedTypeFieldDeclaration;
+
 public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<? extends Element>> {
-
-    private static final String VIEW = "view";
-
-    private static final String INCLUDE_INCOMING_OUTGOING = "includeIncomingOutgoing";
-
-    private static final String DIRECTED_TYPE = "directedType";
 
     @Override
     public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            final AccumuloStore accumuloStore = (AccumuloStore) store;
-            final View view = (View) operation.get(VIEW);
-            final DirectedType directedType = (DirectedType) operation.get(DIRECTED_TYPE);
+            final AccumuloStore accumuloStore = AccumuloStore.class.cast(store);
+            final View view = View.class.cast(operation.get(VIEW));
+            final DirectedType directedType = DirectedType.class.cast(operation.get(DIRECTED_TYPE));
 
             // TODO: pass in IteratorSettingFactory rather than multiple IteratorSettings?
-            final IteratorSettingFactory iteratorFactory = accumuloStore.getKeyPackage().getIteratorFactory();
+            final IteratorSettingFactory iteratorSettingFactory = accumuloStore.getKeyPackage().getIteratorFactory();
             return new AccumuloIDBetweenSetsRetriever(accumuloStore, operation, view, context.getUser(),
-                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(view, accumuloStore),
-                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(view, accumuloStore),
-                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
-                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(view, accumuloStore));
+                    iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(view, accumuloStore),
+                    iteratorSettingFactory.getElementPostAggregationFilterIteratorSetting(view, accumuloStore),
+                    iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType),
+                    iteratorSettingFactory.getQueryTimeAggregatorIteratorSetting(view, accumuloStore));
         } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
@@ -62,32 +60,13 @@ public class GetElementsBetweenSetsHandler implements OperationHandler<Iterable<
 
     @Override
     public FieldDeclaration getFieldDeclaration() {
-        return new FieldDeclaration()
-                .inputRequired(Iterable.class)
-                .fieldRequired(VIEW, View.class)
-                .fieldOptional(DIRECTED_TYPE, DirectedType.class)
-                .fieldOptional(INCLUDE_INCOMING_OUTGOING, IncludeIncomingOutgoingType.class);
+        return getInputInOutTypeViewDirectedTypeFieldDeclaration();
     }
 
-    static class OperationBuilder extends BuilderSpecificOperation<OperationBuilder, GetElementsBetweenSetsHandler> {
+    public static class OperationBuilder extends BuilderInOutTypeViewDirectedType<OperationBuilder, GetElementsBetweenSetsHandler> {
 
         public OperationBuilder input(final Iterable<? extends EntityId> inputA, final Iterable<? extends EntityId> inputB) {
             operation.operationArg(FieldDeclaration.INPUT, new Iterable[] {inputA, inputB});
-            return this;
-        }
-
-        public OperationBuilder view(final View view) {
-            operation.operationArg(VIEW, view);
-            return this;
-        }
-
-        public OperationBuilder directedType(final DirectedType directedType) {
-            operation.operationArg(DIRECTED_TYPE, directedType);
-            return this;
-        }
-
-        public OperationBuilder includeIncomingOutgoing(final IncludeIncomingOutgoingType includeIncomingOutgoing) {
-            operation.operationArg(INCLUDE_INCOMING_OUTGOING, includeIncomingOutgoing);
             return this;
         }
 

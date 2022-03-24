@@ -19,38 +19,64 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloElementsRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.BuilderInputInOutTypeViewDirectedType;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.operation.handler.FieldDeclaration;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class GetElementsHandler implements OperationHandler<GetElements, CloseableIterable<? extends Element>> {
+import static java.util.Objects.nonNull;
+
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.DIRECTED_TYPE;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.VIEW;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.getInputInOutTypeViewDirectedTypeFieldDeclaration;
+
+public class GetElementsHandler implements OperationHandler<Iterable<? extends Element>> {
+
+    private static final String ACCUMULOSTORE_OPERATION_RETURN_MATCHED_ID_AS_EDGE_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
+
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
-                                                            final Context context, final Store store)
-            throws OperationException {
-        return doOperation(operation, context.getUser(), (AccumuloStore) store);
-    }
-
-    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
-                                                            final User user,
-                                                            final AccumuloStore store) throws OperationException {
-        if (null != operation.getOption("accumulostore.operation.return_matched_id_as_edge_source")) {
-            throw new IllegalArgumentException("The accumulostore.operation.return_matched_id_as_edge_source option has been removed. Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
-        }
-
-        if (null == operation.input()) {
-            throw new OperationException("Operation input is undefined - please specify an input.");
-        }
-
+    public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            return new AccumuloElementsRetriever(store, operation, user);
+            // TODO: check
+            if (nonNull(context.getVariable(ACCUMULOSTORE_OPERATION_RETURN_MATCHED_ID_AS_EDGE_SOURCE))) {
+                throw new IllegalArgumentException("The accumulostore.operation.return_matched_id_as_edge_source option has been removed. "
+                        + "Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the "
+                        + "SOURCE or DESTINATION was matched.");
+            } else {
+                final AccumuloStore accumuloStore = AccumuloStore.class.cast(store);
+                final View view = View.class.cast(operation.get(VIEW));
+                final DirectedType directedType = DirectedType.class.cast(operation.get(DIRECTED_TYPE));
+
+                return new AccumuloElementsRetriever(accumuloStore, operation, view, directedType, context.getUser());
+            }
         } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
+        }
+    }
+
+    @Override
+    public FieldDeclaration getFieldDeclaration() {
+        return getInputInOutTypeViewDirectedTypeFieldDeclaration();
+    }
+
+    public static class OperationBuilder extends BuilderInputInOutTypeViewDirectedType<OperationBuilder, GetElementsHandler, Iterable<? extends ElementId>> {
+
+        @Override
+        protected OperationBuilder getBuilder() {
+            return this;
+        }
+
+        @Override
+        protected GetElementsHandler getHandler() {
+            return new GetElementsHandler();
         }
     }
 }

@@ -36,9 +36,9 @@ public class AddElementsHandler implements OperationHandler<Void> {
     @Override
     public Void _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            final boolean validate = (boolean) operation.getOrDefault(VALIDATE, true);
-            final boolean skipInvalidElements = (boolean) operation.getOrDefault(SKIP_INVALID_ELEMENTS, false);
-            final AccumuloStore accumuloStore = (AccumuloStore) store;
+            final boolean validate = Boolean.class.cast(operation.getOrDefault(VALIDATE, true));
+            final boolean skipInvalidElements = Boolean.class.cast(operation.getOrDefault(SKIP_INVALID_ELEMENTS, false));
+            final AccumuloStore accumuloStore = AccumuloStore.class.cast(store);
 
             @SuppressWarnings("unchecked")
             Iterable<? extends Element> elements = (Iterable<? extends Element>) operation.input();
@@ -62,7 +62,7 @@ public class AddElementsHandler implements OperationHandler<Void> {
                 .fieldOptional(SKIP_INVALID_ELEMENTS, Boolean.class);
     }
 
-    static class OperationBuilder extends BuilderSpecificInputOperation<OperationBuilder, AddElementsHandler> {
+    public static class OperationBuilder extends BuilderSpecificInputOperation<OperationBuilder, AddElementsHandler> {
 
         public OperationBuilder validate(final Boolean validate) {
             operation.operationArg(VALIDATE, validate);

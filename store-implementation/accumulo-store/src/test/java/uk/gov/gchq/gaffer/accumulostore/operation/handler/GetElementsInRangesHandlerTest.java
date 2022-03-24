@@ -34,12 +34,12 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -61,8 +61,7 @@ public class GetElementsInRangesHandlerTest {
     private static AccumuloStore gaffer1KeyStore = null;
     private static View defaultView = null;
 
-    private OutputOperationHandler handler;
-
+    private GetElementsInRangesHandler handler;
 
     @BeforeEach
     public void reInitialise() throws StoreException {
@@ -93,7 +92,7 @@ public class GetElementsInRangesHandlerTest {
         // Given - everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("1")));
-        final Output operation = createOperation(simpleEntityRanges, defaultView, IncludeIncomingOutgoingType.EITHER, DirectedType.EITHER);
+        final Operation operation = createOperation(simpleEntityRanges, defaultView, IncludeIncomingOutgoingType.EITHER, DirectedType.EITHER);
 
         // When
         List<Element> results = executeOperation(operation, store);
@@ -134,7 +133,7 @@ public class GetElementsInRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final Output operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.EITHER, DirectedType.EITHER);
+        final Operation operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.EITHER, DirectedType.EITHER);
 
         // When
         List<Element> results = executeOperation(operation, store);
@@ -176,7 +175,7 @@ public class GetElementsInRangesHandlerTest {
                         .build())
                 .build();
         // all Edges stored should be outgoing from our provided seeds.
-        final Output operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.OUTGOING, DirectedType.EITHER);
+        final Operation operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.OUTGOING, DirectedType.EITHER);
 
         // When
         List<Element> results = executeOperation(operation, store);
@@ -218,7 +217,7 @@ public class GetElementsInRangesHandlerTest {
                         .build())
                 .build();
         // all Edges stored should be incoming from our provided seeds.
-        final Output operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.INCOMING, DirectedType.EITHER);
+        final Operation operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.INCOMING, DirectedType.EITHER);
 
         // When
         final List<Element> results = executeOperation(operation, store);
@@ -249,7 +248,7 @@ public class GetElementsInRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final Output operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.EITHER, DirectedType.UNDIRECTED);
+        final Operation operation = createOperation(simpleEntityRanges, view, IncludeIncomingOutgoingType.EITHER, DirectedType.UNDIRECTED);
 
         // When
         final List<Element> results = executeOperation(operation, store);
@@ -262,7 +261,7 @@ public class GetElementsInRangesHandlerTest {
         final List<Element> elements = createElements(numEntries);
 
         try {
-            store.execute(new AddElements.Builder().input(elements).build(), CONTEXT);
+            store.execute(new AddElementsHandler.OperationBuilder().input(elements).build(), CONTEXT);
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }
@@ -283,8 +282,7 @@ public class GetElementsInRangesHandlerTest {
                     .dest("B")
                     .directed(true)
                     .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                    .build()
-            );
+                    .build());
 
             elements.add(new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -292,8 +290,7 @@ public class GetElementsInRangesHandlerTest {
                     .dest("B")
                     .directed(true)
                     .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                    .build()
-            );
+                    .build());
 
             elements.add(new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -301,8 +298,7 @@ public class GetElementsInRangesHandlerTest {
                     .dest("B")
                     .directed(true)
                     .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 5)
-                    .build()
-            );
+                    .build());
         }
         return elements;
     }
@@ -322,31 +318,31 @@ public class GetElementsInRangesHandlerTest {
                     .dest("B")
                     .directed(true)
                     .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 9)
-                    .build()
-            );
+                    .build());
         }
         return elements;
     }
 
-    protected OutputOperationHandler createHandler() {
+    protected GetElementsInRangesHandler createHandler() {
         return new GetElementsInRangesHandler();
     }
 
-    protected List<Element> executeOperation(final Output operation, final AccumuloStore store) throws OperationException {
-        final Object results = handler.doOperation(operation, CONTEXT, store);
+    protected List<Element> executeOperation(final Operation operation, final AccumuloStore store) throws OperationException {
+        final Object results = handler._doOperation(operation, CONTEXT, store);
         return parseResults(results);
     }
 
+    @SuppressWarnings("unchecked")
     protected List<Element> parseResults(final Object results) {
-        return Lists.newArrayList((Iterable) results);
+        return Lists.newArrayList(Iterable.class.cast(results));
     }
 
-    protected Output createOperation(final Set<Pair<ElementId, ElementId>> simpleEntityRanges, final View view, final IncludeIncomingOutgoingType inOutType, final DirectedType directedType) {
-        return new GetElementsInRanges.Builder()
+    protected Operation createOperation(final Set<Pair<ElementId, ElementId>> simpleEntityRanges, final View view, final IncludeIncomingOutgoingType inOutType, final DirectedType directedType) {
+        return new GetElementsInRangesHandler.OperationBuilder()
                 .input(simpleEntityRanges)
                 .view(view)
                 .directedType(directedType)
-                .inOutType(inOutType)
+                .includeIncomingOutgoingType(inOutType)
                 .build();
     }
 }

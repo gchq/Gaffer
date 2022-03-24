@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
@@ -37,6 +39,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -50,6 +53,9 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.DIRECTED_TYPE;
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloOperationHandlerUtils.INCLUDE_INCOMING_OUTGOING_TYPE;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 
@@ -100,38 +106,34 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         shouldGetCorrectEdges(false, GAFFER_1_KEY_STORE);
     }
 
-
     private void shouldGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges between the set {A0} and the set {A23}
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder()
-                .input(AccumuloTestData.SEED_A0_SET)
-                .inputB(AccumuloTestData.SEED_A23_SET)
+        final Operation op = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET)
                 .view(defaultView)
                 .build();
 
-        final Set<Element> initialResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> initialResults = returnElementsFromOperation(store, op, defaultView, null, new User(), loadIntoMemory);
         assertThat(initialResults).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY);
 
         // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
-        final GetElementsBetweenSets secondOp = new GetElementsBetweenSets.Builder()
-                .input(AccumuloTestData.SEED_A1_SET)
-                .inputB(AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET)
+        final Operation secondOp = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A1_SET, AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET)
                 .view(defaultView)
                 .build();
 
-        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
+        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, defaultView, null, new User(), loadIntoMemory);
         assertThat(secondResults).hasSize(1)
                 .contains(AccumuloTestData.A1_ENTITY);
 
         // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
-        final GetElementsBetweenSets thirdOp = new GetElementsBetweenSets.Builder()
-                .input(AccumuloTestData.SEED_A1_SET)
-                .inputB(AccumuloTestData.SEED_A2_SET)
+        final Operation thirdOp = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A1_SET, AccumuloTestData.SEED_A2_SET)
                 .view(defaultView)
                 .build();
-        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
+        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, defaultView, null, new User(), loadIntoMemory);
         assertThat(thirdResults).hasSize(1)
                 .contains(AccumuloTestData.A1_ENTITY);
     }
@@ -153,38 +155,43 @@ public class AccumuloIDBetweenSetsRetrieverTest {
      */
     private void shouldDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
-             /*
-             Create table
-             (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-             and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-              */
+            /*
+             * Create table
+             * (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+             * and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+             */
 
             final Set<Element> data = new HashSet<>();
-
             data.add(AccumuloTestData.EDGE_A1_B1);
             data.add(AccumuloTestData.EDGE_B2_A2);
             addElements(data, store, new User());
 
             // Query for edges between {A1} and {B1}, with outgoing edges only. Should get the edge A1>B1.
-            final GetElementsBetweenSets opA1B1 = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A1_SET).inputB(AccumuloTestData.SEED_B1_SET).view(edgeOnlyView).build();
-            opA1B1.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-            final Set<Element> a1B1OutgoingEdgeResults = returnElementsFromOperation(store, opA1B1, new User(), false);
+            final Operation opA1B1 = new GetElementsBetweenSetsHandler.OperationBuilder()
+                    .input(AccumuloTestData.SEED_A1_SET, AccumuloTestData.SEED_B1_SET)
+                    .view(edgeOnlyView)
+                    .includeIncomingOutgoingType(IncludeIncomingOutgoingType.OUTGOING)
+                    .build();
+            final Set<Element> a1B1OutgoingEdgeResults = returnElementsFromOperation(store, opA1B1, edgeOnlyView, null, new User(), false);
             assertThat(a1B1OutgoingEdgeResults).contains(AccumuloTestData.EDGE_A1_B1);
 
             // Query for edges between {A1} and {B1}, with incoming edges only. Should get nothing.
-            opA1B1.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-            final Set<Element> a1B1EdgeIncomingResults = returnElementsFromOperation(store, opA1B1, new User(), false);
+            opA1B1.operationArg(INCLUDE_INCOMING_OUTGOING_TYPE, IncludeIncomingOutgoingType.INCOMING);
+            final Set<Element> a1B1EdgeIncomingResults = returnElementsFromOperation(store, opA1B1, edgeOnlyView, null, new User(), false);
             assertThat(a1B1EdgeIncomingResults).isEmpty();
 
             // Query for edges between {A2} and {B2}, with incoming edges only. Should get the edge B2->A2.
-            final GetElementsBetweenSets opA2B2 = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A2_SET).inputB(AccumuloTestData.SEED_B2_SET).view(edgeOnlyView).build();
-            opA2B2.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
-            final Set<Element> a2B2EdgeIncomingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
+            final Operation opA2B2 = new GetElementsBetweenSetsHandler.OperationBuilder()
+                    .input(AccumuloTestData.SEED_A2_SET, AccumuloTestData.SEED_B2_SET)
+                    .view(edgeOnlyView)
+                    .includeIncomingOutgoingType(IncludeIncomingOutgoingType.INCOMING)
+                    .build();
+            final Set<Element> a2B2EdgeIncomingResults = returnElementsFromOperation(store, opA2B2, edgeOnlyView, null, new User(), false);
             assertThat(a2B2EdgeIncomingResults).contains(AccumuloTestData.EDGE_B2_A2);
 
             // Query for edges between {A2} and {B2}, with outgoing edges only. Should get nothing.
-            opA2B2.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
-            final Set<Element> a2B2EdgeOutgoingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
+            opA2B2.operationArg(INCLUDE_INCOMING_OUTGOING_TYPE, IncludeIncomingOutgoingType.OUTGOING);
+            final Set<Element> a2B2EdgeOutgoingResults = returnElementsFromOperation(store, opA2B2, edgeOnlyView, null, new User(), false);
             assertThat(a2B2EdgeOutgoingResults).isEmpty();
 
         } catch (final StoreException e) {
@@ -224,19 +231,22 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             addElements(data, store, new User());
 
             // Set undirected edges only option, and query for edges between {A} and {B} - should get EDGE_B2_A2
-            final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A_SET).inputB(AccumuloTestData.SEED_B_SET).view(edgeOnlyView).build();
-            op.setDirectedType(DirectedType.UNDIRECTED);
+            final Operation op = new GetElementsBetweenSetsHandler.OperationBuilder()
+                    .input(AccumuloTestData.SEED_A_SET, AccumuloTestData.SEED_B_SET)
+                    .view(edgeOnlyView)
+                    .directedType(DirectedType.UNDIRECTED)
+                    .build();
 
-            final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+            final Set<Element> results = returnElementsFromOperation(store, op, edgeOnlyView, DirectedType.UNDIRECTED, new User(), loadIntoMemory);
             assertThat(results).contains(AccumuloTestData.EDGE_A_B_2);
 
-            op.setDirectedType(DirectedType.DIRECTED);
-            final Set<Element> secondResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+            op.operationArg(DIRECTED_TYPE, DirectedType.DIRECTED);
+            final Set<Element> secondResults = returnElementsFromOperation(store, op, edgeOnlyView, DirectedType.DIRECTED, new User(), loadIntoMemory);
             assertThat(secondResults).contains(AccumuloTestData.EDGE_A_B_1);
             // Turn off directed / undirected edges only option and check get both EDGE_A1_B1 and EDGE_B2_A2
-            op.setDirectedType(DirectedType.EITHER);
+            op.operationArg(DIRECTED_TYPE, DirectedType.EITHER);
 
-            final Set<Element> thirdResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+            final Set<Element> thirdResults = returnElementsFromOperation(store, op, edgeOnlyView, DirectedType.EITHER, new User(), loadIntoMemory);
             assertThat(thirdResults).contains(AccumuloTestData.EDGE_A_B_2);
         } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
@@ -306,7 +316,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Test random items against it - should only have to shouldRetrieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
         // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
         int count = 0;
-        int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
+        final int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
         while (count < maxNumberOfTries) {
             count++;
             if (filter.membershipTest(new Key(("" + count).getBytes()))) {
@@ -325,13 +335,18 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .directed(true)
                 .build();
         edge.putProperty(AccumuloPropertyNames.COUNT, 1000000);
-        Set<Element> data = new HashSet<>();
+
+        final Set<Element> data = new HashSet<>();
         data.add(edge);
         final User user = new User();
         addElements(data, store, user);
+
         // Now query for all edges in set - shouldn't get the false positive
-        GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(seeds).view(defaultView).build();
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Operation op = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_SET, seeds)
+                .view(defaultView)
+                .build();
+        final Set<Element> results = returnElementsFromOperation(store, op, defaultView, null, new User(), loadIntoMemory);
         // Check results are as expected
 
         assertThat(results).hasSize(2)
@@ -366,18 +381,24 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     private void shouldStillApplyOtherFilter(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges between the set {A0} and the set {A23}
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(edgeOnlyView).build();
+        final Operation op = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET)
+                .view(edgeOnlyView)
+                .directedType(DirectedType.EITHER)
+                .build();
         // Set graph to give us edges only
-        op.setDirectedType(DirectedType.EITHER);
 
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Set<Element> results = returnElementsFromOperation(store, op, edgeOnlyView, DirectedType.EITHER, new User(), loadIntoMemory);
         assertThat(results).contains(AccumuloTestData.EDGE_A0_A23);
 
         // Set graph to return entities only
-        final GetElementsBetweenSets secondOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(entityOnlyView).build();
+        final Operation secondOp = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET)
+                .view(entityOnlyView)
+                .build();
 
         // Query for all edges in set {A0, A23}, should get the entity for A0
-        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
+        final Set<Element> secondResults = returnElementsFromOperation(store, secondOp, entityOnlyView, null, new User(), loadIntoMemory);
 
         assertThat(secondResults).contains(AccumuloTestData.A0_ENTITY);
 
@@ -387,10 +408,13 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .edge("edgeX")
                 .entity("entityX")
                 .build();
-        final GetElementsBetweenSets thirdOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(view).build();
-        thirdOp.setDirectedType(DirectedType.EITHER);
+        final Operation thirdOp = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET)
+                .view(view)
+                .directedType(DirectedType.EITHER)
+                .build();
 
-        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
+        final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, view, DirectedType.EITHER, new User(), loadIntoMemory);
         assertThat(thirdResults).isEmpty();
     }
 
@@ -418,23 +442,32 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
         // Query for all edges between the set {A0} and the set {A23}
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(defaultView).build();
-        final Set<Element> betweenA0A23results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+        final Operation op = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_SET, AccumuloTestData.SEED_A23_SET)
+                .view(defaultView)
+                .build();
+        final Set<Element> betweenA0A23results = returnElementsFromOperation(store, op, defaultView, null, new User(), loadIntoMemory);
         assertThat(betweenA0A23results).hasSize(2)
                 .contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY);
 
         // Query for all edges between set {A1} and the set {notpresent} - there shouldn't be any, but
         // we will get the entity for A1
-        final GetElementsBetweenSets secondOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A1_SET).inputB(AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET).view(defaultView).build();
-        final Set<Element> betweenA1andNotPresentResults = returnElementsFromOperation(store, secondOp, new User(), loadIntoMemory);
+        final Operation secondOp = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A1_SET, AccumuloTestData.NOT_PRESENT_ENTITY_SEED_SET)
+                .view(defaultView)
+                .build();
+        final Set<Element> betweenA1andNotPresentResults = returnElementsFromOperation(store, secondOp, defaultView, null, new User(), loadIntoMemory);
         assertThat(betweenA1andNotPresentResults).hasSize(1)
                 .contains(AccumuloTestData.A1_ENTITY);
 
         // Query for all edges between set {A1} and the set {A2} - there shouldn't be any edges but will
         // get the entity for A1
-        final GetElementsBetweenSets thirdOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A1_SET).inputB(AccumuloTestData.SEED_A2_SET).view(defaultView).build();
+        final Operation thirdOp = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A1_SET, AccumuloTestData.SEED_A2_SET)
+                .view(defaultView)
+                .build();
 
-        final Set<Element> betweenA1A2Results = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
+        final Set<Element> betweenA1A2Results = returnElementsFromOperation(store, thirdOp, defaultView, null, new User(), loadIntoMemory);
         assertThat(betweenA1A2Results).hasSize(1)
                 .contains(AccumuloTestData.A1_ENTITY);
     }
@@ -460,20 +493,26 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
     private void testEdgesWithinSetAAreNotReturned(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_A23_SET).inputB(AccumuloTestData.SEED_B_SET).view(defaultView).build();
-        final Set<Element> betweenA0A23_B_Results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-        //Should have the two entities A0 A23 but not the edge A0-23
+        final Operation op = new GetElementsBetweenSetsHandler.OperationBuilder()
+                .input(AccumuloTestData.SEED_A0_A23_SET, AccumuloTestData.SEED_B_SET)
+                .view(defaultView)
+                .build();
+        final Set<Element> betweenA0A23_B_Results = returnElementsFromOperation(store, op, defaultView, null, new User(), loadIntoMemory);
+        // Should have the two entities A0 A23 but not the edge A0-23
         assertThat(betweenA0A23_B_Results).hasSize(2)
                 .contains(AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
     }
 
-    private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsBetweenSets operation, final User user, final boolean loadIntoMemory) throws StoreException {
+    private Set<Element> returnElementsFromOperation(final AccumuloStore store, final Operation operation,
+                                                     final View view, final DirectedType directedType,
+                                                     final User user, final boolean loadIntoMemory)
+            throws StoreException {
 
-        AccumuloRetriever<?, Element> retriever = null;
+        AccumuloRetriever<Element> retriever = null;
         final Set<Element> results = new HashSet<>();
         try {
-            retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory,
-                    store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+            retriever = new AccumuloIDBetweenSetsRetriever(store, operation, view, user, loadIntoMemory,
+                    store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation, view, directedType));
             for (final Element elm : retriever) {
                 results.add(elm);
             }
@@ -487,7 +526,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
     private static void setupGraph(final AccumuloStore store) {
-        Set<Element> data = new HashSet<>();
+        final Set<Element> data = new HashSet<>();
 
         // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
         final Entity entity = new Entity(TestGroups.ENTITY, "A0");
@@ -512,12 +551,11 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         addElements(data, store, user);
     }
 
-
     private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
-            store.execute(new AddElements.Builder()
-                            .input(data)
-                            .build(),
+            store.execute(new AddElementsHandler.OperationBuilder()
+                    .input(data)
+                    .build(),
                     new Context(user));
         } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);

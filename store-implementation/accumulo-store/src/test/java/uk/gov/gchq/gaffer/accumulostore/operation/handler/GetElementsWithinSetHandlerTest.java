@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.TableExistsException;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.Context;
@@ -53,8 +54,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class GetElementsWithinSetHandlerTest {
 
@@ -102,11 +101,12 @@ public class GetElementsWithinSetHandlerTest {
             .build();
     final Set<EntityId> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
-    private User user = new User();
+    private final User user = new User();
 
+    private final Context defaultContext = new Context(user);
 
     @BeforeEach
-    public void reInitialise() throws StoreException {
+    public void reInitialise() throws StoreException, OperationException, TableExistsException {
         expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
         expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
@@ -161,17 +161,25 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
-        final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        final Operation operation = new GetElementsWithinSetHandler.OperationBuilder()
+                .id("GetElementsWithinSet")
+                .view(defaultView)
+                .input(seeds)
+                .build();
 
-        //Without query compaction the result size should be 5
+        final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
+        final Iterable<? extends Element> elements = handler._doOperation(operation, defaultContext, store);
+
+        // Without query compaction the result size should be 5
         final Set<Element> elementSet = Sets.newHashSet(elements);
         assertThat(elementSet).hasSize(5);
-        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2), elementSet);
+        assertThat(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2))
+                .isEqualTo(elementSet);
+
         for (final Element element : elementSet) {
             if (element instanceof Edge) {
-                assertEquals(EdgeId.MatchedVertex.SOURCE, ((Edge) element).getMatchedVertex());
+                assertThat(EdgeId.MatchedVertex.SOURCE)
+                        .isEqualTo(((Edge) element).getMatchedVertex());
             }
         }
     }
@@ -198,14 +206,21 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
-        final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
-        //After query compaction the result size should be 3
-        assertEquals(3, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements).contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
-        elements.close();
+        final Operation operation = new GetElementsWithinSetHandler.OperationBuilder()
+                .id("GetElementsWithinSet")
+                .view(view)
+                .input(seeds)
+                .build();
+
+        final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
+        final Iterable<? extends Element> elements = handler._doOperation(operation, defaultContext, store);
+
+        // After query compaction the result size should be 3
+        assertThat(elements).hasSize(3);
+        assertThat(elements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedSummarisedEdge, expectedEntity1, expectedEntity2);
     }
 
     @Test
@@ -227,17 +242,24 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
+
+        final Operation operation = new GetElementsWithinSetHandler.OperationBuilder()
+                .id("GetElementsWithinSet")
+                .view(view)
+                .input(seeds)
+                .build();
+
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        final Iterable<? extends Element> elements = handler._doOperation(operation, defaultContext, store);
 
         final Collection<Element> forTest = new LinkedList<>();
         Iterables.addAll(forTest, elements);
 
-        //After query compaction the result size should be 1
-        assertEquals(1, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements).contains(expectedSummarisedEdge);
-        elements.close();
+        // After query compaction the result size should be 1
+        assertThat(elements).hasSize(1);
+        assertThat(elements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedSummarisedEdge);
     }
 
     @Test
@@ -256,92 +278,86 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
+
+        final Operation operation = new GetElementsWithinSetHandler.OperationBuilder()
+                .id("GetElementsWithinSet")
+                .view(view)
+                .input(seeds)
+                .build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        final Iterable<? extends Element> elements = handler._doOperation(operation, defaultContext, store);
 
-        //The result size should be 2
-        assertEquals(2, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements).contains(expectedEntity1, expectedEntity2);
-        elements.close();
+        // The result size should be 2
+        assertThat(elements).hasSize(2);
+        assertThat(elements)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedEntity1, expectedEntity2);
     }
 
-    private static void setupGraph(final AccumuloStore store) {
-        try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-            // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-            TableUtils.createTable(store);
+    private static void setupGraph(final AccumuloStore store) throws StoreException, TableExistsException, OperationException {
+        // Create table
+        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+        // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+        TableUtils.createTable(store);
 
-            final List<Element> data = new ArrayList<>();
-            // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("A0");
-            entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-            data.add(entity);
-            for (int i = 1; i < 100; i++) {
-                data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .property(AccumuloPropertyNames.PROP_1, 0)
-                        .property(AccumuloPropertyNames.PROP_2, 0)
-                        .property(AccumuloPropertyNames.PROP_3, 0)
-                        .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
-                );
+        final List<Element> data = new ArrayList<>();
+        // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        entity.setVertex("A0");
+        entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        data.add(entity);
+        for (int i = 1; i < 100; i++) {
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
 
-                data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .property(AccumuloPropertyNames.PROP_1, 0)
-                        .property(AccumuloPropertyNames.PROP_2, 0)
-                        .property(AccumuloPropertyNames.PROP_3, 0)
-                        .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
-                );
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
 
-                data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .property(AccumuloPropertyNames.PROP_1, 0)
-                        .property(AccumuloPropertyNames.PROP_2, 0)
-                        .property(AccumuloPropertyNames.PROP_3, 0)
-                        .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
-                );
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .property(AccumuloPropertyNames.PROP_1, 0)
+                    .property(AccumuloPropertyNames.PROP_2, 0)
+                    .property(AccumuloPropertyNames.PROP_3, 0)
+                    .property(AccumuloPropertyNames.PROP_4, 0)
+                    .build());
 
-                data.add(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("A" + i)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .build()
-                );
-            }
-            final User user = new User();
-            addElements(data, user, store);
-        } catch (final TableExistsException | StoreException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
+            data.add(new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("A" + i)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .build());
         }
+        final User user = new User();
+        addElements(data, user, store);
     }
 
-    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
-        try {
-            store.execute(new AddElements.Builder().input(data).build(), new Context(user));
-        } catch (final OperationException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
-        }
+    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) throws OperationException {
+        store.execute(new AddElementsHandler.OperationBuilder().input(data).build(), new Context(user));
     }
 }
