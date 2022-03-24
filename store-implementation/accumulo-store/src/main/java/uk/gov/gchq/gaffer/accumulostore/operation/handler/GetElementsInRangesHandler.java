@@ -43,8 +43,7 @@ public class GetElementsInRangesHandler implements OperationHandler<Iterable<? e
     @Override
     public Iterable<? extends Element> _doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         try {
-            final AccumuloStore accumuloStore = (AccumuloStore) store;
-
+            final AccumuloStore accumuloStore = AccumuloStore.class.cast(store);
             final View view = View.class.cast(operation.get(VIEW));
             final DirectedType directedType = DirectedType.class.cast(operation.get(DIRECTED_TYPE));
 
