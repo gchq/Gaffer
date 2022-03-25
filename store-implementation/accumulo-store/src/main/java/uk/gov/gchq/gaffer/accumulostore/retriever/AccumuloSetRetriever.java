@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -52,8 +53,12 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters>
         extends AccumuloRetriever<OP, Element> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
 
@@ -63,18 +68,21 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user,
-                                final boolean readEntriesIntoMemory) throws StoreException {
+                                final boolean readEntriesIntoMemory)
+            throws StoreException {
         super(store, operation, user);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user,
-                                final IteratorSetting... iteratorSettings) throws StoreException {
+                                final IteratorSetting... iteratorSettings)
+            throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
     public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user,
-                                final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
+                                final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, iteratorSettings);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
@@ -146,7 +154,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
     }
 
     protected void addToBloomFilter(final Iterator<? extends EntityId> seeds, final BloomFilter filter1,
-                                    final BloomFilter filter2) throws RetrieverException {
+                                    final BloomFilter filter2)
+            throws RetrieverException {
         try {
             while (seeds.hasNext()) {
                 addToBloomFilter(seeds.next(), filter1, filter2);
@@ -175,19 +184,19 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
         private Iterator<Element> iterator;
         private Element nextElm;
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         protected void initialise(final BloomFilter filter) throws RetrieverException {
             IteratorSetting bloomFilter = null;
-            IteratorSetting[] iteratorSettings1 = Arrays.copyOf(iteratorSettings, iteratorSettings.length + 1);
+            final IteratorSetting[] iteratorSettingsCopy = Arrays.copyOf(iteratorSettings, iteratorSettings.length + 1);
             try {
                 bloomFilter = iteratorSettingFactory.getBloomFilterIteratorSetting(filter);
             } catch (final IteratorSettingException e) {
-                LOGGER.error(
-                        "Failed to apply the bloom filter to the retriever, creating the gaffer.accumulostore.retriever without bloom filter",
-                        e);
+                LOGGER.error("Failed to apply the bloom filter to the retriever, "
+                        + "creating the gaffer.accumulostore.retriever without bloom filter", e);
             }
-            iteratorSettings1[iteratorSettings.length] = bloomFilter;
+            iteratorSettingsCopy[iteratorSettings.length] = bloomFilter;
             try {
-                parentRetriever = new AccumuloSingleIDRetriever(store, operation, user, iteratorSettings1);
+                parentRetriever = new AccumuloSingleIDRetriever(store, operation, user, iteratorSettingsCopy);
             } catch (final Exception e) {
                 CloseableUtil.close(operation);
                 throw new RetrieverException(e.getMessage(), e);
@@ -197,17 +206,20 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public boolean hasNext() {
-            if (null != nextElm) {
+            if (nonNull(nextElm)) {
                 return true;
             }
-            if (null == iterator) {
+            if (isNull(iterator)) {
                 throw new IllegalStateException(
                         "This iterator has not been initialised. Call initialise before using it.");
             }
             while (iterator.hasNext()) {
                 nextElm = iterator.next();
                 if (checkIfBothEndsInSet(nextElm)) {
-                    return true;
+                    if (doPostFilter(nextElm)) {
+                        ViewUtil.removeProperties(operation.getView(), nextElm);
+                        return true;
+                    }
                 }
             }
             return false;
@@ -215,13 +227,13 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (null == nextElm) {
+            if (isNull(nextElm)) {
                 if (!hasNext()) {
                     close();
                     throw new NoSuchElementException();
                 }
             }
-            Element nextReturn = nextElm;
+            final Element nextReturn = nextElm;
             nextElm = null;
             return nextReturn;
 
@@ -234,9 +246,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (null != parentRetriever) {
-                parentRetriever.close();
-            }
+            CloseableUtil.close(parentRetriever);
         }
 
         protected abstract boolean checkIfBothEndsInSet(final Object source, final Object destination);
@@ -288,7 +298,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public boolean hasNext() {
-            if (null != nextElm) {
+            if (nonNull(nextElm)) {
                 return true;
             }
             try {
@@ -303,6 +313,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                     if (secondaryCheck(nextElm)) {
                         doTransformation(nextElm);
                         if (doPostFilter(nextElm)) {
+                            ViewUtil.removeProperties(operation.getView(), nextElm);
                             return true;
                         }
                     }
@@ -317,12 +328,12 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public Element next() {
-            if (null == nextElm) {
+            if (isNull(nextElm)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
             }
-            Element nextReturn = nextElm;
+            final Element nextReturn = nextElm;
             nextElm = null;
             return nextReturn;
         }
@@ -335,9 +346,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (null != scanner) {
-                scanner.close();
-            }
+            CloseableUtil.close(scanner);
         }
 
         protected abstract void updateBloomFilterIfRequired(final EntityId seed) throws RetrieverException;
@@ -399,7 +408,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                 updateScanner();
             }
             if (!scannerIterator.hasNext()) {
-                scanner.close();
+                CloseableUtil.close(scanner);
             }
             return scannerIterator.hasNext();
         }
