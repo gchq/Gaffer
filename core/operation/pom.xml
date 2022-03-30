@@ -55,10 +55,10 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
-            <version>${koryphe.version}</version>
+            <classifier>tests-jdk8</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

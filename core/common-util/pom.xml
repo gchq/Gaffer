@@ -45,6 +45,7 @@
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>core</artifactId>
+            <classifier>jdk8</classifier>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
