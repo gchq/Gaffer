@@ -33,7 +33,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
         final ToEntitySeeds toEntitySeeds = new ToEntitySeeds.Builder().input("1", "2").build();
 
         // Then
-        assertThat(toEntitySeeds.getInput())
+        assertThat((Iterable<String>) toEntitySeeds.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }
