@@ -48,6 +48,8 @@
         <java.version>1.8</java.version>
         <scala.minor.version>2.11</scala.minor.version>
         <scala.version>${scala.minor.version}.12</scala.version>
+        <spark.minor.version>2.4</spark.minor.version>
+        <spark.version>${spark.minor.version}.5</spark.version>
 
         <!-- Dependency version properties -->
         <junit5.version>5.8.2</junit5.version>
@@ -1491,6 +1493,10 @@
             <properties>
                 <java.version>11</java.version>
                 <hadoop.version>3.3.2</hadoop.version>
+                <spark.minor.version>3.0</spark.minor.version>
+                <spark.version>${spark.minor.version}.3</spark.version>
+                <scala.minor.version>2.12</scala.minor.version>
+                <scala.version>${scala.minor.version}.15</scala.version>
             </properties>
             <build>
                 <pluginManagement>
