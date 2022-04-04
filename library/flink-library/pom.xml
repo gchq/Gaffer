@@ -16,6 +16,13 @@
     </properties>
 
     <dependencies>
+        <!-- In Java 9+, the JAXB Module is no longer included in the JDK -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
         <!--Gaffer dependencies-->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
