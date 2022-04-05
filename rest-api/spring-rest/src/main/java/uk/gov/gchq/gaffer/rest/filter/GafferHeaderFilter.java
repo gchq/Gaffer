@@ -34,6 +34,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  */
 @Component
 public class GafferHeaderFilter extends OncePerRequestFilter {
+
     @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain filterChain) throws ServletException, IOException {
         response.addHeader(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE);

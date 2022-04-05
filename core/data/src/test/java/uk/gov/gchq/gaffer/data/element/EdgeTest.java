@@ -640,12 +640,11 @@ public class EdgeTest extends ElementTest {
         final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
 
         // When / Then
-        final String expected = "Instantiation of [simple type, class uk.gov.gchq.gaffer.data.element.Edge] " +
-                "value failed: Use either 'directed' or 'directedType' - not both.";
+        final String expectedContains = "Use either 'directed' or 'directedType' - not both.";
 
         assertThatExceptionOfType(SerialisationException.class)
                 .isThrownBy(() -> JSONSerialiser.deserialise(json.getBytes(), Edge.class))
-                .withMessage(expected);
+                .withMessageContaining(expectedContains);
     }
 
     private Edge cloneCoreFields(final Edge edge) {

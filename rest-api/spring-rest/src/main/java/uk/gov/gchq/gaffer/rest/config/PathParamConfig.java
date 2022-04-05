@@ -19,8 +19,7 @@ package uk.gov.gchq.gaffer.rest.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * This class stops the app interpreting /path/service/some.class.name as /path/service/some.class with Content Type
@@ -29,15 +28,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * This is necessary because quite a few endpoints in Gaffer's REST API use this mechanism.
  */
 @Configuration
-public class PathParamConfig extends WebMvcConfigurerAdapter {
-    @Override
-    public void configurePathMatch(final PathMatchConfigurer configurer) {
-        configurer.setUseSuffixPatternMatch(false);
-    }
+public class PathParamConfig implements WebMvcConfigurer {
 
     @Override
     public void configureContentNegotiation(final ContentNegotiationConfigurer configurer) {
-        configurer.favorPathExtension(false)
-        .defaultContentType(MediaType.APPLICATION_JSON);
+        configurer.defaultContentType(MediaType.APPLICATION_JSON);
     }
 }

@@ -14,4 +14,22 @@
 # limitations under the License.
 #
 
-gaffer.graph.factory.class=uk.gov.gchq.gaffer.rest.factory.MockGraphFactory
+# Default Properties
+gaffer:
+  properties:
+    app:
+      logo.src: static/images/logo.png
+      title: PropertiesIntegrationTest
+  storeProperties: map/store.properties
+  graph:
+    config: rest-api/spring-rest/src/main/resources/graphConfig.json
+    factory.class: uk.gov.gchq.gaffer.rest.factory.MockGraphFactory
+  schemas: rest-api/spring-rest/src/main/resources/schemas
+
+server:
+  port: 0
+  context-path: /
+
+logging:
+  level:
+    root: INFO

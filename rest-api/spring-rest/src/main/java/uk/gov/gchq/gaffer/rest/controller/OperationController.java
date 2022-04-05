@@ -123,7 +123,7 @@ public class OperationController extends AbstractOperationService implements IOp
 
     @Override
     public ResponseEntity<Object> execute(@RequestBody final Operation operation) {
-        Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
+        final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
         return ResponseEntity.ok()
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .header(JOB_ID_HEADER, resultAndJobId.getSecond())
@@ -132,15 +132,15 @@ public class OperationController extends AbstractOperationService implements IOp
 
     @Override
     public ResponseEntity<StreamingResponseBody> executeChunked(@RequestBody final Operation operation) {
-        StreamingResponseBody responseBody = response -> {
+        final StreamingResponseBody responseBody = response -> {
             try {
-                Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
-                Object result = resultAndJobId.getFirst();
+                final Pair<Object, String> resultAndJobId = _execute(operation, userFactory.createContext());
+                final Object result = resultAndJobId.getFirst();
                 if (result instanceof Iterable) {
                     final Iterable itr = (Iterable) result;
                     try {
                         for (final Object item : itr) {
-                            String itemString = mapper.writeValueAsString(item) + "\r\n";
+                            final String itemString = mapper.writeValueAsString(item) + "\r\n";
                             response.write(itemString.getBytes());
                             response.flush();
                         }

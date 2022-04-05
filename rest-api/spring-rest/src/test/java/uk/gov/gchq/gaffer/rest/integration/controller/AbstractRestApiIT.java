@@ -20,8 +20,10 @@ import org.junit.AfterClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
@@ -48,8 +51,8 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * and that the Gaffer Media type header was added.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(GafferWebApplication.class)
-@WebIntegrationTest(randomPort = true)
+@SpringBootTest(classes = GafferWebApplication.class, webEnvironment = RANDOM_PORT)
+@EnableConfigurationProperties(value = AbstractRestApiIT.TestConfiguration.class)
 @ActiveProfiles("test")
 public abstract class AbstractRestApiIT {
     @Autowired
@@ -74,7 +77,6 @@ public abstract class AbstractRestApiIT {
         propertiesToBeRemoved.forEach(System::clearProperty);
     }
 
-
     protected int getPort() {
         return port;
     }
@@ -82,6 +84,7 @@ public abstract class AbstractRestApiIT {
     protected String getContextPath() {
         return contextPath;
     }
+
     protected String getBaseURl() {
         return "http://localhost:" + port + "/" + contextPath;
     }
@@ -113,5 +116,20 @@ public abstract class AbstractRestApiIT {
     protected void checkResponse(final ResponseEntity<?> response, final int expectedCode) {
         assertThat(response.getStatusCode().value()).isEqualTo(expectedCode);
         assertThat(response.getHeaders()).as("Gaffer header was not present").containsKey(GAFFER_MEDIA_TYPE_HEADER);
+    }
+
+    @Configuration
+    @ConfigurationProperties(prefix = "server")
+    public static class TestConfiguration {
+        private final String contextRoot = "";
+        private final int port = 0;
+
+        public String getContextRoot() {
+            return contextRoot;
+        }
+
+        public int getPort() {
+            return port;
+        }
     }
 }

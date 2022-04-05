@@ -14,8 +14,21 @@
 # limitations under the License.
 #
 
+# Default Properties
+gaffer:
+  properties:
+    app:
+      logo.src: static/images/logo.png
+  storeProperties: map/store.properties
+  graph:
+    config: rest-api/spring-rest/src/main/resources/graphConfig.json
+    factory.class: uk.gov.gchq.gaffer.rest.factory.MockGraphFactory
+  schemas: rest-api/spring-rest/src/main/resources/schemas
 
-# This File demonstrates how to define gaffer properties
-# in an application.properties file
+server:
+  port: 0
+  context-path: /
 
-gaffer.properties.app.title=PropertiesIntegrationTest
+logging:
+  level:
+    root: INFO
