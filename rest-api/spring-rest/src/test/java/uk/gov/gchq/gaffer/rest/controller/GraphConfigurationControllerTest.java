@@ -191,7 +191,6 @@ public class GraphConfigurationControllerTest {
         expectedFields.add("input");
         expectedFields.add("view");
         expectedFields.add("includeIncomingOutGoing");
-        expectedFields.add("seedMatching");
         expectedFields.add("options");
         expectedFields.add("directedType");
         expectedFields.add("views");

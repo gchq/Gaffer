@@ -67,7 +67,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -75,6 +75,8 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TestTypes;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -1134,7 +1136,7 @@ public class GraphTest {
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
                                     // invalid serialiser
-                                    .serialiser(new RawDoubleSerialiser())
+                                    .serialiser(new OrderedDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
                                     .clazz(String.class)
@@ -1417,12 +1419,14 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .addHook(graphHook1)
+                        .addHook(graphHook2)
+                        .addHook(graphHook3)
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .addHook(graphHook1)
-                .addHook(graphHook2)
-                .addHook(graphHook3)
                 .build();
 
         // Then
@@ -1558,14 +1562,18 @@ public class GraphTest {
                 .build();
 
         final Graph graph = new Graph.Builder()
-                .graphId(graphId1)
-                .library(library1)
-                .view(view1)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId1)
+                        .library(library1)
+                        .view(view1)
+                        .addHook(hook1)
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .addHook(hook1)
                 .config(config)
-                .addHook(hook3)
+                .config(new GraphConfig.Builder()
+                        .addHook(hook3)
+                        .build())
                 .build();
 
         // Then
@@ -1605,13 +1613,19 @@ public class GraphTest {
 
         final Graph graph = new Graph.Builder()
                 .config(config)
-                .graphId(graphId1)
-                .library(library1)
-                .view(view1)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId1)
+                        .library(library1)
+                        .view(view1)
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchemas(StreamUtil.schemas(getClass()))
-                .addHook(hook1)
-                .addHook(hook3)
+                .config(new GraphConfig.Builder()
+                        .addHook(hook1)
+                        .build())
+                .config(new GraphConfig.Builder()
+                        .addHook(hook3)
+                        .build())
                 .build();
 
         // Then
@@ -2711,6 +2725,11 @@ public class GraphTest {
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(new HashSet<>(0));
         }
 
         @Override

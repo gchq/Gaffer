@@ -63,7 +63,6 @@ Here is a list of some of the common interfaces:
 and Output if your operation takes both input and output.
 - uk.gov.gchq.gaffer.operation.io.MultiInput - Use this in addition if you
 operation takes multiple inputs. This will help with JSON serialisation
-- uk.gov.gchq.gaffer.operation.SeedMatching
 - uk.gov.gchq.gaffer.operation.Validatable
 - uk.gov.gchq.gaffer.operation.graph.OperationView
 - uk.gov.gchq.gaffer.operation.graph.GraphFilters
@@ -103,7 +102,6 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
         implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
         MultiInput.Builder<GetElements, ElementId, Builder>,
         SeededGraphFilters.Builder<GetElements, Builder>,
-        SeedMatching.Builder<GetElements, Builder>,
         Options.Builder<GetElements, Builder> {
     public Builder() {
             super(new GetElements());
@@ -117,7 +115,7 @@ For use with a `ScoreOperationChain`, some `Operation`s may require a custom
 way of calculating an associated score, therefore an implementation of
 the `ScoreResolver` interface may be required. There is a `DefaultScoreResolver`
 to which the custom implementation should delegate, in a manner specific to the
-new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/components/core/store.html#scoreoperationchain) and [ScoreOperationChainExample](https://gchq.github.io/gaffer-doc/getting-started/operations/scoreoperationchain.html).
+new Operation. For more info, see [ScoreOperationChain](https://gchq.github.io/gaffer-doc/v1docs/components/core/store.html#scoreoperationchain) and [ScoreOperationChainExample](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/scoreoperationchain.html).
 
 #### Documentation
 
@@ -126,12 +124,12 @@ and any configuration information that may not immediately be obvious. Member-le
 is not strictly necessary, but good practice for explanations/clarifications of complex methods.
 
 To assist users of the new Operation, it is best practice to provide documentation,
-and simple usage examples in [Gaffer-doc](https://github.com/gchq/gaffer-doc).
+and simple usage examples in [gaffer-doc](https://github.com/gchq/gaffer-doc).
 
 Alongside documentation, if the new `Operation` is to be integrated into Gaffer, 
 it is good practice to add it into the
-Python-Shell of [Gaffer-tools](https://github.com/gchq/gaffer-tools).
-For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/components/tool/python-shell.html).
+Python-Shell of [gaffer-tools](https://github.com/gchq/gaffer-tools).
+For more information, see the [introduction to the Python Shell](https://gchq.github.io/gaffer-doc/v1docs/components/tool/python-shell.html).
 
 ## Lazy Results
 Operation results are lazy (where possible) so that results are lazily
@@ -176,10 +174,10 @@ new OperationChain.Builder()
 Here are some frequently asked questions.
 
 #### If I do a query like GetElements or GetAdjacentIds the response type is a CloseableIterable - why?
-To avoid loading all the results into memory, Gaffer stores should return an iterable that lazily loads and returns the data as a user iterates around the results. In the cases of Accumulo and HBase this means a connection to Accumulo/HBase must remain open whilst you iterate around the results. This closeable iterable should automatically close itself when you get to the end of the results. However, if you decide not to read all the results, i.e you just want to check if the results are not empty !results.iterator().hasNext() or an exception is thrown whilst iterating around the results, then the results iterable will not be closed and hence the connection to Accumulo/HBase will remain open. Therefore, to be safe you should always consume the results in a try-with-resources block.
+To avoid loading all the results into memory, Gaffer stores should return an iterable that lazily loads and returns the data as a user iterates around the results. In the case of Accumulo this means a connection to Accumulo must remain open whilst you iterate around the results. This closeable iterable should automatically close itself when you get to the end of the results. However, if you decide not to read all the results, i.e you just want to check if the results are not empty !results.iterator().hasNext() or an exception is thrown whilst iterating around the results, then the results iterable will not be closed and hence the connection to Accumulo will remain open. Therefore, to be safe you should always consume the results in a try-with-resources block.
 
 #### Following on from the previous question, why can't I iterate around the results in parallel?
-As mentioned above the results iterable holds a connection open to Accumulo/HBase. To avoid opening multiple connections accidentally leaving the connections open, the Accumulo and HBase stores only allow one iterator to be active at a time. When you call .iterator() the connection is opened. If you call .iterator() again, the original connection is closed and a new connection is opened. This means you can't process the iterable in parallel using Java 8's streaming api. If the results will fit in memory you could add them to a Set/List and then process that collection in parallel.
+As mentioned above the results iterable holds a connection open to Accumulo. To avoid opening multiple connections accidentally leaving the connections open, the Accumulo store only allows one iterator to be active at a time. When you call .iterator() the connection is opened. If you call .iterator() again, the original connection is closed and a new connection is opened. This means you can't process the iterable in parallel using Java 8's streaming api. If the results will fit in memory you could add them to a Set/List and then process that collection in parallel.
 
 #### How do I return all my results summarised?
 You need to provide a View to override the groupBy fields for all the element groups defined in the Schema. If you set the groupBy field to an empty array it will mean no properties will be included in the element key, i.e all the properties will be summarised. You can do this be provided a View like this:
@@ -195,7 +193,7 @@ You need to provide a View to override the groupBy fields for all the element gr
 #### My queries are returning duplicate results - why and how can I deduplicate them?
 For example, if you have a Graph containing the Edge A-B and you do a GetElements with a large number of seeds, with the first seed A and the last seed B, then you will get the Edge A-B back twice. This is because Gaffer stores lazily return the results for your query to avoid loading all the results into memory so it will not realise the A-B has been queried for twice.
 
-You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operations/toset.html) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
+You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/toset.html) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
 
 e.g: 
 
@@ -297,13 +295,13 @@ big improvement.
 
 When defining filters in your View try and use the preAggregationFilter for all your filters as
 this will be run before aggregation and will mean less work has to be done to aggregate
-properties that you will later just discard. On Accumulo and HBase, postTransformFilters 
+properties that you will later just discard. On Accumulo, postTransformFilters
 are not distributed, the are computed on a single node so they can be slow.
  
 Some stores (like Accumulo) store the properties in different columns and lazily
 deserialise a column as properties in that column are requested. So if you limit
 your filters to just 1 column then less data needs to be deserialised. For 
-Accumulo and HBase the columns are split up depending on whether the property is 
+Accumulo the columns are split up depending on whether the property is
 a groupBy property, the visibilityProperty and the remaining. 
 So if you want to execute a time window query and your timestamp is a groupBy 
 property then depending on the store you are
@@ -345,17 +343,17 @@ above for general query optimisation.
 
 
 #### How can I optimise my AddElementsFromHdfs?
-Try using the SampleDataForSplitPoints and SplitStore operations to calculate 
+Try using the SampleDataForSplitPoints and SplitStoreFromFile operations to calculate 
 splits points. These can then be used to partition your data in the map reduce job
 used to import the data. If adding elements into an empty Accumulo table or a table 
-without any splits then the SampleDataForSplitPoints and SplitStore operations will
+without any splits then the SampleDataForSplitPoints and SplitStoreFromFile operations will
 be executed automatically for you. You can also optionally provide your own splits 
 points for your AddElementsFromHdfs operation.
 
 
 #### I want to filter the results of my query based on the destination of the result Edges
 OK, there are several ways of doing this and you will need to chose the most appropriate
-way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operations/getelements.html).
+way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/v1docs/getting-started/operations/getelements.html).
 
 If you are querying with just a single EntitySeed with a vertex value of X and require
 the destination to be Y then you should change your query to use an EdgeSeed 
@@ -366,7 +364,7 @@ EdgeSeed as described above.
  
 If you require your destination to match a provided regex than you will need to use
 the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
-See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicates/contents.html).
+See the [Predicate examples](https://gchq.github.io/gaffer-doc/v1docs/getting-started/predicates/contents.html).
 The predicate can then be used in you Operation View to filter out elements that
 don't match the regex.
 
@@ -420,4 +418,4 @@ GetElements results = new GetElements.Builder()
     .build();
 ```
 
-For more information on filtering see: [Filtering](https://gchq.github.io/gaffer-doc/getting-started/user-guide/filtering.html).
+For more information on filtering see: [Filtering](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/filtering.html).

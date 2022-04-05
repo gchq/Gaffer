@@ -120,7 +120,7 @@ public class ProxyStoreIT extends AbstractRestApiIT {
         Graph proxy = createProxy();
 
         // Then
-        Long total = proxy.execute(new OperationChain.Builder().first(new GetAllElements()).then(new Count<>()).build(), new User());
-        assertEquals(1, total);
+        long total = proxy.execute(new OperationChain.Builder().first(new GetAllElements()).then(new Count<>()).build(), new User());
+        assertEquals(1L, total);
     }
 }

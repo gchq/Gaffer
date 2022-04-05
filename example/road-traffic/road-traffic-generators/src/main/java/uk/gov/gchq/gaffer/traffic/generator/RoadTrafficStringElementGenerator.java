@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.traffic.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -36,7 +35,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -78,12 +76,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
-     * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    private String id;
-
-    /**
      * The {@link Serialiser} for all vertices.
      */
     private Serialiser vertexSerialiser;
@@ -96,12 +88,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private Map<String, TypeDefinition> types;
 
     private String visibilityProperty;
-
-    /**
-     * @deprecated use a store property specific to your chosen store instead.
-     */
-    @Deprecated
-    private String timestampProperty;
 
     private Map<String, String> config;
 
@@ -123,24 +109,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return new Schema.Builder().json(jsonBytes).build();
-    }
-
-    /**
-     * @return schema id
-     * @deprecated the ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @param id the schema id
-     * @deprecated the ID should be supplied to the graph library separately
-     */
-    @Deprecated
-    public void setId(final String id) {
-        this.id = id;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -269,16 +237,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return vertexSerialiser;
     }
 
-    @Deprecated
-    @JsonIgnore
-    public String getVertexSerialiserClass() {
-        if (null == vertexSerialiser) {
-            return null;
-        }
-
-        return SimpleClassNameIdResolver.getSimpleClassName(vertexSerialiser.getClass());
-    }
-
     @Override
     public SchemaElementDefinition getElement(final String group) {
         return (SchemaElementDefinition) super.getElement(group);
@@ -286,15 +244,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public String getVisibilityProperty() {
         return visibilityProperty;
-    }
-
-    /**
-     * @return the timestamp property
-     * @deprecated use a store property specific to your chosen store instead.
-     */
-    @Deprecated
-    public String getTimestampProperty() {
-        return timestampProperty;
     }
 
     public Map<String, String> getConfig() {
@@ -338,17 +287,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         /**
-         * @param id the id.
-         * @return this builder.
-         * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
-         */
-        @Deprecated
-        public CHILD_CLASS id(final String id) {
-            getThisSchema().id = id;
-            return self();
-        }
-
-        /**
          * Sets the {@link Serialiser}.
          *
          * @param vertexSerialiser the {@link Serialiser} to set
@@ -357,34 +295,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public CHILD_CLASS vertexSerialiser(final Serialiser vertexSerialiser) {
             getThisSchema().vertexSerialiser = vertexSerialiser;
-            return self();
-        }
-
-        /**
-         * Sets the {@link Serialiser} from class name.
-         *
-         * @param vertexSerialiserClass the {@link Serialiser} class name to set
-         * @return this Builder
-         */
-        @Deprecated
-        @JsonSetter("vertexSerialiserClass")
-        public CHILD_CLASS vertexSerialiserClass(final String vertexSerialiserClass) {
-            if (null == vertexSerialiserClass) {
-                getThisSchema().vertexSerialiser = null;
-            } else {
-                Class<? extends Serialiser> serialiserClass;
-                try {
-                    serialiserClass = Class.forName(SimpleClassNameIdResolver.getClassName(vertexSerialiserClass)).asSubclass(Serialiser.class);
-                } catch (final ClassNotFoundException e) {
-                    throw new SchemaException(e.getMessage(), e);
-                }
-                try {
-                    vertexSerialiser(serialiserClass.newInstance());
-                } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
-                    throw new SchemaException(e.getMessage(), e);
-                }
-            }
-
             return self();
         }
 
@@ -407,17 +317,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         public CHILD_CLASS visibilityProperty(final String visibilityProperty) {
             getThisSchema().visibilityProperty = visibilityProperty;
-            return self();
-        }
-
-        /**
-         * @param timestampProperty the timestamp property
-         * @return the builder
-         * @deprecated This is an advanced feature - if you use it then make sure you really understand it. To continue using it you should add a Schema config setting with key "timestampProperty".
-         */
-        @Deprecated
-        public CHILD_CLASS timestampProperty(final String timestampProperty) {
-            getThisSchema().timestampProperty = timestampProperty;
             return self();
         }
 
@@ -444,15 +343,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
                 validateSharedGroupsAreCompatible(thatSchema);
 
-                mergeSchemaId(thatSchema);
-
                 mergeElements(thatSchema);
 
                 mergeVertexSerialiser(thatSchema);
 
                 mergeVisibility(thatSchema);
-
-                mergeTimeStamp(thatSchema);
 
                 mergeTypes(thatSchema);
 
@@ -460,17 +355,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
 
             return self();
-        }
-
-        @Deprecated
-        private void mergeSchemaId(final Schema schema) {
-            // Schema ID is deprecated - remove this when ID is removed.
-            if (null == getThisSchema().getId()) {
-                getThisSchema().setId(schema.getId());
-            } else if (null != schema.getId()
-                    && !schema.getId().equals(getThisSchema().getId())) {
-                getThisSchema().setId(getThisSchema().getId() + "_" + schema.getId());
-            }
         }
 
         private void mergeEntities(final Schema thatSchema) {
@@ -526,16 +410,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             } else if (null != thatSchema.getVisibilityProperty() && !getThisSchema().visibilityProperty.equals(thatSchema.getVisibilityProperty())) {
                 throw new SchemaException("Unable to merge schemas. Conflict with visibility property, options are: "
                         + getThisSchema().visibilityProperty + " and " + thatSchema.getVisibilityProperty());
-            }
-        }
-
-        @Deprecated
-        private void mergeTimeStamp(final Schema thatSchema) {
-            if (null == getThisSchema().timestampProperty) {
-                getThisSchema().timestampProperty = thatSchema.getTimestampProperty();
-            } else if (null != thatSchema.getTimestampProperty() && !getThisSchema().timestampProperty.equals(thatSchema.getTimestampProperty())) {
-                throw new SchemaException("Unable to merge schemas. Conflict with timestamp property, options are: "
-                        + getThisSchema().timestampProperty + " and " + thatSchema.getTimestampProperty());
             }
         }
 
@@ -605,9 +479,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             getThisSchema().types = Collections.unmodifiableMap(getThisSchema().types);
 
-            if (null != getThisSchema().timestampProperty) {
-                getThisSchema().addConfig("timestampProperty", getThisSchema().timestampProperty);
-            }
             return super.build();
         }
 

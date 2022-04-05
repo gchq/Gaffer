@@ -144,18 +144,6 @@ public class JSONSerialiser {
      *
      * @param jsonSerialiserClass   the json serialiser class to use (or null to use the default)
      * @param jsonSerialiserModules any extra json serialiser modules required
-     * @deprecated use {@link #update(String, String, Boolean)} instead
-     */
-    @Deprecated
-    public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {
-        update(jsonSerialiserClass, jsonSerialiserModules, null);
-    }
-
-    /**
-     * Update the json serialiser with the provided custom properties.
-     *
-     * @param jsonSerialiserClass   the json serialiser class to use (or null to use the default)
-     * @param jsonSerialiserModules any extra json serialiser modules required
      * @param strictJson            true if strict json conversion should be used
      */
     public static void update(final String jsonSerialiserClass,
@@ -233,7 +221,7 @@ public class JSONSerialiser {
 
         // Allow simple class names or full class names to be used in JSON.
         // We must set this to true to ensure serialisation into json uses the
-        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo/HBase.
+        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo.
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
         SimpleClassNameIdResolver.configureObjectMapper(mapper);
         return mapper;

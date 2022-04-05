@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -45,19 +44,37 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetElementsTest extends OperationTest<GetElements> {
 
+    // This demonstrates how to do the equivalent of seedMatching EQUALS
     @Test
-    public void shouldSetSeedMatchingTypeToEquals() {
+    public void shouldSetViewToCorrectGroup() {
         // Given
         final ElementId elementId1 = new EntitySeed("identifier");
 
         // When
         final GetElements op = new GetElements.Builder()
                 .input(elementId1)
-                .seedMatching(SeedMatchingType.EQUAL)
+                .view(new View.Builder()
+                        .entity("group1")
+                        .build())
                 .build();
 
         // Then
-        assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
+        assertThat(op.getView().getGroups()).contains("group1");
+    }
+
+    // This demonstrates how to do the equivalent of seedMatching RELATED
+    @Test
+    public void shouldHaveNoViewSet() {
+        final ElementId elementId1 = new EntitySeed("identifier");
+        final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
+
+        // When
+        final GetElements op = new GetElements.Builder()
+                .input(elementId1, elementId2)
+                .build();
+
+        // Then
+        assertThat(op.getView()).isNull();
     }
 
     @Test
@@ -144,21 +161,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals(Lists.newArrayList(new EntitySeed("A"), new EntitySeed(1), new EdgeSeed(2L, 3L)), Lists.newArrayList(op.getInput()));
     }
 
-    @Test
-    public void shouldSetSeedMatchingTypeToRelated() {
-        final ElementId elementId1 = new EntitySeed("identifier");
-        final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
-
-        // When
-        final GetElements op = new GetElements.Builder()
-                .input(elementId1, elementId2)
-                .seedMatching(SeedMatchingType.RELATED)
-                .build();
-
-        // Then
-        assertEquals(SeedMatchingType.RELATED, op.getSeedMatching());
-    }
-
     private void builderShouldCreatePopulatedOperationIncoming() {
         ElementSeed seed = new EntitySeed("A");
         GetElements op = new GetElements.Builder()
@@ -219,7 +221,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .inOutType(IncludeIncomingOutgoingType.EITHER)
                 .view(view)
                 .directedType(DirectedType.DIRECTED)
-                .seedMatching(SeedMatchingType.RELATED)
                 .option("testOption", "true")
                 .build();
 
@@ -232,7 +233,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals(IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
         assertEquals(view, clone.getView());
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
-        assertEquals(SeedMatchingType.RELATED, clone.getSeedMatching());
         assertEquals("true", clone.getOption("testOption"));
     }
 

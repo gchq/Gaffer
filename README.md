@@ -1,4 +1,4 @@
-Copyright 2016-2020 Crown Copyright
+Copyright 2016-2022 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,26 +17,30 @@ limitations under the License.
 Gaffer
 ======
 
-Gaffer is a graph database framework. It allows the storage of very large graphs containing rich properties on the nodes and edges. Several storage options are available, including Accumulo, Hbase and Parquet.
+Gaffer is a graph database framework. It allows the storage of very large graphs containing rich properties on the nodes and edges. Several storage options are available, including Accumulo and an in-memory Java Map Store.
 
 It is designed to be as flexible, scalable and extensible as possible, allowing for rapid prototyping and transition to production systems.
 
 Gaffer offers:
 
- - Rapid query across very large numbers of nodes and edges;
- - Continual ingest of data at very high data rates, and batch bulk ingest of data via MapReduce or Spark;
- - Storage of arbitrary Java objects on the nodes and edges;
- - Automatic, user-configurable in-database aggregation of rich statistical properties (e.g. counts, histograms, sketches) on the nodes and edges;
- - Versatile query-time summarisation, filtering and transformation of data;
- - Fine grained data access controls;
- - Hooks to apply policy and compliance rules to queries;
- - Automated, rule-based removal of data (typically used to age-off old data);
- - Retrieval of graph data into Apache Spark for fast and flexible analysis;
- - A fully-featured REST API.
+ - Rapid query across very large numbers of nodes and edges
+ - Continual ingest of data at very high data rates, and batch bulk ingest of data via MapReduce or Spark
+ - Storage of arbitrary Java objects on the nodes and edges
+ - Automatic, user-configurable in-database aggregation of rich statistical properties (e.g. counts, histograms, sketches) on the nodes and edges
+ - Versatile query-time summarisation, filtering and transformation of data
+ - Fine grained data access controls
+ - Hooks to apply policy and compliance rules to queries
+ - Automated, rule-based removal of data (typically used to age-off old data)
+ - Retrieval of graph data into Apache Spark for fast and flexible analysis
+ - A fully-featured REST API
 
-To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/summaries/getting-started.html).
+To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/v1docs/summaries/getting-started.html).
 
 Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
+
+Gaffer 2.0 Alpha
+---------------
+Gaffer 2.0 is currently in the alpha phase, see the [v2docs](https://gchq.github.io/gaffer-doc/latest/) for a list of changes under development.
 
 License
 -------
@@ -54,7 +58,7 @@ We have a demo available to try that is based around a small uk road use dataset
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [Store](https://gchq.github.io/gaffer-doc/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+See our [Store](https://gchq.github.io/gaffer-doc/v1docs/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
 
 ### Inclusion in other projects
 
@@ -81,27 +85,24 @@ This will include all other mandatory dependencies. Other (optional) components 
 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
-We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html).
+We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/v1docs/getting-started/user-guide/contents.html).
 
 Related repositories
 --------------------
 
 The [gaffer-tools](https://github.com/gchq/gaffer-tools) repository contains useful tools to help work with Gaffer. These include:
 
-- `jar-shader` - Used to shade the version of Jackson to avoid incompatibility problems on CDH clusters;
-- `mini-accumulo-cluster` - Allows a mini Accumulo cluster to be spun up for testing purposes;
-- `performance-testing` - Methods of testing the performance of ingest and query operations against a graph;
-- `python-shell` - Allows operations against a graph to be executed from a Python shell;
-- `random-element-generation` - Code to generate large volumes of random graph data;
-- `schema-builder` - A (beta) visual tool for writing schemas for a graph;
-- `slider` - Code to deploy a Gaffer cluster to a YARN cluster using [Apache Slider](https://slider.incubator.apache.org/), including the ability to easily run Slider on an [AWS EMR cluster](https://aws.amazon.com/emr/);
-- `ui` - A basic graph visualisation tool.
+- `mini-accumulo-cluster` - Allows a mini Accumulo cluster to be spun up for testing purposes
+- `performance-testing` - Methods of testing the performance of ingest and query operations against a graph
+- `python-shell` - Allows operations against a graph to be executed from a Python shell
+- `random-element-generation` - Code to generate large volumes of random graph data
+- `ui` - A basic graph visualisation tool
 
 Contributing
 ------------
 
-We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/other/ways-of-working.html). In brief:
+We welcome contributions to the project. Detailed information on our ways of working can be found [here](https://gchq.github.io/gaffer-doc/v1docs/other/ways-of-working.html). In brief:
 
-- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer);
-- Push your changes to a fork;
-- Submit a pull request.
+- Sign the [GCHQ Contributor Licence Agreement](https://cla-assistant.io/gchq/Gaffer)
+- Push your changes to a fork
+- Submit a pull request

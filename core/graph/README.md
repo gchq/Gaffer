@@ -38,11 +38,11 @@ store properties, a schema and some graph specific configuration.
 
 ## Store Properties
 The store properties tells the graph the type of store to connect to
-along with any required connection details. See [Stores](https://gchq.github.io/gaffer-doc/summaries/stores.html) for more information on the different Stores for Gaffer.
+along with any required connection details. See [Stores](https://gchq.github.io/gaffer-doc/v1docs/summaries/stores.html) for more information on the different Stores for Gaffer.
 
 ## Schema
 The schema is passed to the store to instruct the store how to store
-and process the data. See [Schemas](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for more information.
+and process the data. See [Schemas](https://gchq.github.io/gaffer-doc/v1docs/getting-started/developer-guide/schemas.html) for more information.
 
 ## Graph Configuration
 The graph configuration allows you to apply special customisations to the Graph instance.
@@ -70,7 +70,9 @@ Here is an example of a `GraphConfig`:
  
 ```java
 new GraphConfig.Builder()
-    .graphId("exampleGraphId")
+    .config(new GraphConfig.Builder()
+            .graphId("exampleGraphId")
+            .build())
     .description("Example Graph description")
     .view(new View.Builder()
             .globalElements(new GlobalViewElementDefinition.Builder()

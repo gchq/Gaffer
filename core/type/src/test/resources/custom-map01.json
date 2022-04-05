@@ -4,7 +4,7 @@
     "class" : "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
   },
   "valueSerialiser" : {
-    "class" : "uk.gov.gchq.gaffer.serialisation.IntegerSerialiser"
+    "class" : "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
   },
   "jsonStorage" : [ {
     "uk.gov.gchq.gaffer.commonutil.pair.Pair" : {

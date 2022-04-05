@@ -111,10 +111,12 @@ import uk.gov.gchq.gaffer.store.Store.ScheduledJobRunnable;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.HasTrait;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
@@ -156,6 +158,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -165,6 +168,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -194,6 +198,7 @@ public class StoreTest {
         JSONSerialiser.update();
 
         schemaOptimiser = mock(SchemaOptimiser.class);
+        when(schemaOptimiser.optimise(any(Schema.class), any(Boolean.class))).then(returnsFirstArg());
         operationChainValidator = mock(OperationChainValidator.class);
         store = new StoreImpl();
         given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
@@ -368,7 +373,6 @@ public class StoreTest {
 
     @Test
     public void shouldThrowExceptionIfOperationChainIsInvalid() throws OperationException, StoreException {
-        // Given
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -551,6 +555,7 @@ public class StoreTest {
                 Map.class,
                 If.class,
                 GetTraits.class,
+                HasTrait.class,
                 While.class,
                 Join.class,
                 ToSingletonList.class,
@@ -658,6 +663,7 @@ public class StoreTest {
                 DiscardOutput.class,
                 GetSchema.class,
                 GetTraits.class,
+                HasTrait.class,
                 Map.class,
                 If.class,
                 While.class,
@@ -1148,6 +1154,11 @@ public class StoreTest {
         }
 
         @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             doUnhandledOperationCalls.add(operation);
             return null;
@@ -1162,8 +1173,8 @@ public class StoreTest {
         }
 
         @Override
-        public void optimiseSchema() {
-            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        protected SchemaOptimiser createSchemaOptimiser() {
+            return schemaOptimiser;
         }
 
         @Override
@@ -1243,6 +1254,11 @@ public class StoreTest {
         }
 
         @Override
+        protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
+            return new GetTraitsHandler(traits);
+        }
+
+        @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             doUnhandledOperationCalls.add(operation);
             return null;
@@ -1254,11 +1270,6 @@ public class StoreTest {
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {
             return doUnhandledOperationCalls;
-        }
-
-        @Override
-        public void optimiseSchema() {
-            schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
         }
 
         @Override

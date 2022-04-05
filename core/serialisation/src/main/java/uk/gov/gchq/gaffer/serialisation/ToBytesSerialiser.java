@@ -76,8 +76,11 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
      * <p>
      * Note that this implementation is less efficient than using deserialise
      * with an offset and a length, but may still be used if necessary.
+     * It has been marked deprecated but will not be removed as it is needed
+     * in the Serialiser interface.
      * @see #deserialise(byte[], int, int)
      */
+    @Deprecated
     @Override
     T deserialise(final byte[] bytes) throws SerialisationException;
 

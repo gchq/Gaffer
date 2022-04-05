@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 @RestController
 public class StatusController implements IStatusController {
 
-    private GraphFactory graphFactory;
+    private final GraphFactory graphFactory;
 
     @Autowired
     public StatusController(final GraphFactory graphFactory) {
