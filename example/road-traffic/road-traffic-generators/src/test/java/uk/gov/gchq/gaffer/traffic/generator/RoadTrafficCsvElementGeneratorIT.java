@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.generator;
+package uk.gov.gchq.gaffer.traffic.generator;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.BufferedReader;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CsvElementGeneratorIT {
+public class RoadTrafficCsvElementGeneratorIT {
     private static final String GENERATOR_FILE = "/roadTraffic/roadTrafficGenerator.json";
     private static final String INPUT_DATA_FILE = "/roadTraffic/roadTrafficData.csv";
 
