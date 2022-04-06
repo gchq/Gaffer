@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.Map;
 /**
  * AddElementsFromCsv is an operation that generates elements from a csv file
  */
-
 @JsonPropertyOrder(value = {"class", "filename", "elementGeneratorFilePath"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Adds elements from a csv file. Configure with a csv-to-element mappings file")

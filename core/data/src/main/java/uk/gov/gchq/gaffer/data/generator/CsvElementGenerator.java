@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-@Since("1.8.0")
+@Since("2.0.0")
 @Summary("Generates elements from a CSV string")
 @JsonPropertyOrder(value = {
         "header", "firstRow", "delimiter", "quoted", "quoteChar",
@@ -87,8 +87,8 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
     private PropertiesFilter csvValidator;
     private PropertiesTransformer transformer = new PropertiesTransformer();
     private final List<ElementTupleDefinition> elements = new ArrayList<>();
-    private ElementGenerator<Element> followOnGenerator; // This should probably be removed - Discuss with customers.
-    private ElementFilter elementValidator; // Maybe this also
+    private ElementGenerator<Element> followOnGenerator;
+    private ElementFilter elementValidator;
 
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> strings) {
@@ -133,7 +133,8 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         return new StreamIterable<>(() -> {
             final CSVRecord csvRecord = parseCsv(csv);
             final Properties properties = extractProperties(csvRecord);
-            if (isHeader(properties)) { // If the data is shuffled, the header could end up in a weird place
+            if (isHeader(properties)) {
+                // If the data is shuffled, the header could end up in a weird place
                 return Stream.empty();
             }
             final ValidationResult validFields = new ValidationResult();
@@ -266,17 +267,17 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.firstRow = firstRow;
     }
 
-    public  CsvElementGenerator firstRow(final int firstRow) {
+    public CsvElementGenerator firstRow(final int firstRow) {
         this.firstRow = firstRow;
         return this;
     }
 
-    public  CsvElementGenerator header(final String... header) {
+    public CsvElementGenerator header(final String... header) {
         Collections.addAll(this.header, header);
         return this;
     }
 
-    public  CsvElementGenerator header(final Collection<String> header) {
+    public CsvElementGenerator header(final Collection<String> header) {
         this.header.addAll(header);
         return this;
     }
@@ -290,7 +291,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.elements.addAll(elements);
     }
 
-    public  CsvElementGenerator element(final ElementTupleDefinition elementDef) {
+    public CsvElementGenerator element(final ElementTupleDefinition elementDef) {
         elements.add(elementDef);
         return this;
     }
@@ -307,7 +308,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.requiredFields = requiredFields;
     }
 
-    public  CsvElementGenerator requiredFields(final String... requiredFields) {
+    public CsvElementGenerator requiredFields(final String... requiredFields) {
         Collections.addAll(this.requiredFields, requiredFields);
         return this;
     }
@@ -320,12 +321,12 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.allFieldsRequired = allFieldsRequired;
     }
 
-    public  CsvElementGenerator allFieldsRequired() {
+    public CsvElementGenerator allFieldsRequired() {
         this.allFieldsRequired = true;
         return this;
     }
 
-    public  CsvElementGenerator allFieldsRequired(final boolean allFieldsRequired) {
+    public CsvElementGenerator allFieldsRequired(final boolean allFieldsRequired) {
         this.allFieldsRequired = allFieldsRequired;
         return this;
     }
@@ -338,7 +339,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.csvValidator = validator;
     }
 
-    public  CsvElementGenerator csvValidator(final PropertiesFilter csvValidator) {
+    public CsvElementGenerator csvValidator(final PropertiesFilter csvValidator) {
         requireNonNull(csvValidator, "csvValidator is required");
         this.csvValidator = csvValidator;
         return this;
@@ -364,12 +365,12 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.skipInvalid = skipInvalid;
     }
 
-    public  CsvElementGenerator skipInvalid() {
+    public CsvElementGenerator skipInvalid() {
         this.skipInvalid = true;
         return this;
     }
 
-    public  CsvElementGenerator skipInvalid(final boolean skipInvalid) {
+    public CsvElementGenerator skipInvalid(final boolean skipInvalid) {
         this.skipInvalid = skipInvalid;
         return this;
     }
@@ -385,7 +386,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.transformer = transformer;
     }
 
-    public  CsvElementGenerator transformer(final PropertiesTransformer transformer) {
+    public CsvElementGenerator transformer(final PropertiesTransformer transformer) {
         requireNonNull(transformer, "transformer is required");
         this.transformer = transformer;
         return this;
@@ -409,7 +410,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.delimiter = delimiter;
     }
 
-    public  CsvElementGenerator delimiter(final char delimiter) {
+    public CsvElementGenerator delimiter(final char delimiter) {
         this.delimiter = delimiter;
         return this;
     }
@@ -422,12 +423,12 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.quoted = quoted;
     }
 
-    public  CsvElementGenerator quoted() {
+    public CsvElementGenerator quoted() {
         this.quoted = true;
         return this;
     }
 
-    public  CsvElementGenerator quoted(final boolean quoted) {
+    public CsvElementGenerator quoted(final boolean quoted) {
         this.quoted = quoted;
         return this;
     }
@@ -440,7 +441,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.quoteChar = quoteChar;
     }
 
-    public  CsvElementGenerator quoteChar(final char quoteChar) {
+    public CsvElementGenerator quoteChar(final char quoteChar) {
         this.quoteChar = quoteChar;
         return this;
     }
@@ -453,7 +454,7 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         this.followOnGenerator = followOnGenerator;
     }
 
-    public  CsvElementGenerator followOnGenerator(final ElementGenerator<Element> followOnGenerator) {
+    public CsvElementGenerator followOnGenerator(final ElementGenerator<Element> followOnGenerator) {
         this.followOnGenerator = followOnGenerator;
         return this;
     }
