@@ -108,12 +108,12 @@ public class StoreIT {
             return null;
         }
 
-        @SuppressWarnings({"rawtypes"})
         @Override
         protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
             return new GetTraitsHandler(traits);
         }
 
+        @SuppressWarnings({"rawtypes"})
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;

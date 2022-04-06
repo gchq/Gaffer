@@ -74,8 +74,8 @@ public class NamedViewCache {
     /**
      * Removes the specified {@link NamedViewDetail} from the cache.
      *
-     * @param name {@link NamedViewDetail} name to delete
-     * @param user A {@link User} object that can optionally be used for checking permissions
+     * @param name      {@link NamedViewDetail} name to delete
+     * @param user      A {@link User} object that can optionally be used for checking permissions
      * @throws CacheOperationFailedException Thrown when the NamedViewDetail doesn't exist or the User doesn't have
      *                                       write permission on the NamedViewDetail
      */

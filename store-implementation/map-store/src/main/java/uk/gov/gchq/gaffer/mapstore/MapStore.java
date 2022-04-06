@@ -156,12 +156,12 @@ public class MapStore extends Store {
         return new AddElementsHandler();
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new GetTraitsHandler(TRAITS);
     }
 
+    @SuppressWarnings({"rawtypes"})
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;

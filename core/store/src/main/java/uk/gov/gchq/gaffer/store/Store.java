@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ExecutorService;
-
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -875,9 +874,9 @@ public abstract class Store {
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link
-     *         uk.gov.gchq.gaffer.store.operation.GetTraits}
+     * uk.gov.gchq.gaffer.store.operation.GetTraits}
      */
-    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler();
+    protected abstract OutputOperationHandler<GetTraits, Set<StoreTrait>>  getGetTraitsHandler();
 
     /**
      * Get this Store's implementation of the handler for {@link
@@ -898,6 +897,7 @@ public abstract class Store {
         return schemaElements;
     }
 
+    @SuppressWarnings({"rawtypes"})
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**

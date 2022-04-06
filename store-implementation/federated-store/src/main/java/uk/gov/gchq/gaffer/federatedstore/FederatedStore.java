@@ -452,12 +452,12 @@ public class FederatedStore extends Store {
         return (OperationHandler) new FederatedOperationHandler();
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     protected OutputOperationHandler<GetTraits, Set<StoreTrait>> getGetTraitsHandler() {
         return new FederatedGetTraitsHandler();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;

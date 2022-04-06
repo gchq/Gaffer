@@ -15,6 +15,17 @@
 #
 
 # Default Properties
-gaffer.properties.app.logo.src=/rest/images/logo.png
-server.context-path=/rest
-logging.level.root=INFO
+gaffer:
+  properties:
+    app:
+      logo.src: static/images/logo.png
+  storeProperties: map/store.properties
+  graph.config: rest-api/spring-rest/src/main/resources/graphConfig.json
+  schemas: rest-api/spring-rest/src/main/resources/schemas
+
+server:
+  context-path: /rest
+
+logging:
+  level:
+    root: INFO

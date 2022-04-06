@@ -113,7 +113,7 @@ public class FederatedStoreTest {
     private static final String PATH_ENTITY_B_SCHEMA_JSON = "schema/entityBSchema.json";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     public static final String UNUSUAL_KEY = "unusualKey";
-    public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_ACC_2 + " it should not be there";
+    public static final String KEY_DOES_NOT_BELONG = String.format(" %swas added to %s it should not be there", UNUSUAL_KEY, ID_PROPS_ACC_2);
     private static final String ALL_USERS = StoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
@@ -161,12 +161,9 @@ public class FederatedStoreTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        assertThat(PROPERTIES_1).isEqualTo(library.getProperties(ID_PROPS_ACC_1))
-                .withFailMessage("Library has changed: " + ID_PROPS_ACC_1);
-        assertThat(PROPERTIES_2).isEqualTo(library.getProperties(ID_PROPS_ACC_2))
-                .withFailMessage("Library has changed: " + ID_PROPS_ACC_2);
-        assertThat(PROPERTIES_ALT).isEqualTo(library.getProperties(ID_PROPS_ACC_ALT))
-                .withFailMessage("Library has changed: " + ID_PROPS_ACC_ALT);
+        assertThat(PROPERTIES_1).isEqualTo(library.getProperties(ID_PROPS_ACC_1)).withFailMessage("Library has changed: " + ID_PROPS_ACC_1);
+        assertThat(PROPERTIES_2).isEqualTo(library.getProperties(ID_PROPS_ACC_2)).withFailMessage("Library has changed: " + ID_PROPS_ACC_2);
+        assertThat(PROPERTIES_ALT).isEqualTo(library.getProperties(ID_PROPS_ACC_ALT)).withFailMessage("Library has changed: " + ID_PROPS_ACC_ALT);
 
         assertThat(new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8))
                 .isEqualTo(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8))
