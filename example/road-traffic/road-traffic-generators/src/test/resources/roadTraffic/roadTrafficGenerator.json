@@ -191,8 +191,8 @@
         "function": {
           "class": "IterableFunction",
           "functions": [ {
-            "class": "uk.gov.gchq.koryphe.impl.function.ToSet",
-            "implementation": "java.util.TreeSet"
+            "class": "ToSet",
+            "implementation": "TreeSet"
           }]
         },
         "projection": ["road_has_junction_set", "road_use_set", "region_contains_location_set", "location_contains_road_set", "junction_located_at_set"]

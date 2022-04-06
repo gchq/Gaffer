@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.generator;
+package uk.gov.gchq.gaffer.traffic.generator;
 
 import com.google.common.collect.Lists;
 
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
+import uk.gov.gchq.gaffer.data.generator.CsvElementGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -51,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
-public class CsvElementGeneratorTest {
+public class RoadTrafficCsvElementGenerator3Test {
 
     public void assertElementGenerated(Element expected, Iterable<? extends  Element> generated) {
         int elementsGenerated = 0;
