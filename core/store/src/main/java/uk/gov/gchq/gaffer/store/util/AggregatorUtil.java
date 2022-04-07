@@ -38,9 +38,11 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Utility methods to help with doing aggregation of elements. Aggregation differs
@@ -49,6 +51,7 @@ import java.util.stream.Collectors;
  * checks the {@link View} to see if the groupBy properties have been overridden.
  */
 public final class AggregatorUtil {
+
     private AggregatorUtil() {
     }
 
@@ -63,15 +66,16 @@ public final class AggregatorUtil {
      * @param schema   the schema containing the aggregators and groupBy properties to use
      * @return the aggregated elements.
      */
+    @SuppressWarnings("unchecked")
     public static Iterable<Element> ingestAggregate(final Iterable<? extends Element> elements, final Schema schema) {
-        if (Objects.isNull(schema)) {
+        if (isNull(schema)) {
             throw new IllegalArgumentException("Schema is required");
         }
         final Collection<String> aggregatedGroups = schema.getAggregatedGroups();
         final List<Element> aggregatableElements = new ArrayList<>();
         final List<Element> nonAggregatedElements = new ArrayList<>();
         for (final Element element : elements) {
-            if (Objects.nonNull(element)) {
+            if (nonNull(element)) {
                 if (aggregatedGroups.contains(element.getGroup())) {
                     aggregatableElements.add(element);
                 } else {
@@ -118,19 +122,20 @@ public final class AggregatorUtil {
      * @param includeMatchedVertex whether aggregation groups should include the Edge Matched Vertex
      * @return the aggregated elements.
      */
+    @SuppressWarnings("unchecked")
     public static Iterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view,
                                                    final boolean includeMatchedVertex) {
-        if (Objects.isNull(schema)) {
+        if (isNull(schema)) {
             throw new IllegalArgumentException("Schema is required");
         }
-        if (Objects.isNull(view)) {
+        if (isNull(view)) {
             throw new IllegalArgumentException("View is required");
         }
         final Collection<String> aggregatedGroups = schema.getAggregatedGroups();
         final List<Element> aggregatableElements = new ArrayList<>();
         final List<Element> nonAggregatedElements = new ArrayList<>();
         for (final Element element : elements) {
-            if (Objects.nonNull(element)) {
+            if (nonNull(element)) {
                 if (aggregatedGroups.contains(element.getGroup())) {
                     aggregatableElements.add(element);
                 } else {
@@ -186,7 +191,7 @@ public final class AggregatorUtil {
         }
 
         public ToElementKey(final Map<String, Set<String>> groupToGroupBys, final boolean includeMatchedVertex) {
-            if (Objects.isNull(groupToGroupBys)) {
+            if (isNull(groupToGroupBys)) {
                 throw new IllegalArgumentException("groupToGroupBys map is required");
             }
             this.groupToGroupBys = groupToGroupBys;
@@ -197,7 +202,7 @@ public final class AggregatorUtil {
         public Element apply(final Element element) {
             final Element key = element.emptyClone();
             final Set<String> groupBy = groupToGroupBys.get(element.getGroup());
-            if (Objects.isNull(groupBy)) {
+            if (isNull(groupBy)) {
                 throw new IllegalArgumentException(String.format("Group %s was not recognised", element.getGroup()));
             }
             for (final String propertyName : groupBy) {
@@ -223,7 +228,7 @@ public final class AggregatorUtil {
     public static class QueryElementBinaryOperator extends ElementBinaryOperator {
         public QueryElementBinaryOperator(final Schema schema, final View view) {
             super(schema, view);
-            if (Objects.isNull(view)) {
+            if (isNull(view)) {
                 throw new IllegalArgumentException("View is required");
             }
         }
@@ -242,7 +247,7 @@ public final class AggregatorUtil {
     public static class QueryPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public QueryPropertiesBinaryOperator(final Schema schema, final View view) {
             super(schema, view);
-            if (Objects.isNull(view)) {
+            if (isNull(view)) {
                 throw new IllegalArgumentException("View is required");
             }
         }
@@ -254,14 +259,14 @@ public final class AggregatorUtil {
         final Collection<String> aggregatedGroups;
 
         public IsElementAggregated(final Schema schema) {
-            if (Objects.isNull(schema)) {
+            if (isNull(schema)) {
                 throw new IllegalArgumentException("Schema is required");
             }
             this.aggregatedGroups = schema.getAggregatedGroups();
         }
 
         public IsElementAggregated(final Collection<String> aggregatedGroups) {
-            if (Objects.isNull(aggregatedGroups)) {
+            if (isNull(aggregatedGroups)) {
                 throw new IllegalArgumentException("Aggregated groups is required");
             }
             this.aggregatedGroups = aggregatedGroups;
@@ -269,7 +274,7 @@ public final class AggregatorUtil {
 
         @Override
         public boolean test(final Element element) {
-            return Objects.nonNull(element) && aggregatedGroups.contains(element.getGroup());
+            return nonNull(element) && aggregatedGroups.contains(element.getGroup());
         }
     }
 
@@ -278,7 +283,7 @@ public final class AggregatorUtil {
         private final View view;
 
         protected ElementBinaryOperator(final Schema schema, final View view) {
-            if (Objects.isNull(schema)) {
+            if (isNull(schema)) {
                 throw new IllegalArgumentException("Schema is required");
             }
             this.view = view;
@@ -288,7 +293,7 @@ public final class AggregatorUtil {
         @Override
         public Element _apply(final Element a, final Element b) {
             final String group = a.getGroup();
-            if (Objects.isNull(view)) {
+            if (isNull(view)) {
                 return schema.getElement(group).getIngestAggregator().apply(a, b);
             }
             final ViewElementDefinition elementDef = view.getElement(group);
@@ -301,7 +306,7 @@ public final class AggregatorUtil {
         private final View view;
 
         protected PropertiesBinaryOperator(final Schema schema, final View view) {
-            if (Objects.isNull(schema)) {
+            if (isNull(schema)) {
                 throw new IllegalArgumentException("Schema is required");
             }
             this.schema = schema;
@@ -311,7 +316,7 @@ public final class AggregatorUtil {
         @Override
         public GroupedProperties _apply(final GroupedProperties a, final GroupedProperties b) {
             final String group = a.getGroup();
-            if (Objects.isNull(view)) {
+            if (isNull(view)) {
                 schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
             } else {
                 final ViewElementDefinition elementDef = view.getElement(group);
@@ -324,7 +329,7 @@ public final class AggregatorUtil {
     }
 
     public static Map<String, Set<String>> getIngestGroupBys(final Schema schema) {
-        if (Objects.isNull(schema)) {
+        if (isNull(schema)) {
             throw new IllegalArgumentException("Schema is required");
         }
 
@@ -337,10 +342,10 @@ public final class AggregatorUtil {
     }
 
     public static Map<String, Set<String>> getQueryGroupBys(final Schema schema, final View view) {
-        if (Objects.isNull(schema)) {
+        if (isNull(schema)) {
             throw new IllegalArgumentException("Schema is required");
         }
-        if (Objects.isNull(view)) {
+        if (isNull(view)) {
             throw new IllegalArgumentException("View is required");
         }
         final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
@@ -353,10 +358,10 @@ public final class AggregatorUtil {
 
     public static Set<String> getIngestGroupBy(final String group, final Schema schema) {
         final SchemaElementDefinition elDef = schema.getElement(group);
-        if (Objects.isNull(elDef)) {
+        if (isNull(elDef)) {
             throw new IllegalArgumentException(String.format("Received group %s which was not found in the schema", group));
         }
-        if (Objects.isNull(schema.getVisibilityProperty()) || !elDef.containsProperty(schema.getVisibilityProperty())) {
+        if (isNull(schema.getVisibilityProperty()) || !elDef.containsProperty(schema.getVisibilityProperty())) {
             return elDef.getGroupBy();
         }
 
@@ -367,15 +372,15 @@ public final class AggregatorUtil {
 
     public static Set<String> getQueryGroupBy(final String group, final Schema schema, final View view) {
         Set<String> groupBy = null;
-        if (Objects.nonNull(view)) {
+        if (nonNull(view)) {
             final ViewElementDefinition elDef = view.getElement(group);
-            if (Objects.nonNull(elDef)) {
+            if (nonNull(elDef)) {
                 groupBy = elDef.getGroupBy();
             }
         }
-        if (Objects.isNull(groupBy)) {
+        if (isNull(groupBy)) {
             final SchemaElementDefinition elDef = schema.getElement(group);
-            if (Objects.isNull(elDef)) {
+            if (isNull(elDef)) {
                 throw new IllegalArgumentException(String.format("Received group %s which was not found in the schema", group));
             }
             groupBy = elDef.getGroupBy();

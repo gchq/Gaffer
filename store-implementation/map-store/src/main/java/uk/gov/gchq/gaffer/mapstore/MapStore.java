@@ -47,10 +47,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 
 /**
  * An implementation of {@link Store} that uses any class that implements Java's {@link java.util.Map} interface to
@@ -120,7 +120,7 @@ public class MapStore extends Store {
     protected MapImpl createMapImpl() {
         if (getProperties().isStaticMap()) {
             LOGGER.debug("Using static map");
-            if (Objects.isNull(staticMapImpl)) {
+            if (isNull(staticMapImpl)) {
                 staticMapImpl = new MapImpl(getSchema(), getProperties());
             }
 

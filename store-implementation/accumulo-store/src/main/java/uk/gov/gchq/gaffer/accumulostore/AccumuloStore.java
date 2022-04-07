@@ -107,10 +107,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
@@ -191,7 +193,7 @@ public class AccumuloStore extends Store {
      * @throws StoreException If there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
-        if (Objects.isNull(connection)) {
+        if (isNull(connection)) {
             connection = TableUtils.getConnector(getProperties().getInstance(), getProperties().getZookeepers(),
                     getProperties().getUser(), getProperties().getPassword());
         }
@@ -205,15 +207,16 @@ public class AccumuloStore extends Store {
         return getGraphId();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         super.validateSchema(validationResult, serialiser);
         final String timestampProperty = getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
-        if (Objects.nonNull(timestampProperty)) {
+        if (nonNull(timestampProperty)) {
             final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(getSchema().getEntities().values(), getSchema().getEdges().values());
             for (final SchemaElementDefinition def : defs) {
                 final TypeDefinition typeDef = def.getPropertyTypeDef(timestampProperty);
-                if (Objects.nonNull(typeDef) && Objects.nonNull(typeDef.getAggregateFunction())
+                if (nonNull(typeDef) && nonNull(typeDef.getAggregateFunction())
                         && !(typeDef.getAggregateFunction() instanceof Max)) {
                     validationResult.addError("The aggregator for the " + timestampProperty
                             + " property must be set to: "
@@ -248,7 +251,7 @@ public class AccumuloStore extends Store {
             addUserToConfiguration(conf);
             // Authorizations
             Authorizations authorisations;
-            if (Objects.nonNull(user) && Objects.nonNull(user.getDataAuths())) {
+            if (nonNull(user) && nonNull(user.getDataAuths())) {
                 authorisations = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
             } else {
                 authorisations = new Authorizations();
@@ -281,21 +284,21 @@ public class AccumuloStore extends Store {
                 final IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPreAggregationFilterIteratorSetting(view, this);
-                if (Objects.nonNull(elementPreFilter)) {
+                if (nonNull(elementPreFilter)) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
                     LOGGER.info("Added pre-aggregation filter iterator of {}", elementPreFilter);
                 }
                 final IteratorSetting elementPostFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPostAggregationFilterIteratorSetting(view, this);
-                if (Objects.nonNull(elementPostFilter)) {
+                if (nonNull(elementPostFilter)) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
                     LOGGER.info("Added post-aggregation filter iterator of {}", elementPostFilter);
                 }
                 final IteratorSetting edgeEntityDirFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getEdgeEntityDirectionFilterIteratorSetting(graphFilters);
-                if (Objects.nonNull(edgeEntityDirFilter)) {
+                if (nonNull(edgeEntityDirFilter)) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirFilter);
                     LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
@@ -324,6 +327,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
     }
@@ -372,7 +376,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
-        if (Objects.isNull(getSchema().getVertexSerialiser()) || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+        if (isNull(getSchema().getVertexSerialiser()) || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
             addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
             addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
         } else {
@@ -428,7 +432,7 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        if (Objects.nonNull(elements)) {
+        if (nonNull(elements)) {
             for (final Element element : elements) {
 
                 final Pair<Key, Key> keys;
@@ -460,7 +464,7 @@ public class AccumuloStore extends Store {
                 // If the GraphElement is a Vertex then there will only be 1 key,
                 // and the second will be null.
                 // If the GraphElement is an Edge then there will be 2 keys.
-                if (Objects.nonNull(keys.getSecond())) {
+                if (nonNull(keys.getSecond())) {
                     final Mutation m2 = new Mutation(keys.getSecond().getRow());
                     m2.put(keys.getSecond().getColumnFamily(),
                             keys.getSecond().getColumnQualifier(),

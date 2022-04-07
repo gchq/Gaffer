@@ -30,12 +30,14 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 
 import java.util.Map;
-import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
 public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
+
     private final NamedOperationCache cache;
 
     public AddNamedOperationHandler() {
@@ -91,7 +93,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
             }
         }
 
-        if (Objects.nonNull(namedOperationDetail.getParameters())) {
+        if (nonNull(namedOperationDetail.getParameters())) {
             final String operationString = namedOperationDetail.getOperations();
             for (final Map.Entry<String, ParameterDetail> parameterDetail : namedOperationDetail.getParameters().entrySet()) {
                 final String varName = String.format("${%s}", parameterDetail.getKey());

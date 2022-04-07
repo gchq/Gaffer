@@ -53,8 +53,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentIds, EntityId> {
 
@@ -88,7 +90,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
             return new EmptyIterator<>();
         }
 
-        final Iterator<? extends ElementId> idIterator = Objects.nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<? extends ElementId> idIterator = nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyIterator<>();
         }
@@ -137,7 +139,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (Objects.nonNull(nextId)) {
+            if (nonNull(nextId)) {
                 return true;
             }
             while (scannerIterator.hasNext()) {
@@ -156,7 +158,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                         LOGGER.error("Failed to re-create an element from a key value entry set returning next EntityId as null", e);
                         continue;
                     }
-                    if (Objects.nonNull(element)) {
+                    if (nonNull(element)) {
                         doTransformation(element);
                         if (doPostFilter(element)) {
                             elementId = element;
@@ -171,7 +173,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                     }
                 }
 
-                if (Objects.nonNull(elementId)) {
+                if (nonNull(elementId)) {
                     if (elementId instanceof EdgeId) {
                         if (EdgeId.MatchedVertex.DESTINATION == ((EdgeId) elementId).getMatchedVertex()) {
                             nextId = new EntitySeed(((EdgeId) elementId).getSource());
@@ -219,7 +221,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public EntityId next() {
-            if (Objects.isNull(nextId)) {
+            if (isNull(nextId)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -244,6 +246,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         ranges.addAll(rangeFactory.getRange(seed, operation));
     }
 
+    @SuppressWarnings("unchecked")
     private Set<String> getGroupsWithTransforms(final View view) {
         final Set<String> groups = new HashSet<>();
 
@@ -251,7 +254,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         try {
             chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet());
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
-                if (Objects.nonNull(entry.getValue())) {
+                if (nonNull(entry.getValue())) {
                     if (entry.getValue().hasPostTransformFilters()) {
                         groups.add(entry.getKey());
                     }

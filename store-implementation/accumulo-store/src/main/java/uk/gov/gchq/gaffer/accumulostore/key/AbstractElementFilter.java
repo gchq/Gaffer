@@ -51,10 +51,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static java.util.Objects.isNull;
 
 /**
  * The AbstractElementFilter will filter out {@link Element}s based on the filtering
@@ -124,7 +125,7 @@ public abstract class AbstractElementFilter extends Filter {
             elementPredicate = new ElementValidator(schema, false)::validateWithSchema;
         } else {
             final String viewJson = options.get(AccumuloStoreConstants.VIEW);
-            if (Objects.isNull(viewJson)) {
+            if (isNull(viewJson)) {
                 throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
             }
             final View view = View.fromJson(StringUtil.toBytes(viewJson));
@@ -179,7 +180,7 @@ public abstract class AbstractElementFilter extends Filter {
             chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(Arrays.asList(view.getEntities().entrySet(),
                     view.getEdges().entrySet()));
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
-                if (Objects.isNull(entry.getValue()) || !hasFilters.apply(entry.getValue())) {
+                if (isNull(entry.getValue()) || !hasFilters.apply(entry.getValue())) {
                     groupsWithoutFilters.add(entry.getKey());
                 }
             }
@@ -189,6 +190,7 @@ public abstract class AbstractElementFilter extends Filter {
         LOGGER.debug("The following groups will not be filtered: {}", StringUtils.join(groupsWithoutFilters, ','));
     }
 
+    @SuppressWarnings("unchecked")
     private void updateSchemaGroupsWithoutFilters() {
         groupsWithoutFilters = new HashSet<>();
         ChainedIterable<Entry<String, ? extends SchemaElementDefinition>> chainedIterable = null;
@@ -196,7 +198,7 @@ public abstract class AbstractElementFilter extends Filter {
             chainedIterable = new ChainedIterable<Map.Entry<String, ? extends SchemaElementDefinition>>(schema.getEntities().entrySet(),
                     schema.getEdges().entrySet());
             for (final Map.Entry<String, ? extends SchemaElementDefinition> entry : chainedIterable) {
-                if (Objects.isNull(entry.getValue()) || !entry.getValue().hasValidation()) {
+                if (isNull(entry.getValue()) || !entry.getValue().hasValidation()) {
                     groupsWithoutFilters.add(entry.getKey());
                 }
             }

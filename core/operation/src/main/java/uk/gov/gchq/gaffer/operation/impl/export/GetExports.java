@@ -31,7 +31,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 /**
  * A {@code GetExports} operation gets multiple exports and returns then
@@ -53,7 +54,7 @@ public class GetExports implements Output<Map<String, Iterable<?>>> {
     }
 
     public void setGetExports(final List<GetExport> getExports) {
-        if (Objects.isNull(getExports)) {
+        if (isNull(getExports)) {
             this.getExports = new ArrayList<>();
         } else {
             this.getExports = getExports;

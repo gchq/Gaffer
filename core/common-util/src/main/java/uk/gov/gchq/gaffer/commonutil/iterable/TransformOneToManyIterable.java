@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import static java.util.Objects.isNull;
+
 /**
  * A {@code TransformToMultiIterable} allows {@link Iterable}s to be lazily validated and transformed without
  * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
@@ -144,7 +146,7 @@ public abstract class TransformOneToManyIterable<I, O> implements Closeable, Ite
 
         @Override
         public boolean hasNext() {
-            if (Objects.isNull(hasNext)) {
+            if (isNull(hasNext)) {
                 if (iterator.hasNext()) {
                     final I possibleNext = iterator.next();
                     if (validator.validate(possibleNext)) {

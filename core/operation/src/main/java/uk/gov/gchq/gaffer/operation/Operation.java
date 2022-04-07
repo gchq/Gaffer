@@ -38,7 +38,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * An {@code Operation} defines an operation to be processed on a graph.
@@ -125,7 +127,7 @@ public interface Operation extends Closeable {
      * @param value the value of the option
      */
     default void addOption(final String name, final String value) {
-        if (Objects.isNull(getOptions())) {
+        if (isNull(getOptions())) {
             setOptions(new HashMap<>());
         }
 
@@ -139,7 +141,7 @@ public interface Operation extends Closeable {
      * @return the value of the option
      */
     default String getOption(final String name) {
-        if (Objects.isNull(getOptions())) {
+        if (isNull(getOptions())) {
             return null;
         }
 
@@ -156,17 +158,17 @@ public interface Operation extends Closeable {
      */
     default String getOption(final String name, final String defaultValue) {
         final String rtn;
-        if (Objects.isNull(getOptions())) {
+        if (isNull(getOptions())) {
             rtn = defaultValue;
         } else {
             rtn = getOptions().get(name);
         }
-        return (Objects.isNull(rtn)) ? defaultValue : rtn;
+        return (isNull(rtn)) ? defaultValue : rtn;
     }
 
     @JsonGetter("options")
     default Map<String, String> _getNullOrOptions() {
-        if (Objects.isNull(getOptions())) {
+        if (isNull(getOptions())) {
             return null;
         }
 
@@ -194,14 +196,14 @@ public interface Operation extends Closeable {
 
         final HashSet<Field> fields = Sets.<Field>newHashSet();
         Class<?> currentClass = this.getClass();
-        while (Objects.nonNull(currentClass)) {
+        while (nonNull(currentClass)) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
             currentClass = currentClass.getSuperclass();
         }
 
         for (final Field field : fields) {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
-            if (Objects.nonNull(annotations) && ArrayUtils.isNotEmpty(annotations)) {
+            if (nonNull(annotations) && ArrayUtils.isNotEmpty(annotations)) {
                 if (field.isAccessible()) {
                     validateRequiredFieldPresent(result, field);
                 } else {
@@ -225,7 +227,7 @@ public interface Operation extends Closeable {
             throw new RuntimeException(e);
         }
 
-        if (Objects.isNull(value)) {
+        if (isNull(value)) {
             result.addError(String.format("%s is required for: %s", field.getName(), this.getClass().getSimpleName()));
         }
     }
@@ -258,8 +260,8 @@ public interface Operation extends Closeable {
         }
 
         public B options(final Map<String, String> options) {
-            if (Objects.nonNull(options)) {
-                if (Objects.isNull(_getOp().getOptions())) {
+            if (nonNull(options)) {
+                if (isNull(_getOp().getOptions())) {
                     _getOp().setOptions(new HashMap<>(options));
                 } else {
                     _getOp().getOptions().putAll(options);
@@ -282,6 +284,7 @@ public interface Operation extends Closeable {
             return op;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public B _self() {
             return (B) this;

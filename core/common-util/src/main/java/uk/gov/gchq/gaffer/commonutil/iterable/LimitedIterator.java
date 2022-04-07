@@ -22,7 +22,9 @@ import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * An {@code LimitedIterator} is an {@link java.io.Closeable}
@@ -38,6 +40,7 @@ import java.util.Objects;
  * @param <T> the type of items in the iterator.
  */
 public class LimitedIterator<T> implements Closeable, Iterator<T> {
+
     private final Iterator<T> iterator;
     private final Integer end;
     private int index = 0;
@@ -48,11 +51,11 @@ public class LimitedIterator<T> implements Closeable, Iterator<T> {
     }
 
     public LimitedIterator(final Iterator<T> iterator, final int start, final Integer end, final Boolean truncate) {
-        if (Objects.nonNull(end) && start > end) {
+        if (nonNull(end) && start > end) {
             throw new IllegalArgumentException("start should be less than end");
         }
 
-        if (Objects.isNull(iterator)) {
+        if (isNull(iterator)) {
             this.iterator = new EmptyIterator<>();
         } else {
             this.iterator = iterator;
@@ -72,7 +75,7 @@ public class LimitedIterator<T> implements Closeable, Iterator<T> {
 
     @Override
     public boolean hasNext() {
-        final boolean withinLimit = (Objects.isNull(end) || index < end);
+        final boolean withinLimit = (isNull(end) || index < end);
 
         if (!withinLimit && !truncate && iterator.hasNext()) {
             // Throw an exception if we are - not within the limit, we don't want to truncate and there are items remaining.

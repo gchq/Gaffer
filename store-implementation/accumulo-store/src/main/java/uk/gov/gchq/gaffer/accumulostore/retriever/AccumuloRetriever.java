@@ -41,9 +41,12 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Closeable;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+@SuppressWarnings("rawtypes")
 public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM> implements Closeable, Iterable<O_ITEM> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloRetriever.class);
@@ -69,7 +72,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
         this.operation = operation;
         this.iteratorSettings = iteratorSettings;
         this.user = user;
-        if (Objects.nonNull(user) && Objects.nonNull(user.getDataAuths())) {
+        if (nonNull(user) && nonNull(user.getDataAuths())) {
             this.authorisations = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
         } else {
             this.authorisations = new Authorizations();
@@ -83,7 +86,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      */
     public void doTransformation(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-        if (Objects.nonNull(viewDef)) {
+        if (nonNull(viewDef)) {
             transform(element, viewDef.getTransformer());
         }
     }
@@ -97,7 +100,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      */
     public boolean doPostFilter(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-        if (Objects.nonNull(viewDef)) {
+        if (nonNull(viewDef)) {
             return postFilter(element, viewDef.getPostTransformFilter());
         }
         return true;
@@ -126,9 +129,9 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
         LOGGER.debug("Initialised BatchScanner on table {} with authorisations {} using {} threads",
                 store.getTableName(), authorisations, store.getProperties().getThreadsForBatchScanner());
 
-        if (Objects.nonNull(iteratorSettings)) {
+        if (nonNull(iteratorSettings)) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
-                if (Objects.nonNull(iteratorSetting)) {
+                if (nonNull(iteratorSetting)) {
                     scanner.addScanIterator(iteratorSetting);
                     LOGGER.debug("Added iterator to BatchScanner: {}", iteratorSetting);
                 }
@@ -150,12 +153,12 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     }
 
     protected void transform(final Element element, final ElementTransformer transformer) {
-        if (Objects.nonNull(transformer)) {
+        if (nonNull(transformer)) {
             transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return Objects.isNull(postFilter) || postFilter.test(element);
+        return isNull(postFilter) || postFilter.test(element);
     }
 }

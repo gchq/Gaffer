@@ -43,15 +43,17 @@ import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static java.util.Objects.isNull;
 
 /**
  * Implementation of the {@link Exporter} interface for exporting the results of
  * a Gaffer query to a {@link Graph}-backed results cache.
  */
 public class GafferResultCacheExporter implements Exporter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
     private final String jobId;
     private final Context context;
@@ -81,7 +83,7 @@ public class GafferResultCacheExporter implements Exporter {
 
     @Override
     public void add(final String key, final Iterable<?> values) throws OperationException {
-        if (Objects.isNull(values)) {
+        if (isNull(values)) {
             return;
         }
 
@@ -92,7 +94,7 @@ public class GafferResultCacheExporter implements Exporter {
                 try {
                     final Class<?> valueClass;
                     final byte[] valueJson;
-                    if (Objects.isNull(value)) {
+                    if (isNull(value)) {
                         valueClass = Object.class;
                         valueJson = null;
                     } else {
@@ -137,7 +139,7 @@ public class GafferResultCacheExporter implements Exporter {
                 .build();
 
         final Iterable<? extends Element> edges = resultCache.execute(getEdges, context);
-        if (Objects.isNull(edges)) {
+        if (isNull(edges)) {
             return new EmptyIterable<>();
         }
         return new TransformJsonResult(edges);
@@ -152,7 +154,7 @@ public class GafferResultCacheExporter implements Exporter {
         protected Object transform(final Element edge) {
             final String resultClassName = (String) edge.getProperty("resultClass");
             final byte[] resultBytes = (byte[]) edge.getProperty("result");
-            if (Objects.isNull(resultClassName) || Objects.isNull(resultBytes)) {
+            if (isNull(resultClassName) || isNull(resultBytes)) {
                 return null;
             }
 

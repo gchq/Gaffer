@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import java.util.Objects;
+import static java.util.Objects.nonNull;
 
 /**
  * Utility class for handling {@link java.io.Closeable}s.
@@ -73,7 +73,7 @@ public final class CloseableUtil {
      */
     public static void close(final AutoCloseable closeable) {
         try {
-            if (Objects.nonNull(closeable)) {
+            if (nonNull(closeable)) {
                 closeable.close();
             }
         } catch (final Exception e) {

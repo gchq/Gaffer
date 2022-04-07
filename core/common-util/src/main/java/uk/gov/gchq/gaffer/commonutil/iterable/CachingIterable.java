@@ -25,7 +25,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 /**
  * A {@link CachingIterable} is an {@link java.io.Closeable} {@link java.lang.Iterable}
@@ -65,7 +66,7 @@ public class CachingIterable<T> implements Closeable, Iterable<T> {
 
     @Override
     public Iterator<T> iterator() {
-        if (Objects.nonNull(cachedIterable)) {
+        if (nonNull(cachedIterable)) {
             return cachedIterable.iterator();
         } else if (tooLarge) {
             return iterable.iterator();

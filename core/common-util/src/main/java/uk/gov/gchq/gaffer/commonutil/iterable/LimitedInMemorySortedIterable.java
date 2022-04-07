@@ -28,8 +28,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * <p>
@@ -48,6 +50,7 @@ import java.util.TreeMap;
  * @param <E> the type of object to store in the {@link LimitedInMemorySortedIterable}.
  */
 public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
+
     private final Comparator<E> comparator;
     private final boolean deduplicate;
     private final Integer limit;
@@ -63,10 +66,10 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
     }
 
     public LimitedInMemorySortedIterable(final Comparator<E> comparator, final Integer limit, final boolean deduplicate) {
-        if (Objects.isNull(comparator)) {
+        if (isNull(comparator)) {
             throw new IllegalArgumentException("Comparator is required");
         }
-        if (null != limit && 1 > limit) {
+        if (nonNull(limit) && 1 > limit) {
             throw new IllegalArgumentException("Limit cannot be less than or equal to 0");
         }
 
@@ -82,9 +85,9 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
 
         final OneOrMore<E> values = backingMap.get(e);
         // Skip the item if we are deduplicating and the item already exists
-        boolean skipItem = (deduplicate && null != values && values.contains(e));
+        boolean skipItem = (deduplicate && nonNull(values) && values.contains(e));
         if (!skipItem) {
-            if (null != limit && size >= limit) {
+            if (nonNull(limit) && size >= limit) {
                 // Check the item against the last item.
                 final Map.Entry<E, OneOrMore<E>> last = backingMap.lastEntry();
                 if (0 < comparator.compare(last.getKey(), e)) {
@@ -155,7 +158,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
             return true;
         }
 
-        if (null == obj || getClass() != obj.getClass()) {
+        if (isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
 

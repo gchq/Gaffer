@@ -74,8 +74,10 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Gaffer {@code ProxyStore} implementation.
@@ -104,6 +106,7 @@ public class ProxyStore extends Store {
         checkDelegateStoreStatus();
     }
 
+    @SuppressWarnings("rawtypes")
     protected void checkDelegateStoreStatus() throws StoreException {
         final URL url = getProperties().getGafferUrl("graph/status");
         final ResponseDeserialiser<LinkedHashMap> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceImpl.Map());
@@ -147,7 +150,7 @@ public class ProxyStore extends Store {
         final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
         final ResponseDeserialiser<Set<StoreTrait>> responseDeserialiser = getResponseDeserialiserFor(new TypeReferenceStoreImpl.StoreTraits());
         Set<StoreTrait> newTraits = doGet(url, responseDeserialiser, null);
-        if (Objects.isNull(newTraits)) {
+        if (isNull(newTraits)) {
             newTraits = new HashSet<>(0);
         } else {
             // This proxy store cannot handle visibility due to the simple rest api using a default user.
@@ -254,7 +257,7 @@ public class ProxyStore extends Store {
         }
 
         O output = null;
-        if (Objects.nonNull(outputJson)) {
+        if (nonNull(outputJson)) {
             try {
                 output = responseDeserialiser.deserialise(outputJson);
             } catch (final SerialisationException e) {
@@ -268,7 +271,7 @@ public class ProxyStore extends Store {
     protected Invocation.Builder createRequest(final String body, final URL url, final Context context) {
         final Invocation.Builder request = client.target(url.toString())
                 .request();
-        if (Objects.nonNull(body)) {
+        if (nonNull(body)) {
             request.header("Content", MediaType.APPLICATION_JSON_TYPE);
             request.header("Content-Type", MediaType.APPLICATION_JSON_TYPE);
             request.header("Accept", MediaType.APPLICATION_JSON_TYPE);

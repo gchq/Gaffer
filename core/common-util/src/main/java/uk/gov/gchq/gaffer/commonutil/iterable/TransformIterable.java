@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import static java.util.Objects.isNull;
+
 /**
  * A {@code TransformIterable} allows {@link java.lang.Iterable}s to be lazily
  * validated and transformed without loading the entire iterable into memory.
@@ -32,6 +34,7 @@ import java.util.Objects;
  * @param <O> the output iterable type.
  */
 public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> {
+
     private final Iterable<? extends I> input;
     private final Validator<I> validator;
     private final boolean skipInvalid;
@@ -160,7 +163,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
 
         @Override
         public boolean hasNext() {
-            if (Objects.isNull(hasNext)) {
+            if (isNull(hasNext)) {
                 while (iterator.hasNext()) {
                     final I possibleNext = iterator.next();
                     if (validator.validate(possibleNext)) {
@@ -187,7 +190,7 @@ public abstract class TransformIterable<I, O> implements Closeable, Iterable<O> 
 
         @Override
         public O next() {
-            if (Objects.isNull(hasNext) && !hasNext()) {
+            if (isNull(hasNext) && !hasNext()) {
                 throw new NoSuchElementException("Reached the end of the iterator");
             }
 

@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
+
 /**
  * An {@link OutputOperationHandler} for the {@link GetAdjacentIds} operation on the {@link MapStore}.
  */
@@ -52,7 +54,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
                                            final Context context,
                                            final MapStore mapStore)
             throws OperationException {
-        if (Objects.isNull(operation.getInput()) || !operation.getInput().iterator().hasNext()) {
+        if (isNull(operation.getInput()) || !operation.getInput().iterator().hasNext()) {
             return new EmptyIterable<>();
         }
         return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore, context.getUser());

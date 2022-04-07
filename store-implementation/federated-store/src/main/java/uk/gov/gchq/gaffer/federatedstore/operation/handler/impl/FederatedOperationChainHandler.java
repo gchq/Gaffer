@@ -32,7 +32,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
@@ -49,7 +50,7 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
             final OperationChain opChain = operation.getOperationChain();
             OperationHandlerUtil.updateOperationInput(opChain, operation.getInput());
             final OperationChain updatedOp = FederatedStoreUtil.updateOperationForGraph(opChain, graph);
-            if (Objects.nonNull(updatedOp)) {
+            if (nonNull(updatedOp)) {
                 Object result = null;
                 try {
                     result = graph.execute(updatedOp, context);
@@ -58,7 +59,7 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
                         throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                     }
                 }
-                if (Objects.nonNull(result)) {
+                if (nonNull(result)) {
                     results.add(result);
                 }
             }

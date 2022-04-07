@@ -24,7 +24,8 @@ import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 /**
  * A {@code ChainedIterable} is an {@link java.io.Closeable}
@@ -44,7 +45,7 @@ public class ChainedIterable<T> implements Closeable, Iterable<T> {
     }
 
     public ChainedIterable(final Iterable<? extends Iterable<? extends T>> iterables) {
-        if (Objects.isNull(iterables)) {
+        if (isNull(iterables)) {
             throw new IllegalArgumentException("iterables are required");
         }
         this.iterables = iterables;

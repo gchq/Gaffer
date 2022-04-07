@@ -31,8 +31,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.stream.Stream;
+
+import static java.util.Objects.isNull;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
@@ -56,7 +57,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, I
             throw new OperationException("Cannot execute getElements if the properties request that an index is not created");
         }
         final Iterable<? extends ElementId> seeds = operation.getInput();
-        if (Objects.isNull(seeds)) {
+        if (isNull(seeds)) {
             return new EmptyIterable<>();
         }
         return new ElementsIterable(mapImpl, operation, mapStore, context.getUser());

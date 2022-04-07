@@ -45,8 +45,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends Element>> & GraphFilters, I_ITEM>
         extends AccumuloRetriever<OP, Element> {
@@ -56,6 +58,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
     protected final boolean includeMatchedVertex;
     private final Iterable<? extends I_ITEM> ids;
 
+    @SuppressWarnings("unchecked")
     protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
                                     final User user, final boolean includeMatchedVertex,
                                     final IteratorSetting... iteratorSettings)
@@ -74,7 +77,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
     public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
-        final Iterator<? extends I_ITEM> idIterator = Objects.nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<? extends I_ITEM> idIterator = nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyIterator<>();
         }
@@ -116,8 +119,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
             try {
                 scanner = getScanner(ranges);
             } catch (final Exception e) {
-                CloseableUtil.close(idsIterator);
-                CloseableUtil.close(ids);
+                CloseableUtil.close(idsIterator, ids);
                 throw new RetrieverException(e);
             }
             scannerIterator = scanner.iterator();
@@ -126,7 +128,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (Objects.nonNull(nextElm)) {
+            if (nonNull(nextElm)) {
                 return true;
             }
             while (scannerIterator.hasNext()) {
@@ -173,7 +175,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
                 scannerIterator = scanner.iterator();
             }
             if (!scannerIterator.hasNext()) {
-                scanner.close();
+                CloseableUtil.close(scanner);
                 return false;
             } else {
                 return hasNext();
@@ -182,7 +184,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends
 
         @Override
         public Element next() {
-            if (Objects.isNull(nextElm)) {
+            if (isNull(nextElm)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }

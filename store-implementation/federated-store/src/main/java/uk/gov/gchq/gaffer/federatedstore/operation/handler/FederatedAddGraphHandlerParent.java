@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Objects;
+import static java.util.Objects.nonNull;
 
 /**
  * A handler for operations that addGraph to the FederatedStore.
@@ -55,7 +55,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         final User user = context.getUser();
         final boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
 
-        if (isLimitedToLibraryProperties && Objects.nonNull(operation.getStoreProperties())) {
+        if (isLimitedToLibraryProperties && nonNull(operation.getStoreProperties())) {
             throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S,
                     operation.getProperties().toString()));
         }
