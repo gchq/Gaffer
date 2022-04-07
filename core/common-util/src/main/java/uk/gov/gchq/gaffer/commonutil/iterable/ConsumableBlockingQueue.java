@@ -24,8 +24,9 @@ import javax.annotation.Nonnull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import static java.util.Objects.isNull;
 
 /**
  * Extension to {@link ArrayBlockingQueue} to allow consumers to iterate over
@@ -72,7 +73,7 @@ public class ConsumableBlockingQueue<T> extends ArrayBlockingQueue<T> {
             return true;
         }
 
-        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+        if (isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
 
