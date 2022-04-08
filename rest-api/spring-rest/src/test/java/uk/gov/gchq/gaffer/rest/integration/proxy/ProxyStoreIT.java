@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.rest.integration.proxy;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -51,7 +51,7 @@ public class ProxyStoreIT extends AbstractRestApiIT {
     private GraphFactory graphFactory;
     private Graph delegateRestApiGraph;
 
-    @Before
+    @BeforeEach
     public void setUpGraph() {
         delegateRestApiGraph = new Graph.Builder()
             .storeProperties(new MapStoreProperties())

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -68,7 +68,7 @@ public class PropertiesControllerIT extends AbstractRestApiIT {
         DEFAULT_PROPERTIES = Collections.unmodifiableMap(map);
     }
 
-    @Before
+    @BeforeEach
     public void clearGafferSystemProperties() {
         System.clearProperty(APP_DESCRIPTION);
         System.clearProperty(EXPOSED_PROPERTIES);
