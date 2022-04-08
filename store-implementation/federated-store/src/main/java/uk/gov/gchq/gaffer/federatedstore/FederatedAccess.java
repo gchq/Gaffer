@@ -48,7 +48,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 /**
  * Conditions required for a {@link User} to have access to a graph within the
  * {@link FederatedStore} via {@link FederatedAccess}
- * <table summary="FederatedAccess truth table">
+ * <table>
+ * <caption>FederatedAccess truth table</caption>
  * <tr><td> User Ops</td><td> AccessHook Ops</td><td> User added graph
  * </td><td> hasAccess?</td></tr>
  * <tr><td> 'A'     </td><td> 'A'           </td><td> n/a
