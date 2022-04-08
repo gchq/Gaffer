@@ -98,32 +98,8 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-        <exclusion>
-          <artifactId>junit-jupiter</artifactId>
-          <groupId>org.junit.jupiter</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>junit-vintage-engine</artifactId>
-          <groupId>org.junit.vintage</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>mockito-junit-jupiter</artifactId>
-          <groupId>org.mockito</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
-    <!-- Provide JUnit 5 API -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- and the engine for surefire and failsafe -->
+    <!-- Already defined in parent POM but required for surefire to discover tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -170,23 +146,6 @@
             <id>create-executable-jar</id>
             <goals>
               <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <!--
-      Older version of Failsafe is being used as the Integration tests are written in junit 4 since it is
-      dependent on an old version of Spring boot
-       -->
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${failsafe.version}</version>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
             </goals>
           </execution>
         </executions>

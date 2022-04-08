@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.AfterClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -28,7 +28,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import uk.gov.gchq.gaffer.rest.GafferWebApplication;
@@ -50,7 +50,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * for easy access, as well as a {@code checkResponse()} method which asserts that the correct status code is returned
  * and that the Gaffer Media type header was added.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = GafferWebApplication.class, webEnvironment = RANDOM_PORT)
 @EnableConfigurationProperties(value = AbstractRestApiIT.TestConfiguration.class)
 @ActiveProfiles("test")
@@ -64,7 +64,7 @@ public abstract class AbstractRestApiIT {
     @Value("${server.context-path}")
     private String contextPath;
 
-    @AfterClass
+    @AfterAll
     public static void clearSystemProperties() {
         Properties properties = System.getProperties();
         List<String> propertiesToBeRemoved = new ArrayList<>();
