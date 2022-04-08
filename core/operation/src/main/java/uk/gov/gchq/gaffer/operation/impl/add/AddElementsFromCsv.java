@@ -28,9 +28,9 @@ import java.util.Map;
 
 /**
  * An {@code AddElementsFromCsv} operation takes a csv filename and converts each
- * line of the file to a Gaffer {@link Element} using the provided
- * {@link uk.gov.gchq.gaffer.data.generator.CsvElementGenerator} as a json file or
- * json string, then adds these elements to the Graph.
+ * line of the file to a Gaffer Element using the provided
+ * ElementGenerator as a class name, json file or json string,
+ * then adds these elements to the Graph.
  *
  * @see Builder
  */
