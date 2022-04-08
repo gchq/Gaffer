@@ -24,12 +24,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import org.apache.commons.lang3.reflect.TypeUtils;
-import sun.reflect.generics.reflectiveObjects.GenericArrayTypeImpl;
 
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -188,10 +188,10 @@ public final class JsonSerialisationUtil {
      */
     public static String getFieldTypeString(final Class<?> clazz, final Type typeArg) {
         String typeName = null;
-        final boolean isArray = typeArg instanceof GenericArrayTypeImpl;
+        final boolean isArray = typeArg instanceof GenericArrayType;
         Type type = typeArg;
         if (isArray) {
-            type = ((GenericArrayTypeImpl) typeArg).getGenericComponentType();
+            type = ((GenericArrayType) typeArg).getGenericComponentType();
         }
 
         if (type instanceof TypeVariable) {

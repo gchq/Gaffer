@@ -65,7 +65,7 @@ public class ToMapHandlerTest {
         final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(results).containsExactly(originalMap);
+        assertThat((Iterable<Map<String, Object>>) results).containsExactly(originalMap);
     }
 
     @Test

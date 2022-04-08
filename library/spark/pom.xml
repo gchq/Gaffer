@@ -30,11 +30,6 @@
         <module>spark-accumulo-library</module>
     </modules>
 
-    <properties>
-        <spark.minor.version>2.4</spark.minor.version>
-        <spark.version>${spark.minor.version}.5</spark.version>
-    </properties>
-
     <repositories>
         <repository>
             <id>Spark Packages</id>

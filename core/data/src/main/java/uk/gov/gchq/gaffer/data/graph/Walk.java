@@ -54,7 +54,7 @@ import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
  * still represented, but only as empty collections.</li></ul>
  * <p>
  * For example, a Walk through a simple graph could look like:
- * <p>
+ * </p>
  * <pre>
  * {@code
  * A --> B --> C

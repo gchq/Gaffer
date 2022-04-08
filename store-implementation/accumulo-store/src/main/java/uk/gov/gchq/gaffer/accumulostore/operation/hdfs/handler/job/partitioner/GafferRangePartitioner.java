@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.DistributedCacheHelper;
-import org.apache.accumulo.core.util.Base64;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -36,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -98,7 +98,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
                         final TreeSet<Text> cutPoints = new TreeSet<>();
                         try (final Scanner in = openCutPointsStream(path)) {
                             while (in.hasNextLine()) {
-                                cutPoints.add(new Text(Base64.decodeBase64(in.nextLine().getBytes(UTF_8))));
+                                cutPoints.add(new Text(Base64.getDecoder().decode(in.nextLine().getBytes(UTF_8))));
                             }
                         }
                         cutPointArray = cutPoints.toArray(new Text[cutPoints.size()]);
