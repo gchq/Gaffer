@@ -50,7 +50,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * for easy access, as well as a {@code checkResponse()} method which asserts that the correct status code is returned
  * and that the Gaffer Media type header was added.
  */
-// @RunWith(SpringJUnit4ClassRunner.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = GafferWebApplication.class, webEnvironment = RANDOM_PORT)
 @EnableConfigurationProperties(value = AbstractRestApiIT.TestConfiguration.class)
