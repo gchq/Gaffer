@@ -27,29 +27,36 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * AddElementsFromCsv is an operation that generates elements from a csv file
+ * An {@code AddElementsFromCsv} operation takes a csv filename and converts each
+ * line of the file to a Gaffer {@link Element} using the provided
+ * {@link uk.gov.gchq.gaffer.data.generator.CsvElementGenerator} as a json file or
+ * json string, then adds these elements to the Graph.
+ *
+ * @see Builder
  */
 @JsonPropertyOrder(value = {"class", "filename", "elementGeneratorFilePath"}, alphabetic = true)
 @Since("2.0.0")
-@Summary("Adds elements from a csv file. Configure with a csv-to-element mappings file")
+@Summary("Adds elements from a csv file, configured with a csv-to-element mappings file")
 public class AddElementsFromCsv implements
         Operation,
         Validatable {
 
+    /**
+     * The fully qualified path of the local file.
+     */
     @Required
     private String filename;
 
-    private String elementGeneratorFilePath = "none";
-    private String elementGeneratorClassName = "none";
-    private String elementGeneratorJson = "none";
+    private String elementGeneratorClassName;
+    private String elementGeneratorFilePath;
+    private String elementGeneratorJson;
 
-
-    private String delimiter = ",";
+    private char delimiter = ',';
     private boolean quoted = false;
-    private String quoteChar = "\"";
+    private char quoteChar = '\"';
 
     private boolean validate = true;
-    private boolean skipInvalidElements;
+    private boolean skipInvalidElements = false;
     private Map<String, String> options;
 
     public AddElementsFromCsv() {
@@ -92,11 +99,11 @@ public class AddElementsFromCsv implements
         this.skipInvalidElements = skipInvalidElements;
     }
 
-    public String getDelimiter() {
+    public char getDelimiter() {
         return delimiter;
     }
 
-    public void setDelimiter(final String delimiter) {
+    public void setDelimiter(final char delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -108,11 +115,11 @@ public class AddElementsFromCsv implements
         this.quoted = quoted;
     }
 
-    public String getQuoteChar() {
+    public char getQuoteChar() {
         return quoteChar;
     }
 
-    public void setQuoteChar(final String quoteChar) {
+    public void setQuoteChar(final char quoteChar) {
         this.quoteChar = quoteChar;
     }
 
@@ -184,7 +191,7 @@ public class AddElementsFromCsv implements
             return _self();
         }
 
-        public Builder delimiter(final String delimiter) {
+        public Builder delimiter(final char delimiter) {
             _getOp().setDelimiter(delimiter);
             return _self();
         }
@@ -194,7 +201,7 @@ public class AddElementsFromCsv implements
             return _self();
         }
 
-        public Builder quoteChar(final String quoteChar) {
+        public Builder quoteChar(final char quoteChar) {
             _getOp().setQuoteChar(quoteChar);
             return _self();
         }

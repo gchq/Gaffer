@@ -29,15 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.PropertiesFilter;
 import uk.gov.gchq.gaffer.data.element.function.PropertiesTransformer;
@@ -72,23 +69,22 @@ import static java.util.Objects.requireNonNull;
         alphabetic = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class CsvElementGenerator implements OneToManyElementGenerator<String>, Serializable {
-
     private static final long serialVersionUID = -821376598172364516L;
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvElementGenerator.class);
+
     private List<String> header = new ArrayList<>();
     private int firstRow = 0;
+
     private char delimiter = ',';
     private boolean quoted = false;
     private char quoteChar = '\"';
-    private boolean skipInvalid = false;
 
+    private boolean skipInvalid = false;
     private boolean allFieldsRequired = false;
     private Collection<String> requiredFields = new HashSet<>();
     private PropertiesFilter csvValidator;
     private PropertiesTransformer transformer = new PropertiesTransformer();
     private final List<ElementTupleDefinition> elements = new ArrayList<>();
-    private ElementGenerator<Element> followOnGenerator;
-    private ElementFilter elementValidator;
 
     @Override
     public Iterable<? extends Element> apply(final Iterable<? extends String> strings) {
@@ -104,21 +100,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
             }
         };
 
-        if (null != followOnGenerator) {
-            elements = followOnGenerator.apply(elements);
-        }
-
-        if (null != elementValidator && null != elementValidator.getComponents()) {
-            final Validator<Element> validator = element -> elementValidator.test(element);
-            elements = new TransformIterable<Element, Element>(elements, validator, skipInvalid) {
-                @Override
-                protected Element transform(final Element element) {
-
-                    return element;
-                }
-            };
-        }
-
         return elements;
     }
 
@@ -128,8 +109,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
     }
 
     private StreamIterable<Element> generateElements(final String csv) {
-
-
         return new StreamIterable<>(() -> {
             final CSVRecord csvRecord = parseCsv(csv);
             final Properties properties = extractProperties(csvRecord);
@@ -187,7 +166,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
             throw new RuntimeException(e);
         }
 
-
         if (csvRecord.size() != header.size()) {
             throw new IllegalArgumentException(
                     "CSV has " + csvRecord.size()
@@ -208,7 +186,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
 
     private Element transformCsvToElement(final Properties properties,
                                           final ElementTupleDefinition elementTupleDefinition) {
-
         requireNonNull(elementTupleDefinition.get("GROUP"), "GROUP is required");
         final Element element;
         if (elementTupleDefinition.containsKey("VERTEX")) {
@@ -345,18 +322,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         return this;
     }
 
-    public ElementFilter getElementValidator() {
-        return elementValidator;
-    }
-
-    public void setElementValidator(final ElementFilter elementValidator) {
-        this.elementValidator = elementValidator;
-    }
-
-    public void elementValidator(final ElementFilter elementValidator) {
-        this.elementValidator = elementValidator;
-    }
-
     public boolean isSkipInvalid() {
         return skipInvalid;
     }
@@ -446,19 +411,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
         return this;
     }
 
-    public ElementGenerator<Element> getFollowOnGenerator() {
-        return followOnGenerator;
-    }
-
-    public void setFollowOnGenerator(final ElementGenerator<Element> followOnGenerator) {
-        this.followOnGenerator = followOnGenerator;
-    }
-
-    public CsvElementGenerator followOnGenerator(final ElementGenerator<Element> followOnGenerator) {
-        this.followOnGenerator = followOnGenerator;
-        return this;
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -478,14 +430,12 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
                 Objects.equals(requiredFields, generator.requiredFields) &&
                 Objects.equals(csvValidator, generator.csvValidator) &&
                 Objects.equals(transformer, generator.transformer) &&
-                Objects.equals(elements, generator.elements) &&
-                Objects.equals(followOnGenerator, generator.followOnGenerator) &&
-                Objects.equals(elementValidator, generator.elementValidator);
+                Objects.equals(elements, generator.elements);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(header, firstRow, delimiter, quoted, quoteChar, skipInvalid, allFieldsRequired, requiredFields, csvValidator, transformer, elements, followOnGenerator, elementValidator);
+        return Objects.hash(header, firstRow, delimiter, quoted, quoteChar, skipInvalid, allFieldsRequired, requiredFields, csvValidator, transformer, elements);
     }
 
     @Override
@@ -502,8 +452,6 @@ public class CsvElementGenerator implements OneToManyElementGenerator<String>, S
                 ", csvValidator=" + csvValidator +
                 ", transformer=" + transformer +
                 ", elements=" + elements +
-                ", followOnGenerator=" + followOnGenerator +
-                ", elementValidator=" + elementValidator +
                 '}';
     }
 }

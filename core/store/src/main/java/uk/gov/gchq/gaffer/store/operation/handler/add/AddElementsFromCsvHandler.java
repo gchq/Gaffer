@@ -33,81 +33,56 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFromCsv> {
-
-    private static final String NONE = "none";
 
     @Override
     public Void doOperation(final AddElementsFromCsv operation,
                             final Context context,
                             final Store store) throws OperationException {
+        ElementGenerator<String> generator = null;
 
-        if (operation.getElementGeneratorClassName().equals(NONE) && operation.getElementGeneratorFilePath().equals(NONE) && operation.getElementGeneratorJson().equals("none")) {
-            throw new IllegalArgumentException("You must specify either and element generator classname, and element generator file path or some element generator json");
-        }
-
-        ElementGenerator generator = null;
-
-        if (!operation.getElementGeneratorJson().equals(NONE)) {
+        if (null != operation.getElementGeneratorClassName()) {
             try {
-                generator = (ElementGenerator) Class.forName(operation.getElementGeneratorClassName()).newInstance();
-            } catch (final InstantiationException e) {
-                e.printStackTrace();
-            } catch (final IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (final ClassNotFoundException e) {
-                e.printStackTrace();
+                generator = (ElementGenerator<String>) Class.forName(operation.getElementGeneratorClassName()).newInstance();
+            } catch (final Exception e) {
+                throw new OperationException("Failed to create CsvElementGenerator with name: " + operation.getElementGeneratorClassName(), e);
             }
-        } else if (!operation.getElementGeneratorFilePath().equals(NONE)) {
-
+        } else {
             CsvElementGenerator csvElementGenerator;
-            try {
-                csvElementGenerator = JSONSerialiser.deserialise(
-                        FileUtils.openInputStream(new File(operation.getElementGeneratorFilePath())),
-                        CsvElementGenerator.class
-                );
-            } catch (final IOException e) {
-                throw new OperationException("Cannot create fieldMappings from file " + operation.getElementGeneratorFilePath() + " " + e.getMessage());
+            if (null != operation.getElementGeneratorFilePath()) {
+                try {
+                    csvElementGenerator = JSONSerialiser.deserialise(
+                            FileUtils.openInputStream(new File(operation.getElementGeneratorFilePath())),
+                            CsvElementGenerator.class
+                    );
+                } catch (final IOException e) {
+                    throw new OperationException("Failed to create CsvElementGenerator from file: " + operation.getElementGeneratorFilePath(), e);
+                }
+            } else if (null != operation.getElementGeneratorJson()) {
+                try {
+                    csvElementGenerator = JSONSerialiser.deserialise(operation.getElementGeneratorJson(), CsvElementGenerator.class);
+                } catch (final SerialisationException e) {
+                    throw new OperationException("Failed to create CsvElementGenerator from json: " + operation.getElementGeneratorJson(), e);
+                }
+            } else {
+                throw new IllegalArgumentException("You must specify either an element generator classname, an element generator file path or some element generator json");
             }
-
-            char delimiter = operation.getDelimiter().charAt(0);
-            boolean quoted = operation.isQuoted();
-            char quoteChar = operation.getQuoteChar().charAt(0);
-
-            csvElementGenerator.setDelimiter(delimiter);
-            csvElementGenerator.setQuoted(quoted);
-            csvElementGenerator.setQuoteChar(quoteChar);
-
-            generator = csvElementGenerator;
-
-        } else if (!operation.getElementGeneratorJson().equals(NONE)) {
-
-            CsvElementGenerator csvElementGenerator = null;
-            try {
-                csvElementGenerator = JSONSerialiser.deserialise(operation.getElementGeneratorJson(), CsvElementGenerator.class);
-            } catch (final SerialisationException e) {
-                e.printStackTrace();
-            }
-
-            char delimiter = operation.getDelimiter().charAt(0);
-            boolean quoted = operation.isQuoted();
-            char quoteChar = operation.getQuoteChar().charAt(0);
-
-            csvElementGenerator.setDelimiter(delimiter);
-            csvElementGenerator.setQuoted(quoted);
-            csvElementGenerator.setQuoteChar(quoteChar);
-
+            csvElementGenerator.setDelimiter(operation.getDelimiter());
+            csvElementGenerator.setQuoted(operation.isQuoted());
+            csvElementGenerator.setQuoteChar(operation.getQuoteChar());
             generator = csvElementGenerator;
         }
 
-
+        Iterator<String> lines;
+        try {
+            lines = FileUtils.lineIterator(new File(operation.getFilename()));
+        } catch (final IOException e) {
+            throw new OperationException("Failed to get csv lines from file: " + operation.getFilename(), e);
+        }
         final Iterable<String> data = () -> {
-            try {
-                return FileUtils.lineIterator(new File(operation.getFilename()));
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
+            return lines;
         };
 
         return store.execute(new OperationChain.Builder()
@@ -115,7 +90,10 @@ public class AddElementsFromCsvHandler implements OperationHandler<AddElementsFr
                         .input(data)
                         .generator(generator)
                         .build())
-                .then(new AddElements())
+                .then(new AddElements.Builder()
+                        .validate(operation.isValidate())
+                        .skipInvalidElements(operation.isSkipInvalidElements())
+                        .build())
                 .build(), context);
     }
 }

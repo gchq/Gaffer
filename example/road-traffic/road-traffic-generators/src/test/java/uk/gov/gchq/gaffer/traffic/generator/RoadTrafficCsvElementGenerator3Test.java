@@ -77,8 +77,8 @@ public class RoadTrafficCsvElementGenerator3Test {
                 .firstRow(1)
                 .element(new ElementTupleDefinition("LocationContainsRoad")
                         .directed(true)
-                        .source("Cardiff")
-                        .destination("M4"));
+                        .source("local_authority_name")
+                        .destination("road_name"));
 
         Iterable<? extends Element> generated = generator.apply(lines);
 
@@ -291,7 +291,7 @@ public class RoadTrafficCsvElementGenerator3Test {
         // When
         String serialised = new String(JSONSerialiser.serialise(generator, true));
         String expectedSerialised;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/csvGenerator.json")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/roadTraffic/csvGenerator.json")))) {
             StringBuilder sb = new StringBuilder();
             reader.lines().forEach(line -> sb.append(line).append('\n'));
             sb.deleteCharAt(sb.lastIndexOf("\n"));
@@ -447,7 +447,7 @@ public class RoadTrafficCsvElementGenerator3Test {
 
         // When
         String expectedSerialised;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/csvGenerator.json")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/roadTraffic/csvGenerator.json")))) {
             StringBuilder sb = new StringBuilder();
             reader.lines().forEach(line -> sb.append(line).append('\n'));
             sb.deleteCharAt(sb.lastIndexOf("\n"));
