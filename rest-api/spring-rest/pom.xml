@@ -10,7 +10,7 @@
   <artifactId>spring-rest</artifactId>
 
   <properties>
-    <spring.boot.version>2.5.8</spring.boot.version>
+    <spring.boot.version>2.5.12</spring.boot.version>
     <swagger.version>3.0.0</swagger.version>
     <store.type>map</store.type>
   </properties>
