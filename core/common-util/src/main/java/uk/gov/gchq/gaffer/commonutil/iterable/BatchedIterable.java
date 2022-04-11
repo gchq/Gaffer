@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A {@code BatchedIterable} is an {@link java.io.Closeable} {@link java.lang.Iterable}
+ * A {@code BatchedIterable} is a {@link java.io.Closeable} {@link java.lang.Iterable}
  * of batches. To use, extend this class and implement the createBatch method. When you
  * have no more batches of items left, return null.
  * <p>

@@ -23,7 +23,7 @@ import java.io.Closeable;
 import java.util.Iterator;
 
 /**
- * An {@code EmptyIterable} is an {@link java.io.Closeable} {@link java.lang.Iterable}
+ * An {@code EmptyIterable} is a {@link java.io.Closeable} {@link java.lang.Iterable}
  * which is backed by a {@link EmptyIterator}, and contains no objects.
  *
  * This is useful when a {@link java.lang.Iterable} is required, but there is no data present.

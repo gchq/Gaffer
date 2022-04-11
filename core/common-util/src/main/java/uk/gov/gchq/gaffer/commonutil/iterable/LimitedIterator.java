@@ -27,7 +27,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
- * An {@code LimitedIterator} is an {@link java.io.Closeable}
+ * An {@code LimitedIterator} is a {@link java.io.Closeable}
  * {@link java.util.Iterator} which is limited to a maximum size. This is
  * achieved by iterating through the objects contained in the iterator
  * until the preconfigured starting point is reached

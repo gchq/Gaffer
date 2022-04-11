@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An {@code EmptyCloseableIterator} is an {@link java.io.Closeable}
+ * An {@code EmptyCloseableIterator} is a {@link java.io.Closeable}
  * {@link java.util.Iterator} which contains no objects. This is
  * achieved by forcing the {@link java.util.Iterator#hasNext()} method
  * to always return false.

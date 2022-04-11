@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 /**
  * <p>
- * A {@code SuppliedIterable} allows an {@link java.io.Closeable}
+ * A {@code SuppliedIterable} allows a {@link java.io.Closeable}
  * {@link java.lang.Iterable} that can normally only be consumed
  * once, be consumed multiple times. This SuppliedIterable is constructed with
  * an {@link Iterable} {@link Supplier}. When a new iterator is requested

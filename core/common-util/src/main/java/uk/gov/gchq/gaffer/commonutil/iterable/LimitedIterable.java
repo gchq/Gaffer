@@ -24,7 +24,7 @@ import java.io.Closeable;
 import java.util.Iterator;
 
 /**
- * A {@code LimitedIterable} is an {@link java.io.Closeable}
+ * A {@code LimitedIterable} is a {@link java.io.Closeable}
  * {@link java.lang.Iterable} which is limited to a maximum size.
  *
  * @param <T> the type of items in the iterable.

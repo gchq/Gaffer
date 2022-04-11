@@ -28,7 +28,7 @@ import java.util.Iterator;
 import static java.util.Objects.isNull;
 
 /**
- * A {@code ChainedIterable} is an {@link java.io.Closeable}
+ * A {@code ChainedIterable} is a {@link java.io.Closeable}
  * {@link java.lang.Iterable} composed of other {@link java.lang.Iterable}s.
  *
  * As a client iterates through this iterable, the child iterables are consumed

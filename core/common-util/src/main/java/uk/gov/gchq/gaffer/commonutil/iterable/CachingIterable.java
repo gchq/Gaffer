@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 import static java.util.Objects.nonNull;
 
 /**
- * A {@link CachingIterable} is an {@link java.io.Closeable} {@link java.lang.Iterable}
+ * A {@link CachingIterable} is a {@link java.io.Closeable} {@link java.lang.Iterable}
  * that attempts to cache the iterable the first time it is read. Subsequently, when
  * iterator is called, an iterator to the cached iterable is returned. The caching
  * is disabled if the iterable size is greater than a provided max size. By default
