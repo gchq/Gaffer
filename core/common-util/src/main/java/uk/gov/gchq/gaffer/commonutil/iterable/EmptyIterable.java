@@ -51,9 +51,6 @@ public class EmptyIterable<T> implements Closeable, Iterable<T> {
             return false;
         }
 
-        // TODO: ? Just remove?
-        final EmptyIterable<?> that = (EmptyIterable<?>) obj;
-
         return new EqualsBuilder()
                 .isEquals();
     }
