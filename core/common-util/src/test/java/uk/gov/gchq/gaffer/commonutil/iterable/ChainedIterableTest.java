@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
