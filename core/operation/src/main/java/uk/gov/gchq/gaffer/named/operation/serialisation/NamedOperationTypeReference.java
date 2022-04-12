@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.named.operation.serialisation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 
 /**

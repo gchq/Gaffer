@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 
 import java.util.Arrays;

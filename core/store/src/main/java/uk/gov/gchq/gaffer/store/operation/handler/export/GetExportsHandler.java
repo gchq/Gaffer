@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
-
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;

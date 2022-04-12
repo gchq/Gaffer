@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;

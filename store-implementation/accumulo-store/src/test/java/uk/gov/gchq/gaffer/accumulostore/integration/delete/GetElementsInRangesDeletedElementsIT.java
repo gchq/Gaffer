@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
-
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
-
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 /**

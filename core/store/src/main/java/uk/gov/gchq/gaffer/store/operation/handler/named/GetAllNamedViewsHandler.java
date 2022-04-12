@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;

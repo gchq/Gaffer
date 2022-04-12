@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;

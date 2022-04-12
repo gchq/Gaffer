@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-
 import uk.gov.gchq.gaffer.data.element.Element;
 
 public class GetElementsWithinSetDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsWithinSet, Iterable<? extends Element>> {

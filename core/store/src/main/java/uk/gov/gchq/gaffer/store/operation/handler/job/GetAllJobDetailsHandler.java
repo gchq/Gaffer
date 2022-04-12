@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.job;
 
-
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;

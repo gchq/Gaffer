@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
-
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;

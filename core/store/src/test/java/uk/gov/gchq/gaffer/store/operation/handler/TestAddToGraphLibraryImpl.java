@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;

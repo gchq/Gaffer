@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
-
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;

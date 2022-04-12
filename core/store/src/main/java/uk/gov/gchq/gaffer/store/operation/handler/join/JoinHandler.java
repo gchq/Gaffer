@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.join;
 
-
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;

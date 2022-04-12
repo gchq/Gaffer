@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.MultiEntityIdInputB;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
