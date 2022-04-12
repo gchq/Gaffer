@@ -36,13 +36,8 @@ public class LimitedIterableTest {
         final int start = 0;
         final int end = 1;
 
-        LimitedIterable<Integer> limitedValues = null;
-        try {
-            limitedValues = new LimitedIterable<>(values, start, end);
-            assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, end));
-        } finally {
-            CloseableUtil.close(limitedValues);
-        }
+        final Iterable<Integer> limitedValues = new LimitedIterable<>(values, start, end);
+        assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, end));
     }
 
     @Test
@@ -51,13 +46,8 @@ public class LimitedIterableTest {
         final int start = 2;
         final int end = Integer.MAX_VALUE;
 
-        Iterable<Integer> limitedValues = null;
-        try {
-            limitedValues = new LimitedIterable<>(values, start, end);
-            assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, values.size()));
-        } finally {
-            CloseableUtil.close(limitedValues);
-        }
+        final Iterable<Integer> limitedValues = new LimitedIterable<>(values, start, end);
+        assertThat(limitedValues).containsExactlyElementsOf(values.subList(start, values.size()));
     }
 
     @Test
@@ -66,13 +56,8 @@ public class LimitedIterableTest {
         final int start = 0;
         final int end = Integer.MAX_VALUE;
 
-        LimitedIterable<Integer> limitedValues = null;
-        try {
-            limitedValues = new LimitedIterable<>(values, start, end);
-            assertThat(limitedValues).containsExactlyElementsOf(values);
-        } finally {
-            CloseableUtil.close(limitedValues);
-        }
+        final Iterable<Integer> limitedValues = new LimitedIterable<>(values, start, end);
+        assertThat(limitedValues).containsExactlyElementsOf(values);
     }
 
     @Test
@@ -81,13 +66,8 @@ public class LimitedIterableTest {
         final int start = 5;
         final int end = Integer.MAX_VALUE;
 
-        LimitedIterable<Integer> limitedValues = null;
-        try {
-            limitedValues = new LimitedIterable<>(values, start, end);
-            assertThat(limitedValues).isEmpty();
-        } finally {
-            CloseableUtil.close(limitedValues);
-        }
+        final Iterable<Integer> limitedValues = new LimitedIterable<>(values, start, end);
+        assertThat(limitedValues).isEmpty();
     }
 
     @Test
@@ -99,6 +79,7 @@ public class LimitedIterableTest {
         assertThatIllegalArgumentException().isThrownBy(() -> new LimitedIterable<>(values, start, end));
     }
 
+    @SuppressWarnings("unused")
     @Test
     public void shouldThrowExceptionWhenDataIsTruncated() {
         // Given
@@ -108,7 +89,7 @@ public class LimitedIterableTest {
         final boolean truncate = false;
 
         // When
-        final LimitedIterable<Integer> limitedValues = new LimitedIterable<>(values, start, end, truncate);
+        final Iterable<Integer> limitedValues = new LimitedIterable<>(values, start, end, truncate);
 
         assertThatExceptionOfType(LimitExceededException.class).isThrownBy(() -> {
             for (final Integer i : limitedValues) {
@@ -135,14 +116,9 @@ public class LimitedIterableTest {
         final boolean truncate = false;
 
         // When
-        LimitedIterable<Integer> equalValues = null;
-        try {
-            equalValues = new LimitedIterable<>(values, start, end, truncate);
+        Iterable<Integer> equalValues = new LimitedIterable<>(values, start, end, truncate);
 
-            // Then
-            assertThat(equalValues).containsExactlyElementsOf(values);
-        } finally {
-            CloseableUtil.close(equalValues);
-        }
+        // Then
+        assertThat(equalValues).containsExactlyElementsOf(values);
     }
 }
