@@ -50,8 +50,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * A {@code JSONSerialiser} provides the ability to serialise and deserialise to/from JSON.
@@ -156,11 +158,11 @@ public class JSONSerialiser {
             System.setProperty(JSON_SERIALISER_MODULES, modulesCsv);
         }
 
-        if (Objects.nonNull(jsonSerialiserClass)) {
+        if (nonNull(jsonSerialiserClass)) {
             System.setProperty(JSON_SERIALISER_CLASS_KEY, jsonSerialiserClass);
         }
 
-        if (Objects.nonNull(strictJson)) {
+        if (nonNull(strictJson)) {
             System.setProperty(STRICT_JSON, strictJson.toString());
         }
 
@@ -189,7 +191,7 @@ public class JSONSerialiser {
                         JSON_SERIALISER_MODULES, JSONSerialiserModules.class.getName(), factoryClass), e);
             }
             final List<Module> modules = factory.getModules();
-            if (Objects.nonNull(modules)) {
+            if (nonNull(modules)) {
                 newInstance.mapper.registerModules(modules);
             }
         }
@@ -399,7 +401,7 @@ public class JSONSerialiser {
 
     @JsonIgnore
     public static JSONSerialiser getInstance() {
-        if (Objects.isNull(instance)) {
+        if (isNull(instance)) {
             update();
         }
         return instance;
