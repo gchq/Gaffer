@@ -239,15 +239,10 @@ public class AccumuloStoreTest {
                 .input(entityId1)
                 .build();
 
-        Iterable<? extends Element> results = null;
-        try {
-            results = store.execute(getBySeed, new Context(user));
+        final Iterable<? extends Element> results = store.execute(getBySeed, new Context(user));
 
-            assertThat(results).hasSize(1);
-            assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(e);
-        } finally {
-            CloseableUtil.close(results);
-        }
+        assertThat(results).hasSize(1);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(e);
 
         final GetElements getRelated = new GetElements.Builder()
                 .view(new View.Builder()
@@ -256,32 +251,27 @@ public class AccumuloStoreTest {
                 .input(entityId1)
                 .build();
 
-        Iterable<? extends Element> relatedResults = null;
-        try {
-            relatedResults = store.execute(getRelated, store.createContext(user));
-            assertThat(relatedResults).hasSize(1);
-            assertThat(relatedResults).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(e);
+        Iterable<? extends Element> relatedResults = store.execute(getRelated, store.createContext(user));
+        assertThat(relatedResults).hasSize(1);
+        assertThat(relatedResults).asInstanceOf(InstanceOfAssertFactories.iterable(Element.class)).contains(e);
 
-            final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
-                    .view(new View.Builder()
-                            .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                                    .preAggregationFilter(new ElementFilter.Builder()
-                                            .select(TestPropertyNames.PROP_1)
-                                            .execute(new IsMoreThan(0))
-                                            .build())
-                                    .postAggregationFilter(new ElementFilter.Builder()
-                                            .select(TestPropertyNames.COUNT)
-                                            .execute(new IsMoreThan(6))
-                                            .build())
-                                    .build())
-                            .build())
-                    .input(entityId1)
-                    .build();
-            relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
-            assertThat(relatedResults).hasSize(0);
-        } finally {
-            CloseableUtil.close(relatedResults);
-        }
+        final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.PROP_1)
+                                        .execute(new IsMoreThan(0))
+                                        .build())
+                                .postAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.COUNT)
+                                        .execute(new IsMoreThan(6))
+                                        .build())
+                                .build())
+                        .build())
+                .input(entityId1)
+                .build();
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
+        assertThat(relatedResults).hasSize(0);
     }
 
     @Test

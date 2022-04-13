@@ -53,8 +53,7 @@ public class StreamIterableTest {
             result.hasNext();
             verify(iterator).hasNext();
         } finally {
-            CloseableUtil.close(result);
-            CloseableUtil.close(wrappedIterable);
+            CloseableUtil.close(result, wrappedIterable);
         }
     }
 

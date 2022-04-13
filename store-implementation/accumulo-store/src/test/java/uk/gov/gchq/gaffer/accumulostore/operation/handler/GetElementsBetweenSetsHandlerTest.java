@@ -220,19 +220,14 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(op, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(op, user, store);
 
-            // With query compaction the result size should be 2
-            assertThat(elements)
-                    .hasSize(2)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .contains(expectedSummarisedEdge)
-                    .contains(expectedEntity1);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        // With query compaction the result size should be 2
+        assertThat(elements)
+                .hasSize(2)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedSummarisedEdge)
+                .contains(expectedEntity1);
     }
 
     @Test
@@ -255,18 +250,13 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(op, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(op, user, store);
 
-            // With query compaction the result size should be 1
-            assertThat(elements)
-                    .hasSize(1)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .contains(expectedSummarisedEdge);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        // With query compaction the result size should be 1
+        assertThat(elements)
+                .hasSize(1)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedSummarisedEdge);
     }
 
     @Test
@@ -287,18 +277,13 @@ public class GetElementsBetweenSetsHandlerTest {
                 .build();
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(opView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(op, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(op, user, store);
 
-            // The result size should be 1
-            assertThat(elements)
-                    .hasSize(1)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .contains(expectedEntity1);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        // The result size should be 1
+        assertThat(elements)
+                .hasSize(1)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedEntity1);
     }
 
     @Test
@@ -323,19 +308,14 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(op, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(op, user, store);
 
-            // With query compaction the result size should be 2
-            assertThat(elements)
-                    .hasSize(2)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .contains(expectedEntity1)
-                    .contains(expectedSummarisedEdge);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        // With query compaction the result size should be 2
+        assertThat(elements)
+                .hasSize(2)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedEntity1)
+                .contains(expectedSummarisedEdge);
     }
 
     @Test
@@ -360,18 +340,13 @@ public class GetElementsBetweenSetsHandlerTest {
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(op, user, store);
+        final Iterable<? extends Element> elements = handler.doOperation(op, user, store);
 
-            // The result size should be 1
-            assertThat(elements)
-                    .hasSize(1)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .contains(expectedEntity1);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        // The result size should be 1
+        assertThat(elements)
+                .hasSize(1)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .contains(expectedEntity1);
     }
 
     private static void setupGraph(final AccumuloStore store) {

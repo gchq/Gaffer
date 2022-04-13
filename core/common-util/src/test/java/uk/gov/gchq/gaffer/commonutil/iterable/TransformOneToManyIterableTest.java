@@ -74,8 +74,7 @@ public class TransformOneToManyIterableTest {
             final List<String> expected = Arrays.asList("ITEM 1", "ITEM 3A", "ITEM 3B", "ITEM 4");
             assertThat(output).isEqualTo(expected);
         } finally {
-            CloseableUtil.close(itr);
-            CloseableUtil.close(iterable);
+            CloseableUtil.close(itr, iterable);
         }
     }
 

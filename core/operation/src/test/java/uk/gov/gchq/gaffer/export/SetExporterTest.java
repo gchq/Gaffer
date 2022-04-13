@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 
@@ -78,13 +77,9 @@ public class SetExporterTest {
         exporter.add("key", values1);
 
         // When
-        Iterable<?> results = null;
-        try {
-            results = exporter.get("key", start, end);
-            // Then
-            assertEquals(values1.subList(start, end), Lists.newArrayList(results));
-        } finally {
-            CloseableUtil.close(results);
-        }
+        final Iterable<?> results = exporter.get("key", start, end);
+
+        // Then
+        assertEquals(values1.subList(start, end), Lists.newArrayList(results));
     }
 }

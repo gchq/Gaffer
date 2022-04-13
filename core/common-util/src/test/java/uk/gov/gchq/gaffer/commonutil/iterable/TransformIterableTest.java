@@ -69,8 +69,7 @@ public class TransformIterableTest {
             assertThat(itr).hasNext();
             assertThat(itr.next()).isEqualTo("VALID ITEM 3");
         } finally {
-            CloseableUtil.close(itr);
-            CloseableUtil.close(iterable);
+            CloseableUtil.close(itr, iterable);
         }
     }
 
@@ -86,11 +85,10 @@ public class TransformIterableTest {
         when(validator.validate(item2)).thenReturn(false);
 
         TransformIterable<String, String> iterable = null;
-        Iterator<String> itr;
 
         try {
             iterable = new TransformIterableImpl(items, validator, false);
-            itr = iterable.iterator();
+            final Iterator<String> itr = iterable.iterator();
 
             // Then 1st valid item
             assertThat(itr).hasNext();

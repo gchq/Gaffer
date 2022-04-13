@@ -85,17 +85,12 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = this.graph.execute(query, this.user);
-            int x = 0;
-            for (final Element element : elements) {
-                x++;
-            }
-            assertThat(x).isEqualTo(14);
-        } finally {
-            CloseableUtil.close(elements);
+        final Iterable<? extends Element> elements = this.graph.execute(query, this.user);
+        int x = 0;
+        for (final Element element : elements) {
+            x++;
         }
+        assertThat(x).isEqualTo(14);
     }
 
     private static final Properties M4_JUNCTION_17_TO_16_PROPERTIES;
@@ -162,21 +157,14 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        Iterable<? extends Element> elements = null;
-        Iterator<? extends Element> iter = null;
-        try {
-            elements = this.graph.execute(query, this.user);
-            iter = elements.iterator();
-            assertThat(iter).hasNext();
+        final Iterable<? extends Element> elements = this.graph.execute(query, this.user);
+        final Iterator<? extends Element> iter = elements.iterator();
+        assertThat(iter).hasNext();
 
-            final Element element = iter.next();
-            assertThat(iter.hasNext()).isFalse().withFailMessage("Expected query to return only 1 element, but it has returned multiple!");
+        final Element element = iter.next();
+        assertThat(iter.hasNext()).isFalse().withFailMessage("Expected query to return only 1 element, but it has returned multiple!");
 
-            assertThat(element.getProperties()).isEqualTo(M4_JUNCTION_17_TO_16_PROPERTIES);
-        } finally {
-            CloseableUtil.close(iter);
-            CloseableUtil.close(elements);
-        }
+        assertThat(element.getProperties()).isEqualTo(M4_JUNCTION_17_TO_16_PROPERTIES);
     }
 
     private static final Properties M4_JUNCTION_16_PROPERTIES;
@@ -219,21 +207,14 @@ public abstract class RoadTrafficTestQueries {
                         .build())
                 .build();
 
-        Iterable<? extends Element> elements = null;
-        Iterator<? extends Element> iter = null;
-        try {
-            elements = this.graph.execute(query, this.user);
-            iter = elements.iterator();
-            assertThat(iter).hasNext();
+        final Iterable<? extends Element> elements = this.graph.execute(query, this.user);
+        final Iterator<? extends Element> iter = elements.iterator();
+        assertThat(iter).hasNext();
 
-            final Element element = iter.next();
-            assertThat(iter.hasNext()).isFalse().withFailMessage("Expected query to return only 1 element, but it has returned multiple!");
+        final Element element = iter.next();
+        assertThat(iter.hasNext()).isFalse().withFailMessage("Expected query to return only 1 element, but it has returned multiple!");
 
-            assertThat(element.getProperties()).isEqualTo(M4_JUNCTION_16_PROPERTIES);
-        } finally {
-            CloseableUtil.close(iter);
-            CloseableUtil.close(elements);
-        }
+        assertThat(element.getProperties()).isEqualTo(M4_JUNCTION_16_PROPERTIES);
     }
 
     private static final Set<String> SW_ROAD_JUNCTIONS_WITH_HEAVY_BUS_USAGE_IN_2000;
@@ -318,14 +299,9 @@ public abstract class RoadTrafficTestQueries {
 
         final Set<String> resultSet = new HashSet<>();
 
-        Iterable<? extends String> results = null;
-        try {
-            results = this.graph.execute(opChain, this.user);
-            for (final String r : results) {
-                resultSet.add(r);
-            }
-        } finally {
-            CloseableUtil.close(results);
+        final Iterable<? extends String> results = this.graph.execute(opChain, this.user);
+        for (final String r : results) {
+            resultSet.add(r);
         }
 
         assertThat(resultSet).isEqualTo(SW_ROAD_JUNCTIONS_WITH_HEAVY_BUS_USAGE_IN_2000);
