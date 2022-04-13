@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMiniAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
-import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -339,17 +338,12 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
 
-        Iterable<? extends Element> elements = null;
-        try {
-            elements = handler.doOperation(operation, user, store);
-            // After query compaction the result size should be 1
-            assertThat(elements)
-                    .hasSize(expectedElements.length)
-                    .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
-                    .containsOnly(expectedElements);
-        } finally {
-            CloseableUtil.close(elements);
-        }
+        final Iterable<? extends Element> elements = handler.doOperation(operation, user, store);
+        // After query compaction the result size should be 1
+        assertThat(elements)
+                .hasSize(expectedElements.length)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .containsOnly(expectedElements);
     }
 
     private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {

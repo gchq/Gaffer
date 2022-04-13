@@ -63,9 +63,7 @@ public class SuppliedIterableTest {
             assertThat(result1).toIterable().containsExactlyElementsOf(iterable1);
             assertThat(result2).toIterable().containsExactlyElementsOf(iterable2);
         } finally {
-            CloseableUtil.close(result2);
-            CloseableUtil.close(result1);
-            CloseableUtil.close(suppliedItr);
+            CloseableUtil.close(result2, result1, suppliedItr);
         }
     }
 

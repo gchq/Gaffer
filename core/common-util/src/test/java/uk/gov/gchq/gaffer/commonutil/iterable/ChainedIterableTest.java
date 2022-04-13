@@ -38,17 +38,12 @@ public class ChainedIterableTest {
     @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowNSEXWhenNoNextIterableWhenOneElementAndNo2ndNext() {
-        ChainedIterable<Integer> chainedIterable = null;
-        try {
-            chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
-            final Iterator<Integer> iterator = chainedIterable.iterator();
+        final ChainedIterable<Integer> chainedIterable = new ChainedIterable<>(Collections.singletonList(1));
+        final Iterator<Integer> iterator = chainedIterable.iterator();
 
-            assertThat(iterator.next()).isEqualTo(1);
-            // No 2nd element
-            assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
-        } finally {
-            CloseableUtil.close(chainedIterable);
-        }
+        assertThat(iterator.next()).isEqualTo(1);
+        // No 2nd element
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> iterator.next());
     }
 
     @SuppressWarnings("unchecked")
@@ -72,16 +67,10 @@ public class ChainedIterableTest {
 
         // When
         final List<List<Integer>> collect = Stream.of(itr1, emptyItr2, itr3, itr4).collect(Collectors.toList());
+        final ChainedIterable<Integer> wrappedItr = new ChainedIterable<>(collect);
 
-        ChainedIterable<Integer> wrappedItr = null;
-        try {
-            wrappedItr = new ChainedIterable<>(collect);
-
-            // Then
-            assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
-        } finally {
-            CloseableUtil.close(wrappedItr);
-        }
+        // Then
+        assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
     }
 
     @SuppressWarnings("unchecked")
@@ -94,14 +83,10 @@ public class ChainedIterableTest {
         final List<Integer> itr4 = Lists.newArrayList(5, 6);
 
         // When
-        ChainedIterable<Integer> wrappedItr = null;
-        try {
-            wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
-            // Then
-            assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
-        } finally {
-            CloseableUtil.close(wrappedItr);
-        }
+        final ChainedIterable<Integer> wrappedItr = new ChainedIterable<>(itr1, emptyItr2, itr3, itr4);
+
+        // Then
+        assertThat(wrappedItr).containsExactly(0, 1, 2, 3, 4, 5, 6);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -130,8 +115,7 @@ public class ChainedIterableTest {
             assertThat(itr3).hasSize(4);
             assertThat(itr4).hasSize(2);
         } finally {
-            CloseableUtil.close(itr);
-            CloseableUtil.close(wrappedItr);
+            CloseableUtil.close(itr, wrappedItr);
         }
     }
 
@@ -163,8 +147,7 @@ public class ChainedIterableTest {
             assertThat(itr3).hasSize(3);
             assertThat(itr4).hasSize(2);
         } finally {
-            CloseableUtil.close(itr);
-            CloseableUtil.close(wrappedItr);
+            CloseableUtil.close(itr, wrappedItr);
         }
     }
 }
