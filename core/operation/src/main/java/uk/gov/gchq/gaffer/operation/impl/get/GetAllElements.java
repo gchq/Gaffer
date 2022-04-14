@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -41,7 +40,7 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets all elements compatible with a provided View")
 public class GetAllElements implements
-        Output<CloseableIterable<? extends Element>>,
+        Output<Iterable<? extends Element>>,
         GraphFilters {
     private View view;
     private DirectedType directedType;
@@ -68,8 +67,8 @@ public class GetAllElements implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
@@ -92,7 +91,7 @@ public class GetAllElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
-            implements Output.Builder<GetAllElements, CloseableIterable<? extends Element>, Builder>,
+            implements Output.Builder<GetAllElements, Iterable<? extends Element>, Builder>,
             GraphFilters.Builder<GetAllElements, Builder> {
         public Builder() {
             super(new GetAllElements());

@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.access.predicate.AccessPredicate;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
@@ -104,7 +103,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * against them and returns results as though it was a single graph.
  * <p>
  * To create a FederatedStore you need to initialise the store with a
- * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
+ * graphId and (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
  * the {@link Schema} and {@link StoreProperties}.
  *
  * @see #initialise(String, Schema, StoreProperties)
@@ -112,9 +111,10 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * @see Graph
  */
 public class FederatedStore extends Store {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private static final String FEDERATED_STORE_PROCESSED = "FederatedStore.processed.";
-    private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
+    private final FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     private Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
     private static final List<Integer> ALL_IDS = new ArrayList<>();
@@ -139,7 +139,8 @@ public class FederatedStore extends Store {
      * @throws StoreException if no cache has been set
      */
     @Override
-    public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema unused, final StoreProperties properties)
+            throws StoreException {
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
@@ -155,7 +156,7 @@ public class FederatedStore extends Store {
      * Get this Store's {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties}.
      *
      * @return the instance of {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties},
-     * this may contain details such as database connection details.
+     *         this may contain details such as database connection details.
      */
     @Override
     public FederatedStoreProperties getProperties() {
@@ -178,7 +179,9 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic,
+                          final GraphSerialisable... graphs)
+            throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT, graphs);
     }
 
@@ -199,24 +202,25 @@ public class FederatedStore extends Store {
      * @param graphAuths        the access auths for the graph being added
      * @throws StorageException if unable to put graph into storage
      */
-    public void addGraphs(
-            final Set<String> graphAuths,
-            final String addingUserId,
-            final boolean isPublic,
-            final boolean disabledByDefault,
-            final GraphSerialisable... graphs) throws StorageException {
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final boolean disabledByDefault,
+                          final GraphSerialisable... graphs)
+            throws StorageException {
         addGraphs(graphAuths, addingUserId, isPublic, disabledByDefault, null, null, graphs);
     }
 
-    public void addGraphs(
-            final Set<String> graphAuths,
-            final String addingUserId,
-            final boolean isPublic,
-            final boolean disabledByDefault,
-            final AccessPredicate readAccessPredicate,
-            final AccessPredicate writeAccessPredicate,
-            final GraphSerialisable... graphs) throws StorageException {
-        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic, disabledByDefault, readAccessPredicate, writeAccessPredicate);
+    public void addGraphs(final Set<String> graphAuths,
+                          final String addingUserId,
+                          final boolean isPublic,
+                          final boolean disabledByDefault,
+                          final AccessPredicate readAccessPredicate,
+                          final AccessPredicate writeAccessPredicate,
+                          final GraphSerialisable... graphs)
+            throws StorageException {
+        final FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic,
+                disabledByDefault, readAccessPredicate, writeAccessPredicate);
         addGraphs(access, graphs);
     }
 
@@ -252,7 +256,7 @@ public class FederatedStore extends Store {
     /**
      * @param user the visibility to use for getting graphIds
      * @return All the graphId(s) within scope of this FederatedStore and within
-     * visibility for the given user.
+     *         visibility for the given user.
      */
     public Collection<String> getAllGraphIds(final User user) {
         return getAllGraphIds(user, false);
@@ -270,7 +274,7 @@ public class FederatedStore extends Store {
     }
 
     public Schema getSchema(final GetSchema operation, final Context context) {
-        if (null == operation) {
+        if (isNull(operation)) {
             return getSchema((Map<String, String>) null, context);
         }
 
@@ -278,7 +282,7 @@ public class FederatedStore extends Store {
     }
 
     public Schema getSchema(final Operation operation, final Context context) {
-        if (null == operation) {
+        if (isNull(operation)) {
             return getSchema((Map<String, String>) null, context);
         }
 
@@ -290,7 +294,7 @@ public class FederatedStore extends Store {
     }
 
     public Schema getSchema(final Operation operation, final User user) {
-        if (null == operation) {
+        if (isNull(operation)) {
             return getSchema((Map<String, String>) null, user);
         }
 
@@ -331,28 +335,31 @@ public class FederatedStore extends Store {
      * @return the graph collection.
      */
     public Collection<Graph> getGraphs(final User user, final String graphIdsCsv, final Operation operation) {
-        Collection<Graph> rtn = new ArrayList<>();
+        final Collection<Graph> rtn = new ArrayList<>();
         if (nonNull(operation)) {
-            String optionKey = FEDERATED_STORE_PROCESSED + id;
-            boolean isIdFound = !operation.getOption(optionKey, "").isEmpty();
+            final String optionKey = FEDERATED_STORE_PROCESSED + id;
+            final boolean isIdFound = !operation.getOption(optionKey, "").isEmpty();
             if (!isIdFound) {
-                HashMap<String, String> updatedOptions = isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions());
+                final HashMap<String, String> updatedOptions = isNull(operation.getOptions())
+                        ? new HashMap<>()
+                        : new HashMap<>(operation.getOptions());
                 updatedOptions.put(optionKey, getGraphId());
                 operation.setOptions(updatedOptions);
                 rtn.addAll(graphStorage.get(user, getCleanStrings(graphIdsCsv)));
             } else {
-                List<String> federatedStoreGraphIds = operation.getOptions()
+                final List<String> federatedStoreGraphIds = operation.getOptions()
                         .entrySet()
                         .stream()
                         .filter(e -> e.getKey().startsWith(FEDERATED_STORE_PROCESSED))
                         .map(Map.Entry::getValue)
                         .collect(Collectors.toList());
 
-                String ln = System.lineSeparator();
-                LOGGER.error("This operation has already been processed by this FederatedStore. " +
-                        "This is a symptom of an infinite loop of FederatedStores and Proxies.{}" +
-                        "This FederatedStore: {}{}" +
-                        "All FederatedStore in this loop: {}", ln, this.getGraphId(), ln, federatedStoreGraphIds.toString());
+                final String ln = System.lineSeparator();
+                LOGGER.error("This operation has already been processed by this FederatedStore. "
+                        + "This is a symptom of an infinite loop of FederatedStores and Proxies.{}"
+                        + "This FederatedStore: {}{}"
+                        + "All FederatedStore in this loop: {}",
+                        ln, this.getGraphId(), ln, federatedStoreGraphIds.toString());
             }
         }
 
@@ -378,7 +385,7 @@ public class FederatedStore extends Store {
      * @return boolean permission
      */
     public boolean isLimitedToLibraryProperties(final User user) {
-        return (null != this.customPropertiesAuths) && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+        return (nonNull(this.customPropertiesAuths)) && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 
     @Override
@@ -386,6 +393,7 @@ public class FederatedStore extends Store {
         return FederatedStoreProperties.class;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void addAdditionalOperationHandlers() {
         // Override the Operations that don't have an output
@@ -422,20 +430,21 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return new FederatedGetElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
         return new FederatedGetAllElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new FederatedGetAdjacentIdsHandler();
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return (OperationHandler) new FederatedOperationHandler();
@@ -446,6 +455,7 @@ public class FederatedStore extends Store {
         return new FederatedGetTraitsHandler();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return Serialiser.class;
@@ -470,13 +480,15 @@ public class FederatedStore extends Store {
         graphStorage.put(newGraph, access);
     }
 
-    public boolean changeGraphAccess(final User requestingUser, final String graphId, final FederatedAccess federatedAccess, final boolean isAdmin) throws StorageException {
+    public boolean changeGraphAccess(final User requestingUser, final String graphId, final FederatedAccess federatedAccess, final boolean isAdmin)
+            throws StorageException {
         return isAdmin
                 ? graphStorage.changeGraphAccess(graphId, federatedAccess, requestingUser, this.getProperties().getAdminAuth())
                 : graphStorage.changeGraphAccess(graphId, federatedAccess, requestingUser);
     }
 
-    public boolean changeGraphId(final User requestingUser, final String graphId, final String newGraphId, final boolean isAdmin) throws StorageException {
+    public boolean changeGraphId(final User requestingUser, final String graphId, final String newGraphId, final boolean isAdmin)
+            throws StorageException {
         return isAdmin
                 ? graphStorage.changeGraphId(graphId, newGraphId, requestingUser, this.getProperties().getAdminAuth())
                 : graphStorage.changeGraphId(graphId, newGraphId, requestingUser);

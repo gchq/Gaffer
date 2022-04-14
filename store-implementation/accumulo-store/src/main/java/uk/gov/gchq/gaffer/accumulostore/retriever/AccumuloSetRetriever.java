@@ -33,9 +33,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -46,6 +44,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.Closeable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,7 +55,7 @@ import java.util.Set;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters>
+public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, Iterable<? extends Element>> & GraphFilters>
         extends AccumuloRetriever<OP, Element> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
@@ -97,25 +96,25 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
      * @return a closeable iterator of items.
      */
     @Override
-    public CloseableIterator<Element> iterator() {
+    public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
         if (!hasSeeds()) {
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
         if (readEntriesIntoMemory) {
             try {
                 iterator = createElementIteratorReadIntoMemory();
             } catch (final RetrieverException e) {
                 LOGGER.error("{} returning empty iterator", e.getMessage(), e);
-                return new EmptyCloseableIterator<>();
+                return new EmptyIterator<>();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
             } catch (final RetrieverException e) {
                 LOGGER.error("{} returning empty iterator", e.getMessage(), e);
-                return new EmptyCloseableIterator<>();
+                return new EmptyIterator<>();
             }
         }
         return iterator;
@@ -179,7 +178,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
         }
     }
 
-    protected abstract class AbstractElementIteratorReadIntoMemory implements CloseableIterator<Element> {
+    protected abstract class AbstractElementIteratorReadIntoMemory implements Iterator<Element>, Closeable {
         private AccumuloItemRetriever<?, ?> parentRetriever;
         private Iterator<Element> iterator;
         private Element nextElm;
@@ -236,7 +235,6 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             final Element nextReturn = nextElm;
             nextElm = null;
             return nextReturn;
-
         }
 
         @Override
@@ -259,8 +257,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
          *
          * @param elm the element to check
          * @return True if the provided element is an edge and Both ends are
-         * contained in the provided seed sets or if the element is an
-         * entity
+         *         contained in the provided seed sets or if the element is an
+         *         entity
          */
         private boolean checkIfBothEndsInSet(final Element elm) {
             if (Entity.class.isInstance(elm)) {
@@ -271,10 +269,9 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             final Object destination = edge.getDestination();
             return checkIfBothEndsInSet(source, destination);
         }
-
     }
 
-    protected abstract class AbstractElementIteratorFromBatches implements CloseableIterator<Element> {
+    protected abstract class AbstractElementIteratorFromBatches implements Iterator<Element>, Closeable {
         protected Iterator<? extends EntityId> idsAIterator;
         // The Bloom filter that is maintained client-side
         // as a secondary defeat of false positives.
@@ -319,7 +316,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                     }
                 }
             } catch (final RetrieverException e) {
-                LOGGER.debug("Failed to retrieve elements into iterator : {} returning iterator has no more elements", e.getMessage(), e);
+                LOGGER.debug("Failed to retrieve elements into iterator : {} returning iterator has no more elements",
+                        e.getMessage(), e);
                 return false;
             }
 
@@ -340,8 +338,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException(
-                    "Can't remove elements from a " + this.getClass().getCanonicalName());
+            throw new UnsupportedOperationException(String.format("Can't remove elements from a %s", this.getClass().getCanonicalName()));
         }
 
         @Override

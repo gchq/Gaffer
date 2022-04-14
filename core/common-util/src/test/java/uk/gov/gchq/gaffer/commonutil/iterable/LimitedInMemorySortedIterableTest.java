@@ -19,8 +19,6 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LimitedInMemorySortedIterableTest {
 
@@ -42,7 +39,7 @@ public class LimitedInMemorySortedIterableTest {
             list.add(i);
         }
 
-        assertEquals(expectedItems, Lists.newArrayList(list));
+        assertThat(list).containsExactlyElementsOf(expectedItems);
     }
 
     @Test
@@ -56,7 +53,7 @@ public class LimitedInMemorySortedIterableTest {
         list.add(2);
         list.add(10);
 
-        assertEquals(Arrays.asList(1, 2), Lists.newArrayList(list));
+        assertThat(list).containsExactly(1, 2);
     }
 
     @Test
@@ -66,7 +63,7 @@ public class LimitedInMemorySortedIterableTest {
         list.add(1);
         list.add(1);
 
-        assertEquals(Collections.singletonList(1), Lists.newArrayList(list));
+        assertThat(list).containsExactly(1);
     }
 
     @Test
@@ -76,7 +73,7 @@ public class LimitedInMemorySortedIterableTest {
         list.add(1);
         list.add(1);
 
-        assertEquals(Arrays.asList(1, 1), Lists.newArrayList(list));
+        assertThat(list).containsExactly(1, 1);
     }
 
     @Test
@@ -88,14 +85,12 @@ public class LimitedInMemorySortedIterableTest {
         list.add(1);
         list.add(2);
         list.add(10);
-
-        assertEquals(Arrays.asList(1, 1, 2, 2), Lists.newArrayList(list));
+        assertThat(list).containsExactly(1, 1, 2, 2);
     }
 
     @Test
     public void shouldAddAll() {
-        final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator
-                .naturalOrder(), 100);
+        final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 100);
 
         // When/Then
         final List<Integer> evens = IntStream.iterate(0, i -> i + 2)
@@ -129,8 +124,7 @@ public class LimitedInMemorySortedIterableTest {
     @Test
     public void shouldLimitEntriesOnAddAll() {
         // Given
-        final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator
-                .naturalOrder(), 10);
+        final LimitedInMemorySortedIterable<Integer> itr = new LimitedInMemorySortedIterable<Integer>(Comparator.naturalOrder(), 10);
 
         // When/Then
         final List<Integer> evens = IntStream.iterate(0, i -> i + 2)
@@ -181,6 +175,6 @@ public class LimitedInMemorySortedIterableTest {
 
         // Then
         final List<Integer> expected = Lists.newArrayList(list);
-        assertEquals(expected, sortedElements);
+        assertThat(sortedElements).isEqualTo(expected);
     }
 }

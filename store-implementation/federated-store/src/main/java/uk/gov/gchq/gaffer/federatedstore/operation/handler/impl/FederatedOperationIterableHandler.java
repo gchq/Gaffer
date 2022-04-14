@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -37,7 +37,7 @@ public class FederatedOperationIterableHandler<OP extends Output<O>, O extends I
     @Override
     protected O mergeResults(final List<O> results, final OP operation, final Context context, final Store store) {
         if (results.isEmpty()) {
-            return (O) new EmptyClosableIterable<>();
+            return (O) new EmptyIterable<>();
         }
 
         // Concatenate all the results into 1 iterable

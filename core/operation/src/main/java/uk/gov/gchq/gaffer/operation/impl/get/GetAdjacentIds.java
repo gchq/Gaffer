@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -44,7 +43,7 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Performs a single hop down related edges")
 public class GetAdjacentIds implements
-        InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
+        InputOutput<Iterable<? extends EntityId>, Iterable<? extends EntityId>>,
         MultiEntityIdInput,
         SeededGraphFilters {
     private View view;
@@ -94,8 +93,8 @@ public class GetAdjacentIds implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends EntityId>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableEntityId();
+    public TypeReference<Iterable<? extends EntityId>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableEntityId();
     }
 
     @Override
@@ -130,7 +129,7 @@ public class GetAdjacentIds implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
-            implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
+            implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, Iterable<? extends EntityId>, Builder>,
             MultiEntityIdInput.Builder<GetAdjacentIds, Builder>,
             SeededGraphFilters.Builder<GetAdjacentIds, Builder> {
         public Builder() {

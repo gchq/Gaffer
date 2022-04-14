@@ -30,7 +30,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-
 /**
  * This class is used to serialise and deserialise objects in java.
  */
@@ -41,18 +40,14 @@ public class JavaSerialiser implements ToBytesSerialiser<Object> {
 
     @Override
     public byte[] serialise(final Object object) throws SerialisationException {
-        ObjectOutputStream out = null;
-        ByteArrayOutputStream byteOut = null;
-        try {
-            byteOut = new ByteArrayOutputStream();
-            out = new ObjectOutputStream(byteOut);
+
+        try (final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+                final ObjectOutputStream out = new ObjectOutputStream(byteOut);) {
             out.writeObject(object);
             return byteOut.toByteArray();
         } catch (final IOException e) {
-            throw new SerialisationException("Unable to serialise given object of class: " + object.getClass().getName() + ", does it implement the serializable interface?", e);
-        } finally {
-            close(out);
-            close(byteOut);
+            throw new SerialisationException("Unable to serialise given object of class: " + object.getClass().getName()
+                    + ", does it implement the serializable interface?", e);
         }
     }
 

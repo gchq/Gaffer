@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 
 import java.util.Arrays;
@@ -36,7 +35,8 @@ public class SetExporterTest {
         // Given
         final List<String> valuesA = Arrays.asList("1", "2", "3");
         final List<String> valuesB = Arrays.asList("4", "5", "6");
-        final List<String> valuesCombined = Lists.newArrayList(new ChainedIterable<String>(valuesA, valuesB));
+        final List<String> valuesCombined = Lists
+                .newArrayList(new ChainedIterable<String>(Arrays.asList(valuesA, valuesB)));
         final SetExporter exporter = new SetExporter();
 
         // When
@@ -44,7 +44,7 @@ public class SetExporterTest {
         exporter.add("key", valuesB);
 
         // Then
-        final CloseableIterable<?> export = exporter.get("key");
+        final Iterable<?> export = exporter.get("key");
         assertEquals(Sets.newHashSet(valuesCombined), Sets.newHashSet(export));
     }
 
@@ -60,10 +60,10 @@ public class SetExporterTest {
         exporter.add("key2", valuesB);
 
         // Then
-        final CloseableIterable<?> export1 = exporter.get("key1");
+        final Iterable<?> export1 = exporter.get("key1");
         assertEquals(valuesA, Lists.newArrayList(export1));
 
-        final CloseableIterable<?> export2 = exporter.get("key2");
+        final Iterable<?> export2 = exporter.get("key2");
         assertEquals(valuesB, Lists.newArrayList(export2));
     }
 
@@ -77,10 +77,9 @@ public class SetExporterTest {
         exporter.add("key", values1);
 
         // When
-        try (CloseableIterable<?> results = exporter.get("key", start, end)) {
+        final Iterable<?> results = exporter.get("key", start, end);
 
-            // Then
-            assertEquals(values1.subList(start, end), Lists.newArrayList(results));
-        }
+        // Then
+        assertEquals(values1.subList(start, end), Lists.newArrayList(results));
     }
 }

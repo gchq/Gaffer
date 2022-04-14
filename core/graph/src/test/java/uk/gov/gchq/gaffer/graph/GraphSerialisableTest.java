@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.impl.HashMapCache;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -33,7 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GraphSerialisableTest {
 
@@ -44,6 +46,8 @@ public class GraphSerialisableTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        Mockito.reset(TestStore.mockStore);
+
         config = new GraphConfig.Builder()
                 .graphId("testGraphId")
                 .addHook(new NamedViewResolver())
@@ -68,6 +72,11 @@ public class GraphSerialisableTest {
                 .build();
     }
 
+    @AfterEach
+    public void after() {
+        Mockito.reset(TestStore.mockStore);
+    }
+
     @Test
     public void shouldSerialiseAndDeserialise() throws Exception {
         // Given
@@ -76,42 +85,43 @@ public class GraphSerialisableTest {
         final GraphSerialisable result = (GraphSerialisable) javaSerialiser.deserialise(serialise);
 
         // When / Then
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
     public void shouldConsumeGraph() {
         // Given
-        final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties)).config(config).build();
+        final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties))
+                .config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
 
         // When / Then
-        assertEquals(expected, result);
+        assertThat(result).isEqualTo(expected);
     }
 
     @Test
     public void shouldSerialiseWithJavaSerialiser() {
         // Given
-        HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(true);
-        String key = "key";
-        GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
+        final HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(true);
+        final String key = "key";
+        final GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
         cache.put(key, expected);
-        GraphSerialisable actual = cache.get(key);
+        final GraphSerialisable actual = cache.get(key);
 
         // When / Then
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void shouldSerialiseWithJsonSerialiser() {
         // Given
-        HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
-        String key = "key";
-        GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
+        final HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
+        final String key = "key";
+        final GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
         cache.put(key, expected);
-        GraphSerialisable actual = cache.get(key);
+        final GraphSerialisable actual = cache.get(key);
 
         // When / Then
-        assertEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
     }
 }

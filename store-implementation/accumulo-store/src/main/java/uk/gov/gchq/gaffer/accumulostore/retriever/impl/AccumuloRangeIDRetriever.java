@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -38,7 +37,7 @@ import java.util.Set;
  * This allows queries for all data from between the provided
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId} pairs.
  */
-public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>> & GraphFilters>
+public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, Iterable<? extends Element>> & GraphFilters>
         extends AccumuloItemRetriever<OP, Pair<ElementId, ElementId>> {
 
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user)
@@ -64,12 +63,14 @@ public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends 
      * @throws StoreException if any store issues occur
      */
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user,
-                                    final IteratorSetting... iteratorSettings) throws StoreException {
+                                    final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, true, iteratorSettings);
     }
 
     @Override
-    protected void addToRanges(final Pair<ElementId, ElementId> seed, final Set<Range> ranges) throws RangeFactoryException {
+    protected void addToRanges(final Pair<ElementId, ElementId> seed, final Set<Range> ranges)
+            throws RangeFactoryException {
         ranges.add(rangeFactory.getRangeFromPair(seed, operation));
     }
 }

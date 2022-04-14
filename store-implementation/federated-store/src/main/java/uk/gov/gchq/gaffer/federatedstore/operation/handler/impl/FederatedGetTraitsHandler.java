@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
@@ -46,27 +45,32 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * return [b]
  */
 public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+
     @Override
-    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
+    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store)
+            throws OperationException {
         try {
-            FederatedOperationChain<Void, StoreTrait> wrappedFedChain = new FederatedOperationChain.Builder<Void, StoreTrait>()
+            final FederatedOperationChain<Void, StoreTrait> wrappedFedChain = new FederatedOperationChain.Builder<Void, StoreTrait>()
                     .operationChain(OperationChain.wrap(operation))
-                    //deep copy options
+                    // deep copy options
                     .options(isNull(operation.getOptions()) ? new HashMap<>() : new HashMap<>(operation.getOptions()))
                     .build();
 
-            final CloseableIterable<StoreTrait> concatResults = store.execute(wrappedFedChain, context);
+            final Iterable<StoreTrait> concatResults = store.execute(wrappedFedChain, context);
 
             Map<StoreTrait, Integer> rtn;
             if (nonNull(concatResults) && nonNull(concatResults.iterator()) && concatResults.iterator().hasNext()) {
                 rtn = Streams.toStream(concatResults)
                         // collect a map of k=trait v=count to covert concat of traits to an intersection of traits.
-                        .collect(Collectors.toMap(t -> t, ignore -> 1, (existing, replacement) -> existing + replacement));
+                        .collect(Collectors.toMap(t -> t, ignore -> 1,
+                                (existing, replacement) -> existing + replacement));
 
-                long graphIdsSize = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation).stream().count();
+                final long graphIdsSize = ((FederatedStore) store)
+                        .getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operation)
+                        .stream().count();
                 rtn.values().removeIf(v -> v < graphIdsSize);
             } else {
-                rtn = Collections.EMPTY_MAP;
+                rtn = Collections.emptyMap();
             }
 
             return rtn.keySet();

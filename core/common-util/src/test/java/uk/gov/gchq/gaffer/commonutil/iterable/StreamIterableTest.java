@@ -17,7 +17,11 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 
 import java.io.IOException;
@@ -25,35 +29,38 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class StreamIterableTest {
 
     @Test
-    public void shouldDelegateIteratorToIterable() {
+    public void shouldDelegateIteratorToIterable(@Mock final StreamSupplier<Object> streamSupplier,
+                                                 @Mock final Stream<Object> stream,
+                                                 @Mock final Iterator<Object> iterator) {
         // Given
-        final StreamSupplier<Object> streamSupplier = mock(StreamSupplier.class);
-        final Stream<Object> stream = mock(Stream.class);
         given(streamSupplier.get()).willReturn(stream);
-        final StreamIterable<Object> wrappedIterable = new StreamIterable<>(streamSupplier);
-        final Iterator<Object> iterator = mock(Iterator.class);
         given(stream.iterator()).willReturn(iterator);
 
         // When
-        final CloseableIterator<Object> result = wrappedIterable.iterator();
+        StreamIterable<Object> wrappedIterable = null;
+        Iterator<Object> result = null;
+        try {
+            wrappedIterable = new StreamIterable<>(streamSupplier);
+            result = wrappedIterable.iterator();
 
-        // Then - call has next and check it was called on the mock.
-        result.hasNext();
-        verify(iterator).hasNext();
+            // Then - call has next and check it was called on the mock.
+            result.hasNext();
+            verify(iterator).hasNext();
+        } finally {
+            CloseableUtil.close(result, wrappedIterable);
+        }
     }
 
     @Test
-    public void shouldDelegateCloseToStreamIterable() throws IOException {
+    public void shouldDelegateCloseToStreamIterable(@Mock final StreamSupplier<Object> streamSupplier)
+            throws IOException {
         // Given
-        final StreamSupplier<Object> streamSupplier = mock(StreamSupplier.class);
-        final Stream<Object> stream = mock(Stream.class);
-        given(streamSupplier.get()).willReturn(stream);
         final StreamIterable<Object> streamIterable = new StreamIterable<>(streamSupplier);
 
         // When

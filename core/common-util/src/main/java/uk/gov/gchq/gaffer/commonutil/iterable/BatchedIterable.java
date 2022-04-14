@@ -18,14 +18,15 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
+import java.io.Closeable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A {@code BatchedIterable} is an iterable of batches.
- * To use, extend this class and implement the createBatch method. When you have
- * no more batches of items left, return null.
+ * A {@code BatchedIterable} is a {@link java.io.Closeable} {@link java.lang.Iterable}
+ * of batches. To use, extend this class and implement the createBatch method. When you
+ * have no more batches of items left, return null.
  * <p>
  * As a client iterators round this iterable it will first create a batch, then iterate
  * around the batch. When there are no more items in the batch createBatch will be
@@ -34,12 +35,12 @@ import java.util.NoSuchElementException;
  *
  * @param <T> the type of items in the iterable.
  */
-public abstract class BatchedIterable<T> implements CloseableIterable<T> {
+public abstract class BatchedIterable<T> implements Closeable, Iterable<T> {
     private Iterable<T> batch;
     private Iterator<T> batchIterator;
 
     @Override
-    public CloseableIterator<T> iterator() {
+    public Iterator<T> iterator() {
         // By design, only 1 iterator can be open at a time
         closeBatch();
 
@@ -69,7 +70,7 @@ public abstract class BatchedIterable<T> implements CloseableIterable<T> {
         }
     }
 
-    private final class BatchedIterator implements CloseableIterator<T> {
+    private final class BatchedIterator implements Closeable, Iterator<T> {
         @Override
         public boolean hasNext() {
             if (null != batchIterator && batchIterator.hasNext()) {

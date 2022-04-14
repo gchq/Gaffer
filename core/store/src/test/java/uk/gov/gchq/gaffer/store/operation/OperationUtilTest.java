@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.operation;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
@@ -39,7 +38,7 @@ public class OperationUtilTest {
 
         // When / Then
         final Class<?> outputType = OperationUtil.getOutputType(operation);
-        assertEquals(CloseableIterable.class, outputType);
+        assertEquals(Iterable.class, outputType);
     }
 
     @Test
@@ -61,13 +60,13 @@ public class OperationUtilTest {
     public void shouldValidateOutputInputTypes() {
         // When / Then
         assertTrue(OperationUtil.isValid(Iterable.class, Iterable.class).isValid());
-        assertTrue(OperationUtil.isValid(CloseableIterable.class, Iterable.class).isValid());
+        assertTrue(OperationUtil.isValid(Iterable.class, Iterable.class).isValid());
         assertTrue(OperationUtil.isValid(Iterable.class, Object.class).isValid());
         assertTrue(OperationUtil.isValid(OperationUtil.UnknownGenericType.class, Object.class).isValid());
         assertTrue(OperationUtil.isValid(Object.class, OperationUtil.UnknownGenericType.class).isValid());
         assertTrue(OperationUtil.isValid(OperationUtil.UnknownGenericType.class, OperationUtil.UnknownGenericType.class).isValid());
 
-        assertFalse(OperationUtil.isValid(Object.class, CloseableIterable.class).isValid());
+        assertFalse(OperationUtil.isValid(Object.class, Iterable.class).isValid());
     }
 }
 

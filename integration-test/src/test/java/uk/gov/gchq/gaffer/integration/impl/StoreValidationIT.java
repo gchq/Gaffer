@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -44,7 +43,8 @@ public class StoreValidationIT extends AbstractStoreIT {
 
     @Test
     @TraitRequirement(StoreTrait.STORE_VALIDATION)
-    public void shouldAgeOffDataBasedOnTimestampAndAgeOffFunctionInSchema() throws OperationException, InterruptedException {
+    public void shouldAgeOffDataBasedOnTimestampAndAgeOffFunctionInSchema()
+            throws OperationException, InterruptedException {
         // Given
         final User user = new User();
         final long now = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When 1 - before age off
-        final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
+        final Iterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
@@ -69,14 +69,13 @@ public class StoreValidationIT extends AbstractStoreIT {
         assertThat(results1List).hasSize(1);
         assertThat(((Entity) results1List.get(0)).getVertex()).isEqualTo(VERTEX);
 
-
         // Wait until after the age off time
         while (System.currentTimeMillis() - now < AGE_OFF_TIME) {
             Thread.sleep(1000L);
         }
 
         // When 2 - after age off
-        final CloseableIterable<? extends Element> results2 = graph.execute(new GetElements.Builder()
+        final Iterable<? extends Element> results2 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
@@ -103,7 +102,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When
-        final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
+        final Iterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
