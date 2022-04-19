@@ -1,15 +1,14 @@
 curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
-    "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
-    "graphId": "mapEdgesClashingGraph",
+    "class": "AddGraph",
+    "graphId": "mapEdges",
     "storeProperties": {
-       "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
+      "gaffer.store.class":"uk.gov.gchq.gaffer.mapstore.MapStore"
     },
-    "disabledByDefault": true,
     "schema": {
          "edges": {
              "BasicEdge": {
-               "source": "count",
-               "destination": "count",
+               "source": "vertex",
+               "destination": "vertex",
                "directed": "true",
                "properties": {
                  "count": "count"
@@ -36,7 +35,7 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
              }
            ]
          }
-     }
+       }
     },
     "isPublic": true
- }' 'http://localhost:8080/rest/v2/graph/operations/execute'
+ }' 'http://localhost:8080/rest/graph/operations/execute'

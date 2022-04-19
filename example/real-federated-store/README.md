@@ -12,11 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Real FederatedStore Demo
+Real FederatedStore Example
 =============
 
 ## Deployment
-This demo does not start or configure a real accumulo cluster. Without you having access to an Accumulo cluster you will not be able to use a Gaffer Accumulo Store.
+This example does not start or configure a real accumulo cluster. Without you having access to an Accumulo cluster you will not be able to use a Gaffer Accumulo Store.
 
 Assuming you have Java 8, Maven and Git installed, you can build and run the latest version of Gaffer FederatedStore locally by doing the following:
 ```bash
@@ -30,3 +30,7 @@ cd Gaffer/example/real-federated-store/
 ```
 
 The rest api will be deployed to localhost:8080/rest.
+
+
+## Example Operations
+Examples can be found at `have-a-go-at-operations`.
