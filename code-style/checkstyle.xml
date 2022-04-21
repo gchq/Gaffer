@@ -33,10 +33,6 @@
         <property name="id" value="fileTabChar"/>
         <property name="eachLine" value="true"/>
     </module>
-    <module name="RegexpHeader">
-        <property name="id" value="headerCheck"/>
-        <property name="headerFile" value="${checkstyle.header.file}"/>
-    </module>
 
     <module name="RegexpSingleline">
         <property name="id" value="trailingSpaces"/>

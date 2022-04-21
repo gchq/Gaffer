@@ -82,5 +82,9 @@ jobs:
     - name: Test
       run: mvn -B -q verify -P coverage -pl ${{matrix.modules.values}}
 
+    - name: Check Copyright Headers
+      if: github.event_name == 'pull_request'
+      run: mvn -B -q spotless:check -pl ${{matrix.modules.values}}
+
     - name: Upload Coverage
       uses: codecov/codecov-action@v2
