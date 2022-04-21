@@ -61,7 +61,7 @@ jobs:
      MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
     steps:
     - uses: actions/checkout@v3
-    - with:
+      with:
         fetch-depth: 0
 
     - name: Setup JDK
