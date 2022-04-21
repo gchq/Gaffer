@@ -1,0 +1,10 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphDeleteAccumuloTableHandler"
+      }
+    }
+  ]
+}

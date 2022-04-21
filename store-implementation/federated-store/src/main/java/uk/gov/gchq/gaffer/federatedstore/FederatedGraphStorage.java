@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -60,6 +58,8 @@ import java.util.stream.Stream;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getConnector;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.isAccumulo;
 
 public class FederatedGraphStorage {
     private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
@@ -609,33 +609,8 @@ public class FederatedGraphStorage {
                 }
             }
 
-            //Update Tables
-            String storeClass = graphToMove.getStoreProperties().getStoreClass();
-            if (nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName())) {
-                /*
-                 * This logic is only for Accumulo derived stores Only.
-                 * For updating table names to match graphs names.
-                 *
-                 * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
-                 * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
-                 */
-                try {
-                    AccumuloProperties tmpAccumuloProps = (AccumuloProperties) graphToMove.getStoreProperties();
-                    Connector connection = TableUtils.getConnector(tmpAccumuloProps.getInstance(),
-                            tmpAccumuloProps.getZookeepers(),
-                            tmpAccumuloProps.getUser(),
-                            tmpAccumuloProps.getPassword());
-
-                    if (connection.tableOperations().exists(graphId)) {
-                        connection.tableOperations().offline(graphId);
-                        connection.tableOperations().rename(graphId, newGraphId);
-                        connection.tableOperations().online(newGraphId);
-                    }
-                } catch (final Exception e) {
-                    LOGGER.warn("Error trying to update tables for graphID:{} graphToMove:{}", graphId, graphToMove);
-                    LOGGER.warn("Error trying to update tables.", e);
-                }
-            }
+            //Accumulo Only
+            updateAccumuloTables(graphId, newGraphId, graphToMove);
 
             final GraphConfig configWithNewGraphId = cloneGraphConfigWithNewGraphId(newGraphId, graphToMove);
 
@@ -664,6 +639,29 @@ public class FederatedGraphStorage {
             rtn = false;
         }
         return rtn;
+    }
+
+    private void updateAccumuloTables(final String graphId, final String newGraphId, final Graph graphToMove) {
+        if (isAccumulo(graphToMove)) {
+            /*
+             * This logic is only for Accumulo derived stores Only.
+             * For updating table names to match graphs names.
+             *
+             * uk.gov.gchq.gaffer.accumulostore.[AccumuloStore, SingleUseAccumuloStore,
+             * SingleUseMockAccumuloStore, MockAccumuloStore, MiniAccumuloStore]
+             */
+            try {
+                Connector connection = getConnector((AccumuloProperties) graphToMove.getStoreProperties());
+
+                if (connection.tableOperations().exists(graphId)) {
+                    connection.tableOperations().offline(graphId);
+                    connection.tableOperations().rename(graphId, newGraphId);
+                    connection.tableOperations().online(newGraphId);
+                }
+            } catch (final Exception e) {
+                LOGGER.error("Error trying to update tables for graphId:{} graphToMove:{}", graphId, graphToMove);
+            }
+        }
     }
 
     private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final Graph graphToMove) {

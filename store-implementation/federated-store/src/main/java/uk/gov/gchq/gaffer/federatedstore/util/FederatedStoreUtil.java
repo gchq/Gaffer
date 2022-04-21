@@ -17,10 +17,14 @@ package uk.gov.gchq.gaffer.federatedstore.util;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.accumulo.core.client.Connector;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
@@ -29,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -186,4 +191,18 @@ public final class FederatedStoreUtil {
     public static boolean isUserRequestingAdminUsage(final Operation operation) {
         return Boolean.parseBoolean(operation.getOption(FederatedStoreConstants.KEY_FEDERATION_ADMIN, "false"));
     }
+
+    public static Connector getConnector(final AccumuloProperties properties) throws StoreException {
+        Connector connection = TableUtils.getConnector(properties.getInstance(),
+                properties.getZookeepers(),
+                properties.getUser(),
+                properties.getPassword());
+        return connection;
+    }
+
+    public static boolean isAccumulo(final Graph graph) {
+        String storeClass = graph.getStoreProperties().getStoreClass();
+        return nonNull(storeClass) && storeClass.startsWith(AccumuloStore.class.getPackage().getName());
+    }
+
 }
