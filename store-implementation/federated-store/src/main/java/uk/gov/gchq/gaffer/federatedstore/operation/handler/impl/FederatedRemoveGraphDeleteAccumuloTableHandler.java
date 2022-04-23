@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -55,25 +56,10 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
             Collection<Graph> values = ((FederatedStore) store).getGraphs(context.getUser(), operation.getGraphId(), operation);
 
             if (isUserRequestingAdminUsage(operation)) {
-
                 final Set<String> operationGraphIds = new HashSet<>(FederatedStoreUtil.getCleanStrings(operation.getGraphId()));
-                if (operationGraphIds.size() != values.size()) {
-                    final Set<String> remainder = values.stream()
-                            .map(Graph::getGraphId)
-                            .filter(s -> !operationGraphIds.contains(s))
-                            .collect(Collectors.toSet());
-
-                    /*
-                     * Current implementation of FederatedRemoveGraphHandler only takes 1 graphId, but if this changes then you have the problem
-                     * that changing the graphAccess in code here to allow table deletion is risky.
-                     * If 1 graphs fails, you'd need to recover the correct graphAccess.
-                     *
-                     * Alternative is FederatedStore.getGraphs() takes Admin request.
-                     */
-
-                    throw new UnsupportedOperationException("User is requesting to remove graphs and delete associated Accumulo tables with Admin rights," +
-                            " but the current implementation does not allow Admin rights to delete tables. As an Admin consider changing graphAccess and try again." +
-                            " graphsIds: " + remainder);
+                final boolean mismatched = operationGraphIds.size() != values.size();
+                if (mismatched) {
+                    throwErrorForMismatch(values, operationGraphIds);
                 }
             }
 
@@ -93,7 +79,26 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
 
     }
 
-    private void dropAccumuloTable(final Collection<Graph> remove) {
+    private void throwErrorForMismatch(final Collection<Graph> values, final Set<String> operationGraphIds) {
+        final Set<String> remainder = values.stream()
+                .map(Graph::getGraphId)
+                .filter(s -> !operationGraphIds.contains(s))
+                .collect(Collectors.toSet());
+
+        /*
+         * Current implementation of FederatedRemoveGraphHandler only takes 1 graphId, but if this changes then you have the problem
+         * that changing the graphAccess in code here to allow table deletion is risky.
+         * If 1 graphs fails, you'd need to recover the correct graphAccess.
+         *
+         * Alternative is FederatedStore.getGraphs() takes Admin request.
+         */
+
+        throw new UnsupportedOperationException("User is requesting to remove graphs and delete associated Accumulo tables with Admin rights," +
+                " but the current implementation does not allow Admin rights to delete tables. As an Admin consider changing graphAccess and try again." +
+                " graphsIds: " + remainder);
+    }
+
+    private void dropAccumuloTable(final Collection<Graph> remove) throws GafferCheckedException {
         for (final Graph removeGraph : remove) {
             if (isAccumulo(removeGraph)) {
                 /*
@@ -111,7 +116,9 @@ public class FederatedRemoveGraphDeleteAccumuloTableHandler extends FederatedRem
                         connection.tableOperations().delete(removeId);
                     }
                 } catch (final Exception e) {
-                    LOGGER.error("Error trying to drop tables for graphId:{}", removeId);
+                    final String s = String.format("Error trying to drop tables for graphId:%s", removeId);
+                    LOGGER.error(s, e);
+                    throw new GafferCheckedException(s);
                 }
             }
         }
