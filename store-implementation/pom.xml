@@ -28,6 +28,7 @@
 
     <modules>
         <module>accumulo-store</module>
+        <module>accumulo-2-store</module>
         <module>map-store</module>
         <module>proxy-store</module>
         <module>federated-store</module>

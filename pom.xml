@@ -61,11 +61,6 @@
         <accumulo.version>1.9.3</accumulo.version>
         <hadoop.version>2.6.5</hadoop.version>
 
-        <scala.minor.2.version>2.12<scala.minor.2.version>
-        <scala.2.version>${scala.minor.version}.15</scala.2.version>
-        <accumulo.2.version>2.0.1</accumulo.2.version>
-        <hadoop.3.version>3.3.2</hadoop.3.version>
-
         <koryphe.version>2.1.0</koryphe.version>
         <avro.version>1.8.2</avro.version>
         <jackson.version>2.11.4</jackson.version>
