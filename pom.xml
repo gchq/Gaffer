@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2020 Crown Copyright
+  ~ Copyright 2016-2022 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -96,6 +96,7 @@
         <compiler.plugin.verson>3.9.0</compiler.plugin.verson>
         <dependency.plugin.version>3.2.0</dependency.plugin.version>
         <spotbugs.plugin.version>3.1.12.2</spotbugs.plugin.version>
+        <spotless.plugin.version>2.22.1</spotless.plugin.version>
         <war.plugin.version>3.3.2</war.plugin.version>
         <gpg.plugin.version>3.0.1</gpg.plugin.version>
         <install.plugin.version>3.0.0-M1</install.plugin.version>
@@ -914,8 +915,6 @@
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <headerLocation>code-style/licenseHeader.txt
-                    </headerLocation>
                     <excludes>**/generated/**/*</excludes>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}
@@ -934,8 +933,6 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <headerLocation>code-style/licenseHeader.txt
-                            </headerLocation>
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -1038,6 +1035,26 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.plugin.version}</version>
+                <configuration>
+                    <ratchetFrom>origin/v2-alpha</ratchetFrom>
+                    <lineEndings>UNIX</lineEndings>
+                    <java>
+                        <licenseHeader>
+                            <file>code-style/licence-header-java.txt</file>
+                        </licenseHeader>
+                    </java>
+                    <pom>
+                        <licenseHeader>
+                            <file>code-style/licence-header-pom.txt</file>
+                            <delimiter>.project</delimiter>
+                        </licenseHeader>
+                    </pom>
+                </configuration>
             </plugin>
         </plugins>
     </build>
