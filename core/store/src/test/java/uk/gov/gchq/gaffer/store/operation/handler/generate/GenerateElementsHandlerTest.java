@@ -17,9 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.generate;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -27,24 +28,27 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+@ExtendWith(MockitoExtension.class)
 public class GenerateElementsHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldReturnElements() throws OperationException {
+    public void shouldReturnElements(@Mock final Store store,
+                                     @Mock final GenerateElements<String> operation,
+                                     @Mock final Iterable<Element> elements,
+                                     @Mock final ElementGenerator<String> elementGenerator,
+                                     @Mock final Iterable objs,
+                                     @Mock final Iterator<Element> elementsIter)
+            throws OperationException {
         // Given
         final GenerateElementsHandler<String> handler = new GenerateElementsHandler<>();
-        final Store store = mock(Store.class);
-        final GenerateElements<String> operation = mock(GenerateElements.class);
-        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
-        final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
-        final CloseableIterable objs = mock(CloseableIterable.class);
         final Context context = new Context();
 
-        final CloseableIterator<Element> elementsIter = mock(CloseableIterator.class);
         given(elements.iterator()).willReturn(elementsIter);
         given(elementGenerator.apply(objs)).willReturn(elements);
         given(operation.getInput()).willReturn(objs);
@@ -54,6 +58,6 @@ public class GenerateElementsHandlerTest {
         final Iterable<? extends Element> result = handler.doOperation(operation, context, store);
 
         // Then
-        assertSame(elementsIter, result.iterator());
+        assertThat(result.iterator()).isSameAs(elementsIter);
     }
 }

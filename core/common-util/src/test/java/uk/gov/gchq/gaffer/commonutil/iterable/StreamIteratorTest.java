@@ -17,17 +17,19 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.stream.Stream;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class StreamIteratorTest {
 
     @Test
-    public void shouldDelegateCloseToWrappedIterator() {
-        final Stream<Object> stream = mock(Stream.class);
+    public void shouldDelegateCloseToWrappedIterator(@Mock final Stream<Object> stream) {
         final StreamIterator<Object> streamIterator = new StreamIterator<>(stream);
 
         streamIterator.close();

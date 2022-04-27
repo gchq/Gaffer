@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * A {@code Limit} operation takes in an {@link Iterable} of items
  * and limits the iterable to a given number of items. It simply wraps the input
- * iterable in a {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so
+ * iterable in a {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable} so
  * the data is not stored in memory.
  *
  * @see Limit.Builder

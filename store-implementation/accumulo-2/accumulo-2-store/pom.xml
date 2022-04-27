@@ -20,7 +20,7 @@
 
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>store-implementation</artifactId>
+        <artifactId>accumulo-2</artifactId>
         <version>2.0.0-alpha-1.1-SNAPSHOT</version>
     </parent>
 
@@ -35,8 +35,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-	    <artifactId>hdfs-3-library</artifactId>
-            <version>${}</version>
+	        <artifactId>hdfs-3-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -99,8 +98,8 @@
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.apache.accumulo</groupId>
-	    <artifactId>accumulo-minicluster</artifactId>
-	    <version>${accumulo.2.version}</version>
+            <artifactId>accumulo-minicluster</artifactId>
+            <version>${accumulo.2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -168,12 +167,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+            <version>1.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-hdfs</artifactId>
-	    <version>${accumulo.2.version}</version>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop.3.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -18,15 +18,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>spark</artifactId>
+        <artifactId>spark-2</artifactId>
         <version>2.0.0-alpha-1.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>spark-library</artifactId>
+    <artifactId>spark-2-library</artifactId>
 
     <properties>
-        <graphframes.library.version>0.8.2</graphframes.library.version>
-        <graphframes.version>${graphframes.library.version}-spark${spark.minor.version}-s_${scala.minor.version}</graphframes.version>
+        <graphframes.2.library.version>0.8.2</graphframes.2.library.version>
+        <graphframes.2.version>${graphframes.2.library.version}-spark${spark.minor.2.version}-s_${scala.minor.2.version}</graphframes.2.version>
     </properties>
 
     <dependencies>
@@ -45,13 +45,13 @@
         <!-- External libraries -->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
+            <artifactId>jackson-module-scala_${scala.minor.2.version}</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.minor.version}</artifactId>
-            <version>${spark.version}</version>
+            <artifactId>spark-core_${scala.minor.2.version}</artifactId>
+            <version>${spark.2.version}</version>
             <!-- exclude server-side parts that conflict with running in a webapp -->
             <exclusions>
                 <exclusion>
@@ -60,7 +60,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
+                    <artifactId>jackson-module-scala_${scala.minor.2.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
@@ -116,13 +116,13 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.minor.version}</artifactId>
-            <version>${spark.version}</version>
+            <artifactId>spark-sql_${scala.minor.2.version}</artifactId>
+            <version>${spark.2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-graphx_${scala.minor.version}</artifactId>
-            <version>${spark.version}</version>
+            <artifactId>spark-graphx_${scala.minor.2.version}</artifactId>
+            <version>${spark.2.version}</version>
             <exclusions>
                 <!--
                 Removed due to constraints by Maven Central disallowing
@@ -130,23 +130,23 @@
                 -->
                 <exclusion>
                     <groupId>org.spire-math</groupId>
-                    <artifactId>spire_${scala.minor.version}</artifactId>
+                    <artifactId>spire_${scala.minor.2.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.chuusai</groupId>
-                    <artifactId>shapeless_${scala.minor.version}</artifactId>
+                    <artifactId>shapeless_${scala.minor.2.version}</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-catalyst_${scala.minor.version}</artifactId>
-            <version>${spark.version}</version>
+            <artifactId>spark-catalyst_${scala.minor.2.version}</artifactId>
+            <version>${spark.2.version}</version>
         </dependency>
         <dependency>
             <groupId>graphframes</groupId>
             <artifactId>graphframes</artifactId>
-            <version>${graphframes.version}</version>
+            <version>${graphframes.2.version}</version>
         </dependency>
 
         <!-- Test dependencies-->

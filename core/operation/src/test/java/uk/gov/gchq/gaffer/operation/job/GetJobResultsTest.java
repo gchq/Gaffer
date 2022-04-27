@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -26,9 +25,6 @@ import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class GetJobResultsTest extends OperationTest<GetJobResults> {
 
@@ -40,11 +36,11 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
                 .build();
 
         // When
-        byte[] json = JSONSerialiser.serialise(operation, true);
+        final byte[] json = JSONSerialiser.serialise(operation, true);
         final GetJobResults deserialisedOp = JSONSerialiser.deserialise(json, GetJobResults.class);
 
         // Then
-        assertEquals("jobId", deserialisedOp.getJobId());
+        assertThat(deserialisedOp.getJobId()).isEqualTo("jobId");
     }
 
     @Test
@@ -67,7 +63,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
                 .build();
 
         // Then
-        assertEquals("jobId", op.getJobId());
+        assertThat(op.getJobId()).isEqualTo("jobId");
     }
 
     @Test
@@ -82,9 +78,10 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         final GetJobResults clone = getJobResults.shallowClone();
 
         // Then
-        assertNotSame(getJobResults, clone);
-        assertNotNull(clone);
-        assertEquals(getJobResults.getJobId(), clone.getJobId());
+        assertThat(clone)
+                .isNotSameAs(getJobResults)
+                .isNotNull();
+        assertThat(clone.getJobId()).isEqualTo(getJobResults.getJobId());
     }
 
     @Test
@@ -93,7 +90,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(CloseableIterable.class, outputClass);
+        assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Override

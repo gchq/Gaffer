@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>library</artifactId>
+        <artifactId>accumulo-2</artifactId>
         <version>2.0.0-alpha-1.1-SNAPSHOT</version>
     </parent>
 
@@ -41,10 +41,12 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>${hadoop.3.version}</version>
         </dependency>
 
         <!-- Test dependencies-->

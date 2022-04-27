@@ -17,17 +17,34 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import java.io.Closeable;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * A {@code CloseableIterable} is an {@link java.lang.Iterable} which must provide an implementation
- * of the {@link java.io.Closeable#close()} method.
+ * An {@code EmptyCloseableIterator} is a {@link java.io.Closeable}
+ * {@link java.util.Iterator} which contains no objects. This is
+ * achieved by forcing the {@link java.util.Iterator#hasNext()} method
+ * to always return false.
  *
- * @param <T> the type of items in the iterable.
+ * @param <T> the type of items in the iterator.
  */
-public interface CloseableIterable<T> extends Iterable<T>, Closeable {
+public class EmptyIterator<T> implements Closeable, Iterator<T> {
     @Override
-    void close();
+    public void close() {
+    }
 
     @Override
-    CloseableIterator<T> iterator();
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public T next() {
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 }

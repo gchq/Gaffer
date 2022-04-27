@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Lists;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -106,19 +106,19 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Check there are some operations
         if (null == getWalks.getOperations()) {
-            return new EmptyClosableIterable<>();
+            return new EmptyIterable<>();
         }
 
         final Integer resultLimit = getWalks.getResultsLimit();
         final int hops = getWalks.getNumberOfGetEdgeOperations();
 
 
-        final LimitedCloseableIterable limitedInputItr = new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false);
+        final LimitedIterable limitedInputItr = new LimitedIterable<>(getWalks.getInput(), 0, resultLimit, false);
         final List<EntityId> originalInput = Lists.newArrayList(limitedInputItr);
 
         // Check hops and maxHops (if set)
         if (hops == 0) {
-            return new EmptyClosableIterable<>();
+            return new EmptyIterable<>();
         } else if (maxHops != null && hops > maxHops) {
             throw new OperationException("GetWalks operation contains " + hops + " hops. The maximum number of hops is: " + maxHops);
         }
@@ -278,7 +278,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Execute an the operation chain on the supplied store and cache
         // the seeds in memory using an ArrayList.
-        return new LimitedCloseableIterable<>(store.execute(convertedOp, context), 0, resultLimit, false);
+        return new LimitedIterable<>(store.execute(convertedOp, context), 0, resultLimit, false);
     }
 
     private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue, final int hops, final boolean includePartial) {

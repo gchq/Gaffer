@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -33,12 +35,13 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class ToMapHandlerTest {
 
+    @SuppressWarnings({"unchecked"})
     @Test
-    public void shouldConvertElementToMap() throws OperationException {
+    public void shouldConvertElementToMap(@Mock final ToMap operation) throws OperationException {
         // Given
         final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
                 .vertex(1)
@@ -55,27 +58,23 @@ public class ToMapHandlerTest {
                 .destination("destination")
                 .build();
 
-        final Iterable originalResults = new WrappedCloseableIterable<>(Collections.singleton(entity));
+        final Iterable<Entity> originalResults = Collections.singleton(entity);
         final ToMapHandler handler = new ToMapHandler();
-        final ToMap operation = mock(ToMap.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn(Iterable.class.cast(originalResults));
         given(operation.getElementGenerator()).willReturn(generator);
 
         // When
-        final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
+        final Iterable<? extends Map<?, ?>> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertThat(results)
-                .asInstanceOf(InstanceOfAssertFactories.iterable(Map.class))
-                .containsExactly(originalMap);
+        assertThat(results).asInstanceOf(InstanceOfAssertFactories.iterable(Map.class)).containsExactly(originalMap);
     }
 
     @Test
-    public void shouldHandleNullInput() throws OperationException {
+    public void shouldHandleNullInput(@Mock final ToMap operation) throws OperationException {
         // Given
         final ToMapHandler handler = new ToMapHandler();
-        final ToMap operation = mock(ToMap.class);
 
         given(operation.getInput()).willReturn(null);
 

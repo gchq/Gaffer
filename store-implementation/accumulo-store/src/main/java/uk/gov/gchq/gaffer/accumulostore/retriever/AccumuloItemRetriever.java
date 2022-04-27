@@ -29,9 +29,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -40,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.Closeable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,16 +46,22 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters, I_ITEM>
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+public abstract class AccumuloItemRetriever<OP extends Output<Iterable<? extends Element>> & GraphFilters, I_ITEM>
         extends AccumuloRetriever<OP, Element> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
     protected final boolean includeMatchedVertex;
     private final Iterable<? extends I_ITEM> ids;
 
+    @SuppressWarnings("unchecked")
     protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
                                     final User user, final boolean includeMatchedVertex,
-                                    final IteratorSetting... iteratorSettings) throws StoreException {
+                                    final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, iteratorSettings);
         this.includeMatchedVertex = includeMatchedVertex;
         this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
@@ -68,19 +73,19 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
      * @return a closeable iterator of items.
      */
     @Override
-    public CloseableIterator<Element> iterator() {
+    public Iterator<Element> iterator() {
         CloseableUtil.close(iterator);
 
-        final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Collections.emptyIterator();
+        final Iterator<? extends I_ITEM> idIterator = nonNull(ids) ? ids.iterator() : Collections.emptyIterator();
         if (!idIterator.hasNext()) {
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
 
         try {
             iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
             LOGGER.error("{} returning empty iterator", e.getMessage(), e);
-            return new EmptyCloseableIterator<>();
+            return new EmptyIterator<>();
         }
 
         return iterator;
@@ -88,7 +93,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
 
     protected abstract void addToRanges(final I_ITEM seed, final Set<Range> ranges) throws RangeFactoryException;
 
-    protected class ElementIterator implements CloseableIterator<Element> {
+    protected class ElementIterator implements Iterator<Element>, Closeable {
         private final Iterator<? extends I_ITEM> idsIterator;
         private int count;
         private BatchScanner scanner;
@@ -113,8 +118,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
             try {
                 scanner = getScanner(ranges);
             } catch (final Exception e) {
-                CloseableUtil.close(idsIterator);
-                CloseableUtil.close(ids);
+                CloseableUtil.close(idsIterator, ids);
                 throw new RetrieverException(e);
             }
             scannerIterator = scanner.iterator();
@@ -123,7 +127,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
         @Override
         public boolean hasNext() {
             // If current scanner has next then return true.
-            if (null != nextElm) {
+            if (nonNull(nextElm)) {
                 return true;
             }
             while (scannerIterator.hasNext()) {
@@ -134,8 +138,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                             entry.getValue(),
                             includeMatchedVertex);
                 } catch (final AccumuloElementConversionException e) {
-                    LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
-                            e);
+                    LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null", e);
                     continue;
                 }
                 doTransformation(nextElm);
@@ -171,7 +174,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                 scannerIterator = scanner.iterator();
             }
             if (!scannerIterator.hasNext()) {
-                scanner.close();
+                CloseableUtil.close(scanner);
                 return false;
             } else {
                 return hasNext();
@@ -180,12 +183,12 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
 
         @Override
         public Element next() {
-            if (null == nextElm) {
+            if (isNull(nextElm)) {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
             }
-            Element nextReturn = nextElm;
+            final Element nextReturn = nextElm;
             nextElm = null;
             return nextReturn;
         }
@@ -197,9 +200,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
 
         @Override
         public void close() {
-            if (null != scanner) {
-                scanner.close();
-            }
+            CloseableUtil.close(scanner);
         }
     }
 }

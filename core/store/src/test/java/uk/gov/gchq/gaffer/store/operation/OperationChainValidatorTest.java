@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -43,90 +43,91 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class OperationChainValidatorTest {
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateValidOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements.Builder()
-                        .input(new EmptyClosableIterable<>())
+                        .input(new EmptyIterable<>())
                         .build(),
                 new GetElements.Builder()
-                        .input(new EmptyClosableIterable<>())
+                        .input(new EmptyIterable<>())
                         .build(),
                 new ToVertices(),
-                new GetAdjacentIds()
-        )), true);
+                new GetAdjacentIds())), true);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldInValidateNullElementDef() {
         // Given
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
         final Store store = mock(Store.class);
-        Schema schema = mock(Schema.class);
+        final Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
         given(schema.getElement(Mockito.anyString())).willReturn(null);
 
-        Max max = new Max();
+        final Max max = new Max();
         max.setComparators(Lists.newArrayList(new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
                 .property("property")
                 .build()));
 
-        ValidationResult validationResult = new ValidationResult();
+        final ValidationResult validationResult = new ValidationResult();
 
         // When
         validator.validateComparables(max, null, store, validationResult);
 
         // Then
-        assertEquals(false, validationResult.isValid());
-        Set<String> errors = validationResult.getErrors();
+        assertThat(validationResult.isValid()).isFalse();
+        final Set<String> errors = validationResult.getErrors();
         assertThat(errors).hasSize(1);
-        errors.contains(Max.class.getName()
-                + " references BasicEntity group that does not exist in the schema");
+        errors.contains(String.format("%s references BasicEntity group that does not exist in the schema", Max.class.getName()));
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateOperationChainThatCouldBeValidBasedOnGenerics() {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements.Builder()
-                        .input(new EmptyClosableIterable<>())
+                        .input(new EmptyIterable<>())
                         .build(),
                 new GetElements.Builder()
-                        .input(new EmptyClosableIterable<>())
+                        .input(new EmptyIterable<>())
                         .build(),
                 new ToVertices(),
                 new GenerateObjects.Builder<>()
                         .generator(e -> e)
                         .build(),
-                new GetAdjacentIds()
-        )), true);
+                new GetAdjacentIds())), true);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateExportOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
                 new GetElements.Builder()
-                        .input(new EmptyClosableIterable<>())
+                        .input(new EmptyIterable<>())
                         .build(),
                 new ExportToSet<>(),
                 new DiscardOutput(),
                 new GetElements.Builder()
-                        .input(new EmptyClosableIterable<>())
+                        .input(new EmptyIterable<>())
                         .build(),
                 new ExportToSet<>(),
                 new DiscardOutput(),
-                new GetExports()
-        )), true);
+                new GetExports())), true);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateInvalidExportOperationChainWithoutDiscardOperation() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -136,10 +137,11 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new ExportToSet<>(),
                 // new DiscardOutput(),
-                new GetExports()   // No input
+                new GetExports() // No input
         )), false);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateInvalidOperationChainIterableNotAssignableFromMap() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -154,6 +156,7 @@ public class OperationChainValidatorTest {
         )), false);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldValidateInvalidOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
@@ -161,19 +164,20 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new ToVertices(),
                 new GetElements(),
-                new Max(),          // Output is an Element
-                new GetElements()   // Input is an Iterable
+                new Max(), // Output is an Element
+                new GetElements() // Input is an Iterable
         )), false);
     }
 
+    @SuppressWarnings({"rawtypes"})
     @Test
     public void shouldNotValidateInvalidOperationChain() {
 
-        //Given
-        Operation operation = Mockito.mock(Operation.class);
+        // Given
+        final Operation operation = Mockito.mock(Operation.class);
         given(operation.validate()).willReturn(new ValidationResult("SparkContext is required"));
 
-        OperationChain opChain = new OperationChain(operation);
+        final OperationChain opChain = new OperationChain(operation);
 
         // When
         validateOperationChain(opChain, false);
@@ -199,6 +203,6 @@ public class OperationChainValidatorTest {
         final ValidationResult validationResult = validator.validate(opChain, user, store);
 
         // Then
-        assertEquals(expectedResult, validationResult.isValid());
+        assertThat(validationResult.isValid()).isEqualTo(expectedResult);
     }
 }

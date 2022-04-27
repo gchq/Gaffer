@@ -24,17 +24,20 @@
         <version>2.0.0-alpha-1.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>accumulo-2-store</artifactId>
+    <artifactId>accumulo-2</artifactId>
+    <packaging>pom</packaging>
 
     <modules>
         <module>hdfs-3-library</module>
-        <module>spark</module>
+        <module>spark-2</module>
         <module>accumulo-2-store</module>
     </modules>
 
     <properties>
+        <spark.minor.2.version>3.2</spark.minor.2.version>
+        <spark.2.version>${spark.minor.2.version}.1</spark.2.version>
         <scala.minor.2.version>2.12</scala.minor.2.version>
-        <scala.2.version>${scala.minor.version}.15</scala.2.version>
+        <scala.2.version>${scala.minor.2.version}.15</scala.2.version>
         <accumulo.2.version>2.0.1</accumulo.2.version>
         <hadoop.3.version>3.3.2</hadoop.3.version>
     </properties>

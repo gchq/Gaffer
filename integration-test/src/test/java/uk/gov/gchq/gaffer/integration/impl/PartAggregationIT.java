@@ -23,7 +23,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -58,11 +57,10 @@ public class PartAggregationIT extends AbstractStoreIT {
 
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
-        //When
-        final CloseableIterable<? extends Element> elements = graph.execute(
-                new GetAllElements(), getUser());
+        // When
+        final Iterable<? extends Element> elements = graph.execute(new GetAllElements(), getUser());
 
-        //Then
+        // Then
         final List<Element> resultElements = Lists.newArrayList(elements);
         final List<Element> expectedElements = new ArrayList<>();
         getEntities().values().forEach(e -> {
@@ -128,8 +126,8 @@ public class PartAggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.QUERY_AGGREGATION)
     @Test
     public void shouldAggregateOnlyRequiredGroupsWithQueryTimeAggregation() throws OperationException {
-        //When
-        final CloseableIterable<? extends Element> elements = graph.execute(
+        // When
+        final Iterable<? extends Element> elements = graph.execute(
                 new GetAllElements.Builder()
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -151,9 +149,10 @@ public class PartAggregationIT extends AbstractStoreIT {
                                         .groupBy()
                                         .build())
                                 .build())
-                        .build(), getUser());
+                        .build(),
+                getUser());
 
-        //Then
+        // Then
         final List<Element> resultElements = Lists.newArrayList(elements);
         final List<Element> expectedElements = new ArrayList<>();
         getEntities().values().forEach(e -> {
@@ -168,6 +167,7 @@ public class PartAggregationIT extends AbstractStoreIT {
                     .build();
             clone.copyProperties(e.getProperties());
             clone.putProperty(TestPropertyNames.COUNT, 4L);
+            @SuppressWarnings({"rawtypes", "unchecked"})
             final TreeSet<String> treeSet = new TreeSet<>(((TreeSet) e.getProperty(TestPropertyNames.SET)));
             treeSet.add("a different string");
             clone.putProperty(TestPropertyNames.SET, treeSet);
