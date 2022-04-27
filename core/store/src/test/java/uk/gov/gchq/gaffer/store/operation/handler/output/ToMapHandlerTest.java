@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -40,8 +41,8 @@ public class ToMapHandlerTest {
     public void shouldConvertElementToMap() throws OperationException {
         // Given
         final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
-                                                  .vertex(1)
-                                                  .build();
+                .vertex(1)
+                .build();
 
         final Map<String, Object> originalMap = new HashMap<>(1);
         originalMap.put("group", TestGroups.ENTITY);
@@ -61,11 +62,13 @@ public class ToMapHandlerTest {
         given(operation.getInput()).willReturn(originalResults);
         given(operation.getElementGenerator()).willReturn(generator);
 
-        //When
+        // When
         final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
-        assertThat(results).containsExactly(originalMap);
+        // Then
+        assertThat(results)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Map.class))
+                .containsExactly(originalMap);
     }
 
     @Test
@@ -76,10 +79,10 @@ public class ToMapHandlerTest {
 
         given(operation.getInput()).willReturn(null);
 
-        //When
+        // When
         final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).isNull();
     }
 }

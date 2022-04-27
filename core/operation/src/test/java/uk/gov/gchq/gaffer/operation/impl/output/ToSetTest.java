@@ -37,6 +37,7 @@ public class ToSetTest extends OperationTest<ToSet> {
 
         // Then
         assertThat(toSet.getInput())
+                .asList()
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

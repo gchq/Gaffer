@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "string",
+      "properties": {
+        "freqMap": "freqMapProperty",
+        "hllpp": "hyperLogLogPlus",
+        "myProperty": "myProperty"
+      },
+      "aggregate": false
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "string",
+      "destination": "string",
+      "directed": "directed.either",
+      "properties": {
+        "freqMap": "freqMapProperty",
+        "hllpp": "hyperLogLogPlus",
+        "myProperty": "myProperty"
+      },
+      "aggregate": false
+    }
+  }
+}

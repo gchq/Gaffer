@@ -34,6 +34,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
 
         // Then
         assertThat(toArray.getInput())
+                .asList()
                 .hasSize(2)
                 .containsOnly("1", "2");
     }
@@ -47,7 +48,7 @@ public class ToArrayTest extends OperationTest<ToArray> {
                 .input(input)
                 .build();
 
-        //When
+        // When
         final ToArray clone = toArray.shallowClone();
 
         // Then

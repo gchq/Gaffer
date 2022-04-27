@@ -1,0 +1,11 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "timestamp": "timestamp"
+      },
+      "aggregate": "false"
+    }
+  }
+}

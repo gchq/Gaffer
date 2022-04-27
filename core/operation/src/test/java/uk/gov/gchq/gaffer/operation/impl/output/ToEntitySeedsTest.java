@@ -34,6 +34,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
 
         // Then
         assertThat(toEntitySeeds.getInput())
+                .asList()
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

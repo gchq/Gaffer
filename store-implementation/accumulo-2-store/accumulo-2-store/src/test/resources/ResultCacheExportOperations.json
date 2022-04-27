@@ -1,0 +1,22 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.operation.export.resultcache.handler.ExportToGafferResultCacheHandler",
+        "graphId": "resultCacheGraph",
+        "timeToLive": 86400000,
+        "storePropertiesPath": "cache-store.properties"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.operation.export.resultcache.handler.GetGafferResultCacheExportHandler",
+        "graphId": "resultCacheGraph",
+        "timeToLive": 86400000,
+        "storePropertiesPath": "cache-store.properties"
+      }
+    }
+  ]
+}
