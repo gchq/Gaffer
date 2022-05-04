@@ -47,6 +47,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
@@ -168,9 +169,9 @@ public class FederatedStoreGetTraitsTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> federatedStore.execute(getTraits, new Context(nullUser)))
                 .withMessage("User is required");
-        assertEquals(0, federatedStore.execute(getTraits, new Context(testUser)).size());
-        assertEquals(0, federatedStore.execute(getTraits, new Context(authUser)).size());
-        assertEquals(0, federatedStore.execute(getTraits, new Context(blankUser)).size());
+        assertNull(federatedStore.execute(getTraits, new Context(testUser)));
+        assertNull( federatedStore.execute(getTraits, new Context(authUser)));
+        assertNull( federatedStore.execute(getTraits, new Context(blankUser)));
     }
 
     @Test
@@ -178,10 +179,6 @@ public class FederatedStoreGetTraitsTest {
         //given
         Set<StoreTrait> mapTraits = map.getGraph().getStoreTraits();
         Set<StoreTrait> accTraits = acc.getGraph().getStoreTraits();
-        getTraits.setCurrentTraits(false);
-        Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
-        Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);
-
         getTraits.setCurrentTraits(false);
         Set<StoreTrait> mapTraitsOperation = map.getGraph().execute(getTraits, testUser);
         Set<StoreTrait> accTraitsOperation = acc.getGraph().execute(getTraits, testUser);

@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -393,7 +394,7 @@ public class FederatedStoreTest {
                 .build());
 
         //When
-        final Set<StoreTrait> before = store.getTraits(getTraits, userContext);
+        final ChainedIterable<StoreTrait> before = (ChainedIterable<StoreTrait>) store.execute(getTraits, userContext);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         store.execute(new AddGraph.Builder()
@@ -429,7 +430,7 @@ public class FederatedStoreTest {
                 StoreTrait.TRANSFORMATION,
                 StoreTrait.POST_TRANSFORMATION_FILTERING,
                 StoreTrait.MATCHED_VERTEX)));
-        assertEquals(Collections.emptySet(), before, "No traits should be found for an empty FederatedStore");
+        assertFalse(before.iterator().hasNext(), "No traits should be found for an empty FederatedStore");
         assertEquals(Sets.newHashSet(
                 TRANSFORMATION,
                 PRE_AGGREGATION_FILTERING,

@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
-import uk.gov.gchq.koryphe.impl.function.IterableFlatten;
 
 import java.util.Set;
 
@@ -44,7 +43,7 @@ public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTrai
             return (Set<StoreTrait>) store.execute(
                     new FederatedOperation.Builder()
                             .op(operation)
-                            .mergeFunction(new IterableFlatten(new CollectionIntersect()))
+                            .mergeFunction(new FederatedIterableFlatten(new CollectionIntersect()))
                             .graphIds(getDeprecatedGraphIds(operation)) // deprecate this line.
                             .build(), context);
         } catch (final Exception e) {
