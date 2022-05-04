@@ -170,8 +170,8 @@ public class FederatedStoreGetTraitsTest {
                 .isThrownBy(() -> federatedStore.execute(getTraits, new Context(nullUser)))
                 .withMessage("User is required");
         assertNull(federatedStore.execute(getTraits, new Context(testUser)));
-        assertNull( federatedStore.execute(getTraits, new Context(authUser)));
-        assertNull( federatedStore.execute(getTraits, new Context(blankUser)));
+        assertNull(federatedStore.execute(getTraits, new Context(authUser)));
+        assertNull(federatedStore.execute(getTraits, new Context(blankUser)));
     }
 
     @Test
