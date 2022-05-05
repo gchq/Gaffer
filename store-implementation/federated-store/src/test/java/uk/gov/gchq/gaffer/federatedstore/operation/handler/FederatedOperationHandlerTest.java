@@ -18,16 +18,15 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+//TODO FS Remove Gaffer.ChainedIterable
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -62,6 +61,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -80,10 +80,10 @@ public class FederatedOperationHandlerTest {
     private User testUser;
     private Context context;
 
-    CloseableIterable<Element> output1 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().vertex("a").build()));
-    CloseableIterable<Element> output2 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().vertex("b").build()));
-    CloseableIterable<Element> output3 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().vertex("c").build()));
-    CloseableIterable<Element> output4 = new WrappedCloseableIterable<>(Lists.newArrayList(new Entity.Builder().vertex("b").build()));
+    Iterable<Element> output1 = Lists.newArrayList(new Entity.Builder().vertex("a").build());
+    Iterable<Element> output2 = Lists.newArrayList(new Entity.Builder().vertex("b").build());
+    Iterable<Element> output3 = Lists.newArrayList(new Entity.Builder().vertex("c").build());
+    Iterable<Element> output4 = Lists.newArrayList(new Entity.Builder().vertex("b").build());
     private Store mockStore1;
     private Store mockStore2;
     private Store mockStore3;
@@ -111,7 +111,7 @@ public class FederatedOperationHandlerTest {
         graph4 = getGraphWithMockStore(mockStore4);
     }
 
-    private Output<CloseableIterable<? extends Element>> getPayload() {
+    private Output<Iterable<? extends Element>> getPayload() {
         return new GetAllElements.Builder().build();
     }
 
@@ -127,7 +127,7 @@ public class FederatedOperationHandlerTest {
         when(federatedStore.getDefaultMergeFunction()).thenReturn(new IterableConcat());
 
         // When
-        CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+        Iterable<? extends Element> results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
 
         assertNotNull(results);
         validateMergeResultsFromFieldObjects(results, output1, output2, output3, output4);
@@ -147,7 +147,7 @@ public class FederatedOperationHandlerTest {
         given(federatedStore.getDefaultMergeFunction()).willReturn(new IterableConcat());
 
         // When
-        CloseableIterable<? extends Element> results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+        Iterable<? extends Element> results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
 
         assertNotNull(results);
         validateMergeResultsFromFieldObjects(results, output1, output3);
@@ -197,7 +197,7 @@ public class FederatedOperationHandlerTest {
 
         // When
         try {
-            CloseableIterable<? extends Element> ignore = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+            Iterable<? extends Element> ignore = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
             fail("Exception Not thrown");
         } catch (OperationException e) {
             assertEquals(FederatedOperationHandler.ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e.getMessage());
@@ -226,10 +226,10 @@ public class FederatedOperationHandlerTest {
         when(federatedStore.getDefaultMergeFunction()).thenReturn(new IterableConcat());
 
         // When
-        CloseableIterable<? extends Element> results = null;
+        Iterable<? extends Element> results = null;
 
         try {
-            results = new FederatedOperationHandler<Void, CloseableIterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+            results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
         } catch (OperationException e) {
             fail("Store with error should have been skipped.");
         }
@@ -307,7 +307,7 @@ public class FederatedOperationHandlerTest {
     @Test
     public void shouldReturnEmptyOutputOfTypeIterableWhenResultsIsNull() throws Exception {
         // Given
-        Output<CloseableIterable<? extends Element>> payload = getPayload();
+        Output<Iterable<? extends Element>> payload = getPayload();
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -323,14 +323,16 @@ public class FederatedOperationHandlerTest {
         final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
 
         // Then
-        assertNotNull(results);
-        assertEquals(Lists.newArrayList((Iterable) new ChainedIterable<>(new ArrayList<>(0))), Lists.newArrayList((Iterable) results));
+        assertThat(results)
+                .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly(0);
     }
 
     @Test
     public void shouldReturnNulledOutputOfTypeIterableWhenResultsContainsOnlyNull() throws Exception {
         // Given
-        Output<CloseableIterable<? extends Element>> payload = getPayload();
+        Output<Iterable<? extends Element>> payload = getPayload();
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -346,11 +348,13 @@ public class FederatedOperationHandlerTest {
         final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
 
         // Then
-        assertNotNull(results);
-        assertEquals(Lists.newArrayList((Iterable) new ChainedIterable<>(Lists.newArrayList((Object) null))), Lists.newArrayList((Iterable) results));
+        assertThat(results)
+                .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly(null);
     }
 
-    protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result, final CloseableIterable<? extends Element>... resultParts) {
+    protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result, final Iterable<? extends Element>... resultParts) {
         assertNotNull(result);
         final Iterable[] resultPartItrs = Arrays.copyOf(resultParts, resultParts.length, Iterable[].class);
         final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
@@ -360,7 +364,7 @@ public class FederatedOperationHandlerTest {
             elements.contains(e);
             i++;
         }
-        assertEquals(elements.size(), i);
+        assertThat(elements).hasSize(i);
         return true;
     }
 
@@ -385,8 +389,10 @@ public class FederatedOperationHandlerTest {
         final Object results = function.apply(input);
 
         // Then
-        assertEquals(new IterableConcat<>(), function);
-        assertEquals(Arrays.asList(1, 2, 3, null, 4, null, 5), Lists.newArrayList((Iterable) results));
+        assertThat(function).isEqualTo(new IterableConcat<>());
+        assertThat(results).isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly(1, 2, 3, null, 4, null, 5);
     }
 
 }

@@ -41,6 +41,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
+import org.apache.spark.util.TaskCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +145,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             iteratorAfterIterators = applyIterator(iteratorAfterIterators, is);
         }
 
-        taskContext.addTaskCompletionListener(context -> close());
+        taskContext.addTaskCompletionListener((TaskCompletionListener) context -> close());
 
         final Range range = new Range(accumuloTablet.getStartRow(), true, accumuloTablet.getEndRow(), false);
         iteratorAfterIterators.seek(range, requiredColumnFamilies, true);

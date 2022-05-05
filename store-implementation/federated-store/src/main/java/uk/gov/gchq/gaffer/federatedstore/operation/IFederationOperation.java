@@ -24,7 +24,7 @@ import uk.gov.gchq.koryphe.Since;
 
 /**
  * {@link IFederationOperation} interface is for special operations used to configure/manipulate/control federation.
- * It has no inteded function outside of federation and should only be handled by the {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
+ * It has no intended function outside of federation and should only be handled by the {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
 @Since("2.0.0")
 public interface IFederationOperation extends Operation {

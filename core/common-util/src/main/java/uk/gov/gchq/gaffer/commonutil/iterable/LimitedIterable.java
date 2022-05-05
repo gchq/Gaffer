@@ -18,37 +18,34 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+
+import java.io.Closeable;
+import java.util.Iterator;
+
 /**
- * A {@code LimitedCloseableIterable} is an {@link java.lang.Iterable} which is limited to
- * a maximum size.
+ * A {@code LimitedIterable} is a {@link java.io.Closeable}
+ * {@link java.lang.Iterable} which is limited to a maximum size.
  *
  * @param <T> the type of items in the iterable.
  */
-public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
-    private final CloseableIterable<T> iterable;
+public class LimitedIterable<T> implements Closeable, Iterable<T> {
+    private final Iterable<T> iterable;
     private final int start;
     private final Integer end;
     private final Boolean truncate;
 
-    public LimitedCloseableIterable(final Iterable<T> iterable, final int start, final Integer end) {
-        this(new WrappedCloseableIterable<>(iterable), start, end);
-    }
-
-    public LimitedCloseableIterable(final Iterable<T> iterable, final int start, final Integer end, final Boolean truncate) {
-        this(new WrappedCloseableIterable<>(iterable), start, end, truncate);
-    }
-
-    public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final Integer end) {
+    public LimitedIterable(final Iterable<T> iterable, final int start, final Integer end) {
         this(iterable, start, end, true);
     }
 
-    public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final Integer end, final Boolean truncate) {
+    public LimitedIterable(final Iterable<T> iterable, final int start, final Integer end, final Boolean truncate) {
         if (null != end && start > end) {
             throw new IllegalArgumentException("The start pointer must be less than the end pointer.");
         }
 
         if (null == iterable) {
-            this.iterable = new EmptyClosableIterable<>();
+            this.iterable = new EmptyIterable<>();
         } else {
             this.iterable = iterable;
         }
@@ -71,11 +68,11 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
 
     @Override
     public void close() {
-        iterable.close();
+        CloseableUtil.close(iterable);
     }
 
     @Override
-    public CloseableIterator<T> iterator() {
-        return new LimitedCloseableIterator<>(iterable.iterator(), start, end, truncate);
+    public Iterator<T> iterator() {
+        return new LimitedIterator<>(iterable.iterator(), start, end, truncate);
     }
 }

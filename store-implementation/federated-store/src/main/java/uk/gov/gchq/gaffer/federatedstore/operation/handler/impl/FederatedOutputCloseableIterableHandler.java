@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -39,11 +37,11 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
-public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends CloseableIterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
-        implements OutputOperationHandler<PAYLOAD, CloseableIterable<? extends ITERABLE_ELEMENTS>> {
+public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
+        implements OutputOperationHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
 
     @Override
-    public CloseableIterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
 
         Iterable<? extends ITERABLE_ELEMENTS> results;
 
@@ -56,17 +54,6 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         }
         operation.setOptions(federatedOperation.getOptions());
 
-
-        CloseableIterable<? extends ITERABLE_ELEMENTS> rtn;
-        if (isNull(results)) {
-            rtn = new EmptyClosableIterable<>();
-        } else if (results instanceof uk.gov.gchq.koryphe.iterable.CloseableIterable) {
-            //Hack for duplicated and @Deprecated CloseableIterable in Koryphe uk.gov.gchq.koryphe.iterable.CloseableIterable
-            rtn = new WrappedCloseableIterable<>(((uk.gov.gchq.koryphe.iterable.CloseableIterable) results).iterator());
-        } else {
-            rtn = new WrappedCloseableIterable<>(results);
-        }
-
-        return rtn;
+        return isNull(results) ? new EmptyIterable<>() : results;
     }
 }

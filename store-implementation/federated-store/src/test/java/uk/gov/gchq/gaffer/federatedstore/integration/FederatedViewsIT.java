@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -39,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.PublicAccessPredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
@@ -53,16 +52,13 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
     public static final String BASIC_EDGE = "BasicEdge";
     public static final String BASIC_ENTITY = "BasicEntity";
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
-    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(
-            StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedViewsIT.class, "properties/singleUseAccumuloStore.properties"));
 
     @Override
     protected Schema createSchema() {
         final Schema.Builder schemaBuilder = new Schema.Builder(AbstractStoreIT.createDefaultSchema());
-        schemaBuilder.edges(Collections.EMPTY_MAP);
-        schemaBuilder.entities(Collections.EMPTY_MAP);
+        schemaBuilder.edges(Collections.emptyMap());
+        schemaBuilder.entities(Collections.emptyMap());
         schemaBuilder.json(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEdgeSchema.json"));
         schemaBuilder.json(StreamUtil.openStream(FederatedViewsIT.class, "schema/basicEntitySchema.json"));
         return schemaBuilder.build();
@@ -71,7 +67,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
     @Test
     public void shouldBeEmptyAtStart() throws OperationException {
 
-        final CloseableIterable<? extends Element> edges = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> edges = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .build())
@@ -79,7 +75,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         assertThat(edges.iterator().hasNext()).isFalse();
 
-        final CloseableIterable<? extends Element> entities = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> entities = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(BASIC_ENTITY)
                         .build())
@@ -99,7 +95,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEdge();
 
-        final CloseableIterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .build())
@@ -119,7 +115,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEntity();
 
-        final CloseableIterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(BASIC_ENTITY)
                         .build())
@@ -139,7 +135,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEdge();
 
-        final CloseableIterable<? extends Element> rtn = (CloseableIterable<? extends Element>) graph.execute(getFederatedOperation(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(getFederatedOperation(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .build())
@@ -160,7 +156,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEntity();
 
-        final CloseableIterable<? extends Element> rtn = (CloseableIterable<? extends Element>) graph.execute(getFederatedOperation(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(getFederatedOperation(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(BASIC_ENTITY)
                         .build())
@@ -181,20 +177,19 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEdge();
 
-        try {
-            final Object rtn = graph.execute(getFederatedOperation(new GetAllElements.Builder()
-                    .view(new View.Builder()
-                            .edge(BASIC_EDGE)
-                            .build())
-                    .build()).graphIdsCSV(ACCUMULO_GRAPH_WITH_ENTITIES), user);
-            fail("exception expected");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n" +
-                    "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema");
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> graph.execute(getFederatedOperation(new GetAllElements.Builder()
+                        .view(new View.Builder()
+                                .edge(BASIC_EDGE)
+                                .build())
+                        .build())
+                        .graphIdsCSV(ACCUMULO_GRAPH_WITH_ENTITIES), user))
+                .withMessage("Operation chain is invalid. Validation errors: \n" +
+                        "View is not valid for graphIds:[AccumuloStoreContainingEntities]\n" +
+                        "(graphId: AccumuloStoreContainingEntities) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
+                        "(graphId: AccumuloStoreContainingEntities) Edge group BasicEdge does not exist in the schema");
     }
+
 
     /**
      * Federation acts as a Edge graph with a view of Entity
@@ -206,19 +201,18 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
 
         addBasicEntity();
 
-        try {
-            final Object rtn = graph.execute(FederatedStoreUtil.<GetAllElements>getFederatedOperation(new GetAllElements.Builder()
-                    .view(new View.Builder()
-                            .entity(BASIC_ENTITY)
-                            .build())
-                    .build()).graphIdsCSV(ACCUMULO_GRAPH_WITH_EDGES), user);
-            fail("exception expected");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Operation chain is invalid. Validation errors: \n" +
-                    "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n" +
-                    "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
-                    "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema");
-        }
+        assertThatExceptionOfType(Exception.class)
+                .isThrownBy(() -> graph.execute(FederatedStoreUtil.<GetAllElements>getFederatedOperation(new GetAllElements.Builder()
+                                .view(new View.Builder()
+                                        .entity(BASIC_ENTITY)
+                                        .build())
+                                .build())
+                        .graphIdsCSV(ACCUMULO_GRAPH_WITH_EDGES), user))
+
+                .withMessage("Operation chain is invalid. Validation errors: \n" +
+                        "View is not valid for graphIds:[AccumuloStoreContainingEdges]\n" +
+                        "(graphId: AccumuloStoreContainingEdges) View for operation uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation is not valid. \n" +
+                        "(graphId: AccumuloStoreContainingEdges) Entity group BasicEntity does not exist in the schema");
     }
 
     /**
@@ -231,7 +225,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
         addBasicEntity();
         addBasicEdge();
 
-        final CloseableIterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .entity(BASIC_ENTITY)
@@ -264,7 +258,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                         .build()))
                 .build(), user);
 
-        final CloseableIterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE)
                         .edge(BASIC_EDGE + 2)
@@ -297,7 +291,7 @@ public class FederatedViewsIT extends AbstractStandaloneFederatedStoreIT {
                         .build()))
                 .build(), user);
 
-        final CloseableIterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
+        final Iterable<? extends Element> rtn = graph.execute(new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(BASIC_ENTITY)
                         .entity(BASIC_ENTITY + 2)

@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEdgeValueLoader;
 import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEntityValueLoader;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.ElementFilterException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -45,12 +46,16 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static java.util.Objects.isNull;
 
 /**
  * The AbstractElementFilter will filter out {@link Element}s based on the filtering
@@ -106,8 +111,10 @@ public abstract class AbstractElementFilter extends Filter {
                     .getConstructor(Schema.class)
                     .newInstance(schema);
             LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
-        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+        } catch (final ClassNotFoundException | InstantiationException |
+                       IllegalAccessException | IllegalArgumentException
+                       | InvocationTargetException | NoSuchMethodException |
+                       SecurityException e) {
             throw new ElementFilterException("Failed to create element converter of the class name provided ("
                     + elementConverterClass + ")", e);
         }
@@ -117,7 +124,7 @@ public abstract class AbstractElementFilter extends Filter {
             elementPredicate = new ElementValidator(schema, false)::validateWithSchema;
         } else {
             final String viewJson = options.get(AccumuloStoreConstants.VIEW);
-            if (null == viewJson) {
+            if (isNull(viewJson)) {
                 throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
             }
             final View view = View.fromJson(StringUtil.toBytes(viewJson));
@@ -164,20 +171,34 @@ public abstract class AbstractElementFilter extends Filter {
 
     private void updateViewGroupsWithoutFilters(final View view, final Function<ViewElementDefinition, Boolean> hasFilters) {
         groupsWithoutFilters = new HashSet<>();
-        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet())) {
-            if (null == entry.getValue() || !hasFilters.apply(entry.getValue())) {
-                groupsWithoutFilters.add(entry.getKey());
+
+        ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
+        try {
+            chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(Arrays.asList(view.getEntities().entrySet(), view.getEdges().entrySet()));
+            for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
+                if (isNull(entry.getValue()) || !hasFilters.apply(entry.getValue())) {
+                    groupsWithoutFilters.add(entry.getKey());
+                }
             }
+        } finally {
+            CloseableUtil.close(chainedIterable);
         }
         LOGGER.debug("The following groups will not be filtered: {}", StringUtils.join(groupsWithoutFilters, ','));
     }
 
+    @SuppressWarnings("unchecked")
     private void updateSchemaGroupsWithoutFilters() {
         groupsWithoutFilters = new HashSet<>();
-        for (final Map.Entry<String, ? extends SchemaElementDefinition> entry : new ChainedIterable<>(schema.getEntities().entrySet(), schema.getEdges().entrySet())) {
-            if (null == entry.getValue() || !entry.getValue().hasValidation()) {
-                groupsWithoutFilters.add(entry.getKey());
+        ChainedIterable<Entry<String, ? extends SchemaElementDefinition>> chainedIterable = null;
+        try {
+            chainedIterable = new ChainedIterable<Map.Entry<String, ? extends SchemaElementDefinition>>(schema.getEntities().entrySet(), schema.getEdges().entrySet());
+            for (final Map.Entry<String, ? extends SchemaElementDefinition> entry : chainedIterable) {
+                if (isNull(entry.getValue()) || !entry.getValue().hasValidation()) {
+                    groupsWithoutFilters.add(entry.getKey());
+                }
             }
+        } finally {
+            CloseableUtil.close(chainedIterable);
         }
         LOGGER.debug("The following groups will not be filtered: {}", StringUtils.join(groupsWithoutFilters, ','));
     }

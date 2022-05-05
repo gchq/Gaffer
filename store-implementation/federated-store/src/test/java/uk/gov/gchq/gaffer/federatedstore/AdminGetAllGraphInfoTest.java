@@ -41,8 +41,7 @@ public class AdminGetAllGraphInfoTest {
 
     private static final String ADMIN_AUTH = "AdminAuth";
     private static final User ADMIN_USER = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
-    private static final AccumuloProperties PROPERTIES =
-            AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AdminGetAllGraphInfoTest.class, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AdminGetAllGraphInfoTest.class, "properties/singleUseAccumuloStore.properties"));
 
     private FederatedAccess access;
     private FederatedStore store;
@@ -67,7 +66,6 @@ public class AdminGetAllGraphInfoTest {
     public void shouldGetAllGraphsAndAuthsAsAdmin() throws Exception {
         final String graph1 = "graph1";
 
-        System.out.println(store.getAllGraphIds(ADMIN_USER, true));
         store.addGraphs(access, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graph1)
@@ -95,7 +93,6 @@ public class AdminGetAllGraphInfoTest {
     public void shouldNotGetAllGraphsAndAuthsAsAdmin() throws Exception {
         final String graph1 = "graph1";
 
-        System.out.println(store.getAllGraphIds(ADMIN_USER, true));
         store.addGraphs(access, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graph1)

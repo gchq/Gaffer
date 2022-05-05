@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.rest.service.v1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -66,7 +65,7 @@ public class JobService implements IJobService {
     }
 
     @Override
-    public CloseableIterable<JobDetail> details() {
+    public Iterable<JobDetail> details() {
         try {
             return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createContext());
         } catch (final OperationException e) {
@@ -88,7 +87,7 @@ public class JobService implements IJobService {
     }
 
     @Override
-    public CloseableIterable results(final String id) {
+    public Iterable results(final String id) {
         try {
             return graphFactory.getGraph().execute(
                     new GetJobResults.Builder()

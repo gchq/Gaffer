@@ -20,9 +20,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -51,10 +51,8 @@ import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class VisibilityIT extends AbstractStoreIT {
 
-    private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1")
-            .build();
-    private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2")
-            .build();
+    private static final User USER_VIS_1 = new User.Builder().dataAuth("vis1").build();
+    private static final User USER_VIS_2 = new User.Builder().dataAuth("vis2").build();
 
     @Test
     @TraitRequirement(StoreTrait.VISIBILITY)
@@ -76,7 +74,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
+        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -88,13 +86,15 @@ public class VisibilityIT extends AbstractStoreIT {
         for (final Element e : results) {
 
             // Check that all visible entities contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should be visible.").containsKey(TestTypes.VISIBILITY);
+            assertThat(e.getProperties()).as("Visibility property should be visible.")
+                    .containsKey(TestTypes.VISIBILITY);
 
             assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
                     .withFailMessage("Visibility property should contain an empty String.")
                     .isEmpty();
         }
-        iterable.close();
+
+        CloseableUtil.close(iterable);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
+        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -125,12 +125,10 @@ public class VisibilityIT extends AbstractStoreIT {
                 .hasSize(1);
 
         for (final Element e : results) {
-
             // Check that all visible entities do not contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should not be visible.").doesNotContainKey(TestTypes.VISIBILITY);
+            assertThat(e.getProperties()).as("Visibility property should not be visible.")
+                    .doesNotContainKey(TestTypes.VISIBILITY);
         }
-
-        iterable.close();
     }
 
     @Test
@@ -151,7 +149,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
+        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -163,14 +161,13 @@ public class VisibilityIT extends AbstractStoreIT {
         for (final Element e : results) {
 
             // Check that all visible entities contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should be visible.").containsKey(TestTypes.VISIBILITY);
+            assertThat(e.getProperties()).as("Visibility property should be visible.")
+                    .containsKey(TestTypes.VISIBILITY);
 
             assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
                     .withFailMessage("Visibility property should contain an empty String.")
                     .isEmpty();
         }
-
-        iterable.close();
     }
 
     @Test
@@ -190,7 +187,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, getUser());
+        final Iterable<? extends Element> iterable = graph.execute(get, getUser());
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -200,16 +197,14 @@ public class VisibilityIT extends AbstractStoreIT {
                 .hasSize(1);
 
         for (final Element e : results) {
-
             // Check that all visible entities contain the visibility property
-            assertThat(e.getProperties()).as("Visibility property should be visible.").containsKey(TestTypes.VISIBILITY);
+            assertThat(e.getProperties()).as("Visibility property should be visible.")
+                    .containsKey(TestTypes.VISIBILITY);
 
             assertThat(e.getProperties().get(TestTypes.VISIBILITY).toString())
                     .withFailMessage("Visibility property should contain an empty String.")
                     .isEmpty();
         }
-
-        iterable.close();
     }
 
     @Test
@@ -233,8 +228,8 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<? extends Element> userVis1Iterable = graph.execute(get, USER_VIS_1);
-        final CloseableIterable<? extends Element> userVis2Iterable = graph.execute(get, USER_VIS_2);
+        final Iterable<? extends Element> userVis1Iterable = graph.execute(get, USER_VIS_1);
+        final Iterable<? extends Element> userVis2Iterable = graph.execute(get, USER_VIS_2);
 
         final List<Element> userVis1Results = Lists.newArrayList(userVis1Iterable);
         final List<Element> userVis2Results = Lists.newArrayList(userVis2Iterable);
@@ -251,9 +246,6 @@ public class VisibilityIT extends AbstractStoreIT {
             assertThat(e.getProperties()
                     .get(TestTypes.VISIBILITY)).as("Visibility property should be \"vis1\"").hasToString("vis1");
         }
-
-        userVis1Iterable.close();
-        userVis2Iterable.close();
     }
 
     @Test
@@ -274,8 +266,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
-                .newHashSet("vis1", "vis2")));
+        final Iterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets.newHashSet("vis1", "vis2")));
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -286,8 +277,6 @@ public class VisibilityIT extends AbstractStoreIT {
         for (final Element e : iterable) {
             assertThat(e.getProperties()).containsKey(TestTypes.VISIBILITY);
         }
-
-        iterable.close();
     }
 
     @Test
@@ -307,8 +296,8 @@ public class VisibilityIT extends AbstractStoreIT {
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
-        final CloseableIterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
-                .newHashSet("vis1")));
+
+        final Iterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets.newHashSet("vis1")));
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -319,8 +308,6 @@ public class VisibilityIT extends AbstractStoreIT {
         for (final Element e : results) {
             assertThat(e.getProperties()).containsKey(TestTypes.VISIBILITY);
         }
-
-        iterable.close();
     }
 
     @Override

@@ -29,7 +29,7 @@ public class AlwaysValidTrue {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"test"})
-    public void shouldReturnTrueForNullAndString(String input) {
+    public void shouldReturnTrueForNullAndString(final String input) {
         final AlwaysValid<String> validator = new AlwaysValid<>();
 
         final boolean result = validator.validate(input);
@@ -40,7 +40,7 @@ public class AlwaysValidTrue {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"test"})
-    public void shouldReturnValidationResultForNullAndString(String input) {
+    public void shouldReturnValidationResultForNullAndString(final String input) {
         final AlwaysValid<String> validator = new AlwaysValid<>();
 
         final ValidationResult result = validator.validateWithValidationResult(input);

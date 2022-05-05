@@ -96,7 +96,7 @@ public class AddGraphTest extends FederationOperationTest<AddGraph> {
                 .parentPropertiesId(null)
                 .parentSchemaIds(null)
                 .schema(null)
-                .graphAuths(null)
+                .graphAuths((String) null)
                 .storeProperties(null)
                 .readAccessPredicate(READ_ACCESS_PREDICATE)
                 .writeAccessPredicate(WRITE_ACCESS_PREDICATE)

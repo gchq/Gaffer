@@ -21,11 +21,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -57,20 +55,15 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
-import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 
 public class FederatedOperationChainHandlerTest {
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
+    public static final String GRAPH_IDS = String.format("%s,%s", PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES, PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES);
 
-    public static final String GRAPH_IDS = PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES + "," + PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/accumuloStore.properties"));
-
-    private Element[] elements = new Element[]{
+    private final Element[] elements = new Element[]{
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
@@ -83,7 +76,7 @@ public class FederatedOperationChainHandlerTest {
                     .build()
     };
 
-    private Element[] elements2 = new Element[]{
+    private final Element[] elements2 = new Element[]{
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("2")
@@ -103,6 +96,7 @@ public class FederatedOperationChainHandlerTest {
         CacheServiceLoader.shutdown();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldHandleChainWithoutSpecialFederation() throws OperationException {
         // Given
@@ -126,6 +120,7 @@ public class FederatedOperationChainHandlerTest {
         ElementUtil.assertElementEquals(Collections.singletonList(elements[0]), result);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldHandleChainWithIterableOutput() throws OperationException {
         // Given
@@ -146,6 +141,7 @@ public class FederatedOperationChainHandlerTest {
         ElementUtil.assertElementEquals(Arrays.asList(elements[0], elements[1]), result);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldHandleChainWithNoOutput() throws OperationException {
         // Given
@@ -165,13 +161,13 @@ public class FederatedOperationChainHandlerTest {
         final Iterable result = (Iterable) store.execute(opChain, context);
 
         // Then
-        assertNotNull(result);
+        assertThat(result).isNotNull();
         ElementUtil.assertElementEquals(Lists.newArrayList(null, null), result);
-        final CloseableIterable<? extends Element> allElements = store.execute(new GetAllElements(), context);
-        ElementUtil.assertElementEquals(
-                Arrays.asList(elements[0], elements[1], elements2[0], elements2[1]), allElements);
+        final Iterable<? extends Element> allElements = store.execute(new GetAllElements(), context);
+        ElementUtil.assertElementEquals(Arrays.asList(elements[0], elements[1], elements2[0], elements2[1]), allElements);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldHandleChainWithLongOutput() throws OperationException {
         // Given
@@ -192,6 +188,7 @@ public class FederatedOperationChainHandlerTest {
         assertEquals(2L, result);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldHandleChainNestedInsideAnOperationChain() throws OperationException {
         // Given
@@ -211,6 +208,7 @@ public class FederatedOperationChainHandlerTest {
         ElementUtil.assertElementEquals(Arrays.asList(elements[0], elements[1]), result);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldHandleChainWithExtraLimit() throws OperationException {
         // Given
@@ -235,15 +233,6 @@ public class FederatedOperationChainHandlerTest {
         ElementUtil.assertElementEquals(Collections.singletonList(elements[0]), result);
     }
 
-    private SchemaEdgeDefinition getProp(final String propName) {
-        return new SchemaEdgeDefinition.Builder()
-                .source("string")
-                .destination("string")
-                .directed(DIRECTED_EITHER)
-                .property(propName, "string")
-                .build();
-    }
-
     private FederatedStore createStore() throws OperationException {
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -264,8 +253,7 @@ public class FederatedOperationChainHandlerTest {
                         .validateFunctions(new IsTrue())
                         .build())
                 .build();
-        final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema,
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
+        final FederatedStore store = (FederatedStore) Store.createStore("federatedGraph", schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties")));
 
         final Context context = new Context();
 

@@ -17,14 +17,16 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Lists;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -42,19 +44,15 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class GafferResultCacheExporterTest {
 
     private final User user = new User.Builder()
@@ -64,12 +62,14 @@ public class GafferResultCacheExporterTest {
     private final Context context = new Context(user);
     private final String jobId = context.getJobId();
     private final String key = "key";
-    private final Store store = mock(Store.class);
     private final String visibility = "visibility value";
     private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[] {"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
     private Graph resultCache;
+
+    @Mock
+    private Store store;
 
     @BeforeEach
     public void before() {
@@ -86,37 +86,39 @@ public class GafferResultCacheExporterTest {
     @Test
     public void shouldAddResults() throws OperationException, SerialisationException {
         // Given
-        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
         exporter.add(key, results);
 
         // Then
-        final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<OperationChain<?>> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(store).execute(opChain.capture(), Mockito.any(Context.class));
         assertThat(opChain.getValue().getOperations()).hasSize(1);
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
-        final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"), elements.get(1).getProperty("result"), null);
-        assertEquals(expectedElements, elements);
+        final List<Element> expectedElements = createCachedEdges(timestamp,
+                elements.get(0).getProperty("result"),
+                elements.get(1).getProperty("result"),
+                null);
+
+        assertThat(elements).isEqualTo(expectedElements);
         for (int i = 0; i < elements.size(); i++) {
             if (null == results.get(i)) {
-                assertNull(elements.get(i).getProperty("result"));
+                assertThat(elements.get(i).getProperty("result")).isNull();
             } else {
-                assertArrayEquals(JSONSerialiser.serialise(results.get(i)), (byte[]) elements.get(i).getProperty("result"));
+                assertThat((byte[]) elements.get(i).getProperty("result"))
+                        .isEqualTo(JSONSerialiser.serialise(results.get(i)));
             }
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldAddNotErrorWhenAddingANullResult() throws OperationException {
         // Given
-        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
         exporter.add(key, null);
@@ -125,40 +127,38 @@ public class GafferResultCacheExporterTest {
         verify(store, never()).execute(Mockito.any(OperationChain.class), Mockito.any(Context.class));
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldGetResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        long timestamp = System.currentTimeMillis();
-        final List<Element> cachedEdges = createCachedEdges(timestamp, serialisedResults);
-        given(store.execute(opChain.capture(), Mockito.any())).willReturn(new WrappedCloseableIterable<>(cachedEdges));
+        final long timestamp = System.currentTimeMillis();
+        final List<Element> cachedEdges = createCachedEdges(timestamp, (Object[]) serialisedResults);
+        given(store.execute(opChain.capture(), Mockito.any())).willReturn(cachedEdges);
 
-        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
-        final CloseableIterable<?> cachedResults = exporter.get(key);
+        final Iterable<?> cachedResults = exporter.get(key);
 
         // Then
-        assertEquals(results, Lists.newArrayList(cachedResults));
+        assertThat(cachedResults).asInstanceOf(InstanceOfAssertFactories.iterable(Object.class)).containsAnyElementsOf(results);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldGetEmptyResults() throws OperationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         given(store.execute(opChain.capture(), Mockito.any(Context.class))).willReturn(null);
 
-        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                context, jobId, resultCache, visibility, requiredOpAuths
-        );
+        final GafferResultCacheExporter exporter = new GafferResultCacheExporter(context, jobId, resultCache, visibility, requiredOpAuths);
 
         // When
-        final CloseableIterable<?> cachedResults = exporter.get(key);
+        final Iterable<?> cachedResults = exporter.get(key);
 
         // Then
-        assertEquals(Collections.emptyList(), Lists.newArrayList(cachedResults));
+        assertThat(cachedResults).isEmpty();
     }
 
     private List<Element> createCachedEdges(final Object timestamp, final Object... values) {
@@ -195,8 +195,7 @@ public class GafferResultCacheExporterTest {
                         .property("visibility", visibility)
                         .property("resultClass", Object.class.getName())
                         .property("result", values[2])
-                        .build()
-        );
+                        .build());
     }
 
     private static byte[] serialise(final Object item) {

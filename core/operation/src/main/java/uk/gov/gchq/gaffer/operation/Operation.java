@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -39,6 +40,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * An {@code Operation} defines an operation to be processed on a graph.
@@ -76,7 +78,7 @@ import static java.util.Objects.isNull;
  * </p>
  * <pre>
  * public static class Builder extends Operation.BaseBuilder&lt;GetElements, Builder&gt;
- *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, CloseableIterable&lt;? extends Element&gt;, Builder&gt;,
+ *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, Iterable&lt;? extends Element&gt;, Builder&gt;,
  *         MultiInput.Builder&lt;GetElements, ElementId, Builder&gt;,
  *         SeededGraphFilters.Builder&lt;GetElements, Builder&gt; {
  *     public Builder() {
@@ -157,7 +159,7 @@ public interface Operation extends Closeable {
 
     @JsonGetter("options")
     default Map<String, String> _getNullOrOptions() {
-        if (null == getOptions()) {
+        if (isNull(getOptions())) {
             return null;
         }
 
@@ -183,16 +185,16 @@ public interface Operation extends Closeable {
     default ValidationResult validate() {
         final ValidationResult result = new ValidationResult();
 
-        HashSet<Field> fields = Sets.<Field>newHashSet();
+        final HashSet<Field> fields = Sets.<Field>newHashSet();
         Class<?> currentClass = this.getClass();
-        while (null != currentClass) {
+        while (nonNull(currentClass)) {
             fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
             currentClass = currentClass.getSuperclass();
         }
 
         for (final Field field : fields) {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
-            if (null != annotations && annotations.length > 0) {
+            if (nonNull(annotations) && ArrayUtils.isNotEmpty(annotations)) {
                 if (field.isAccessible()) {
                     validateRequiredFieldPresent(result, field);
                 } else {
@@ -216,8 +218,8 @@ public interface Operation extends Closeable {
             throw new RuntimeException(e);
         }
 
-        if (null == value) {
-            result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
+        if (isNull(value)) {
+            result.addError(String.format("%s is required for: %s", field.getName(), this.getClass().getSimpleName()));
         }
     }
 
@@ -227,9 +229,9 @@ public interface Operation extends Closeable {
         B _self();
     }
 
-    abstract class BaseBuilder<OP extends Operation, B extends BaseBuilder<OP, ?>>
-            implements Builder<OP, B> {
-        private OP op;
+    abstract class BaseBuilder<OP extends Operation, B extends BaseBuilder<OP, ?>> implements Builder<OP, B> {
+
+        private final OP op;
 
         protected BaseBuilder(final OP op) {
             this.op = op;
@@ -247,8 +249,8 @@ public interface Operation extends Closeable {
         }
 
         public B options(final Map<String, String> options) {
-            if (null != options) {
-                if (null == _getOp().getOptions()) {
+            if (nonNull(options)) {
+                if (isNull(_getOp().getOptions())) {
                     _getOp().setOptions(new HashMap<>(options));
                 } else {
                     _getOp().getOptions().putAll(options);
@@ -271,6 +273,7 @@ public interface Operation extends Closeable {
             return op;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public B _self() {
             return (B) this;

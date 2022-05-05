@@ -80,43 +80,45 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
         ValidationResult savedResult = new ValidationResult();
         ValidationResult currentResult = null;
 
-        final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
-        FederatedOperation clonedOp = op instanceof FederatedOperation
-                ? ((FederatedOperation) op).deepClone()
-                : new FederatedOperation
-                        .Builder()
-                        .op(shallowCloneWithDeepOptions(op))
-                        .graphIds(graphIdsCSV)
-                        .userRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
-                        .build();
-        Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
-        for (final Graph graph : graphs) {
-            String graphId = graph.getGraphId();
-            final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
-            // If graphId is not valid, then there is no schema to validate a view against.
-            if (graphIdValid) {
-                currentResult = new ValidationResult();
-                clonedOp.graphIdsCSV(graphId);
-                // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
-                if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
-                    super.validateViews(clonedOp, user, store, currentResult);
-                }
-                if (currentResult.isValid()) {
-                    // If any graph has a valid View, break with valid current result
-                    break;
-                } else {
-                    ValidationResult prependGraphId = new ValidationResult();
-                    currentResult.getErrors().forEach(s -> prependGraphId.addError(String.format("(graphId: %s) %s", graphId, s)));
-                    savedResult.add(prependGraphId);
+        if (op instanceof FederatedOperation || !(op instanceof IFederationOperation)) {
+            final String graphIdsCSV = getGraphIdsCSV(op, user, (FederatedStore) store);
+            FederatedOperation clonedOp = op instanceof FederatedOperation
+                    ? ((FederatedOperation) op).deepClone()
+                    : new FederatedOperation
+                    .Builder()
+                    .op(shallowCloneWithDeepOptions(op))
+                    .graphIds(graphIdsCSV)
+                    .userRequestingAdminUsage(op instanceof IFederationOperation && ((IFederationOperation) op).isUserRequestingAdminUsage())
+                    .build();
+            Collection<Graph> graphs = ((FederatedStore) store).getGraphs(user, graphIdsCSV, clonedOp);
+            for (final Graph graph : graphs) {
+                String graphId = graph.getGraphId();
+                final boolean graphIdValid = ((FederatedStore) store).getAllGraphIds(user).contains(graphId);
+                // If graphId is not valid, then there is no schema to validate a view against.
+                if (graphIdValid) {
+                    currentResult = new ValidationResult();
+                    clonedOp.graphIdsCSV(graphId);
+                    // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
+                    if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
+                        super.validateViews(clonedOp, user, store, currentResult);
+                    }
+                    if (currentResult.isValid()) {
+                        // If any graph has a valid View, break with valid current result
+                        break;
+                    } else {
+                        ValidationResult prependGraphId = new ValidationResult();
+                        currentResult.getErrors().forEach(s -> prependGraphId.addError(String.format("(graphId: %s) %s", graphId, s)));
+                        savedResult.add(prependGraphId);
+                    }
                 }
             }
-        }
 
-        //What state did the for loop exit with?
-        if (currentResult != null && !currentResult.isValid()) {
-            validationResult.addError("View is not valid for graphIds:" + getGraphIds(op, user, (FederatedStore) store).stream().collect(Collectors.joining(",", "[", "]")));
-            //If invalid, no graphs views where valid, so add all saved errors.
-            validationResult.add(savedResult);
+            //What state did the for loop exit with?
+            if (currentResult != null && !currentResult.isValid()) {
+                validationResult.addError("View is not valid for graphIds:" + getGraphIds(op, user, (FederatedStore) store).stream().collect(Collectors.joining(",", "[", "]")));
+                //If invalid, no graphs views where valid, so add all saved errors.
+                validationResult.add(savedResult);
+            }
         }
     }
 

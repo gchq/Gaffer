@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -37,10 +36,10 @@ import java.util.Set;
  * This allows queries for all data related to the provided
  * {@link ElementId}s.
  */
-public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>> & GraphFilters>
+public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends ElementId>, Iterable<? extends Element>> & GraphFilters>
         extends AccumuloItemRetriever<OP, ElementId> {
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
-                                     final User user)
+
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation, final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
@@ -50,7 +49,8 @@ public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends
 
     public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
                                      final User user,
-                                     final IteratorSetting... iteratorSettings) throws StoreException {
+                                     final IteratorSetting... iteratorSettings)
+            throws StoreException {
         this(store, operation, user, true, iteratorSettings);
     }
 
@@ -72,7 +72,8 @@ public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends
     public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
                                      final User user,
                                      final boolean includeMatchedVertex,
-                                     final IteratorSetting... iteratorSettings) throws StoreException {
+                                     final IteratorSetting... iteratorSettings)
+            throws StoreException {
         super(store, operation, user, includeMatchedVertex, iteratorSettings);
     }
 

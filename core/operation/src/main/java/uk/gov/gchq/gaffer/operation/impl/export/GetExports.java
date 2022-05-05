@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -33,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+
 /**
  * A {@code GetExports} operation gets multiple exports and returns then
  * in a Map.
@@ -42,8 +43,8 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "getExports"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Fetches multiple exports")
-public class GetExports implements
-        Output<Map<String, CloseableIterable<?>>> {
+public class GetExports implements Output<Map<String, Iterable<?>>> {
+
     private List<GetExport> getExports = new ArrayList<>();
     private Map<String, String> options;
 
@@ -53,7 +54,7 @@ public class GetExports implements
     }
 
     public void setGetExports(final List<GetExport> getExports) {
-        if (null == getExports) {
+        if (isNull(getExports)) {
             this.getExports = new ArrayList<>();
         } else {
             this.getExports = getExports;
@@ -69,7 +70,7 @@ public class GetExports implements
     }
 
     @Override
-    public TypeReference<Map<String, CloseableIterable<?>>> getOutputTypeReference() {
+    public TypeReference<Map<String, Iterable<?>>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.MapStringSet();
     }
 
@@ -85,7 +86,8 @@ public class GetExports implements
 
     public static class Builder
             extends Operation.BaseBuilder<GetExports, Builder>
-            implements Output.Builder<GetExports, Map<String, CloseableIterable<?>>, Builder> {
+            implements Output.Builder<GetExports, Map<String, Iterable<?>>, Builder> {
+
         public Builder() {
             super(new GetExports());
         }

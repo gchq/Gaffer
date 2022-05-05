@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.store.Context;
@@ -27,42 +29,41 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 public class ToListHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldConvertIterableToList() throws OperationException {
+    public void shouldConvertIterableToList(@Mock final ToList<Integer> operation) throws OperationException {
         // Given
         final List<Integer> originalList = Arrays.asList(1, 2, 3);
 
-        final Iterable originalResults = new WrappedCloseableIterable<>(originalList);
+        final Iterable<Integer> originalResults = originalList;
         final ToListHandler handler = new ToListHandler();
-        final ToList<Integer> operation = mock(ToList.class);
 
-        given(operation.getInput()).willReturn(originalResults);
+        given(operation.getInput()).willReturn((Iterable) originalResults);
 
-        //When
+        // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
-        assertEquals(originalList, results);
+        // Then
+        assertThat(results).isEqualTo(originalList);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldHandleNullInput() throws OperationException {
+    public void shouldHandleNullInput(@Mock final ToList<Integer> operation) throws OperationException {
         // Given
         final ToListHandler handler = new ToListHandler();
-        final ToList<Integer> operation = mock(ToList.class);
 
         given(operation.getInput()).willReturn(null);
 
-        //When
+        // When
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
-        //Then
+        // Then
         assertThat(results).isNull();
     }
 }

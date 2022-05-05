@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.StoreUser;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -61,9 +62,7 @@ public class FederatedStoreWrongGraphIDsTest {
     private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreWrongGraphIDsTest.class, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -86,6 +85,10 @@ public class FederatedStoreWrongGraphIDsTest {
         blankContext = new Context(StoreUser.blankUser());
     }
 
+    @AfterEach
+    void after() {
+        CacheServiceLoader.shutdown();
+    }
 
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
@@ -102,14 +105,12 @@ public class FederatedStoreWrongGraphIDsTest {
                         .build()).build()
                 .graphIdsCSV(GRAPH_1), blankContext);
 
-        CloseableIterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
-                .build(), blankContext);
+        Iterable<? extends Element> execute = store.execute(new GetAllElements.Builder().build(), blankContext);
 
-        assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
-        assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);
+        assertThat(execute).isNotNull().withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
+        assertThat(execute.iterator().next()).isEqualTo(expectedEntity).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT);
 
-
-        execute = (CloseableIterable<? extends Element>) store.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_1), blankContext);
+        execute = store.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_1), blankContext);
 
         assertNotNull(execute, THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
         assertEquals(expectedEntity, execute.iterator().next(), THERE_SHOULD_BE_ONE_ELEMENT);

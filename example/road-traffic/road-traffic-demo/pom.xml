@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>2.0.0-alpha-0.1</version>
+        <version>2.0.0-alpha-1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -43,6 +43,12 @@
             <version>${project.parent.version}</version>
             <classifier>classes</classifier>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>road-traffic-rest</artifactId>
+            <version>${project.parent.version}</version>
+            <type>war</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,7 +57,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>${maven-war-plugin.version}</version>
                 <configuration>
                     <attachClasses>true</attachClasses>
                     <classesClassifier>classes</classesClassifier>
@@ -69,88 +74,90 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat7-maven-plugin</artifactId>
-                        <version>2.0</version>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>${cargo.plugin.version}</version>
                         <configuration>
-                            <path>/</path>
-                            <port>${standalone-port}</port>
-                            <webapps>
-                                <webapp>
-                                    <contextPath>/${standalone-path}
-                                    </contextPath>
+                            <deployables>
+                                <deployable>
                                     <groupId>uk.gov.gchq.gaffer</groupId>
                                     <artifactId>road-traffic-rest</artifactId>
-                                    <version>${project.parent.version}</version>
                                     <type>war</type>
-                                    <asWebapp>true</asWebapp>
-                                </webapp>
-                            </webapps>
-                            <systemProperties>
-                                <gaffer.properties.app.title>
-                                    Road Traffic Example
-                                </gaffer.properties.app.title>
-                                <gaffer.properties.app.description>
-                                    Example using road traffic data.
-                                    The sample data used is taken from the
-                                    Department for Transport
-                                    &lt;a
-                                    href='http://data.dft.gov.uk/gb-traffic-matrix/Raw_count_data_major_roads.zip'
-                                    &gt;GB Road Traffic Counts&lt;/a&gt;,
-                                    which is licensed under the
-                                    &lt;a
-                                    href='http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3'
-                                    &gt;Open Government Licence&lt;/a&gt;.
-                                </gaffer.properties.app.description>
-                                <gaffer.properties.app.logo.link>
-                                    https://github.com/gchq/Gaffer
-                                </gaffer.properties.app.logo.link>
-                                <gaffer.properties.app.logo.src>
-                                    images/logo.png
-                                </gaffer.properties.app.logo.src>
-                                <gaffer.properties.app.logo.favicon.small>
-                                    images/favicon-16x16.png
-                                </gaffer.properties.app.logo.favicon.small>
-                                <gaffer.properties.app.logo.favicon.large>
-                                    images/favicon-32x32.png
-                                </gaffer.properties.app.logo.favicon.large>
-                                <gaffer.rest-api.basePath>
-                                    ${standalone-path}
-                                </gaffer.rest-api.basePath>
-                                <gaffer.rest-api.port>
-                                    ${standalone-port}
-                                </gaffer.rest-api.port>
-                                <gaffer.graph.config>
-                                    ${project.build.outputDirectory}/graphConfig.json
-                                </gaffer.graph.config>
-                                <gaffer.schemas>
-                                    ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
-                                </gaffer.schemas>
-                                <gaffer.storeProperties>
-                                    ${project.build.outputDirectory}/${store.type}/store.properties
-                                </gaffer.storeProperties>
-                                <roadTraffic.dataLoader.dataPath>
-                                    ${project.build.outputDirectory}/roadTrafficSampleData.csv
-                                </roadTraffic.dataLoader.dataPath>
-                                <gaffer.error-mode.debug>
-                                    false
-                                </gaffer.error-mode.debug>
-                            </systemProperties>
+                                    <properties>
+                                        <context>${standalone-path}</context>
+                                    </properties>
+                                </deployable>
+                            </deployables>
+                            <properties>
+                                <cargo.servlet.port>${standalone-port}</cargo.servlet.port>
+                            </properties>
+                            <container>
+                                <containerId>tomcat9x</containerId>
+                                <dependencies>
+                                    <dependency>
+                                        <groupId>uk.gov.gchq.gaffer</groupId>
+                                        <artifactId>road-traffic-rest</artifactId>
+                                        <type>war</type>
+                                    </dependency>
+                                </dependencies>
+                                <systemProperties>
+                                    <gaffer.properties.app.title>
+                                        Road Traffic Example
+                                    </gaffer.properties.app.title>
+                                    <gaffer.properties.app.description>
+                                        Example using road traffic data.
+                                        The sample data used is taken from the
+                                        Department for Transport
+                                        &lt;a
+                                        href='http://data.dft.gov.uk/gb-traffic-matrix/Raw_count_data_major_roads.zip'
+                                        &gt;GB Road Traffic Counts&lt;/a&gt;,
+                                        which is licensed under the
+                                        &lt;a
+                                        href='http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3'
+                                        &gt;Open Government Licence&lt;/a&gt;.
+                                    </gaffer.properties.app.description>
+                                    <gaffer.properties.app.logo.link>
+                                        https://github.com/gchq/Gaffer
+                                    </gaffer.properties.app.logo.link>
+                                    <gaffer.properties.app.logo.src>
+                                        images/logo.png
+                                    </gaffer.properties.app.logo.src>
+                                    <gaffer.properties.app.logo.favicon.small>
+                                        images/favicon-16x16.png
+                                    </gaffer.properties.app.logo.favicon.small>
+                                    <gaffer.properties.app.logo.favicon.large>
+                                        images/favicon-32x32.png
+                                    </gaffer.properties.app.logo.favicon.large>
+                                    <gaffer.rest-api.basePath>
+                                        ${standalone-path}
+                                    </gaffer.rest-api.basePath>
+                                    <gaffer.rest-api.port>
+                                        ${standalone-port}
+                                    </gaffer.rest-api.port>
+                                    <gaffer.graph.config>
+                                        ${project.build.outputDirectory}/graphConfig.json
+                                    </gaffer.graph.config>
+                                    <gaffer.schemas>
+                                        ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
+                                    </gaffer.schemas>
+                                    <gaffer.storeProperties>
+                                        ${project.build.outputDirectory}/${store.type}/store.properties
+                                    </gaffer.storeProperties>
+                                    <roadTraffic.dataLoader.dataPath>
+                                        ${project.build.outputDirectory}/roadTrafficSampleData.csv
+                                    </roadTraffic.dataLoader.dataPath>
+                                    <gaffer.error-mode.debug>
+                                        false
+                                    </gaffer.error-mode.debug>
+                                </systemProperties>
+                            </container>
                         </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>uk.gov.gchq.gaffer</groupId>
-                                <artifactId>road-traffic-rest</artifactId>
-                                <version>${project.parent.version}</version>
-                                <type>war</type>
-                            </dependency>
-                        </dependencies>
                         <executions>
                             <execution>
                                 <id>deploy</id>
                                 <phase>integration-test</phase>
                                 <goals>
-                                    <goal>run-war</goal>
+                                    <goal>run</goal>
                                 </goals>
                             </execution>
                         </executions>

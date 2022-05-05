@@ -39,12 +39,12 @@ Introduction
 
 Gaffer contains a store implemented using Apache Accumulo. This offers the following functionality:
 
-- Scalability to large volumes of data;
-- Resilience to failures of hardware;
-- The ability to store any properties (subject to serialisers being provided if Gaffer is not aware of the objects);
-- User-configured persistent aggregation of properties for the same vertices and edges;
-- Flexibly query-time filtering, aggregation and transformation;
-- Integration with Apache Spark to allow Gaffer data stored in Accumulo to be analysed as either an RDD or a Dataframe.
+- Scalability to large volumes of data
+- Resilience to failures of hardware
+- The ability to store any properties (subject to serialisers being provided if Gaffer is not aware of the objects)
+- User-configured persistent aggregation of properties for the same vertices and edges
+- Flexibly query-time filtering, aggregation and transformation
+- Integration with Apache Spark to allow Gaffer data stored in Accumulo to be analysed as either an RDD or a Dataframe
 
 Use cases
 -----------------------------------------------
@@ -140,13 +140,13 @@ graph.execute(sample, new User());
 ```
 where:
 
-- `inputPath` is a string giving a directory in HDFS containing your data;
-- `splitsFilePath` is a string giving a file in HDFS where the output of the operation will be stored (this file should not exist before the operation is run);
-- `outputPath` is a string giving a directory in HDFS where the output of the MapReduce job will be stored;
-- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided;
-- The `true` option in the `validate` method indicates that every element will be validated;
-- The `0.01F` option in the `proportionToSample` method causes 1% of the data to be sampled. This is the amount of data that will be sent to the single reducer so it should be small enough for a single reducer to handle;
-- `myMapperGeneratorClass` is a `Class` that extends the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files.
+- `inputPath` is a string giving a directory in HDFS containing your data
+- `splitsFilePath` is a string giving a file in HDFS where the output of the operation will be stored (this file should not exist before the operation is run)
+- `outputPath` is a string giving a directory in HDFS where the output of the MapReduce job will be stored
+- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided
+- The `true` option in the `validate` method indicates that every element will be validated
+- The `0.01F` option in the `proportionToSample` method causes 1% of the data to be sampled. This is the amount of data that will be sent to the single reducer so it should be small enough for a single reducer to handle
+- `myMapperGeneratorClass` is a `Class` that extends the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files
 
 To apply these split points to the table, run:
 
@@ -243,10 +243,10 @@ Key-packages
 
 In Gaffer's `AccumuloStore` a key-package contains all the logic for:
 
-- Converting `Element`s into Accumulo key-value pairs, and vice-versa;
-- Generating ranges of Accumulo keys that correspond to the seeds of a query;
-- Creating the iterator settings necessary to perform the persistent aggregation that happens at compaction time, and the filtering and aggregation that happens during queries;
-- Creating the `KeyFunctor` used to configure the Bloom filters in Accumulo.
+- Converting `Element`s into Accumulo key-value pairs, and vice-versa
+- Generating ranges of Accumulo keys that correspond to the seeds of a query
+- Creating the iterator settings necessary to perform the persistent aggregation that happens at compaction time, and the filtering and aggregation that happens during queries
+- Creating the `KeyFunctor` used to configure the Bloom filters in Accumulo
 
 A key-package is an implementation of the `AccumuloKeyPackage` interface. Gaffer provides two implementations: `ByteEntityKeyPackage` and `ClassicKeyPackage`. These names are essentially meaningless. The "classic" in `ClassicKeyPackage` refers to the fact that it is similar to the implementation in the first version of Gaffer (known as "Gaffer1").
 

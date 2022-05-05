@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.AbstractSampleElementsForSplit
 import java.util.stream.Stream;
 
 public class SampleElementsForSplitPointsHandler extends AbstractSampleElementsForSplitPointsHandler<String, AccumuloStore> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleElementsForSplitPointsHandler.class);
 
     @Override

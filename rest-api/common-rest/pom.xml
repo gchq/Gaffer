@@ -3,7 +3,7 @@
   <parent>
     <artifactId>rest-api</artifactId>
     <groupId>uk.gov.gchq.gaffer</groupId>
-    <version>2.0.0-alpha-0.1</version>
+    <version>2.0.0-alpha-1.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -15,6 +15,10 @@
       <artifactId>graph</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -25,11 +29,10 @@
     <dependency>
       <groupId>uk.gov.gchq.koryphe</groupId>
       <artifactId>core</artifactId>
-      <version>${koryphe.version}</version>
+      <classifier>tests-jdk8</classifier>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>
-
 
 </project>

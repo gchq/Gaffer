@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
+import uk.gov.gchq.gaffer.jsonserialisation.jackson.IterableDeserializer;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameCache;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
@@ -51,6 +51,9 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * A {@code JSONSerialiser} provides the ability to serialise and deserialise to/from JSON.
@@ -135,7 +138,7 @@ public class JSONSerialiser {
         modules.forEach(mapper::registerModule);
     }
 
-    public static void addSimpleClassNames(final boolean includeSubtypes, final Class... classes) {
+    public static void addSimpleClassNames(final boolean includeSubtypes, final Class<?>... classes) {
         SimpleClassNameCache.addSimpleClassNames(includeSubtypes, classes);
     }
 
@@ -150,18 +153,16 @@ public class JSONSerialiser {
                               final String jsonSerialiserModules,
                               final Boolean strictJson) {
         if (StringUtils.isNotBlank(jsonSerialiserModules)) {
-            final String modulesCsv = new StringDeduplicateConcat().apply(
-                    System.getProperty(JSON_SERIALISER_MODULES),
-                    jsonSerialiserModules
-            );
+            final String modulesCsv = new StringDeduplicateConcat()
+                    .apply(System.getProperty(JSON_SERIALISER_MODULES), jsonSerialiserModules);
             System.setProperty(JSON_SERIALISER_MODULES, modulesCsv);
         }
 
-        if (null != jsonSerialiserClass) {
+        if (nonNull(jsonSerialiserClass)) {
             System.setProperty(JSON_SERIALISER_CLASS_KEY, jsonSerialiserClass);
         }
 
-        if (null != strictJson) {
+        if (nonNull(strictJson)) {
             System.setProperty(STRICT_JSON, strictJson.toString());
         }
 
@@ -174,7 +175,8 @@ public class JSONSerialiser {
         try {
             newInstance = Class.forName(jsonSerialiserClass).asSubclass(JSONSerialiser.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Property " + JSON_SERIALISER_CLASS_KEY + " must be set to a class that is a sub class of " + JSONSerialiser.class.getName() + ". This class is not valid: " + jsonSerialiserClass, e);
+            throw new IllegalArgumentException(String.format("Property %s must be set to a class that is a sub class of %s. This class is not valid: %s",
+                    JSON_SERIALISER_CLASS_KEY, JSONSerialiser.class.getName(), jsonSerialiserClass), e);
         }
 
         final String moduleFactories = System.getProperty(JSON_SERIALISER_MODULES, "");
@@ -185,18 +187,17 @@ public class JSONSerialiser {
             try {
                 factory = Class.forName(factoryClass).asSubclass(JSONSerialiserModules.class).newInstance();
             } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Property " + JSON_SERIALISER_MODULES + " must be set to a csv of classes that are a sub class of " + JSONSerialiserModules.class.getName() + ". These classes are not valid: " + factoryClass, e);
+                throw new IllegalArgumentException(String.format("Property %s must be set to a csv of classes that are a sub class of %s. These classes are not valid: %s",
+                        JSON_SERIALISER_MODULES, JSONSerialiserModules.class.getName(), factoryClass), e);
             }
             final List<Module> modules = factory.getModules();
-            if (null != modules) {
+            if (nonNull(modules)) {
                 newInstance.mapper.registerModules(modules);
             }
         }
 
-        newInstance.mapper.configure(
-                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                Boolean.parseBoolean(System.getProperty(STRICT_JSON, STRICT_JSON_DEFAULT_STR))
-        );
+        newInstance.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                                     Boolean.parseBoolean(System.getProperty(STRICT_JSON, STRICT_JSON_DEFAULT_STR)));
 
         instance = newInstance;
         LOGGER.debug("Updated json serialiser to use: {}, and modules: {}", jsonSerialiserClass, moduleFactories);
@@ -208,7 +209,7 @@ public class JSONSerialiser {
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
-        mapper.registerModule(CloseableIterableDeserializer.getModule());
+        mapper.registerModule(IterableDeserializer.getModule());
 
         // Allow unknown properties. This will help to avoid conflicts between Gaffer versions.
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, STRICT_JSON_DEFAULT);
@@ -221,7 +222,7 @@ public class JSONSerialiser {
 
         // Allow simple class names or full class names to be used in JSON.
         // We must set this to true to ensure serialisation into json uses the
-        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo/HBase.
+        // full class name. Otherwise, json deserialisation may fail on worker nodes in Accumulo.
         SimpleClassNameCache.setUseFullNameForSerialisation(true);
         SimpleClassNameIdResolver.configureObjectMapper(mapper);
         return mapper;
@@ -242,7 +243,7 @@ public class JSONSerialiser {
      * @param clazz the clazz of the object to be serialised/deserialised
      * @return true if the clazz can be serialised/deserialised
      */
-    public static boolean canHandle(final Class clazz) {
+    public static boolean canHandle(final Class<?> clazz) {
         return getInstance().mapper.canSerialize(clazz);
     }
 
@@ -258,7 +259,6 @@ public class JSONSerialiser {
         return serialise(object, false, fieldsToExclude);
     }
 
-
     /**
      * Serialises an object.
      *
@@ -268,7 +268,8 @@ public class JSONSerialiser {
      * @return the provided object serialised (with pretty printing) into bytes
      * @throws SerialisationException if the object fails to serialise
      */
-    public static byte[] serialise(final Object object, final boolean prettyPrint, final String... fieldsToExclude) throws SerialisationException {
+    public static byte[] serialise(final Object object, final boolean prettyPrint, final String... fieldsToExclude)
+            throws SerialisationException {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
         try {
             serialise(object, JSON_FACTORY.createGenerator(byteArrayBuilder, JsonEncoding.UTF8), prettyPrint, fieldsToExclude);
@@ -288,7 +289,8 @@ public class JSONSerialiser {
      * @param fieldsToExclude optional property names to exclude from the json
      * @throws SerialisationException if the object fails to serialise
      */
-    public static void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint, final String... fieldsToExclude)
+    public static void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint,
+                                 final String... fieldsToExclude)
             throws SerialisationException {
         if (prettyPrint) {
             jsonGenerator.useDefaultPrettyPrinter();
@@ -399,7 +401,7 @@ public class JSONSerialiser {
 
     @JsonIgnore
     public static JSONSerialiser getInstance() {
-        if (null == instance) {
+        if (isNull(instance)) {
             update();
         }
         return instance;

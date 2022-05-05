@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class AddElementsHandler implements OperationHandler<AddElements> {
+
     @Override
     public Void doOperation(final AddElements operation,
                             final Context context, final Store store)
@@ -38,7 +39,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private void addElements(final AddElements operation, final AccumuloStore store)
             throws OperationException {
         try {
-            final Iterable<?extends Element> validatedElements;
+            final Iterable<? extends Element> validatedElements;
             if (operation.isValidate()) {
                 validatedElements = new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
             } else {

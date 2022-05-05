@@ -33,7 +33,7 @@ public class MockGraphFactory implements GraphFactory {
 
     public MockGraphFactory() {
         // By default we set this to get the REST API to build
-        Graph emptyGraph = new Graph.Builder()
+        final Graph emptyGraph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("id")
                         .build())

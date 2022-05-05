@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;

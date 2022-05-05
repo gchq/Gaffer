@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -55,10 +54,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.TestTypes.DIRECTED_EITHER;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
@@ -86,9 +81,7 @@ public class FederatedStoreSchemaTest {
     private FederatedStore fStore;
     private static final FederatedStoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
 
-    private static Class currentClass = new Object() {
-    }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreSchemaTest.class, "properties/singleUseAccumuloStore.properties"));
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -116,13 +109,13 @@ public class FederatedStoreSchemaTest {
                 .storeProperties(PROPERTIES)
                 .build(), testContext);
         // When
-        Collection<String> graphIds = fStore.getAllGraphIds(testUser);
+        final Collection<String> graphIds = fStore.getAllGraphIds(testUser);
 
         // Then
-        HashSet<String> expected = new HashSet<>();
+        final HashSet<String> expected = new HashSet<>();
         expected.addAll(Arrays.asList("a", "b", "c"));
 
-        assertEquals(expected, graphIds);
+        assertThat(graphIds).isEqualTo(expected);
     }
 
     @Test
@@ -131,16 +124,16 @@ public class FederatedStoreSchemaTest {
         addGroupCollisionGraphs();
 
         // When
-        final CloseableIterable<? extends Element> allElements = (CloseableIterable<? extends Element>) fStore.execute(new OperationChain.Builder()
+        final Iterable<? extends Element> allElements = fStore.execute(new OperationChain.Builder()
                 .first(getFederatedOperation(new GetAllElements.Builder()
-                        //No view so makes default view, should get only view compatible with graph "a"
+                        // No view so makes default view, should get only view compatible with graph "a"
                         .build())
                         .graphIdsCSV("a"))
                 .build(), testContext);
 
         // Then
-        assertNotNull(allElements);
-        assertFalse(allElements.iterator().hasNext());
+        assertThat(allElements).isNotNull();
+        assertThat(allElements.iterator()).isExhausted();
     }
 
     @Test
@@ -170,7 +163,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
                         .edge("e1", new ViewElementDefinition.Builder()
@@ -179,11 +172,11 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        assertNotNull(elements);
-        final List results = Streams.toStream(elements).collect(Collectors.toList());
+        assertThat(elements).isNotNull();
+        final List<Element> results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph a, element 1: prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -227,11 +220,10 @@ public class FederatedStoreSchemaTest {
         addOverlappingPropertiesGraphs(STRING_TYPE);
 
         // When
-        final Schema schema = fStore.execute(new GetSchema.Builder()
-                .build(), testContext);
+        final Schema schema = fStore.execute(new GetSchema.Builder().build(), testContext);
 
         // Then
-        assertTrue(schema.validate().isValid(), schema.validate().getErrorString());
+        assertThat(schema.validate().isValid()).isTrue().withFailMessage(schema.validate().getErrorString());
     }
 
     @Test
@@ -250,13 +242,12 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        final CloseableIterable<? extends Element> allElements = fStore.execute(new GetAllElements.Builder()
-                .build(), testContext);
-        assertNotNull(allElements);
-        final List results = Streams.toStream(allElements).collect(Collectors.toList());
+        final Iterable<? extends Element> allElements = fStore.execute(new GetAllElements.Builder().build(), testContext);
+        assertThat(allElements).isNotNull();
+        final List<Element> results = Streams.toStream(allElements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph a
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -324,19 +315,17 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
-                        .edge("e1", new ViewElementDefinition.Builder()
-                                .build())
-                        .build())
+                        .edge("e1", new ViewElementDefinition.Builder().build()).build())
                 .build(), testContext);
 
-        assertNotNull(elements);
-        final List results = Streams.toStream(elements).collect(Collectors.toList());
+        assertThat(elements).isNotNull();
+        final List<Element> results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph a: prop1 aggregated, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -384,19 +373,17 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
-                        .edge("e1", new ViewElementDefinition.Builder()
-                                .build())
-                        .build())
+                        .edge("e1", new ViewElementDefinition.Builder().build()).build())
                 .build(), testContext);
 
-        assertNotNull(elements);
-        final List results = Streams.toStream(elements).collect(Collectors.toList());
+        assertThat(elements).isNotNull();
+        final List<Element> results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph a: prop1 aggregated, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -449,7 +436,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
                         .edge("e1", new ViewElementDefinition.Builder()
@@ -458,11 +445,11 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        assertNotNull(elements);
-        final List results = Streams.toStream(elements).collect(Collectors.toList());
+        assertThat(elements).isNotNull();
+        final List<Element> results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph a, element 1: prop1 omitted, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -525,7 +512,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
                         .edge("e1", new ViewElementDefinition.Builder()
@@ -537,11 +524,11 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        assertNotNull(elements);
-        final List results = Streams.toStream(elements).collect(Collectors.toList());
+        assertThat(elements).isNotNull();
+        final List<Element> results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph b, element 1
         expected.add(new Edge.Builder()
                 .group("e1")
@@ -592,7 +579,7 @@ public class FederatedStoreSchemaTest {
                 .build(), testContext);
 
         // When
-        final CloseableIterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
+        final Iterable<? extends Element> elements = fStore.execute(new GetElements.Builder()
                 .input(new EntitySeed("source1"))
                 .view(new View.Builder()
                         .edge("e1", new ViewElementDefinition.Builder()
@@ -601,11 +588,11 @@ public class FederatedStoreSchemaTest {
                         .build())
                 .build(), testContext);
 
-        assertNotNull(elements);
-        final List results = Streams.toStream(elements).collect(Collectors.toList());
+        assertThat(elements).isNotNull();
+        final List<Element> results = Streams.toStream(elements).collect(Collectors.toList());
 
         // Then
-        HashSet<Edge> expected = new HashSet<>();
+        final HashSet<Edge> expected = new HashSet<>();
         // Graph a, element 1: prop1 present, prop2 missing
         expected.add(new Edge.Builder()
                 .group("e1")

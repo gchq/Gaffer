@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -40,13 +39,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class OperationChainHandlerTest {
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleOperationChain() throws OperationException {
         // Given
@@ -70,17 +70,17 @@ public class OperationChainHandlerTest {
         given(store.getProperties()).willReturn(storeProperties);
         given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
-        given(store.handleOperation(op1, context)).willReturn(new WrappedCloseableIterable<>(Collections
-                .singletonList(new EntitySeed())));
+        given(store.handleOperation(op1, context)).willReturn(Collections.singletonList(new EntitySeed()));
         given(store.handleOperation(op2, context)).willReturn(expectedResult);
 
         // When
         final Object result = opChainHandler.doOperation(opChain, context, store);
 
         // Then
-        assertSame(expectedResult, result);
+        assertThat(result).isSameAs(expectedResult);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleNonInputOperation() throws OperationException {
         // Given
@@ -109,9 +109,10 @@ public class OperationChainHandlerTest {
         final Object result = opChainHandler.doOperation(opChain, context, store);
 
         // Then
-        assertSame(expectedResult, result);
+        assertThat(result).isSameAs(expectedResult);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void shouldHandleNestedOperationChain() throws OperationException {
         // Given
@@ -139,14 +140,16 @@ public class OperationChainHandlerTest {
         given(store.getProperties()).willReturn(storeProperties);
         given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
-        given(store.handleOperation(op1, context)).willReturn(new WrappedCloseableIterable<>(Lists.newArrayList(new EntitySeed("A"), new EntitySeed("B"))));
-        given(store.handleOperation(op2, context)).willReturn(new WrappedCloseableIterable<>(Lists.newArrayList(entityA, entityB)));
+        given(store.handleOperation(op1, context))
+                .willReturn(Lists.newArrayList(new EntitySeed("A"), new EntitySeed("B")));
+        given(store.handleOperation(op2, context))
+                .willReturn(Lists.newArrayList(entityA, entityB));
         given(store.handleOperation(op3, context)).willReturn(entityA);
 
         // When
         final Object result = opChainHandler.doOperation(opChain2, context, store);
 
         // Then
-        assertSame(entityA, result);
+        assertThat(result).isSameAs(entityA);
     }
 }
