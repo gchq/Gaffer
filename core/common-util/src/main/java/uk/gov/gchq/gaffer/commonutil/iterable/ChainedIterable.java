@@ -36,6 +36,7 @@ import static java.util.Objects.isNull;
  *
  * @param <T> the type of items in the iterable.
  */
+@Deprecated
 public class ChainedIterable<T> implements Closeable, Iterable<T> {
 
     private final Iterable<? extends Iterable<? extends T>> iterables;
