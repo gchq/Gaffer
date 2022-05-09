@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -75,7 +76,7 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        assertThatExceptionOfType(OperationException.class)
+        assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> handler.doOperation(joinOp, context, store))
                 .withMessageContaining("exceeded");
     }
