@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.OneOrMore;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collections;
 import java.util.Comparator;

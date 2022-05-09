@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Iterables;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.impl.GenerateSplitPointsFromSample;
 import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.Collections;
 import java.util.List;

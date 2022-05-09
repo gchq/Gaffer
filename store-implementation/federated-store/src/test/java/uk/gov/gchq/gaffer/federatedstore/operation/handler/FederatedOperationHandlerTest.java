@@ -25,8 +25,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-//TODO FS Remove Gaffer.ChainedIterable
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -53,6 +51,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

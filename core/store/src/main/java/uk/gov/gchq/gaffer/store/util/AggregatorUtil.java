@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store.util;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,6 +28,7 @@ import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 import java.util.ArrayList;

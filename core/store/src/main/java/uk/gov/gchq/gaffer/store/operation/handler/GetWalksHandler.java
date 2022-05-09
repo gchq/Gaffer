@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -48,6 +47,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.ArrayList;
 import java.util.Iterator;

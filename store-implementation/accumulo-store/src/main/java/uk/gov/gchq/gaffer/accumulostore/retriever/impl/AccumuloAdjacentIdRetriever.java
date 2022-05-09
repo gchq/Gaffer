@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -44,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.io.Closeable;
 import java.util.Collections;
@@ -102,30 +102,6 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         }
 
         return iterator;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<String> getGroupsWithTransforms(final View view) {
-        final Set<String> groups = new HashSet<>();
-
-        ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
-        try {
-            chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(view.getEntities().entrySet(), view.getEdges().entrySet());
-            for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
-                if (nonNull(entry.getValue())) {
-                    if (entry.getValue().hasPostTransformFilters()) {
-                        groups.add(entry.getKey());
-                    }
-                }
-            }
-        } finally {
-            CloseableUtil.close(chainedIterable);
-        }
-        return groups;
-    }
-
-    private void addToRanges(final ElementId seed, final Set<Range> ranges) throws RangeFactoryException {
-        ranges.addAll(rangeFactory.getRange(seed, operation));
     }
 
     private final class EntityIdIterator implements Iterator<EntityId>, Closeable {
@@ -263,5 +239,29 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
         public void close() {
             CloseableUtil.close(scanner);
         }
+    }
+
+    private void addToRanges(final ElementId seed, final Set<Range> ranges) throws RangeFactoryException {
+        ranges.addAll(rangeFactory.getRange(seed, operation));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<String> getGroupsWithTransforms(final View view) {
+        final Set<String> groups = new HashSet<>();
+
+        ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
+        try {
+            chainedIterable = new ChainedIterable<>(view.getEntities().entrySet(), view.getEdges().entrySet());
+            for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
+                if (nonNull(entry.getValue())) {
+                    if (entry.getValue().hasPostTransformFilters()) {
+                        groups.add(entry.getKey());
+                    }
+                }
+            }
+        } finally {
+            CloseableUtil.close(chainedIterable);
+        }
+        return groups;
     }
 }
