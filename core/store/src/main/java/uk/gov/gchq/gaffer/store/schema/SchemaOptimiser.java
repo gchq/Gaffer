@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;

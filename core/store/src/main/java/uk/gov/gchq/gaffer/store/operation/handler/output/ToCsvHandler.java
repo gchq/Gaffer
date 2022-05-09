@@ -15,12 +15,12 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collections;
 

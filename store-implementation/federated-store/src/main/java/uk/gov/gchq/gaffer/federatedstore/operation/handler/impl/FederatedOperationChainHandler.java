@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -27,13 +26,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.util.OperationHandlerUtil;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
-
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
@@ -90,7 +89,7 @@ public class FederatedOperationChainHandler<I, O_ITEM> implements OutputOperatio
         }
 
         if (areIterable) {
-            return new ChainedIterable(CollectionUtil.toIterableArray((List) results));
+            return new ChainedIterable<>(CollectionUtil.toIterableArray((List) results));
         }
 
         return (Iterable<O_ITEM>) results;

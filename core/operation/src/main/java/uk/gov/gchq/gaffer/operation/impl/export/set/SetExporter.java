@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.export.set;
 import com.google.common.collect.Iterables;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;

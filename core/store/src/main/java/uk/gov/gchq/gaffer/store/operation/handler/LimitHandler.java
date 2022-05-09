@@ -16,16 +16,16 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 /**
  * An {@code LimitHandler} handles for {@link Limit} operations.
  * It simply wraps the input iterable in a
- * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable} so the data is
+ * {@link uk.gov.gchq.koryphe.iterable.LimitedIterable} so the data is
  * not stored in memory.
  */
 public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterable<? extends T>> {
