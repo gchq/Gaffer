@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -37,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -100,7 +100,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
         try {
             handler.doOperation(operation, new Context(), createStore());
             fail("Exception expected");
-        } catch (final LimitExceededException e) {
+        } catch (final NoSuchElementException e) {
             assertTrue(e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."), e.getMessage());
         }
     }

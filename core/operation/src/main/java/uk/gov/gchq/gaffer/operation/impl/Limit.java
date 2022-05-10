@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * A {@code Limit} operation takes in an {@link Iterable} of items
  * and limits the iterable to a given number of items. It simply wraps the input
- * iterable in a LimitedIterable so
+ * iterable in a {@link uk.gov.gchq.koryphe.iterable.LimitedIterable} so
  * the data is not stored in memory.
  *
  * @see Limit.Builder
