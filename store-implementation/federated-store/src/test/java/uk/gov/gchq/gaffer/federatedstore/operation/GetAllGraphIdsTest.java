@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
-
 
 import java.util.Set;
 
