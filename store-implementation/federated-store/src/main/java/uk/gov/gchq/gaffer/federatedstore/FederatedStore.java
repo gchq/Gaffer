@@ -80,7 +80,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
+import uk.gov.gchq.koryphe.impl.function.FederatedIterableConcat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -569,7 +569,7 @@ public class FederatedStore extends Store {
 
     public Function<Iterable, Object> getDefaultMergeFunction() {
         return isNull(adminConfiguredDefaultMergeFunction)
-                ? new IterableConcat()
+                ? new FederatedIterableConcat()
                 : adminConfiguredDefaultMergeFunction;
     }
 }

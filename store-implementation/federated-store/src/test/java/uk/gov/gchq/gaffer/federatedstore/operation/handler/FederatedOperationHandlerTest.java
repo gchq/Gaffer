@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.function.FederatedIterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
@@ -61,6 +62,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -325,11 +327,83 @@ public class FederatedOperationHandlerTest {
         assertThat(results)
                 .isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
-                .containsExactly(0);
+                .containsExactly();
     }
 
     @Test
-    public void shouldReturnNulledOutputOfTypeIterableWhenResultsContainsOnlyNull() throws Exception {
+    public void shouldProcessAIterableOfBooleanFromMultipleGraphs() throws Exception {
+        // Given
+        Output<Iterable<? extends Element>> payload = getPayload();
+
+        Schema unusedSchema = new Schema.Builder().build();
+        StoreProperties storeProperties = new StoreProperties();
+
+        Store mockStore = getMockStore(unusedSchema, storeProperties);
+        given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList(true));
+
+        FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
+        HashSet<Graph> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
+
+        // When
+        final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
+
+        // Then
+        assertThat(results)
+                .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly(true, true, true);
+    }
+
+    @Test
+    public void shouldProcessABooleanFromMultipleGraphs() throws Exception {
+        // Given
+        Output<Iterable<? extends Element>> payload = getPayload();
+
+        Schema unusedSchema = new Schema.Builder().build();
+        StoreProperties storeProperties = new StoreProperties();
+
+        Store mockStore = getMockStore(unusedSchema, storeProperties);
+        given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(true);
+
+        FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
+        HashSet<Graph> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
+
+        // When
+        final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
+
+        // Then
+        assertThatIllegalStateException().isThrownBy(() -> ((Iterable) results).iterator().hasNext())
+                .withMessage("Iterator of Iterator contains non-iterable class: class java.lang.Boolean object: true");
+    }
+
+    public void shouldProcessAIterableOfIntegersFromMultipleGraphs() throws Exception {
+        // Given
+        Output<Iterable<? extends Element>> payload = getPayload();
+
+        Schema unusedSchema = new Schema.Builder().build();
+        StoreProperties storeProperties = new StoreProperties();
+
+        Store mockStore = getMockStore(unusedSchema, storeProperties);
+        given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList(123));
+
+        FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
+        HashSet<Graph> threeGraphsOfBoolean = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfBoolean);
+
+        // When
+        final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
+
+        // Then
+        assertThat(results)
+                .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly(123, 123, 123);
+    }
+
+    @Test
+    public void shouldProcessAIterableOfNullFromMultipleGraphs() throws Exception {
         // Given
         Output<Iterable<? extends Element>> payload = getPayload();
 
@@ -340,8 +414,8 @@ public class FederatedOperationHandlerTest {
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(Lists.newArrayList((Object) null));
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
-        HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStore));
-        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(filteredGraphs);
+        HashSet<Graph> threeGraphsOfNull = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfNull);
 
         // When
         final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
@@ -350,7 +424,33 @@ public class FederatedOperationHandlerTest {
         assertThat(results)
                 .isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
-                .containsExactly(null);
+                .containsExactly(null, null, null);
+    }
+
+
+    @Test
+    public void shouldReturnNulledOutputOfTypeIterableWhenResultsContainsOnlyNull() throws Exception {
+        // Given
+        Output<Iterable<? extends Element>> payload = getPayload();
+
+        Schema unusedSchema = new Schema.Builder().build();
+        StoreProperties storeProperties = new StoreProperties();
+
+        Store mockStore = getMockStore(unusedSchema, storeProperties);
+        given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(null);
+
+        FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
+        HashSet<Graph> threeGraphsOfNull = Sets.newHashSet(getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore), getGraphWithMockStore(mockStore));
+        given(federatedStore.getGraphs(eq(testUser), any(), any(FederatedOperation.class))).willReturn(threeGraphsOfNull);
+
+        // When
+        final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
+
+        // Then
+        assertThat(results)
+                .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly();
     }
 
     protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result, final Iterable<? extends Element>... resultParts) {
@@ -378,8 +478,7 @@ public class FederatedOperationHandlerTest {
         List<Integer> graph4Results = Arrays.asList((Integer) null); // results is null
         List<Integer> graph5Results = Arrays.asList(4, null, 5); //results with null
         final Iterable<Iterable<Integer>> input = Arrays.asList(
-                //TODO FS BUG exposed if next line is uncommented
-                //graph1Results,
+                graph1Results,
                 graph2ResultsVeryNormal,
                 graph3Results,
                 graph4Results,
@@ -389,7 +488,7 @@ public class FederatedOperationHandlerTest {
         final Object results = function.apply(input);
 
         // Then
-        assertThat(function).isEqualTo(new IterableConcat<>());
+        assertThat(function).isEqualTo(new FederatedIterableConcat<>());
         assertThat(results).isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
                 .containsExactly(1, 2, 3, null, 4, null, 5);

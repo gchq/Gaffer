@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.function.FederatedIterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
@@ -216,7 +217,7 @@ public final class FederatedStoreUtil {
 
         FederatedOperation.BuilderParent<Void, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation)
-                .mergeFunction(new IterableConcat());
+                .mergeFunction(new FederatedIterableConcat());
 
         addDeprecatedGraphIds(operation, builder);
 
