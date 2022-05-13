@@ -29,7 +29,7 @@ import static java.util.Objects.isNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
- * Handler for the federation of an PAYLOAD operation with an expected return type CloseableIterable/<ITERABLE_ELEMENTS/>
+ * Handler for the federation of an PAYLOAD operation with an expected return type Iterable
  *
  * @param <PAYLOAD>           The operation to be federated and executed by delegate graphs.
  * @param <ITERABLE_ELEMENTS> the type of elements returned by the Output Iterable
@@ -37,6 +37,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
+//TODO FS CloseableIterable ?
 public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
         implements OutputOperationHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
 
