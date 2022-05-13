@@ -19,13 +19,11 @@ package uk.gov.gchq.gaffer.hdfs.integration.loader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -39,6 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.TestSchema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Map;
@@ -48,8 +47,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElementsFromHdfs> {
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @TempDir
+    public File testFolder;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsLoaderIT.class);
 
@@ -73,7 +72,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
 
         final String root = fs.resolvePath(new Path("/")).toString()
                 .replaceFirst("/$", "")
-                + testFolder.getRoot().getAbsolutePath();
+                + testFolder.getAbsolutePath();
 
 
         LOGGER.info("using root dir: " + root);
