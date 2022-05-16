@@ -63,27 +63,33 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
 
     private Element createElement(final Tuple<String> tuple, final ElementTupleDefinition elementDef) {
         requireNonNull(elementDef.get(GROUP), GROUP + " is required");
-        Element element = null;
+        Element element = null;    
         if (elementDef.containsKey(VERTEX)) {
             final Object vertex = getField(VERTEX, elementDef, tuple);
-            if (nonNull(vertex)) {
-                element = new Entity(elementDef.getGroup(), vertex);
+            final String group = (String) getField(GROUP, elementDef, tuple);
+            if (nonNull(vertex) && nonNull(group)) {
+                element = new Entity(group, vertex);
             }
         } else {
             final Object source = getField(SOURCE, elementDef, tuple);
             final Object destination = getField(DESTINATION, elementDef, tuple);
+            final String group = (String) getField(GROUP, elementDef, tuple);
             Object directed = getField(DIRECTED, elementDef, tuple);
             directed = isNull(directed) || Boolean.TRUE.equals(directed) || (directed instanceof String && Boolean.parseBoolean((String) directed));
             if (nonNull(source) && nonNull(destination)) {
-                element = new Edge(elementDef.getGroup(), source, destination, (boolean) directed);
+                element = new Edge(group, source, destination, (boolean) directed);
             }
         }
 
         if (nonNull(element)) {
             for (final Map.Entry<String, Object> entry : elementDef.entrySet()) {
                 final IdentifierType id = IdentifierType.fromName(entry.getKey());
-                if (null == id) {
-                    element.putProperty(entry.getKey(), getField(entry.getValue(), tuple));
+                final Object field = getField(entry.getValue(), tuple);
+                if (null == id && null != field) {
+                    if (!field.equals("")){
+                        element.putProperty(entry.getKey(), field );
+                    }
+                    
                 }
             }
         }
