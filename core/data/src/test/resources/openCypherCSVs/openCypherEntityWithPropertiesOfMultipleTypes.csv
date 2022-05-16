@@ -1,0 +1,3 @@
+:ID,name:String,age:Int,lang:String,:LABEL
+v1,marko,29,,person
+v2,lop,,java,software
