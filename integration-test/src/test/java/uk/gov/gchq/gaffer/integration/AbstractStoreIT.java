@@ -17,11 +17,14 @@ package uk.gov.gchq.gaffer.integration;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExecutionCondition;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -78,6 +81,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
  * All tests will be skipped if the storeProperties variable has not been set
  * prior to running the tests.
  */
+@ExtendWith(AbstractStoreIT.skipTestMethodsExtension.class)
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
@@ -118,7 +122,6 @@ public abstract class AbstractStoreIT {
 
     protected static Schema storeSchema = new Schema();
     protected static StoreProperties storeProperties;
-    protected static String singleTestMethod;
     protected Map<EntityId, Entity> entities;
     protected List<Entity> duplicateEntities;
 
@@ -129,11 +132,7 @@ public abstract class AbstractStoreIT {
     protected static Graph graph;
     protected User user = new User();
 
-    @Rule
-    public TestName name = new TestName();
-    private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
-    private static Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
-    protected String originalMethodName;
+    private static Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
     private Method method;
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
@@ -152,16 +151,12 @@ public abstract class AbstractStoreIT {
         AbstractStoreIT.storeSchema = storeSchema;
     }
 
-    public static void setSkipTests(final Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests) {
-        AbstractStoreIT.skippedTests = skippedTests;
-    }
-
-    public static void setSingleTestMethod(final String singleTestMethod) {
-        AbstractStoreIT.singleTestMethod = singleTestMethod;
-    }
-
-    public static void setSkipTestMethods(final Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods) {
+    public static void setSkipTestMethods(final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods) {
         AbstractStoreIT.skipTestMethods = skipTestMethods;
+    }
+
+    public static Map<Class<? extends AbstractStoreIT>, Map<String, String>> getSkipTestMethods() {
+        return skipTestMethods;
     }
 
     /**
@@ -171,9 +166,9 @@ public abstract class AbstractStoreIT {
      *
      * @throws Exception should never be thrown
      */
-    @Before
-    public void setup() throws Exception {
-        initialise();
+    @BeforeEach
+    public void setup(TestInfo testInfo) throws Exception {
+        initialise(testInfo);
         validateTest();
         createGraph();
         _setup();
@@ -184,34 +179,23 @@ public abstract class AbstractStoreIT {
         // Override if required;
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         graph = null;
     }
 
-    protected void initialise() throws Exception {
+    protected void initialise(TestInfo name) throws Exception {
         entities = createEntities();
         duplicateEntities = duplicate(entities.values());
 
         edges = createEdges();
         duplicateEdges = duplicate(edges.values());
 
-        originalMethodName = name.getMethodName().endsWith("]")
-                ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
-                : name.getMethodName();
-
-        method = this.getClass().getMethod(originalMethodName);
+        method = name.getTestMethod().get();
     }
 
     protected void validateTest() throws Exception {
         assumeThat(null != storeProperties).as("Skipping test as no store properties have been defined.").isTrue();
-        assumeThat(null == singleTestMethod || singleTestMethod.equals(originalMethodName)).as("Skipping test as only " + singleTestMethod + " is being run.").isTrue();
-        assumeThat(!skippedTests.containsKey(getClass())).as("Skipping test. Justification: " + skippedTests.get(getClass())).isTrue();
-
-        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
-        if (null != skippedMethods && !skippedMethods.isEmpty()) {
-            assumeThat(!skippedMethods.containsKey(originalMethodName)).as("Skipping test. Justification: " + skippedMethods.get(method.getName())).isTrue();
-        }
     }
 
     protected void validateTraits() throws OperationException {
@@ -584,5 +568,24 @@ public abstract class AbstractStoreIT {
 
     public <T> T execute(final Output<T> op) throws OperationException {
         return graph.execute(op, user);
+    }
+
+    public static class skipTestMethodsExtension implements ExecutionCondition {
+        @Override
+        public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
+            final Class currentClassName = context.getTestClass().get();
+            final Boolean evaluatingMethod = context.getTestMethod().isPresent();
+            final String currentMethodName;
+            final Map<String, String> skippedMethods;
+
+            if (evaluatingMethod){
+                currentMethodName = context.getTestMethod().get().getName();
+                skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
+                if (skippedMethods != null && skippedMethods.containsKey(currentMethodName)) {
+                    return ConditionEvaluationResult.disabled(skippedMethods.get(currentMethodName));
+                }
+            }
+            return ConditionEvaluationResult.enabled("Test enabled");
+        }
     }
 }
