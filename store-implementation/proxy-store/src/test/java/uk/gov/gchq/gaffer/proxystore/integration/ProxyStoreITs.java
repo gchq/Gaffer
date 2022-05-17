@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.proxystore.integration;
 
 import org.junit.AfterClass;
-
 import org.junit.platform.suite.api.ExcludeClassNamePatterns;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
