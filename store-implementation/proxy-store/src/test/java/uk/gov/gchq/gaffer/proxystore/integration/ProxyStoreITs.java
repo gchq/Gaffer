@@ -18,20 +18,19 @@ package uk.gov.gchq.gaffer.proxystore.integration;
 
 import org.junit.AfterClass;
 
+import org.junit.platform.suite.api.ExcludeClassNamePatterns;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.GeneratorsIT;
-import uk.gov.gchq.gaffer.integration.impl.JoinIT;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 
+@ExcludeClassNamePatterns({"uk.gov.gchq.gaffer.integration.impl.JoinIT",
+                           "uk.gov.gchq.gaffer.integration.impl.GeneratorsIT"}) // Skipped because: The output type reference doesn't deserialise the output correctly
 public class ProxyStoreITs extends AbstractStoreITs {
     private static final ProxyProperties STORE_PROPERTIES = ProxyProperties.loadStoreProperties(StreamUtil.openStream(ProxyStoreITs.class, "/mock-proxy-store.properties"));
 
     public ProxyStoreITs() {
         super(STORE_PROPERTIES);
-        skipTest(JoinIT.class, "The output type reference doesn't deserialise the output correctly");
-        skipTest(GeneratorsIT.class, "The output type reference doesn't deserialise the domain object correctly");
     }
 
     @AfterClass
