@@ -53,11 +53,9 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <!-- Testing Dependencies -->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>${junit-suite.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
