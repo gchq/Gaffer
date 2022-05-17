@@ -21,11 +21,11 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
-
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -82,7 +82,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
  * All tests will be skipped if the storeProperties variable has not been set
  * prior to running the tests.
  */
-@ExtendWith(AbstractStoreIT.skipTestMethodsExtension.class)
+@ExtendWith(AbstractStoreIT.SkipTestMethodsExtension.class)
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
@@ -166,6 +166,7 @@ public abstract class AbstractStoreIT {
      * Do not override, use the _setup method if more is necessary
      *
      * @throws Exception should never be thrown
+     * @param testInfo JUnit 5 autofilled
      */
     @BeforeEach
     public void setup(TestInfo testInfo) throws Exception {
@@ -571,7 +572,7 @@ public abstract class AbstractStoreIT {
         return graph.execute(op, user);
     }
 
-    public static class skipTestMethodsExtension implements ExecutionCondition {
+    public static class SkipTestMethodsExtension implements ExecutionCondition {
         @Override
         public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
             final Class currentClassName = context.getTestClass().get();
@@ -579,7 +580,7 @@ public abstract class AbstractStoreIT {
             final String currentMethodName;
             final Map<String, String> skippedMethods;
 
-            if (evaluatingMethod){
+            if (evaluatingMethod) {
                 currentMethodName = context.getTestMethod().get().getName();
                 skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
                 if (skippedMethods != null && skippedMethods.containsKey(currentMethodName)) {

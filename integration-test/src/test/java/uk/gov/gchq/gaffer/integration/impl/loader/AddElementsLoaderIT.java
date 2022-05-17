@@ -26,7 +26,10 @@ import uk.gov.gchq.gaffer.integration.impl.loader.schemas.VisibilitySchemaLoader
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 
-import static uk.gov.gchq.gaffer.store.schema.TestSchema.*;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.AGGREGATION_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.VISIBILITY_SCHEMA;
 
 /**
  * {@link UserLoaderIT} implementation for the {@link AddElements} operation.

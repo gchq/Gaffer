@@ -52,13 +52,13 @@ public abstract class AbstractStoreITs {
     }
 
     protected void skipTestMethod(final Class<? extends AbstractStoreIT> testClass, final String methodToSkip, final String justification) {
-        HashMap<String,String> methodJustificationMap = new HashMap<>();
-        methodJustificationMap.put(methodToSkip,justification);
+        HashMap<String, String> methodJustificationMap = new HashMap<>();
+        methodJustificationMap.put(methodToSkip, justification);
         skipTestMethods.put(testClass, methodJustificationMap);
     }
 
     @Test
-    void emptyTest(){
+    void emptyTest() {
         //Required for JUnit 5. Without any test methods the constructor is not called and the Suite is not run.
     }
 }

@@ -47,7 +47,10 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static uk.gov.gchq.gaffer.store.schema.TestSchema.*;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.AGGREGATION_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
+import static uk.gov.gchq.gaffer.store.schema.TestSchema.VISIBILITY_SCHEMA;
 
 public class AddElementsFromHdfsLoaderIT {
 
