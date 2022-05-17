@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import com.google.common.collect.Sets;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
