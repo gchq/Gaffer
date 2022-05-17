@@ -55,6 +55,7 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
     private static final long serialVersionUID = -6793331642118688901L;
 
     private final List<ElementTupleDefinition> elements = new ArrayList<>();
+    private boolean useGroupMapping = false;
 
     @Override
     public Iterable<Element> apply(final Tuple<String> tuple) {
@@ -63,17 +64,22 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
 
     private Element createElement(final Tuple<String> tuple, final ElementTupleDefinition elementDef) {
         requireNonNull(elementDef.get(GROUP), GROUP + " is required");
-        Element element = null;    
+        Element element = null;
+        final String group;
+        if (useGroupMapping) {
+            group = (String) getField(GROUP, elementDef, tuple);
+        } else {
+            group = elementDef.getGroup();
+        }
+
         if (elementDef.containsKey(VERTEX)) {
             final Object vertex = getField(VERTEX, elementDef, tuple);
-            final String group = (String) getField(GROUP, elementDef, tuple);
             if (nonNull(vertex) && nonNull(group)) {
                 element = new Entity(group, vertex);
             }
         } else {
             final Object source = getField(SOURCE, elementDef, tuple);
             final Object destination = getField(DESTINATION, elementDef, tuple);
-            final String group = (String) getField(GROUP, elementDef, tuple);
             Object directed = getField(DIRECTED, elementDef, tuple);
             directed = isNull(directed) || Boolean.TRUE.equals(directed) || (directed instanceof String && Boolean.parseBoolean((String) directed));
             if (nonNull(source) && nonNull(destination)) {
@@ -86,10 +92,9 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
                 final IdentifierType id = IdentifierType.fromName(entry.getKey());
                 final Object field = getField(entry.getValue(), tuple);
                 if (null == id && null != field) {
-                    if (!field.equals("")){
-                        element.putProperty(entry.getKey(), field );
+                    if (!field.equals("")) {
+                        element.putProperty(entry.getKey(), field);
                     }
-                    
                 }
             }
         }
@@ -129,6 +134,19 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
 
     public TupleToElements elements(final List<ElementTupleDefinition> elementDef) {
         elements.addAll(elementDef);
+        return this;
+    }
+
+    public boolean getUseGroupMapping() {
+        return useGroupMapping;
+    }
+
+    public void setUseGroupMapping(final boolean useGroupMapping) {
+        this.useGroupMapping = useGroupMapping;
+    }
+
+    public TupleToElements useGroupMapping(final boolean useGroupMapping) {
+        setUseGroupMapping(useGroupMapping);
         return this;
     }
 }

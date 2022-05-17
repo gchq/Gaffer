@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
+import com.google.common.collect.ImmutableList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
 import uk.gov.gchq.koryphe.Since;
@@ -31,11 +31,9 @@ import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.FunctionChain;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
-import uk.gov.gchq.koryphe.impl.function.ParseDate;
 import uk.gov.gchq.koryphe.impl.function.ParseTime;
 import uk.gov.gchq.koryphe.impl.function.ToBoolean;
 import uk.gov.gchq.koryphe.impl.function.ToBytes;
-import uk.gov.gchq.koryphe.impl.function.ToDateString;
 import uk.gov.gchq.koryphe.impl.function.ToDouble;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
 import uk.gov.gchq.koryphe.impl.function.ToLong;
@@ -43,18 +41,13 @@ import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
-
-import com.google.common.collect.ImmutableList;
 
 @Since("2.0.0")
 @Summary("Generates elements from an openCypher CSV string")
-public class implements ElementGenerator<String>, Serializable {
+public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, Serializable {
     private static final long serialVersionUID = -821376598172364516L;
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenCypherCsvElementGenerator.class);
     public static final String VERTEX = ":ID";
@@ -63,7 +56,7 @@ public class implements ElementGenerator<String>, Serializable {
     public static final String DESTINATION = ":END_ID";
     public static final String EDGE_GROUP = ":TYPE";
     public static final List<String> ELEMENT_COLUMN_NAMES = ImmutableList.of(VERTEX, ENTITY_GROUP, EDGE_GROUP, SOURCE, DESTINATION);
-   
+
     private String header;
     private int firstRow = 0;
     private Boolean trim = false;
@@ -78,7 +71,7 @@ public class implements ElementGenerator<String>, Serializable {
             .nullString(nullString)
             .delimiter(delimiter)
             .parseHeader(header);
-            
+
         IterableFunction<Map<String, Object>, Tuple<String>> toTuples = new IterableFunction<>(new MapToTuple<String>());
 
         FunctionChain.Builder<Tuple<String>, Tuple<String>> transformTuplesBuilder = new FunctionChain.Builder<>();
@@ -88,14 +81,15 @@ public class implements ElementGenerator<String>, Serializable {
             .source(SOURCE)
             .destination(DESTINATION)
             .property("id", ":ID");
-        for (String columnHeader : parseCsv.getHeader()) {
-            if (!ELEMENT_COLUMN_NAMES.contains(columnHeader)){
+        for (final String columnHeader : parseCsv.getHeader()) {
+            if (!ELEMENT_COLUMN_NAMES.contains(columnHeader)) {
+                String propertyName = columnHeader;
                 if (columnHeader.contains(":")) {
                     String fullColumnHeader = columnHeader;
                     String typeName = columnHeader.split(":")[1];
-                    columnHeader = columnHeader.split(":")[0];
-                    KorypheFunction<?,?> transform;
-                    switch(typeName) {
+                    propertyName = columnHeader.split(":")[0];
+                    KorypheFunction<?, ?> transform;
+                    switch (typeName) {
                         case "Double":
                             transform = new ToDouble();
                             break;
@@ -104,7 +98,7 @@ public class implements ElementGenerator<String>, Serializable {
                             break;
                         case "DateTime":
                             transform = new ParseTime();
-                            break; 
+                            break;
                         case "String":
                             transform = new ToString();
                             break;
@@ -116,26 +110,27 @@ public class implements ElementGenerator<String>, Serializable {
                             break;
                         case "Boolean":
                             transform = new ToBoolean();
-                            break; 
+                            break;
                         case "Float":
-                            transform = new ToDouble();           
+                            transform = new ToDouble();
                         default:
-                            throw new RuntimeException("Unsupported Type: " + typeName  );
+                            throw new RuntimeException("Unsupported Type: " + typeName);
                       }
 
-                    transformTuplesBuilder = transformTuplesBuilder.execute(new String[]{fullColumnHeader}, transform, new String[]{columnHeader});
+                    transformTuplesBuilder = transformTuplesBuilder.execute(new String[]{fullColumnHeader}, transform, new String[]{propertyName});
                 }
-                
-                entityDefinition = entityDefinition.property(columnHeader);
-                edgeDefinition = edgeDefinition.property(columnHeader);
-            }  
+
+                entityDefinition = entityDefinition.property(propertyName);
+                edgeDefinition = edgeDefinition.property(propertyName);
+            }
         }
 
         IterableFunction<Tuple<String>, Tuple<String>> transformTuples = new IterableFunction(transformTuplesBuilder.build());
-       
+
         TuplesToElements toElements = new TuplesToElements()
             .element(entityDefinition)
-            .element(edgeDefinition);
+            .element(edgeDefinition)
+            .useGroupMapping(true);
         // Apply functions
         final FunctionChain<Iterable<String>, Iterable<Element>> generator = new FunctionChain.Builder<Iterable<String>, Iterable<Element>>()
                 .execute(parseCsv)
@@ -151,6 +146,7 @@ public class implements ElementGenerator<String>, Serializable {
         return header;
     }
 
+
     public void setHeader(final String header) {
         this.header = header;
     }
@@ -160,17 +156,17 @@ public class implements ElementGenerator<String>, Serializable {
         return firstRow;
     }
 
+
     public void setFirstRow(final int firstRow) {
         this.firstRow = firstRow;
     }
-
 
     public Boolean getTrim() {
         return trim;
     }
 
 
-    public void setTrim(Boolean trim) {
+    public void setTrim(final Boolean trim) {
         this.trim = trim;
     }
 
@@ -180,7 +176,7 @@ public class implements ElementGenerator<String>, Serializable {
     }
 
 
-    public void setDelimiter(char delimiter) {
+    public void setDelimiter(final char delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -190,9 +186,8 @@ public class implements ElementGenerator<String>, Serializable {
     }
 
 
-    public void setNullString(String nullString) {
+    public void setNullString(final String nullString) {
         this.nullString = nullString;
     }
 
-    
-} 
+}

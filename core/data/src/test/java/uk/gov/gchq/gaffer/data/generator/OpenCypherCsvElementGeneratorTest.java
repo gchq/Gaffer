@@ -16,23 +16,18 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.koryphe.util.DateUtil;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,16 +47,15 @@ public class OpenCypherCsvElementGeneratorTest {
         return generator;
     }
 
-    private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines) {  
+    private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines) {
         return getGenerator(lines, true, ',');
     }
-
 
     @Test
     void shouldGenerateBasicEntity() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntities.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -77,7 +71,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateBasicEdge() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEdge.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
@@ -92,9 +86,9 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateBasicEntityFromPipeDelimitedCsv() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntityPipeDelimited.csv");
-        
+
         //When
-        OpenCypherCsvElementGenerator generator = getGenerator(lines,true, '|');
+        OpenCypherCsvElementGenerator generator = getGenerator(lines, true, '|');
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -104,12 +98,11 @@ public class OpenCypherCsvElementGeneratorTest {
         );
     }
 
-
     @Test
     void shouldGenerateBasicEntityFromCsvWithWhiteSpacePadding() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntityPaddingSpaces.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -125,7 +118,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateEdgeWithID() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherEdgeWithID.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
@@ -142,12 +135,11 @@ public class OpenCypherCsvElementGeneratorTest {
         );
     }
 
-
     @Test
     void shouldGenerateBasicEntityFromCsvWithValuesSurroundedByDoubleQuotes() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntityQuotedValues.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -163,7 +155,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateBasicEntitesAndEdgesCsv() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntitiesAndEdges.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -186,7 +178,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateEntityWithPropertiesNoTypes() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherEntityWithPropertiesNoTypes.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -199,7 +191,7 @@ public class OpenCypherCsvElementGeneratorTest {
                 .property("name", "marko")
                 .property("age", "29")
                 .build(),
-                
+
 
             new Entity.Builder()
                 .group("software")
@@ -215,7 +207,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateEntityWithPropertiesWithCorrectTypes() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherEntityWithPropertiesOfMultipleTypes.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -228,7 +220,7 @@ public class OpenCypherCsvElementGeneratorTest {
                 .property("name", "marko")
                 .property("age", 29)
                 .build(),
-                
+
 
             new Entity.Builder()
                 .group("software")
@@ -243,7 +235,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldGenerateEdgeWithPropertiesWithCorrectTypes() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherEdgeWithPropertiesOfMultipleTypes.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
@@ -265,7 +257,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldCreateDoubleProperty() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherDoubleProperty.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
@@ -288,7 +280,7 @@ public class OpenCypherCsvElementGeneratorTest {
     void shouldCreateDateTimeProperty() throws IOException, ParseException {
         //Given
         Iterable<String> lines = getInputData("openCypherDateTimeProperty.csv");
-        
+
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
@@ -306,7 +298,7 @@ public class OpenCypherCsvElementGeneratorTest {
         );
 
         //TODO Add Float, Long,  Boolean , Short, byte
-        
+
     }
 
 }

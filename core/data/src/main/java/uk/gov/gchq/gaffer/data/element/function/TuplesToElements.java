@@ -41,10 +41,13 @@ import java.util.List;
 public class TuplesToElements extends KorypheFunction<Iterable<Tuple<String>>, Iterable<Element>> implements Serializable {
     private static final long serialVersionUID = 8954092895764615233L;
     private final List<ElementTupleDefinition> elements = new ArrayList<>();
+    private boolean useGroupMapping = false;
 
     @Override
     public Iterable<Element> apply(final Iterable<Tuple<String>> tuples) {
-        final TupleToElements tupleToElements = new TupleToElements().elements(elements);
+        final TupleToElements tupleToElements = new TupleToElements()
+                .elements(elements)
+                .useGroupMapping(useGroupMapping);
         return new TransformOneToManyIterable<Tuple<String>, Element>(tuples) {
             @Override
             protected Iterable<Element> transform(final Tuple<String> tuple) {
@@ -69,6 +72,19 @@ public class TuplesToElements extends KorypheFunction<Iterable<Tuple<String>>, I
 
     public TuplesToElements elements(final List<ElementTupleDefinition> elementDef) {
         elements.addAll(elementDef);
+        return this;
+    }
+
+    public boolean getUseGroupMapping() {
+        return useGroupMapping;
+    }
+
+    public void setUseGroupMapping(final boolean useGroupMapping) {
+        this.useGroupMapping = useGroupMapping;
+    }
+
+    public TuplesToElements useGroupMapping(final boolean useGroupMapping) {
+        setUseGroupMapping(useGroupMapping);
         return this;
     }
 }
