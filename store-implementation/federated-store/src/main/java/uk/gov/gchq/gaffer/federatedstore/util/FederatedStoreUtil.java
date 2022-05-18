@@ -50,6 +50,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static java.util.Objects.isNull;
@@ -131,7 +132,7 @@ public final class FederatedStoreUtil {
                     // then clone the operation and add the new view.
                     if (validView.hasGroups()) {
                         ((OperationView) resultOp).setView(validView);
-                    // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
+                        // Deprecated function still in use due to Federated GetTraits bug with DYNAMIC_SCHEMA
                     } else if (!graph.getStoreTraits().contains(StoreTrait.DYNAMIC_SCHEMA)) {
                         // The view has no groups so the operation would return
                         // nothing, so we shouldn't execute the operation.
@@ -217,12 +218,41 @@ public final class FederatedStoreUtil {
 
         FederatedOperation.BuilderParent<Void, OUTPUT> builder = new FederatedOperation.Builder()
                 .op(operation)
-                .mergeFunction(new FederatedIterableConcat());
+                .mergeFunction(getHardCodedDefaultMergeFunction());
 
         addDeprecatedGraphIds(operation, builder);
 
 
         return builder.build();
+    }
+
+    public static Function getHardCodedDefaultMergeFunction() {
+        //TODO FS
+         /*
+         Type parameters:
+         <T> – Input/Output type
+         <OT> – Input/Output type of the BinaryOperator being applied
+
+         AdaptedBinaryOperator(final BinaryOperator<OT> binaryOperator,   FederatedIterableConcat
+                                 final Function<T, OT> inputAdapter,        ToArray
+                                 final BiFunction<T, OT, T> outputAdapter)    Null
+         */
+        /*
+        final CollectionConcat<Object> concat1 = new CollectionConcat<>();
+        final KorypheBinaryOperator<Collection<Object>> concat2 = concat1;
+        final BinaryOperator<Collection<Object>> concat3 = concat2;
+
+        final ToArray toArray1 = new ToArray();
+        final KorypheFunction<Object, Object[]> toArray3 = toArray1;
+        final Function<Object, Object[]> toArray = toArray3;
+
+        final BiFunction<Object, Collection<Object>, Object> ignore = null;
+
+        new AdaptedBinaryOperator<>(concat3, toArray3, ignore);
+
+        return adaptedBinaryOperator;
+        */
+        return new FederatedIterableConcat<>();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {

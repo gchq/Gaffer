@@ -98,6 +98,7 @@ import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedWrappedSchema;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 /**
  * <p>
@@ -569,7 +570,7 @@ public class FederatedStore extends Store {
 
     public Function<Iterable, Object> getDefaultMergeFunction() {
         return isNull(adminConfiguredDefaultMergeFunction)
-                ? new FederatedIterableConcat()
+                ? getHardCodedDefaultMergeFunction()
                 : adminConfiguredDefaultMergeFunction;
     }
 }

@@ -91,11 +91,9 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             OUTPUT rtn;
             if (nonNull(mergeFunction)) {
                 rtn = mergeFunction.apply(results);
-            } else if (results.iterator().hasNext() && results.iterator().next() instanceof Iterable) {
-                rtn = (OUTPUT) store.getDefaultMergeFunction().apply(results);
             } else {
-                //TODO FS should merge always be applied and error if not?
-                rtn = (OUTPUT) results;
+                final Function<Iterable, Object> defaultMergeFunction = store.getDefaultMergeFunction();
+                rtn = (OUTPUT) defaultMergeFunction.apply(results);
             }
             return rtn;
         } catch (final Exception e) {
