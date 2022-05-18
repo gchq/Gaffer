@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.codehaus.jackson.annotate.JsonCreator;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,7 +28,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.util.function.Function;
+
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 /**
@@ -37,9 +43,19 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
-//TODO FS CloseableIterable ?
-public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? extends Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
+public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
         implements OutputOperationHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
+
+    private Function handlerConfiguredMergeFunction;
+
+    public FederatedOutputIterableHandler() {
+        this(null);
+    }
+
+    @JsonCreator
+    public FederatedOutputIterableHandler(@JsonProperty("handlerConfiguredMergeFunction") final Function mergeFunction) {
+        this.handlerConfiguredMergeFunction = mergeFunction;
+    }
 
     @Override
     public Iterable<? extends ITERABLE_ELEMENTS> doOperation(final PAYLOAD operation, final Context context, final Store store) throws OperationException {
@@ -47,6 +63,11 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         Iterable<? extends ITERABLE_ELEMENTS> results;
 
         FederatedOperation federatedOperation = getFederatedOperation(operation instanceof InputOutput ? (InputOutput) operation : (Output) operation);
+
+        if (nonNull(handlerConfiguredMergeFunction)) {
+            federatedOperation.mergeFunction(handlerConfiguredMergeFunction);
+        }
+
         Object execute = store.execute(federatedOperation, context);
         try {
             results = (Iterable<? extends ITERABLE_ELEMENTS>) execute;
@@ -56,5 +77,9 @@ public class FederatedOutputCloseableIterableHandler<PAYLOAD extends Output<? ex
         operation.setOptions(federatedOperation.getOptions());
 
         return isNull(results) ? new EmptyIterable<>() : results;
+    }
+
+    public Function getHandlerConfiguredMergeFunction() {
+        return handlerConfiguredMergeFunction;
     }
 }

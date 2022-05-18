@@ -49,7 +49,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetSche
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedNoOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputCloseableIterableHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOutputIterableHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.schema.FederatedViewValidator;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -80,7 +80,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.impl.function.FederatedIterableConcat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -449,6 +448,7 @@ public class FederatedStore extends Store {
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
         addOperationHandler(FederatedOperation.class, new FederatedOperationHandler());
+        //TODO FS re add FedOpChain
     }
 
     @Override
@@ -458,17 +458,17 @@ public class FederatedStore extends Store {
 
     @Override
     protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
-        return new FederatedOutputCloseableIterableHandler<GetElements, Element>();
+        return new FederatedOutputIterableHandler<>(/*default merge function*/);
     }
 
     @Override
     protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
-        return new FederatedOutputCloseableIterableHandler<GetAllElements, Element>();
+        return new FederatedOutputIterableHandler<>(/*default merge function*/);
     }
 
     @Override
     protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return new FederatedOutputCloseableIterableHandler<GetAdjacentIds, EntityId>();
+        return new FederatedOutputIterableHandler<>(/*default merge function*/);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
