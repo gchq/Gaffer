@@ -130,7 +130,7 @@ public class OpenCypherCsvElementGeneratorTest {
                     .source("v1")
                     .dest("v2")
                     .directed(true)
-                    .property("id", "e1")
+                    .property("edge-id", "e1")
                     .build()
         );
     }
@@ -169,7 +169,7 @@ public class OpenCypherCsvElementGeneratorTest {
                     .source("v1")
                     .dest("v2")
                     .directed(true)
-                    .property("id", "e1")
+                    .property("edge-id", "e1")
                     .build()
         );
     }
@@ -247,7 +247,7 @@ public class OpenCypherCsvElementGeneratorTest {
                     .source("v1")
                     .dest("v2")
                     .directed(true)
-                    .property("id", "e1")
+                    .property("edge-id", "e1")
                     .property("age", 4)
                     .build()
         );
@@ -269,7 +269,7 @@ public class OpenCypherCsvElementGeneratorTest {
                     .source("v1")
                     .dest("v2")
                     .directed(true)
-                    .property("id", "e1")
+                    .property("edge-id", "e1")
                     .property("weight", 0.4d)
                     .build()
 

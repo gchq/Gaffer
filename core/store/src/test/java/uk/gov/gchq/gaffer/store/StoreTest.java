@@ -73,6 +73,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromOpenCypherCsv;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -502,6 +503,9 @@ public class StoreTest {
                 ExportToGafferResultCache.class,
                 GetGafferResultCacheExport.class,
 
+                // Import
+                AddElementsFromOpenCypherCsv.class,
+
                 // Jobs
                 GetJobDetails.class,
                 GetAllJobDetails.class,
@@ -614,6 +618,9 @@ public class StoreTest {
                 GetExports.class,
                 ExportToGafferResultCache.class,
                 GetGafferResultCacheExport.class,
+
+                // Import
+                AddElementsFromOpenCypherCsv.class,
 
                 // Jobs are disabled
 

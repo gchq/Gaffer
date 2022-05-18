@@ -80,7 +80,7 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         ElementTupleDefinition edgeDefinition = new ElementTupleDefinition(EDGE_GROUP)
             .source(SOURCE)
             .destination(DESTINATION)
-            .property("id", ":ID");
+            .property("edge-id", ":ID");
         for (final String columnHeader : parseCsv.getHeader()) {
             if (!ELEMENT_COLUMN_NAMES.contains(columnHeader)) {
                 String propertyName = columnHeader;
