@@ -24,6 +24,11 @@
 
     <artifactId>hdfs-library</artifactId>
 
+    <properties>
+        <!-- IT is designed to be extended by other classes, cannot be run standalone -->
+        <exclude.tests>**/AddElementsFromHdfsLoaderIT.java</exclude.tests>
+    </properties>
+
     <dependencies>
         <!-- Gaffer dependencies -->
         <dependency>
