@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.impl.function.FederatedIterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
@@ -252,7 +251,7 @@ public final class FederatedStoreUtil {
 
         return adaptedBinaryOperator;
         */
-        return new FederatedIterableConcat<>();
+        return new IterableConcat();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {

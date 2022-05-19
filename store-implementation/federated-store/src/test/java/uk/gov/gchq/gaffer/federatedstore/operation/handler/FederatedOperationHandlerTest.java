@@ -50,7 +50,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.impl.function.FederatedIterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
@@ -375,7 +374,7 @@ public class FederatedOperationHandlerTest {
 
         // Then
         assertThatIllegalStateException().isThrownBy(() -> ((Iterable) results).iterator().hasNext())
-                .withMessage("Iterator of Iterator contains non-iterable class: class java.lang.Boolean object: true");
+                .withMessage("Iterable of Iterable contains non-iterable class: class java.lang.Boolean object: true");
     }
 
     public void shouldProcessAIterableOfIntegersFromMultipleGraphs() throws Exception {
@@ -488,7 +487,7 @@ public class FederatedOperationHandlerTest {
         final Object results = function.apply(input);
 
         // Then
-        assertThat(function).isEqualTo(new FederatedIterableConcat<>());
+        assertThat(function).isEqualTo(new IterableConcat<>());
         assertThat(results).isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
                 .containsExactly(1, 2, 3, null, 4, null, 5);
