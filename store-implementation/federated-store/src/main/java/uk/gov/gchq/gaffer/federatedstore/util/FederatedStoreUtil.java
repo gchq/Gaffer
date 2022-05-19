@@ -227,30 +227,35 @@ public final class FederatedStoreUtil {
 
     public static Function getHardCodedDefaultMergeFunction() {
         //TODO FS
-         /*
-         Type parameters:
-         <T> – Input/Output type
-         <OT> – Input/Output type of the BinaryOperator being applied
-
-         AdaptedBinaryOperator(final BinaryOperator<OT> binaryOperator,   FederatedIterableConcat
-                                 final Function<T, OT> inputAdapter,        ToArray
-                                 final BiFunction<T, OT, T> outputAdapter)    Null
-         */
-        /*
-        final CollectionConcat<Object> concat1 = new CollectionConcat<>();
-        final KorypheBinaryOperator<Collection<Object>> concat2 = concat1;
-        final BinaryOperator<Collection<Object>> concat3 = concat2;
-
-        final ToArray toArray1 = new ToArray();
-        final KorypheFunction<Object, Object[]> toArray3 = toArray1;
-        final Function<Object, Object[]> toArray = toArray3;
-
-        final BiFunction<Object, Collection<Object>, Object> ignore = null;
-
-        new AdaptedBinaryOperator<>(concat3, toArray3, ignore);
-
-        return adaptedBinaryOperator;
-        */
+//        {
+//         /*
+//         Type parameters:
+//         <T> – Input/Output type
+//         <OT> – Input/Output type of the BinaryOperator being applied
+//
+//         AdaptedBinaryOperator(final BinaryOperator<OT> binaryOperator,   FederatedIterableConcat
+//                                 final Function<T, OT> inputAdapter,        ToArray
+//                                 final BiFunction<T, OT, T> outputAdapter)    Null
+//         */
+//            final CollectionConcat<Object> concat1 = new CollectionConcat<>();
+//            final KorypheBinaryOperator<Collection<Object>> concat2 = concat1;
+//            final BinaryOperator<? extends Iterable<Object>> concat3 = concat2;
+//            //OT = ? extends Iterable<Object>
+//
+//            final ToIterable toIterable = new ToIterable();
+//            final KorypheFunction<Object, Iterable<Object>> toIterable1 = toIterable;
+//            final Function<Object, ? extends Iterable<Object>> toIterable2 = toIterable1;
+//            //T = Object
+//            //OT = Iterable<Object>
+//
+//            final BiFunction<Object, ? extends Iterable<Object>, Object> ignore = null;
+//            //T = Object
+//            //OT = ? extends Iterable<Object>
+//
+//            final AdaptedBinaryOperator<Object, ? extends Iterable<Object>> adaptedBinaryOperator = new AdaptedBinaryOperator<>(concat3, toIterable2, ignore);
+//
+//            return adaptedBinaryOperator;
+//        }
         return new IterableConcat();
     }
 
