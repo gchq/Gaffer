@@ -15,10 +15,13 @@
  */
 package uk.gov.gchq.gaffer.mapstore.integration;
 
+import org.junit.platform.suite.api.ConfigurationParameter;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 
+@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.mapstore.integration.MapStoreITs")
 public class MapStoreITs extends AbstractStoreITs {
     private static final MapStoreProperties STORE_PROPERTIES =
             MapStoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));

@@ -15,11 +15,14 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
+import org.junit.platform.suite.api.ConfigurationParameter;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetWalksIT;
 
+@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs")
 public class FederatedStoreITs extends AbstractStoreITs {
     private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "publicAccessPredefinedFederatedStore.properties"));

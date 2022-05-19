@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,14 +76,17 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.junit.platform.commons.support.ReflectionSupport.newInstance;
+import static org.junit.platform.commons.support.ReflectionSupport.tryToLoadClass;
 
 /**
  * Logic/config for setting up and running store integration tests.
- * All tests will be skipped if the storeProperties variable has not been set
- * prior to running the tests.
+ * The storeProperties variable must have been set by a Suite initialisation class
+ * (an extension of {@link AbstractStoreITs}) prior to running the tests.
  */
-@ExtendWith(AbstractStoreIT.SkipTestMethodsExtension.class)
+@ExtendWith({AbstractStoreIT.SkipTestMethodsExtension.class, AbstractStoreIT.SuiteInitialisationExtension.class})
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
@@ -134,6 +138,8 @@ public abstract class AbstractStoreIT {
     protected User user = new User();
 
     private static Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
+    private static String initialisationError;
+    private static Class suiteClass;
     private Method method;
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
@@ -150,10 +156,6 @@ public abstract class AbstractStoreIT {
 
     public static void setStoreSchema(final Schema storeSchema) {
         AbstractStoreIT.storeSchema = storeSchema;
-    }
-
-    public static void setSkipTestMethods(final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods) {
-        AbstractStoreIT.skipTestMethods = skipTestMethods;
     }
 
     public static Map<Class<? extends AbstractStoreIT>, Map<String, String>> getSkipTestMethods() {
@@ -196,8 +198,9 @@ public abstract class AbstractStoreIT {
         method = name.getTestMethod().get();
     }
 
-    protected void validateTest() throws Exception {
-        assumeThat(null != storeProperties).as("Skipping test as no store properties have been defined.").isTrue();
+    protected void validateTest() {
+        assertThat(initialisationError).withFailMessage("Problem initialising @Suite, %s", initialisationError).isNull();
+        assertThat(storeProperties).withFailMessage("No store properties were defined by the initialising class constructor").isNotNull();
     }
 
     protected void validateTraits() throws OperationException {
@@ -588,6 +591,25 @@ public abstract class AbstractStoreIT {
                 }
             }
             return ConditionEvaluationResult.enabled("Test enabled");
+        }
+    }
+
+    public static class SuiteInitialisationExtension implements BeforeAllCallback {
+        @Override
+        public void beforeAll(ExtensionContext context) {
+            final String initialisationClassName;
+            final Class initialisationClass;
+
+            initialisationClassName = context.getConfigurationParameter("initClass").orElse("missing");
+            initialisationClass = tryToLoadClass(initialisationClassName).toOptional().orElse(null);
+            if (initialisationClassName == "missing") {
+                initialisationError = "missing the 'initClass' @ConfigurationParameter (required to initialise)";
+            } else if (initialisationClass == null) {
+                initialisationError = "'initClass' @ConfigurationParameter is invalid (required to initialise)";
+            } else if (suiteClass != initialisationClass) {
+                suiteClass = initialisationClass;
+                newInstance(initialisationClass);
+            }
         }
     }
 }

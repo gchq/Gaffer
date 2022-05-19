@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.jupiter.api.Test;
 import org.junit.platform.suite.api.IncludeClassNamePatterns;
 import org.junit.platform.suite.api.SelectPackages;
 import org.junit.platform.suite.api.Suite;
@@ -28,9 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Runs the full suite of gaffer store integration tests. To run the tests against
- * a specific store, simply extend this class - you don't need to annotate
- * your class.
+ * Runs the full suite of gaffer store integration tests.
+ * To run the tests against a specific store, extend this class and add
+ * '@ConfigurationParameter(key = "initClass", value = "FQCN.of.your.class")'
+ * as an annotation. This is required for JUnit to initialise values used
+ * by the tests (e.g. Store Properties). You can use annotations from
+ * {@link org.junit.platform.suite.api} to include/exclude integration test
+ * classes or select additional classes to add to the test Suite.
  */
 
 @Suite
@@ -55,10 +58,5 @@ public abstract class AbstractStoreITs {
         HashMap<String, String> methodJustificationMap = new HashMap<>();
         methodJustificationMap.put(methodToSkip, justification);
         skipTestMethods.put(testClass, methodJustificationMap);
-    }
-
-    @Test
-    void emptyTest() {
-        //Required for JUnit 5. Without any test methods the constructor is not called and the Suite is not run.
     }
 }

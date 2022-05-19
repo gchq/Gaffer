@@ -15,10 +15,13 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import org.junit.platform.suite.api.ConfigurationParameter;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 
 
+@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreClassicKeysITs")
 public class AccumuloStoreClassicKeysITs extends AccumuloStoreITs {
 
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreClassicKeysITs.class, "/accumuloStoreClassicKeys.properties"));
