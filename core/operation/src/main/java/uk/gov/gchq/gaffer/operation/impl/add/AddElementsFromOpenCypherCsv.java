@@ -27,18 +27,16 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * An {@code AddElementsFromFile} operation takes a filename, converts each
- * line of the file to a Gaffer {@link Element} using the provided
- * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
- * elements to the Graph.
+ * An {@code AddElementsFromOpenCypherCsv} operation takes a filename, converts each
+ * line of the file to a Gaffer {@link Element} then adds these
+ * elements to the Graph. The file must be of valid openCypher CSV format.
  *
  * @see Builder
  */
 
-@JsonPropertyOrder(value = {"class", "filename", "ELEMENT_GENERATOR_FILE_PATH"}, alphabetic = true)
-@Since("1.6.0")
-
-@Summary("Adds elements from a OpenCypher csv file")
+@JsonPropertyOrder(value = {"class", "filename"}, alphabetic = true)
+@Since("2.0.0")
+@Summary("Adds elements from a openCypher CSV file")
 public class AddElementsFromOpenCypherCsv implements
         Operation,
         Validatable {
