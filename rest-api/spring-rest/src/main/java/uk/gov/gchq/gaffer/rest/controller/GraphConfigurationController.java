@@ -96,7 +96,7 @@ public class GraphConfigurationController implements IGraphConfigurationControll
             try {
                 predicate = (Predicate) predicateClass.newInstance();
             } catch (final IllegalAccessException | InstantiationException e) {
-                LOGGER.warn("Failed to create new instance of " + predicateClass, e);
+                LOGGER.warn("Failed to create new instance of {}", predicateClass, e);
                 LOGGER.warn("Skipping");
                 continue;
             }

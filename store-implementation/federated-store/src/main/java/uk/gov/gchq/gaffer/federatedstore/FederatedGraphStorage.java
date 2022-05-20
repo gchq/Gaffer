@@ -574,7 +574,7 @@ public class FederatedGraphStorage {
                 } catch (final CacheOperationException e) {
                     //TODO FS recovery
                     String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
-                    LOGGER.error(s + " graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
+                    LOGGER.error(s ," graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
                     throw new StorageException(s, e);
                 }
             }
@@ -653,7 +653,7 @@ public class FederatedGraphStorage {
                     federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true);
                 } catch (final CacheOperationException e) {
                     String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-                    LOGGER.error(s + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
+                    LOGGER.error(s ,"{} graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
                     throw new StorageException(s, e);
                 }
                 federatedStoreCache.deleteGraphFromCache(graphId);

@@ -42,7 +42,7 @@ public class HazelcastCacheService implements ICacheService {
         if (null == hazelcast || !Hazelcast.getAllHazelcastInstances().contains(hazelcast)) {
             String configFile = properties.getProperty(CACHE_CONFIG_FILE);
             if (null == configFile) {
-                LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
+                LOGGER.warn("Config file not set using system property: {}", CACHE_CONFIG_FILE
                         + ". Using default settings");
 
                 hazelcast = Hazelcast.newHazelcastInstance();
