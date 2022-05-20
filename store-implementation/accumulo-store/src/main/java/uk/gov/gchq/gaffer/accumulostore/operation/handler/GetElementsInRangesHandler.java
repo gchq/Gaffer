@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -30,18 +29,18 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsInRangesHandler implements OutputOperationHandler<GetElementsInRanges, CloseableIterable<? extends Element>> {
+public class GetElementsInRangesHandler implements OutputOperationHandler<GetElementsInRanges, Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetElementsInRanges operation,
-                                                            final Context context, final Store store)
+    public Iterable<? extends Element> doOperation(final GetElementsInRanges operation,
+                                                   final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<? extends Element> doOperation(final GetElementsInRanges operation,
-                                                            final User user,
-                                                            final AccumuloStore store) throws OperationException {
+    public Iterable<? extends Element> doOperation(final GetElementsInRanges operation, final User user,
+                                                   final AccumuloStore store)
+            throws OperationException {
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloRangeIDRetriever<>(store, operation, user,

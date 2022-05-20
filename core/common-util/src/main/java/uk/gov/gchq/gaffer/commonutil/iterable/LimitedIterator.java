@@ -16,15 +16,21 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 /**
- * An {@code LimitedCloseableIterator} is an {@link java.util.Iterator} which is
- * limited to a maximum size. This is achieved by iterating through the objects
- * contained in the iterator until the preconfigured starting point is reached
+ * An {@code LimitedIterator} is a {@link java.io.Closeable}
+ * {@link java.util.Iterator} which is limited to a maximum size. This is
+ * achieved by iterating through the objects contained in the iterator
+ * until the preconfigured starting point is reached
  * (and discarding these), then by retrieving objects until either:
  * <ul>
  *     <li>the end of the iterator is reached, or</li>
@@ -33,31 +39,24 @@ import java.util.NoSuchElementException;
  *
  * @param <T> the type of items in the iterator.
  */
-public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
-    private final CloseableIterator<T> iterator;
+public class LimitedIterator<T> implements Closeable, Iterator<T> {
+
+    private final Iterator<T> iterator;
     private final Integer end;
     private int index = 0;
     private Boolean truncate = true;
 
-    public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final Integer end) {
+    public LimitedIterator(final Iterator<T> iterator, final int start, final Integer end) {
         this(iterator, start, end, true);
     }
 
-    public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final Integer end, final Boolean truncate) {
-        this(new WrappedCloseableIterator<>(iterator), start, end, truncate);
-    }
-
-    public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final Integer end) {
-        this(iterator, start, end, true);
-    }
-
-    public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final Integer end, final Boolean truncate) {
-        if (null != end && start > end) {
+    public LimitedIterator(final Iterator<T> iterator, final int start, final Integer end, final Boolean truncate) {
+        if (nonNull(end) && start > end) {
             throw new IllegalArgumentException("start should be less than end");
         }
 
-        if (null == iterator) {
-            this.iterator = new EmptyCloseableIterator<>();
+        if (isNull(iterator)) {
+            this.iterator = new EmptyIterator<>();
         } else {
             this.iterator = iterator;
         }
@@ -71,12 +70,12 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
 
     @Override
     public void close() {
-        iterator.close();
+        CloseableUtil.close(iterator);
     }
 
     @Override
     public boolean hasNext() {
-        final boolean withinLimit = (null == end || index < end);
+        final boolean withinLimit = (isNull(end) || index < end);
 
         if (!withinLimit && !truncate && iterator.hasNext()) {
             // Throw an exception if we are - not within the limit, we don't want to truncate and there are items remaining.

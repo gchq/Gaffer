@@ -25,18 +25,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-
 import java.io.IOException;
 import java.util.List;
 
 /**
- * Custom deserialisation class for any classes implementing the {@link uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable}
- * interface. This class is required in order to extend Jackson's deserialisation behaviour for Collections to a non-Collections
- * class.
+ * Custom deserialisation class for any classes implementing the {@link java.lang.Iterable} interface. This class is
+ * required in order to extend Jackson's deserialisation behaviour for Collections to a non-Collections class.
  */
-public class CloseableIterableDeserializer extends JsonDeserializer<CloseableIterable<?>> implements ContextualDeserializer {
+public class IterableDeserializer extends JsonDeserializer<Iterable<?>> implements ContextualDeserializer {
 
     /**
      * Type variable to store information about the contained type at runtime.
@@ -44,27 +40,26 @@ public class CloseableIterableDeserializer extends JsonDeserializer<CloseableIte
     private JavaType valueType;
 
     public static SimpleModule getModule() {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
+        final SimpleModule module = new SimpleModule();
+        module.addDeserializer(Iterable.class, new IterableDeserializer());
         return module;
     }
 
     @Override
-    public CloseableIterable<?> deserialize(final JsonParser jp,
-                                            final DeserializationContext ctxt) throws IOException {
+    public Iterable<?> deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
         final JavaType typeReference = ctxt.getTypeFactory()
                 .constructCollectionType(List.class, valueType);
 
-        return new WrappedCloseableIterable<>(ctxt.<Iterable<?>>readValue(jp, typeReference));
+        return ctxt.<Iterable<?>>readValue(jp, typeReference);
     }
 
     @Override
     public JsonDeserializer<?> createContextual(final DeserializationContext deserializationContext,
-                                                final BeanProperty property) throws JsonMappingException {
+            final BeanProperty property) throws JsonMappingException {
         final JavaType valueType = deserializationContext.getContextualType()
                 .containedType(0);
 
-        final CloseableIterableDeserializer deserializer = new CloseableIterableDeserializer();
+        final IterableDeserializer deserializer = new IterableDeserializer();
         deserializer.valueType = valueType;
 
         return deserializer;

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.store.Context;
@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.Store;
 /**
  * An {@code LimitHandler} handles for {@link Limit} operations.
  * It simply wraps the input iterable in a
- * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so the data is
+ * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable} so the data is
  * not stored in memory.
  */
 public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterable<? extends T>> {
@@ -36,7 +36,7 @@ public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterabl
         }
 
         if (null != operation.getResultLimit()) {
-            return new LimitedCloseableIterable<>(operation.getInput(), 0, operation
+            return new LimitedIterable<>(operation.getInput(), 0, operation
                     .getResultLimit(), operation.getTruncate());
 
         }

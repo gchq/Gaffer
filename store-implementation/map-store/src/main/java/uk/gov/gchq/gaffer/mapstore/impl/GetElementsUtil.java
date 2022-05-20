@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
 import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -134,13 +133,15 @@ public final class GetElementsUtil {
         return relevantElements;
     }
 
-    public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema, final User user) {
+    public static Stream<Element> applyVisibilityFilter(final Stream<Element> elements, final Schema schema,
+                                                        final User user) {
         final Set<String> dataAuths = user.getDataAuths();
         final Authorisations authorisations = new Authorisations(dataAuths.toArray(new String[dataAuths.size()]));
         return elements.filter(e -> isVisible(e, schema.getVisibilityProperty(), authorisations));
     }
 
-    private static boolean isVisible(final Element e, final String visibilityProperty, final Authorisations authorisations) {
+    private static boolean isVisible(final Element e, final String visibilityProperty,
+                                     final Authorisations authorisations) {
         if (e.getProperty(visibilityProperty) != null) {
             final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(authorisations);
             final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibilityProperty));
@@ -197,7 +198,7 @@ public final class GetElementsUtil {
         });
 
         // Apply aggregation
-        final CloseableIterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
+        final Iterable<Element> iterable = AggregatorUtil.queryAggregate(stream.collect(Collectors.toList()), schema, view, includeMatchedVertex);
         stream = StreamSupport.stream(iterable.spliterator(), false);
 
         // Apply post-aggregation filter
@@ -225,4 +226,3 @@ public final class GetElementsUtil {
         return stream;
     }
 }
-

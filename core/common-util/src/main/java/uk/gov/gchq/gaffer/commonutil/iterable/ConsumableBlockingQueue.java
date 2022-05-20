@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import static java.util.Objects.isNull;
+
 /**
  * Extension to {@link ArrayBlockingQueue} to allow consumers to iterate over
  * the queue, consuming the data, without being blocked.
@@ -71,11 +73,11 @@ public class ConsumableBlockingQueue<T> extends ArrayBlockingQueue<T> {
             return true;
         }
 
-        if (null == obj || getClass() != obj.getClass()) {
+        if (isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ConsumableBlockingQueue queue = (ConsumableBlockingQueue) obj;
+        final ConsumableBlockingQueue<?> queue = (ConsumableBlockingQueue<?>) obj;
 
         return new EqualsBuilder()
                 .append(toArray(), queue.toArray())

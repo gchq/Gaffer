@@ -21,16 +21,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 
+import java.io.Closeable;
+import java.util.Iterator;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- * A {@link uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable} which uses
+ * A {@link java.io.Closeable} {@link java.lang.Iterable} which uses
  * a {@link java.util.stream.Stream} as the underlying data source.
  *
  * @param <T> the object type
  */
-public class StreamIterable<T> implements CloseableIterable<T> {
+public class StreamIterable<T> implements Closeable, Iterable<T> {
     private final Supplier<Stream<T>> streamSupplier;
 
     public StreamIterable(final StreamSupplier<T> streamSupplier) {
@@ -47,7 +49,7 @@ public class StreamIterable<T> implements CloseableIterable<T> {
     }
 
     @Override
-    public CloseableIterator<T> iterator() {
+    public Iterator<T> iterator() {
         return new StreamIterator<>(streamSupplier.get());
     }
 

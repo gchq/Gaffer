@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.join;
 
-
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.join.Join;
 import uk.gov.gchq.gaffer.operation.impl.join.match.MatchKey;
@@ -74,8 +73,8 @@ public class JoinHandler<I> implements OutputOperationHandler<Join<I>, Iterable<
         final Iterable limitedRightIterable;
 
         try {
-            limitedLeftIterable = new LimitedCloseableIterable(operation.getInput(), 0, limit, false);
-            limitedRightIterable = new LimitedCloseableIterable(rightIterable, 0, limit, false);
+            limitedLeftIterable = new LimitedIterable(operation.getInput(), 0, limit, false);
+            limitedRightIterable = new LimitedIterable(rightIterable, 0, limit, false);
             return joinFunction.join(limitedLeftIterable, limitedRightIterable, operation.getMatchMethod(), matchKey, operation.isFlatten());
         } catch (final LimitExceededException e) {
             throw new OperationException("Join exceeded the collectionLimit, a solution is to increasing collectionLimit value in the join operation.", e);

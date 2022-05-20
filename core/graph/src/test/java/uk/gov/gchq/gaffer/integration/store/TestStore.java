@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration.store;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -44,7 +43,8 @@ public class TestStore extends Store {
     public static Store mockStore = mock(TestStore.class);
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context)
+            throws OperationException {
         return mockStore.executeJob(operationChain, context);
     }
 
@@ -68,17 +68,17 @@ public class TestStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, Iterable<? extends Element>> getGetElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, Iterable<? extends Element>> getGetAllElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentIds, Iterable<? extends EntityId>> getAdjacentIdsHandler() {
         return null;
     }
 

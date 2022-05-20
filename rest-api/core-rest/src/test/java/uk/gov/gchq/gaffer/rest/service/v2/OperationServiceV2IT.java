@@ -71,7 +71,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturn403WhenUnauthorised() throws IOException {
         // Given
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
@@ -86,7 +86,8 @@ public class OperationServiceV2IT extends OperationServiceIT {
     }
 
     @Test
-    public void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers() throws IOException {
+    public void shouldPropagateStatusInformationContainedInOperationExceptionsThrownByOperationHandlers()
+            throws IOException {
         // Given
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.STORE_PROPERTIES);
         storeProperties.set(StoreProperties.JOB_TRACKER_ENABLED, Boolean.FALSE.toString());
@@ -108,7 +109,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnSameJobIdInHeaderAsGetAllJobDetailsOperation() throws IOException {
         // Given
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
@@ -126,16 +127,19 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnAllOperationsAsOperationDetails() throws IOException, ClassNotFoundException {
         // Given
-        final Set<Class<? extends Operation>> expectedOperations = client.getDefaultGraphFactory().getGraph().getSupportedOperations();
+        final Set<Class<? extends Operation>> expectedOperations = client.getDefaultGraphFactory().getGraph()
+                .getSupportedOperations();
 
         // When
         final Response response = ((RestApiV2TestClient) client).getAllOperationsAsOperationDetails();
 
         // Then
-        byte[] json = response.readEntity(byte[].class);
-        List<OperationDetailPojo> opDetails = JSONSerialiser.deserialise(json, new TypeReference<List<OperationDetailPojo>>() {
-        });
-        final Set<String> opDetailClasses = opDetails.stream().map(OperationDetailPojo::getName).collect(Collectors.toSet());
+        final byte[] json = response.readEntity(byte[].class);
+        final List<OperationDetailPojo> opDetails = JSONSerialiser.deserialise(json,
+                new TypeReference<List<OperationDetailPojo>>() {
+                });
+        final Set<String> opDetailClasses = opDetails.stream().map(OperationDetailPojo::getName)
+                .collect(Collectors.toSet());
         for (final Class<? extends Operation> clazz : expectedOperations) {
             assertThat(opDetailClasses).contains(clazz.getName());
         }
@@ -147,7 +151,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final String expectedSummary = "\"summary\":\"Gets elements related to provided seeds\"";
 
         // When
-        Response response = client.getOperationDetails(GetElements.class);
+        final Response response = client.getOperationDetails(GetElements.class);
 
         // Then
         assertTrue(response.readEntity(String.class).contains(expectedSummary));
@@ -156,10 +160,10 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnOutputClassForOperationWithOutput() throws Exception {
         // Given
-        final String expectedOutputString = "\"outputClassName\":\"uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>\"";
+        final String expectedOutputString = "\"outputClassName\":\"java.lang.Iterable<uk.gov.gchq.gaffer.data.element.Element>\"";
 
         // When
-        Response response = client.getOperationDetails(GetElements.class);
+        final Response response = client.getOperationDetails(GetElements.class);
 
         // Then
         assertTrue(response.readEntity(String.class).contains(expectedOutputString));
@@ -171,7 +175,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
         final String outputClassNameString = "\"outputClassName\"";
 
         // When
-        Response response = client.getOperationDetails(DiscardOutput.class);
+        final Response response = client.getOperationDetails(DiscardOutput.class);
 
         // Then
         assertFalse(response.readEntity(String.class).contains(outputClassNameString));
@@ -180,7 +184,7 @@ public class OperationServiceV2IT extends OperationServiceIT {
     @Test
     public void shouldReturnOptionsAndSummariesForEnumFields() throws Exception {
         // When
-        Response response = client.getOperationDetails(GetElements.class);
+        final Response response = client.getOperationDetails(GetElements.class);
 
         // Then
         final byte[] json = response.readEntity(byte[].class);
@@ -203,17 +207,18 @@ public class OperationServiceV2IT extends OperationServiceIT {
         client.stopServer();
         client.startServer();
 
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
                 .build();
         client.reinitialiseGraph(graph);
 
-        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(new ToSingletonList.Builder<>().input("test").build()).build();
 
         // When
-        Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
+        final Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "ListUser");
 
         // Then
         assertEquals(200, response.getStatus());
@@ -226,17 +231,19 @@ public class OperationServiceV2IT extends OperationServiceIT {
         client.stopServer();
         client.startServer();
 
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(this.getClass()))
                 .storeProperties(StreamUtil.STORE_PROPERTIES)
                 .addSchema(new Schema())
                 .build();
         client.reinitialiseGraph(graph);
 
-        final OperationChain opChain = new OperationChain.Builder().first(new ToSingletonList.Builder<>().input("test").build()).build();
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(new ToSingletonList.Builder<>().input("test").build()).build();
 
         // When
-        Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain, "BasicUser");
+        final Response response = ((RestApiV2TestClient) client).executeOperationChainChunkedWithHeaders(opChain,
+                "BasicUser");
 
         // Then
         assertEquals(500, response.getStatus());
@@ -348,7 +355,8 @@ public class OperationServiceV2IT extends OperationServiceIT {
         public OperationFieldPojo() {
         }
 
-        public OperationFieldPojo(final String name, final String className, final boolean required, final String summary, final Set<String> options) {
+        public OperationFieldPojo(final String name, final String className, final boolean required,
+                final String summary, final Set<String> options) {
             this.name = name;
             this.className = className;
             this.required = required;

@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
@@ -39,9 +38,8 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Fetches data from a Gaffer result cache")
-public class GetGafferResultCacheExport implements
-        GetExport,
-        Output<CloseableIterable<?>> {
+public class GetGafferResultCacheExport implements GetExport, Output<Iterable<?>> {
+
     private String jobId;
     private String key = Export.DEFAULT_KEY;
     private Map<String, String> options;
@@ -67,8 +65,8 @@ public class GetGafferResultCacheExport implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<?>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableObj();
+    public TypeReference<Iterable<?>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableObj();
     }
 
     @Override
@@ -93,7 +91,7 @@ public class GetGafferResultCacheExport implements
     public static class Builder
             extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
             implements GetExport.Builder<GetGafferResultCacheExport, Builder>,
-            Output.Builder<GetGafferResultCacheExport, CloseableIterable<?>, Builder> {
+            Output.Builder<GetGafferResultCacheExport, Iterable<?>, Builder> {
         public Builder() {
             super(new GetGafferResultCacheExport());
         }
