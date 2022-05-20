@@ -65,7 +65,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             // Add all elements directly
             addBatch(mapImpl, schema, elements);
         } else {
-            LOGGER.info("Adding elements in batches, batch size = ", bufferSize);
+            LOGGER.info("Adding elements in batches, batch size = {}", bufferSize);
             int count = 0;
             final List<Element> batch = new ArrayList<>(bufferSize);
             for (final Element element : elements) {

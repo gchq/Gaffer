@@ -653,7 +653,7 @@ public class FederatedGraphStorage {
                     federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true);
                 } catch (final CacheOperationException e) {
                     String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-                    LOGGER.error(s ,"{} graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
+                    LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", s, newGraphId, graphId);
                     throw new StorageException(s, e);
                 }
                 federatedStoreCache.deleteGraphFromCache(graphId);
