@@ -63,7 +63,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         if (null == operation.getSplitsFilePath()) {
             final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
-            LOGGER.info("Using working directory for splits files: {}", splitsFilePath);
+            LOGGER.info("Using working directory for splits files: ", splitsFilePath);
             operation.setSplitsFilePath(splitsFilePath);
         }
 

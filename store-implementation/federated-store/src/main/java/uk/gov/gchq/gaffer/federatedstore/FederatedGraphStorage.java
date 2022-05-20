@@ -574,7 +574,7 @@ public class FederatedGraphStorage {
                 } catch (final CacheOperationException e) {
                     //TODO FS recovery
                     String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
-                    LOGGER.error(s ," graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
+                    LOGGER.error("{} graphStorage access:{} cache access:{}", s, newFederatedAccess, oldAccess);
                     throw new StorageException(s, e);
                 }
             }

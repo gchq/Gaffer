@@ -107,7 +107,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         if (!NoPartitioner.class.equals(operation.getPartitioner())) {
             if (null != operation.getPartitioner()) {
                 operation.setPartitioner(GafferKeyRangePartitioner.class);
-                LOGGER.warn("Partitioner class {}", operation.getPartitioner().getName() ," will be replaced with {}", GafferKeyRangePartitioner.class.getName());
+                LOGGER.warn("Partitioner class {} will be replaced with {}", operation.getPartitioner().getName(), GafferKeyRangePartitioner.class.getName());
             }
             setupPartitioner(job, operation, (AccumuloStore) store);
         }

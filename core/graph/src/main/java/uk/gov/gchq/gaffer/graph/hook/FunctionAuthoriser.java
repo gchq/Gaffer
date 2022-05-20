@@ -71,7 +71,7 @@ public class FunctionAuthoriser implements GraphHook {
             // This should never happen in real life as operation chains should
             // always be json serialisable. However this could happen if using a
             // mock in testing. To account for this, it will be logged.
-            LOGGER.warn("Failed to serialise operation chain: {}", opChain ," due to {}", e.getMessage());
+            LOGGER.warn("Failed to serialise operation chain: {} due to {}", opChain , e.getMessage());
             return;
         } finally {
             if (input != null) {

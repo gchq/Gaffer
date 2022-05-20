@@ -57,7 +57,7 @@ public class DataLoader implements ServletContextListener {
         try {
             dataLoader.load(new File(dataPath));
         } catch (final Exception e) {
-            LOGGER.info("Unable to load data: {}", e.getMessage());
+            LOGGER.info("Unable to load data: " + e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }
 
