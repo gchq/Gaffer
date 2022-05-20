@@ -63,7 +63,7 @@
         <accumulo.version>1.9.3</accumulo.version>
         <avro.version>1.8.2</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
-        <jackson.version>2.11.4</jackson.version>
+        <jackson.version>2.12.6</jackson.version>
         <jackson.minor.version>2.11</jackson.minor.version>
 
         <clearspring.version>2.7.0</clearspring.version>
@@ -180,7 +180,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.version}.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
