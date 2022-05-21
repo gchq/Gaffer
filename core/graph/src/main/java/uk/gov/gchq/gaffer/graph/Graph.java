@@ -342,7 +342,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn(String.format("Error in graphHook %s : %s",  graphHook.getClass().getSimpleName() ,graphHookE.getMessage()), graphHookE);
+                    LOGGER.warn(String.format("Error in graphHook %s : %s", graphHook.getClass().getSimpleName(), graphHookE.getMessage()), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
