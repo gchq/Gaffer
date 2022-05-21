@@ -39,7 +39,7 @@ public final class ExecutorService {
 
     public static synchronized void initialise(final int jobExecutorThreadCount) {
         if (service == null) {
-            LOGGER.debug("Initialising ExecutorService with {} threads", jobExecutorThreadCount);
+            LOGGER.debug("Initialising ExecutorService with {} threads",jobExecutorThreadCount);
             service = Executors.newScheduledThreadPool(jobExecutorThreadCount, runnable -> {
                 final Thread thread = new Thread(runnable);
                 thread.setDaemon(true);
