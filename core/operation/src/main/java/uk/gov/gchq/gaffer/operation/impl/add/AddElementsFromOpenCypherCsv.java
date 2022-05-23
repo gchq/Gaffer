@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * An {@code AddElementsFromOpenCypherCsv} operation takes a filename, converts each
- * line of the file to a Gaffer {@link Element} then adds these
+ * line of the file to a Gaffer Element then adds these
  * elements to the Graph. The file must be of valid openCypher CSV format.
  *
  * @see Builder
