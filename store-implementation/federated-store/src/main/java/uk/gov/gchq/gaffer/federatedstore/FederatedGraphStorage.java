@@ -504,7 +504,7 @@ public class FederatedGraphStorage {
             try {
                 makeGraphFromCache(graphId);
             } catch (final Exception e) {
-                LOGGER.error(String.format("Skipping graphId: %s due to: %s", graphId, e.getMessage()), e);
+                LOGGER.error("Skipping graphId: {} due to: {}", graphId, e.getMessage(), e);
             }
         }
     }

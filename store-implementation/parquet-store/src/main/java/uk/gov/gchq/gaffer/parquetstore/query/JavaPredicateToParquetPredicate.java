@@ -215,8 +215,8 @@ public class JavaPredicateToParquetPredicate {
             return eq(booleanColumn(selection), false);
         } else {
             fullyApplied = false;
-            LOGGER.warn(filterFunction.getClass().getCanonicalName() +
-                    " is not a natively supported filter by the Parquet store, therefore execution will take longer to perform this filter.");
+            LOGGER.warn("{} is not a natively supported filter by the Parquet store, " +
+            "therefore execution will take longer to perform this filter.", filterFunction.getClass().getCanonicalName());
             return null;
         }
     }
@@ -256,8 +256,8 @@ public class JavaPredicateToParquetPredicate {
                 tempFilter = eq(binaryColumn(path), Binary.fromReusedByteArray((byte[]) parquetObjects[i]));
             } else {
                 fullyApplied = false;
-                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName()
-                        + " is not a natively supported type for the IsEqual filter, therefore execution will take longer to perform this filter.");
+                LOGGER.warn("{} is not a natively supported type for the IsEqual filter, " +
+                        "therefore execution will take longer to perform this filter.", parquetObjects[i].getClass().getCanonicalName());
                 return null;
             }
             if (null == filter) {
@@ -302,8 +302,8 @@ public class JavaPredicateToParquetPredicate {
                 tempFilter = lt(binaryColumn(path), Binary.fromReusedByteArray((byte[]) parquetObjects[i]));
             } else {
                 fullyApplied = false;
-                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName()
-                        + " is not a natively supported type for the IsLessThan filter, therefore execution will take longer to perform this filter.");
+                LOGGER.warn("{} is not a natively supported type for the IsLessThan filter, " +
+                        "therefore execution will take longer to perform this filter.", parquetObjects[i].getClass().getCanonicalName());
                 return null;
             }
             if (null == filter) {
@@ -348,8 +348,8 @@ public class JavaPredicateToParquetPredicate {
                 tempFilter = gt(binaryColumn(path), Binary.fromReusedByteArray((byte[]) parquetObjects[i]));
             } else {
                 fullyApplied = false;
-                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName()
-                        + " is not a natively supported type for the IsMoreThan filter, therefore execution will take longer to perform this filter.");
+                LOGGER.warn("{} is not a natively supported type for the IsMoreThan filter, " +
+                        "therefore execution will take longer to perform this filter.", parquetObjects[i].getClass().getCanonicalName());
                 return null;
             }
             if (null == filter) {
@@ -394,8 +394,8 @@ public class JavaPredicateToParquetPredicate {
                 tempFilter = ltEq(binaryColumn(path), Binary.fromReusedByteArray((byte[]) parquetObjects[i]));
             } else {
                 fullyApplied = false;
-                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName()
-                        + " is not a natively supported type for the IsLessThanOrEqualTo filter, therefore execution will take longer to perform this filter.");
+                LOGGER.warn("{} is not a natively supported type for the IsLessThanOrEqualTo filter, " +
+                        "therefore execution will take longer to perform this filter.", parquetObjects[i].getClass().getCanonicalName());
                 return null;
             }
             if (null == filter) {
@@ -440,8 +440,8 @@ public class JavaPredicateToParquetPredicate {
                 tempFilter = gtEq(binaryColumn(path), Binary.fromReusedByteArray((byte[]) parquetObjects[i]));
             } else {
                 fullyApplied = false;
-                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName()
-                        + " is not a natively supported type for the IsMoreThanOrEqualTo filter, therefore execution will take longer to perform this filter.");
+                LOGGER.warn("{} is not a natively supported type for the IsMoreThanOrEqualTo filter, " +
+                        "therefore execution will take longer to perform this filter.", parquetObjects[i].getClass().getCanonicalName());
                 return null;
             }
             if (null == filter) {
