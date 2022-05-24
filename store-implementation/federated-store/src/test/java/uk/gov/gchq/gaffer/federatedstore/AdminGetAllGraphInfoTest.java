@@ -21,8 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -34,41 +32,43 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_USER_ID;
 
 public class AdminGetAllGraphInfoTest {
 
     private static final String ADMIN_AUTH = "AdminAuth";
     private static final User ADMIN_USER = new User("adminUser", null, Sets.newHashSet(ADMIN_AUTH));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AdminGetAllGraphInfoTest.class, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
     private FederatedAccess access;
     private FederatedStore store;
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        CacheServiceLoader.shutdown();
-        access = new FederatedAccess(Sets.newHashSet("authA"), "testuser1", false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
-        store = new FederatedStore();
-        final StoreProperties fedProps = new StoreProperties();
-        fedProps.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
-        store.initialise("testFedStore", null, fedProps);
-        store.remove("graph1", ADMIN_USER, true);
-    }
-
     @AfterAll
     public static void tearDownCache() {
-        CacheServiceLoader.shutdown();
+        resetForFederatedTests();
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        resetForFederatedTests();
+        access = new FederatedAccess(Sets.newHashSet(AUTH_1), AUTH_USER_ID, false, FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT);
+        store = new FederatedStore();
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.set(StoreProperties.ADMIN_AUTH, ADMIN_AUTH);
+        store.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, storeProperties);
     }
 
     @Test
     public void shouldGetAllGraphsAndAuthsAsAdmin() throws Exception {
-        final String graph1 = "graph1";
-
         store.addGraphs(access, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(graph1)
+                        .graphId(GRAPH_ID_ACCUMULO)
                         .build())
                 .schema(new Schema())
                 .properties(PROPERTIES)
@@ -76,14 +76,16 @@ public class AdminGetAllGraphInfoTest {
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(ADMIN_USER, null, true);
 
-        assertNotNull(allGraphsAndAuths);
-        assertFalse(allGraphsAndAuths.isEmpty());
-        assertEquals(graph1, allGraphsAndAuths.keySet().toArray(new String[]{})[0]);
+
+        assertThat(allGraphsAndAuths)
+                .isNotNull()
+                .size().isEqualTo(1);
+
         assertEquals("{\n" +
-                "  \"graph1\" : {\n" +
-                "    \"addingUserId\" : \"testuser1\",\n" +
+                "  \"AccumuloStore\" : {\n" +
+                "    \"addingUserId\" : \"authUser\",\n" +
                 "    \"disabledByDefault\" : false,\n" +
-                "    \"graphAuths\" : [ \"authA\" ],\n" +
+                "    \"graphAuths\" : [ \"auth1\" ],\n" +
                 "    \"public\" : false\n" +
                 "  }\n" +
                 "}", new String(JSONSerialiser.serialise(allGraphsAndAuths, true)));
@@ -91,11 +93,9 @@ public class AdminGetAllGraphInfoTest {
 
     @Test
     public void shouldNotGetAllGraphsAndAuthsAsAdmin() throws Exception {
-        final String graph1 = "graph1";
-
         store.addGraphs(access, new GraphSerialisable.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(graph1)
+                        .graphId(GRAPH_ID_ACCUMULO)
                         .build())
                 .schema(new Schema())
                 .properties(PROPERTIES)
@@ -103,7 +103,8 @@ public class AdminGetAllGraphInfoTest {
 
         final Map<String, Object> allGraphsAndAuths = store.getAllGraphsAndAuths(new User(), null, true);
 
-        assertNotNull(allGraphsAndAuths);
-        assertThat(allGraphsAndAuths).isEmpty();
+        assertThat(allGraphsAndAuths)
+                .isNotNull()
+                .isEmpty();
     }
 }

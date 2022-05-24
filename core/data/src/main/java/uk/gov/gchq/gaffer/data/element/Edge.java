@@ -32,6 +32,9 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 import java.util.Comparator;
+import java.util.Map;
+
+import static java.util.Objects.isNull;
 
 /**
  * An {@code Edge} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -421,6 +424,16 @@ public class Edge extends Element implements EdgeId {
 
         public Builder property(final String name, final Object value) {
             properties.put(name, value);
+            return this;
+        }
+
+        public Builder properties(final Map<String, String> properties) {
+            if (isNull(properties)) {
+                properties.clear();
+            } else {
+                this.properties.putAll(properties);
+                this.properties.remove(null);
+            }
             return this;
         }
 

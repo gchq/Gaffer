@@ -22,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
@@ -49,13 +48,16 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 @ExtendWith(MockitoExtension.class)
 public class FederatedAggregateHandlerTest {
 
-    private static Class<?> currentClass = new Object() { }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    private static final AccumuloProperties PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
@@ -82,8 +84,7 @@ public class FederatedAggregateHandlerTest {
 
     @Test
     public void shouldAggregateDuplicatesFromDiffStores() throws Exception {
-        final FederatedStoreProperties federatedStoreProperties = FederatedStoreProperties.loadStoreProperties(
-                StreamUtil.openStream(currentClass, "predefinedFederatedStore.properties"));
+        final FederatedStoreProperties federatedStoreProperties = loadFederatedStoreProperties("predefinedFederatedStore.properties");
         final Graph fed = new Graph.Builder()
                 .config(new GraphConfig("fed"))
                 .addSchema(new Schema())
@@ -99,23 +100,23 @@ public class FederatedAggregateHandlerTest {
                         .graphId(graphNameA)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
-                                        .source("string")
-                                        .destination("string")
+                                        .source(STRING)
+                                        .destination(STRING)
                                         .build())
-                                .type("string", String.class)
+                                .type(STRING, String.class)
                                 .build())
-                        .storeProperties(PROPERTIES)
+                        .storeProperties(PROPERTIES.clone())
                         .build())
                 .then(new AddGraph.Builder()
                         .graphId(graphNameB)
                         .schema(new Schema.Builder()
                                 .edge("edge", new SchemaEdgeDefinition.Builder()
-                                        .source("string")
-                                        .destination("string")
+                                        .source(STRING)
+                                        .destination(STRING)
                                         .build())
-                                .type("string", String.class)
+                                .type(STRING, String.class)
                                 .build())
-                        .storeProperties(PROPERTIES)
+                        .storeProperties(PROPERTIES.clone())
                         .build())
                 .build(), context);
 

@@ -67,6 +67,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
         }
 
         try {
+            //Add GraphSerialisable with Access values.
             ((FederatedStore) store).addGraphs(
                     operation.getGraphAuths(),
                     context.getUser().getUserId(),

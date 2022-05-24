@@ -16,58 +16,61 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphInfo;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.from;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreFrom;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreDefaultGraphsTest {
 
     @Test
+    public void testDisableByDefault() {
+        fail();
+    }
+
+    @Test
+    public void testDisableByDefaultAdmin() {
+        fail();
+    }
+
+    @Test
+    public void testDisableByDefaultButIsDefaultListOfGraphs() {
+        fail();
+    }
+
+    @Test
     public void shouldGetDefaultedGraphIdFromJsonConfig() throws Exception {
         //Given
-        FederatedStore federatedStore = JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(this.getClass(), "DefaultedGraphIds.json")), FederatedStore.class);
-        assertNotNull(federatedStore);
-        assertEquals("defaultJsonGraphId", federatedStore.getAdminConfiguredDefaultGraphIdsCSV());
+        FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
+        assertThat(federatedStore)
+                .isNotNull()
+                .returns("defaultJsonGraphId", from(FederatedStore::getAdminConfiguredDefaultGraphIdsCSV));
 
-        try {
-            //when
-            federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo());
-        } catch (final Exception e) {
-            //then
-            try {
-                assertTrue(e.getMessage().contains("defaultJsonGraphId"));
-                assertEquals("The following graphIds are not visible or do not exist: [defaultJsonGraphId]", e.getMessage());
-            } catch (final Exception e2) {
-                throw e;
-            }
-        }
-
+        //when
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
+        //then
+        assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
 
     @Test
     public void shouldNotChangeExistingDefaultedGraphId() throws Exception {
         //Given
-        FederatedStore federatedStore = JSONSerialiser.deserialise(IOUtils.toByteArray(StreamUtil.openStream(this.getClass(), "DefaultedGraphIds.json")), FederatedStore.class);
-        assertNotNull(federatedStore);
-        assertEquals("defaultJsonGraphId", federatedStore.getAdminConfiguredDefaultGraphIdsCSV());
+        FederatedStore federatedStore = loadFederatedStoreFrom("DefaultedGraphIds.json");
+        assertThat(federatedStore)
+                .isNotNull()
+                .returns("defaultJsonGraphId", from(FederatedStore::getAdminConfiguredDefaultGraphIdsCSV));
 
         //when
         federatedStore.setAdminConfiguredDefaultGraphIdsCSV("other");
 
         //then
-        try {
-            federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo());
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("defaultJsonGraphId"));
-            assertEquals("The following graphIds are not visible or do not exist: [defaultJsonGraphId]", e.getMessage());
-        }
+        final Exception exception = assertThrows(IllegalArgumentException.class, () -> federatedStore.getGraphs(testUser(), null, new GetAllGraphInfo()));
+        assertThat(exception).message().contains("The following graphIds are not visible or do not exist: [defaultJsonGraphId]");
     }
 }

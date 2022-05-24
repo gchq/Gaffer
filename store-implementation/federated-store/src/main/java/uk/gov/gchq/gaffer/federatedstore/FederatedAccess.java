@@ -78,11 +78,11 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
     private static final boolean NOT_DISABLED_BY_DEFAULT = false;
     private final boolean isPublic;
-    private Set<String> graphAuths;
-    private String addingUserId;
+    private final Set<String> graphAuths;
+    private final String addingUserId;
     private final boolean disabledByDefault;
-    private String readAccessPredicate;
-    private String writeAccessPredicate;
+    private final String readAccessPredicate;
+    private final String writeAccessPredicate;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         this(graphAuths, addingUserId, Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC));

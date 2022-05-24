@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.PredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -57,11 +56,13 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 public class FederatedOperationChainHandlerTest {
 
-    public static final String GRAPH_IDS = String.format("%s,%s", PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES, PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES);
+    public static final String GRAPH_IDS = String.format("%s,%s", GRAPH_ID_ACCUMULO_WITH_ENTITIES, GRAPH_ID_ACCUMULO_WITH_EDGES);
 
     private final Element[] elements = new Element[]{
             new Entity.Builder()

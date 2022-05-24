@@ -327,6 +327,7 @@ public class FederatedGraphStorage {
             return storage.entrySet()
                     .stream()
                     .filter(entry -> isValidToView(user, entry.getKey()))
+                    //not visible unless graphId is requested. //TODO FS disabledByDefault: Review test
                     .filter(entry -> !entry.getKey().isDisabledByDefault())
                     .flatMap(entry -> entry.getValue().stream());
         }

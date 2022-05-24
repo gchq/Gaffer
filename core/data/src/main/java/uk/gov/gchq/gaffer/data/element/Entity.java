@@ -27,6 +27,10 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
+import java.util.Map;
+
+import static java.util.Objects.isNull;
+
 /**
  * An {@code Entity} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
  * The vertex can be any type of {@link java.lang.Object}.
@@ -171,6 +175,16 @@ public class Entity extends Element implements EntityId {
 
         public Builder property(final String name, final Object value) {
             properties.put(name, value);
+            return this;
+        }
+
+        public Builder properties(final Map<String, String> properties) {
+            if (isNull(properties)) {
+                properties.clear();
+            } else {
+                this.properties.putAll(properties);
+                this.properties.remove(null);
+            }
             return this;
         }
 
