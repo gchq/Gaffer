@@ -27,7 +27,7 @@ public class ToIterable extends KorypheFunction<Object, Iterable<Object>> {
     public ToIterable() {
     }
 
-    public Iterable<Object> apply(Object value) {
+    public Iterable<Object> apply(final Object value) {
 
         if (null == value) {
             return new EmptyIterable<>();

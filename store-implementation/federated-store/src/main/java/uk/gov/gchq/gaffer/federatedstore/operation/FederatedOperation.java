@@ -431,7 +431,6 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        //TODO FS Test, Prove this logic
         if (isNull(value) && (!field.getName().equals("mergeFunction") || !hasPayloadOperation() || payloadOperation instanceof Output)) {
             result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
         }

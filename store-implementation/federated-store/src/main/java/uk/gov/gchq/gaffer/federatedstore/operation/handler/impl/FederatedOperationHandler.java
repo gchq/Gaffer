@@ -91,7 +91,7 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
             OUTPUT rtn;
             if (nonNull(mergeFunction)) {
                 rtn = mergeFunction.apply(results);
-                //TODO FS see FederatedStoreUtil.getHardCodedDefaultMergeFunction()
+                //TODO FS remove else if, see FederatedStoreUtil.getHardCodedDefaultMergeFunction()
             } else if (results.iterator().hasNext() && results.iterator().next() instanceof Iterable) {
                 rtn = (OUTPUT) store.getDefaultMergeFunction().apply(results);
             } else {
@@ -109,7 +109,6 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
         return nonNull(graphs) ?
                 graphs
-                //TODO FS Test Default
                 : store.getDefaultGraphs(context.getUser(), operation);
     }
 }
