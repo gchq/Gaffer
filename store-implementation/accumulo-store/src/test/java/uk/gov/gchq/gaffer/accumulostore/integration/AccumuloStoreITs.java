@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.integration;
+
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.SelectClasses;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hdfs.integration.loader.AddElementsFromHdfsLoaderIT;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 
+@ConfigurationParameter(key = "initClass", value = "uk.gov.gchq.gaffer.accumulostore.integration.AccumuloStoreITs")
+@SelectClasses(AddElementsFromHdfsLoaderIT.class) // Extra test to add
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
 
@@ -30,6 +36,5 @@ public class AccumuloStoreITs extends AbstractStoreITs {
 
     protected AccumuloStoreITs(final AccumuloProperties storeProperties) {
         super(storeProperties);
-        addExtraTest(AddElementsFromHdfsLoaderIT.class);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.integration;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExecutionCondition;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -71,13 +76,17 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.junit.platform.commons.support.ReflectionSupport.newInstance;
+import static org.junit.platform.commons.support.ReflectionSupport.tryToLoadClass;
 
 /**
  * Logic/config for setting up and running store integration tests.
- * All tests will be skipped if the storeProperties variable has not been set
- * prior to running the tests.
+ * The storeProperties variable must have been set by a Suite initialisation class
+ * (an extension of {@link AbstractStoreITs}) prior to running the tests.
  */
+@ExtendWith({AbstractStoreIT.SkipTestMethodsExtension.class, AbstractStoreIT.SuiteInitialisationExtension.class})
 public abstract class AbstractStoreIT {
     protected static final int DUPLICATES = 2;
 
@@ -118,7 +127,6 @@ public abstract class AbstractStoreIT {
 
     protected static Schema storeSchema = new Schema();
     protected static StoreProperties storeProperties;
-    protected static String singleTestMethod;
     protected Map<EntityId, Entity> entities;
     protected List<Entity> duplicateEntities;
 
@@ -129,11 +137,9 @@ public abstract class AbstractStoreIT {
     protected static Graph graph;
     protected User user = new User();
 
-    @Rule
-    public TestName name = new TestName();
-    private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
-    private static Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
-    protected String originalMethodName;
+    private static Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
+    private static String initialisationError;
+    private static Class suiteClass;
     private Method method;
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
@@ -152,16 +158,8 @@ public abstract class AbstractStoreIT {
         AbstractStoreIT.storeSchema = storeSchema;
     }
 
-    public static void setSkipTests(final Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests) {
-        AbstractStoreIT.skippedTests = skippedTests;
-    }
-
-    public static void setSingleTestMethod(final String singleTestMethod) {
-        AbstractStoreIT.singleTestMethod = singleTestMethod;
-    }
-
-    public static void setSkipTestMethods(final Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods) {
-        AbstractStoreIT.skipTestMethods = skipTestMethods;
+    public static Map<Class<? extends AbstractStoreIT>, Map<String, String>> getSkipTestMethods() {
+        return skipTestMethods;
     }
 
     /**
@@ -170,10 +168,11 @@ public abstract class AbstractStoreIT {
      * Do not override, use the _setup method if more is necessary
      *
      * @throws Exception should never be thrown
+     * @param testInfo JUnit 5 autofilled
      */
-    @Before
-    public void setup() throws Exception {
-        initialise();
+    @BeforeEach
+    public void setup(TestInfo testInfo) throws Exception {
+        initialise(testInfo);
         validateTest();
         createGraph();
         _setup();
@@ -184,34 +183,24 @@ public abstract class AbstractStoreIT {
         // Override if required;
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         graph = null;
     }
 
-    protected void initialise() throws Exception {
+    protected void initialise(TestInfo name) throws Exception {
         entities = createEntities();
         duplicateEntities = duplicate(entities.values());
 
         edges = createEdges();
         duplicateEdges = duplicate(edges.values());
 
-        originalMethodName = name.getMethodName().endsWith("]")
-                ? name.getMethodName().substring(0, name.getMethodName().indexOf("["))
-                : name.getMethodName();
-
-        method = this.getClass().getMethod(originalMethodName);
+        method = name.getTestMethod().get();
     }
 
-    protected void validateTest() throws Exception {
-        assumeThat(null != storeProperties).as("Skipping test as no store properties have been defined.").isTrue();
-        assumeThat(null == singleTestMethod || singleTestMethod.equals(originalMethodName)).as("Skipping test as only " + singleTestMethod + " is being run.").isTrue();
-        assumeThat(!skippedTests.containsKey(getClass())).as("Skipping test. Justification: " + skippedTests.get(getClass())).isTrue();
-
-        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
-        if (null != skippedMethods && !skippedMethods.isEmpty()) {
-            assumeThat(!skippedMethods.containsKey(originalMethodName)).as("Skipping test. Justification: " + skippedMethods.get(method.getName())).isTrue();
-        }
+    protected void validateTest() {
+        assertThat(initialisationError).withFailMessage("Problem initialising @Suite, %s", initialisationError).isNull();
+        assertThat(storeProperties).withFailMessage("No store properties were defined by the initialising class constructor").isNotNull();
     }
 
     protected void validateTraits() throws OperationException {
@@ -584,5 +573,43 @@ public abstract class AbstractStoreIT {
 
     public <T> T execute(final Output<T> op) throws OperationException {
         return graph.execute(op, user);
+    }
+
+    public static class SkipTestMethodsExtension implements ExecutionCondition {
+        @Override
+        public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
+            final Class currentClassName = context.getTestClass().get();
+            final Boolean evaluatingMethod = context.getTestMethod().isPresent();
+            final String currentMethodName;
+            final Map<String, String> skippedMethods;
+
+            if (evaluatingMethod) {
+                currentMethodName = context.getTestMethod().get().getName();
+                skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
+                if (skippedMethods != null && skippedMethods.containsKey(currentMethodName)) {
+                    return ConditionEvaluationResult.disabled(skippedMethods.get(currentMethodName));
+                }
+            }
+            return ConditionEvaluationResult.enabled("Test enabled");
+        }
+    }
+
+    public static class SuiteInitialisationExtension implements BeforeAllCallback {
+        @Override
+        public void beforeAll(ExtensionContext context) {
+            final String initialisationClassName;
+            final Class initialisationClass;
+
+            initialisationClassName = context.getConfigurationParameter("initClass").orElse("missing");
+            initialisationClass = tryToLoadClass(initialisationClassName).toOptional().orElse(null);
+            if (initialisationClassName == "missing") {
+                initialisationError = "missing the 'initClass' @ConfigurationParameter (required to initialise)";
+            } else if (initialisationClass == null) {
+                initialisationError = "'initClass' @ConfigurationParameter is invalid (required to initialise)";
+            } else if (suiteClass != initialisationClass) {
+                suiteClass = initialisationClass;
+                newInstance(initialisationClass);
+            }
+        }
     }
 }
