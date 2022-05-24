@@ -95,7 +95,7 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     try {
                         outputClass = supportedOutputOperation.newInstance().getOutputClass();
                     } catch (final InstantiationException | IllegalAccessException e) {
-                        LOGGER.warn(String.format("Exception occurred while trying to create a newInstance of operation: %s", supportedOperation), e);
+                        LOGGER.warn("Exception occurred while trying to create a newInstance of operation: {}", supportedOperation, e);
                         continue;
                     }
                     if (CloseableIterable.class.equals(outputClass)) {
