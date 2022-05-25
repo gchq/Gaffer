@@ -356,10 +356,10 @@ public class FederatedAddGraphHandlerTest {
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
         final Schema expectedSchema = new Schema.Builder().build();
 
-        assertThat(store.isSupported(GetElementsInRanges.class)).isFalse()
-                .withFailMessage("Empty FederatedStore should NOT support GetElementsInRanges");
-        assertThat(store.isSupported(AddElementsFromHdfs.class)).isFalse()
-                .withFailMessage("Empty FederatedStore should NOT support AddElementsFromHdfs");
+        assertThat(store.isSupported(GetElementsInRanges.class))
+                .withFailMessage("Empty FederatedStore should NOT support GetElementsInRanges").isFalse();
+        assertThat(store.isSupported(AddElementsFromHdfs.class))
+                .withFailMessage("Empty FederatedStore should NOT support AddElementsFromHdfs").isFalse();
 
         final FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
@@ -371,10 +371,10 @@ public class FederatedAddGraphHandlerTest {
                 new Context(testUser),
                 store);
 
-        assertThat(store.isSupported(GetElementsInRanges.class)).isTrue()
-                .withFailMessage("FederatedStore with an added Accumulo store should support GetElementsInRanges");
-        assertThat(store.isSupported(AddElementsFromHdfs.class)).isTrue()
-                .withFailMessage("FederatedStore with an added Accumulo store should support AddElementsFromHdfs");
+        assertThat(store.isSupported(GetElementsInRanges.class))
+                .withFailMessage("FederatedStore with an added Accumulo store should support GetElementsInRanges").isTrue();
+        assertThat(store.isSupported(AddElementsFromHdfs.class))
+                .withFailMessage("FederatedStore with an added Accumulo store should support AddElementsFromHdfs").isTrue();
     }
 
     private class IgnoreOptions extends GetAllElements {

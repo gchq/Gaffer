@@ -160,16 +160,16 @@ public class FederatedStoreTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        assertThat(PROPERTIES_1).isEqualTo(library.getProperties(ID_PROPS_ACC_1)).withFailMessage("Library has changed: " + ID_PROPS_ACC_1);
-        assertThat(PROPERTIES_2).isEqualTo(library.getProperties(ID_PROPS_ACC_2)).withFailMessage("Library has changed: " + ID_PROPS_ACC_2);
-        assertThat(PROPERTIES_ALT).isEqualTo(library.getProperties(ID_PROPS_ACC_ALT)).withFailMessage("Library has changed: " + ID_PROPS_ACC_ALT);
+        assertThat(PROPERTIES_1).withFailMessage("Library has changed: " + ID_PROPS_ACC_1).isEqualTo(library.getProperties(ID_PROPS_ACC_1));
+        assertThat(PROPERTIES_2).withFailMessage("Library has changed: " + ID_PROPS_ACC_2).isEqualTo(library.getProperties(ID_PROPS_ACC_2));
+        assertThat(PROPERTIES_ALT).withFailMessage("Library has changed: " + ID_PROPS_ACC_ALT).isEqualTo(library.getProperties(ID_PROPS_ACC_ALT));
 
         assertThat(new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8))
-                .isEqualTo(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8))
-                .withFailMessage("Library has changed: " + ID_SCHEMA_EDGE);
+                .withFailMessage("Library has changed: " + ID_SCHEMA_EDGE)
+                .isEqualTo(new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8));
         assertThat(new String(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8))
-                .isEqualTo(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8))
-                .withFailMessage("Library has changed: " + ID_SCHEMA_ENTITY);
+                .withFailMessage("Library has changed: " + ID_SCHEMA_ENTITY)
+                .isEqualTo(new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8));
 
         clearLibrary();
         clearCache();
@@ -582,7 +582,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldAddGraphWithPropertiesFromGraphLibraryOverridden() throws Exception {
         // Given
-        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).isFalse().withFailMessage(KEY_DOES_NOT_BELONG);
+        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).withFailMessage(KEY_DOES_NOT_BELONG).isFalse();
 
         // When
         final Builder schema = new Builder();
@@ -601,7 +601,7 @@ public class FederatedStoreTest {
         // Then
         assertThat(store.getGraphs(blankUser, null, ignore)).hasSize(1);
         assertThat(store.getGraphs(blankUser, null, ignore).iterator().next().getStoreProperties().containsKey(UNUSUAL_KEY)).isTrue();
-        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).isFalse().withFailMessage(KEY_DOES_NOT_BELONG);
+        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).withFailMessage(KEY_DOES_NOT_BELONG).isFalse();
         assertThat(store.getGraphs(blankUser, null, ignore).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY)).isNotNull();
     }
 
@@ -624,7 +624,7 @@ public class FederatedStoreTest {
     @Test
     public void shouldAddGraphWithPropertiesAndSchemaFromGraphLibraryOverridden() throws Exception {
         // Given
-        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).isFalse().withFailMessage(KEY_DOES_NOT_BELONG);
+        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).withFailMessage(KEY_DOES_NOT_BELONG).isFalse();
 
         // When
         final Builder tempSchema = new Builder();
@@ -644,7 +644,7 @@ public class FederatedStoreTest {
         // Then
         assertThat(store.getGraphs(blankUser, null, ignore)).hasSize(1);
         assertThat(store.getGraphs(blankUser, null, ignore).iterator().next().getStoreProperties().containsKey(UNUSUAL_KEY)).isTrue();
-        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).isFalse().withFailMessage(KEY_DOES_NOT_BELONG);
+        assertThat(library.getProperties(ID_PROPS_ACC_2).containsKey(UNUSUAL_KEY)).withFailMessage(KEY_DOES_NOT_BELONG).isFalse();
         assertThat(store.getGraphs(blankUser, null, ignore).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY)).isNotNull();
         assertThat(store.getGraphs(blankUser, null, ignore).iterator().next().getSchema().getEntityGroups().contains("BasicEntity")).isTrue();
     }
@@ -956,8 +956,8 @@ public class FederatedStoreTest {
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // check the graph is already in there from the cache
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_2)
-                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_2));
+        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME))
+                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_2)).contains(ACC_ID_2);
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
     }
 
@@ -1117,8 +1117,8 @@ public class FederatedStoreTest {
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // check is in the cache still
-        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME)).contains(ACC_ID_1)
-                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_1));
+        assertThat(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME))
+                .withFailMessage(String.format("Keys: %s did not contain %s", CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME), ACC_ID_1)).contains(ACC_ID_1);
         // check is in the store from the cache
         assertThat(store.getAllGraphIds(blankUser)).hasSize(1);
         // check the graph isn't in the GraphLibrary
@@ -1177,8 +1177,8 @@ public class FederatedStoreTest {
 
     private void assertContains(final Throwable e, final String format, final String... s) {
         final String expectedStr = String.format(format, s);
-        assertThat(e.getMessage()).contains(expectedStr)
-                .withFailMessage("\"" + e.getMessage() + "\" does not contain string \"" + expectedStr + "\"");
+        assertThat(e.getMessage())
+                .withFailMessage("\"" + e.getMessage() + "\" does not contain string \"" + expectedStr + "\"").contains(expectedStr);
     }
 
     private void addGraphWithIds(final String graphId, final String propertiesId, final String... schemaId)
