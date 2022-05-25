@@ -225,7 +225,7 @@ public class FederatedStoreSchemaTest {
         final Schema schema = fStore.execute(new GetSchema.Builder().build(), testContext);
 
         // Then
-        assertThat(schema.validate().withFailMessage(schema.validate().getErrorString()).isTrue().isValid());
+        assertThat(schema.validate().isValid()).withFailMessage(schema.validate().getErrorString()).isTrue();
     }
 
     @Test
