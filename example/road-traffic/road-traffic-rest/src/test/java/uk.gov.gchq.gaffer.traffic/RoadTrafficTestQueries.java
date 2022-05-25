@@ -106,14 +106,14 @@ public abstract class RoadTrafficTestQueries {
         try {
             startDate = dateFormat.parse("2000-10-10 07:00:00");
         } catch (final ParseException e) {
-            LOGGER.info("Error parsing startDate: {}", e.getMessage());
+            LOGGER.info("Error parsing startDate: " + e.getMessage());
         }
 
         Date endDate = null;
         try {
             endDate = dateFormat.parse("2000-10-10 08:00:00");
         } catch (final ParseException e) {
-            LOGGER.info("Error parsing endDate: {}", e.getMessage());
+            LOGGER.info("Error parsing endDate: " + e.getMessage());
         }
 
         final FreqMap countByVehicleType = new FreqMap();

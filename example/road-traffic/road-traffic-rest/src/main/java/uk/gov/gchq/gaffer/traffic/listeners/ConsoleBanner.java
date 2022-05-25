@@ -33,7 +33,7 @@ public class ConsoleBanner implements ServletContextListener {
         final String port = System.getProperty("gaffer.rest-api.port", "8080");
         final String path = System.getProperty("gaffer.rest-api.basePath", "rest");
 
-        LOGGER.info("Gaffer road-traffic example is ready at: http:/localhost:{}/{}", port, path);
+        LOGGER.info(String.format("Gaffer road-traffic example is ready at: http:/localhost:%s/%s", port, path));
     }
 
     @Override

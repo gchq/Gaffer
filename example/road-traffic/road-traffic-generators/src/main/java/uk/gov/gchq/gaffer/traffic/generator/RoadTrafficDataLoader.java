@@ -121,7 +121,7 @@ public class RoadTrafficDataLoader {
             dataLoader.load(new File(dataFile));
             LOGGER.info("Data has been loaded");
         } catch (final Exception e) {
-            LOGGER.info("Unable to load data: {}", e.getMessage());
+            LOGGER.info("Unable to load data:" + e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }
     }
