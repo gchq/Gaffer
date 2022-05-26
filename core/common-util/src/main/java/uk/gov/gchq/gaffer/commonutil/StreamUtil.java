@@ -154,7 +154,7 @@ public final class StreamUtil {
                                 inputStreams.add(openStream(clazz, file));
                             } catch (final Exception e) {
                                 int closedStreamsCount = closeStreams(inputStreams.toArray(new InputStream[inputStreams.size()]));
-                                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                                LOGGER.info("Closed {} input streams", closedStreamsCount);
                             }
                         }
                 );

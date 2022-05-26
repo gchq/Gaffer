@@ -284,7 +284,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook {} : {}", graphHook.getClass().getSimpleName(), graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
@@ -341,7 +341,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook {} : {}", graphHook.getClass().getSimpleName(), graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);

@@ -52,7 +52,7 @@ public class AccumuloDisableOperationsTest extends DisableOperationsTest {
             properties.store(fos, "AccumuloDisableOperationsTest - " + filename + " with current zookeeper");
             fos.close();
         } catch (IOException e) {
-            LOGGER.error("Failed to write Properties file: " + filename + ": " + e.getMessage());
+            LOGGER.error("Failed to write Properties file: {} : {}", filename, e.getMessage());
         }
     }
 
