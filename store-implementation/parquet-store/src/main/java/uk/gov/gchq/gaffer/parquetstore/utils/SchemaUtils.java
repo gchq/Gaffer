@@ -285,7 +285,7 @@ public class SchemaUtils {
         schemaString.append("}");
         String parquetSchemaString = schemaString.toString();
         final MessageType parquetSchema = MessageTypeParser.parseMessageType(parquetSchemaString);
-        LOGGER.debug("Generated Parquet schema: " + parquetSchemaString);
+        LOGGER.debug("Generated Parquet schema: {}", parquetSchemaString);
         return parquetSchema;
     }
 

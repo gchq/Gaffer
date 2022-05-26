@@ -86,7 +86,7 @@ public class CreateSplitPointsTest {
                 + testFolder.getAbsolutePath();
 
 
-        LOGGER.info("using root dir: " + root);
+        LOGGER.info("using root dir: {}", root);
 
         inputDir = root + "/inputDir";
         outputDir = root + "/outputDir";

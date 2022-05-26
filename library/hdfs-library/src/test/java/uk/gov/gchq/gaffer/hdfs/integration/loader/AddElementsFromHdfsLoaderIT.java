@@ -76,7 +76,7 @@ public class AddElementsFromHdfsLoaderIT extends ParameterizedLoaderIT<AddElemen
                 + testFolder.getRoot().getAbsolutePath();
 
 
-        LOGGER.info("using root dir: " + root);
+        LOGGER.info("using root dir: {}", root);
 
         inputDir1 = root + "/inputDir1";
         inputDir2 = root + "/inputDir2";

@@ -95,13 +95,13 @@ public abstract class FederatedAddGraphHandlerParent<OP extends AddGraph> implem
                     try {
                         outputClass = supportedOutputOperation.newInstance().getOutputClass();
                     } catch (final InstantiationException | IllegalAccessException e) {
-                        LOGGER.warn("Exception occurred while trying to create a newInstance of operation: " + supportedOperation, e);
+                        LOGGER.warn("Exception occurred while trying to create a newInstance of operation: {}", supportedOperation, e);
                         continue;
                     }
                     if (CloseableIterable.class.equals(outputClass)) {
                         store.addOperationHandler((Class) supportedOutputOperation, new FederatedOperationIterableHandler());
                     } else {
-                        LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: " + supportedOutputOperation);
+                        LOGGER.warn("No generic default handler can be used for an Output operation that does not return CloseableIterable. operation: {}", supportedOutputOperation);
                     }
                 } else {
                     store.addOperationHandler(supportedOperation, new FederatedOperationHandler());

@@ -473,7 +473,7 @@ public final class GetRDDOfAllElementsHandlerIT {
                 filesDir.mkdir();
                 failuresDir.mkdir();
             } catch (Exception e) {
-                LOGGER.error("Failed to create directory: " + e.getMessage());
+                LOGGER.error("Failed to create directory: {}", e.getMessage());
             }
 
             writeFile(keyPackage, graph.getSchema(), file);

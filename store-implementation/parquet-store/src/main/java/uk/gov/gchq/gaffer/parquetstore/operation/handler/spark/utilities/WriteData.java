@@ -111,8 +111,7 @@ public class WriteData implements VoidFunction<Iterator<Element>> {
                              final long taskAttemptId,
                              final Set<String> groups,
                              final Map<String, Path> groupToWriterPath) throws Exception {
-        LOGGER.info("Renaming output files from {} to {}",
-                "input-" + partitionId + "-" + taskAttemptId + ".parquet", "input-" + partitionId);
+        LOGGER.info("Renaming output files from input-{}-{}.parquet to input-{} ", partitionId, taskAttemptId, partitionId);
         final FileContext fileContext = FileContext.getFileContext(new Configuration());
         for (final String group : groups) {
             final Path src = groupToWriterPath.get(group);
