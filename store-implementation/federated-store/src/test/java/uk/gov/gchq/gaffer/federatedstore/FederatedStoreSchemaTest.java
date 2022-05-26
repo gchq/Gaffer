@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,7 +225,7 @@ public class FederatedStoreSchemaTest {
         final Schema schema = fStore.execute(new GetSchema.Builder().build(), testContext);
 
         // Then
-        assertThat(schema.validate().isValid()).isTrue().withFailMessage(schema.validate().getErrorString());
+        assertThat(schema.validate().isValid()).withFailMessage(schema.validate().getErrorString()).isTrue();
     }
 
     @Test
