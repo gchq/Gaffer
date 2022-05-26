@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2022 Crown Copyright
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>accumulo-legacy</artifactId>
+        <groupId>uk.gov.gchq.gaffer</groupId>
+        <version>2.0.0-alpha-1.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>accumulo-legacy-mini-store</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-legacy-store</artifactId>
+            <version>${project.parent.version}</version>
+            <!--<classifier>shaded</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>-->
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>sketches-library</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Accumulo -->
+
+        <dependency>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-minicluster</artifactId>
+        </dependency>
+
+        <!-- Jackson -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${shade.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>shaded</id>
+                        <phase>${shaded.jar.phase}</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>shaded</shadedClassifierName>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>uk.gov.gchq.gaffer:store</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:operation</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:graph</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:sketches-library</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:common-util</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:serialisation</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:data</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:core</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:access</exclude>
+                                    <exclude>uk.gov.gchq.gaffer:cache</exclude>
+                                    <exclude>uk.gov.gchq.koryphe:*</exclude>
+                                    <exclude>org.slf4j:slf4j-reload4j</exclude>
+                                    <exclude>ch.qos.reload4j:reload4j</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.google.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.http.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.http.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.hamcrest.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.hamcrest.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.glassfish.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.glassfish.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.codehaus.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.codehaus.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.netty.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.io.netty.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jboss.netty.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.jboss.netty.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.eclipse.jetty.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.eclipse.jetty.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.ws.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.javax.ws.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.el.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.javax.el.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.servlet.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.javax.servlet.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.yahoo.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.yahoo.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.nimbusds.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.nimbusds.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.jcraft.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.jcraft.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.ctc.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.ctc.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javassist.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.javassist.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.github.lukehutch.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.io.github.lukehutch.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.benmanes.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.github.benmanes.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.checkerframework.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.checkerframework.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.fusesource.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.fusesource.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.objectweb.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jvnet.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.jvnet.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.xbill.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.xbill.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.xerial.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.xerial.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.json*</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.json*</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.aopalliance.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.aopalliance.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.hibernate.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.hibernate.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.net.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>freemarker.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.freemarker.</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

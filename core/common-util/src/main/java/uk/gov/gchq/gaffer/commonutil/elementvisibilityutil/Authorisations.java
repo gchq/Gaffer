@@ -30,6 +30,7 @@ import java.util.TreeSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.nonNull;
 
 /**
  * This test is coped from org.apache.accumulo.core.security.Authorizations.
@@ -50,7 +51,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
 
     public Authorisations(final byte[] authorisations) {
 
-        checkArgument(authorisations != null, "authorizations is null");
+        checkArgument(nonNull(authorisations), "authorizations is null");
 
         String authsString = new String(authorisations, UTF_8);
         if (authsString.startsWith(HEADER)) {
@@ -172,7 +173,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
         return this.getAuthorisations().iterator();
     }
 
-    static final boolean isValidAuthChar(final byte b) {
+    static boolean isValidAuthChar(final byte b) {
         return VALID_AUTH_CHARS[255 & b];
     }
 
@@ -217,7 +218,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
     }
 
     private void setAuthorisations(final String... authorisations) {
-        checkArgument(authorisations != null, "authorisations is null");
+        checkArgument(nonNull(authorisations), "authorisations is null");
         this.auths.clear();
         String[] var2 = authorisations;
         int var3 = authorisations.length;

@@ -144,7 +144,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         } else {
             ChainedIterable<E> iterable = null;
             try {
-                iterable = new ChainedIterable<E>(values);
+                iterable = new ChainedIterable<>(values);
                 return iterable.iterator();
             } finally {
                 CloseableUtil.close(iterable);

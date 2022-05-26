@@ -28,8 +28,34 @@
     <modules>
         <module>common-rest</module>
         <module>core-rest</module>
-        <module>accumulo-rest</module>
         <module>map-rest</module>
         <module>spring-rest</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>latest-build</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>latest</value>
+                </property>
+            </activation>
+            <modules>
+                <module>accumulo-rest</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>legacy-build</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>legacy</value>
+                </property>
+            </activation>
+            <modules>
+                <module>accumulo-legacy-rest</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

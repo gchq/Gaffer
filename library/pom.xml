@@ -26,12 +26,12 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>hdfs-library</module>
+        <!--<module>hdfs-library-olod</module>-->
         <module>sketches-library</module>
-        <module>spark</module>
+        <!--<module>spark-old</module>-->
         <module>bitmap-library</module>
         <module>cache-library</module>
-        <module>flink-library</module>
+        <!--<module>flink-library-old</module>-->
         <module>time-library</module>
     </modules>
 </project>

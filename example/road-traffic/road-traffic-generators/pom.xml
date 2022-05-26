@@ -45,35 +45,64 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>accumulo-store</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>accumulo-store</artifactId>
-            <version>${project.parent.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.accumulo</groupId>
-            <artifactId>accumulo-minicluster</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>time-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>latest-build</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>latest</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>uk.gov.gchq.gaffer</groupId>
+                    <artifactId>accumulo-mini-store</artifactId>
+                    <version>${project.parent.version}</version>
+                    <classifier>shaded</classifier>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>legacy-build</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>legacy</value>
+                </property>
+            </activation>
+            <properties>
+                <spring.buildType>legacy</spring.buildType>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>uk.gov.gchq.gaffer</groupId>
+                    <artifactId>accumulo-legacy-mini-store</artifactId>
+                    <version>${project.parent.version}</version>
+                    <classifier>shaded</classifier>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -106,5 +135,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
