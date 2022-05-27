@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 
 import java.util.Iterator;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -90,7 +89,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
                 .build();
 
         assertEquals(IncludeIncomingOutgoingType.EITHER, op.getIncludeIncomingOutGoing());
-        assertNotNull(op.getView());
+        assertThat(op.getView()).isNotNull();
     }
 
     @Test
@@ -130,7 +129,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
                 .build();
         assertEquals(IncludeIncomingOutgoingType.INCOMING,
                 op.getIncludeIncomingOutGoing());
-        assertNotNull(op.getView());
+        assertThat(op.getView()).isNotNull();
         assertThat(op.getInput().iterator().next()).isEqualTo(seed);
     }
 

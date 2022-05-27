@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 Crown Copyright
+ * Copyright 2019-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public final class ExecutorService {
 
     public static synchronized void initialise(final int jobExecutorThreadCount) {
         if (service == null) {
-            LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
+            LOGGER.debug("Initialising ExecutorService with {} threads", jobExecutorThreadCount);
             service = Executors.newScheduledThreadPool(jobExecutorThreadCount, runnable -> {
                 final Thread thread = new Thread(runnable);
                 thread.setDaemon(true);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation
         try {
             namedOpDetail = cache.getFromCache(operation.getOperationName());
         } catch (final CacheOperationFailedException e) {
-            LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
+            LOGGER.warn("Error accessing cache for Operation '{}': {}", operation.getClass().getName(), e.getMessage());
         }
 
         if (null != namedOpDetail) {

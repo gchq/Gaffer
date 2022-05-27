@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class GraphConfigurationController implements IGraphConfigurationControll
             try {
                 predicate = (Predicate) predicateClass.newInstance();
             } catch (final IllegalAccessException | InstantiationException e) {
-                LOGGER.warn("Failed to create new instance of " + predicateClass, e);
+                LOGGER.warn("Failed to create new instance of {}", predicateClass, e);
                 LOGGER.warn("Skipping");
                 continue;
             }
