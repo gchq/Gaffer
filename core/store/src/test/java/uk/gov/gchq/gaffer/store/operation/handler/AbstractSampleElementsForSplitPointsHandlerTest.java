@@ -97,7 +97,7 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
         // When / Then
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> handler.doOperation(operation, new Context(), createStore()))
-                .withMessage("Limit of %s exceeded", maxSampledElements);
+                .withMessage("Limit of %s exceeded.", maxSampledElements);
     }
 
     @Test
