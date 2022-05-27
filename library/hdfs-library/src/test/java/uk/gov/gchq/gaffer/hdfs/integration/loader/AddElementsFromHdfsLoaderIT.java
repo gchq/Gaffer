@@ -113,8 +113,7 @@ public class AddElementsFromHdfsLoaderIT {
                     .replaceFirst("/$", "")
                     + testFolder.getAbsolutePath();
 
-
-            logger.info("using root dir: " + root);
+            logger.info("using root dir: {}", root);
 
             inputDir1 = root + "/inputDir1";
             inputDir2 = root + "/inputDir2";
