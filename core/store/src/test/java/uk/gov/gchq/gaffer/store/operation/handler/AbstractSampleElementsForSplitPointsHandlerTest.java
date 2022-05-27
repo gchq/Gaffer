@@ -36,15 +36,13 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -97,12 +95,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .build();
 
         // When / Then
-        try {
-            handler.doOperation(operation, new Context(), createStore());
-            fail("Exception expected");
-        } catch (final NoSuchElementException e) {
-            assertTrue(e.getMessage().equals("Limit of " + maxSampledElements + " exceeded."), e.getMessage());
-        }
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), createStore()))
+                .withMessage("Limit of %s exceeded", maxSampledElements);
     }
 
     @Test
@@ -122,10 +117,9 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .numSplits(3)
                 .build();
 
-        // When
-        handler.doOperation(operation, new Context(), createStore());
-
-        // Then - no exception
+        // When / Then - no exception
+        assertThatNoException()
+                .isThrownBy(() -> handler.doOperation(operation, new Context(), createStore()));
     }
 
     @Test
@@ -221,11 +215,11 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             final int expectedNumSplits,
             final int expectedSampleSize) {
 
-        assertEquals(expectedNumSplits, generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue());
+        assertThat(generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue()).isEqualTo(expectedNumSplits);
 
         final long sampleSize = StreamSupport.stream(generateSplitPointsFromSampleCaptor.getValue().getInput().spliterator(), false).count();
 
-        assertEquals(expectedSampleSize, sampleSize);
+        assertThat(sampleSize).isEqualTo(expectedSampleSize);
     }
 
     private void assertExpectedNumberOfSplitPointsAndSampleSizeOfNoMoreThan(
@@ -233,10 +227,10 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
             final int expectedNumSplits,
             final int maximumExpectedSampleSize) {
 
-        assertEquals(expectedNumSplits, generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue());
+        assertThat(generateSplitPointsFromSampleCaptor.getValue().getNumSplits().intValue()).isEqualTo(expectedNumSplits);
 
         final long sampleSize = StreamSupport.stream(generateSplitPointsFromSampleCaptor.getValue().getInput().spliterator(), false).count();
 
-        assertTrue(maximumExpectedSampleSize > sampleSize);
+        assertThat(sampleSize).isLessThan(maximumExpectedSampleSize);
     }
 }

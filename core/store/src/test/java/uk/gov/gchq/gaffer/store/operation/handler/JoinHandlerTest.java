@@ -32,10 +32,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class JoinHandlerTest {
@@ -58,7 +57,7 @@ public class JoinHandlerTest {
         handler.doOperation(joinOp, context, store);
 
         // Then
-        assertTrue(joinOp.getInput().equals(new ArrayList<>()));
+        assertThat(joinOp.getInput()).isEqualTo(new ArrayList<>());
     }
 
     @Test
@@ -76,7 +75,7 @@ public class JoinHandlerTest {
                 .build();
 
         // When / Then
-        assertThatExceptionOfType(NoSuchElementException.class)
+        assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> handler.doOperation(joinOp, context, store))
                 .withMessageContaining("exceeded");
     }
