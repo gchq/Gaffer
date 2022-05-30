@@ -26,7 +26,6 @@ import uk.gov.gchq.koryphe.util.DateUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -217,16 +216,21 @@ public class OpenCypherCsvElementGeneratorTest {
             new Entity.Builder()
                 .group("person")
                 .vertex("v1")
-                .property("name", "marko")
-                .property("age", 29)
-                .build(),
-
-
-            new Entity.Builder()
-                .group("software")
-                .vertex("v2")
-                .property("name", "lop")
-                .property("lang", "java")
+                .property("string-prop", "marko")
+                .property("int-prop", 29)
+                .property("double-prop", 0.4d)
+                .property("dateTime-prop", DateUtil.parseTime("2000-01-02 03:04:05"))
+                .property("long-prop", 10L)
+                .property("float-prop", 0.3f)
+                .property("boolean-prop", false)
+                .property("byte-prop", 1)
+                .property("short-prop", 1)
+                .property("char-prop", "K")
+                .property("date-prop", "2000-01-01")
+                .property("localDate-prop", "2000-01-01")
+                .property("localDateTime-prop", "2015-07-04T19:32:24")
+                .property("duration-prop", "P14DT16H12M")
+                .property("point-prop", "latitude:'13.10' longitude:'56.41'")
                 .build()
         );
     }
@@ -248,38 +252,28 @@ public class OpenCypherCsvElementGeneratorTest {
                     .dest("v2")
                     .directed(true)
                     .property("edge-id", "e1")
-                    .property("age", 4)
+                    .property("int-prop", 4)
+                    .property("double-prop", 0.4d)
+                    .property("dateTime-prop", DateUtil.parseTime("2000-01-02 03:04:05"))
+                    .property("long-prop", 10L)
+                    .property("float-prop", 0.3f)
+                    .property("boolean-prop", false)
+                    .property("byte-prop", 1)
+                    .property("short-prop", 1)
+                    .property("char-prop", "K")
+                    .property("date-prop", "2000-01-01")
+                    .property("localDate-prop", "2000-01-01")
+                    .property("localDateTime-prop", "2015-07-04T19:32:24")
+                    .property("duration-prop", "P14DT16H12M")
+                    .property("point-prop", "latitude:'13.10' longitude:'56.41'")
                     .build()
         );
     }
 
     @Test
-    void shouldCreateDoubleProperty() throws IOException {
+    void shouldGenerateBasicEntitesAndEdgesCsvFromNeo4jExport() throws IOException {
         //Given
-        Iterable<String> lines = getInputData("openCypherDoubleProperty.csv");
-
-        //When
-        OpenCypherCsvElementGenerator generator = getGenerator(lines);
-        Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
-
-        //Then
-        assertThat(edge).containsExactly(
-            new Edge.Builder()
-                    .group("created")
-                    .source("v1")
-                    .dest("v2")
-                    .directed(true)
-                    .property("edge-id", "e1")
-                    .property("weight", 0.4d)
-                    .build()
-
-        );
-    }
-
-    @Test
-    void shouldCreateDateTimeProperty() throws IOException, ParseException {
-        //Given
-        Iterable<String> lines = getInputData("openCypherDateTimeProperty.csv");
+        Iterable<String> lines = getInputData("openCypherBasicEntities&EdgeFromNeo4jExport.csv");
 
         //When
         OpenCypherCsvElementGenerator generator = getGenerator(lines);
@@ -287,18 +281,16 @@ public class OpenCypherCsvElementGeneratorTest {
 
         //Then
         assertThat(elements).containsExactly(
-            new Edge.Builder()
-                    .group("created")
-                    .source("v1")
-                    .dest("v2")
-                    .directed(true)
-                    .property("dateTime", DateUtil.parseTime("2000-01-02 03:04:05"))
-                    .build()
-
+                new Entity("person", "v1"),
+                new Entity("software", "v2"),
+                new Edge.Builder()
+                        .group("created")
+                        .source("v1")
+                        .dest("v2")
+                        .directed(true)
+                        .property("edge-id", "e1")
+                        .build()
         );
-
-        //TODO Add Float, Long,  Boolean , Short, byte
-
     }
 
 }

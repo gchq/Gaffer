@@ -21,11 +21,11 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.PropertiesUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
-import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.Summary;
+
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.FunctionChain;
@@ -33,11 +33,12 @@ import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.MapToTuple;
 import uk.gov.gchq.koryphe.impl.function.ParseTime;
 import uk.gov.gchq.koryphe.impl.function.ToBoolean;
-import uk.gov.gchq.koryphe.impl.function.ToBytes;
 import uk.gov.gchq.koryphe.impl.function.ToDouble;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
 import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.impl.function.ToString;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
@@ -50,13 +51,20 @@ import java.util.Map;
 public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, Serializable {
     private static final long serialVersionUID = -821376598172364516L;
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenCypherCsvElementGenerator.class);
-    public static final String VERTEX = ":ID";
-    public static final String ENTITY_GROUP = ":LABEL";
-    public static final String SOURCE = ":START_ID";
-    public static final String DESTINATION = ":END_ID";
-    public static final String EDGE_GROUP = ":TYPE";
-    public static final List<String> ELEMENT_COLUMN_NAMES = ImmutableList.of(VERTEX, ENTITY_GROUP, EDGE_GROUP, SOURCE, DESTINATION);
 
+    public static final String VERTEX = ":ID";
+    public static final String NEO4J_VERTEX = "_id";
+    public static final String ENTITY_GROUP = ":LABEL";
+    public static final String NEO4J_ENTITY_GROUP = "_labels";
+
+    public static final String SOURCE = ":START_ID";
+    public static final String NEO4J_SOURCE = "_start";
+    public static final String DESTINATION = ":END_ID";
+    public static final String NEO4J_DESTINATION = "_end";
+
+    public static final String EDGE_GROUP = ":TYPE";
+    public static final String NEO4J_EDGE_GROUP = "_type";
+    private static final List<String> ELEMENT_COLUMN_NAMES = ImmutableList.of(VERTEX, ENTITY_GROUP, EDGE_GROUP, SOURCE, DESTINATION);
     private String header;
     private int firstRow = 0;
     private Boolean trim = false;
@@ -80,44 +88,51 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         ElementTupleDefinition edgeDefinition = new ElementTupleDefinition(EDGE_GROUP)
             .source(SOURCE)
             .destination(DESTINATION)
-            .property("edge-id", ":ID");
+            .property("edge-id", VERTEX);
         for (final String columnHeader : parseCsv.getHeader()) {
             if (!ELEMENT_COLUMN_NAMES.contains(columnHeader)) {
-                String propertyName = columnHeader;
+                String propertyName = columnHeader.split(":")[0];
+                if (!PropertiesUtil.isValidName(propertyName)) {
+                    propertyName = propertyName.replaceAll("_", "-");
+                    propertyName = PropertiesUtil.stripInvalidCharacters(propertyName);
+                }
                 if (columnHeader.contains(":")) {
-                    String fullColumnHeader = columnHeader;
                     String typeName = columnHeader.split(":")[1];
-                    propertyName = columnHeader.split(":")[0];
                     KorypheFunction<?, ?> transform;
                     switch (typeName) {
-                        case "Double":
-                            transform = new ToDouble();
-                            break;
-                        case "Int":
-                            transform = new ToInteger();
-                            break;
                         case "DateTime":
                             transform = new ParseTime();
-                            break;
-                        case "String":
-                            transform = new ToString();
                             break;
                         case "Long":
                             transform = new ToLong();
                             break;
                         case "Byte":
-                            transform = new ToBytes();
+                        case "Short":
+                        case "Int":
+                            transform = new ToInteger();
                             break;
                         case "Boolean":
                             transform = new ToBoolean();
                             break;
                         case "Float":
+                            transform = new ToFloat();
+                            break;
+                        case "Double":
                             transform = new ToDouble();
+                            break;
+                        case "Char":
+                        case "Date":
+                        case "LocalDate":
+                        case "LocalDateTime":
+                        case "Duration":
+                        case "Point":
+                        case "String":
+                            transform = new ToString();
+                            break;
                         default:
                             throw new RuntimeException("Unsupported Type: " + typeName);
-                      }
-
-                    transformTuplesBuilder = transformTuplesBuilder.execute(new String[]{fullColumnHeader}, transform, new String[]{propertyName});
+                    }
+                    transformTuplesBuilder = transformTuplesBuilder.execute(new String[]{columnHeader}, transform, new String[]{propertyName});
                 }
 
                 entityDefinition = entityDefinition.property(propertyName);
@@ -141,6 +156,14 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         return generator.apply((Iterable<String>) strings);
     }
 
+    private String parseHeader(final String header) {
+        String parsedHeader = header.replace(NEO4J_VERTEX, VERTEX);
+        parsedHeader = parsedHeader.replace(NEO4J_ENTITY_GROUP, ENTITY_GROUP);
+        parsedHeader = parsedHeader.replace(NEO4J_EDGE_GROUP, EDGE_GROUP);
+        parsedHeader = parsedHeader.replace(NEO4J_SOURCE, SOURCE);
+        parsedHeader = parsedHeader.replace(NEO4J_DESTINATION, DESTINATION);
+        return parsedHeader;
+    }
 
     public String getHeader() {
         return header;
@@ -148,7 +171,7 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
 
 
     public void setHeader(final String header) {
-        this.header = header;
+        this.header = parseHeader(header);
     }
 
 
@@ -189,5 +212,4 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
     public void setNullString(final String nullString) {
         this.nullString = nullString;
     }
-
 }

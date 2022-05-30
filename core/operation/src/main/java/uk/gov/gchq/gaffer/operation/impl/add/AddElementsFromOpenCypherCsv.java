@@ -43,11 +43,35 @@ public class AddElementsFromOpenCypherCsv implements
 
     @Required
     private String filename;
-
+    private char delimiter = ',';
+    private String nullString = "";
+    private boolean trim = false;
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Map<String, String> options;
+    public char getDelimiter() {
+        return delimiter;
+    }
 
+    public void setDelimiter(final char delimiter) {
+        this.delimiter = delimiter;
+    }
+
+    public String getNullString() {
+        return nullString;
+    }
+
+    public void setNullString(final String nullString) {
+        this.nullString = nullString;
+    }
+
+    public boolean isTrim() {
+        return trim;
+    }
+
+    public void setTrim(final boolean trim) {
+        this.trim = trim;
+    }
     public String getFilename() {
         return filename;
     }
@@ -55,7 +79,6 @@ public class AddElementsFromOpenCypherCsv implements
     public void setFilename(final String filename) {
         this.filename = filename;
     }
-
 
     @Override
     public Map<String, String> getOptions() {
@@ -107,6 +130,20 @@ public class AddElementsFromOpenCypherCsv implements
             _getOp().setFilename(filename);
             return _self();
         }
-        // add delimiter, ......
+
+        public Builder delimiter(final char delimiter) {
+            _getOp().setDelimiter(delimiter);
+            return _self();
+        }
+
+        public Builder trim(final Boolean trim) {
+            _getOp().setTrim(trim);
+            return _self();
+        }
+
+        public Builder nullString(final String nullString) {
+            _getOp().setNullString(nullString);
+            return _self();
+        }
     }
 }

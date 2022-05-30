@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -39,5 +40,25 @@ public final class PropertiesUtil {
             throw new IllegalArgumentException("Property is invalid: " + property + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
         }
     }
+    /**
+     * Checks the input property String against the allowed property pattern.
+     *
+     * @param property String to validate.
+     * @return boolean if name is valid
+     */
+    public static boolean isValidName(final String property) {
+        if (!PROPERTY_ALLOWED_CHARACTERS.matcher(property).matches()) {
+            return false;
+        }
+        return true;
+    }
 
+     public static String stripInvalidCharacters(final String property) {
+        String validProperty = "";
+        Matcher matcher = PROPERTY_ALLOWED_CHARACTERS.matcher(property);
+        while (matcher.find()) {
+            validProperty += matcher.group();
+        }
+        return validProperty;
+    }
 }
