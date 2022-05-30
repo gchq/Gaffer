@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.ElementFilterException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -43,6 +42,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -177,7 +177,7 @@ public abstract class AbstractElementFilter extends Filter {
 
         ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
         try {
-            chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(Arrays.asList(view.getEntities().entrySet(),
+            chainedIterable = new ChainedIterable<>(Arrays.asList(view.getEntities().entrySet(),
                     view.getEdges().entrySet()));
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
                 if (isNull(entry.getValue()) || !hasFilters.apply(entry.getValue())) {

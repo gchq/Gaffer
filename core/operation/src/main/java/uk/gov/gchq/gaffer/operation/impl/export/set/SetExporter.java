@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.export.set;
 import com.google.common.collect.Iterables;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedIterable;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
