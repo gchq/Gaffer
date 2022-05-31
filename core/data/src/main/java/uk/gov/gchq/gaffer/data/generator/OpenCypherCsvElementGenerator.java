@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTupleDefinition;
 import uk.gov.gchq.gaffer.data.element.function.TuplesToElements;
 
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.function.CsvLinesToMaps;
 import uk.gov.gchq.koryphe.impl.function.FunctionChain;
@@ -34,11 +36,10 @@ import uk.gov.gchq.koryphe.impl.function.MapToTuple;
 import uk.gov.gchq.koryphe.impl.function.ParseTime;
 import uk.gov.gchq.koryphe.impl.function.ToBoolean;
 import uk.gov.gchq.koryphe.impl.function.ToDouble;
+import uk.gov.gchq.koryphe.impl.function.ToFloat;
 import uk.gov.gchq.koryphe.impl.function.ToInteger;
 import uk.gov.gchq.koryphe.impl.function.ToLong;
 import uk.gov.gchq.koryphe.impl.function.ToString;
-import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.Summary;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
