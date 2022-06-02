@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.traffic;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
@@ -54,7 +56,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,7 +70,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 public abstract class RoadTrafficTestQueries {
 
-    private static final Logger LOGGER = Logger.getLogger(RoadTrafficTestQueries.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoadTrafficTestQueries.class.getName());
 
     protected Graph graph;
     protected User user;
@@ -106,14 +107,14 @@ public abstract class RoadTrafficTestQueries {
         try {
             startDate = dateFormat.parse("2000-10-10 07:00:00");
         } catch (final ParseException e) {
-            LOGGER.info("Error parsing startDate: " + e.getMessage());
+            LOGGER.info("Error parsing startDate: {}", e.getMessage());
         }
 
         Date endDate = null;
         try {
             endDate = dateFormat.parse("2000-10-10 08:00:00");
         } catch (final ParseException e) {
-            LOGGER.info("Error parsing endDate: " + e.getMessage());
+            LOGGER.info("Error parsing endDate: {}", e.getMessage());
         }
 
         final FreqMap countByVehicleType = new FreqMap();
