@@ -15,6 +15,33 @@
         <kafka.minor.version>${kafka.version}.2.2</kafka.minor.version>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>latest</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>latest</value>
+                </property>
+            </activation>
+            <properties>
+                <buildType>latest</buildType>
+            </properties>
+        </profile>
+        <profile>
+            <id>legacy</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>legacy</value>
+                </property>
+            </activation>
+            <properties>
+                <buildType>legacy</buildType>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <!-- In Java 9+, the JAXB Module is no longer included in the JDK -->
         <dependency>

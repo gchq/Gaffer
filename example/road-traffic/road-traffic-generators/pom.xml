@@ -15,13 +15,11 @@
             <artifactId>road-traffic-model</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
@@ -29,7 +27,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
@@ -53,13 +50,16 @@
 
     <profiles>
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>latest</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>latest</buildType>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -75,9 +75,8 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
@@ -85,7 +84,7 @@
                 </property>
             </activation>
             <properties>
-                <spring.buildType>legacy</spring.buildType>
+                <buildType>legacy</buildType>
             </properties>
             <dependencies>
                 <dependency>

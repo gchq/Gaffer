@@ -20,7 +20,6 @@
             <artifactId>sketches-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
@@ -34,17 +33,39 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>latest</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>latest</buildType>
+                <jackson.version>2.13.0</jackson.version>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -60,15 +81,17 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>legacy</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>legacy</buildType>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>uk.gov.gchq.gaffer</groupId>

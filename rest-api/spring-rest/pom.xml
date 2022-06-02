@@ -15,7 +15,6 @@
         <spring.boot.version>2.5.12</spring.boot.version>
         <swagger.version>3.0.0</swagger.version>
         <store.type>map</store.type>
-        <spring.buildType>latest</spring.buildType>
     </properties>
 
     <dependencies>
@@ -148,7 +147,7 @@
                 <configuration>
                     <layout>ZIP</layout>
                     <executable>true</executable>
-                    <classifier>${spring.buildType}-exec</classifier>
+                    <classifier>${buildType}-exec</classifier>
                 </configuration>
                 <executions>
                     <execution>
@@ -164,7 +163,7 @@
 
     <profiles>
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
@@ -172,6 +171,7 @@
                 </property>
             </activation>
             <properties>
+                <buildType>latest</buildType>
                 <jackson.version>2.13.0</jackson.version>
             </properties>
             <dependencies>
@@ -194,15 +194,17 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>legacy</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>legacy</buildType>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>uk.gov.gchq.gaffer</groupId>

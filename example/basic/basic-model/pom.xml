@@ -53,13 +53,16 @@
 
     <profiles>
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>latest</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>latest</buildType>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -77,7 +80,7 @@
         </profile>
 
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
@@ -85,7 +88,7 @@
                 </property>
             </activation>
             <properties>
-                <spring.buildType>legacy</spring.buildType>
+                <buildType>legacy</buildType>
             </properties>
             <dependencies>
                 <dependency>

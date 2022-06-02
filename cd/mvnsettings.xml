@@ -23,7 +23,6 @@
                 <gpg.keyname>${env.GPG_KEY_NAME}</gpg.keyname>
                 <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
             </properties>
-
         </profile>
     </profiles>
 </settings>

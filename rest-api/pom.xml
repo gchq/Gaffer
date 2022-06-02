@@ -34,25 +34,31 @@
 
     <profiles>
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>latest</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>latest</buildType>
+            </properties>
             <modules>
                 <module>accumulo-rest</module>
             </modules>
         </profile>
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>legacy</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>legacy</buildType>
+            </properties>
             <modules>
                 <module>accumulo-legacy-rest</module>
             </modules>

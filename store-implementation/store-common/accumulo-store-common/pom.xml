@@ -11,6 +11,33 @@
 
     <artifactId>accumulo-store-common</artifactId>
 
+    <profiles>
+        <profile>
+            <id>latest</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>latest</value>
+                </property>
+            </activation>
+            <properties>
+                <buildType>latest</buildType>
+            </properties>
+        </profile>
+        <profile>
+            <id>legacy</id>
+            <activation>
+                <property>
+                    <name>buildType</name>
+                    <value>legacy</value>
+                </property>
+            </activation>
+            <properties>
+                <buildType>legacy</buildType>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <!-- Gaffer dependencies -->
         <dependency>
@@ -77,14 +104,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
             <version>${hadoop.version}</version>
-        </dependency>
-
-        <!-- Google -->
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${accumulo.guava.version}</version>
         </dependency>
 
         <!-- Testing dependencies -->

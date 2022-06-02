@@ -26,8 +26,11 @@
 
     <artifactId>accumulo-store</artifactId>
 
-    <dependencies>
+    <properties>
+        <buildType>latest</buildType>
+    </properties>
 
+    <dependencies>
         <!-- Gaffer dependencies -->
 
         <dependency>
@@ -95,13 +98,6 @@
             <artifactId>hadoop-yarn-common</artifactId>
         </dependency>
 
-        <!-- Google -->
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
         <!-- Apache -->
 
         <dependency>
@@ -109,38 +105,10 @@
             <artifactId>commons-text</artifactId>
         </dependency>
 
-        <!-- Jackson -->
-
-        <!--<dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>-->
 
         <!-- Testing dependencies -->
 
@@ -300,8 +268,48 @@
                                     <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.com.google.</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.commons.</pattern>
-                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.</shadedPattern>
+                                    <pattern>org.apache.commons.beanutils.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.beanutils.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.cli.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.cli.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.collections.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.collections.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.collections4.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.collections4.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.csv.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.csv.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.daemon.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.daemon.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.io.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.io.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.lang3.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.lang3.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.math3.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.math3.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.net.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.net.</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.vfs2.</pattern>
+                                    <shadedPattern>uk.gov.gchq.gaffer.accumulo.shaded.org.apache.commons.vfs2.</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.http.</pattern>

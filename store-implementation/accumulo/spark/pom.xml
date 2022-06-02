@@ -28,11 +28,4 @@
     <modules>
         <module>spark-accumulo-library</module>
     </modules>
-
-    <repositories>
-        <repository>
-            <id>Spark Packages</id>
-            <url>https://repos.spark-packages.org/</url>
-        </repository>
-    </repositories>
 </project>

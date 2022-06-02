@@ -24,11 +24,16 @@
     </parent>
     <artifactId>spark-accumulo-library</artifactId>
 
+    <properties>
+        <buildType>latest</buildType>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>spark-library</artifactId>
             <version>${project.parent.version}</version>
+            <classifier>${buildType}</classifier>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -44,10 +49,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>sketches-library</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- Test dependencies -->

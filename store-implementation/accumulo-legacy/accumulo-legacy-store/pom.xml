@@ -28,6 +28,10 @@
 
     <artifactId>accumulo-legacy-store</artifactId>
 
+    <properties>
+        <buildType>legacy</buildType>
+    </properties>
+
     <dependencies>
 
         <!-- Gaffer dependencies -->
@@ -68,13 +72,6 @@
         <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>
-        </dependency>
-
-        <!-- Google -->
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- Apache -->

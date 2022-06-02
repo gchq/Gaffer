@@ -28,35 +28,12 @@
     <artifactId>store-implementation</artifactId>
     <packaging>pom</packaging>
 
-    <properties>
-        <accumulo.version>2.0.1</accumulo.version>
-        <hadoop.version>3.3.2</hadoop.version>
-        <spark.minor.version>3.2</spark.minor.version>
-        <spark.version>${spark.minor.version}.1</spark.version>
-        <scala.minor.version>2.12</scala.minor.version>
-        <scala.version>${scala.minor.version}.15</scala.version>
-        <accumulo.guava.version>28.0-jre</accumulo.guava.version>
-        <commons-text.version>1.9</commons-text.version>
-        <flink.version>1.7.2</flink.version>
-        <kafka.version>0.10</kafka.version>
-        <kafka.minor.version>${kafka.version}.2.2</kafka.minor.version>
-        <graphframes.library.version>0.8.2</graphframes.library.version>
-
-        <!-- Legacy build -->
-
-        <legacy.spark.minor.version>2.4</legacy.spark.minor.version>
-        <legacy.spark.version>${legacy.spark.minor.version}.5</legacy.spark.version>
-        <legacy.scala.minor.version>2.11</legacy.scala.minor.version>
-        <legacy.scala.version>${legacy.scala.minor.version}.12</legacy.scala.version>
-        <legacy.accumulo.version>1.9.3</legacy.accumulo.version>
-        <legacy.hadoop.version>2.6.5</legacy.hadoop.version>
-        <legacy.accumulo.guava.version>13.0.1</legacy.accumulo.guava.version>
-        <legacy.commons-text.version>1.4</legacy.commons-text.version>
-        <legacy.flink.version>1.7.2</legacy.flink.version>
-        <legacy.kafka.version>0.10</legacy.kafka.version>
-        <legacy.kafka.minor.version>${legacy.kafka.version}.2.2</legacy.kafka.minor.version>
-        <legacy.graphframes.library.version>0.8.1</legacy.graphframes.library.version>
-    </properties>
+    <repositories>
+        <repository>
+            <id>Spark Packages</id>
+            <url>https://repos.spark-packages.org/</url>
+        </repository>
+    </repositories>
 
     <modules>
         <module>store-common</module>
@@ -67,56 +44,30 @@
 
     <profiles>
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>latest</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>latest</buildType>
+            </properties>
             <modules>
                 <module>accumulo</module>
             </modules>
         </profile>
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>legacy</value>
                 </property>
-                <!-- TODO: does not work with maven on child poms
-                <jdk>8</jdk>-->
             </activation>
             <properties>
-                <accumulo.version>${legacy.accumulo.version}</accumulo.version>
-                <hadoop.version>${legacy.hadoop.version}</hadoop.version>
-                <spark.minor.version>${legacy.spark.minor.version}</spark.minor.version>
-                <spark.version>${legacy.spark.version}</spark.version>
-                <scala.minor.version>${legacy.scala.minor.version}</scala.minor.version>
-                <scala.version>${legacy.scala.version}</scala.version>
-                <commons-text.version>1.4</commons-text.version>
-                <accumulo.guava.version>${legacy.accumulo.guava.version}</accumulo.guava.version>
-                <flink.version>${legacy.flink.version}</flink.version>
-                <kafka.version>${legacy.kafka.version}</kafka.version>
-                <kafka.minor.version>${legacy.kafka.minor.version}</kafka.minor.version>
-                <graphframes.library.version>${legacy.graphframes.library.version}</graphframes.library.version>
-            </properties>
-            <modules>
-                <module>accumulo-legacy</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>legacy-build-jdk-11</id>
-            <activation>
-                <property>
-                    <name>buildType</name>
-                    <value>legacy</value>
-                </property>
-                <jdk>11</jdk>
-            </activation>
-            <properties>
-                <accumulo.version>${legacy.accumulo.version}</accumulo.version>
+                <buildType>legacy</buildType>
             </properties>
             <modules>
                 <module>accumulo-legacy</module>
@@ -516,6 +467,128 @@
                 <version>${scala.version}</version>
             </dependency>
 
+            <!-- Spark -->
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_${scala.minor.version}</artifactId>
+                <version>${spark.version}</version>
+                <!-- exclude server-side parts that conflict with running in a webapp -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-scala_${scala.minor.version}</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-grizzly2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-json</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <!-- Conflicts with Reload4j -->
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_${scala.minor.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-graphx_${scala.minor.version}</artifactId>
+                <version>${spark.version}</version>
+                <exclusions>
+                    <!--
+                    Removed due to constraints by Maven Central disallowing
+                    some of the characters used in these classes
+                    -->
+                    <exclusion>
+                        <groupId>org.spire-math</groupId>
+                        <artifactId>spire_${scala.minor.version}</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.chuusai</groupId>
+                        <artifactId>shapeless_${scala.minor.version}</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-catalyst_${scala.minor.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>graphframes</groupId>
+                <artifactId>graphframes</artifactId>
+                <version>${graphframes.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>${commons-configuration2.version}</version>
+            </dependency>
+
             <!-- Accumulo -->
 
             <dependency>
@@ -676,14 +749,6 @@
                 <artifactId>flink-metrics-jmx_${scala.minor.version}</artifactId>
                 <version>${flink.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <!-- Google -->
-
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${accumulo.guava.version}</version>
             </dependency>
 
             <!-- Apache -->

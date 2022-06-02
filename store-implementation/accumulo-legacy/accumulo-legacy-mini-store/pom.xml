@@ -27,18 +27,15 @@
 
     <artifactId>accumulo-legacy-mini-store</artifactId>
 
+    <properties>
+        <buildType>legacy</buildType>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>accumulo-legacy-store</artifactId>
             <version>${project.parent.version}</version>
-            <!--<classifier>shaded</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -124,6 +121,7 @@
                                     <exclude>uk.gov.gchq.koryphe:*</exclude>
                                     <exclude>org.slf4j:slf4j-reload4j</exclude>
                                     <exclude>ch.qos.reload4j:reload4j</exclude>
+                                    <exclude>com.fasterxml.*:*</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>

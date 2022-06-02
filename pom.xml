@@ -63,7 +63,6 @@
         <commons-csv.version>1.9.0</commons-csv.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <curator.version>2.11.1</curator.version>
-        <guava.version>13.0.1</guava.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
         <javax-annotation.version>1.3.2</javax-annotation.version>
@@ -122,6 +121,40 @@
         <snapshots.repository.url>
             https://oss.sonatype.org/content/repositories/snapshots
         </snapshots.repository.url>
+
+        <!-- Latest build version -->
+
+        <latest.guava.version>28.0-jre</latest.guava.version>
+        <latest.accumulo.version>2.0.1</latest.accumulo.version>
+        <latest.hadoop.version>3.3.2</latest.hadoop.version>
+        <latest.commons-configuration2.version>2.1.1</latest.commons-configuration2.version>
+        <latest.commons-text.version>1.9</latest.commons-text.version>
+        <latest.spark.minor.version>3.2</latest.spark.minor.version>
+        <latest.spark.version>${latest.spark.minor.version}.1</latest.spark.version>
+        <latest.scala.minor.version>2.12</latest.scala.minor.version>
+        <latest.scala.version>${latest.scala.minor.version}.15</latest.scala.version>
+        <latest.flink.version>1.7.2</latest.flink.version>
+        <latest.kafka.version>0.10</latest.kafka.version>
+        <latest.kafka.minor.version>${latest.kafka.version}.2.2</latest.kafka.minor.version>
+        <latest.graphframes.library.version>0.8.2</latest.graphframes.library.version>
+        <latest.graphframes.version>${latest.graphframes.library.version}-spark${latest.spark.minor.version}-s_${latest.scala.minor.version}</latest.graphframes.version>
+
+        <!-- Legacy build versions -->
+
+        <legacy.guava.version>13.0.1</legacy.guava.version>
+        <legacy.accumulo.version>1.9.3</legacy.accumulo.version>
+        <legacy.hadoop.version>2.6.5</legacy.hadoop.version>
+        <latest.commons-configuration2.version>2.1.1</latest.commons-configuration2.version>
+        <legacy.commons-text.version>1.4</legacy.commons-text.version>
+        <legacy.spark.minor.version>2.4</legacy.spark.minor.version>
+        <legacy.spark.version>${legacy.spark.minor.version}.5</legacy.spark.version>
+        <legacy.scala.minor.version>2.11</legacy.scala.minor.version>
+        <legacy.scala.version>${legacy.scala.minor.version}.12</legacy.scala.version>
+        <legacy.flink.version>1.7.2</legacy.flink.version>
+        <legacy.kafka.version>0.10</legacy.kafka.version>
+        <legacy.kafka.minor.version>${legacy.kafka.version}.2.2</legacy.kafka.minor.version>
+        <legacy.graphframes.library.version>0.8.1</legacy.graphframes.library.version>
+        <legacy.graphframes.version>${legacy.graphframes.library.version}-spark${legacy.spark.minor.version}-s_${legacy.scala.minor.version}</legacy.graphframes.version>
     </properties>
 
     <developers>
@@ -1100,13 +1133,31 @@
         </profile>
 
         <profile>
-            <id>latest-build</id>
+            <id>latest</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>latest</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>latest</buildType>
+                <latest.buildType>latest</latest.buildType>
+                <guava.version>${latest.guava.version}</guava.version>
+                <accumulo.version>${latest.accumulo.version}</accumulo.version>
+                <hadoop.version>${latest.hadoop.version}</hadoop.version>
+                <commons-text.version>1.4</commons-text.version>
+                <spark.minor.version>${latest.spark.minor.version}</spark.minor.version>
+                <spark.version>${latest.spark.version}</spark.version>
+                <scala.minor.version>${latest.scala.minor.version}</scala.minor.version>
+                <scala.version>${latest.scala.version}</scala.version>
+                <flink.version>${latest.flink.version}</flink.version>
+                <kafka.version>${latest.kafka.version}</kafka.version>
+                <kafka.minor.version>${latest.kafka.minor.version}</kafka.minor.version>
+                <graphframes.library.version>${latest.graphframes.library.version}</graphframes.library.version>
+                <graphframes.version>${latest.graphframes.version}</graphframes.version>
+                <commons-configuration2.version>${latest.commons-configuration2.version}</commons-configuration2.version>
+            </properties>
             <modules>
                 <module>core</module>
                 <module>library</module>
@@ -1115,16 +1166,61 @@
                 <module>rest-api</module>
                 <module>example</module>
             </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>check-legacy-not-selected</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>com.google.guava:guava:[13,28)</exclude>
+                                                <exclude>org.apache.accumulo:*:[1,2)</exclude>
+                                                <exclude>org.apache.hadoop:*:[2,3)</exclude>
+                                            </excludes>
+                                            <message>Both the legacy and latest profiles have been activated</message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
-
         <profile>
-            <id>legacy-build</id>
+            <id>legacy</id>
             <activation>
                 <property>
                     <name>buildType</name>
                     <value>legacy</value>
                 </property>
             </activation>
+            <properties>
+                <buildType>legacy</buildType>
+                <guava.version>${legacy.guava.version}</guava.version>
+                <accumulo.version>${legacy.accumulo.version}</accumulo.version>
+                <hadoop.version>${legacy.hadoop.version}</hadoop.version>
+                <commons-text.version>1.4</commons-text.version>
+                <spark.minor.version>${legacy.spark.minor.version}</spark.minor.version>
+                <spark.version>${legacy.spark.version}</spark.version>
+                <scala.minor.version>${legacy.scala.minor.version}</scala.minor.version>
+                <scala.version>${legacy.scala.version}</scala.version>
+                <flink.version>${legacy.flink.version}</flink.version>
+                <kafka.version>${legacy.kafka.version}</kafka.version>
+                <kafka.minor.version>${legacy.kafka.minor.version}</kafka.minor.version>
+                <graphframes.library.version>${legacy.graphframes.library.version}</graphframes.library.version>
+                <graphframes.version>${legacy.graphframes.version}</graphframes.version>
+                <commons-configuration2.version>${legacy.commons-configuration2.version}</commons-configuration2.version>
+            </properties>
             <modules>
                 <module>core</module>
                 <module>library</module>
@@ -1133,6 +1229,35 @@
                 <module>rest-api</module>
                 <module>example</module>
             </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>check-latest-not-selected</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>com.google.guava:guava:[28,)</exclude>
+                                                <exclude>org.apache.accumulo:*:[2,)</exclude>
+                                                <exclude>org.apache.hadoop:*:[3,)</exclude>
+                                            </excludes>
+                                            <message>Both the legacy and latest profiles have been activated</message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
