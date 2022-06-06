@@ -24,7 +24,7 @@ gaffer:
   schemas: rest-api/spring-rest/src/main/resources/schemas
 
 server:
-  context-path: /rest
+  servlet.context-path: /rest
 
 logging:
   level:
