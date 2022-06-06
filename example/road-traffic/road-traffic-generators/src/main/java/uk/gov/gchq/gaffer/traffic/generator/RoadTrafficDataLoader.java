@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.SuppliedIterable;
@@ -39,11 +41,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 public class RoadTrafficDataLoader {
 
-    private static final Logger LOGGER = Logger.getLogger(RoadTrafficDataLoader.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoadTrafficDataLoader.class.getName());
 
     private final Graph graph;
     private final User user;
@@ -121,7 +122,7 @@ public class RoadTrafficDataLoader {
             dataLoader.load(new File(dataFile));
             LOGGER.info("Data has been loaded");
         } catch (final Exception e) {
-            LOGGER.info("Unable to load data:" + e.getMessage());
+            LOGGER.info("Unable to load data: {}", e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }
     }
