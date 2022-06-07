@@ -37,17 +37,18 @@ public class OpenCypherCsvElementGeneratorTest {
         }
     }
 
-    private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines, boolean trim, char delimiter) {
+    private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines, boolean trim, char delimiter, String nullString) {
         OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator();
         String header = lines.iterator().next();
         generator.setHeader(header);
         generator.setDelimiter(delimiter);
         generator.setTrim(trim);
+        generator.setNullString(nullString);
         return generator;
     }
 
     private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines) {
-        return getGenerator(lines, true, ',');
+        return getGenerator(lines, true, ',', "");
     }
 
     @Test
@@ -87,7 +88,7 @@ public class OpenCypherCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntityPipeDelimited.csv");
 
         //When
-        OpenCypherCsvElementGenerator generator = getGenerator(lines, true, '|');
+        OpenCypherCsvElementGenerator generator = getGenerator(lines, true, '|', "");
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -151,7 +152,7 @@ public class OpenCypherCsvElementGeneratorTest {
     }
 
     @Test
-    void shouldGenerateBasicEntitesAndEdgesCsv() throws IOException {
+    void shouldGenerateBasicEntitiesAndEdgesCsv() throws IOException {
         //Given
         Iterable<String> lines = getInputData("openCypherBasicEntitiesAndEdges.csv");
 

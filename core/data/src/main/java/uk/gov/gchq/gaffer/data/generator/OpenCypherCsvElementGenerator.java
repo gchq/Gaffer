@@ -43,9 +43,9 @@ import uk.gov.gchq.koryphe.impl.function.ToString;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 import java.io.Serializable;
+
 import java.util.List;
 import java.util.Map;
-
 
 @Since("2.0.0")
 @Summary("Generates elements from an openCypher CSV string")
@@ -212,5 +212,44 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
 
     public void setNullString(final String nullString) {
         this.nullString = nullString;
+    }
+
+    public static class Builder {
+        private String header;
+        private int firstRow = 0;
+        private Boolean trim = false;
+        private char delimiter = ',';
+        private String nullString = "";
+
+
+        public OpenCypherCsvElementGenerator.Builder header(final String header) {
+            this.header = header;
+            return this;
+        }
+        public OpenCypherCsvElementGenerator.Builder firstRow(final int firstRow) {
+            this.firstRow = firstRow;
+            return this;
+        }
+        public OpenCypherCsvElementGenerator.Builder trim(final boolean trim) {
+            this.trim = trim;
+            return this;
+        }
+        public OpenCypherCsvElementGenerator.Builder delimiter(final char delimiter) {
+            this.delimiter = delimiter;
+            return this;
+        }
+        public OpenCypherCsvElementGenerator.Builder nullString(final String nullString) {
+            this.nullString = nullString;
+            return this;
+        }
+        public OpenCypherCsvElementGenerator build() {
+             OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator();
+             generator.setNullString(nullString);
+             generator.setDelimiter(delimiter);
+             generator.setHeader(header);
+             generator.setTrim(trim);
+             generator.setFirstRow(firstRow);
+             return generator;
+        }
     }
 }

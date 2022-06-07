@@ -48,7 +48,7 @@ public class AddElementsFromOpenCypherCsvHandler implements OperationHandler<Add
             throw new OperationException(e.getMessage());
         }
 
-        OpenCypherCsvElementGenerator generator = getGenerator(data, operation);
+        OpenCypherCsvElementGenerator generator = createGenerator(data, operation);
 
         return store.execute(new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
@@ -65,17 +65,17 @@ public class AddElementsFromOpenCypherCsvHandler implements OperationHandler<Add
         }
     }
 
-    OpenCypherCsvElementGenerator getGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
-        OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator();
+    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
         String header = lines.iterator().next();
-        generator.setHeader(header);
-        generator.setDelimiter(delimiter);
-        generator.setTrim(trim);
-        generator.setNullString(nullString);
-        return generator;
+        return new OpenCypherCsvElementGenerator.Builder()
+                .header(header)
+                .delimiter(delimiter)
+                .trim(trim)
+                .nullString(nullString)
+                .build();
     }
 
-    OpenCypherCsvElementGenerator getGenerator(final Iterable<String> lines, final AddElementsFromOpenCypherCsv operation) {
-        return getGenerator(lines, operation.isTrim(), operation.getDelimiter(), operation.getNullString());
+    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final AddElementsFromOpenCypherCsv operation) {
+        return createGenerator(lines, operation.isTrim(), operation.getDelimiter(), operation.getNullString());
     }
 }
