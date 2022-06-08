@@ -74,7 +74,7 @@ public class OperationController extends AbstractOperationService implements IOp
     @Override
     public OperationDetail getOperationDetails(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         try {
-            final Class<? extends uk.gov.gchq.gaffer.operation.Operation> operationClass = getOperationClass(className);
+            final Class<? extends Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
                 return new OperationDetail(operationClass, getNextOperations(operationClass), generateExampleJson(operationClass));
@@ -91,8 +91,8 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Set<Class<? extends uk.gov.gchq.gaffer.operation.Operation>> getNextOperations(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
-        Class<? extends uk.gov.gchq.gaffer.operation.Operation> opClass;
+    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
+        Class<? extends Operation> opClass;
         try {
             opClass = getOperationClass(className);
         } catch (final ClassNotFoundException e) {
@@ -105,7 +105,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public uk.gov.gchq.gaffer.operation.Operation getOperationExample(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
+    public Operation getOperationExample(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         Class<? extends Operation> operationClass;
         try {
             operationClass = getOperationClass(className);
