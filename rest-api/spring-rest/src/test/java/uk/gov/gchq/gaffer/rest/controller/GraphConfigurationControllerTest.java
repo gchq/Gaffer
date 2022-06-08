@@ -284,6 +284,18 @@ public class GraphConfigurationControllerTest {
     }
 
     @Test
+    public void shouldGetAggregationFunctions() {
+        // Given
+        GraphConfigurationController controller = new GraphConfigurationController(graphFactory);
+
+        // When
+        final Set<Class> classes = controller.getAggregationFunctions();
+
+        // Then
+        assertFalse(classes.isEmpty());
+    }
+
+    @Test
     public void shouldGetElementGenerators() {
         // Given
         GraphConfigurationController controller = new GraphConfigurationController(graphFactory);

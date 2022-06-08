@@ -143,4 +143,16 @@ public interface IGraphConfigurationController {
             summary = "Gets the available transform functions"
     )
     Set<Class> getTransformFunctions();
+
+    @RequestMapping(
+            path = "/aggregationFunctions",
+            method = GET,
+            produces = APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+            value = "Gets the available aggregation functions",
+            response = Class.class,
+            responseContainer = "Set"
+    )
+    Set<Class> getAggregationFunctions();
 }

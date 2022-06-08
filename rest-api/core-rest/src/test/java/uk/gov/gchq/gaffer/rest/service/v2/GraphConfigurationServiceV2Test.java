@@ -266,6 +266,15 @@ public class GraphConfigurationServiceV2Test {
     }
 
     @Test
+    public void shouldGetAggregationFunctions() {
+        // When
+        final Set<Class> classes = (Set<Class>) service.getAggregationFunctions().getEntity();
+
+        // Then
+        assertFalse(classes.isEmpty());
+    }
+
+    @Test
     public void shouldGetElementGenerators() {
         // When
         final Set<Class> classes = (Set<Class>) service.getElementGenerators().getEntity();

@@ -36,6 +36,7 @@ import uk.gov.gchq.koryphe.util.ReflectionUtil;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -139,5 +140,10 @@ public class GraphConfigurationController implements IGraphConfigurationControll
     @Override
     public Set<Class> getTransformFunctions() {
         return ReflectionUtil.getSubTypes(Function.class);
+    }
+
+    @Override
+    public Set<Class> getAggregationFunctions() {
+        return ReflectionUtil.getSubTypes(BinaryOperator.class);
     }
 }
