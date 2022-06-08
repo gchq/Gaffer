@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Tag(name = "job")
 @RequestMapping("/graph/jobs")
 public interface IJobController {
 
@@ -36,9 +37,8 @@ public interface IJobController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Kicks off an asynchronous job",
-            response = JobDetail.class
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Kicks off an asynchronous job"
     )
     ResponseEntity<JobDetail> startJob(final Operation operation) throws OperationException;
 
@@ -47,9 +47,8 @@ public interface IJobController {
             consumes = APPLICATION_JSON_VALUE,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "schedules an asynchronous job",
-            response = JobDetail.class
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "schedules an asynchronous job"
     )
     ResponseEntity<JobDetail> scheduleJob(final Job job) throws OperationException;
 
@@ -57,19 +56,16 @@ public interface IJobController {
             path = "/{id}",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Retrieves the details of an asynchronous job",
-            response = JobDetail.class
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Retrieves the details of an asynchronous job"
     )
     JobDetail getDetails(final String id) throws OperationException;
 
     @GetMapping(
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Retrieves the details of all the asynchronous jobs",
-            response = JobDetail.class,
-            responseContainer = "List"
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Retrieves the details of all the asynchronous jobs"
     )
     Iterable<JobDetail> getAllDetails() throws OperationException;
 
@@ -77,6 +73,8 @@ public interface IJobController {
             path = "/{id}/results",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation("Retrieves the results of an asynchronous job")
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Retrieves the results of an asynchronous job"
+    )
     Object getResults(final String id) throws OperationException;
 }

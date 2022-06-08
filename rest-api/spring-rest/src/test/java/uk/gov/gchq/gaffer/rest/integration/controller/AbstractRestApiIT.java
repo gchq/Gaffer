@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public abstract class AbstractRestApiIT {
     @Value("${local.server.port}")
     private int port;
 
-    @Value("${server.context-path}")
+    @Value("${server.servlet.context-path}")
     private String contextPath;
 
     @AfterAll

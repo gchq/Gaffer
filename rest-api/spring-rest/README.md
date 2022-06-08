@@ -8,16 +8,11 @@ REST war but should provide the following benefits:
 * Easier to add dependencies at deployment time (no need to re-build a WAR file)
 * Easier to deploy (you only need java)
 
-It is still early in its development lifecycle so is still experimental at this stage and
-is likely to contain bugs which will be fixed in subsequent releases and may be subject
-to breaking changes.
+It is in development and is likely to contain bugs which will be fixed in subsequent
+releases and may be subject to breaking changes.
 
 However, going forward into Gaffer v2.0 we hope this to become the standard for how we
 build and deploy REST APIs.
-
-At the moment you might notice that the version is marked as v2.0-alpha. This represents
-its maturity compared to that of the Jersey REST API. Once it can fulfil all the endpoints
-the Jersey REST API can, we will change it to match the 2.0 version.
 
 ### Implemented Features
 * Operations endpoint
@@ -39,19 +34,18 @@ With maven from the root of the project:
 mvn spring-boot:run -pl :spring-rest -Pdemo
 ```
 
-With java
+With Java using the 'exec' jar:
 ```
 java \
 -Dgaffer.schemas=/path/to/schemas \
 -Dgaffer.storeProperties=/path/to/store.properties \
 -Dgaffer.graph.config=/path/to/graphConfig.json \
--Dloader.path=/path/to/external/libs \
--jar target/spring-rest-1.13.1-SNAPSHOT.jar 
+-jar spring-rest-2.0.0-alpha-1.2-SNAPSHOT-exec.jar
 ```
 
 You can alternatively add the gaffer system properties to your `application.properties` file
 
 Once running, open the browser to http://localhost:8080/rest
 
-You can change the context root by changing the `server.context-path` value in 
+You can change the context root by changing the `server.servlet.context-path` value in
 `application.properties` 
