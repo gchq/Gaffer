@@ -11,7 +11,7 @@
 
   <properties>
     <spring.boot.version>2.5.12</spring.boot.version>
-    <swagger.version>3.0.0</swagger.version>
+    <springdoc.version>1.6.9</springdoc.version>
     <store.type>map</store.type>
   </properties>
 
@@ -86,11 +86,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- Provides Swagger/OpenAPI UI -->
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
-      <version>${swagger.version}</version>
-      <scope>compile</scope>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+      <version>${springdoc.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -72,9 +72,9 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public OperationDetail getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public OperationDetail getOperationDetails(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         try {
-            final Class<? extends Operation> operationClass = getOperationClass(className);
+            final Class<? extends uk.gov.gchq.gaffer.operation.Operation> operationClass = getOperationClass(className);
 
             if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
                 return new OperationDetail(operationClass, getNextOperations(operationClass), generateExampleJson(operationClass));
@@ -91,8 +91,8 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
-        Class<? extends Operation> opClass;
+    public Set<Class<? extends uk.gov.gchq.gaffer.operation.Operation>> getNextOperations(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
+        Class<? extends uk.gov.gchq.gaffer.operation.Operation> opClass;
         try {
             opClass = getOperationClass(className);
         } catch (final ClassNotFoundException e) {
@@ -105,7 +105,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Operation getOperationExample(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public uk.gov.gchq.gaffer.operation.Operation getOperationExample(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         Class<? extends Operation> operationClass;
         try {
             operationClass = getOperationClass(className);

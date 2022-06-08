@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Map;
@@ -32,8 +32,8 @@ public interface IPropertiesController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Get all the Gaffer System properties"
+    @Operation(
+            summary = "Get all the Gaffer System properties"
     )
     Map<String, String> getProperties();
 
@@ -42,8 +42,8 @@ public interface IPropertiesController {
             method = GET,
             produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
     )
-    @ApiOperation(
-            value = "Gets the value of a provided property"
+    @Operation(
+            summary = "Gets the value of a provided property"
     )
     String getProperty(final String property);
 }

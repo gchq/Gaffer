@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.gchq.gaffer.rest.SystemStatus;
@@ -31,9 +31,8 @@ public interface IStatusController {
             produces = APPLICATION_JSON_VALUE,
             method = GET
     )
-    @ApiOperation(
-            value = "Retrieves the status of the graph",
-            response = SystemStatus.class
+    @Operation(
+            summary = "Retrieves the status of the graph"
     )
     SystemStatus getStatus();
 }
