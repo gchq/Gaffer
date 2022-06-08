@@ -111,6 +111,20 @@ public interface IGraphConfigurationServiceV2 {
     Response getTransformFunctions();
 
     @GET
+    @Path("/aggregationFunctions")
+    @ApiOperation(value = "Gets available aggregation functions",
+            notes = "Returns a list of the fully qualified classpaths of all available aggregation functions, in no particular order.",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getAggregationFunctions();
+
+    @GET
     @Path("/elementGenerators")
     @ApiOperation(value = "Gets available element generators",
             notes = "Returns a list of the fully qualified class paths of the elementGenerators available.",
