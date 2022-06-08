@@ -149,10 +149,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the available aggregation functions",
-            response = Class.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the available aggregation functions"
     )
     Set<Class> getAggregationFunctions();
 }
