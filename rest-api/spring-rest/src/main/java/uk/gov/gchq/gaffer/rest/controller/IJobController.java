@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Tag(name = "job")
 @RequestMapping("/graph/jobs")
 public interface IJobController {
 

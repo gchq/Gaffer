@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,15 @@ public class SwaggerConfig {
                         .description(environment.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
                         .version(environment.getProperty(GAFFER_VERSION, GAFFER_VERSION_DEFAULT))
                         .license(new License()
-                                .name("Apache 2.0")));
+                                .name("Apache 2.0")
+                                .identifier("Apache-2.0")
+                                .url("https://www.apache.org/licenses/LICENSE-2.0"))
+                        .contact(new Contact()
+                                .name("GCHQ Gaffer Team")
+                                .url("https://github.com/gchq/Gaffer"))
+                )
+                .externalDocs(new ExternalDocumentation()
+                        .description("Gaffer Documentation")
+                        .url("https://gchq.github.io/gaffer-doc/latest/"));
     }
 }

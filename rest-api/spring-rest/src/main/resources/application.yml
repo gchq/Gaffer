@@ -16,15 +16,19 @@
 
 # Default Properties
 gaffer:
-  properties:
-    app:
-      logo.src: static/images/logo.png
   storeProperties: map/store.properties
   graph.config: rest-api/spring-rest/src/main/resources/graphConfig.json
   schemas: rest-api/spring-rest/src/main/resources/schemas
 
 server:
   servlet.context-path: /rest
+
+# Configuration to replicate previous Swagger UI style
+springdoc:
+  swagger-ui:
+    doc-expansion: none
+    operationsSorter: alpha
+    tagsSorter: alpha
 
 logging:
   level:
