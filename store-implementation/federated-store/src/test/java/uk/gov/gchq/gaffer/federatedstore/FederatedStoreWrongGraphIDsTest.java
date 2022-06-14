@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,27 +104,27 @@ public class FederatedStoreWrongGraphIDsTest {
 
         Iterable<? extends Element> execute = store.execute(new GetAllElements.Builder().build(), blankContext);
 
-        assertThat(execute).isNotNull().withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
-        assertThat(execute.iterator().next()).isEqualTo(expectedEntity).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT);
+        assertThat(execute).withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL).isNotNull();
+        assertThat(execute.iterator().next()).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT).isEqualTo(expectedEntity);
 
         execute = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1).build(), blankContext);
 
-        assertThat(execute).isNotNull().withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL);
-        assertThat(execute.iterator().next()).isEqualTo(expectedEntity).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT);
+        assertThat(execute).withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL).isNotNull();
+        assertThat(execute.iterator().next()).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT).isEqualTo(expectedEntity);
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> store.execute(new GetAllElements.Builder()
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
                         .build(), blankContext))
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)))
-                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED);
+                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED)
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> store.execute(new AddElements.Builder()
                         .input(expectedEntity)
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
                         .build(), blankContext))
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)))
-                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED);
+                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED)
+                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
     }
 }

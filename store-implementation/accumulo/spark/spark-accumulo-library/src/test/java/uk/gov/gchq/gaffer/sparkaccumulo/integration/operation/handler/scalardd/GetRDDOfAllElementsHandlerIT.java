@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -474,7 +474,7 @@ public final class GetRDDOfAllElementsHandlerIT {
                 filesDir.mkdir();
                 failuresDir.mkdir();
             } catch (final Exception e) {
-                LOGGER.error("Failed to create directory: " + e.getMessage());
+                LOGGER.error("Failed to create directory: {}", e.getMessage());
             }
 
             writeFile(keyPackage, graph.getSchema(), file);

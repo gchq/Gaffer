@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -31,6 +31,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+@Tag(name = "operations")
 @RequestMapping("/graph/operations")
 public interface IOperationController {
 
@@ -39,10 +40,8 @@ public interface IOperationController {
             path = "",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Retrieves a list of supported operations",
-            response = Class.class,
-            responseContainer = "Set"
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Retrieves a list of supported operations"
     )
     Set<Class<? extends Operation>> getOperations();
 
@@ -51,10 +50,8 @@ public interface IOperationController {
             path = "/details",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Returns the details of every operation supported by the store",
-            response = OperationDetail.class,
-            responseContainer = "Set"
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Returns the details of every operation supported by the store"
     )
     Set<OperationDetail> getAllOperationDetails();
 
@@ -63,9 +60,8 @@ public interface IOperationController {
             value = "{className}",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets details about the specified operation class",
-            response = OperationDetail.class
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Gets details about the specified operation class"
     )
     OperationDetail getOperationDetails(final String className);
 
@@ -74,10 +70,8 @@ public interface IOperationController {
             value = "{className}/next",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the operations that can be chained after a given operation",
-            response = Operation.class,
-            responseContainer = "Set"
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Gets the operations that can be chained after a given operation"
     )
     Set<Class<? extends Operation>> getNextOperations(final String className);
 
@@ -86,9 +80,8 @@ public interface IOperationController {
             value = "{className}/example",
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets an example of an operation class",
-            response = Operation.class
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Gets an example of an operation class"
     )
     Operation getOperationExample(final String className);
 
@@ -99,7 +92,9 @@ public interface IOperationController {
             consumes = APPLICATION_JSON_VALUE,
             produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
     )
-    @ApiOperation("Executes an operation against a Store")
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Executes an operation against a Store"
+    )
     ResponseEntity<Object> execute(final Operation operation);
 
     @RequestMapping(
@@ -108,6 +103,8 @@ public interface IOperationController {
             consumes = APPLICATION_JSON_VALUE,
             produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
     )
-    @ApiOperation("Executes an operation against a Store, returning a chunked output")
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Executes an operation against a Store, returning a chunked output"
+    )
     ResponseEntity<StreamingResponseBody> executeChunked(final Operation operation);
 }

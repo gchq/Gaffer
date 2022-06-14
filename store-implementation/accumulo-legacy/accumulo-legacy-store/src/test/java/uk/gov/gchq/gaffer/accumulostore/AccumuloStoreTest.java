@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -336,17 +336,17 @@ public class AccumuloStoreTest {
     public void testStoreTraits(final AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertThat(traits).isNotNull();
-        assertThat(traits).hasSize(10).withFailMessage("Collection size should be 10");
+        assertThat(traits).withFailMessage("Collection size should be 10").hasSize(10);
 
-        assertThat(traits).contains(INGEST_AGGREGATION).withFailMessage("Collection should contain INGEST_AGGREGATION trait")
-                .contains(QUERY_AGGREGATION).withFailMessage("Collection should contain QUERY_AGGREGATION trait")
-                .contains(PRE_AGGREGATION_FILTERING).withFailMessage("Collection should contain PRE_AGGREGATION_FILTERING trait")
-                .contains(POST_AGGREGATION_FILTERING).withFailMessage("Collection should contain POST_AGGREGATION_FILTERING trait")
-                .contains(TRANSFORMATION).withFailMessage("Collection should contain TRANSFORMATION trait")
-                .contains(POST_TRANSFORMATION_FILTERING).withFailMessage("Collection should contain POST_TRANSFORMATION_FILTERING trait")
-                .contains(STORE_VALIDATION).withFailMessage("Collection should contain STORE_VALIDATION trait")
-                .contains(ORDERED).withFailMessage("Collection should contain ORDERED trait")
-                .contains(VISIBILITY).withFailMessage("Collection should contain VISIBILITY trait");
+        assertThat(traits).withFailMessage("Collection should contain INGEST_AGGREGATION trait").contains(INGEST_AGGREGATION)
+                .withFailMessage("Collection should contain QUERY_AGGREGATION trait").contains(QUERY_AGGREGATION)
+                .withFailMessage("Collection should contain PRE_AGGREGATION_FILTERING trait").contains(PRE_AGGREGATION_FILTERING)
+                .withFailMessage("Collection should contain POST_AGGREGATION_FILTERING trait").contains(POST_AGGREGATION_FILTERING)
+                .withFailMessage("Collection should contain TRANSFORMATION trait").contains(TRANSFORMATION)
+                .withFailMessage("Collection should contain POST_TRANSFORMATION_FILTERING trait").contains(POST_TRANSFORMATION_FILTERING)
+                .withFailMessage("Collection should contain STORE_VALIDATION trait").contains(STORE_VALIDATION)
+                .withFailMessage("Collection should contain ORDERED trait").contains(ORDERED)
+                .withFailMessage("Collection should contain VISIBILITY trait").contains(VISIBILITY);
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.traffic;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -55,7 +57,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,7 +67,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class RoadTrafficTestQueries {
 
-    private static final Logger LOGGER = Logger.getLogger(RoadTrafficTestQueries.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoadTrafficTestQueries.class.getName());
 
     protected Graph graph;
     protected User user;
@@ -75,7 +76,7 @@ public abstract class RoadTrafficTestQueries {
 
     @Test
     public void checkM4JunctionCount() throws OperationException {
-        assertThat(this.graph).isNotNull().withFailMessage("graph is null");
+        assertThat(this.graph).withFailMessage("graph is null").isNotNull();
 
         final GetElements query = new GetElements.Builder()
                 .input(new EntitySeed("M4"))
@@ -102,14 +103,14 @@ public abstract class RoadTrafficTestQueries {
         try {
             startDate = dateFormat.parse("2000-10-10 07:00:00");
         } catch (final ParseException e) {
-            LOGGER.info("Error parsing startDate: " + e.getMessage());
+            LOGGER.info("Error parsing startDate: {}", e.getMessage());
         }
 
         Date endDate = null;
         try {
             endDate = dateFormat.parse("2000-10-10 08:00:00");
         } catch (final ParseException e) {
-            LOGGER.info("Error parsing endDate: " + e.getMessage());
+            LOGGER.info("Error parsing endDate: {}", e.getMessage());
         }
 
         final FreqMap countByVehicleType = new FreqMap();
@@ -137,10 +138,10 @@ public abstract class RoadTrafficTestQueries {
     @Test
     public void checkM4Junction17To16RoadUse() throws OperationException, ParseException {
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.INGEST_AGGREGATION).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.PRE_AGGREGATION_FILTERING).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
-        assertThat(this.graph).isNotNull().withFailMessage("graph is null");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
+        assertThat(this.graph).withFailMessage("graph is null").isNotNull();
 
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("M4:17", "M4:16", true))
@@ -161,7 +162,7 @@ public abstract class RoadTrafficTestQueries {
         assertThat(iter).hasNext();
 
         final Element element = iter.next();
-        assertThat(iter.hasNext()).isFalse().withFailMessage("Expected query to return only 1 element, but it has returned multiple!");
+        assertThat(iter.hasNext()).withFailMessage("Expected query to return only 1 element, but it has returned multiple!").isFalse();
 
         assertThat(element.getProperties()).isEqualTo(M4_JUNCTION_17_TO_16_PROPERTIES);
     }
@@ -194,8 +195,8 @@ public abstract class RoadTrafficTestQueries {
     @Test
     public void checkM4Junction16Use() throws OperationException {
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.QUERY_AGGREGATION).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
-        assertThat(this.graph).isNotNull().withFailMessage("graph is null");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
+        assertThat(this.graph).withFailMessage("graph is null").isNotNull();
 
         final GetElements query = new GetElements.Builder()
                 .input(new EntitySeed("M4:16"))
@@ -211,7 +212,7 @@ public abstract class RoadTrafficTestQueries {
         assertThat(iter).hasNext();
 
         final Element element = iter.next();
-        assertThat(iter.hasNext()).isFalse().withFailMessage("Expected query to return only 1 element, but it has returned multiple!");
+        assertThat(iter.hasNext()).withFailMessage("Expected query to return only 1 element, but it has returned multiple!").isFalse();
 
         assertThat(element.getProperties()).isEqualTo(M4_JUNCTION_16_PROPERTIES);
     }
@@ -229,14 +230,14 @@ public abstract class RoadTrafficTestQueries {
     @Test
     public void checkRoadJunctionsInSouthWestHeavilyUsedByBusesIn2000() throws OperationException, ParseException {
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.QUERY_AGGREGATION).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.TRANSFORMATION).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.PRE_AGGREGATION_FILTERING).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
         assertThat(this.graph.execute(new HasTrait.Builder().trait(StoreTrait.POST_AGGREGATION_FILTERING).currentTraits(false).build(), new Context()))
-                .isTrue().withFailMessage("Skipping test as the store does not implement required trait.");
-        assertThat(this.graph).isNotNull().withFailMessage("graph is null");
+                .withFailMessage("Skipping test as the store does not implement required trait.").isTrue();
+        assertThat(this.graph).withFailMessage("graph is null").isNotNull();
 
         final Date JAN_01_2000 = new SimpleDateFormat("yyyy-MM-dd").parse("2000-01-01");
         final Date JAN_01_2001 = new SimpleDateFormat("yyyy-MM-dd").parse("2001-01-01");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -29,6 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+@Tag(name = "config")
 @RequestMapping("/graph/config")
 public interface IGraphConfigurationController {
 
@@ -37,9 +39,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the schema",
-            response = Schema.class
+    @Operation(
+            summary = "Gets the schema"
     )
     Schema getSchema();
 
@@ -48,9 +49,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = TEXT_PLAIN_VALUE
     )
-    @ApiOperation(
-            value = "Gets the graph description",
-            response = String.class
+    @Operation(
+            summary = "Gets the graph description"
     )
     String getDescription();
 
@@ -59,9 +59,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = TEXT_PLAIN_VALUE
     )
-    @ApiOperation(
-            value = "Gets the graph Id",
-            response = String.class
+    @Operation(
+            summary = "Gets the graph Id"
     )
     String getGraphId();
 
@@ -70,10 +69,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the available filter functions",
-            response = Class.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the available filter functions"
     )
     Set<Class> getFilterFunctions();
 
@@ -82,10 +79,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the available element generators",
-            response = Class.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the available element generators"
     )
     Set<Class> getElementGenerators();
 
@@ -94,10 +89,8 @@ public interface IGraphConfigurationController {
             produces = APPLICATION_JSON_VALUE,
             method = GET
     )
-    @ApiOperation(
-            value = "Gets the available filter functions for a given input class",
-            response = Class.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the available filter functions for a given input class"
     )
     Set<Class> getFilterFunctions(final String inputClass);
 
@@ -106,10 +99,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the available object generators",
-            response = Class.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the available object generators"
     )
     Set<Class> getObjectGenerators();
 
@@ -118,10 +109,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the serialised fields for a given class",
-            response = String.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the serialised fields for a given class"
     )
     Set<String> getSerialisedFields(final String className);
 
@@ -130,10 +119,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the serialised fields and their classes for a given class",
-            response = String.class,
-            responseContainer = "Map"
+    @Operation(
+            summary = "Gets the serialised fields and their classes for a given class"
     )
     Map<String, String> getSerialisedFieldClasses(final String className);
 
@@ -142,10 +129,8 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the store traits",
-            response = StoreTrait.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the store traits"
     )
     Set<StoreTrait> getStoreTraits();
 
@@ -154,10 +139,18 @@ public interface IGraphConfigurationController {
             method = GET,
             produces = APPLICATION_JSON_VALUE
     )
-    @ApiOperation(
-            value = "Gets the available transform functions",
-            response = Class.class,
-            responseContainer = "Set"
+    @Operation(
+            summary = "Gets the available transform functions"
     )
     Set<Class> getTransformFunctions();
+
+    @RequestMapping(
+            path = "/aggregationFunctions",
+            method = GET,
+            produces = APPLICATION_JSON_VALUE
+    )
+    @Operation(
+            summary = "Gets the available aggregation functions"
+    )
+    Set<Class> getAggregationFunctions();
 }

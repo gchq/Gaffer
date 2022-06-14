@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -26,6 +25,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Collections;
 import java.util.Set;
@@ -61,7 +61,7 @@ public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<S
         final boolean hasVisibility = nonNull(schema.getVisibilityProperty());
         boolean hasGroupBy = false;
         boolean hasValidation = false;
-        for (final SchemaElementDefinition def : new ChainedIterable<SchemaElementDefinition>(schema.getEntities().values(), schema.getEdges().values())) {
+        for (final SchemaElementDefinition def : new ChainedIterable<>(schema.getEntities().values(), schema.getEdges().values())) {
             hasValidation = hasValidation || def.hasValidation();
             hasGroupBy = hasGroupBy || isNotEmpty(def.getGroupBy());
             if (hasGroupBy && hasValidation) {

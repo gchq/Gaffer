@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2020 Crown Copyright
+  ~ Copyright 2016-2022 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -28,14 +26,8 @@
 
     <artifactId>accumulo-legacy-store</artifactId>
 
-    <properties>
-        <buildType>legacy</buildType>
-    </properties>
-
     <dependencies>
-
         <!-- Gaffer dependencies -->
-
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
@@ -45,7 +37,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>hdfs-library</artifactId>
             <version>${project.parent.version}</version>
-            <classifier>${buildType}</classifier>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -81,38 +72,6 @@
             <artifactId>commons-text</artifactId>
         </dependency>
 
-        <!-- Jackson -->
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
 
         <!-- Testing dependencies -->
 
@@ -191,52 +150,15 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!--
-              ~ The later 2.22.0 onward versions of this plugin handle the setup of the AbstractStoreITs StoreTestSuite
-              ~ test runner in a different way so the management of the StoreProperties results in the wrong
-              ~ StoreProperties being supplied by the tests subclassed from AbstractStoreITs to the tests subclassed
-              ~ from the AbstractStoreIT.
-              ~ To get around this until such time as the whole JUnit4 / StoreTestSuite gets converted to JUnit 5 we
-              ~ force the use of the JUnit4 failsafe plugin just for the accumulo tests.
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.version}</version>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skipITs>${skip.failsafe.tests}</skipITs>
-                    <argLine>${failsafeArgLine}</argLine>
-                    <excludes>
-                        <exclude>**/*$*</exclude>
-                        <exclude>**/performance/**</exclude>
-                        <exclude>${exclude.tests}</exclude>
-                    </excludes>
-                    <includes>
-                        <include>**/*IntegrationTest.java</include>
-                        <include>**/*IT.java</include>
-                        <include>**/*ITs.java</include>
-                        <include>**/*IntegrationTests.java</include>
-                    </includes>
-                    <systemPropertyVariables>
-                        <log4j.configuration>
-                            file:${project.build.testOutputDirectory}/log4j.xml
-                        </log4j.configuration>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${shade.plugin.version}</version>
@@ -411,10 +333,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true
-                            </shadedArtifactAttached>
-                            <shadedClassifierName>iterators
-                            </shadedClassifierName>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>iterators</shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>uk.gov.gchq.koryphe*</include>
@@ -437,8 +357,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true
-                            </shadedArtifactAttached>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>utility</shadedClassifierName>
                         </configuration>
                     </execution>

@@ -396,8 +396,8 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
 
         assertThat(count)
-                .isNotEqualTo(maxNumberOfTries)
-                .withFailMessage("Didn't find a false positive");
+                .withFailMessage("Didn't find a false positive")
+                .isNotEqualTo(maxNumberOfTries);
 
         // False positive is "" + count so create an edge from seeds to that
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder().view(defaultView)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +36,7 @@ public class SetExporterTest {
         final List<String> valuesA = Arrays.asList("1", "2", "3");
         final List<String> valuesB = Arrays.asList("4", "5", "6");
         final List<String> valuesCombined = Lists
-                .newArrayList(new ChainedIterable<String>(Arrays.asList(valuesA, valuesB)));
+                .newArrayList(new ChainedIterable<>(Arrays.asList(valuesA, valuesB)));
         final SetExporter exporter = new SetExporter();
 
         // When

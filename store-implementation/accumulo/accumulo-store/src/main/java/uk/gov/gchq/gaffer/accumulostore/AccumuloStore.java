@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -100,6 +99,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
+import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -112,6 +112,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -154,7 +156,8 @@ public class AccumuloStore extends Store {
     private Connector connection = null;
 
     @Override
-    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
+            throws StoreException {
         preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
@@ -167,16 +170,16 @@ public class AccumuloStore extends Store {
      * @param properties The Accumulo store properties.
      * @throws StoreException If the store could not be initialised.
      */
-    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
+            throws StoreException {
         setProperties(properties);
         super.initialise(graphId, schema, getProperties());
 
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
-        } catch (final InstantiationException | IllegalAccessException |
-                       ClassNotFoundException e) {
-            throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new StoreException(String.format("Unable to construct an instance of key package: %s", keyPackageClass), e);
         }
         this.keyPackage.setSchema(getSchema());
     }
@@ -186,7 +189,7 @@ public class AccumuloStore extends Store {
      * using the properties found in properties file associated with the
      * AccumuloStore.
      *
-     * @return A new {@link org.apache.accumulo.core.client.Connector}.
+     * @return A new {@link Connector}.
      * @throws StoreException If there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
@@ -204,16 +207,19 @@ public class AccumuloStore extends Store {
         return getGraphId();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         super.validateSchema(validationResult, serialiser);
         final String timestampProperty = getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
-        if (null != timestampProperty) {
+        if (nonNull(timestampProperty)) {
             final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(getSchema().getEntities().values(), getSchema().getEdges().values());
             for (final SchemaElementDefinition def : defs) {
                 final TypeDefinition typeDef = def.getPropertyTypeDef(timestampProperty);
-                if (null != typeDef && null != typeDef.getAggregateFunction() && !(typeDef.getAggregateFunction() instanceof Max)) {
-                    validationResult.addError("The aggregator for the " + timestampProperty + " property must be set to: "
+                if (nonNull(typeDef) && nonNull(typeDef.getAggregateFunction())
+                        && !(typeDef.getAggregateFunction() instanceof Max)) {
+                    validationResult.addError("The aggregator for the " + timestampProperty
+                            + " property must be set to: "
                             + Max.class.getName()
                             + " this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property in the timestamp column.");
                 }
@@ -231,7 +237,8 @@ public class AccumuloStore extends Store {
      * @param user         The {@link User} to be used.
      * @throws StoreException If there is a failure to connect to Accumulo or a problem setting the iterators.
      */
-    public void updateConfiguration(final Configuration conf, final GraphFilters graphFilters, final User user) throws StoreException {
+    public void updateConfiguration(final Configuration conf, final GraphFilters graphFilters, final User user)
+            throws StoreException {
         try {
             final View view = graphFilters.getView();
 
@@ -244,7 +251,7 @@ public class AccumuloStore extends Store {
             addUserToConfiguration(conf);
             // Authorizations
             Authorizations authorisations;
-            if (null != user && null != user.getDataAuths()) {
+            if (nonNull(user) && nonNull(user.getDataAuths())) {
                 authorisations = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
             } else {
                 authorisations = new Authorizations();
@@ -277,27 +284,26 @@ public class AccumuloStore extends Store {
                 final IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPreAggregationFilterIteratorSetting(view, this);
-                if (null != elementPreFilter) {
+                if (nonNull(elementPreFilter)) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
                     LOGGER.info("Added pre-aggregation filter iterator of {}", elementPreFilter);
                 }
                 final IteratorSetting elementPostFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPostAggregationFilterIteratorSetting(view, this);
-                if (null != elementPostFilter) {
+                if (nonNull(elementPostFilter)) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
                     LOGGER.info("Added post-aggregation filter iterator of {}", elementPostFilter);
                 }
                 final IteratorSetting edgeEntityDirFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getEdgeEntityDirectionFilterIteratorSetting(graphFilters);
-                if (null != edgeEntityDirFilter) {
+                if (nonNull(edgeEntityDirFilter)) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirFilter);
                     LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
             }
-        } catch (final AccumuloSecurityException | IteratorSettingException |
-                       UnsupportedEncodingException e) {
+        } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }
     }
@@ -314,12 +320,14 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry,
+                                                   final ValidationResult validationResult) {
         super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
         validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
     }
@@ -368,7 +376,7 @@ public class AccumuloStore extends Store {
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
-        if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+        if (isNull(getSchema().getVertexSerialiser()) || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
             addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
             addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
         } else {
@@ -424,7 +432,7 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        if (null != elements) {
+        if (nonNull(elements)) {
             for (final Element element : elements) {
 
                 final Pair<Key, Key> keys;
@@ -442,8 +450,11 @@ public class AccumuloStore extends Store {
                     continue;
                 }
                 final Mutation m = new Mutation(keys.getFirst().getRow());
-                m.put(keys.getFirst().getColumnFamily(), keys.getFirst().getColumnQualifier(),
-                        new ColumnVisibility(keys.getFirst().getColumnVisibility()), keys.getFirst().getTimestamp(), value);
+                m.put(keys.getFirst().getColumnFamily(),
+                        keys.getFirst().getColumnQualifier(),
+                        new ColumnVisibility(keys.getFirst().getColumnVisibility()),
+                        keys.getFirst().getTimestamp(),
+                        value);
                 try {
                     writer.addMutation(m);
                 } catch (final MutationsRejectedException e) {
@@ -453,10 +464,12 @@ public class AccumuloStore extends Store {
                 // If the GraphElement is a Vertex then there will only be 1 key,
                 // and the second will be null.
                 // If the GraphElement is an Edge then there will be 2 keys.
-                if (null != keys.getSecond()) {
+                if (nonNull(keys.getSecond())) {
                     final Mutation m2 = new Mutation(keys.getSecond().getRow());
-                    m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
-                            new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
+                    m2.put(keys.getSecond().getColumnFamily(),
+                            keys.getSecond().getColumnQualifier(),
+                            new ColumnVisibility(keys.getSecond().getColumnVisibility()),
+                            keys.getSecond().getTimestamp(),
                             value);
                     try {
                         writer.addMutation(m2);
@@ -476,10 +489,10 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Gets the {@link AccumuloKeyPackage} in use by
+     * Gets the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by
      * this AccumuloStore.
      *
-     * @return {@link AccumuloKeyPackage}.
+     * @return {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage}.
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
@@ -495,11 +508,13 @@ public class AccumuloStore extends Store {
         return getConnection().instanceOperations().getTabletServers();
     }
 
+    @Deprecated
     private void addHdfsOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         try {
             addOperationHandler(opClass, handler);
         } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", opClass.getSimpleName(), e);
+            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath",
+                    opClass.getSimpleName(), e);
         }
     }
 }

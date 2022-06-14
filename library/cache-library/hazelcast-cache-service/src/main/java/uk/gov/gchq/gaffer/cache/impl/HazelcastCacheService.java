@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,7 @@ public class HazelcastCacheService implements ICacheService {
         if (null == hazelcast || !Hazelcast.getAllHazelcastInstances().contains(hazelcast)) {
             String configFile = properties.getProperty(CACHE_CONFIG_FILE);
             if (null == configFile) {
-                LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
-                        + ". Using default settings");
+                LOGGER.warn("Config file not set using system property: {}. Using default settings", CACHE_CONFIG_FILE);
 
                 hazelcast = Hazelcast.newHazelcastInstance();
             } else {

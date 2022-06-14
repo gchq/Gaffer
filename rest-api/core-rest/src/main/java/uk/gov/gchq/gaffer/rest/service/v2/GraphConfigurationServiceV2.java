@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -79,6 +80,13 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     @Override
     public Response getFilterFunction() {
         return Response.ok(ReflectionUtil.getSubTypes(Predicate.class))
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
+    }
+
+    @Override
+    public Response getAggregationFunctions() {
+        return Response.ok(ReflectionUtil.getSubTypes(BinaryOperator.class))
                 .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                 .build();
     }
