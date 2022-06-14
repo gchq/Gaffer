@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 
-class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpenCypherCsv> {
+class ImportCsvTest extends OperationTest<ImportCsv> {
     private static final String FILE_NAME = "filename";
     private static final char DELIMITER = ',';
     private static final String NULL_STRING = "";
@@ -48,7 +48,7 @@ class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpen
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
-        final AddElementsFromOpenCypherCsv op = new AddElementsFromOpenCypherCsv.Builder()
+        final ImportCsv op = new ImportCsv.Builder()
                 .filename(FILE_NAME)
                 .delimiter(DELIMITER)
                 .trim(TRIM)
@@ -59,7 +59,7 @@ class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpen
 
         // When
         byte[] json = JSONSerialiser.serialise(op, true);
-        final AddElementsFromOpenCypherCsv deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromOpenCypherCsv.class);
+        final ImportCsv deserialisedOp = JSONSerialiser.deserialise(json, ImportCsv.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -82,7 +82,7 @@ class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpen
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final AddElementsFromOpenCypherCsv op = new AddElementsFromOpenCypherCsv.Builder()
+        final ImportCsv op = new ImportCsv.Builder()
                 .filename(FILE_NAME)
                 .delimiter(DELIMITER)
                 .trim(TRIM)
@@ -100,7 +100,7 @@ class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpen
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final AddElementsFromOpenCypherCsv op = new AddElementsFromOpenCypherCsv.Builder()
+        final ImportCsv op = new ImportCsv.Builder()
                 .filename(FILE_NAME)
                 .validate(VALIDATE)
                 .skipInvalidElements(SKIP_INVALID_ELEMENTS)
@@ -108,7 +108,7 @@ class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpen
                 .build();
 
         // When
-        final AddElementsFromOpenCypherCsv clone = op.shallowClone();
+        final ImportCsv clone = op.shallowClone();
 
         // Then
         assertNotSame(op, clone);
@@ -123,7 +123,7 @@ class AddElementsFromOpenCypherCsvTest extends OperationTest<AddElementsFromOpen
     }
 
     @Override
-    protected AddElementsFromOpenCypherCsv getTestObject() {
-        return new AddElementsFromOpenCypherCsv();
+    protected ImportCsv getTestObject() {
+        return new ImportCsv();
     }
 }

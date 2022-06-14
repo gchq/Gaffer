@@ -49,9 +49,9 @@ import java.util.Map;
 
 @Since("2.0.0")
 @Summary("Generates elements from an openCypher CSV string")
-public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, Serializable {
+public class ImportCsvElementGenerator implements ElementGenerator<String>, Serializable {
     private static final long serialVersionUID = -821376598172364516L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenCypherCsvElementGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImportCsvElementGenerator.class);
 
     public static final String VERTEX = ":ID";
     public static final String NEO4J_VERTEX = "_id";
@@ -222,28 +222,28 @@ public class OpenCypherCsvElementGenerator implements ElementGenerator<String>, 
         private String nullString = "";
 
 
-        public OpenCypherCsvElementGenerator.Builder header(final String header) {
+        public ImportCsvElementGenerator.Builder header(final String header) {
             this.header = header;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder firstRow(final int firstRow) {
+        public ImportCsvElementGenerator.Builder firstRow(final int firstRow) {
             this.firstRow = firstRow;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder trim(final boolean trim) {
+        public ImportCsvElementGenerator.Builder trim(final boolean trim) {
             this.trim = trim;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder delimiter(final char delimiter) {
+        public ImportCsvElementGenerator.Builder delimiter(final char delimiter) {
             this.delimiter = delimiter;
             return this;
         }
-        public OpenCypherCsvElementGenerator.Builder nullString(final String nullString) {
+        public ImportCsvElementGenerator.Builder nullString(final String nullString) {
             this.nullString = nullString;
             return this;
         }
-        public OpenCypherCsvElementGenerator build() {
-             OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator();
+        public ImportCsvElementGenerator build() {
+             ImportCsvElementGenerator generator = new ImportCsvElementGenerator();
              generator.setNullString(nullString);
              generator.setDelimiter(delimiter);
              generator.setHeader(header);

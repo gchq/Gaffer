@@ -61,7 +61,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromOpenCypherCsv;
+import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -127,7 +127,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.SetVariableHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.WhileHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.add.AddElementsFromOpenCypherCsvHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.add.ImportCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MaxHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.MinHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
@@ -1092,7 +1092,7 @@ public abstract class Store {
         addOperationHandler(GetTraits.class, getGetTraitsHandler());
 
         //Imports
-        addOperationHandler(AddElementsFromOpenCypherCsv.class, new AddElementsFromOpenCypherCsvHandler());
+        addOperationHandler(ImportCsv.class, new ImportCsvHandler());
 
     }
 

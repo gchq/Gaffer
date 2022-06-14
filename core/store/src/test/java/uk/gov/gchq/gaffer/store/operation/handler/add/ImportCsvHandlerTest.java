@@ -22,10 +22,10 @@ import org.mockito.Mock;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.ImportCsvElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromOpenCypherCsv;
+import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
 
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -42,21 +42,21 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class AddElementsFromOpenCypherCsvHandlerTest {
-    private static final String FILE_NAME = AddElementsFromOpenCypherCsvHandlerTest.class.getResource("/openCypherCsv/openCypherBasicEntitiesAndEdges.csv").getPath();
+class ImportCsvHandlerTest {
+    private static final String FILE_NAME = ImportCsvHandlerTest.class.getResource("/openCypherCsv/openCypherBasicEntitiesAndEdges.csv").getPath();
     public static final String HEADER = ":ID,:LABEL,:START_ID,:END_ID,:TYPE";
 
     @Test
     public void shouldAddElements(@Mock final Store store) throws Exception {
         // Given
         Context context = new Context();
-        final AddElementsFromOpenCypherCsv addElementsFromOpenCypherCsvOp = new AddElementsFromOpenCypherCsv.Builder()
+        final ImportCsv importCsvOp = new ImportCsv.Builder()
                 .filename(FILE_NAME)
                 .build();
 
         // When
-        AddElementsFromOpenCypherCsvHandler handler = new AddElementsFromOpenCypherCsvHandler();
-        handler.doOperation(addElementsFromOpenCypherCsvOp, context, store);
+        ImportCsvHandler handler = new ImportCsvHandler();
+        handler.doOperation(importCsvOp, context, store);
 
         // Then
         verify(store).execute(any(OperationChain.class), eq(context));
@@ -72,7 +72,7 @@ class AddElementsFromOpenCypherCsvHandlerTest {
                 "e1,,v1,v2,created"
                 );
 
-        AddElementsFromOpenCypherCsvHandler handler = new AddElementsFromOpenCypherCsvHandler();
+        ImportCsvHandler handler = new ImportCsvHandler();
 
         // When
         Iterable<String> lines = handler.getInputData(FILE_NAME);
@@ -86,14 +86,14 @@ class AddElementsFromOpenCypherCsvHandlerTest {
     @Test
     public void shouldCreateCorrectGenerator() {
         // Given
-        OpenCypherCsvElementGenerator expectedGenerator = new OpenCypherCsvElementGenerator.Builder()
+        ImportCsvElementGenerator expectedGenerator = new ImportCsvElementGenerator.Builder()
                 .header(HEADER)
                 .build();
-        AddElementsFromOpenCypherCsvHandler handler = new AddElementsFromOpenCypherCsvHandler();
+        ImportCsvHandler handler = new ImportCsvHandler();
         List<String> header = Arrays.asList(HEADER);
 
         // When
-        OpenCypherCsvElementGenerator actualGenerator = handler.createGenerator(header, false, ',', "");
+        ImportCsvElementGenerator actualGenerator = handler.createGenerator(header, false, ',', "");
 
         // Then
         assertThat(expectedGenerator)
@@ -105,15 +105,15 @@ class AddElementsFromOpenCypherCsvHandlerTest {
     void shouldThrowErrorUnsupportedHeaderType(@Mock final Store store) throws IOException {
         //Given
         Context context = new Context();
-        final AddElementsFromOpenCypherCsv addElementsFromOpenCypherCsvOp = new AddElementsFromOpenCypherCsv.Builder()
+        final ImportCsv importCsvOp = new ImportCsv.Builder()
                 .filename("nonExistentFile.csv")
                 .build();
-        AddElementsFromOpenCypherCsvHandler handler = new AddElementsFromOpenCypherCsvHandler();
+        ImportCsvHandler handler = new ImportCsvHandler();
 
         //When
         //Then
         assertThrows(OperationException.class, () -> {
-            handler.doOperation(addElementsFromOpenCypherCsvOp, context, store);
+            handler.doOperation(importCsvOp, context, store);
         });
     }
 }

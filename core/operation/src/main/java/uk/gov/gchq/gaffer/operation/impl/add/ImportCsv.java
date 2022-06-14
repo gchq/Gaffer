@@ -27,7 +27,7 @@ import uk.gov.gchq.koryphe.Summary;
 import java.util.Map;
 
 /**
- * An {@code AddElementsFromOpenCypherCsv} operation takes a filename, converts each
+ * An {@code ImportCsv} operation takes a filename, converts each
  * line of the file to a Gaffer Element then adds these
  * elements to the Graph. The file must be of valid openCypher CSV format.
  *
@@ -38,7 +38,7 @@ import java.util.Map;
 @JsonPropertyOrder(value = {"class", "filename"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Adds elements from a openCypher CSV file")
-public class AddElementsFromOpenCypherCsv implements
+public class ImportCsv implements
         Operation,
         Validatable {
 
@@ -112,7 +112,7 @@ public class AddElementsFromOpenCypherCsv implements
     }
 
     @Override
-    public AddElementsFromOpenCypherCsv shallowClone() {
+    public ImportCsv shallowClone() {
         return new Builder()
                 .filename(filename)
                 .validate(validate)
@@ -121,10 +121,10 @@ public class AddElementsFromOpenCypherCsv implements
                 .build();
     }
 
-    public static class Builder extends BaseBuilder<AddElementsFromOpenCypherCsv, Builder>
-            implements Validatable.Builder<AddElementsFromOpenCypherCsv, Builder> {
+    public static class Builder extends BaseBuilder<ImportCsv, Builder>
+            implements Validatable.Builder<ImportCsv, Builder> {
         public Builder() {
-            super(new AddElementsFromOpenCypherCsv());
+            super(new ImportCsv());
         }
 
         public Builder filename(final String filename) {

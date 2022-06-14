@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.store.operation.handler.add;
 
 import org.apache.commons.io.FileUtils;
 
-import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.ImportCsvElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromOpenCypherCsv;
+import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -46,10 +46,10 @@ import java.util.stream.Collectors;
 @Since("2.0.0")
 @Summary("Handles the AddElementsFromOpenCypherCsv operation, adding openCypher formatted CSV \n" +
         " * data to a graph  ")
-public class AddElementsFromOpenCypherCsvHandler implements OperationHandler<AddElementsFromOpenCypherCsv> {
+public class ImportCsvHandler implements OperationHandler<ImportCsv> {
 
     @Override
-    public Void doOperation(final AddElementsFromOpenCypherCsv operation,
+    public Void doOperation(final ImportCsv operation,
                             final Context context,
                             final Store store) throws OperationException {
         Iterable<String> data;
@@ -59,7 +59,7 @@ public class AddElementsFromOpenCypherCsvHandler implements OperationHandler<Add
             throw new OperationException(e.getMessage());
         }
 
-        OpenCypherCsvElementGenerator generator = createGenerator(data, operation);
+        ImportCsvElementGenerator generator = createGenerator(data, operation);
 
         return store.execute(new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
@@ -76,9 +76,9 @@ public class AddElementsFromOpenCypherCsvHandler implements OperationHandler<Add
         }
     }
 
-    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
+    ImportCsvElementGenerator createGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
         String header = lines.iterator().next();
-        return new OpenCypherCsvElementGenerator.Builder()
+        return new ImportCsvElementGenerator.Builder()
                 .header(header)
                 .delimiter(delimiter)
                 .trim(trim)
@@ -86,7 +86,7 @@ public class AddElementsFromOpenCypherCsvHandler implements OperationHandler<Add
                 .build();
     }
 
-    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final AddElementsFromOpenCypherCsv operation) {
+    ImportCsvElementGenerator createGenerator(final Iterable<String> lines, final ImportCsv operation) {
         return createGenerator(lines, operation.isTrim(), operation.getDelimiter(), operation.getNullString());
     }
 }
