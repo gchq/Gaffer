@@ -39,10 +39,10 @@ All of the following classes will act on one or more Element identifiers (vertex
 Instead, we recommend you implement the Koryphe interfaces instead, which will add this annotation in for you.
 
 ### Aggregation
-Aggregation is done using a `KorypheBinaryOperator<T>` (or just `BinaryOperator<T>`), where T is the type of the property you are aggregating. For example: [Max](https://github.com/gchq/koryphe/blob/master/src/main/java/uk/gov/gchq/koryphe/impl/binaryoperator/Max.java).
+Aggregation is done using a `KorypheBinaryOperator<T>` (or just `BinaryOperator<T>`), where T is the type of the property you are aggregating. For example: [Max](https://github.com/gchq/koryphe/blob/master/core/src/main/java/uk/gov/gchq/koryphe/impl/binaryoperator/Max.java).
 
 ### Transforms
-Transforms are applied using `KorypheFunction<I, O>` (or just `Function<I, O>`), where I is type of the input property and O is the type of the output value. If you want to transform multiple properties into a single new property then you can implement `KorypheFunction2<T, U, R>` or `KoryphePredicate3<T, U, V, R>`, etc. where R is the output value type.  For example: [Concat](https://github.com/gchq/koryphe/blob/master/src/main/java/uk/gov/gchq/koryphe/impl/function/Concat.java).
+Transforms are applied using `KorypheFunction<I, O>` (or just `Function<I, O>`), where I is type of the input property and O is the type of the output value. If you want to transform multiple properties into a single new property then you can implement `KorypheFunction2<T, U, R>` or `KoryphePredicate3<T, U, V, R>`, etc. where R is the output value type.  For example: [Concat](https://github.com/gchq/koryphe/blob/master/core/src/main/java/uk/gov/gchq/koryphe/impl/function/Concat.java).
 
 ### Filtering
-Filtering is applied using `KoryphePredicate<T>` (or just `Predicate<T>`), where T is type of the property you want to filter on. If you want to filter on multiple properties then you can implement `KoryphePredicate2<T, U>` or `KoryphePredicate3<T, U, V>` etc. For example: [Exists](https://github.com/gchq/koryphe/blob/master/src/main/java/uk/gov/gchq/koryphe/impl/predicate/Exists.java).
+Filtering is applied using `KoryphePredicate<T>` (or just `Predicate<T>`), where T is type of the property you want to filter on. If you want to filter on multiple properties then you can implement `KoryphePredicate2<T, U>` or `KoryphePredicate3<T, U, V>` etc. For example: [Exists](https://github.com/gchq/koryphe/blob/master/core/src/main/java/uk/gov/gchq/koryphe/impl/predicate/Exists.java).
