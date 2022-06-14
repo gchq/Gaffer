@@ -144,7 +144,7 @@
         <legacy.guava.version>13.0.1</legacy.guava.version>
         <legacy.accumulo.version>1.9.3</legacy.accumulo.version>
         <legacy.hadoop.version>2.6.5</legacy.hadoop.version>
-        <latest.commons-configuration2.version>2.1.1</latest.commons-configuration2.version>
+        <legacy.commons-configuration2.version>2.1.1</legacy.commons-configuration2.version>
         <legacy.commons-text.version>1.4</legacy.commons-text.version>
         <legacy.spark.minor.version>2.4</legacy.spark.minor.version>
         <legacy.spark.version>${legacy.spark.minor.version}.5</legacy.spark.version>
@@ -1142,7 +1142,6 @@
             </activation>
             <properties>
                 <buildType>latest</buildType>
-                <latest.buildType>latest</latest.buildType>
                 <guava.version>${latest.guava.version}</guava.version>
                 <accumulo.version>${latest.accumulo.version}</accumulo.version>
                 <hadoop.version>${latest.hadoop.version}</hadoop.version>
