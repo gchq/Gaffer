@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -112,8 +113,7 @@ class ImportCsvHandlerTest {
 
         //When
         //Then
-        assertThrows(OperationException.class, () -> {
-            handler.doOperation(importCsvOp, context, store);
-        });
+        assertThatExceptionOfType(OperationException.class)
+                .isThrownBy(() ->handler.doOperation(importCsvOp, context, store));;
     }
 }
