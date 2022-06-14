@@ -26,8 +26,13 @@
 
     <artifactId>accumulo-legacy-store</artifactId>
 
+    <properties>
+        <buildType>legacy</buildType>
+    </properties>
+
     <dependencies>
         <!-- Gaffer dependencies -->
+
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
@@ -37,6 +42,7 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>hdfs-library</artifactId>
             <version>${project.parent.version}</version>
+            <classifier>${buildType}</classifier>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
