@@ -32,6 +32,7 @@ import java.util.Map;
  * elements to the Graph. The file must be of valid openCypher CSV format.
  *
  * @see Builder
+ * @see <a href="http://https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
  */
 
 @JsonPropertyOrder(value = {"class", "filename"}, alphabetic = true)

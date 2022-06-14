@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromOpenCypherCsv;
 
 import uk.gov.gchq.gaffer.store.Context;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -97,5 +99,21 @@ class AddElementsFromOpenCypherCsvHandlerTest {
         assertThat(expectedGenerator)
                 .usingRecursiveComparison()
                 .isEqualTo(actualGenerator);
+    }
+
+    @Test
+    void shouldThrowErrorUnsupportedHeaderType(@Mock final Store store) throws IOException {
+        //Given
+        Context context = new Context();
+        final AddElementsFromOpenCypherCsv addElementsFromOpenCypherCsvOp = new AddElementsFromOpenCypherCsv.Builder()
+                .filename("nonExistentFile.csv")
+                .build();
+        AddElementsFromOpenCypherCsvHandler handler = new AddElementsFromOpenCypherCsvHandler();
+
+        //When
+        //Then
+        assertThrows(OperationException.class, () -> {
+            handler.doOperation(addElementsFromOpenCypherCsvOp, context, store);
+        });
     }
 }

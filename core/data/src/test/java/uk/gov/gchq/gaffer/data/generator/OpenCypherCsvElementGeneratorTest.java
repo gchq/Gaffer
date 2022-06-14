@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OpenCypherCsvElementGeneratorTest {
     private Iterable<String> getInputData(String filename) throws IOException {
@@ -38,17 +39,33 @@ public class OpenCypherCsvElementGeneratorTest {
     }
 
     private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines, boolean trim, char delimiter, String nullString) {
-        OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator();
         String header = lines.iterator().next();
-        generator.setHeader(header);
-        generator.setDelimiter(delimiter);
-        generator.setTrim(trim);
-        generator.setNullString(nullString);
+        OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator.Builder()
+                .header(header)
+                .delimiter(delimiter)
+                .trim(trim)
+                .nullString(nullString)
+                .build();
         return generator;
     }
 
     private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines) {
         return getGenerator(lines, true, ',', "");
+    }
+
+    @Test
+    void shouldBuildGenerator() throws IOException {
+        //Given
+        Iterable<String> lines = getInputData("openCypherBasicEntities.csv");
+
+        //When
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
+
+        //Then
+        assertThat(generator.getDelimiter()).isEqualTo(',');
+        assertThat(generator.getNullString()).isEqualTo("");
+        assertThat(generator.getTrim()).isEqualTo(true);
+        assertThat(generator.getHeader()).isEqualTo(":ID,:LABEL");
     }
 
     @Test
@@ -292,6 +309,23 @@ public class OpenCypherCsvElementGeneratorTest {
                         .property("edge-id", "e1")
                         .build()
         );
+    }
+    @Test
+    void shouldThrowErrorUnsupportedHeaderType() throws IOException {
+        //Given
+        Iterable<String> lines = getInputData("openCypherEntityWithPropertyWithUnsupportedType.csv");
+
+        //When
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            generator.apply(lines);
+        });
+
+        String expectedMessage = "Unsupported Type: Array";
+        String actualMessage = exception.getMessage();
+
+        //Then
+        assertThat(expectedMessage).isEqualTo(actualMessage);
     }
 
 }
