@@ -28,11 +28,11 @@ import java.util.Map;
 
 /**
  * An {@code ImportCsv} operation takes a filename, converts each
- * line of the file to a Gaffer Element then adds these
- * elements to the Graph. The file must be of valid openCypher CSV format.
+ * line of the file to an element then adds these
+ * elements to the graph. The file must be in the openCypher CSV format.
  *
  * @see Builder
- * @see <a href="http://https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
+ * @see <a href="https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
  */
 
 @JsonPropertyOrder(value = {"class", "filename"}, alphabetic = true)

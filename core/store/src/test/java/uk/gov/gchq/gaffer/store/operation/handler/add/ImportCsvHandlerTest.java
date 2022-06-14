@@ -110,8 +110,7 @@ class ImportCsvHandlerTest {
                 .build();
         ImportCsvHandler handler = new ImportCsvHandler();
 
-        //When
-        //Then
+        //When / Then
         assertThatExceptionOfType(OperationException.class)
                 .isThrownBy(() -> handler.doOperation(importCsvOp, context, store));
     }

@@ -27,8 +27,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.Summary;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,14 +36,14 @@ import java.util.stream.Collectors;
 
 
 /**
- * An {@code ImportCsvHandler} handler takes the ImportCsv
- * operation and a context, builds an executes the operation chain to take an openCypher formatted CSV
- * and add elements to a graph
+ * An {@code ImportCsvHandler} handles the {@link ImportCsv} operation.
+ *
+ * It opens an openCypher formatted CSV file, generates elements using the
+ * {@link OpenCypherCsvElementGenerator} add elements to the graph using the
+ * {@link AddElements} operation.
+ *
  * @see <a href="https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-format-opencypher.html">openCypher</a>
  */
-@Since("2.0.0")
-@Summary("Handles the ImportCsv operation, adding openCypher formatted CSV \n" +
-        " * data to a graph  ")
 public class ImportCsvHandler implements OperationHandler<ImportCsv> {
 
     @Override
