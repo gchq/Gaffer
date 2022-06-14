@@ -114,6 +114,6 @@ class ImportCsvHandlerTest {
         //When
         //Then
         assertThatExceptionOfType(OperationException.class)
-                .isThrownBy(() ->handler.doOperation(importCsvOp, context, store));;
+                .isThrownBy(() -> handler.doOperation(importCsvOp, context, store));
     }
 }
