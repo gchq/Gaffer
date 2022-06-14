@@ -22,7 +22,7 @@ import org.mockito.Mock;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.gchq.gaffer.data.generator.ImportCsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
@@ -86,14 +86,14 @@ class ImportCsvHandlerTest {
     @Test
     public void shouldCreateCorrectGenerator() {
         // Given
-        ImportCsvElementGenerator expectedGenerator = new ImportCsvElementGenerator.Builder()
+        OpenCypherCsvElementGenerator expectedGenerator = new OpenCypherCsvElementGenerator.Builder()
                 .header(HEADER)
                 .build();
         ImportCsvHandler handler = new ImportCsvHandler();
         List<String> header = Arrays.asList(HEADER);
 
         // When
-        ImportCsvElementGenerator actualGenerator = handler.createGenerator(header, false, ',', "");
+        OpenCypherCsvElementGenerator actualGenerator = handler.createGenerator(header, false, ',', "");
 
         // Then
         assertThat(expectedGenerator)

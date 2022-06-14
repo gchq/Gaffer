@@ -31,16 +31,16 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ImportCsvElementGeneratorTest {
+public class OpenCypherCsvElementGeneratorTest {
     private Iterable<String> getInputData(String filename) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/openCypherCSVs/" + filename)))) {
             return reader.lines().collect(Collectors.toList());
         }
     }
 
-    private ImportCsvElementGenerator getGenerator(Iterable<String> lines, boolean trim, char delimiter, String nullString) {
+    private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines, boolean trim, char delimiter, String nullString) {
         String header = lines.iterator().next();
-        ImportCsvElementGenerator generator = new ImportCsvElementGenerator.Builder()
+        OpenCypherCsvElementGenerator generator = new OpenCypherCsvElementGenerator.Builder()
                 .header(header)
                 .delimiter(delimiter)
                 .trim(trim)
@@ -49,7 +49,7 @@ public class ImportCsvElementGeneratorTest {
         return generator;
     }
 
-    private ImportCsvElementGenerator getGenerator(Iterable<String> lines) {
+    private OpenCypherCsvElementGenerator getGenerator(Iterable<String> lines) {
         return getGenerator(lines, true, ',', "");
     }
 
@@ -59,7 +59,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntities.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
 
         //Then
         assertThat(generator.getDelimiter()).isEqualTo(',');
@@ -74,7 +74,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntities.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -90,7 +90,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEdge.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
 
         //Then
@@ -105,7 +105,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntityPipeDelimited.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines, true, '|', "");
+        OpenCypherCsvElementGenerator generator = getGenerator(lines, true, '|', "");
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -121,7 +121,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntityPaddingSpaces.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -137,7 +137,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherEdgeWithID.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
 
         //Then
@@ -158,7 +158,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntityQuotedValues.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -174,7 +174,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntitiesAndEdges.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -197,7 +197,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherEntityWithPropertiesNoTypes.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -226,7 +226,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherEntityWithPropertiesOfMultipleTypes.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -259,7 +259,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherEdgeWithPropertiesOfMultipleTypes.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Edge> edge = (Iterable<Edge>) generator.apply(lines);
 
         //Then
@@ -294,7 +294,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherBasicEntitiesAndEdgeFromNeo4jExport.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Iterable<Element> elements = (Iterable<Element>) generator.apply(lines);
 
         //Then
@@ -316,7 +316,7 @@ public class ImportCsvElementGeneratorTest {
         Iterable<String> lines = getInputData("openCypherEntityWithPropertyWithUnsupportedType.csv");
 
         //When
-        ImportCsvElementGenerator generator = getGenerator(lines);
+        OpenCypherCsvElementGenerator generator = getGenerator(lines);
         Exception exception = assertThrows(RuntimeException.class, () -> {
             generator.apply(lines);
         });

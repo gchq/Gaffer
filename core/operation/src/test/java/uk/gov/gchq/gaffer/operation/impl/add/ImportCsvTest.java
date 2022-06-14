@@ -63,7 +63,7 @@ class ImportCsvTest extends OperationTest<ImportCsv> {
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromOpenCypherCsv\",%n" +
+                        "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.ImportCsv\",%n" +
                         "  \"filename\" : \"filename\",%n" +
                         "  \"delimiter\" : \",\",%n" +
                         "  \"nullString\" : \"\",%n" +

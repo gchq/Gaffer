@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler.add;
 
 import org.apache.commons.io.FileUtils;
 
-import uk.gov.gchq.gaffer.data.generator.ImportCsvElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -59,7 +59,7 @@ public class ImportCsvHandler implements OperationHandler<ImportCsv> {
             throw new OperationException(e.getMessage());
         }
 
-        ImportCsvElementGenerator generator = createGenerator(data, operation);
+        OpenCypherCsvElementGenerator generator = createGenerator(data, operation);
 
         return store.execute(new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
@@ -76,9 +76,9 @@ public class ImportCsvHandler implements OperationHandler<ImportCsv> {
         }
     }
 
-    ImportCsvElementGenerator createGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
+    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final boolean trim, final char delimiter, final String nullString) {
         String header = lines.iterator().next();
-        return new ImportCsvElementGenerator.Builder()
+        return new OpenCypherCsvElementGenerator.Builder()
                 .header(header)
                 .delimiter(delimiter)
                 .trim(trim)
@@ -86,7 +86,7 @@ public class ImportCsvHandler implements OperationHandler<ImportCsv> {
                 .build();
     }
 
-    ImportCsvElementGenerator createGenerator(final Iterable<String> lines, final ImportCsv operation) {
+    OpenCypherCsvElementGenerator createGenerator(final Iterable<String> lines, final ImportCsv operation) {
         return createGenerator(lines, operation.isTrim(), operation.getDelimiter(), operation.getNullString());
     }
 }
