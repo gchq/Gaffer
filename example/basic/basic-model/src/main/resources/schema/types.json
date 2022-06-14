@@ -3,11 +3,10 @@
     "vertex": {
       "class": "java.lang.String"
     },
-    "string": {
-      "class": "java.lang.String",
-      "aggregateFunction":
-      {
-        "class":"uk.gov.gchq.koryphe.impl.binaryoperator.Last"
+    "count": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "true": {

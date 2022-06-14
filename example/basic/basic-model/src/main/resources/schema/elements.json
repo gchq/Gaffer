@@ -1,179 +1,19 @@
 {
   "edges": {
-    "CALLED": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "CALLER": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "CURRENT-ADDRESS": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "FAMILY-REL": {
+    "BasicEdge": {
       "source": "vertex",
       "destination": "vertex",
       "directed": "true",
       "properties": {
-        "rel-type": "string"
+        "count": "count"
       }
-    },
-    "HAS-EMAIL": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "HAS-PHONE": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "HAS-POSTCODE": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "INVESTIGATED-BY": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "INVOLVED-IN": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "KNOWS": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "KNOWS-LW": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "KNOWS-PHONE": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "KNOWS-SN": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "LOCATION-IN-AREA": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "OCCURRED-AT": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "PARTY-TO": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
-    },
-    "POSTCODE-IN-AREA": {
-      "source": "vertex",
-      "destination": "vertex",
-      "directed": "true"
     }
   },
   "entities": {
-    "Person": {
+    "BasicEntity": {
       "vertex": "vertex",
       "properties": {
-        "nhs-no":"string",
-        "name": "string",
-        "surname":"string"
-      }
-    },
-    "Area": {
-      "vertex": "vertex",
-      "properties": {
-        "areaCode": "string"
-      }
-    },
-    "Crime": {
-      "vertex": "vertex",
-      "properties": {
-        "date": "string",
-        "crime-id": "string",
-        "last-outcome": "string",
-        "type": "string"
-      }
-    },
-    "Email": {
-      "vertex": "vertex",
-      "properties": {
-        "email-address": "string"
-      }
-    },
-    "Location": {
-      "vertex": "vertex",
-      "properties": {
-        "address": "string",
-        "longitude": "string",
-        "latitude": "string",
-        "postcode": "string"
-      }
-    },
-    "Object": {
-      "vertex": "vertex",
-      "properties": {
-        "description": "string",
-        "id":"string",
-        "type": "string"
-      }
-    },
-    "Officer": {
-      "vertex": "vertex",
-      "properties": {
-        "badge-no": "string",
-        "name": "string",
-        "surname": "string",
-        "rank": "string"
-      }
-    },
-    "Phone": {
-      "vertex": "vertex",
-      "properties": {
-        "phone-no": "string"
-      }
-    },
-    "PhoneCall": {
-      "vertex": "vertex",
-      "properties": {
-        "call-date": "string",
-        "call-duration": "string",
-        "call-time": "string",
-        "call-type": "string"
-
-      }
-    },
-    "PostCode": {
-      "vertex": "vertex",
-      "properties": {
-        "code": "string"
-      }
-    },
-    "Vehicle": {
-      "vertex": "vertex",
-      "properties": {
-        "make": "string",
-        "model": "string",
-        "reg": "string",
-        "year": "string"
+        "count": "count"
       }
     }
   }
