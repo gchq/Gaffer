@@ -26,7 +26,6 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.iterators.user.GrepIterator;
 import org.apache.accumulo.core.util.Pair;
@@ -38,6 +37,7 @@ import org.apache.spark.sql.SparkSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.spark.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -200,7 +200,7 @@ public class RFileReaderRddIT {
         connector.tableOperations().compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
 
-        InputConfigurator.fetchColumns(AccumuloInputFormat.class, configuration,
+        LegacySupport.InputConfigurator.fetchColumns(AccumuloInputFormat.class, configuration,
                 Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
 
         return cluster;

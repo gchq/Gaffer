@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.SparkContext;
@@ -25,6 +24,7 @@ import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
@@ -52,7 +52,7 @@ public class GetRDDOfElementsHandler extends AbstractGetRDDHandler<GetRDDOfEleme
         final SparkContext sparkContext = SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext();
         sparkContext.hadoopConfiguration().addResource(conf);
         // Use batch scan option when performing seeded operation
-        InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
+        LegacySupport.InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
         addIterators(accumuloStore, conf, context.getUser(), operation);
         addRanges(accumuloStore, conf, operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
