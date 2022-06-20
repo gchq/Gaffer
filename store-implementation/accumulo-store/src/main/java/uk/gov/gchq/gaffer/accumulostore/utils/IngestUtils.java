@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.TreeSet;
 
 /**
  * Utility methods for adding data to Accumulo.
