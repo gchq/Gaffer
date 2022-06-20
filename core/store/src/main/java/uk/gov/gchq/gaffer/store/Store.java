@@ -639,6 +639,7 @@ public abstract class Store {
      *         {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
      *         aggregate the elements.
      */
+    @Deprecated
     public Schema getSchema() {
         return schema;
     }

@@ -113,7 +113,6 @@ import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER_ID;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
-//TODO FS review this whole class
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
     public static final String ID_SCHEMA_EDGE = "basicEdgeSchema";

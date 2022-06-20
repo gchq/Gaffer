@@ -448,7 +448,7 @@ public class FederatedStore extends Store {
         addOperationHandler(ChangeGraphAccess.class, new FederatedChangeGraphAccessHandler());
         addOperationHandler(ChangeGraphId.class, new FederatedChangeGraphIdHandler());
         addOperationHandler(FederatedOperation.class, new FederatedOperationHandler());
-        //TODO FS re-add FedOpChain
+        //TODO FS 1 re-add FedOpChain
     }
 
     @Override
