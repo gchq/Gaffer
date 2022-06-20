@@ -201,8 +201,9 @@ public class LegacySupport {
         public static FileSKVIterator create(final String filename, final FileSystem fs, final Configuration fsConf,
                                              final AccumuloConfiguration tableConfiguration, final boolean seekBeginning) {
             final Method forFile, withTableConfiguration, seekToBeginning, builderBuild;
-            Object builder = FileOperations.getInstance().newReaderBuilder();
+            Object builder = FileOperations.getInstance();
             try {
+                builder = FileOperations.class.getMethod("newReaderBuilder").invoke(builder);
                 if (accumuloVersion == "2") {
                     forFile = fileOperationsReaderBuilderClazz.getMethod("forFile", String.class, FileSystem.class, Configuration.class, cryptoServiceClazz);
                     withTableConfiguration = fileOperationsReaderBuilderClazz.getMethod("withTableConfiguration", AccumuloConfiguration.class);
@@ -229,8 +230,9 @@ public class LegacySupport {
         public static FileSKVWriter create(final String filename, final FileSystem fs, final Configuration fsConf,
                                            final AccumuloConfiguration tableConfiguration) {
             final Method forFile, withTableConfiguration, builderBuild;
-            Object builder = FileOperations.getInstance().newWriterBuilder();
+            Object builder = FileOperations.getInstance();
             try {
+                builder = FileOperations.class.getMethod("newWriterBuilder").invoke(builder);
                 if (accumuloVersion == "2") {
                     forFile = fileOperationsWriterBuilderClazz.getMethod("forFile", String.class, FileSystem.class, Configuration.class, cryptoServiceClazz);
                     withTableConfiguration = fileOperationsWriterBuilderClazz.getMethod("withTableConfiguration", AccumuloConfiguration.class);
