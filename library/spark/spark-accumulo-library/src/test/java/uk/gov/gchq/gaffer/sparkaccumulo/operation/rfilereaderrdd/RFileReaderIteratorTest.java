@@ -75,7 +75,9 @@ public class RFileReaderIteratorTest {
 
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> new RFileReaderIterator(partition, taskContext, new Configuration(), auths))
-                .withStackTraceContaining("java.io.FileNotFoundException: File invalid file does not exist");
+                .withCauseExactlyInstanceOf(java.lang.reflect.InvocationTargetException.class)
+                .withRootCauseExactlyInstanceOf(java.io.FileNotFoundException.class)
+                .withStackTraceContaining("File invalid file does not exist");
     }
 
     @Test
