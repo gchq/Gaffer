@@ -79,23 +79,6 @@ public final class IngestUtils {
         } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new IOException(e.getMessage(), e);
         }
-        // This should have returned at most maxSplits splits, but this is not implemented properly in MockInstance.
-        if (splits.size() > maxSplits) {
-            final Collection<Text> filteredSplits = new TreeSet<>();
-            final int outputEveryNth = splits.size() / maxSplits;
-            LOGGER.info("Outputting every {}-th split from {} total", outputEveryNth, splits.size());
-            int i = 0;
-            for (final Text text : splits) {
-                if (i % outputEveryNth == 0) {
-                    filteredSplits.add(text);
-                }
-                i++;
-                if (filteredSplits.size() >= maxSplits) {
-                    break;
-                }
-            }
-            splits = filteredSplits;
-        }
         LOGGER.info("Found {} splits from table {}", splits.size(), table);
 
         try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
