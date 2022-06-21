@@ -116,6 +116,7 @@
         <source.plugin.version>3.2.1</source.plugin.version>
         <surefire.plugin.version>3.0.0-M5</surefire.plugin.version>
         <cargo.plugin.version>1.9.10</cargo.plugin.version>
+        <enforcer.plugin.version>3.1.0</enforcer.plugin.version>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
@@ -1022,7 +1023,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${enforcer.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-banned-dependencies</id>
@@ -1551,7 +1552,6 @@
             </activation>
             <properties>
                 <java.version>11</java.version>
-                <hadoop.version>3.3.2</hadoop.version>
                 <spark.minor.version>3.0</spark.minor.version>
                 <spark.version>${spark.minor.version}.3</spark.version>
                 <scala.minor.version>2.12</scala.minor.version>
@@ -1580,6 +1580,31 @@
                                 <additionalOption>--frames</additionalOption>
                             </additionalOptions>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${enforcer.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-compatible-hadoop</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <bannedDependencies>
+                                            <excludes>
+                                                <exclude>org.apache.hadoop:*:(,2.9.9]</exclude>
+                                            </excludes>
+                                            <message>
+                                                Hadoop versions below 3.3.0 are incompatible with JDK 11, JDK 8 must be used with the classic profile
+                                            </message>
+                                        </bannedDependencies>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
