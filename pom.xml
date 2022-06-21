@@ -44,6 +44,8 @@
         <exclude.tests />
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
+        <war.classifier />
+        <append.shaded.classifier />
 
         <java.version>1.8</java.version>
 
@@ -1518,10 +1520,29 @@
                 </property>
             </activation>
             <properties>
+                <war.classifier>classic</war.classifier>
+                <append.shaded.classifier>-classic</append.shaded.classifier>
+
                 <accumulo.version>1.9.3</accumulo.version>
                 <hadoop.version>2.6.5</hadoop.version>
                 <guava.version>13.0.1</guava.version>
+
+                <!-- Required due to Maven install plugin Bug (MINSTALL-151) -->
+                <install.plugin.version>2.5.2</install.plugin.version>
             </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-war-plugin</artifactId>
+                            <configuration>
+                                <classifier>${war.classifier}</classifier>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
         <profile>
             <id>java11</id>

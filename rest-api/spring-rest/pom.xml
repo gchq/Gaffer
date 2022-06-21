@@ -155,7 +155,7 @@
         <configuration>
           <layout>ZIP</layout>
           <executable>true</executable>
-          <classifier>exec</classifier>
+          <classifier>exec${append.shaded.classifier}</classifier>
         </configuration>
         <executions>
           <execution>
