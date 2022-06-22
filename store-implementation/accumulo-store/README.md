@@ -54,7 +54,7 @@ Gaffer's `AccumuloStore` is particularly well-suited to graphs where the propert
 Accumulo set up
 -----------------------------------------------
 
-As of Gaffer 2.0, Accumulo 2.0.1 is supported. Accumulo 1.x.x versions can also be used (by using artifacts with the "-classic" classifier). Gaffer has been tested with Accumulo version 1.9.0 & previously 1.8.1. It should also work with any of the 1.8.* & 1.9.* versions of Accumulo as well.
+As of Gaffer 2.0, Accumulo 2.0.1 is supported. Accumulo 1.x.x versions can also be used (by using artifacts with the "legacy" classifier). Gaffer has been tested with Accumulo version 1.9.0 & previously 1.8.1. It should also work with any of the 1.8.* & 1.9.* versions of Accumulo as well.
 
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
 
