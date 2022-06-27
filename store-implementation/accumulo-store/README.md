@@ -65,7 +65,7 @@ All real applications of Gaffer's `AccumuloStore` will use an Accumulo cluster r
 To use Gaffer's Accumulo store, it is necessary to add a jar file to the class path of all of Accumulo's tablet servers. This jar contains Gaffer code that runs inside Accumulo's tablet servers to provide functionality such as aggregation and filtering at ingest and query time. 
 
 The Accumulo store iterators.jar required can be downloaded from [maven central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22uk.gov.gchq.gaffer%22%20AND%20a%3A%22accumulo-store%22). 
-This jar file will then need to be installed on Accumulo's tablet servers by putting it in the `lib/ext` folder within the Accumulo distribution on each tablet server. Accumulo should load this jar file without needing to be restarted, but if you see error messages due to classes not being found, try restarting Accumulo. Alternatively, these files can be put into the `lib` directory and Accumulo can be restarted.
+This jar file will then need to be installed on Accumulo's tablet servers by adding it to the classpath. For Accumulo 1.x.x it can be placed in the `lib/ext` folder within the Accumulo distribution on each tablet server, Accumulo should load this jar file without needing to be restarted. For Accumulo 2.x.x [this dynamic reloading classpath directory functionality has been deprecated](https://accumulo.apache.org/release/accumulo-2.0.0/#removed-default-dynamic-reloading-classpath-directory-libext). The jar can instead be put into the `lib` directory and Accumulo restarted. The `lib` directory can also be used with Accumulo 1.x.x and may be useful if you see error messages due to classes not being found and restarting Accumulo doesn't fix the problem.
 
 In addition, if you are using custom serialisers, properties or functions then a jar of these should be created and installed.
 
@@ -76,8 +76,8 @@ Properties file
 
 The next stage is to create a properties file that Gaffer will use to instantiate a connection to your Accumulo cluster. This requires the following properties:
 
-- `gaffer.store.class`: The name of the Gaffer class that implements this store. For a full or pre-existing mini Accumulo cluster this should be `gaffer.accumulostore.AccumuloStore`. To use the `MiniAccumuloStore` in unit tests, it should be `gaffer.accumulostore.MiniAccumuloStore`.
-- `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `gaffer.accumulostore.AccumuloProperties`.
+- `gaffer.store.class`: The name of the Gaffer class that implements this store. For a full or pre-existing mini Accumulo cluster this should be `uk.gov.gchq.gaffer.accumulostore.AccumuloStore`. To use the `MiniAccumuloStore` in unit tests, it should be `uk.gov.gchq.gaffer.accumulostore.MiniAccumuloStore`.
+- `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `uk.gov.gchq.gaffer.accumulostore.AccumuloProperties`.
 - `accumulo.instance`: The instance name of your Accumulo cluster.
 - `accumulo.zookeepers`: A comma separated list of the Zookeeper servers that your Accumulo cluster is using. Each server should specify the hostname and port separated by a colon, i.e. host:port.
 - `accumulo.user`: The name of your Accumulo user.
@@ -87,7 +87,7 @@ A typical properties file will look like:
 
 ```sh
 gaffer.store.class=gaffer.accumulostore.AccumuloStore
-gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
+gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
 accumulo.instance=myInstance
 accumulo.zookeepers=server1.com:2181,server2.com:2181,server3.com:2181
 accumulo.user=myUser
