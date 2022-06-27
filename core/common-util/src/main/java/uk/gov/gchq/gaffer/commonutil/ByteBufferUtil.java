@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.apache.hadoop.io.Text;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -68,20 +66,6 @@ public final class ByteBufferUtil {
             return new String(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining(), UTF_8);
         } else {
             return new String(toBytes(bytes), UTF_8);
-        }
-    }
-
-    public static Text toText(final ByteBuffer byteBuffer) {
-        if (byteBuffer == null) {
-            return null;
-        }
-
-        if (byteBuffer.hasArray()) {
-            Text result = new Text();
-            result.set(byteBuffer.array(), byteBuffer.arrayOffset() + byteBuffer.position(), byteBuffer.remaining());
-            return result;
-        } else {
-            return new Text(toBytes(byteBuffer));
         }
     }
 

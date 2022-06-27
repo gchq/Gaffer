@@ -47,9 +47,5 @@
             <artifactId>core</artifactId>
             <classifier>jdk8</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-        </dependency>
     </dependencies>
 </project>
