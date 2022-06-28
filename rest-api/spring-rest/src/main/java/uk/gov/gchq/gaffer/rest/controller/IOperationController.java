@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -90,7 +89,7 @@ public interface IOperationController {
             method = POST,
             path = "/execute",
             consumes = APPLICATION_JSON_VALUE,
-            produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
+            produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
             summary = "Executes an operation against a Store"
@@ -101,7 +100,7 @@ public interface IOperationController {
             method = POST,
             path = "/execute/chunked",
             consumes = APPLICATION_JSON_VALUE,
-            produces = { TEXT_PLAIN_VALUE, APPLICATION_JSON_VALUE }
+            produces = APPLICATION_JSON_VALUE
     )
     @io.swagger.v3.oas.annotations.Operation(
             summary = "Executes an operation against a Store, returning a chunked output"
