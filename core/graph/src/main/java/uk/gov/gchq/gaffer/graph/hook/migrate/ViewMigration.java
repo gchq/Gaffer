@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * Applies the migrations required for a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.

@@ -76,7 +76,7 @@
         <commons-math.version>2.2</commons-math.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-csv.version>1.9.0</commons-csv.version>
-        <commons-collections.version>3.2.2</commons-collections.version>
+        <commons-collections.version>4.4</commons-collections.version>
         <curator.version>2.11.1</curator.version>
         <guava.version>13.0.1</guava.version>
         <javassist.version>3.28.0-GA</javassist.version>
@@ -230,8 +230,8 @@
                 <version>${commons-math.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
                 <version>${commons-collections.version}</version>
             </dependency>
             <dependency>

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;

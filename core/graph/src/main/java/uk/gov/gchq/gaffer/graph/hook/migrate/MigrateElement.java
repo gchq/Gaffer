@@ -29,7 +29,7 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
 import java.util.List;
 
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @JsonPropertyOrder(value = {"oldGroup", "newGroup", "toNewFunctions", "toOldFunctions"}, alphabetic = true)
 public class MigrateElement {
