@@ -53,7 +53,7 @@ import java.util.Set;
  * to remain compatible with both versions of Accumulo.
  */
 public class LegacySupport {
-    private static String accumuloVersion;
+    private static boolean usingAccumulo2 = true;
     private static Class<?> inputConfiguratorClazz;
     private static Class<?> noCryptoServiceClazz;
     private static Class<?> cryptoServiceClazz;
@@ -81,12 +81,11 @@ public class LegacySupport {
             fileOperationsReaderBuilderClazz = Class.forName("org.apache.accumulo.core.file.FileOperations$ReaderBuilder");
             fileOperationsWriterBuilderClazz = Class.forName("org.apache.accumulo.core.file.FileOperations$WriterBuilder");
             fsdataoutputstreamclazz = Class.forName("org.apache.hadoop.fs.FSDataOutputStream");
-            accumuloVersion = "2";
         } catch (final ClassNotFoundException e) {
             // Fall back to using Accumulo 1 classes
-            accumuloVersion = "1";
+            usingAccumulo2 = false;
         }
-        if (accumuloVersion == "1") {
+        if (!usingAccumulo2) {
             try {
                 inputConfiguratorClazz = Class.forName("org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator");
                 siteConfigurationClazz = Class.forName("org.apache.accumulo.core.conf.SiteConfiguration");
@@ -204,7 +203,7 @@ public class LegacySupport {
             Object builder = FileOperations.getInstance();
             try {
                 builder = FileOperations.class.getMethod("newReaderBuilder").invoke(builder);
-                if (accumuloVersion == "2") {
+                if (usingAccumulo2) {
                     forFile = fileOperationsReaderBuilderClazz.getMethod("forFile", String.class, FileSystem.class, Configuration.class, cryptoServiceClazz);
                     withTableConfiguration = fileOperationsReaderBuilderClazz.getMethod("withTableConfiguration", AccumuloConfiguration.class);
                     seekToBeginning = fileOperationsReaderBuilderClazz.getMethod("seekToBeginning", boolean.class);
@@ -233,7 +232,7 @@ public class LegacySupport {
             Object builder = FileOperations.getInstance();
             try {
                 builder = FileOperations.class.getMethod("newWriterBuilder").invoke(builder);
-                if (accumuloVersion == "2") {
+                if (usingAccumulo2) {
                     forFile = fileOperationsWriterBuilderClazz.getMethod("forFile", String.class, FileSystem.class, Configuration.class, cryptoServiceClazz);
                     withTableConfiguration = fileOperationsWriterBuilderClazz.getMethod("withTableConfiguration", AccumuloConfiguration.class);
                     builderBuild = fileOperationsWriterBuilderClazz.getMethod("build");
@@ -256,7 +255,7 @@ public class LegacySupport {
         public static RFile.Reader create(final FileSystem fs, final Path path, final Configuration fsConf) {
             final RFile.Reader reader;
             try {
-                if (accumuloVersion == "2") {
+                if (usingAccumulo2) {
                     Object builder = cachableBuilderClazz.getConstructor().newInstance();
                     Method fsPathMethod = cachableBuilderClazz.getMethod("fsPath", FileSystem.class, Path.class);
                     Method confMethod = cachableBuilderClazz.getMethod("conf", Configuration.class);
@@ -291,7 +290,7 @@ public class LegacySupport {
             final RFile.Writer writer;
             final Constructor bcFileWriterConstructor, cachableBlockFileWriterConstructor, rFileWriterConstructor;
             try {
-                if (accumuloVersion == "2") {
+                if (usingAccumulo2) {
                     bcFileWriterConstructor = BCFile.Writer.class.getConstructor(fsdataoutputstreamclazz, RateLimiter.class, String.class,
                             Configuration.class, cryptoServiceClazz);
                     Object bcFileWriter = bcFileWriterConstructor.newInstance(
