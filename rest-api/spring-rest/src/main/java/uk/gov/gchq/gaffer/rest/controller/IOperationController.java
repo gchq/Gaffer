@@ -56,6 +56,16 @@ public interface IOperationController {
 
     @RequestMapping(
             method = GET,
+            path = "/details/all",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "Returns the details of every operation"
+    )
+    Set<OperationDetail> getAllOperationDetailsIncludingUnsupported();
+
+    @RequestMapping(
+            method = GET,
             value = "{className}",
             produces = APPLICATION_JSON_VALUE
     )
