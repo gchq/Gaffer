@@ -1,0 +1,15 @@
+{
+    "class": "AddElements",
+    "input": [
+        {
+            "class": "Edge",
+            "group": "BasicEdge",
+            "source": "source1",
+            "destination": "dest1",
+            "directed": true,
+            "properties": {
+                "count": 1
+            }
+        }
+    ]
+}

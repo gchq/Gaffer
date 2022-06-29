@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+  gaffer-example-test:
+    build:
+      context: .
+    ports:
+    - 8080:8080
+    volumes:
+    - ./my_file.json:/gaffer/my_file.json:ro
