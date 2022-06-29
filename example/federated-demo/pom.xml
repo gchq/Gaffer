@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2017-2020 Crown Copyright
+  ~ Copyright 2017-2022 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -79,14 +79,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>uk.gov.gchq.gaffer</groupId>
-                        <artifactId>core-rest</artifactId>
-                        <version>${project.parent.version}</version>
-                        <type>war</type>
-                    </dependency>
-                </dependencies>
                 <executions>
                     <execution>
                         <id>unpack</id>
@@ -101,6 +93,7 @@
                                     <artifactId>core-rest</artifactId>
                                     <version>${project.parent.version}</version>
                                     <type>war</type>
+                                    <classifier>${war.classifier}</classifier>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>
                                         ${project.build.directory}/${project.artifactId}-${project.version}

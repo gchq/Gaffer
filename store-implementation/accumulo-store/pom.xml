@@ -190,14 +190,13 @@
                         <configuration>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>iterators
+                            <shadedClassifierName>iterators${append.shaded.classifier}
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
                                     <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
-                                    <include>org.slf4j:slf4j-api</include>
-                                    <include>com.google.guava*</include>
+                                    <include>com.google.guava:*</include>
                                     <include>org.apache.commons:commons-lang3
                                     </include>
                                     <include>com.fasterxml.jackson.*:*</include>
@@ -207,6 +206,20 @@
                                     <include>io.github.lukehutch*</include>
                                 </includes>
                             </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson</pattern>
+                                    <shadedPattern>hidden.com.fasterxml.jackson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons</pattern>
+                                    <shadedPattern>hidden.org.apache.commons</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>hidden.com.google</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                     <execution>
@@ -218,7 +231,7 @@
                         <configuration>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>utility
+                            <shadedClassifierName>utility${append.shaded.classifier}
                             </shadedClassifierName>
                         </configuration>
                     </execution>
