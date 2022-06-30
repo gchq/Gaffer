@@ -51,9 +51,9 @@ public class FederatedStoreGraphVisibilityTest {
 
     public static final Schema SCHEMA_BASIC_EDGE = loadSchemaFromJson(SCHEMA_EDGE_BASIC_JSON);
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
-    private final static User addingUser = testUser();
-    private final static User nonAddingUser = blankUser();
-    private final static User authNonAddingUser = authUser();
+    private static final User ADDING_USER = testUser();
+    private static final User NON_ADDING_USER = blankUser();
+    private static final User AUTH_NON_ADDING_USER = authUser();
     private Graph federatedGraph;
 
     @AfterAll
@@ -83,7 +83,7 @@ public class FederatedStoreGraphVisibilityTest {
                         .storeProperties(ACCUMULO_PROPERTIES)
                         .schema(SCHEMA_BASIC_ENTITY.clone())
                         .build(),
-                addingUser);
+                ADDING_USER);
 
         federatedGraph.execute(
                 new AddGraph.Builder()
@@ -92,7 +92,7 @@ public class FederatedStoreGraphVisibilityTest {
                         .schema(SCHEMA_BASIC_EDGE.clone())
                         .graphAuths(AUTH_1)
                         .build(),
-                addingUser);
+                ADDING_USER);
 
 
         commonAssertions();
@@ -111,7 +111,7 @@ public class FederatedStoreGraphVisibilityTest {
                         .storeProperties(ACCUMULO_PROPERTIES)
                         .schema(SCHEMA_BASIC_ENTITY.clone())
                         .build(),
-                addingUser);
+                ADDING_USER);
 
         federatedGraph.execute(
                 new AddGraph.Builder()
@@ -120,27 +120,27 @@ public class FederatedStoreGraphVisibilityTest {
                         .schema(SCHEMA_BASIC_EDGE.clone())
                         .graphAuths(AUTH_1)
                         .build(),
-                addingUser);
+                ADDING_USER);
 
 
         commonAssertions();
     }
 
     private void commonAssertions() throws uk.gov.gchq.gaffer.operation.OperationException {
-        assertThat(federatedGraph.execute(new GetAllGraphIds(), nonAddingUser))
+        assertThat(federatedGraph.execute(new GetAllGraphIds(), NON_ADDING_USER))
                 .withFailMessage("Returned iterable should not be null, it should be empty.")
                 .isNotNull()
                 .withFailMessage("Showing hidden graphId")
                 .isEmpty();
 
-        assertThat(federatedGraph.execute(new GetAllGraphIds(), authNonAddingUser))
+        assertThat(federatedGraph.execute(new GetAllGraphIds(), AUTH_NON_ADDING_USER))
                 .withFailMessage("Returned iterable should not be null, it should be empty.")
                 .isNotNull()
                 .withFailMessage("Not Showing graphId with correct auth")
                 .isNotEmpty()
                 .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO_WITH_EDGES);
 
-        assertThat(federatedGraph.execute(new GetAllGraphIds(), addingUser))
+        assertThat(federatedGraph.execute(new GetAllGraphIds(), ADDING_USER))
                 .withFailMessage("Returned iterable should not be null, it should be empty.")
                 .isNotNull()
                 .withFailMessage("Not Showing all graphId for adding user")

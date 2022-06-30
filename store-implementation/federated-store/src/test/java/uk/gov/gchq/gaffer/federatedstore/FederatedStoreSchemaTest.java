@@ -73,6 +73,7 @@ public class FederatedStoreSchemaTest {
     public static final String GRAPH_ID_B = "b";
     public static final String GRAPH_ID_C = "c";
     public static final String DEST_2 = DEST_BASIC + 2;
+    public static final AccumuloProperties STORE_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     private static final Schema STRING_TYPE = new Schema.Builder()
             .type(STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
@@ -86,7 +87,6 @@ public class FederatedStoreSchemaTest {
                     .validateFunctions(new Exists())
                     .build())
             .build();
-    public final AccumuloProperties STORE_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     public User testUser;
     public Context testContext;
     private FederatedStore federatedStore;

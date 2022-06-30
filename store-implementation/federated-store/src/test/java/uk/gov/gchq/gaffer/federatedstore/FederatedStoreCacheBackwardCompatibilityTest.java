@@ -41,10 +41,10 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForF
 public class FederatedStoreCacheBackwardCompatibilityTest {
 
     //TODO fs test bug: why does changing this value fail the test.
-    private  final String MAP_ID_1 = "mockMapGraphId1";
+    private static final String MAP_ID_1 = "mockMapGraphId1";
 
     //TODO fs test bug: why does changing this value fail the test.
-    private  final String ADDING_USER_ID = "user1";
+    private static final String ADDING_USER_ID = "user1";
     private static FederatedStoreCache federatedStoreCache;
 
     @AfterAll

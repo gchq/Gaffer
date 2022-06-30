@@ -73,6 +73,10 @@ public final class FederatedStoreTestUtil {
     static final Set<String> GRAPH_AUTHS_ALL_USERS = ImmutableSet.of(ALL_USERS);
     public static final String INTEGER = "integer";
 
+    private FederatedStoreTestUtil() {
+        //no instance
+    }
+
     public static String property(final int i) {
         return String.format(FORMAT_PROPERTY_STRING, i);
     }
@@ -109,11 +113,11 @@ public final class FederatedStoreTestUtil {
                         .build());
     }
 
-    static public Context contextBlankUser() {
+    public static  Context contextBlankUser() {
         return new Context(blankUser());
     }
 
-    static public Context contextAuthUser() {
+    public static Context contextAuthUser() {
         return new Context(authUser());
     }
 

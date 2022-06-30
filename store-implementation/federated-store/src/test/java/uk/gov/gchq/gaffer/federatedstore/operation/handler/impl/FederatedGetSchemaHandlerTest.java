@@ -97,7 +97,7 @@ public class FederatedGetSchemaHandlerTest {
                         .source(STRING)
                         .destination(STRING)
                         .directed(DIRECTED_EITHER)
-                        .property( PROPERTY_1, STRING)
+                        .property(PROPERTY_1, STRING)
                         .build())
                 .vertexSerialiser(new StringSerialiser())
                 .type(DIRECTED_EITHER, Boolean.class)

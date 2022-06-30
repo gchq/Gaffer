@@ -44,9 +44,9 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreMultiCacheTest {
 
-    public final static User authUser = authUser();
-    public final static User testUser = testUser();
-    public final static User blankUser = blankUser();
+    public static final User AUTH_USER = authUser();
+    public static final User TEST_USER = testUser();
+    public static final User BLANK_USER = blankUser();
     private static final AccumuloProperties ACCUMULO_PROPERTIES = loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES);
     public FederatedStore federatedStore;
     public FederatedStore federatedStore2WithSameCache;
@@ -68,7 +68,7 @@ public class FederatedStoreMultiCacheTest {
                 .storeProperties(ACCUMULO_PROPERTIES.clone())
                 .schema(loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON))
                 .build(), new Context.Builder()
-                .user(testUser)
+                .user(TEST_USER)
                 .build());
 
 
@@ -83,8 +83,8 @@ public class FederatedStoreMultiCacheTest {
 
     @Test
     public void shouldInitialiseByCacheToContainSameGraphsForAddingUser() throws Exception {
-        final Collection<String> fed1TestUserGraphs = federatedStore.getAllGraphIds(testUser);
-        Collection<String> fed2WithSameCacheTestUserGraphs = federatedStore2WithSameCache.getAllGraphIds(testUser);
+        final Collection<String> fed1TestUserGraphs = federatedStore.getAllGraphIds(TEST_USER);
+        Collection<String> fed2WithSameCacheTestUserGraphs = federatedStore2WithSameCache.getAllGraphIds(TEST_USER);
 
         assertThat(fed1TestUserGraphs)
                 .withFailMessage("adding user should have visibility of first store graphs")
@@ -97,8 +97,8 @@ public class FederatedStoreMultiCacheTest {
 
     @Test
     public void shouldInitialiseByCacheToContainSameGraphsForAuthUser() throws Exception {
-        final Collection<String> fed1AuthUserGraphs = federatedStore.getAllGraphIds(authUser);
-        Collection<String> fed2WithSameCacheAuthUserGraphs = federatedStore2WithSameCache.getAllGraphIds(authUser);
+        final Collection<String> fed1AuthUserGraphs = federatedStore.getAllGraphIds(AUTH_USER);
+        Collection<String> fed2WithSameCacheAuthUserGraphs = federatedStore2WithSameCache.getAllGraphIds(AUTH_USER);
 
         assertThat(fed1AuthUserGraphs)
                 .withFailMessage("auth user should have visibility of first store graphs")
@@ -111,13 +111,13 @@ public class FederatedStoreMultiCacheTest {
 
     @Test
     public void shouldInitialiseByCacheToContainSameGraphsForBlankUser() throws Exception {
-        final Collection<String> fed1BlankUserGraphs = federatedStore.getAllGraphIds(blankUser);
+        final Collection<String> fed1BlankUserGraphs = federatedStore.getAllGraphIds(BLANK_USER);
 
         assertThat(fed1BlankUserGraphs)
                 .withFailMessage("blank user should not have visibility of first store graphs")
                 .isEmpty();
 
-        Collection<String> fed2WithSameCacheBlankUserGraphs = federatedStore2WithSameCache.getAllGraphIds(blankUser);
+        Collection<String> fed2WithSameCacheBlankUserGraphs = federatedStore2WithSameCache.getAllGraphIds(BLANK_USER);
         assertThat(fed2WithSameCacheBlankUserGraphs)
                 .withFailMessage("blank user should have same visibility of second store graphs")
                 .containsExactlyInAnyOrderElementsOf(fed1BlankUserGraphs);
@@ -132,26 +132,26 @@ public class FederatedStoreMultiCacheTest {
                 .storeProperties(ACCUMULO_PROPERTIES.clone())
                 .schema(loadSchemaFromJson(SCHEMA_ENTITY_BASIC_JSON))
                 .build(), new Context.Builder()
-                .user(testUser)
+                .user(TEST_USER)
                 .build());
 
         federatedStore2WithSameCache = new FederatedStore();
         federatedStore2WithSameCache.initialise(GRAPH_ID_TEST_FEDERATED_STORE + 2, null, federatedStoreProperties);
 
-        assertThat(federatedStore.getAllGraphIds(testUser))
+        assertThat(federatedStore.getAllGraphIds(TEST_USER))
                 .withFailMessage("There should be 2 graphs")
                 .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO, GRAPH_ID_ACCUMULO + 2);
 
-        assertThat(federatedStore2WithSameCache.getAllGraphIds(testUser))
+        assertThat(federatedStore2WithSameCache.getAllGraphIds(TEST_USER))
                 .withFailMessage("There should be 2 graphs")
                 .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO, GRAPH_ID_ACCUMULO + 2);
 
-        assertThat(federatedStore.getAllGraphIds(blankUser))
+        assertThat(federatedStore.getAllGraphIds(BLANK_USER))
                 .withFailMessage("blank user should have visibility of public graph")
-                .containsExactlyInAnyOrder( GRAPH_ID_ACCUMULO + 2);
+                .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO + 2);
 
-        assertThat(federatedStore2WithSameCache.getAllGraphIds(blankUser))
+        assertThat(federatedStore2WithSameCache.getAllGraphIds(BLANK_USER))
                 .withFailMessage("blank user should have same visibility of second store graphs")
-                .containsExactlyInAnyOrder( GRAPH_ID_ACCUMULO + 2);
+                .containsExactlyInAnyOrder(GRAPH_ID_ACCUMULO + 2);
     }
 }

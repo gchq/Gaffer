@@ -52,12 +52,12 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForF
 
 /**
  * The FederatedStoreToFederatedStore Test works as follows:
- * --------------------
- * FederatedStore                      |   GAFFER REST API |
- * -> Proxy Store --------------> |                   |
- * |   FederatedStore  |
- * |   -> MapStore     |
- * --------------------
+ *                                           --------------------
+ *      FederatedStore                      |   GAFFER REST API |
+ *           -> Proxy Store --------------> |                   |
+ *                                          |   FederatedStore  |
+ *                                          |   -> MapStore     |
+ *                                          --------------------
  */
 public class FederatedStoreToFederatedStoreTest {
 
