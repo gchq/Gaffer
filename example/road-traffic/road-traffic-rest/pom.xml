@@ -139,6 +139,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>uk.gov.gchq.gaffer</groupId>
+                        <artifactId>${store.type}-rest</artifactId>
+                        <version>${project.parent.version}</version>
+                        <type>war</type>
+                        <classifier>${war.classifier}</classifier>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>unpack</id>
