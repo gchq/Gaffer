@@ -60,6 +60,18 @@ public interface IOperationController {
 
     @RequestMapping(
             method = GET,
+            path = "/details/all",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+        value = "Returns the details of every operation",
+        response = OperationDetail.class,
+        responseContainer = "Set"
+    )
+    Set<OperationDetail> getAllOperationDetailsIncludingUnsupported();
+
+    @RequestMapping(
+            method = GET,
             value = "{className}",
             produces = APPLICATION_JSON_VALUE
     )

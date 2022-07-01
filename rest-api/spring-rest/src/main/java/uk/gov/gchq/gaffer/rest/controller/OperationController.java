@@ -72,6 +72,11 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
+    public Set<OperationDetail> getAllOperationDetailsIncludingUnsupported() {
+        return getSupportedOperationDetails(true);
+    }
+
+    @Override
     public OperationDetail getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
         try {
             final Class<? extends Operation> operationClass = getOperationClass(className);
