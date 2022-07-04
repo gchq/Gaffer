@@ -83,14 +83,13 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         return headersFromSchema;
     }
 
-     private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final boolean quoted, final boolean neo4jFormat) {
+     private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final boolean neo4jFormat) {
         return new OpenCypherCsvGenerator.Builder()
                 .headers(headersFromSchema)
-                .quoted(quoted)
                 .neo4jFormat(neo4jFormat)
                 .build();
     }
     private OpenCypherCsvGenerator createGenerator(final LinkedHashMap<String, String> headersFromSchema, final ToCsv operation) {
-        return createGenerator(headersFromSchema, operation.isQuoted(), operation.isNeo4jFormat());
+        return createGenerator(headersFromSchema, operation.isNeo4jFormat());
     }
 }
