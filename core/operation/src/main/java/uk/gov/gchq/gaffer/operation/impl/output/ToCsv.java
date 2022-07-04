@@ -48,17 +48,24 @@ public class ToCsv implements
     private CsvGenerator elementGenerator;
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
+    private boolean openCypherFormat = false;
+    private boolean neo4jFormat = false;
     private Map<String, String> options;
+    private boolean quoted = false;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public CsvGenerator getElementGenerator() {
-        return elementGenerator;
+            return elementGenerator;
     }
-
-    void setElementGenerator(final CsvGenerator elementGenerator) {
+    private void setElementGenerator(final CsvGenerator elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
-
+    private void setOpenCypherFormat(final boolean openCypherFormat) {
+        this.openCypherFormat = openCypherFormat;
+    }
+    public boolean isOpenCypherFormat() {
+        return openCypherFormat;
+    }
     @Override
     public Iterable<? extends Element> getInput() {
         return input;
@@ -73,7 +80,7 @@ public class ToCsv implements
         return includeHeader;
     }
 
-    public void setIncludeHeader(final boolean includeHeader) {
+    private void setIncludeHeader(final boolean includeHeader) {
         this.includeHeader = includeHeader;
     }
 
@@ -87,6 +94,8 @@ public class ToCsv implements
         return new ToCsv.Builder()
                 .generator(elementGenerator)
                 .input(input)
+                .openCypherFormat(openCypherFormat)
+                .neo4jFormat(neo4jFormat)
                 .includeHeader(includeHeader)
                 .options(options)
                 .build();
@@ -101,6 +110,21 @@ public class ToCsv implements
     public void setOptions(final Map<String, String> options) {
         this.options = options;
     }
+
+    public boolean isQuoted() {
+        return quoted;
+    }
+
+    public void setQuoted(final boolean quoted) {
+        this.quoted = quoted;
+    }
+    public void setNeo4jFormat(final boolean neo4jFormat) {
+        this.neo4jFormat = neo4jFormat;
+    }
+    public boolean isNeo4jFormat() {
+        return neo4jFormat;
+    }
+
 
     public static final class Builder extends BaseBuilder<ToCsv, Builder>
             implements InputOutput.Builder<ToCsv, Iterable<? extends Element>, Iterable<? extends String>, Builder>,
@@ -120,6 +144,19 @@ public class ToCsv implements
 
         public ToCsv.Builder includeHeader(final boolean includeHeader) {
             _getOp().setIncludeHeader(includeHeader);
+            return _self();
+        }
+        public ToCsv.Builder openCypherFormat(final boolean openCypherFormat) {
+            _getOp().setOpenCypherFormat(openCypherFormat);
+            return _self();
+        }
+        public ToCsv.Builder neo4jFormat(final boolean neo4jFormat) {
+            _getOp().setNeo4jFormat(neo4jFormat);
+            return _self();
+        }
+
+        public ToCsv.Builder quoted(final boolean quoted) {
+            _getOp().setQuoted(quoted);
             return _self();
         }
     }

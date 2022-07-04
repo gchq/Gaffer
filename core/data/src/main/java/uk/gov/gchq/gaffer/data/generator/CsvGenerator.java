@@ -156,7 +156,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return StringUtils.join(fields.stream().map(this::quoteString).toArray(), COMMA);
     }
 
-    private String quoteString(final Object s) {
+    String quoteString(final Object s) {
         String value;
         if (null == s) {
             value = "";
