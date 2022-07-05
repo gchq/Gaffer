@@ -21,6 +21,16 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.DESTINATION;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.EDGE_GROUP;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.ENTITY_GROUP;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NEO4J_DESTINATION;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NEO4J_EDGE_GROUP;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NEO4J_ENTITY_GROUP;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NEO4J_SOURCE;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NEO4J_VERTEX;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.SOURCE;
+import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.VERTEX;
 import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
@@ -40,18 +50,6 @@ import java.util.LinkedHashMap;
 @Since("2.0.0")
 @Summary("Generates an openCypher formatted CSV string for each element")
 public class OpenCypherCsvGenerator extends CsvGenerator {
-    public static final String VERTEX = ":ID";
-    public static final String NEO4J_VERTEX = "_id";
-    public static final String ENTITY_GROUP = ":LABEL";
-    public static final String NEO4J_ENTITY_GROUP = "_labels";
-
-    public static final String SOURCE = ":START_ID";
-    public static final String NEO4J_SOURCE = "_start";
-    public static final String DESTINATION = ":END_ID";
-    public static final String NEO4J_DESTINATION = "_end";
-
-    public static final String EDGE_GROUP = ":TYPE";
-    public static final String NEO4J_EDGE_GROUP = "_type";
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
 
     /**
