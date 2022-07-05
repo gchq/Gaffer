@@ -21,6 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.koryphe.Since;
+import uk.gov.gchq.koryphe.Summary;
+
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.DESTINATION;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.EDGE_GROUP;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.ENTITY_GROUP;
@@ -31,8 +34,6 @@ import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NE
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.NEO4J_VERTEX;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.SOURCE;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.VERTEX;
-import uk.gov.gchq.koryphe.Since;
-import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
