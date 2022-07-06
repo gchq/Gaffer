@@ -61,7 +61,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 @JsonPropertyOrder(value = {"class", "operation", "mergeFunction", "graphIds", "skipFailedFederatedExecution"}, alphabetic = true)
 @Since("2.0.0")
 @Summary("Federates a payload operation across given graphs and merges the results with a given function.")
-public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
+public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends GenericInput<INPUT>*/ implements IFederationOperation, IFederatedOperation, InputOutput<INPUT, OUTPUT> {
     private String graphIdsCsv;
     @Required
     private Operation payloadOperation;
@@ -383,6 +383,11 @@ public class FederatedOperation<INPUT, OUTPUT> implements IFederationOperation, 
         @Override
         public BuilderParent<INPUT, OUTPUT> options(final Map<String, String> options) {
             return super.options(options);
+        }
+
+        @Override
+        public BuilderParent<INPUT, OUTPUT> userRequestingAdminUsage(final boolean adminRequest) {
+            return super.userRequestingAdminUsage(adminRequest);
         }
 
         @Override
