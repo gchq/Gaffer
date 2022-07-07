@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -105,6 +106,18 @@ public class OperationControllerTest {
         // Then
         assertThat(allOperationDetails).hasSize(2);
         assertThat(allOperationDetailClasses).contains(AddElements.class.getName(), GetElements.class.getName());
+    }
+
+    @Test
+    public void shouldReturnAllOperationsAsOperationDetails() {
+        // Given / When
+        final Set<OperationDetail> allOperationDetails = operationController.getAllOperationDetailsIncludingUnsupported();
+        final Set<String> allOperationDetailClasses = allOperationDetails.stream().map(OperationDetail::getName).collect(Collectors.toSet());
+
+        // Then
+        final Set<String> expectedOperationClasses = ReflectionUtil.getSubTypes(Operation.class).stream().map(Class::getName).collect(Collectors.toSet());
+        assertThat(allOperationDetailClasses).containsExactlyInAnyOrderElementsOf(expectedOperationClasses);
+        assertThat(allOperationDetails).isNotEmpty();
     }
 
     @Test
