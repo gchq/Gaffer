@@ -1,0 +1,25 @@
+{
+    "class": "AddElements",
+    "input": [
+        {
+            "class": "Entity",
+            "group": "BasicEntity",
+            "vertex": "source1"
+        },
+        {
+            "class": "Entity",
+            "group": "BasicEntity",
+            "vertex": "dest1"
+        },
+        {
+            "class": "Edge",
+            "group": "BasicEdge",
+            "source": "source1",
+            "destination": "dest1",
+            "directed": true,
+            "properties": {
+                "count": 10
+            }
+        }
+    ]
+}
