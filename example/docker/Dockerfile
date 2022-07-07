@@ -1,7 +1,5 @@
 FROM gchq/gaffer-rest
 
-COPY ./addElements.sh .
-COPY ./startGaffer.sh .
-COPY ./addElements.json .
+COPY /data .
 
 ENTRYPOINT ["./startGaffer.sh"]

@@ -7,4 +7,7 @@ services:
     ports:
     - 8080:8080
     volumes:
-    - ./customAddElements.json:/gaffer/addElements.json:ro
+    - ./custom/customAddElements.json:/gaffer/addElements.json:ro
+    - ./custom/schema:/gaffer/schema:ro
+    - ./custom/graphConfig.json:/gaffer/graph/graphConfig.json:ro
+    - ./custom/store.properties:/gaffer/store/store.properties:ro

@@ -1,0 +1,39 @@
+{
+    "class": "AddElements",
+    "input": [
+        {
+            "class": "Entity",
+            "group": "ExampleEntity",
+            "vertex": "entity1",
+            "properties": {
+                "int": 1
+            }
+        },
+        {
+            "class": "Entity",
+            "group": "ExampleEntity",
+            "vertex": "entity2",
+            "properties": {
+                "int": 2
+            }
+        },
+        {
+            "class": "Entity",
+            "group": "ExampleEntity",
+            "vertex": "entity1",
+            "properties": {
+                "int": 10
+            }
+        },
+        {
+            "class": "Edge",
+            "group": "ExampleEdge",
+            "source": "entity1",
+            "destination": "entity2",
+            "directed": true,
+            "properties": {
+                "count": 10
+            }
+        }
+    ]
+}

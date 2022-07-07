@@ -1,0 +1,20 @@
+{
+    "edges": {
+        "ExampleEdge": {
+            "source": "string",
+            "destination": "string",
+            "directed": "true",
+            "properties": {
+                "count": "count"
+            }
+        }
+    },
+    "entities": {
+        "ExampleEntity": {
+            "vertex": "string",
+            "properties": {
+                "int": "int"
+            }
+        }
+    }
+}
