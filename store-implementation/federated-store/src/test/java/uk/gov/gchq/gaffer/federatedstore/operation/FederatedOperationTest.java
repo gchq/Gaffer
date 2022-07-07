@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 public class FederatedOperationTest extends FederationOperationTest<FederatedOperation> {
     private static final String EXPECTED_GRAPH_ID = "testGraphID1,testGraphID2";
@@ -68,7 +69,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
         return new FederatedOperation.Builder()
                 .op(new GetAdjacentIds.Builder()
                         .build())
-                .mergeFunction(new uk.gov.gchq.koryphe.impl.function.IterableConcat())
+                .mergeFunction(getHardCodedDefaultMergeFunction())
                 .graphIds(EXPECTED_GRAPH_ID)
                 .build();
     }
@@ -94,7 +95,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
                 .op(new GetAdjacentIds.Builder()
                         .build())
                 .graphIds(EXPECTED_GRAPH_ID)
-                .mergeFunction(new IterableConcat())
+                .mergeFunction(getHardCodedDefaultMergeFunction())
                 .option("op1", "val1")
                 .skipFailedFederatedExecution(false)
                 .build();

@@ -47,7 +47,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableFlatten;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
@@ -59,6 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_EDGES;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO_WITH_ENTITIES;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 public class FederatedOperationChainHandlerTest {
 
@@ -107,7 +107,7 @@ public class FederatedOperationChainHandlerTest {
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new FederatedOperation.Builder()
                         .op(new GetAllElements())
-                        .mergeFunction(new IterableConcat())
+                        .mergeFunction(getHardCodedDefaultMergeFunction())
                         // Ensure the elements are returned form the graphs in the right order
                         .graphIds(GRAPH_IDS)
                         .build())

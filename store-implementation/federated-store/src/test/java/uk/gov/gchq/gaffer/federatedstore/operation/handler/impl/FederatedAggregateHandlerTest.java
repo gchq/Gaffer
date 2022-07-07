@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadFederatedStoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 
 @ExtendWith(MockitoExtension.class)
 public class FederatedAggregateHandlerTest {
@@ -128,7 +128,7 @@ public class FederatedAggregateHandlerTest {
                         .build())
                 .build())
                 .graphIdsCSV(graphNameA)
-                .mergeFunction(new IterableConcat()), context);
+                .mergeFunction(getHardCodedDefaultMergeFunction()), context);
 
         fed.execute(getFederatedOperation(
                 new AddElements.Builder()
@@ -139,7 +139,7 @@ public class FederatedAggregateHandlerTest {
                                 .build())
                         .build())
                 .graphIdsCSV(graphNameB)
-                .mergeFunction(new IterableConcat()), context);
+                .mergeFunction(getHardCodedDefaultMergeFunction()), context);
 
         final Iterable<? extends Element> getAll = fed.execute(new GetAllElements(), context);
 
