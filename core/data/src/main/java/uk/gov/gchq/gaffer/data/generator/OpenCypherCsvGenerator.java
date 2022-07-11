@@ -93,23 +93,19 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
 
     public void setFields(final LinkedHashMap<String, String> headersFromSchema) {
         if (neo4jFormat) {
-            this.fields.put(String.valueOf(IdentifierType.VERTEX), NEO4J_VERTEX + ":" + headersFromSchema.get(String.valueOf(IdentifierType.VERTEX)));
-            this.fields.put("NEO4J_ENTITY_GROUP", NEO4J_ENTITY_GROUP + ":string");
-            this.fields.put("NEO4J_EDGE_GROUP", NEO4J_EDGE_GROUP + ":string");
-            this.fields.put(String.valueOf(IdentifierType.SOURCE), NEO4J_SOURCE + ":" + headersFromSchema.get(String.valueOf(IdentifierType.SOURCE)));
-            this.fields.put(String.valueOf(IdentifierType.DESTINATION), NEO4J_DESTINATION + ":" + headersFromSchema.get(String.valueOf(IdentifierType.DESTINATION)));
+            this.fields.put(String.valueOf(IdentifierType.VERTEX), NEO4J_VERTEX);
+            this.fields.put("NEO4J_ENTITY_GROUP", NEO4J_ENTITY_GROUP);
+            this.fields.put("NEO4J_EDGE_GROUP", NEO4J_EDGE_GROUP);
+            this.fields.put(String.valueOf(IdentifierType.SOURCE), NEO4J_SOURCE);
+            this.fields.put(String.valueOf(IdentifierType.DESTINATION), NEO4J_DESTINATION);
 
         } else {
-            this.fields.put(String.valueOf(IdentifierType.VERTEX), VERTEX + ":" + headersFromSchema.get(String.valueOf(IdentifierType.VERTEX)));
-            this.fields.put("ENTITY_GROUP", ENTITY_GROUP + ":string");
-            this.fields.put("EDGE_GROUP", EDGE_GROUP + ":string");
-            this.fields.put(String.valueOf(IdentifierType.SOURCE), SOURCE + ":" + headersFromSchema.get(String.valueOf(IdentifierType.SOURCE)));
-            this.fields.put(String.valueOf(IdentifierType.DESTINATION), DESTINATION + ":" + headersFromSchema.get(String.valueOf(IdentifierType.DESTINATION)));
+            this.fields.put(String.valueOf(IdentifierType.VERTEX), VERTEX);
+            this.fields.put("ENTITY_GROUP", ENTITY_GROUP);
+            this.fields.put("EDGE_GROUP", EDGE_GROUP);
+            this.fields.put(String.valueOf(IdentifierType.SOURCE), SOURCE);
+            this.fields.put(String.valueOf(IdentifierType.DESTINATION), DESTINATION);
         }
-        headersFromSchema.remove(String.valueOf(IdentifierType.VERTEX));
-        headersFromSchema.remove(String.valueOf(IdentifierType.SOURCE));
-        headersFromSchema.remove(String.valueOf(IdentifierType.DESTINATION));
-        //System.out.println(headersFromSchema);
         for (final String key: headersFromSchema.keySet()) {
             fields.put(key, key + ":" + headersFromSchema.get(key));
         }

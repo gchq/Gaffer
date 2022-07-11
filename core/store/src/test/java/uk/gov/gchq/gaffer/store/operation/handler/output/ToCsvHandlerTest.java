@@ -233,7 +233,7 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                ":ID:string,:LABEL:string,:TYPE:string,:START_ID:string,:END_ID:string,count:int,DIRECTED:boolean",
+                ":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:int,DIRECTED:boolean",
                 "vertex1,Foo,,,,1,",
                 "vertex2,Foo,,,,,",
                 ",,Bar,source1,dest1,1,true",
@@ -271,7 +271,7 @@ public class ToCsvHandlerTest {
         //Then
         final List<String> resultList = Lists.newArrayList(results);
         final List<String> expected = Arrays.asList(
-                "_id:string,_labels:string,_type:string,_start:string,_end:string,count:int,DIRECTED:boolean",
+                "_id,_labels,_type,_start,_end,count:int,DIRECTED:boolean",
                 "vertex1,Foo,,,,1,",
                 "vertex2,Foo,,,,,",
                 ",,Bar,source1,dest1,1,true",

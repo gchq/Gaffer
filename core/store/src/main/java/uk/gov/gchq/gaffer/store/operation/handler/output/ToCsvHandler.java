@@ -65,7 +65,9 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         LinkedHashMap<String, String> headersFromSchema = new LinkedHashMap<>();
         for (final SchemaEntityDefinition schemaEntityDefinition : schema.getEntities().values()) {
             for (final IdentifierType identifierType:schemaEntityDefinition.getIdentifiers()) {
-                headersFromSchema.put(identifierType.toString(), schemaEntityDefinition.getIdentifierTypeName(identifierType));
+                if (identifierType.toString() == "DIRECTED") {
+                    headersFromSchema.put(identifierType.toString(), schemaEntityDefinition.getIdentifierTypeName(identifierType));
+                }
             }
             for (final String propertyName:schemaEntityDefinition.getProperties()) {
                 headersFromSchema.put(propertyName, schemaEntityDefinition.getPropertyTypeName(propertyName));
@@ -73,9 +75,10 @@ public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? ex
         }
         for (final SchemaEdgeDefinition schemaEdgeDefinition : schema.getEdges().values()) {
             for (final IdentifierType identifierType:schemaEdgeDefinition.getIdentifiers()) {
-                headersFromSchema.put(identifierType.toString(), schemaEdgeDefinition.getIdentifierTypeName(identifierType));
+                if (identifierType.toString() == "DIRECTED") {
+                    headersFromSchema.put(identifierType.toString(), schemaEdgeDefinition.getIdentifierTypeName(identifierType));
+                }
             }
-
             for (final String propertyName:schemaEdgeDefinition.getProperties()) {
                 headersFromSchema.put(propertyName, schemaEdgeDefinition.getPropertyTypeName(propertyName));
             }
