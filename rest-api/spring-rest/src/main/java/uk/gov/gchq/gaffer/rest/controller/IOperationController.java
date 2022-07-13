@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,18 @@ public interface IOperationController {
             responseContainer = "Set"
     )
     Set<OperationDetail> getAllOperationDetails();
+
+    @RequestMapping(
+            method = GET,
+            path = "/details/all",
+            produces = APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(
+        value = "Returns the details of every operation",
+        response = OperationDetail.class,
+        responseContainer = "Set"
+    )
+    Set<OperationDetail> getAllOperationDetailsIncludingUnsupported();
 
     @RequestMapping(
             method = GET,
