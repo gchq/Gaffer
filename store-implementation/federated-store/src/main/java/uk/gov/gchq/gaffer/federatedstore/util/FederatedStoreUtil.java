@@ -36,9 +36,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
-import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,17 +47,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public final class FederatedStoreUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
-    private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
     public static final Collection<String> STRINGS_TO_REMOVE = Collections.unmodifiableCollection(Arrays.asList("", null));
     public static final String DEPRECATED_GRAPH_IDS_FLAG = "gaffer.federatedstore.operation.graphIds";
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStoreUtil.class);
+    private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
 
     private FederatedStoreUtil() {
     }
@@ -215,7 +213,7 @@ public final class FederatedStoreUtil {
 
     public static <OUTPUT extends Iterable<?>> FederatedOperation<Void, OUTPUT> getFederatedOperation(final Output<OUTPUT> operation) {
 
-        FederatedOperation.BuilderParent<Void, OUTPUT> builder = new FederatedOperation.Builder()
+        FederatedOperation.BuilderParent builder = new FederatedOperation.Builder()
                 .op(operation)
                 .mergeFunction(getHardCodedDefaultMergeFunction());
 
@@ -225,38 +223,8 @@ public final class FederatedStoreUtil {
         return builder.build();
     }
 
-    public static Function getHardCodedDefaultMergeFunction() {
-        //TODO FS 1 Hard Default Merge
-//        {
-//         /*
-//         Type parameters:
-//         <T> – Input/Output type
-//         <OT> – Input/Output type of the BinaryOperator being applied
-//
-//         AdaptedBinaryOperator(final BinaryOperator<OT> binaryOperator,   FederatedIterableConcat
-//                                 final Function<T, OT> inputAdapter,        ToArray
-//                                 final BiFunction<T, OT, T> outputAdapter)    Null
-//         */
-//            final CollectionConcat<Object> concat1 = new CollectionConcat<>();
-//            final KorypheBinaryOperator<Collection<Object>> concat2 = concat1;
-//            final BinaryOperator<? extends Iterable<Object>> concat3 = concat2;
-//            //OT = ? extends Iterable<Object>
-//
-//            final ToIterable toIterable = new ToIterable();
-//            final KorypheFunction<Object, Iterable<Object>> toIterable1 = toIterable;
-//            final Function<Object, ? extends Iterable<Object>> toIterable2 = toIterable1;
-//            //T = Object
-//            //OT = Iterable<Object>
-//
-//            final BiFunction<Object, ? extends Iterable<Object>, Object> ignore = null;
-//            //T = Object
-//            //OT = ? extends Iterable<Object>
-//
-//            final AdaptedBinaryOperator<Object, ? extends Iterable<Object>> adaptedBinaryOperator = new AdaptedBinaryOperator<>(concat3, toIterable2, ignore);
-//
-//            return adaptedBinaryOperator;
-//        }
-        return new IterableConcat();
+    public static BiFunction getHardCodedDefaultMergeFunction() {
+        return new DefaultBestEffortsMergeFunction();
     }
 
     public static <INPUT> FederatedOperation<INPUT, Void> getFederatedOperation(final Operation operation) {
@@ -289,12 +257,9 @@ public final class FederatedStoreUtil {
         return deprecatedGraphIds;
     }
 
+    @Deprecated
     public static FederatedOperation<Void, Iterable<Schema>> getFederatedWrappedSchema() {
         return new FederatedOperation.Builder().<Void, Iterable<Schema>>op(new GetSchema()).build();
-    }
-
-    public static FederatedOperation<Void, Iterable<StoreTrait>> getFederatedWrappedTraits() {
-        return new FederatedOperation.Builder().op(new GetTraits()).mergeFunction(new IterableConcat()).build();
     }
 
     /**

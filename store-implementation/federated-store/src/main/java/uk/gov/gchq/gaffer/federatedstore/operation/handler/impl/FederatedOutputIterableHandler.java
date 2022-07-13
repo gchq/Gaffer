@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -46,14 +46,14 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFeder
 public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Iterable<? extends ITERABLE_ELEMENTS>>, ITERABLE_ELEMENTS>
         implements OutputOperationHandler<PAYLOAD, Iterable<? extends ITERABLE_ELEMENTS>> {
 
-    private Function handlerConfiguredMergeFunction;
+    private BiFunction handlerConfiguredMergeFunction;
 
     public FederatedOutputIterableHandler() {
         this(null);
     }
 
     @JsonCreator
-    public FederatedOutputIterableHandler(@JsonProperty("handlerConfiguredMergeFunction") final Function mergeFunction) {
+    public FederatedOutputIterableHandler(@JsonProperty("handlerConfiguredMergeFunction") final BiFunction mergeFunction) {
         this.handlerConfiguredMergeFunction = mergeFunction;
     }
 
@@ -79,7 +79,7 @@ public class FederatedOutputIterableHandler<PAYLOAD extends Output<? extends Ite
         return isNull(results) ? new EmptyIterable<>() : results;
     }
 
-    public Function getHandlerConfiguredMergeFunction() {
+    public BiFunction getHandlerConfiguredMergeFunction() {
         return handlerConfiguredMergeFunction;
     }
 }

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.api.IterableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,7 +51,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.iterable.ChainedIterable;
 
 import java.util.ArrayList;
@@ -58,10 +58,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,17 +72,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getHardCodedDefaultMergeFunction;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedOperationHandlerTest {
     private static final String TEST_GRAPH_ID = "testGraphId";
-    private User testUser;
-    private Context context;
-
     Iterable<Element> output1 = Lists.newArrayList(new Entity.Builder().vertex("a").build());
     Iterable<Element> output2 = Lists.newArrayList(new Entity.Builder().vertex("b").build());
     Iterable<Element> output3 = Lists.newArrayList(new Entity.Builder().vertex("c").build());
     Iterable<Element> output4 = Lists.newArrayList(new Entity.Builder().vertex("b").build());
+    private User testUser;
+    private Context context;
     private Store mockStore1;
     private Store mockStore2;
     private Store mockStore3;
@@ -124,10 +123,10 @@ public class FederatedOperationHandlerTest {
 
         FederatedOperation federatedOperation = getFederatedOperation(operation);
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
-        when(federatedStore.getDefaultMergeFunction()).thenReturn(new IterableConcat());
+        when(federatedStore.getDefaultMergeFunction()).thenReturn(getHardCodedDefaultMergeFunction());
 
         // When
-        Iterable<? extends Element> results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+        Object results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
 
         assertNotNull(results);
         validateMergeResultsFromFieldObjects(results, output1, output2, output3, output4);
@@ -144,10 +143,10 @@ public class FederatedOperationHandlerTest {
         federatedOperation.graphIdsCSV("1,3");
         when(federatedStore.getGraphs(testUser, "1,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
-        given(federatedStore.getDefaultMergeFunction()).willReturn(new IterableConcat());
+        given(federatedStore.getDefaultMergeFunction()).willReturn(getHardCodedDefaultMergeFunction());
 
         // When
-        Iterable<? extends Element> results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+        Object results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
 
         assertNotNull(results);
         validateMergeResultsFromFieldObjects(results, output1, output3);
@@ -197,7 +196,7 @@ public class FederatedOperationHandlerTest {
 
         // When
         try {
-            Iterable<? extends Element> ignore = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
+            Object ignore = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
             fail("Exception Not thrown");
         } catch (OperationException e) {
             assertEquals(FederatedOperationHandler.ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS, e.getMessage());
@@ -213,7 +212,7 @@ public class FederatedOperationHandlerTest {
         given(mockStore.getSchema()).willReturn(new Schema());
         given(mockStore.getProperties()).willReturn(new FederatedStoreProperties());
         given(mockStore.execute(any(), any())).willThrow(new RuntimeException(errorMessage));
-        given(mockStore.getDefaultMergeFunction()).willReturn(new IterableConcat());
+        given(mockStore.getDefaultMergeFunction()).willReturn(getHardCodedDefaultMergeFunction());
         graph3 = getGraphWithMockStore(mockStore);
 
         FederatedStore federatedStore = mock(FederatedStore.class);
@@ -223,10 +222,10 @@ public class FederatedOperationHandlerTest {
         federatedOperation.graphIdsCSV("1,2,3");
         when(federatedStore.getGraphs(testUser, "1,2,3", federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3));
         when(federatedStore.getGraphs(testUser, null, federatedOperation)).thenReturn(Sets.newHashSet(graph1, graph2, graph3, graph4));
-        when(federatedStore.getDefaultMergeFunction()).thenReturn(new IterableConcat());
+        when(federatedStore.getDefaultMergeFunction()).thenReturn(getHardCodedDefaultMergeFunction());
 
         // When
-        Iterable<? extends Element> results = null;
+        Object results = null;
 
         try {
             results = new FederatedOperationHandler<Void, Iterable<? extends Element>>().doOperation(federatedOperation, context, federatedStore);
@@ -355,14 +354,11 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    public void shouldProcessABooleanFromMultipleGraphs() throws Exception {
+    public void shouldProcessABooleanNotJustIterablesFromMultipleGraphs() throws Exception {
         // Given
         Output<Iterable<? extends Element>> payload = getPayload();
 
-        Schema unusedSchema = new Schema.Builder().build();
-        StoreProperties storeProperties = new StoreProperties();
-
-        Store mockStore = getMockStore(unusedSchema, storeProperties);
+        Store mockStore = getMockStore(new Schema(), new StoreProperties());
         given(mockStore.execute(any(OperationChain.class), any(Context.class))).willReturn(true);
 
         FederatedStore federatedStore = Mockito.mock(FederatedStore.class);
@@ -373,10 +369,13 @@ public class FederatedOperationHandlerTest {
         final Object results = new FederatedOperationHandler().doOperation(getFederatedOperation(payload), context, federatedStore);
 
         // Then
-        assertThatIllegalStateException().isThrownBy(() -> ((Iterable) results).iterator().hasNext())
-                .withMessage("Iterable of Iterable contains non-iterable class: class java.lang.Boolean object: true");
+        assertThat(results)
+                .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactly(true, true, true);
     }
 
+    @Test
     public void shouldProcessAIterableOfIntegersFromMultipleGraphs() throws Exception {
         // Given
         Output<Iterable<? extends Element>> payload = getPayload();
@@ -452,24 +451,23 @@ public class FederatedOperationHandlerTest {
                 .containsExactly();
     }
 
-    protected boolean validateMergeResultsFromFieldObjects(final Iterable<? extends Element> result, final Iterable<? extends Element>... resultParts) {
-        assertNotNull(result);
+
+    protected void validateMergeResultsFromFieldObjects(final Object result, final Iterable<? extends Element>... resultParts) {
+
         final Iterable[] resultPartItrs = Arrays.copyOf(resultParts, resultParts.length, Iterable[].class);
-        final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
-        int i = 0;
-        for (Element e : result) {
-            assertTrue(e instanceof Entity);
-            elements.contains(e);
-            i++;
-        }
-        assertThat(elements).hasSize(i);
-        return true;
+
+        final ArrayList<Element> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
+
+
+        final IterableAssert<Element> elementIterableAssert = assertThat(result)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Element.class))
+                .containsExactlyInAnyOrder(elements.<Element>toArray(new Element[0]));
     }
 
     @Test
     public void shouldMergeVariousReturnsFromGraphs() {
         // Given
-        final Function<Iterable, Object> function = new FederatedStore().getDefaultMergeFunction();
+        final BiFunction function = new FederatedStore().getDefaultMergeFunction();
 
         List<Integer> graph1Results = null; //null results
         List<Integer> graph2ResultsVeryNormal = Arrays.asList(1, 2, 3); //normal results
@@ -484,13 +482,16 @@ public class FederatedOperationHandlerTest {
                 graph5Results);
 
         // When
-        final Object results = function.apply(input);
+        Object results = null;
+        for (final Iterable<Integer> integers : input) {
+            results = function.apply(integers, results);
+        }
 
         // Then
-        assertThat(function).isEqualTo(new IterableConcat<>());
+        assertThat(function).isEqualTo(getHardCodedDefaultMergeFunction());
         assertThat(results).isNotNull()
                 .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
-                .containsExactly(1, 2, 3, null, 4, null, 5);
+                .containsExactlyInAnyOrder(1, 2, 3, null, 4, null, 5);
     }
 
 }

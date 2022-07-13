@@ -31,7 +31,7 @@ import uk.gov.gchq.koryphe.Since;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -45,11 +45,10 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
     public static final String ERROR_WHILE_RUNNING_OPERATION_ON_GRAPHS = "Error while running operation on graphs";
 
     @Override
-    public OUTPUT doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
+    public Object doOperation(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final Store store) throws OperationException {
         final Iterable<?> allGraphResults = getAllGraphResults(operation, context, (FederatedStore) store);
-        Function<Iterable<?>, OUTPUT> mergeFunction = operation.getMergeFunction();
 
-        return mergeResults(allGraphResults, mergeFunction, (FederatedStore) store);
+        return mergeResults(allGraphResults, operation, (FederatedStore) store);
     }
 
     private Iterable getAllGraphResults(final FederatedOperation<INPUT, OUTPUT> operation, final Context context, final FederatedStore store) throws OperationException {
@@ -86,17 +85,18 @@ public class FederatedOperationHandler<INPUT, OUTPUT> implements OperationHandle
 
     }
 
-    private OUTPUT mergeResults(final Iterable results, final Function<Iterable<?>, OUTPUT> mergeFunction, final FederatedStore store) throws OperationException {
+    private Object mergeResults(final Iterable resultsFromAllGraphs, final FederatedOperation operation, final FederatedStore store) throws OperationException {
         try {
-            OUTPUT rtn;
-            if (nonNull(mergeFunction)) {
-                rtn = mergeFunction.apply(results);
-                //TODO FS 2 remove else if, see FederatedStoreUtil.getHardCodedDefaultMergeFunction()
-            } else if (results.iterator().hasNext() && results.iterator().next() instanceof Iterable) {
-                rtn = (OUTPUT) store.getDefaultMergeFunction().apply(results);
-            } else {
-                rtn = (OUTPUT) results;
+            Object rtn = null;
+
+            //TODO FS map of merge
+            final BiFunction mergeFunction = nonNull(operation.getMergeFunction()) ? operation.getMergeFunction() : store.getDefaultMergeFunction();
+
+            //Reduce
+            for (final Object resultFromAGraph : resultsFromAllGraphs) {
+                rtn = mergeFunction.apply(resultFromAGraph, rtn);
             }
+
             return rtn;
         } catch (final Exception e) {
             String message = e.getMessage();

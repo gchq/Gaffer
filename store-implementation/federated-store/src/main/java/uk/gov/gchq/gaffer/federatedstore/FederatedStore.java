@@ -88,7 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -122,7 +122,7 @@ public class FederatedStore extends Store {
     private static final List<Integer> ALL_IDS = new ArrayList<>();
     private final int id;
     private String adminConfiguredDefaultGraphIdsCSV;
-    private Function<Iterable, Object> adminConfiguredDefaultMergeFunction;
+    private BiFunction adminConfiguredDefaultMergeFunction;
 
     public FederatedStore() {
         Integer i = null;
@@ -563,12 +563,12 @@ public class FederatedStore extends Store {
         return isNullOrEmpty(getGraphId()) ? FED_STORE_GRAPH_ID_VALUE_NULL_OR_EMPTY : getGraphId();
     }
 
-    public FederatedStore setAdminConfiguredDefaultMergeFunction(final Function<Iterable, Object> adminConfiguredDefaultMergeFunction) {
+    public FederatedStore setAdminConfiguredDefaultMergeFunction(final BiFunction adminConfiguredDefaultMergeFunction) {
         this.adminConfiguredDefaultMergeFunction = adminConfiguredDefaultMergeFunction;
         return this;
     }
 
-    public Function<Iterable, Object> getDefaultMergeFunction() {
+    public BiFunction getDefaultMergeFunction() {
         return isNull(adminConfiguredDefaultMergeFunction)
                 ? getHardCodedDefaultMergeFunction()
                 : adminConfiguredDefaultMergeFunction;

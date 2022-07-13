@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.CollectionIntersect;
-import uk.gov.gchq.koryphe.impl.function.IterableFlatten;
 
 import java.util.Collections;
 import java.util.Set;
@@ -289,7 +288,7 @@ public class FederatedStoreGetTraitsTest {
         // when
         final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(getTraits)
-                .mergeFunction(new IterableFlatten<>(new CollectionIntersect()))
+                .mergeFunction(new CollectionIntersect<Object>())
                 .graphIds(GRAPH_ID_MAP)
                 .build(), testUserContext);
         // then
@@ -314,7 +313,7 @@ public class FederatedStoreGetTraitsTest {
         //when
         final Set<StoreTrait> traits = (Set<StoreTrait>) federatedStore.execute(new FederatedOperation.Builder()
                 .op(getTraits)
-                .mergeFunction(new IterableFlatten<>(new CollectionIntersect()))
+                .mergeFunction(new CollectionIntersect<Object>())
                 .graphIds(GRAPH_ID_MAP)
                 .build(), testUserContext);
 

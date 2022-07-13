@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 
 import java.util.Set;
 
@@ -38,7 +37,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
             "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\"\n" +
             "  },\n" +
             "  \"mergeFunction\" : {\n" +
-            "    \"class\" : \"uk.gov.gchq.koryphe.impl.function.IterableConcat\"\n" +
+            "    \"class\" : \"uk.gov.gchq.gaffer.federatedstore.util.DefaultBestEffortsMergeFunction\"\n" +
             "  },\n" +
             "  \"graphIds\" : \"testGraphID1,testGraphID2\"\n" +
             "}";
@@ -56,7 +55,7 @@ public class FederatedOperationTest extends FederationOperationTest<FederatedOpe
 
         //then
         assertEquals(EXPECTED_GRAPH_ID, federatedOperation.getGraphIdsCSV());
-        assertEquals(new uk.gov.gchq.koryphe.impl.function.IterableConcat(), federatedOperation.getMergeFunction());
+        assertEquals(getHardCodedDefaultMergeFunction(), federatedOperation.getMergeFunction());
         try {
             assertEquals(new String(JSONSerialiser.serialise(new GetAdjacentIds.Builder().build())), new String(JSONSerialiser.serialise(federatedOperation.getUnClonedPayload())));
             assertEquals(JSON, new String(JSONSerialiser.serialise(federatedOperation, true)));

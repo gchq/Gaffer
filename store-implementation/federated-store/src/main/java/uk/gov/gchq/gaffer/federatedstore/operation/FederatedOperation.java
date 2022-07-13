@@ -46,7 +46,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -66,7 +66,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
     @Required
     private Operation payloadOperation;
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
-    private Function<Iterable<?>, OUTPUT> mergeFunction;
+    private BiFunction mergeFunction;
     private boolean skipFailedFederatedExecution = DEFAULT_SKIP_FAILED_FEDERATED_EXECUTION;
     private Map<String, String> options;
     private boolean userRequestingAdminUsage;
@@ -91,7 +91,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
         return this;
     }
 
-    public FederatedOperation<INPUT, OUTPUT> mergeFunction(final Function<Iterable<?>, OUTPUT> mergeFunction) {
+    public FederatedOperation<INPUT, OUTPUT> mergeFunction(final BiFunction mergeFunction) {
         this.mergeFunction = mergeFunction;
         return this;
     }
@@ -198,7 +198,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
         return nonNull(c) && hasPayloadOperation() && c.isAssignableFrom(payloadOperation.getClass());
     }
 
-    public Function<Iterable<?>, OUTPUT> getMergeFunction() {
+    public BiFunction getMergeFunction() {
         return mergeFunction;
     }
 
@@ -355,7 +355,7 @@ public class FederatedOperation<INPUT, OUTPUT> /*TODO FS Generic input extends G
             return _self();
         }
 
-        public BuilderParent<INPUT, OUTPUT> mergeFunction(final Function<Iterable<?>, OUTPUT> mergeFunction) {
+        public BuilderParent<INPUT, OUTPUT> mergeFunction(final BiFunction mergeFunction) {
             _getOp().mergeFunction(mergeFunction);
             return _self();
         }
