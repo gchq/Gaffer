@@ -60,6 +60,10 @@ public class IfHandler implements OutputOperationHandler<If<Object, Object>, Obj
             computedCondition = operation.getCondition();
         }
 
+        if (operation.getThen() instanceof If) {
+            return input;
+        }
+
         final Operation nextOp = computedCondition ? operation.getThen() : operation.getOtherwise();
         if (null == nextOp) {
             return input;
