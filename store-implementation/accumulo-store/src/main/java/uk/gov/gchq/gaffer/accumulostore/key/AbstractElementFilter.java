@@ -111,10 +111,8 @@ public abstract class AbstractElementFilter extends Filter {
                     .getConstructor(Schema.class)
                     .newInstance(schema);
             LOGGER.debug("Creating AccumuloElementConverter of class {}", elementConverterClass);
-        } catch (final ClassNotFoundException | InstantiationException |
-                       IllegalAccessException | IllegalArgumentException
-                       | InvocationTargetException | NoSuchMethodException |
-                       SecurityException e) {
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new ElementFilterException("Failed to create element converter of the class name provided ("
                     + elementConverterClass + ")", e);
         }
@@ -174,7 +172,7 @@ public abstract class AbstractElementFilter extends Filter {
 
         ChainedIterable<Entry<String, ViewElementDefinition>> chainedIterable = null;
         try {
-            chainedIterable = new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(Arrays.asList(view.getEntities().entrySet(), view.getEdges().entrySet()));
+            chainedIterable = new ChainedIterable<>(Arrays.asList(view.getEntities().entrySet(), view.getEdges().entrySet()));
             for (final Map.Entry<String, ViewElementDefinition> entry : chainedIterable) {
                 if (isNull(entry.getValue()) || !hasFilters.apply(entry.getValue())) {
                     groupsWithoutFilters.add(entry.getKey());

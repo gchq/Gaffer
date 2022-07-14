@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.controller;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,7 +74,7 @@ public class JobController implements IJobController {
     }
 
     @Override
-    public JobDetail getDetails(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
+    public JobDetail getDetails(@PathVariable("id") @Parameter(description = "The Job ID") final String id) throws OperationException {
         return graphFactory.getGraph().execute(new GetJobDetails.Builder()
                         .jobId(id)
                         .build(),
@@ -88,7 +88,7 @@ public class JobController implements IJobController {
     }
 
     @Override
-    public Object getResults(@PathVariable("id") @ApiParam("The Job ID") final String id) throws OperationException {
+    public Object getResults(@PathVariable("id") @Parameter(description = "The Job ID") final String id) throws OperationException {
         return graphFactory.getGraph().execute(new GetJobResults.Builder()
                         .jobId(id)
                         .build(),

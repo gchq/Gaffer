@@ -41,7 +41,7 @@ import java.util.function.BinaryOperator;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * A {@code ReduceRelatedElements} is a {@link KorypheFunction} which takes an {@link Iterable} of {@link Element}s and

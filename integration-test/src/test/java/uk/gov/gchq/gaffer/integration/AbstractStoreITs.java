@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,149 +16,47 @@
 
 package uk.gov.gchq.gaffer.integration;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.model.InitializationError;
-import org.junit.runners.model.RunnerBuilder;
-import org.reflections.Reflections;
+import org.junit.platform.suite.api.IncludeClassNamePatterns;
+import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.Suite;
 
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs.StoreTestSuite;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * Runs the full suite of gaffer store integration tests. To run the tests against
- * a specific store, simply extend this class - you don't need to annotate
- * your class.
+ * Runs the full suite of gaffer store integration tests.
+ * To run the tests against a specific store, extend this class and add
+ * '@ConfigurationParameter(key = "initClass", value = "FQCN.of.your.class")'
+ * as an annotation. This is required for JUnit to initialise values used
+ * by the tests (e.g. Store Properties). You can use annotations from
+ * {@link org.junit.platform.suite.api} to include/exclude integration test
+ * classes or select additional classes to add to the test Suite.
  */
-@RunWith(StoreTestSuite.class)
+
+@Suite
+@SelectPackages("uk.gov.gchq.gaffer.integration.impl")
+@IncludeClassNamePatterns(".*IT")
 public abstract class AbstractStoreITs {
-    private final StoreProperties storeProperties;
-    private final Schema schema;
-    private final Set<Class<? extends AbstractStoreIT>> tests = new Reflections(AbstractStoreIT.class.getPackage().getName()).getSubTypesOf(AbstractStoreIT.class);
-    private final Map<Class<? extends AbstractStoreIT>, String> skipTests = new HashMap<>();
-    private final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
-    private Class<? extends AbstractStoreIT> singleTestClass;
-    private String singleTestMethod;
-
-    public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
-        this.schema = schema;
-        this.storeProperties = storeProperties;
-        this.tests.addAll(extraTests);
-        System.out.println(storeProperties);
-        System.out.println(schema);
-        System.out.println(tests);
-    }
-
-    public AbstractStoreITs(final StoreProperties storeProperties, final Collection<Class<? extends AbstractStoreIT>> extraTests) {
-        this(storeProperties, new Schema(), extraTests);
-    }
+    private final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
 
     public AbstractStoreITs(final StoreProperties storeProperties, final Schema schema) {
-        this(storeProperties, schema, new ArrayList<>());
+        this.skipTestMethods = AbstractStoreIT.getSkipTestMethods();
+        AbstractStoreIT.setStoreSchema(schema);
+        AbstractStoreIT.setStoreProperties(storeProperties);
+        System.out.println(storeProperties);
+        System.out.println(schema);
     }
 
     public AbstractStoreITs(final StoreProperties storeProperties) {
         this(storeProperties, new Schema());
     }
 
-    public void singleTest(final Class<? extends AbstractStoreIT> testClass) {
-        singleTest(testClass, null);
-    }
-
-    public void singleTest(final Class<? extends AbstractStoreIT> testClass, final String testMethod) {
-        this.singleTestClass = testClass;
-        this.singleTestMethod = testMethod;
-    }
-
-    public Schema getStoreSchema() {
-        return schema;
-    }
-
-    public StoreProperties getStoreProperties() {
-        return storeProperties;
-    }
-
-    public void addExtraTest(final Class<? extends AbstractStoreIT> extraTest) {
-        tests.add(extraTest);
-    }
-
-    public Set<Class<? extends AbstractStoreIT>> getTests() {
-        return tests;
-    }
-
-    public Map<? extends Class<? extends AbstractStoreIT>, String> getSkipTests() {
-        return skipTests;
-    }
-
-    public Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> getSkipTestMethods() {
-        return skipTestMethods;
-    }
-
-    protected void skipTest(final Class<? extends AbstractStoreIT> testClass, final String justification) {
-        skipTests.put(testClass, justification);
-    }
-
-    protected void skipTestMethod(final Class<? extends AbstractStoreIT> testClass, final String method, final String justification) {
-        Map<String, String> classMethodsMap = skipTestMethods.get(testClass) != null ? skipTestMethods.get(testClass) : new HashMap<>();
-        classMethodsMap.put(method, justification);
-        skipTestMethods.put(testClass, classMethodsMap);
-    }
-
-    public static class StoreTestSuite extends Suite {
-
-        public StoreTestSuite(final Class<?> clazz, final RunnerBuilder builder) throws InitializationError, IllegalAccessException, InstantiationException {
-            super(builder, clazz, getTestClasses(clazz));
-
-            final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
-            Schema storeSchema = runner.getStoreSchema();
-            if (null == storeSchema) {
-                storeSchema = new Schema();
-            }
-
-            System.out.println("store props: " + runner.getStoreProperties());
-            AbstractStoreIT.setStoreSchema(storeSchema);
-            AbstractStoreIT.setStoreProperties(runner.getStoreProperties());
-            AbstractStoreIT.setSkipTests(runner.getSkipTests());
-            AbstractStoreIT.setSkipTestMethods(runner.getSkipTestMethods());
-            AbstractStoreIT.setSingleTestMethod(runner.singleTestMethod);
-        }
-
-        private static Class[] getTestClasses(final Class<?> clazz) throws IllegalAccessException, InstantiationException {
-            final AbstractStoreITs runner = clazz.asSubclass(AbstractStoreITs.class).newInstance();
-            if (null == runner.singleTestClass) {
-                Set<Class<? extends AbstractStoreIT>> classes = runner.getTests();
-                keepPublicConcreteClasses(classes);
-                if (null != runner.getSkipTests()) {
-                    classes.removeAll(runner.getSkipTests().keySet());
-                }
-                classes = classes.stream().filter(clazz2 -> !Modifier.isAbstract(clazz2.getModifiers())).collect(Collectors.toSet());
-                return classes.toArray(new Class[classes.size()]);
-            }
-            return new Class[]{runner.singleTestClass};
-        }
-
-        private static void keepPublicConcreteClasses(final Set<Class<? extends AbstractStoreIT>> classes) {
-            if (null != classes) {
-                final Iterator<Class<? extends AbstractStoreIT>> itr = classes.iterator();
-                for (Class clazz = null; itr.hasNext(); clazz = itr.next()) {
-                    if (null != clazz) {
-                        final int modifiers = clazz.getModifiers();
-                        if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers)) {
-                            itr.remove();
-                        }
-                    }
-                }
-            }
-        }
+    protected void skipTestMethod(final Class<? extends AbstractStoreIT> testClass, final String methodToSkip, final String justification) {
+        HashMap<String, String> methodJustificationMap = new HashMap<>();
+        methodJustificationMap.put(methodToSkip, justification);
+        skipTestMethods.put(testClass, methodJustificationMap);
     }
 }

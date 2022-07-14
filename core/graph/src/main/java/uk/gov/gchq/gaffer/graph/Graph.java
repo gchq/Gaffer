@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * <p>
@@ -284,7 +284,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook {} : {}", graphHook.getClass().getSimpleName(), graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);
@@ -341,7 +341,7 @@ public final class Graph {
                 try {
                     result = graphHook.onFailure(result, clonedOpChain, clonedContext, e);
                 } catch (final Exception graphHookE) {
-                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                    LOGGER.warn("Error in graphHook {} : {}", graphHook.getClass().getSimpleName(), graphHookE.getMessage(), graphHookE);
                 }
             }
             CloseableUtil.close(clonedOpChain);

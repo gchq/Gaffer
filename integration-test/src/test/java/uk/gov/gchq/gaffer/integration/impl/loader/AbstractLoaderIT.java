@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl.loader;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.integration.VisibilityUser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -60,10 +59,8 @@ import static uk.gov.gchq.gaffer.data.util.ElementUtil.assertElementEquals;
 
 /**
  * Unit test specifications for data loading operations.
- *
- * @param <T> the operation implementation to test
  */
-public abstract class AbstractLoaderIT<T extends Operation> extends AbstractStoreIT {
+public abstract class AbstractLoaderIT extends AbstractStoreIT {
     protected Iterable<? extends Element> input;
 
     @Override

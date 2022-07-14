@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -67,6 +67,7 @@ import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -169,7 +170,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     @Test
@@ -198,7 +199,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     @Test
@@ -262,7 +263,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final List<Walk> results = Lists.newArrayList(graph.execute(op, getUser()));
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "ABC");
         results.stream()
                .flatMap(r -> r.getEntities().stream())
                .forEach(l -> assertThat(l).isNotEmpty());
@@ -321,7 +322,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "ABC", "EDA");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "ABC", "EDA");
     }
 
     @Test
@@ -348,7 +349,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "AEF", "ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "AEF", "ABC");
     }
 
     @Test
@@ -375,7 +376,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "AEF", "ABC", "EDA", "EFC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "AEF", "ABC", "EDA", "EFC");
     }
 
     @Test
@@ -402,7 +403,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AEDA", "AEFC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AEDA", "AEFC");
     }
 
     @Test
@@ -429,7 +430,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AEDAE", "AEDAB");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AEDAE", "AEDAB");
     }
 
     @Test
@@ -453,7 +454,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).isEqualTo("AAAAA");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AAAAA");
     }
 
     @Test
@@ -495,7 +496,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).isEqualTo("AED");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED");
     }
 
     @Test
@@ -538,7 +539,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "AB");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "AB");
     }
 
     @Test
@@ -580,7 +581,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).isEqualTo("ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("ABC");
     }
 
     @Test
@@ -608,7 +609,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).contains("AED", "ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     @Test
@@ -674,13 +675,13 @@ public class GetWalksIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, getUser());
 
         // Then
-        assertThat(getPaths(results)).isEqualTo("ABC");
+        assertThat(getPaths(results)).containsExactlyInAnyOrder("ABC");
     }
 
     @Test
     public void shouldReturnAllWalksWhenConditionalIsNull() throws Exception {
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(null);
-        assertThat(getPaths(walks)).isEqualTo("AED,ABC");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED","ABC");
     }
 
     private Set<Entity> createEntitySet() {
@@ -898,34 +899,31 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build();
     }
 
-    private String getPaths(final Iterable<Walk> walks) {
-        final StringBuilder sb = new StringBuilder();
+    private String[] getPaths(final Iterable<Walk> walks) {
+        final ArrayList<String> rtn = new ArrayList<>();
+
         for (final Walk walk : walks) {
-            sb.append(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
-            sb.append(',');
+            rtn.add(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
         }
-        if (sb.length() > 0) {
-            sb.setLength(sb.length() - 1);
-        }
-        return sb.toString();
+        return rtn.toArray(new String[0]);
     }
 
     @Test
     public void shouldReturnAllWalksWhenConditionalIsUnconfigured() throws Exception {
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(new Conditional());
-        assertThat(getPaths(walks)).contains("AED", "ABC");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     @Test
     public void shouldFilterWalksThatDoNotContainProperty5() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(5));
-        assertThat(getPaths(walks)).isEqualTo("AED");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED");
     }
 
     @Test
     public void shouldFilterWalksThatDoNotContainProperty2() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(2));
-        assertThat(getPaths(walks)).isEqualTo("ABC");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("ABC");
     }
 
     @Test
@@ -937,7 +935,7 @@ public class GetWalksIT extends AbstractStoreIT {
     @Test
     public void shouldNotFilterAnyWalksWhenAllContainProperty() throws Exception {
         final Iterable<Walk> walks = getWalksThatPassPredicateTest(new CollectionContains(1));
-        assertThat(getPaths(walks)).contains("AED", "ABC");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     @Test
@@ -945,7 +943,7 @@ public class GetWalksIT extends AbstractStoreIT {
         final Conditional conditional = new Conditional();
         conditional.setPredicate(new WalkPredicate());
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
-        assertThat(getPaths(walks)).isEqualTo("AED");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED");
     }
 
     private Iterable<Walk> getWalksThatPassPredicateTest(final Predicate predicate) throws Exception {
@@ -982,7 +980,7 @@ public class GetWalksIT extends AbstractStoreIT {
                 .build());
 
         final Iterable<Walk> walks = executeGetWalksApplyingConditional(conditional);
-        assertThat(getPaths(walks)).contains("AED", "ABC");
+        assertThat(getPaths(walks)).containsExactlyInAnyOrder("AED", "ABC");
     }
 
     public static class WalkPredicate implements Predicate<Walk> {

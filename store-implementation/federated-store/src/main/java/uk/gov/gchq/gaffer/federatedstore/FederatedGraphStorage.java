@@ -426,7 +426,7 @@ public class FederatedGraphStorage {
             try {
                 makeGraphFromCache(graphId);
             } catch (final Exception e) {
-                LOGGER.error(String.format("Skipping graphId: %s due to: %s", graphId, e.getMessage()), e);
+                LOGGER.error("Skipping graphId: {} due to: {}", graphId, e.getMessage(), e);
             }
         }
     }
@@ -485,7 +485,7 @@ public class FederatedGraphStorage {
                     federatedStoreCache.addGraphToCache(graphToMove, newFederatedAccess, true/*true because graphLibrary should have throw error*/);
                 } catch (final CacheOperationException e) {
                     String message = String.format("Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:%s. Recovery is possible from a restart if a persistent cache is being used, otherwise contact admin", graphId);
-                    LOGGER.error(message + " graphStorage access:{} cache access:{}", newFederatedAccess, oldAccess);
+                    LOGGER.error("{} graphStorage access:{} cache access:{}", message, newFederatedAccess, oldAccess);
                     throw new StorageException(message, e);
                 }
             }
@@ -564,7 +564,7 @@ public class FederatedGraphStorage {
                     federatedStoreCache.addGraphToCache(newGraphSerialisable, key, true);
                 } catch (final CacheOperationException e) {
                     String message = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-                    LOGGER.error(message + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphId);
+                    LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", message, newGraphId, graphId);
                     throw new StorageException(message, e);
                 }
                 federatedStoreCache.deleteGraphFromCache(graphId);

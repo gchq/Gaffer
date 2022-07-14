@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,55 +16,46 @@
 
 package uk.gov.gchq.gaffer.rest.config;
 
-import com.fasterxml.classmate.TypeResolver;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE_DEFAULT;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.GAFFER_VERSION;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.GAFFER_VERSION_DEFAULT;
 
-@EnableSwagger2
 @Configuration
 public class SwaggerConfig {
 
     @Autowired
-    private TypeResolver typeResolver;
-
     private Environment environment;
 
-    @Autowired
-    public void setEnvironment(final Environment environment) {
-        this.environment = environment;
-    }
-
     @Bean
-    public ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title(environment.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
-                .description(environment.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
-                .license("Apache Licence 2.0")
-                .version("2.0")
-                .build();
-    }
-
-    @Bean
-    public Docket gafferApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("uk.gov.gchq.gaffer.rest"))
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(apiInfo());
+    public OpenAPI apiInfo() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title(environment.getProperty(APP_TITLE, APP_TITLE_DEFAULT))
+                        .description(environment.getProperty(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT))
+                        .version(environment.getProperty(GAFFER_VERSION, GAFFER_VERSION_DEFAULT))
+                        .license(new License()
+                                .name("Apache 2.0")
+                                .identifier("Apache-2.0")
+                                .url("https://www.apache.org/licenses/LICENSE-2.0"))
+                        .contact(new Contact()
+                                .name("GCHQ Gaffer Team")
+                                .url("https://github.com/gchq/Gaffer"))
+                )
+                .externalDocs(new ExternalDocumentation()
+                        .description("Gaffer Documentation")
+                        .url("https://gchq.github.io/gaffer-doc/latest/"));
     }
 }

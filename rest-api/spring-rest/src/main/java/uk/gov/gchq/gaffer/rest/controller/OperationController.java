@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -72,7 +72,12 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public OperationDetail getOperationDetails(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Set<OperationDetail> getAllOperationDetailsIncludingUnsupported() {
+        return getSupportedOperationDetails(true);
+    }
+
+    @Override
+    public OperationDetail getOperationDetails(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         try {
             final Class<? extends Operation> operationClass = getOperationClass(className);
 
@@ -91,7 +96,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Set<Class<? extends Operation>> getNextOperations(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         Class<? extends Operation> opClass;
         try {
             opClass = getOperationClass(className);
@@ -105,7 +110,7 @@ public class OperationController extends AbstractOperationService implements IOp
     }
 
     @Override
-    public Operation getOperationExample(@PathVariable("className") @ApiParam(name = "className", value = "The Operation class") final String className) {
+    public Operation getOperationExample(@PathVariable("className") @Parameter(name = "className", description = "The Operation class") final String className) {
         Class<? extends Operation> operationClass;
         try {
             operationClass = getOperationClass(className);

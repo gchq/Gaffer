@@ -99,44 +99,26 @@ public class AccumuloIDWithinSetRetrieverTest {
         edgePropertiesEmptySet.getProperties().clear();
     }
 
-    private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {
-        // Create table
-        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-        // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-        TableUtils.createTable(store);
+    @BeforeEach
+    public void reInitialise() throws StoreException, OperationException, TableExistsException {
+        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
+        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
 
-        final Set<Element> data = new HashSet<>();
-        // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.setVertex("A0");
-        entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-        data.add(entity);
-        for (int i = 1; i < 100; i++) {
-            data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                    .property(AccumuloPropertyNames.COUNT, i)
-                    .build());
-
-            data.add(new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("A" + i)
-                    .property(AccumuloPropertyNames.COUNT, i)
-                    .build());
-        }
-        data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
-        data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-        addElements(data, store, new User());
+        setupGraph(BYTE_ENTITY_STORE);
+        setupGraph(GAFFER_1_KEY_STORE);
     }
 
-    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) throws OperationException {
-        store.execute(new AddElements.Builder()
-                .input(data)
-                .build(),
-                new Context(user));
+    /*
+     * Tests that the correct {@link uk.gov.gchq.gaffer.data.element.Edge}s are returned. Tests that
+     * {@link uk.gov.gchq.gaffer.data.element.Entity}s are also returned (unless the return edges only
+     * option has been set on the {@link GetElementsWithinSet}). It is desirable for
+     * {@link uk.gov.gchq.gaffer.data.element.Entity}s to be returned as a common use-case is to use this
+     * method to complete the "half-hop" in a breadth-first search, and then getting all the information
+     * about the nodes is often required.
+     */
+    @Test
+    public void shouldGetCorrectEdgesInMemoryFromByteEntityStore() throws StoreException {
+        shouldGetCorrectEdges(true, BYTE_ENTITY_STORE);
     }
 
     @Test
@@ -187,28 +169,6 @@ public class AccumuloIDWithinSetRetrieverTest {
         final Set<Element> a1A2Results = returnElementsFromOperation(store, a1A2Operation, new User(), loadIntoMemory);
         assertThat(a1A2Results).hasSize(2)
                 .contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
-    }
-
-    @BeforeEach
-    public void reInitialise() throws StoreException, OperationException, TableExistsException {
-        BYTE_ENTITY_STORE.initialise("byteEntityGraph", SCHEMA, PROPERTIES);
-        GAFFER_1_KEY_STORE.initialise("gaffer1Graph", SCHEMA, CLASSIC_PROPERTIES);
-
-        setupGraph(BYTE_ENTITY_STORE);
-        setupGraph(GAFFER_1_KEY_STORE);
-    }
-
-    /*
-     * Tests that the correct {@link uk.gov.gchq.gaffer.data.element.Edge}s are returned. Tests that
-     * {@link uk.gov.gchq.gaffer.data.element.Entity}s are also returned (unless the return edges only
-     * option has been set on the {@link GetElementsWithinSet}). It is desirable for
-     * {@link uk.gov.gchq.gaffer.data.element.Entity}s to be returned as a common use-case is to use this
-     * method to complete the "half-hop" in a breadth-first search, and then getting all the information
-     * about the nodes is often required.
-     */
-    @Test
-    public void shouldGetCorrectEdgesInMemoryFromByteEntityStore() throws StoreException {
-        shouldGetCorrectEdges(true, BYTE_ENTITY_STORE);
     }
 
     /*
@@ -295,21 +255,6 @@ public class AccumuloIDWithinSetRetrieverTest {
         shouldDealWithOutgoingEdgesOnlyOption(BYTE_ENTITY_STORE);
     }
 
-    @Test
-    public void shouldDealWithDirectedEdgesOnlyInMemoryGaffer1Store() throws StoreException {
-        shouldDealWithDirectedEdgesOnlyOption(true, GAFFER_1_KEY_STORE);
-    }
-
-    @Test
-    public void shouldDealWithDirectedEdgesOnlyByteEntityStore() throws StoreException {
-        shouldDealWithDirectedEdgesOnlyOption(false, BYTE_ENTITY_STORE);
-    }
-
-    @Test
-    public void shouldDealWithDirectedEdgesOnlyGaffer1Store() throws StoreException {
-        shouldDealWithDirectedEdgesOnlyOption(false, GAFFER_1_KEY_STORE);
-    }
-
     private void shouldDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) throws StoreException {
 
         // Set outgoing edges only option, and query for the set {C,D}.
@@ -336,18 +281,18 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     @Test
-    public void shouldDealWithFalsePositivesInMemoryGaffer1Store() throws StoreException {
-        shouldDealWithFalsePositives(true, GAFFER_1_KEY_STORE);
+    public void shouldDealWithDirectedEdgesOnlyInMemoryGaffer1Store() throws StoreException {
+        shouldDealWithDirectedEdgesOnlyOption(true, GAFFER_1_KEY_STORE);
     }
 
     @Test
-    public void shouldDealWithFalsePositivesByteEntityStore() throws StoreException {
-        shouldDealWithFalsePositives(false, BYTE_ENTITY_STORE);
+    public void shouldDealWithDirectedEdgesOnlyByteEntityStore() throws StoreException {
+        shouldDealWithDirectedEdgesOnlyOption(false, BYTE_ENTITY_STORE);
     }
 
     @Test
-    public void shouldDealWithFalsePositivesGaffer1Store() throws StoreException {
-        shouldDealWithFalsePositives(false, GAFFER_1_KEY_STORE);
+    public void shouldDealWithDirectedEdgesOnlyGaffer1Store() throws StoreException {
+        shouldDealWithDirectedEdgesOnlyOption(false, GAFFER_1_KEY_STORE);
     }
 
     private void shouldDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
@@ -388,6 +333,90 @@ public class AccumuloIDWithinSetRetrieverTest {
     @Test
     public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException {
         shouldDealWithFalsePositives(true, BYTE_ENTITY_STORE);
+    }
+
+    @Test
+    public void shouldDealWithFalsePositivesInMemoryGaffer1Store() throws StoreException {
+        shouldDealWithFalsePositives(true, GAFFER_1_KEY_STORE);
+    }
+
+    @Test
+    public void shouldDealWithFalsePositivesByteEntityStore() throws StoreException {
+        shouldDealWithFalsePositives(false, BYTE_ENTITY_STORE);
+    }
+
+    @Test
+    public void shouldDealWithFalsePositivesGaffer1Store() throws StoreException {
+        shouldDealWithFalsePositives(false, GAFFER_1_KEY_STORE);
+    }
+
+    private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
+        // Query for all edges in set {A0, A23}
+        final Set<EntityId> seeds = new HashSet<>();
+        seeds.add(AccumuloTestData.SEED_A0);
+        seeds.add(AccumuloTestData.SEED_A23);
+        // Add a bunch of items that are not in the data to make the probability of being able to find a false
+        // positive sensible.
+        for (int i = 0; i < 10; i++) {
+            seeds.add(new EntitySeed("abc" + i));
+        }
+
+        // Need to make sure that the Bloom filter we create has the same size and the same number of hashes as the
+        // one that GraphElementsWithStatisticsWithinSetRetriever creates.
+        final int numItemsToBeAdded = loadIntoMemory ? seeds.size() : 20;
+        if (!loadIntoMemory) {
+            store.getProperties().setMaxEntriesForBatchScanner("20");
+        }
+
+        // Find something that will give a false positive
+        // Need to repeat the logic used in the getGraphElementsWithStatisticsWithinSet() method.
+        // Calculate sensible size of filter, aiming for false positive rate of 1 in 10000, with a maximum size of
+        // maxBloomFilterToPassToAnIterator bytes.
+        int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / Math.pow(Math.log(2.0), 2.0));
+        size = Math.min(size, store.getProperties().getMaxBloomFilterToPassToAnIterator());
+
+        // Work out optimal number of hashes to use in Bloom filter based on size of set - optimal number of hashes is
+        // (m/n)ln 2 where m is the size of the filter in bits and n is the number of items that will be added to the set.
+        final int numHashes = Math.max(1, (int) ((size / numItemsToBeAdded) * Math.log(2)));
+        // Create Bloom filter and add seeds to it
+        final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
+        for (final EntityId seed : seeds) {
+            filter.add(new Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
+        }
+
+        // Test random items against it - should only have to shouldRetrieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
+        // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
+        int count = 0;
+        final int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
+        while (count < maxNumberOfTries) {
+            count++;
+            if (filter.membershipTest(new Key(("" + count).getBytes()))) {
+                break;
+            }
+        }
+
+        assertThat(count)
+                .withFailMessage("Didn't find a false positive")
+                .isNotEqualTo(maxNumberOfTries);
+
+        // False positive is "" + count so create an edge from seeds to that
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder().view(defaultView)
+                .input(seeds)
+                .build();
+        // Now query for all edges in set - shouldn't get the false positive
+        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
+
+        // Check results are as expected
+        assertThat(results).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
+    }
+
+    /*
+     * Tests that standard filtering (e.g. by summary type, or by time window, or to only receive entities) is still
+     * applied.
+     */
+    @Test
+    public void shouldStillApplyOtherFilterByteEntityStoreInMemoryEntities() throws StoreException {
+        shouldStillApplyOtherFilter(true, BYTE_ENTITY_STORE);
     }
 
     @Test
@@ -498,75 +527,6 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .contains(AccumuloTestData.A1_ENTITY, AccumuloTestData.A2_ENTITY);
     }
 
-    private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        // Query for all edges in set {A0, A23}
-        final Set<EntityId> seeds = new HashSet<>();
-        seeds.add(AccumuloTestData.SEED_A0);
-        seeds.add(AccumuloTestData.SEED_A23);
-        // Add a bunch of items that are not in the data to make the probability of being able to find a false
-        // positive sensible.
-        for (int i = 0; i < 10; i++) {
-            seeds.add(new EntitySeed("abc" + i));
-        }
-
-        // Need to make sure that the Bloom filter we create has the same size and the same number of hashes as the
-        // one that GraphElementsWithStatisticsWithinSetRetriever creates.
-        final int numItemsToBeAdded = loadIntoMemory ? seeds.size() : 20;
-        if (!loadIntoMemory) {
-            store.getProperties().setMaxEntriesForBatchScanner("20");
-        }
-
-        // Find something that will give a false positive
-        // Need to repeat the logic used in the getGraphElementsWithStatisticsWithinSet() method.
-        // Calculate sensible size of filter, aiming for false positive rate of 1 in 10000, with a maximum size of
-        // maxBloomFilterToPassToAnIterator bytes.
-        int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / Math.pow(Math.log(2.0), 2.0));
-        size = Math.min(size, store.getProperties().getMaxBloomFilterToPassToAnIterator());
-
-        // Work out optimal number of hashes to use in Bloom filter based on size of set - optimal number of hashes is
-        // (m/n)ln 2 where m is the size of the filter in bits and n is the number of items that will be added to the set.
-        final int numHashes = Math.max(1, (int) ((size / numItemsToBeAdded) * Math.log(2)));
-        // Create Bloom filter and add seeds to it
-        final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
-        for (final EntityId seed : seeds) {
-            filter.add(new Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
-        }
-
-        // Test random items against it - should only have to shouldRetrieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
-        // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
-        int count = 0;
-        final int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
-        while (count < maxNumberOfTries) {
-            count++;
-            if (filter.membershipTest(new Key(("" + count).getBytes()))) {
-                break;
-            }
-        }
-
-        assertThat(count)
-                .isNotEqualTo(maxNumberOfTries)
-                .withFailMessage("Didn't find a false positive");
-
-        // False positive is "" + count so create an edge from seeds to that
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder().view(defaultView)
-                .input(seeds)
-                .build();
-        // Now query for all edges in set - shouldn't get the false positive
-        final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
-
-        // Check results are as expected
-        assertThat(results).contains(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY);
-    }
-
-    /*
-     * Tests that standard filtering (e.g. by summary type, or by time window, or to only receive entities) is still
-     * applied.
-     */
-    @Test
-    public void shouldStillApplyOtherFilterByteEntityStoreInMemoryEntities() throws StoreException {
-        shouldStillApplyOtherFilter(true, BYTE_ENTITY_STORE);
-    }
-
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsWithinSet operation, final User user, final boolean loadIntoMemory) throws StoreException {
         AccumuloRetriever<?, Element> retriever = null;
         try {
@@ -575,5 +535,45 @@ public class AccumuloIDWithinSetRetrieverTest {
         } finally {
             CloseableUtil.close(retriever);
         }
+    }
+
+    private static void setupGraph(final AccumuloStore store) throws OperationException, StoreException, TableExistsException {
+        // Create table
+        // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+        // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+        TableUtils.createTable(store);
+
+        final Set<Element> data = new HashSet<>();
+        // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        entity.setVertex("A0");
+        entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        data.add(entity);
+        for (int i = 1; i < 100; i++) {
+            data.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .build());
+
+            data.add(new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("A" + i)
+                    .property(AccumuloPropertyNames.COUNT, i)
+                    .build());
+        }
+        data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
+        data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
+        addElements(data, store, new User());
+    }
+
+    private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) throws OperationException {
+        store.execute(new AddElements.Builder()
+                .input(data)
+                .build(),
+                new Context(user));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.model.OperationDetail;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.serialisation.json.SimpleClassNameIdResolver;
+import uk.gov.gchq.koryphe.util.ReflectionUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,10 +54,19 @@ public abstract class AbstractOperationService {
     }
 
     public Set<OperationDetail> getSupportedOperationDetails() {
-        Set<Class<? extends Operation>> supportedOperationClasses = getSupportedOperations();
+        return getSupportedOperationDetails(false);
+    }
+
+    public Set<OperationDetail> getSupportedOperationDetails(final boolean includeUnsupported) {
+        Set<Class<? extends Operation>> operationClasses;
+        if (includeUnsupported) {
+            operationClasses = new HashSet(ReflectionUtil.getSubTypes(Operation.class));
+        } else {
+            operationClasses = getSupportedOperations();
+        }
         Set<OperationDetail> operationDetails = new HashSet<>();
 
-        for (final Class<? extends Operation> clazz : supportedOperationClasses) {
+        for (final Class<? extends Operation> clazz : operationClasses) {
             try {
                 operationDetails.add(new OperationDetail(clazz, getNextOperations(clazz), generateExampleJson(clazz)));
             } catch (final IllegalAccessException | InstantiationException e) {

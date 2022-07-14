@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Crown Copyright
+ * Copyright 2019-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
     private static final long serialVersionUID = -6793331642118688901L;
 
     private final List<ElementTupleDefinition> elements = new ArrayList<>();
+    private boolean useGroupMapping = false;
 
     @Override
     public Iterable<Element> apply(final Tuple<String> tuple) {
@@ -64,10 +65,17 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
     private Element createElement(final Tuple<String> tuple, final ElementTupleDefinition elementDef) {
         requireNonNull(elementDef.get(GROUP), GROUP + " is required");
         Element element = null;
+        final String group;
+        if (useGroupMapping) {
+            group = (String) getField(GROUP, elementDef, tuple);
+        } else {
+            group = elementDef.getGroup();
+        }
+
         if (elementDef.containsKey(VERTEX)) {
             final Object vertex = getField(VERTEX, elementDef, tuple);
-            if (nonNull(vertex)) {
-                element = new Entity(elementDef.getGroup(), vertex);
+            if (nonNull(vertex) && nonNull(group)) {
+                element = new Entity(group, vertex);
             }
         } else {
             final Object source = getField(SOURCE, elementDef, tuple);
@@ -75,15 +83,18 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
             Object directed = getField(DIRECTED, elementDef, tuple);
             directed = isNull(directed) || Boolean.TRUE.equals(directed) || (directed instanceof String && Boolean.parseBoolean((String) directed));
             if (nonNull(source) && nonNull(destination)) {
-                element = new Edge(elementDef.getGroup(), source, destination, (boolean) directed);
+                element = new Edge(group, source, destination, (boolean) directed);
             }
         }
 
         if (nonNull(element)) {
             for (final Map.Entry<String, Object> entry : elementDef.entrySet()) {
                 final IdentifierType id = IdentifierType.fromName(entry.getKey());
-                if (null == id) {
-                    element.putProperty(entry.getKey(), getField(entry.getValue(), tuple));
+                final Object field = getField(entry.getValue(), tuple);
+                if (null == id && null != field) {
+                    if (!field.equals("")) {
+                        element.putProperty(entry.getKey(), field);
+                    }
                 }
             }
         }
@@ -123,6 +134,19 @@ public class TupleToElements extends KorypheFunction<Tuple<String>, Iterable<Ele
 
     public TupleToElements elements(final List<ElementTupleDefinition> elementDef) {
         elements.addAll(elementDef);
+        return this;
+    }
+
+    public boolean getUseGroupMapping() {
+        return useGroupMapping;
+    }
+
+    public void setUseGroupMapping(final boolean useGroupMapping) {
+        this.useGroupMapping = useGroupMapping;
+    }
+
+    public TupleToElements useGroupMapping(final boolean useGroupMapping) {
+        setUseGroupMapping(useGroupMapping);
         return this;
     }
 }

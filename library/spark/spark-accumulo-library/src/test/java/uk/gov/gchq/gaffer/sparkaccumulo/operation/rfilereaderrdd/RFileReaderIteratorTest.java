@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,9 @@ public class RFileReaderIteratorTest {
 
         assertThatExceptionOfType(RuntimeException.class)
                 .isThrownBy(() -> new RFileReaderIterator(partition, taskContext, new Configuration(), auths))
-                .withMessage("IOException initialising RFileReaderIterator");
+                .withCauseExactlyInstanceOf(java.lang.reflect.InvocationTargetException.class)
+                .withRootCauseExactlyInstanceOf(java.io.FileNotFoundException.class)
+                .withStackTraceContaining("File invalid file does not exist");
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.ValidateOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.While;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.add.ImportCsv;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -483,6 +484,9 @@ public class StoreTest {
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
 
+                        // Import
+                        ImportCsv.class,
+
                         // Jobs
                         GetJobDetails.class,
                         GetAllJobDetails.class,
@@ -576,6 +580,7 @@ public class StoreTest {
         final List<Class<? extends Operation>> supportedOperations = Lists.newArrayList(store.getSupportedOperations());
 
         // Then
+
         assertThat(supportedOperations).isNotNull();
 
         final List<Class<? extends Operation>> expectedOperations =
@@ -594,6 +599,9 @@ public class StoreTest {
                         GetExports.class,
                         ExportToGafferResultCache.class,
                         GetGafferResultCacheExport.class,
+
+                        // Import
+                        ImportCsv.class,
 
                         // Jobs are disabled
 
