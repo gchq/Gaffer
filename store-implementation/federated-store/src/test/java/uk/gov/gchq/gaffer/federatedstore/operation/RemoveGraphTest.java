@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
-import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RemoveGraphTest extends OperationTest<RemoveGraph> {
+public class RemoveGraphTest extends FederationOperationTest<RemoveGraph> {
 
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
 
@@ -37,12 +37,14 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
+                .userRequestingAdminUsage(true)
                 .build();
 
         byte[] serialise = toJson(op);
         RemoveGraph deserialise = fromJson(serialise);
 
         assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
+        assertTrue(deserialise.isUserRequestingAdminUsage());
     }
 
     @Override
@@ -55,9 +57,11 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
                 .graphId(EXPECTED_GRAPH_ID)
+                .userRequestingAdminUsage(true)
                 .build();
 
         assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
+        assertTrue(op.isUserRequestingAdminUsage());
     }
 
     @Test

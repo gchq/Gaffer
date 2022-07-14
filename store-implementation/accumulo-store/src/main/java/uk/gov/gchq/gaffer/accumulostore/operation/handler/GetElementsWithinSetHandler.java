@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloIDWithinSetRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -30,21 +29,22 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsWithinSetHandler implements OutputOperationHandler<GetElementsWithinSet, CloseableIterable<? extends Element>> {
+public class GetElementsWithinSetHandler implements OutputOperationHandler<GetElementsWithinSet, Iterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetElementsWithinSet operation,
-                                                            final Context context, final Store store)
+    public Iterable<? extends Element> doOperation(final GetElementsWithinSet operation,
+                                                   final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<? extends Element> doOperation(final GetElementsWithinSet operation,
-                                                            final User user, final AccumuloStore store)
+    public Iterable<? extends Element> doOperation(final GetElementsWithinSet operation,
+                                                   final User user, final AccumuloStore store)
             throws OperationException {
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            return new AccumuloIDWithinSetRetriever(store, operation, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+            return new AccumuloIDWithinSetRetriever(store, operation, user,
+                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));

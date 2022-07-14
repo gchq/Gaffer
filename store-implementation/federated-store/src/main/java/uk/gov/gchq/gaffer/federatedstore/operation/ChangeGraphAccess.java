@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Crown Copyright
+ * Copyright 2020-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 @JsonPropertyOrder(value = {"class", "graphId", "graphAuths", "isPublic"}, alphabetic = true)
 @Since("1.11.0")
 @Summary("Changes the protection used for accessing graphs")
 @JsonInclude(Include.NON_DEFAULT)
-public class ChangeGraphAccess implements Output<Boolean> {
+public class ChangeGraphAccess implements Output<Boolean>, IFederationOperation {
     @Required
     private String graphId;
     private Set<String> graphAuths = new HashSet<>();
@@ -50,10 +48,7 @@ public class ChangeGraphAccess implements Output<Boolean> {
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
 
     private String ownerUserId;
-
-    public ChangeGraphAccess() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -70,7 +65,8 @@ public class ChangeGraphAccess implements Output<Boolean> {
                 .disabledByDefault(disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic)
-                .ownerUserId(this.ownerUserId);
+                .ownerUserId(this.ownerUserId)
+                .userRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -109,6 +105,17 @@ public class ChangeGraphAccess implements Output<Boolean> {
         this.isPublic = isPublic;
     }
 
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return userRequestingAdminUsage;
+    }
+
+    @Override
+    public ChangeGraphAccess isUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
+        return this;
+    }
+
     public boolean getIsPublic() {
         return isPublic;
     }
@@ -126,7 +133,7 @@ public class ChangeGraphAccess implements Output<Boolean> {
         return new TypeReferenceImpl.Boolean();
     }
 
-    public static class Builder extends BaseBuilder<ChangeGraphAccess, ChangeGraphAccess.Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<ChangeGraphAccess, ChangeGraphAccess.Builder> {
 
         public Builder() {
             super(new ChangeGraphAccess());

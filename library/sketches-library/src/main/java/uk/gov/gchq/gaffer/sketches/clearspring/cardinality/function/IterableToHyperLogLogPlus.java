@@ -28,12 +28,11 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
  * the given iterable.
  */
 @Since("1.21.0")
+@JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
 @Summary("Creates a new HyperLogLogPlus instance and initialises it from the given iterable")
 public class IterableToHyperLogLogPlus extends KorypheFunction<Iterable<Object>, HyperLogLogPlus> {
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     private int p = 5;
 
-    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
     private int sp = 5;
 
     public IterableToHyperLogLogPlus() {

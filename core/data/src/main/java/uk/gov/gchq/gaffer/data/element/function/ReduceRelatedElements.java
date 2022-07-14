@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.data.element.function;
 
 
@@ -40,7 +41,7 @@ import java.util.function.BinaryOperator;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * A {@code ReduceRelatedElements} is a {@link KorypheFunction} which takes an {@link Iterable} of {@link Element}s and
@@ -210,19 +211,6 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
         return visibilityAggregator.apply(visibility1, visibility2);
     }
 
-    private static final class RelatedVertices extends HashSet<Object> {
-        private static final long serialVersionUID = 2778585598526500913L;
-        private Object visibility;
-
-        public Object getVisibility() {
-            return visibility;
-        }
-
-        public void setVisibility(final Object visibility) {
-            this.visibility = visibility;
-        }
-    }
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public BinaryOperator<Object> getVisibilityAggregator() {
         return visibilityAggregator;
@@ -255,5 +243,18 @@ public class ReduceRelatedElements extends KorypheFunction<Iterable<Element>, It
 
     public void setRelatedVertexGroups(final Set<String> relatedVertexGroups) {
         this.relatedVertexGroups = relatedVertexGroups;
+    }
+
+    private static final class RelatedVertices extends HashSet<Object> {
+        private static final long serialVersionUID = 2778585598526500913L;
+        private Object visibility;
+
+        public Object getVisibility() {
+            return visibility;
+        }
+
+        public void setVisibility(final Object visibility) {
+            this.visibility = visibility;
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
@@ -102,7 +103,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         if (!NoPartitioner.class.equals(operation.getPartitioner())) {
             if (null != operation.getPartitioner()) {
                 operation.setPartitioner(GafferKeyRangePartitioner.class);
-                LOGGER.warn("Partitioner class " + operation.getPartitioner().getName() + " will be replaced with " + GafferKeyRangePartitioner.class.getName());
+                LOGGER.warn("Partitioner class {} will be replaced with {}", operation.getPartitioner().getName(), GafferKeyRangePartitioner.class.getName());
             }
             setupPartitioner(job, operation, (AccumuloStore) store);
         }

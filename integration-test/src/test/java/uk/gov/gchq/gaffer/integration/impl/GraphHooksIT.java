@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -54,7 +53,7 @@ public class GraphHooksIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         CacheServiceLoader.shutdown();
     }
@@ -69,8 +68,8 @@ public class GraphHooksIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.INT, 101);
 
         graph.execute(new AddElements.Builder()
-                        .input(edge1, edge2)
-                        .build(),
+                .input(edge1, edge2)
+                .build(),
                 getUser());
 
         final AddNamedView addNamedView = new AddNamedView.Builder()
@@ -104,18 +103,18 @@ public class GraphHooksIT extends AbstractStoreIT {
 
         graph.execute(addNamedOperation, getUser());
 
-        final NamedOperation<EntityId, CloseableIterable<? extends Element>> operation =
-                new NamedOperation.Builder<EntityId, CloseableIterable<? extends Element>>()
-                        .name("GetAllElements test")
-                        .input(new EntitySeed("10"))
-                        .build();
+        final NamedOperation<EntityId, Iterable<? extends Element>> operation = new NamedOperation.Builder<EntityId, Iterable<? extends Element>>()
+                .name("GetAllElements test")
+                .input(new EntitySeed("10"))
+                .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(operation, getUser());
+        final Iterable<? extends Element> results = graph.execute(operation, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
-        assertThat(resultList).hasSize(1)
+        assertThat(resultList)
+                .hasSize(1)
                 .contains((Element) edge1);
     }
 }

@@ -35,7 +35,7 @@ public class ToListTest extends OperationTest<ToList> {
         final ToList<String> toList = new ToList.Builder<String>().input("1", "2").build();
 
         // Then
-        assertThat(toList.getInput())
+        assertThat((Iterable<String>) toList.getInput())
                 .hasSize(2)
                 .containsOnly("1", "2");
     }

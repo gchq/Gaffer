@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_
 /**
  * Conditions required for a {@link User} to have access to a graph within the
  * {@link FederatedStore} via {@link FederatedAccess}
- * <table summary="FederatedAccess truth table">
+ * <table>
+ * <caption>FederatedAccess truth table</caption>
  * <tr><td> User Ops</td><td> AccessHook Ops</td><td> User added graph
  * </td><td> hasAccess?</td></tr>
  * <tr><td> 'A'     </td><td> 'A'           </td><td> n/a
@@ -77,11 +78,11 @@ public class FederatedAccess implements AccessControlledResource, Serializable {
     private static final long serialVersionUID = 1399629017857618033L;
     private static final boolean NOT_DISABLED_BY_DEFAULT = false;
     private final boolean isPublic;
-    private Set<String> graphAuths;
-    private String addingUserId;
+    private final Set<String> graphAuths;
+    private final String addingUserId;
     private final boolean disabledByDefault;
-    private String readAccessPredicate;
-    private String writeAccessPredicate;
+    private final String readAccessPredicate;
+    private final String writeAccessPredicate;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         this(graphAuths, addingUserId, Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC));

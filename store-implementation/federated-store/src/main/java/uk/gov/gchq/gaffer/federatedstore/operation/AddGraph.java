@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
  * <p>
  * An Operation used for adding graphs to a FederatedStore.
@@ -70,7 +68,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @Since("1.0.0")
 @Summary("Adds a new Graph to the federated store")
 @JsonInclude(Include.NON_DEFAULT)
-public class AddGraph implements FederatedOperation {
+public class AddGraph implements IFederationOperation {
     @Required
     private String graphId;
     private StoreProperties storeProperties;
@@ -83,10 +81,7 @@ public class AddGraph implements FederatedOperation {
     private boolean disabledByDefault = FederatedGraphStorage.DEFAULT_DISABLED_BY_DEFAULT;
     private AccessPredicate readAccessPredicate;
     private AccessPredicate writeAccessPredicate;
-
-    public AddGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -107,16 +102,17 @@ public class AddGraph implements FederatedOperation {
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
         final Builder builder = new Builder()
-                .graphId(graphId)
-                .schema(schema)
-                .storeProperties(storeProperties)
-                .parentSchemaIds(parentSchemaIds)
-                .parentPropertiesId(parentPropertiesId)
-                .disabledByDefault(disabledByDefault)
+                .graphId(this.graphId)
+                .schema(this.schema)
+                .storeProperties(this.storeProperties)
+                .parentSchemaIds(this.parentSchemaIds)
+                .parentPropertiesId(this.parentPropertiesId)
+                .disabledByDefault(this.disabledByDefault)
                 .options(this.options)
                 .isPublic(this.isPublic)
                 .readAccessPredicate(this.readAccessPredicate)
-                .writeAccessPredicate(this.writeAccessPredicate);
+                .writeAccessPredicate(this.writeAccessPredicate)
+                .userRequestingAdminUsage(this.userRequestingAdminUsage);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -213,6 +209,17 @@ public class AddGraph implements FederatedOperation {
 
     public void setReadAccessPredicate(final AccessPredicate readAccessPredicate) {
         this.readAccessPredicate = readAccessPredicate;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return userRequestingAdminUsage;
+    }
+
+    @Override
+    public AddGraph isUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     public abstract static class GraphBuilder<OP extends AddGraph, B extends GraphBuilder<OP, ?>> extends BaseBuilder<OP, B> {

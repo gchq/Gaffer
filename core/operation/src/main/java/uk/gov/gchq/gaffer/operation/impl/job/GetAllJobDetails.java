@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -37,11 +36,11 @@ import java.util.Map;
 @Since("1.0.0")
 @Summary("Gets all running and historic job details")
 public class GetAllJobDetails implements
-        Output<CloseableIterable<JobDetail>> {
+        Output<Iterable<JobDetail>> {
     private Map<String, String> options;
 
     @Override
-    public TypeReference<CloseableIterable<JobDetail>> getOutputTypeReference() {
+    public TypeReference<Iterable<JobDetail>> getOutputTypeReference() {
         return new TypeReferenceImpl.JobDetailIterable();
     }
 
@@ -63,7 +62,7 @@ public class GetAllJobDetails implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllJobDetails, Builder>
-            implements Output.Builder<GetAllJobDetails, CloseableIterable<JobDetail>, Builder> {
+            implements Output.Builder<GetAllJobDetails, Iterable<JobDetail>, Builder> {
         public Builder() {
             super(new GetAllJobDetails());
         }

@@ -20,7 +20,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.glassfish.jersey.server.ChunkedOutput;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -67,32 +66,32 @@ public interface IOperationService {
     @POST
     @Path("/chunked")
     @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class)
-    ChunkedOutput<String> executeChunkedChain(final OperationChainDAO<CloseableIterable<Element>> opChain);
+    ChunkedOutput<String> executeChunkedChain(final OperationChainDAO<Iterable<Element>> opChain);
 
     @POST
     @Path("/generate/objects")
     @ApiOperation(value = "Generate objects from elements", response = Object.class, responseContainer = "List")
-    CloseableIterable<Object> generateObjects(final GenerateObjects<Object> operation);
+    Iterable<Object> generateObjects(final GenerateObjects<Object> operation);
 
     @POST
     @Path("/generate/elements")
     @ApiOperation(value = "Generate elements from objects", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> generateElements(final GenerateElements<Object> operation);
+    Iterable<Element> generateElements(final GenerateElements<Object> operation);
 
     @POST
     @Path("/get/entityIds/adjacent")
     @ApiOperation(value = "Gets adjacent entity seeds", response = EntityId.class, responseContainer = "List")
-    CloseableIterable<EntityId> getAdjacentIds(final GetAdjacentIds operation);
+    Iterable<EntityId> getAdjacentIds(final GetAdjacentIds operation);
 
     @POST
     @Path("/get/elements/all")
     @ApiOperation(value = "Gets all elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getAllElements(final GetAllElements operation);
+    Iterable<Element> getAllElements(final GetAllElements operation);
 
     @POST
     @Path("/get/elements")
     @ApiOperation(value = "Gets elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getElements(final GetElements operation);
+    Iterable<Element> getElements(final GetElements operation);
 
     @PUT
     @Path("/add/elements")

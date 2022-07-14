@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloAdjacentIdRetriever;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -29,18 +28,18 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
+public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, Iterable<? extends EntityId>> {
 
     @Override
-    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
-                                                             final Context context, final Store store)
+    public Iterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
+                                                    final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds op,
-                                                             final User user,
-                                                             final AccumuloStore store)
+    public Iterable<? extends EntityId> doOperation(final GetAdjacentIds op,
+                                                    final User user,
+                                                    final AccumuloStore store)
             throws OperationException {
         try {
             return new AccumuloAdjacentIdRetriever(store, op, user);

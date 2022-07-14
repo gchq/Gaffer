@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
-import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 import uk.gov.gchq.gaffer.store.Context;
@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,17 +54,14 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.CACHE_SERVICE_CLASS;
 
 public class FederatedGraphStorage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
     public static final boolean DEFAULT_DISABLED_BY_DEFAULT = false;
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
     public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
-    public static final String UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS = "Unable to merge the schemas for all of your federated graphs: %s. You can limit which graphs to query for using the operation option: %s";
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedGraphStorage.class);
     private FederatedStoreCache federatedStoreCache;
     private GraphLibrary graphLibrary;
 
@@ -207,11 +203,24 @@ public class FederatedGraphStorage {
      * @return visible graphs from the given graphIds.
      */
     public Collection<GraphSerialisable> get(final User user, final List<String> graphIds) {
+        return get(user, graphIds, null);
+    }
+
+    /**
+     * returns all graphs objects matching the given graphIds, that is visible
+     * to the user.
+     *
+     * @param user      to match visibility against.
+     * @param graphIds  the graphIds to get graphs for.
+     * @param adminAuth adminAuths role
+     * @return visible graphs from the given graphIds.
+     */
+    public Collection<GraphSerialisable> get(final User user, final List<String> graphIds, final String adminAuth) {
         if (null == user) {
             return Collections.emptyList();
         }
 
-        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
+        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds, adminAuth);
         Stream<GraphSerialisable> graphs = getStream(user, graphIds);
         if (null != graphIds) {
             graphs = graphs.sorted(Comparator.comparingInt(g -> graphIds.indexOf(g.getGraphId())));
@@ -220,27 +229,21 @@ public class FederatedGraphStorage {
         return Collections.unmodifiableCollection(rtn);
     }
 
-    public Schema getSchema(final GetSchema operation, final Context context) {
+    @Deprecated
+    public Schema getSchema(final FederatedOperation<Void, Object> operation, final Context context) {
         if (null == context || null == context.getUser()) {
             // no user then return an empty schema
             return new Schema();
         }
+        final List<String> graphIds = isNull(operation) ? null : operation.getGraphIds();
 
-        if (null == operation) {
-            return getSchema((Map<String, String>) null, context);
-        }
-
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(operation.getOptions());
         final Stream<GraphSerialisable> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
-            if (operation.isCompact()) {
-                final GetSchema getSchema = new GetSchema.Builder()
-                        .compact(true)
-                        .build();
+            if (nonNull(operation) && operation.hasPayloadOperation() && operation.payloadInstanceOf(GetSchema.class) && ((GetSchema) operation.getPayloadOperation()).isCompact()) {
                 graphs.forEach(gs -> {
                     try {
-                        schemaBuilder.merge(gs.getGraph().execute(getSchema, context));
+                        schemaBuilder.merge(gs.getGraph().execute((GetSchema) operation.getPayloadOperation(), context));
                     } catch (final Exception e) {
                         throw new GafferRuntimeException("Unable to fetch schema from graph " + gs.getGraphId(), e);
                     }
@@ -250,46 +253,14 @@ public class FederatedGraphStorage {
             }
         } catch (final SchemaException e) {
             final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
-            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the operation option: " + KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
+            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the FederatedOperation.graphIds.", e);
         }
         return schemaBuilder.build();
     }
 
-    /**
-     * @param config  configuration containing optional graphIds
-     * @param context the user context to match visibility against.
-     * @return merged schema of the visible graphs.
-     */
-    public Schema getSchema(final Map<String, String> config, final Context context) {
-        if (null == context) {
-            // no context then return an empty schema
-            return new Schema();
-        }
-
-        return getSchema(config, context.getUser());
-    }
-
-    public Schema getSchema(final Map<String, String> config, final User user) {
-        if (null == user) {
-            // no user then return an empty schema
-            return new Schema();
-        }
-
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-        final Collection<GraphSerialisable> graphs = get(user, graphIds);
-        final Builder schemaBuilder = new Builder();
-        try {
-            graphs.forEach(g -> schemaBuilder.merge(g.getDeserialisedSchema(graphLibrary)));
-        } catch (final SchemaException e) {
-            final List<String> resultGraphIds = getStream(user, graphIds).map(GraphSerialisable::getGraphId).collect(Collectors.toList());
-            throw new SchemaException(String.format(UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS, resultGraphIds, KEY_OPERATION_OPTIONS_GRAPH_IDS), e);
-        }
-        return schemaBuilder.build();
-    }
-
-    private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
-        if (nonNull(graphIds)) {
-            final Collection<String> visibleIds = getAllIds(user);
+    private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds, final String adminAuth) {
+        if (null != graphIds) {
+            final Collection<String> visibleIds = getAllIds(user, adminAuth);
             if (!visibleIds.containsAll(graphIds)) {
                 final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
                 notVisibleIds.removeAll(visibleIds);
@@ -323,18 +294,21 @@ public class FederatedGraphStorage {
      * If graphIds is null then only enabled by default graphs are returned that the user can see.
      */
     private Stream<GraphSerialisable> getStream(final User user, final Collection<String> graphIds) {
-        return isNull(graphIds)
-                ? federatedStoreCache.getAllGraphIds().stream()
-                .map(g -> federatedStoreCache.getFromCache(g))
-                .filter(pair -> isValidToView(user, pair.getSecond()))
-                .filter(pair -> !pair.getSecond().isDisabledByDefault())
-                .map(pair -> pair.getFirst())
-
-                : federatedStoreCache.getAllGraphIds().stream()
-                .map(g -> federatedStoreCache.getFromCache(g))
-                .filter(pair -> isValidToView(user, pair.getSecond()))
-                .filter(pair -> graphIds.contains(pair.getFirst().getGraphId()))
-                .map(pair -> pair.getFirst());
+        Stream<GraphSerialisable> rtn;
+        if (isNull(graphIds)) {
+            rtn = federatedStoreCache.getAllGraphIds().stream()
+                    .map(g -> federatedStoreCache.getFromCache(g))
+                    .filter(pair -> isValidToView(user, pair.getSecond()))
+                    .filter(pair -> !pair.getSecond().isDisabledByDefault())
+                    .map(pair -> pair.getFirst());
+        } else {
+            rtn = federatedStoreCache.getAllGraphIds().stream()
+                    .map(g -> federatedStoreCache.getFromCache(g))
+                    .filter(pair -> isValidToView(user, pair.getSecond()))
+                    .filter(pair -> graphIds.contains(pair.getFirst().getGraphId()))
+                    .map(pair -> pair.getFirst());
+        }
+        return rtn;
     }
 
     /**
@@ -382,23 +356,15 @@ public class FederatedGraphStorage {
         this.graphLibrary = graphLibrary;
     }
 
-    /**
-     * Enum for the Graph Properties or Schema
-     */
-    public enum GraphConfigEnum {
-        SCHEMA("schema"), PROPERTIES("properties");
-
-        private final String value;
-
-        GraphConfigEnum(final String value) {
-            this.value = value;
+    private Boolean isCacheEnabled() {
+        boolean rtn = false;
+        if (isCacheEnabled) {
+            if (federatedStoreCache.getCache() == null) {
+                throw new RuntimeException("No cache has been set, please initialise the FederatedStore instance");
+            }
+            rtn = true;
         }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
+        return rtn;
     }
 
     protected Map<String, Object> getAllGraphsAndAccess(final User user, final List<String> graphIds) {
@@ -422,7 +388,6 @@ public class FederatedGraphStorage {
                 })
                 .collect(Collectors.toMap(pair -> pair.getFirst().getGraphId(), Pair::getSecond));
     }
-
 
     public boolean changeGraphAccess(final String graphId, final FederatedAccess newFederatedAccess, final User requestingUser) throws StorageException {
         return changeGraphAccess(graphId, newFederatedAccess, access -> access.hasWriteAccess(requestingUser));
@@ -455,7 +420,7 @@ public class FederatedGraphStorage {
         } catch (final Exception e) {
             //TODO FS recovery
             String s = "Error occurred updating graphAccess. GraphStorage=updated, Cache=outdated. graphId:" + graphId;
-            LOGGER.error(s + " graphStorage access:{} cache access:{}", newFederatedAccess, federatedStoreCache.getAccessFromCache(graphId));
+            LOGGER.error("{} graphStorage access:{} cache access:{}", s, newFederatedAccess, federatedStoreCache.getAccessFromCache(graphId));
             throw new StorageException(s, e);
         }
     }
@@ -488,7 +453,6 @@ public class FederatedGraphStorage {
         }
         return rtn;
     }
-
     private void updateCacheWithNewGraphId(final String newGraphId, final GraphSerialisable graphToMove, final FederatedAccess access) throws StorageException {
         //rename graph
         GraphSerialisable updatedGraphSerialisable = new GraphSerialisable.Builder(graphToMove)
@@ -500,7 +464,7 @@ public class FederatedGraphStorage {
         } catch (final Exception e) {
             //TODO FS recovery
             String s = "Contact Admin for recovery. Error occurred updating graphId. GraphStorage=updated, Cache=outdated graphId.";
-            LOGGER.error(s + " graphStorage graphId:{} cache graphId:{}", newGraphId, graphToMove.getGraphId());
+            LOGGER.error("{} graphStorage graphId:{} cache graphId:{}", s, newGraphId, graphToMove.getGraphId());
             throw new StorageException(s, e);
         }
     }
@@ -536,10 +500,9 @@ public class FederatedGraphStorage {
             }
         }
     }
-
-    private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final GraphSerialisable graphToMove) {
+    private GraphConfig cloneGraphConfigWithNewGraphId(final String newGraphId, final Graph graphToMove) {
         return new GraphConfig.Builder()
-                .json(new GraphSerialisable.Builder(graphToMove).build().getConfig())
+                .json(new GraphSerialisable.Builder().graph(graphToMove).build().getConfig())
                 .graphId(newGraphId)
                 .build();
     }
@@ -549,5 +512,24 @@ public class FederatedGraphStorage {
         return accessPredicate.test(fromCache.getSecond())
                 ? fromCache.getFirst()
                 : null;
+    }
+
+    /**
+     * Enum for the Graph Properties or Schema
+     */
+    public enum GraphConfigEnum {
+        SCHEMA("schema"), PROPERTIES("properties");
+
+        private final String value;
+
+        GraphConfigEnum(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
     }
 }

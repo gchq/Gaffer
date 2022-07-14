@@ -16,15 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
@@ -43,17 +45,13 @@ import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 public class GetGafferResultCacheExportHandlerTest {
+
     private final Edge validEdge = new Edge.Builder()
             .group("result")
             .source("jobId")
@@ -77,20 +75,21 @@ public class GetGafferResultCacheExportHandlerTest {
             .property("result", "test".getBytes())
             .build();
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldHandleOperationByDelegatingToAnExistingExporter() throws OperationException {
+    public void shouldHandleOperationByDelegatingToAnExistingExporter(@Mock final Store store,
+                                                                      @Mock final GafferResultCacheExporter exporter)
+            throws OperationException {
         // Given
         final GetGafferResultCacheExport export = new GetGafferResultCacheExport.Builder()
                 .key("key")
                 .build();
 
         final Context context = new Context();
-        final Store store = mock(Store.class);
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
 
-        final GafferResultCacheExporter exporter = mock(GafferResultCacheExporter.class);
-        final CloseableIterable results = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 3));
+        final Iterable results = Arrays.asList(1, 2, 3);
         given(exporter.get("key")).willReturn(results);
         context.addExporter(exporter);
 
@@ -104,17 +103,17 @@ public class GetGafferResultCacheExportHandlerTest {
 
         // Then
         verify(exporter).get("key");
-        assertSame(results, handlerResult);
+        assertThat(handlerResult).isSameAs(results);
     }
 
     @Test
-    public void shouldHandleOperationByDelegatingToAnNewExporter() throws OperationException {
+    public void shouldHandleOperationByDelegatingToAnNewExporter(@Mock final Store store, @Mock final Store cacheStore)
+            throws OperationException {
         // Given
         final GetGafferResultCacheExport export = new GetGafferResultCacheExport.Builder()
                 .key("key")
                 .build();
         final Context context = new Context();
-        final Store store = mock(Store.class);
 
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
@@ -123,26 +122,25 @@ public class GetGafferResultCacheExportHandlerTest {
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setTimeToLive(timeToLive);
         handler.setVisibility(visibility);
-        final Store cacheStore = mock(Store.class);
         TestStore.mockStore = cacheStore;
 
         // When
         final Object handlerResult = handler.doOperation(export, context, store);
 
         // Then
-        assertThat((Iterable) handlerResult).isEmpty();
-        final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
+        assertThat(handlerResult).asInstanceOf(InstanceOfAssertFactories.iterable(Object.class)).isEmpty();
+        final ArgumentCaptor<OperationChain<?>> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(cacheStore, times(3)).execute(opChain.capture(), Mockito.any());
+
         assertThat(opChain.getValue().getOperations()).hasSize(1);
-        assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
+        assertThat(opChain.getValue().getOperations().get(0)).isInstanceOf(GetElements.class);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
-        assertNotNull(exporter);
+        assertThat(exporter).isNotNull();
     }
 
     @Test
-    public void shouldCreateCacheGraph() throws OperationException {
+    public void shouldCreateCacheGraph(@Mock final Store store) throws OperationException {
         // Given
-        final Store store = mock(Store.class);
         final long timeToLive = 10000L;
         final GetGafferResultCacheExportHandler handler = new GetGafferResultCacheExportHandler();
         handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
@@ -154,9 +152,9 @@ public class GetGafferResultCacheExportHandlerTest {
         // Then
         final Schema schema = graph.getSchema();
         JsonAssert.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
-        assertTrue(schema.validate().isValid());
-        assertEquals(timeToLive, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());
-        assertTrue(new ElementValidator(schema).validate(validEdge));
-        assertFalse(new ElementValidator(schema).validate(oldEdge));
+        assertThat(schema.validate().isValid()).isTrue();
+        assertThat(((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime()).isEqualTo(timeToLive);
+        assertThat(new ElementValidator(schema).validate(validEdge)).isTrue();
+        assertThat(new ElementValidator(schema).validate(oldEdge)).isFalse();
     }
 }

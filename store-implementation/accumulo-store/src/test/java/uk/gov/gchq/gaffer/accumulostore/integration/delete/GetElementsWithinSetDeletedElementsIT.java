@@ -17,14 +17,14 @@
 package uk.gov.gchq.gaffer.accumulostore.integration.delete;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 
-public class GetElementsWithinSetDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsWithinSet, CloseableIterable<? extends Element>> {
+public class GetElementsWithinSetDeletedElementsIT extends AbstractDeletedElementsIT<GetElementsWithinSet, Iterable<? extends Element>> {
+
     @Override
     protected GetElementsWithinSet createGetOperation() {
         return new GetElementsWithinSet.Builder()
-                .input(VERTICES)
+                .input((Object[]) VERTICES)
                 .build();
     }
 }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,16 +26,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static java.util.Objects.nonNull;
+
 /**
- * A {@link CachingIterable} is a {@link CloseableIterable} that attempts to
- * cache the iterable the first time it is read. Subsequently, when iterator is
- * called, an iterator to the cached iterable is returned. The caching is disabled
- * if the iterable size is greater than a provided max size. By default this is
- * 100,000.
+ * A {@link CachingIterable} is a {@link java.io.Closeable} {@link java.lang.Iterable}
+ * that attempts to cache the iterable the first time it is read. Subsequently, when
+ * iterator is called, an iterator to the cached iterable is returned. The caching
+ * is disabled if the iterable size is greater than a provided max size. By default
+ * this is 100,000.
  *
  * @param <T> the type of the iterable.
  */
-public class CachingIterable<T> implements CloseableIterable<T> {
+public class CachingIterable<T> implements Closeable, Iterable<T> {
     public static final int DEFAULT_MAX_SIZE = 100000;
 
     private final Iterable<T> iterable;
@@ -62,16 +65,14 @@ public class CachingIterable<T> implements CloseableIterable<T> {
     }
 
     @Override
-    public CloseableIterator<T> iterator() {
-        if (null != cachedIterable) {
-            return new WrappedCloseableIterator<>(cachedIterable.iterator());
+    public Iterator<T> iterator() {
+        if (nonNull(cachedIterable)) {
+            return cachedIterable.iterator();
+        } else if (tooLarge) {
+            return iterable.iterator();
+        } else {
+            return new CachingIterator();
         }
-
-        if (tooLarge) {
-            return new WrappedCloseableIterator<>(iterable.iterator());
-        }
-
-        return new CachingIterator();
     }
 
     @Override
@@ -79,7 +80,7 @@ public class CachingIterable<T> implements CloseableIterable<T> {
         CloseableUtil.close(iterable);
     }
 
-    private class CachingIterator implements CloseableIterator<T> {
+    private class CachingIterator implements Closeable, Iterator<T> {
         private final Iterator<T> iterator = iterable.iterator();
         private List<T> cache = new ArrayList<>(Math.min(DEFAULT_MAX_SIZE, maxSize));
         private boolean closed = false;

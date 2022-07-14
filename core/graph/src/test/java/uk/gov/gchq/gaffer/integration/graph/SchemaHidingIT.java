@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
@@ -61,6 +60,7 @@ import java.util.List;
  * completely hide group 2 and never read any group 2 data from the store.
  */
 public abstract class SchemaHidingIT {
+
     private static final User USER = new User.Builder()
             .dataAuth("public")
             .build();
@@ -70,7 +70,8 @@ public abstract class SchemaHidingIT {
 
     public SchemaHidingIT(final String storePropertiesPath) {
         this.storePropertiesPath = storePropertiesPath;
-        this.storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
+        this.storeProperties = StoreProperties
+                .loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath));
     }
 
     public SchemaHidingIT(final StoreProperties storeProperties) {
@@ -94,7 +95,6 @@ public abstract class SchemaHidingIT {
         return Store.createStore("graphId", schema, storeProperties);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldCreateStoreWithFullSchemaAndThenBeAbleUseASubsetOfTheSchema() throws Exception {
         // Add some data to the full graph
@@ -135,8 +135,8 @@ public abstract class SchemaHidingIT {
                 .build();
 
         fullGraph.execute(new AddElements.Builder()
-                        .input(edge1a, edge1b, edge2)
-                        .build(),
+                .input(edge1a, edge1b, edge2)
+                .build(),
                 USER);
 
         // Create a graph with a hidden group backed by the same store
@@ -170,7 +170,7 @@ public abstract class SchemaHidingIT {
 
     protected void testOperation(final Graph fullGraph,
                                  final Graph filteredGraph,
-                                 final Output<CloseableIterable<? extends Element>> operation,
+                                 final Output<Iterable<? extends Element>> operation,
                                  final List<Edge> fullExpectedResults,
                                  final List<Edge> filteredExpectedResults)
             throws OperationException {

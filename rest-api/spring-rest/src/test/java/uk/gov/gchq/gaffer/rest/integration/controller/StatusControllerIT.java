@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.integration.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,7 @@ public class StatusControllerIT extends AbstractRestApiIT {
     @Autowired
     private GraphFactory graphFactory;
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         Mockito.reset(((MockGraphFactory) graphFactory).getMock());
     }

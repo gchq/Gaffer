@@ -1,0 +1,4 @@
+{
+  "class": "FederatedStore",
+  "adminConfiguredDefaultGraphIdsCSV": "defaultJsonGraphId"
+}

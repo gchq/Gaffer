@@ -47,10 +47,10 @@ public class HasTraitHandlerTest {
 
     public static final String STORE_ID = "StoreId";
     public static final String STRING = "string";
-    private Store store;
     private static final StoreTrait VISIBILITY = StoreTrait.VISIBILITY;
     private static final StoreTrait QUERY_AGGREGATION = StoreTrait.QUERY_AGGREGATION;
     private static final StoreTrait TRANSFORMATION = StoreTrait.TRANSFORMATION;
+    private Store store;
     private Set<StoreTrait> expectedTraits;
     private Schema string;
 

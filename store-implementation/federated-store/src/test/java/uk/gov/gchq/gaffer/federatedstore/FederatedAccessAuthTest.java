@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,16 +49,13 @@ import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    private static final User TEST_USER = testUser();
-    public static final User AUTH_USER = authUser();
-
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.hasReadAccess(TEST_USER));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
@@ -67,12 +64,12 @@ public class FederatedAccessAuthTest {
                 .graphAuths(ALL_USERS, AUTH_1)
                 .build();
 
-        assertTrue(access.hasReadAccess(TEST_USER));
+        assertTrue(access.hasReadAccess(testUser()));
     }
 
     @Test
     public void shouldValidateUserWithSurplusMatchingAuth() throws Exception {
-        final User user = AUTH_USER;
+        final User user = authUser();
 
         assertTrue(user.getOpAuths().contains(AUTH_1));
 
@@ -99,7 +96,7 @@ public class FederatedAccessAuthTest {
                 .graphAuths(AUTH_1)
                 .build();
 
-        assertFalse(access.hasReadAccess(TEST_USER));
+        assertFalse(access.hasReadAccess(testUser()));
     }
 
     @Test
@@ -110,7 +107,7 @@ public class FederatedAccessAuthTest {
                 .addGraphAuths(asList(UNUSED_AUTH_STRING))
                 .build();
 
-        assertTrue(access.hasReadAccess(AUTH_USER));
+        assertTrue(access.hasReadAccess(authUser()));
     }
 
     @Test

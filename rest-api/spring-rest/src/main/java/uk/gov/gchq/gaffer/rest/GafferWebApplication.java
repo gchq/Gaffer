@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.rest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class GafferWebApplication {
-    public static void main(final String[] args) {
+public class GafferWebApplication extends SpringBootServletInitializer {
+
+    public static void main(final String... args) {
         SpringApplication.run(GafferWebApplication.class, args);
     }
 }

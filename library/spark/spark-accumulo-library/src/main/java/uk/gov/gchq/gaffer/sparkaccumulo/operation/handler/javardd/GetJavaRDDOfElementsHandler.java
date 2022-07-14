@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -27,6 +27,7 @@ import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
+import uk.gov.gchq.gaffer.accumulostore.utils.LegacySupport;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkContextUtil;
@@ -52,7 +53,7 @@ public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRD
         final JavaSparkContext sparkContext = JavaSparkContext.fromSparkContext(SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext());
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
-        InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
+        LegacySupport.InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
         addIterators(accumuloStore, conf, context.getUser(), operation);
         addRanges(accumuloStore, conf, operation);
         final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,

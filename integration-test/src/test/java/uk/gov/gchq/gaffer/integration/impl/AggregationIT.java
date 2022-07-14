@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -103,11 +103,11 @@ public class AggregationIT extends AbstractStoreIT {
 
         graph.execute(new AddElements.Builder()
                 .input(new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(vertex)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build(),
+                        .group(ENTITY_2)
+                        .vertex(vertex)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.TIMESTAMP, timestamp)
+                        .build(),
                         new Entity.Builder()
                                 .group(ENTITY_2)
                                 .vertex(vertex)
@@ -118,11 +118,11 @@ public class AggregationIT extends AbstractStoreIT {
 
         graph.execute(new AddElements.Builder()
                 .input(new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(vertex)
-                                .property(TestPropertyNames.INT, 2)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build(),
+                        .group(ENTITY_2)
+                        .vertex(vertex)
+                        .property(TestPropertyNames.INT, 2)
+                        .property(TestPropertyNames.TIMESTAMP, timestamp)
+                        .build(),
                         new Entity.Builder()
                                 .group(ENTITY_2)
                                 .vertex(vertex)
@@ -157,8 +157,7 @@ public class AggregationIT extends AbstractStoreIT {
 
         ElementUtil.assertElementEquals(
                 Collections.singletonList(expectedEntity2),
-                results
-        );
+                results);
     }
 
     @Test
@@ -186,8 +185,7 @@ public class AggregationIT extends AbstractStoreIT {
                                 .dest(NON_AGGREGATED_DEST)
                                 .directed(true)
                                 .build()),
-                results
-        );
+                results);
     }
 
     @Test
@@ -222,7 +220,7 @@ public class AggregationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
+        final Iterable<? extends Element> results = graph.execute(op, getUser());
 
         // Then
         final List<Element> resultList = Lists.newArrayList(results);

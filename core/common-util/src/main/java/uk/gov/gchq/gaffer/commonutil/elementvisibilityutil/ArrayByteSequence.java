@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
-import org.apache.hadoop.io.WritableComparator;
+import com.google.common.primitives.UnsignedBytes;
 
 import uk.gov.gchq.gaffer.commonutil.ByteBufferUtil;
 
@@ -129,7 +129,9 @@ public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequ
     }
 
     public int compareTo(final ArrayByteSequence obs) {
-        return this.isBackedByArray() && obs.isBackedByArray() ? WritableComparator.compareBytes(this.getBackingArray(), this.offset(), this.length(), obs.getBackingArray(), obs.offset(), obs.length()) : compareBytes(this, obs);
+        return this.isBackedByArray() && obs.isBackedByArray()
+                ? UnsignedBytes.lexicographicalComparator().compare(this.toArray(), obs.toArray())
+                : compareBytes(this, obs);
     }
 
     public boolean equals(final Object o) {

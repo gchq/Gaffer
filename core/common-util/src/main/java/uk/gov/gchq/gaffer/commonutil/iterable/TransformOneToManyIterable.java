@@ -18,8 +18,12 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 /**
  * A {@code TransformToMultiIterable} allows {@link Iterable}s to be lazily validated and transformed without
@@ -30,14 +34,15 @@ import java.util.NoSuchElementException;
  * @param <I> The input iterable type.
  * @param <O> the output iterable type.
  */
-public abstract class TransformOneToManyIterable<I, O> implements CloseableIterable<O> {
+public abstract class TransformOneToManyIterable<I, O> implements Closeable, Iterable<O> {
     private final Iterable<? extends I> input;
     private final Validator<I> validator;
     private final boolean skipInvalid;
     private final boolean autoClose;
 
     /**
-     * Constructs an {@code TransformOneToManyIterable} with the given input {@link Iterable} and no validation.
+     * Constructs an {@code TransformOneToManyIterable} with the given input
+     * {@link Iterable} and no validation.
      *
      * @param input the input {@link Iterable}
      */
@@ -46,8 +51,10 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
     }
 
     /**
-     * Constructs an {@code TransformOneToManyIterable} with the given input {@link Iterable} and
-     * {@link Validator}. Invalid items will throw an {@link IllegalArgumentException} to be thrown.
+     * Constructs an {@code TransformOneToManyIterable} with the given input
+     * {@link Iterable} and
+     * {@link Validator}. Invalid items will throw an
+     * {@link IllegalArgumentException} to be thrown.
      *
      * @param input     the input {@link Iterable}
      * @param validator the {@link Validator}
@@ -76,7 +83,8 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param skipInvalid if true invalid items should be skipped
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
-    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid, final boolean autoClose) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid,
+                                      final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
@@ -92,79 +100,8 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
      */
     @Override
-    public CloseableIterator<O> iterator() {
-        return new CloseableIterator<O>() {
-            private final Iterator<? extends I> inputItr = input.iterator();
-
-            private Iterator<O> nextElements;
-            private Boolean hasNext;
-
-            @Override
-            public void close() {
-                CloseableUtil.close(inputItr);
-            }
-
-            @Override
-            public boolean hasNext() {
-                if (null == hasNext) {
-                    if (inputItr.hasNext()) {
-                        final I possibleNext = inputItr.next();
-                        if (validator.validate(possibleNext)) {
-                            final Iterable<O> nextElementsIterable = transform(possibleNext);
-                            if (null != nextElementsIterable) {
-                                nextElements = nextElementsIterable.iterator();
-                                if (nextElements.hasNext()) {
-                                    hasNext = true;
-                                } else {
-                                    nextElements = null;
-                                    hasNext();
-                                }
-                            } else {
-                                hasNext();
-                            }
-                        } else if (skipInvalid) {
-                            hasNext();
-                        } else {
-                            handleInvalidItem(possibleNext);
-                        }
-                    } else {
-                        hasNext = false;
-                        nextElements = null;
-                    }
-                }
-
-                final boolean hasNextResult = _hasNext();
-                if (autoClose && !hasNextResult) {
-                    close();
-                }
-
-                return hasNextResult;
-            }
-
-            @Override
-            public O next() {
-                if (!_hasNext() && !hasNext()) {
-                    throw new NoSuchElementException("Reached the end of the iterator");
-                }
-
-                final O elementToReturn = nextElements.next();
-                if (!nextElements.hasNext()) {
-                    nextElements = null;
-                    hasNext = null;
-                }
-
-                return elementToReturn;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Cannot call remove on a " + getIterableClass().getSimpleName() + " iterator");
-            }
-
-            private boolean _hasNext() {
-                return Boolean.TRUE.equals(hasNext) && null != nextElements && nextElements.hasNext();
-            }
-        };
+    public Iterator<O> iterator() {
+        return new TransformOneToManyIterator(input.iterator());
     }
 
     /**
@@ -187,7 +124,86 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
     }
 
-    private Class<? extends TransformOneToManyIterable> getIterableClass() {
+    private Class<?> getIterableClass() {
         return getClass();
+    }
+
+    private final class TransformOneToManyIterator implements Closeable, Iterator<O> {
+
+        private final Iterator<? extends I> iterator;
+
+        private Iterator<O> nextElements;
+        private Boolean hasNext;
+
+        private TransformOneToManyIterator(final Iterator<? extends I> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public void close() {
+            CloseableUtil.close(iterator);
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (isNull(hasNext)) {
+                if (iterator.hasNext()) {
+                    final I possibleNext = iterator.next();
+                    if (validator.validate(possibleNext)) {
+                        final Iterable<O> nextElementsIterable = transform(possibleNext);
+                        if (Objects.nonNull(nextElementsIterable)) {
+                            nextElements = nextElementsIterable.iterator();
+                            if (nextElements.hasNext()) {
+                                hasNext = true;
+                            } else {
+                                nextElements = null;
+                                hasNext();
+                            }
+                        } else {
+                            hasNext();
+                        }
+                    } else if (skipInvalid) {
+                        hasNext();
+                    } else {
+                        handleInvalidItem(possibleNext);
+                    }
+                } else {
+                    hasNext = false;
+                    nextElements = null;
+                }
+            }
+
+            final boolean hasNextResult = _hasNext();
+            if (autoClose && !hasNextResult) {
+                close();
+            }
+
+            return hasNextResult;
+        }
+
+        @Override
+        public O next() {
+            if (!_hasNext() && !hasNext()) {
+                throw new NoSuchElementException("Reached the end of the iterator");
+            }
+
+            final O elementToReturn = nextElements.next();
+            if (!nextElements.hasNext()) {
+                nextElements = null;
+                hasNext = null;
+            }
+
+            return elementToReturn;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException(String.format("Cannot call remove on a %s iterator",
+                    getIterableClass().getSimpleName()));
+        }
+
+        private boolean _hasNext() {
+            return Boolean.TRUE.equals(hasNext) && Objects.nonNull(nextElements) && nextElements.hasNext();
+        }
     }
 }

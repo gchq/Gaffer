@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -42,7 +41,6 @@ import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +48,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GetElementsHandlerTest {
     private static final int NUM_LOOPS = 10;
@@ -69,12 +67,12 @@ public class GetElementsHandlerTest {
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("NOT_PRESENT"))
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -88,14 +86,14 @@ public class GetElementsHandlerTest {
 
         // When
         final GetElements getElements = new GetElements.Builder()
-                .input(new EmptyClosableIterable<>())
+                .input(new EmptyIterable<>())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -111,12 +109,12 @@ public class GetElementsHandlerTest {
         final GetElements getElements = new GetElements.Builder()
                 .input(new EdgeSeed("NOT_PRESENT", "ALSO_NOT_PRESENT", true))
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -130,14 +128,14 @@ public class GetElementsHandlerTest {
 
         // When
         final GetElements getElements = new GetElements.Builder()
-                .input(new EmptyClosableIterable<>())
+                .input(new EmptyIterable<>())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(Collections.emptySet(), resultsSet);
+        assertThat(resultsSet).isEmpty();
     }
 
     @Test
@@ -153,7 +151,7 @@ public class GetElementsHandlerTest {
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -169,12 +167,12 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -190,7 +188,7 @@ public class GetElementsHandlerTest {
         GetElements getElements = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B0", true))
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -199,19 +197,20 @@ public class GetElementsHandlerTest {
         getElements().stream()
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
+                        return ((Entity) element).getVertex().equals("A")
+                                || ((Entity) element).getVertex().equals("B0");
                     } else {
                         final Edge edge = (Edge) element;
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When query for A->B0 equal
         getElements = new GetElements.Builder()
@@ -233,7 +232,7 @@ public class GetElementsHandlerTest {
                     return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for X-Y0 (undirected) in direction it was inserted in with related
         getElements = new GetElements.Builder()
@@ -248,7 +247,8 @@ public class GetElementsHandlerTest {
         getElements().stream()
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("X") || ((Entity) element).getVertex().equals("Y0");
+                        return ((Entity) element).getVertex().equals("X")
+                                || ((Entity) element).getVertex().equals("Y0");
                     } else {
                         final Edge edge = (Edge) element;
                         if (edge.isDirected()) {
@@ -259,7 +259,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for X-Y0 (undirected) in direction it was inserted in with equal
         getElements = new GetElements.Builder()
@@ -273,7 +273,7 @@ public class GetElementsHandlerTest {
         // Then
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with related
         getElements = new GetElements.Builder()
@@ -284,7 +284,7 @@ public class GetElementsHandlerTest {
         // Then
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with equal
         getElements = new GetElements.Builder()
@@ -298,7 +298,7 @@ public class GetElementsHandlerTest {
         // Then
         resultsSet.clear();
         Streams.toStream(results).forEach(resultsSet::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -317,7 +317,7 @@ public class GetElementsHandlerTest {
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Map<Element, Integer> resultingElementsToCount = GetAllElementsHandlerTest.streamToCount(
@@ -333,7 +333,7 @@ public class GetElementsHandlerTest {
                     }
                 });
         final Map<Element, Integer> expectedCounts = GetAllElementsHandlerTest.streamToCount(expectedResultsStream);
-        assertEquals(expectedCounts, resultingElementsToCount);
+        assertThat(resultingElementsToCount).isEqualTo(expectedCounts);
     }
 
     @Test
@@ -352,7 +352,7 @@ public class GetElementsHandlerTest {
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -369,7 +369,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -388,7 +388,7 @@ public class GetElementsHandlerTest {
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -398,14 +398,15 @@ public class GetElementsHandlerTest {
                 .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
+                        return ((Entity) element).getVertex().equals("A")
+                                || ((Entity) element).getVertex().equals("B0");
                     } else {
                         final Edge edge = (Edge) element;
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -429,7 +430,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -447,7 +448,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -471,7 +472,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -480,7 +481,8 @@ public class GetElementsHandlerTest {
         getElements().stream()
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
+                        return ((Entity) element).getVertex().equals("A")
+                                || ((Entity) element).getVertex().equals("B0");
                     } else {
                         final Edge edge = (Edge) element;
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
@@ -489,11 +491,12 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter()
+            throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -513,7 +516,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -531,7 +534,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -555,7 +558,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -564,7 +567,8 @@ public class GetElementsHandlerTest {
         getElements().stream()
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
+                        return ((Entity) element).getVertex().equals("A")
+                                || ((Entity) element).getVertex().equals("B0");
                     } else {
                         final Edge edge = (Edge) element;
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
@@ -573,7 +577,7 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
                         && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     private static class ExampleTransform extends KorypheFunction<Integer, Integer> {
@@ -607,7 +611,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -625,11 +629,12 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .map(element -> {
                     element.putProperty(GetAllElementsHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT))
+                                    + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -654,7 +659,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -663,7 +668,8 @@ public class GetElementsHandlerTest {
         getElements().stream()
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
+                        return ((Entity) element).getVertex().equals("A")
+                                || ((Entity) element).getVertex().equals("B0");
                     } else {
                         final Edge edge = (Edge) element;
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
@@ -672,11 +678,12 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .map(element -> {
                     element.putProperty(GetAllElementsHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT))
+                                    + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -705,7 +712,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -716,12 +723,13 @@ public class GetElementsHandlerTest {
                 .filter(e -> ((Edge) e).getSource().equals("A") || ((Edge) e).getDestination().equals("A"))
                 .map(element -> {
                     element.putProperty(GetAllElementsHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT))
+                                    + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
                 .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 50)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -750,7 +758,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -760,7 +768,8 @@ public class GetElementsHandlerTest {
                 .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     if (element instanceof Entity) {
-                        return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
+                        return ((Entity) element).getVertex().equals("A")
+                                || ((Entity) element).getVertex().equals("B0");
                     } else {
                         final Edge edge = (Edge) element;
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
@@ -768,12 +777,13 @@ public class GetElementsHandlerTest {
                 })
                 .map(element -> {
                     element.putProperty(GetAllElementsHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT))
+                                    + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
                 .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 50)
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -793,7 +803,7 @@ public class GetElementsHandlerTest {
                         .edge(TestGroups.EDGE_2)
                         .build())
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -806,7 +816,7 @@ public class GetElementsHandlerTest {
                     return edge.getSource().equals("A") || edge.getDestination().equals("A");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When view has entities
         getElements = new GetElements.Builder()
@@ -833,7 +843,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -850,7 +860,7 @@ public class GetElementsHandlerTest {
                 .input(new EntitySeed("A"), new EntitySeed("X"))
                 .directedType(DirectedType.EITHER)
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -868,7 +878,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When view has no edges
         getElements = new GetElements.Builder()
@@ -893,7 +903,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When directedType is DIRECTED
         getElements = new GetElements.Builder()
@@ -919,7 +929,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When directedType is UNDIRECTED
         getElements = new GetElements.Builder()
@@ -945,7 +955,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -962,7 +972,7 @@ public class GetElementsHandlerTest {
                 .input(new EntitySeed("A"), new EntitySeed("X"))
                 .inOutType(IncludeIncomingOutgoingType.EITHER)
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -980,7 +990,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When inOutType is INCOMING
         getElements = new GetElements.Builder()
@@ -1009,7 +1019,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When inOutType is OUTGOING
         getElements = new GetElements.Builder()
@@ -1038,7 +1048,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     // Test equivalent for seedMatching
@@ -1058,7 +1068,7 @@ public class GetElementsHandlerTest {
                         .entity(GetAllElementsHandlerTest.BASIC_ENTITY)
                         .build())
                 .build();
-        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
+        Iterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -1071,7 +1081,7 @@ public class GetElementsHandlerTest {
                     return entity.getVertex().equals("A") || entity.getVertex().equals("X");
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // When related
         getElements = new GetElements.Builder()
@@ -1095,7 +1105,7 @@ public class GetElementsHandlerTest {
                     }
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
 
         // Repeat with equal for an EdgeId
         final GetElements getElementsFromEdgeId = new GetElements.Builder()
@@ -1117,7 +1127,7 @@ public class GetElementsHandlerTest {
                     return edge.getSource().equals("A") && edge.getDestination().equals("B0") && edge.isDirected();
                 })
                 .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
+        assertThat(resultsSet).isEqualTo(expectedResults);
     }
 
     @Test
@@ -1152,20 +1162,17 @@ public class GetElementsHandlerTest {
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("B9"))
                 .build();
-        final Edge result;
-        try (final CloseableIterable<? extends Element> results = graph.execute(getElements, new User())) {
-            result = (Edge) results.iterator().next();
-        }
+        final Iterable<? extends Element> results = graph.execute(getElements, new User());
+        final Edge result = (Edge) results.iterator().next();
+
         // Change a property
         result.putProperty(GetAllElementsHandlerTest.PROPERTY1, "qqq");
 
         // Then
-        final Edge result2;
-        try (final CloseableIterable<? extends Element> results2 = graph.execute(getElements, new User())) {
-            result2 = (Edge) results2.iterator().next();
-        }
-        assertEquals("B9", result2.getDestination());
-        assertEquals("q", result2.getProperty(GetAllElementsHandlerTest.PROPERTY1));
+        final Iterable<? extends Element> results2 = graph.execute(getElements, new User());
+        final Edge result2 = (Edge) results2.iterator().next();
+        assertThat(result2.getDestination()).isEqualTo("B9");
+        assertThat(result2.getProperty(GetAllElementsHandlerTest.PROPERTY1)).isEqualTo("q");
     }
 
     private static List<Element> getElements() {

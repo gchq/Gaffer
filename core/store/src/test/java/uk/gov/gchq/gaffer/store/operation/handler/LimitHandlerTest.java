@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Crown Copyright
+ * Copyright 2016-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,17 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+import uk.gov.gchq.koryphe.iterable.LimitedIterable;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LimitHandlerTest {
+
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldLimitResults() throws Exception {
         // Given
@@ -50,16 +47,16 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertTrue(result instanceof LimitedCloseableIterable);
-        assertEquals(0, ((LimitedCloseableIterable) result).getStart());
-        assertEquals(resultLimit, ((LimitedCloseableIterable) result).getEnd());
-        assertEquals(expectedResult, Lists.newArrayList(result));
+        assertThat(result).isInstanceOf(LimitedIterable.class);
+        assertThat(((LimitedIterable<Integer>) result).getStart()).isEqualTo(0);
+        assertThat(((LimitedIterable<Integer>) result).getEnd()).isEqualTo(resultLimit);
+        assertThat(Lists.newArrayList(result)).isEqualTo(expectedResult);
     }
 
     @Test
     public void shouldNotLimitResultsOfGetOperationWhenLimitIsNull() throws Exception {
         // Given
-        final CloseableIterable<Integer> input = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 3, 4, 5));
+        final Iterable<Integer> input = Arrays.asList(1, 2, 3, 4, 5);
         final Integer resultLimit = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
@@ -72,13 +69,13 @@ public class LimitHandlerTest {
         final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
-        assertSame(input, result);
+        assertThat(result).isSameAs(input);
     }
 
     @Test
     public void shouldHandleNullInput() throws Exception {
         // Given
-        final CloseableIterable<Integer> input = null;
+        final Iterable<Integer> input = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
                 .build();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,25 @@
 
 package uk.gov.gchq.gaffer.traffic.listeners;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import java.util.logging.Logger;
 
 /**
  * A {@link ServletContextListener}  to write a message to the logger once the application is ready.
  */
 public class ConsoleBanner implements ServletContextListener {
 
-    private static final Logger LOGGER = Logger.getLogger(ConsoleBanner.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleBanner.class.getName());
 
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
         final String port = System.getProperty("gaffer.rest-api.port", "8080");
         final String path = System.getProperty("gaffer.rest-api.basePath", "rest");
 
-        LOGGER.info(String.format("Gaffer road-traffic example is ready at: http:/localhost:%s/%s", port, path));
+        LOGGER.info("Gaffer road-traffic example is ready at: http:/localhost:{}/{}", port, path);
     }
 
     @Override

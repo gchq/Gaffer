@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
@@ -50,10 +51,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AccumuloMatchedVertexIT extends StandaloneIT {
     private static final String VERTEX = "vertex";
-
-    private final User user = new User();
-
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));
+    private final User user = new User();
+    Condition<Edge> matchedVertex = new Condition<>(
+        edge -> null != edge.getMatchedVertex(), "matched vertex");
 
     private static Edge getEdgeWithSourceMatch() {
         return new Edge.Builder()
@@ -80,8 +81,16 @@ public class AccumuloMatchedVertexIT extends StandaloneIT {
         );
     }
 
-    Condition<Edge> matchedVertex = new Condition<>(
-        edge -> null != edge.getMatchedVertex(), "matched vertex");
+    protected static Entity getEntity() {
+        return new Entity.Builder()
+                .vertex(VERTEX)
+                .group(TestGroups.ENTITY)
+                .build();
+    }
+
+    protected static List<Edge> getEdgeResults(List<Element> results) {
+        return results.stream().filter(entity -> Edge.class.isInstance(entity)).map(e -> (Edge) e).collect(Collectors.toList());
+    }
 
     @ParameterizedTest
     @MethodSource("getEdgeVariants")
@@ -320,17 +329,6 @@ public class AccumuloMatchedVertexIT extends StandaloneIT {
                         .vertex(TestTypes.ID_STRING)
                         .build())
                 .build();
-    }
-
-    protected static Entity getEntity() {
-        return new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .build();
-    }
-
-    protected static List<Edge> getEdgeResults(List<Element> results) {
-        return results.stream().filter(entity -> Edge.class.isInstance(entity)).map(e -> (Edge) e).collect(Collectors.toList());
     }
 
 }
