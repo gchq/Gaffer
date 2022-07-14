@@ -68,7 +68,7 @@ public class MultiSerialiserTest extends ToBytesSerialisationTest<Object> {
     public void shouldMatchHistoricalFileSerialisation() throws IOException, GafferCheckedException {
         final String fromDisk = IOUtils.readLines(StreamUtil.openStream(getClass(), PATH))
                 .stream()
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining(System.lineSeparator()));
 
         final MultiSerialiser multiSerialiser = new MultiSerialiser()
                 .addSerialiser((byte) 0, new StringSerialiser(), String.class)
