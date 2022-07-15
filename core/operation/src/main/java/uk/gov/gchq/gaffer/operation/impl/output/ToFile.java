@@ -16,17 +16,20 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.koryphe.Since;
 import uk.gov.gchq.koryphe.Summary;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.Map;
-
+@JsonPropertyOrder(value = {"class", "input"}, alphabetic = true)
+@Since("1.22.0")
 @Summary("Outputs an Iterable of strings to a CSV file")
 public class ToFile implements
         InputOutput<Iterable<? extends String>, File>, MultiInput<String> {
@@ -44,7 +47,7 @@ public class ToFile implements
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public ToFile shallowClone() throws CloneFailedException {
         return new ToFile.Builder()
                 .filePath(filePath)
                 .input(lines)
@@ -74,7 +77,13 @@ public class ToFile implements
 
     @Override
     public TypeReference<File> getOutputTypeReference() {
-        return null;
+        return new TypeReference<File>() {
+            @Override
+            public Type getType() {
+                return File.class;
+            }
+        };
+
     }
 
     public static final class Builder extends BaseBuilder<ToFile, ToFile.Builder>
