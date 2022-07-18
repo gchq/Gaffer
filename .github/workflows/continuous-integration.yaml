@@ -11,6 +11,10 @@ on:
       - 'alpha-release/**'
 
 jobs:
+  os-matrix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
   check-all-modules-are-tested:
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +39,9 @@ jobs:
         mvn -q javadoc:javadoc -Pquick
 
   build:
-    runs-on: ubuntu-latest
+    if: ${{ contains(env.BRANCH_NAME, 'windows')
+    runs-on: ${{ matrix.os }}
+    run: echo "OPERATING_SYSTEM=$(echo ${{ matrix.os }})" >> $GITHUB_ENV
     strategy:
       fail-fast: true
       matrix:
