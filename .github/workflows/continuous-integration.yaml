@@ -39,7 +39,7 @@ jobs:
         mvn -q javadoc:javadoc -Pquick
 
   build:
-    if: ${{ contains(env.BRANCH_NAME, 'windows')
+    if: ${{ contains(env.BRANCH_NAME, 'windows') || contains(env.BRANCH_NAME, 'release's)}}
     runs-on: ${{ matrix.os }}
     run: echo "OPERATING_SYSTEM=$(echo ${{ matrix.os }})" >> $GITHUB_ENV
     strategy:
