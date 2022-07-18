@@ -11,10 +11,7 @@ on:
       - 'alpha-release/**'
 
 jobs:
-  os-matrix:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+
   check-all-modules-are-tested:
     runs-on: ubuntu-latest
     steps:
@@ -39,33 +36,35 @@ jobs:
         mvn -q javadoc:javadoc -Pquick
 
   build:
-    if: ${{ contains(env.BRANCH_NAME, 'windows') || contains(env.BRANCH_NAME, 'release')}}
-    runs-on: ${{ matrix.os }}
-    run: echo "OPERATING_SYSTEM=$(echo ${{ matrix.os }})" >> $GITHUB_ENV
     strategy:
       fail-fast: true
       matrix:
+        os: [ ubuntu-latest, windows-latest ]
         modules:
-        - name: Core
-          values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
-        - name: Accumulo
-          values: :accumulo-store,:accumulo-rest
-        - name: Hbase
-          values: :hbase-store,:hbase-rest
-        - name: Parquet
-          values: :parquet-store,:parquet-rest
-        - name: Federated-And-Map
-          values: :integration-test,:federated-store,:map-store,:map-rest
-        - name: REST
-          values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store
-        - name: Examples
-          values: :example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-        - name: Big-Data-Libraries
-          values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
-        - name: Time-Library
-          values: :library,:time-library
-        - name: Caches
-          values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+          - name: Core
+            values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
+          - name: Accumulo
+            values: :accumulo-store,:accumulo-rest
+          - name: Hbase
+            values: :hbase-store,:hbase-rest
+          - name: Parquet
+            values: :parquet-store,:parquet-rest
+          - name: Federated-And-Map
+            values: :integration-test,:federated-store,:map-store,:map-rest
+          - name: REST
+            values: :rest-api,:common-rest,:spring-rest,:core-rest,:store-implementation,:proxy-store
+          - name: Examples
+            values: :example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
+          - name: Big-Data-Libraries
+            values: :flink-library,:hdfs-library,:spark,:spark-library,:spark-accumulo-library
+          - name: Time-Library
+            values: :library,:time-library
+          - name: Caches
+            values: :cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
+
+      if: ${{ contains(env.BRANCH_NAME, 'windows') || contains(env.BRANCH_NAME, 'release')}}
+      runs-on: ${{ matrix.os }}
+      run: echo "OPERATING_SYSTEM=$(echo ${{ matrix.os }})" >> $GITHUB_ENV
 
     env:
      MAVEN_OPTS: -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
