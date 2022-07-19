@@ -58,6 +58,25 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
      */
     private boolean neo4jFormat = false;
 
+    @Override
+    public String _apply(final Element element) {
+        final StringBuilder strBuilder = new StringBuilder();
+        for (final String field : fields.keySet()) {
+            final Object value = getFieldValue(element, field);
+
+            if (null != value) {
+                strBuilder.append(quoteString(value));
+            }
+            strBuilder.append(COMMA);
+        }
+
+        if (strBuilder.length() < 1) {
+            return "";
+        }
+
+        return strBuilder.substring(0, strBuilder.length() - 1);
+    }
+
     /**
      * Attempts to find the value of a field from a given {@link Element},
      * corresponding to a provided key, where the key is the name of the field.
@@ -127,25 +146,6 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         return StringUtils.join(fields.stream().map(this::quoteString).toArray(), COMMA);
     }
 
-   @Override
-    public String _apply(final Element element) {
-        final StringBuilder strBuilder = new StringBuilder();
-        for (final String field : fields.keySet()) {
-            final Object value = getFieldValue(element, field);
-
-            if (null != value) {
-                strBuilder.append(quoteString(value));
-            }
-            strBuilder.append(COMMA);
-        }
-
-        if (strBuilder.length() < 1) {
-            return "";
-        }
-
-        return strBuilder.substring(0, strBuilder.length() - 1);
-    }
-
     public static class Builder {
         private Boolean neo4jFormat;
         private LinkedHashMap<String, String> headers = new LinkedHashMap<>();
@@ -162,31 +162,7 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         }
 
         /**
-         * Stores the Direction flag, indicating whether or not the {@link uk.gov.gchq.gaffer.data.element.Edge}
-         * is directed.
-         *
-         * @param columnHeader true or false for if the {@code Edge} is directed or not
-         * @return a new {@link OpenCypherCsvGenerator.Builder}
-         */
-        public OpenCypherCsvGenerator.Builder direction(final String columnHeader) {
-            return identifier(IdentifierType.DIRECTED, columnHeader);
-        }
-
-        /**
-         * Allows an {@link IdentifierType} of an {@link Element} to be stored, such as
-         * an {@link uk.gov.gchq.gaffer.data.element.Edge}'s {@link IdentifierType#MATCHED_VERTEX}.
-         *
-         * @param identifierType the {@code IdentifierType} of the {@code Element}
-         * @param columnHeader   the value for the corresponding field
-         * @return a new {@link OpenCypherCsvGenerator.Builder}
-         */
-        public OpenCypherCsvGenerator.Builder identifier(final IdentifierType identifierType, final String columnHeader) {
-            headers.put(identifierType.name(), columnHeader);
-            return this;
-        }
-
-        /**
-         * Stores the flag for whether or not each distinct value should be wrapped in quotation marks.
+         * Stores the flag for whether or not the header values should be formated to match that described by neo4j.
          *
          * @param neo4jFormat true or false
          * @return a new {@link OpenCypherCsvGenerator.Builder}
@@ -197,8 +173,8 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         }
 
         /**
-         * Passes all of the configured fields and flags about an {@link Element} to a new {@link OpenCypherCsvGenerator},
-         * including the comma replacement String, and the flag for whether values should be quoted.
+         * Passes all of the configured fields about an {@link Element} to a new {@link OpenCypherCsvGenerator},
+         * and sets the flag for whether the headers should be formatted to match those described by neo4j
          *
          * @return a new {@code openCypherCsvGenerator}, containing all configured information
          */
