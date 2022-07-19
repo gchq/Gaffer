@@ -54,11 +54,6 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
 
     /**
-     * When set to true, each value in the csv will be wrapped in quotes.
-     */
-    private boolean quoted = false;
-
-    /**
      * When set to true, the headers will be formatted to match those used by neo4j.
      */
     private boolean neo4jFormat = false;
