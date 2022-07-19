@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.generator.OpenCypherCsvGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToOpenCypherCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -37,9 +36,9 @@ import java.util.LinkedHashMap;
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}
  * to each item in the input {@link Iterable}.
  */
-public class ToOpenCypherCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
+public class ToOpenCypherCsvHandler implements OutputOperationHandler<ToOpenCypherCsv, Iterable<? extends String>> {
     @Override
-    public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends String> doOperation(final ToOpenCypherCsv operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
@@ -47,11 +46,8 @@ public class ToOpenCypherCsvHandler implements OutputOperationHandler<ToCsv, Ite
         OpenCypherCsvGenerator openCypherCsvGenerator = createGenerator(getHeadersFromSchema(store), (ToOpenCypherCsv) operation);
 
         final Iterable<? extends String> csv = openCypherCsvGenerator.apply(operation.getInput());
-        if (operation.isIncludeHeader()) {
-            return new ChainedIterable<>(Collections.singletonList(openCypherCsvGenerator.getHeader()), csv);
-        }
+        return new ChainedIterable<>(Collections.singletonList(openCypherCsvGenerator.getHeader()), csv);
 
-        return csv;
     }
 
     LinkedHashMap<String, String> getHeadersFromSchema(final Store store) {
