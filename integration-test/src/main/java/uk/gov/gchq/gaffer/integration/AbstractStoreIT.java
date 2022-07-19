@@ -76,6 +76,8 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.junit.platform.commons.support.ReflectionSupport.newInstance;
@@ -171,7 +173,7 @@ public abstract class AbstractStoreIT {
      * @param testInfo JUnit 5 autofilled
      */
     @BeforeEach
-    public void setup(TestInfo testInfo) throws Exception {
+    public void setup(final TestInfo testInfo) throws Exception {
         initialise(testInfo);
         validateTest();
         createGraph();
@@ -188,7 +190,7 @@ public abstract class AbstractStoreIT {
         graph = null;
     }
 
-    protected void initialise(TestInfo name) throws Exception {
+    protected void initialise(final TestInfo name) throws Exception {
         entities = createEntities();
         duplicateEntities = duplicate(entities.values());
 
@@ -576,17 +578,16 @@ public abstract class AbstractStoreIT {
     }
 
     public static class SkipTestMethodsExtension implements ExecutionCondition {
+
         @Override
-        public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-            final Class currentClassName = context.getTestClass().get();
-            final Boolean evaluatingMethod = context.getTestMethod().isPresent();
-            final String currentMethodName;
-            final Map<String, String> skippedMethods;
+        public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
+            final Class<?> currentClassName = context.getTestClass().get();
+            final boolean evaluatingMethod = context.getTestMethod().isPresent();
 
             if (evaluatingMethod) {
-                currentMethodName = context.getTestMethod().get().getName();
-                skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
-                if (skippedMethods != null && skippedMethods.containsKey(currentMethodName)) {
+                final String currentMethodName = context.getTestMethod().get().getName();
+                final Map<String, String> skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
+                if (nonNull(skippedMethods) && skippedMethods.containsKey(currentMethodName)) {
                     return ConditionEvaluationResult.disabled(skippedMethods.get(currentMethodName));
                 }
             }
@@ -595,16 +596,15 @@ public abstract class AbstractStoreIT {
     }
 
     public static class SuiteInitialisationExtension implements BeforeAllCallback {
-        @Override
-        public void beforeAll(ExtensionContext context) {
-            final String initialisationClassName;
-            final Class initialisationClass;
 
-            initialisationClassName = context.getConfigurationParameter("initClass").orElse("missing");
-            initialisationClass = tryToLoadClass(initialisationClassName).toOptional().orElse(null);
-            if (initialisationClassName == "missing") {
+        @Override
+        public void beforeAll(final ExtensionContext context) {
+            final String initialisationClassName = context.getConfigurationParameter("initClass").orElse("missing");
+            final Class<?> initialisationClass = tryToLoadClass(initialisationClassName).toOptional().orElse(null);
+
+            if (initialisationClassName.equals("missing")) {
                 initialisationError = "missing the 'initClass' @ConfigurationParameter (required to initialise)";
-            } else if (initialisationClass == null) {
+            } else if (isNull(initialisationClass)) {
                 initialisationError = "'initClass' @ConfigurationParameter is invalid (required to initialise)";
             } else if (suiteClass != initialisationClass) {
                 suiteClass = initialisationClass;

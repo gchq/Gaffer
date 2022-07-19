@@ -45,8 +45,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Random;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.AGGREGATION_SCHEMA;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.BASIC_SCHEMA;
 import static uk.gov.gchq.gaffer.store.schema.TestSchema.FULL_SCHEMA;
@@ -128,7 +127,7 @@ public class AddElementsFromHdfsLoaderIT {
         }
 
         @Test
-        public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles(TestInfo testInfo) throws Exception {
+        public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles(final TestInfo testInfo) throws Exception {
             tearDown();
             fs.mkdirs(new Path(failureDir));
             try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(failureDir + "/someFile.txt"), true)))) {
@@ -136,10 +135,9 @@ public class AddElementsFromHdfsLoaderIT {
             }
 
             try {
-                setup(testInfo);
-                fail("Exception expected");
-            } catch (final OperationException e) {
-                assertThat(e.getCause().getMessage()).isEqualTo("Failure directory is not empty: " + failureDir);
+                assertThatExceptionOfType(Exception.class)
+                        .isThrownBy(() -> setup(testInfo))
+                        .withStackTraceContaining("Failure directory is not empty: " + failureDir);
             } finally {
                 tearDown();
             }
@@ -160,7 +158,7 @@ public class AddElementsFromHdfsLoaderIT {
         }
 
         @Test
-        public void shouldThrowExceptionWhenAddElementsFromHdfsWhenOutputDirectoryContainsFiles(TestInfo testInfo) throws Exception {
+        public void shouldThrowExceptionWhenAddElementsFromHdfsWhenOutputDirectoryContainsFiles(final TestInfo testInfo) throws Exception {
             // Given
             tearDown();
             fs.mkdirs(new Path(outputDir));
@@ -170,10 +168,9 @@ public class AddElementsFromHdfsLoaderIT {
 
             // When
             try {
-                setup(testInfo);
-                fail("Exception expected");
-            } catch (final Exception e) {
-                assertThat(e.getMessage()).as(e.getMessage()).contains("Output directory exists and is not empty: " + outputDir);
+                assertThatExceptionOfType(Exception.class)
+                        .isThrownBy(() -> setup(testInfo))
+                        .withStackTraceContaining("Output directory exists and is not empty: " + outputDir);
             } finally {
                 tearDown();
             }
@@ -194,9 +191,7 @@ public class AddElementsFromHdfsLoaderIT {
                     .splitsFilePath(splitsFile)
                     .workingPath(workingDir)
                     .build(), user);
-
         }
-
 
         private void createInputFile(final Iterable<? extends Element> elements) {
             final Path inputPath1 = new Path(inputDir1);
