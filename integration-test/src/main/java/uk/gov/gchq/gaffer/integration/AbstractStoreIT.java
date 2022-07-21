@@ -76,8 +76,6 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.junit.platform.commons.support.ReflectionSupport.newInstance;
@@ -587,7 +585,7 @@ public abstract class AbstractStoreIT {
             if (evaluatingMethod) {
                 final String currentMethodName = context.getTestMethod().get().getName();
                 final Map<String, String> skippedMethods = AbstractStoreIT.getSkipTestMethods().get(currentClassName);
-                if (nonNull(skippedMethods) && skippedMethods.containsKey(currentMethodName)) {
+                if (skippedMethods != null && skippedMethods.containsKey(currentMethodName)) {
                     return ConditionEvaluationResult.disabled(skippedMethods.get(currentMethodName));
                 }
             }
@@ -604,7 +602,7 @@ public abstract class AbstractStoreIT {
 
             if (initialisationClassName.equals("missing")) {
                 initialisationError = "missing the 'initClass' @ConfigurationParameter (required to initialise)";
-            } else if (isNull(initialisationClass)) {
+            } else if (initialisationClass == null) {
                 initialisationError = "'initClass' @ConfigurationParameter is invalid (required to initialise)";
             } else if (suiteClass != initialisationClass) {
                 suiteClass = initialisationClass;
