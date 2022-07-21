@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.DESTINATION;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.EDGE_GROUP;
 import static uk.gov.gchq.gaffer.data.generator.OpenCypherCsvElementGenerator.ENTITY_GROUP;
@@ -50,21 +50,21 @@ class OpenCypherCsvGeneratorTest {
         // Then
         assertThat(openCypherCsvGenerator.getFields())
                 .hasSize(5);
-        assertFalse(openCypherCsvGenerator.isNeo4jFormat());
+        assertThat(openCypherCsvGenerator.isNeo4jFormat()).isFalse();
     }
 
     @Test
     public void shouldSetHeadersToMatchNeptunesFormat() {
         // Given
         final LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        fields.put("Property1", "count:int");
+        fields.put("countProperty", "int");
         final OpenCypherCsvGenerator openCypherCsvGenerator = new OpenCypherCsvGenerator.Builder()
                 .headers(fields)
                 .neo4jFormat(false)
                 .build();
         openCypherCsvGenerator.setFields(fields);
         // Then
-        assertThat(openCypherCsvGenerator.getHeader().contains(":ID,:LABEL,:TYPE,:START_ID,:END_ID,count:int"));
+        assertThat(openCypherCsvGenerator.getHeader()).isEqualTo(":ID,:LABEL,:TYPE,:START_ID,:END_ID,countProperty:int");
 
     }
 
@@ -72,14 +72,14 @@ class OpenCypherCsvGeneratorTest {
     public void shouldSetHeadersToMatchNeo4jFormat() {
         // Given
         final LinkedHashMap<String, String> fields = new LinkedHashMap<>();
-        fields.put("Property1", "count:int");
+        fields.put("countProperty", "int");
         final OpenCypherCsvGenerator openCypherCsvGenerator = new OpenCypherCsvGenerator.Builder()
                 .headers(fields)
                 .neo4jFormat(true)
                 .build();
         openCypherCsvGenerator.setFields(fields);
         // Then
-        assertThat(openCypherCsvGenerator.getHeader().contains("_id,_labels,_type,_start,_end,count:int"));
+        assertThat(openCypherCsvGenerator.getHeader()).isEqualTo("_id,_labels,_type,_start,_end,countProperty:int");
 
     }
 
@@ -93,7 +93,6 @@ class OpenCypherCsvGeneratorTest {
                 .build();
         final OpenCypherCsvGenerator openCypherCsvGenerator = new OpenCypherCsvGenerator();
         // Then
-        assertThat(openCypherCsvGenerator._apply(entity).matches(""));
-
+        assertThat(openCypherCsvGenerator._apply(entity)).isEqualTo("");
     }
 }

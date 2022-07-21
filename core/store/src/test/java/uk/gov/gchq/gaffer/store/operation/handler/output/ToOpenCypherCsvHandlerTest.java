@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,7 +84,7 @@ public class ToOpenCypherCsvHandlerTest {
                 ",,Bar,source1,dest1,1,true",
                 ",,Bar,source2,dest2,,true"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected).isEqualTo(resultList);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ToOpenCypherCsvHandlerTest {
                 ",,Bar,source1,dest1,1,true",
                 ",,Bar,source2,dest2,,true"
         );
-        assertEquals(expected, resultList);
+        assertThat(expected).isEqualTo(resultList);
     }
 
     private Entity makeEntity(final String vertex, final String propertyName, final int propertyValue) {

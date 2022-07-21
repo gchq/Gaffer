@@ -32,10 +32,6 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class ToOpenCypherCsvTest extends OperationTest<ToOpenCypherCsv> {
 
@@ -49,7 +45,7 @@ public class ToOpenCypherCsvTest extends OperationTest<ToOpenCypherCsv> {
         final ToOpenCypherCsv deserialisedOp = JSONSerialiser.deserialise(json, ToOpenCypherCsv.class);
 
         // Then
-        assertNotNull(deserialisedOp);
+        assertThat(deserialisedOp).isNotNull();
     }
 
     @Test
@@ -71,7 +67,7 @@ public class ToOpenCypherCsvTest extends OperationTest<ToOpenCypherCsv> {
         // Then
         assertThat(toOpenCypherCsv.getInput())
                 .hasSize(3);
-        assertFalse(toOpenCypherCsv.isNeo4jFormat());
+        assertThat(toOpenCypherCsv.isNeo4jFormat()).isFalse();
     }
 
     @Test
@@ -95,9 +91,9 @@ public class ToOpenCypherCsvTest extends OperationTest<ToOpenCypherCsv> {
         final ToOpenCypherCsv clone = toOpenCypherCsv.shallowClone();
 
         // Then
-        assertNotSame(toOpenCypherCsv, clone);
+        assertThat(toOpenCypherCsv).isNotSameAs(clone);
         assertThat(clone.getInput().equals(input));
-        assertFalse(clone.isNeo4jFormat());
+        assertThat(clone.isNeo4jFormat()).isFalse();
     }
 
     @Override
@@ -111,7 +107,7 @@ public class ToOpenCypherCsvTest extends OperationTest<ToOpenCypherCsv> {
         final Class<?> outputClass = getTestObject().getOutputClass();
 
         // Then
-        assertEquals(Iterable.class, outputClass);
+        assertThat(outputClass).isEqualTo(Iterable.class);
     }
 
     @Override
