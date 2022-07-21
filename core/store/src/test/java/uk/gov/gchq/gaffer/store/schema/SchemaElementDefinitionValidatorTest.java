@@ -119,7 +119,8 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-        assertEquals("Validation errors: \nClass null for property property1 could not be found", result.getErrorString());
+        assertEquals("Validation errors: " + System.lineSeparator() +
+                "Class null for property property1 could not be found", result.getErrorString());
     }
 
     @Test
@@ -186,7 +187,8 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+        assertEquals("Validation errors: " + System.lineSeparator() +
+                "Control value class java.lang.Integer is not compatible" +
                 " with the input type: class java.lang.String", result.getErrorString());
 
     }
@@ -331,7 +333,8 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-        assertEquals("Validation errors: \nGroups with aggregation disabled should not have groupBy properties.", result.getErrorString());
+        assertEquals("Validation errors: " + System.lineSeparator() +
+                "Groups with aggregation disabled should not have groupBy properties.", result.getErrorString());
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
