@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * A {@code FileGraphLibrary} stores a {@link GraphLibrary} in a specified
@@ -60,7 +60,16 @@ public class FileGraphLibrary extends GraphLibrary {
     }
 
     public void setPath(final String path) {
-        this.path = (null == path) ? DEFAULT_PATH : path;
+        if (null == path) {
+            this.path = DEFAULT_PATH;
+        } else {
+            try {
+                Paths.get(path);
+            } catch (final InvalidPathException e) {
+                throw new IllegalArgumentException("path is invalid: " + path, e);
+            }
+            this.path = path;
+        }
     }
 
     @Override
