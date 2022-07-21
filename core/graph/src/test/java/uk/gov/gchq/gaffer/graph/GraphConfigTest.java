@@ -76,11 +76,11 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
                 "  \"hooks\": [" +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook1Path.getAbsolutePath() + "\"" +
+                "      \"path\": \"" + hook1Path.getAbsolutePath().replace('\\', '/') + "\"" +
                 "    }, " +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.GraphHookPath\"," +
-                "      \"path\": \"" + hook2Path.getAbsolutePath() + "\"" +
+                "      \"path\": \"" + hook2Path.getAbsolutePath().replace('\\', '/') + "\"" +
                 "    }," +
                 "    {" +
                 "      \"class\": \"uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver\"" +
