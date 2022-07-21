@@ -374,9 +374,9 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n"
+        final String expectedMessage = "Validation errors: " + System.lineSeparator()
                 + String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentSchemaIds")
-                + '\n'
+                + System.lineSeparator()
                 + String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_STORE_PROPERTIES_ID);
 
         assertThatIllegalArgumentException()
@@ -385,7 +385,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private String getErrorMessage(final String format, final String... s) {
-        return "Validation errors: \n" +
+        return "Validation errors: " + System.lineSeparator() +
                 String.format(format, s);
     }
 
@@ -400,7 +400,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n" +
+        final String expectedMessage = "Validation errors: " + System.lineSeparator() +
                 String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", SCHEMA_STRING, "parentSchemaIds");
 
         assertThatIllegalArgumentException()
@@ -432,7 +432,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n" +
+        final String expectedMessage = "Validation errors: " + System.lineSeparator() +
                 String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", SCHEMA_STRING, SCHEMA_STRING);
 
         assertThatIllegalArgumentException()
@@ -466,7 +466,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n" +
+        final String expectedMessage = "Validation errors: " + System.lineSeparator() +
                 String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", "StoreProperties", "parentStorePropertiesId");
 
         assertThatIllegalArgumentException()
@@ -500,7 +500,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n" +
+        final String expectedMessage = "Validation errors: " + System.lineSeparator() +
                 String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, "graphId1", STORE_PROPERTIES_STRING, STORE_PROPERTIES_STRING);
 
         assertThatIllegalArgumentException()
@@ -566,7 +566,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n" +
+        final String expectedMessage = "Validation errors: " + System.lineSeparator() +
                 String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, "StoreProperties");
 
         assertThatIllegalArgumentException()
@@ -583,7 +583,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When / Then
-        final String expectedMessage = "Validation errors: \n" +
+        final String expectedMessage = "Validation errors: " + System.lineSeparator() +
                 String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, SCHEMA_STRING);
 
         assertThatIllegalArgumentException()
