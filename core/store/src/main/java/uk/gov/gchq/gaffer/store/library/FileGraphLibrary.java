@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
  * StoreProperties and Schema in two other files.  They will be named using the ids.
  */
 public class FileGraphLibrary extends GraphLibrary {
-    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\\\-]*");
     private static final String DEFAULT_PATH = "graphLibrary";
     private String path;
 
@@ -61,14 +60,7 @@ public class FileGraphLibrary extends GraphLibrary {
     }
 
     public void setPath(final String path) {
-        if (null == path) {
-            this.path = DEFAULT_PATH;
-        } else {
-            if (!PATH_ALLOWED_CHARACTERS.matcher(path).matches()) {
-                throw new IllegalArgumentException("path is invalid: " + path + " it must match the regex: " + PATH_ALLOWED_CHARACTERS);
-            }
-            this.path = path;
-        }
+        this.path = (null == path) ? DEFAULT_PATH : path;
     }
 
     @Override
