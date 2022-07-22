@@ -59,7 +59,7 @@ public class OpenCypherCsvGenerator extends CsvGenerator {
         for (final String field : fields.keySet()) {
             final Object value = getFieldValue(element, field);
 
-            if (null != value) {
+            if (value != null) {
                 strBuilder.append(quoteString(value));
             }
             strBuilder.append(COMMA);

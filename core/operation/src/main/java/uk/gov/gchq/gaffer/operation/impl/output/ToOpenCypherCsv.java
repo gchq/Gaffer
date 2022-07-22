@@ -44,6 +44,7 @@ public class ToOpenCypherCsv implements
 
     private Iterable<? extends Element> input;
     private boolean neo4jFormat = false;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends Element> getInput() {
@@ -54,6 +55,7 @@ public class ToOpenCypherCsv implements
     public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
     }
+
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -70,12 +72,12 @@ public class ToOpenCypherCsv implements
 
     @Override
     public Map<String, String> getOptions() {
-        return null;
+        return options;
     }
 
     @Override
     public void setOptions(final Map<String, String> options) {
-        // options aren't used by this class
+        this.options = options;
     }
 
     public void setNeo4jFormat(final boolean neo4jFormat) {

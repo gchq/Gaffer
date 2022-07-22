@@ -114,4 +114,5 @@ public class ToOpenCypherCsvTest extends OperationTest<ToOpenCypherCsv> {
     protected ToOpenCypherCsv getTestObject() {
         return new ToOpenCypherCsv();
     }
+
 }
