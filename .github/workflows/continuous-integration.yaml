@@ -41,7 +41,7 @@ jobs:
       matrix:
         # The below line does the following, check if the branch name contains the words 'windows' or 'release'.
         # If these words are present it runs the tests on Windows AND Ubuntu. If the words aren't present it runs the tests on Ubuntu ONLY
-        os: ${{ fromJSON( (contains( github.head_ref, 'bilbo') || contains( github.head_ref, 'frodo') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
+        os: ${{ fromJSON( (contains( github.head_ref, 'windows') || contains( github.head_ref, 'release') )  && '["ubuntu-latest", "windows-latest"]' || '["ubuntu-latest"]' ) }}
         modules:
         - name: Core
           values: :gaffer2,:core,:access,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
