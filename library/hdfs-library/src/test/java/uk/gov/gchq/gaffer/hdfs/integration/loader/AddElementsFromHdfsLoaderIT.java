@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.hdfs.integration.loader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -104,6 +105,11 @@ public class AddElementsFromHdfsLoaderIT {
         private String splitsFile;
         private String workingDir;
 
+        @AfterEach
+        void afterEach() {
+            tearDown();
+        }
+
         @Override
         public void _setup() throws Exception {
             fs = createFileSystem();
@@ -134,13 +140,9 @@ public class AddElementsFromHdfsLoaderIT {
                 writer.write("Some content");
             }
 
-            try {
-                assertThatExceptionOfType(Exception.class)
-                        .isThrownBy(() -> setup(testInfo))
-                        .withStackTraceContaining("Failure directory is not empty: " + failureDir);
-            } finally {
-                tearDown();
-            }
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> setup(testInfo))
+                    .withStackTraceContaining("Failure directory is not empty: " + failureDir);
         }
 
         @Test
@@ -167,13 +169,9 @@ public class AddElementsFromHdfsLoaderIT {
             }
 
             // When
-            try {
-                assertThatExceptionOfType(Exception.class)
-                        .isThrownBy(() -> setup(testInfo))
-                        .withStackTraceContaining("Output directory exists and is not empty: " + outputDir);
-            } finally {
-                tearDown();
-            }
+            assertThatExceptionOfType(Exception.class)
+                    .isThrownBy(() -> setup(testInfo))
+                    .withStackTraceContaining("Output directory exists and is not empty: " + outputDir);
         }
 
         @Override
