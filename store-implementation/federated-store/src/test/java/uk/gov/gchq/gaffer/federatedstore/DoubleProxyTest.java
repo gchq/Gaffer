@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Crown Copyright
+ * Copyright 2021-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class DoubleProxyTest {
 
     @BeforeEach
     public void setUpStores() throws OperationException {
-        SingleUseProxyMapStore.cleanUp();
+       FederatedStoreTestUtil.resetForFederatedTests();
 
         ProxyProperties proxyProperties = new ProxyProperties();
         proxyProperties.setStoreClass(SingleUseProxyMapStore.class);
@@ -78,13 +78,13 @@ public class DoubleProxyTest {
                 .build(), new User());
     }
 
-    @Test
-    public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
-        assertThatNoException().isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
-    }
-
     @AfterAll
     public static void afterClass() {
         SingleUseProxyMapStore.cleanUp();
+    }
+
+    @Test
+    public void shouldNotErrorDueToRestProxy1FlagsPersistingIntoRestProxy2() throws Exception {
+        assertThatNoException().isThrownBy(() -> federatedStoreGraph.execute(new GetAllElements(), new Context()));
     }
 }

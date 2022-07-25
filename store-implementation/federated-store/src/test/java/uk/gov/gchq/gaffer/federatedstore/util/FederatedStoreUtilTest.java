@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -45,7 +44,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -56,71 +54,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class FederatedStoreUtilTest {
-    @Test
-    public void shouldGetGraphIds() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "graph1,graph2,graph3");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertEquals(Arrays.asList("graph1", "graph2", "graph3"), graphIds);
-    }
-
-    @Test
-    public void shouldGetGraphIdsAndSkipEmptiesAndWhitespace() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, " graph1 , graph2,,graph3 ");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertEquals(Arrays.asList("graph1", "graph2", "graph3"), graphIds);
-    }
-
-    @Test
-    public void shouldGetEmptyGraphIdsWhenEmptyCsvValue() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertEquals(Collections.emptyList(), graphIds);
-    }
-
-    @Test
-    public void shouldGetNullGraphIdsWhenNullCsvValue() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, null);
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertNull(graphIds);
-    }
-
-    @Test
-    public void shouldGetNullGraphIdsWhenNoCsvEntry() {
-        // Given
-        final Map<String, String> config = new HashMap<>();
-        config.put("some other key", "some value");
-
-        // When
-        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-
-        // Then
-        assertNull(graphIds);
-    }
-
     @Test
     public void shouldGetNullStringsWhenNullCsv() {
         // Given

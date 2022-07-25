@@ -16,115 +16,114 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.user.StoreUser;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.ACCUMULO_STORE_SINGLE_USE_PROPERTIES;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_ACCUMULO;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GRAPH_ID_TEST_FEDERATED_STORE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.GROUP_BASIC_ENTITY;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.PROPERTY_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.STRING;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.contextBlankUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.entityBasic;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.loadAccumuloStoreProperties;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreTestUtil.resetForFederatedTests;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 
 public class FederatedStoreWrongGraphIDsTest {
 
-    public static final String GRAPH_1 = "graph1";
-    public static final String PROP_1 = "prop1";
-    public static final String SCHEMA_1 = "schema1";
-    public static final String FED_ID = "testFedStore";
-    public static final String E1_GROUP = "e1";
-    public static final String THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL = "the return of the operations should not be null";
-    public static final String THERE_SHOULD_BE_ONE_ELEMENT = "There should be one element";
-    public static final String EXCEPTION_NOT_AS_EXPECTED = "Exception not as expected";
-    public static final String USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION = "Using the wrong graphId should have thrown exception.";
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
-    private FederatedStore store;
-    private FederatedStoreProperties fedProps;
-    private HashMapGraphLibrary library;
-    private Context blankContext;
+    public static final Entity EXPECTED_ENTITY = entityBasic();
+    public static final String THERE_SHOULD_BE_ONE_ELEMENT = "There should be one expected element";
+    public static final String INTEGER = "Integer";
     public static final String WRONG_GRAPH_ID = "x";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private FederatedStore federatedStore;
 
-    private static Class<?> currentClass = new Object() {
-    }.getClass().getEnclosingClass();
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(currentClass, "properties/singleUseAccumuloStore.properties"));
+    @AfterAll
+    public static void after() {
+        resetForFederatedTests();
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
-        CacheServiceLoader.shutdown();
-        fedProps = new FederatedStoreProperties();
+        resetForFederatedTests();
+
+        federatedStore = new FederatedStore();
+
+        FederatedStoreProperties fedProps = new FederatedStoreProperties();
         fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
-        store = new FederatedStore();
-        library = new HashMapGraphLibrary();
-        HashMapGraphLibrary.clear();
-
-        library.addProperties(PROP_1, PROPERTIES);
-        library.addSchema(SCHEMA_1, new Schema.Builder()
-                .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .build())
-                .type("string", String.class)
-                .build());
-        store.setGraphLibrary(library);
-        blankContext = new Context(StoreUser.blankUser());
-    }
-
-    @AfterEach
-    void after() {
-        CacheServiceLoader.shutdown();
+        federatedStore.initialise(GRAPH_ID_TEST_FEDERATED_STORE, null, fedProps);
     }
 
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
-        store.initialise(FED_ID, null, fedProps);
-        store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1).parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
-        final Entity expectedEntity = new Entity.Builder()
-                .group(E1_GROUP)
-                .vertex("v1")
-                .build();
-        store.execute(new AddElements.Builder()
-                .input(expectedEntity)
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
-                .build(),
-                blankContext);
+        //given
+        federatedStore.execute(
+                new AddGraph.Builder()
+                        .graphId(GRAPH_ID_ACCUMULO)
+                        .storeProperties(loadAccumuloStoreProperties(ACCUMULO_STORE_SINGLE_USE_PROPERTIES))
+                        .schema(new Schema.Builder()
+                                .entity(GROUP_BASIC_ENTITY, new SchemaEntityDefinition.Builder()
+                                        .vertex(STRING)
+                                        .property(PROPERTY_1, INTEGER)
+                                        .build())
+                                .type(STRING, String.class)
+                                .type(INTEGER, new TypeDefinition.Builder().clazz(Integer.class).aggregateFunction(new Sum()).build())
+                                .build())
+                        .isPublic(true).build(), contextBlankUser());
 
-        Iterable<? extends Element> execute = store.execute(new GetAllElements.Builder().build(), blankContext);
+        federatedStore.execute(
+                new FederatedOperation.Builder()
+                        .op(new AddElements.Builder()
+                                .input(EXPECTED_ENTITY)
+                                .build())
+                        .graphIds(GRAPH_ID_ACCUMULO)
+                        .build(), contextBlankUser());
 
-        assertThat(execute).withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL).isNotNull();
-        assertThat(execute.iterator().next()).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT).isEqualTo(expectedEntity);
+        //when
+        final Iterable<? extends Element> getAllElements = federatedStore.execute(new GetAllElements.Builder().build(), contextBlankUser());
+        final Iterable<? extends Element> getAllElementsFromAccumuloGraph = federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(GRAPH_ID_ACCUMULO), contextBlankUser());
+        final Exception gettingElementsFromWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(getFederatedOperation(new GetAllElements()).graphIdsCSV(WRONG_GRAPH_ID), contextBlankUser()));
+        final Exception addingElementsToWrongGraph = assertThrows(IllegalArgumentException.class, () -> federatedStore.execute(new FederatedOperation.Builder()
+                .op(new AddElements.Builder()
+                        .input(EXPECTED_ENTITY)
+                        .build())
+                .graphIds(WRONG_GRAPH_ID)
+                .build(), contextBlankUser()));
 
-        execute = store.execute(new GetAllElements.Builder().option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1).build(), blankContext);
+        //then
+        assertThat(getAllElements)
+                .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
+                .size().isEqualTo(1)
+                .returnToIterable()
+                .first().isEqualTo(EXPECTED_ENTITY);
 
-        assertThat(execute).withFailMessage(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL).isNotNull();
-        assertThat(execute.iterator().next()).withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT).isEqualTo(expectedEntity);
+        assertThat(getAllElementsFromAccumuloGraph)
+                .withFailMessage(THERE_SHOULD_BE_ONE_ELEMENT)
+                .size().isEqualTo(1)
+                .returnToIterable()
+                .first().isEqualTo(EXPECTED_ENTITY);
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> store.execute(new GetAllElements.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                        .build(), blankContext))
-                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED)
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
+        assertThat(gettingElementsFromWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> store.execute(new AddElements.Builder()
-                        .input(expectedEntity)
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                        .build(), blankContext))
-                .withFailMessage(EXCEPTION_NOT_AS_EXPECTED)
-                .withMessage(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
+        assertThat(addingElementsToWrongGraph).message().isEqualTo(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)));
     }
 }
