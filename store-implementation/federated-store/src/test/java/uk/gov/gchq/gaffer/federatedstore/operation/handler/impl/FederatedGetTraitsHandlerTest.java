@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 Crown Copyright
+ * Copyright 2018-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.ImmutableSet;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -50,6 +50,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getFederatedOperation;
 import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -58,11 +59,9 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetTraitsHandlerTest {
-
     public static final String ALT_STORE = "altStore";
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
-
     private StoreProperties storeProperties;
     private FederatedStore federatedStore;
     private FederatedStoreProperties properties;
@@ -98,11 +97,11 @@ public class FederatedGetTraitsHandlerTest {
                 new Context(testUser()));
 
         // Then
-        assertThat(traits).isEmpty();
+        assertThat(traits).isNull();
     }
 
     @Test
-    public void shouldGetZeroTraitsForEmptyStoreWithCurrentTraits() throws Exception {
+    public void shouldGetNullTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
         assertThat(federatedStore.getAllGraphIds(testUser())).withFailMessage("graph is not starting empty").isEmpty();
@@ -113,7 +112,7 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // Then
-        assertThat(traits).isEmpty();
+        assertThat(traits).isNull();
     }
 
     @Test
@@ -199,11 +198,12 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // When
-        final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
-                        .currentTraits(true)
-                        .build(),
+        final Iterable<StoreTrait> traits = (Iterable<StoreTrait>) federatedStore.execute(
+                getFederatedOperation(
+                        new GetTraits.Builder()
+                                .currentTraits(true)
+                                .build()
+                ).graphIdsCSV(ALT_STORE),
                 new Context(testUser()));
 
         // Then
@@ -235,15 +235,19 @@ public class FederatedGetTraitsHandlerTest {
                 .build(), new Context(testUser()));
 
         // When
-        final Set<StoreTrait> traits = federatedStore.execute(
-                new GetTraits.Builder()
-                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, ALT_STORE)
-                        .currentTraits(false)
-                        .build(),
+        final Object traits = federatedStore.execute(
+                getFederatedOperation(
+                        new GetTraits.Builder()
+                                .currentTraits(false)
+                                .build()
+                ).graphIdsCSV(ALT_STORE),
                 new Context(testUser()));
 
         // Then
-        assertThat(traits).isEqualTo(TestStoreImpl.STORE_TRAITS);
+        assertThat(traits)
+                .asInstanceOf(InstanceOfAssertFactories.iterable(Object.class))
+                .containsExactlyInAnyOrder(TestStoreImpl.STORE_TRAITS.toArray());
+
     }
 
     public static class TestStoreImpl extends Store {
@@ -312,4 +316,5 @@ public class FederatedGetTraitsHandlerTest {
             return new GetTraitsHandler(STORE_TRAITS);
         }
     }
+
 }
