@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Crown Copyright
+ * Copyright 2017-2022 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ import uk.gov.gchq.koryphe.Summary;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
  * An Operation used for removing graphs from a FederatedStore.
  * <p>Requires:
@@ -44,15 +42,12 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 @JsonPropertyOrder(value = {"class", "graphId"}, alphabetic = true)
 @Since("1.0.0")
 @Summary("Removes a Graph from the federated store")
-public class RemoveGraph implements FederatedOperation, Output<Boolean> {
+public class RemoveGraph implements IFederationOperation, Output<Boolean> {
 
     @Required
     private String graphId;
     private Map<String, String> options;
-
-    public RemoveGraph() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
+    private boolean userRequestingAdminUsage;
 
     public String getGraphId() {
         return graphId;
@@ -67,12 +62,24 @@ public class RemoveGraph implements FederatedOperation, Output<Boolean> {
         return new RemoveGraph.Builder()
                 .graphId(graphId)
                 .options(options)
+                .userRequestingAdminUsage(userRequestingAdminUsage)
                 .build();
     }
 
     @Override
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    @Override
+    public boolean isUserRequestingAdminUsage() {
+        return userRequestingAdminUsage;
+    }
+
+    @Override
+    public RemoveGraph isUserRequestingAdminUsage(final boolean adminRequest) {
+        userRequestingAdminUsage = adminRequest;
+        return this;
     }
 
     @Override
@@ -85,7 +92,7 @@ public class RemoveGraph implements FederatedOperation, Output<Boolean> {
         return new TypeReferenceImpl.Boolean();
     }
 
-    public static class Builder extends BaseBuilder<RemoveGraph, Builder> {
+    public static class Builder extends IFederationOperation.BaseBuilder<RemoveGraph, Builder> {
 
         public Builder() {
             super(new RemoveGraph());
